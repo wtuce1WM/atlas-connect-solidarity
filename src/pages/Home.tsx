@@ -444,43 +444,56 @@ const Home = () => {
     };
   }, [menuOpen]);
 
-  // Load front structure (independent of city)
+  // Load front structure (independent of city) — stale-while-revalidate
   useEffect(() => {
-    const load = async () => {
-      const [entriesRes, linksRes, svcLinksRes, badgeLinksRes, subsRes, servicesRes] = await Promise.all([
-        supabase.from("front_structure").select("*").order("sort_order"),
-        supabase.from("front_structure_subcategories").select("*"),
-        supabase.from("front_structure_services" as any).select("*"),
-        supabase.from("front_structure_badges" as any).select("*"),
-        supabase.from("subcategories").select("id, name_fr, category_id"),
-        supabase.from("services").select("id, name_fr").eq("is_active", true),
-      ]);
+    type FrontStructurePayload = {
+      entries: FrontEntry[];
+      subcatNames: Record<string, string>;
+      serviceNames: Record<string, string>;
+    };
 
-      const subMap: Record<string, string> = {};
-      (subsRes.data || []).forEach((s: any) => {
-        subMap[s.id] = s.name_fr;
-      });
-      setSubcatNames(subMap);
+    const apply = (payload: FrontStructurePayload) => {
+      setSubcatNames(payload.subcatNames);
+      setServiceNames(payload.serviceNames);
+      setEntries(payload.entries);
+    };
 
-      const svcMap: Record<string, string> = {};
-      (servicesRes.data || []).forEach((s: any) => { svcMap[s.id] = s.name_fr; });
-      setServiceNames(svcMap);
+    const cached = getCached<FrontStructurePayload>("home:frontStructure");
+    if (cached) apply(cached);
 
-      const linksByEntry: Record<string, string[]> = {};
-      (linksRes.data || []).forEach((l: any) => {
-        (linksByEntry[l.front_structure_id] ||= []).push(l.subcategory_id);
-      });
-      const svcLinksByEntry: Record<string, string[]> = {};
-      ((svcLinksRes.data || []) as any[]).forEach((l: any) => {
-        (svcLinksByEntry[l.front_structure_id] ||= []).push(l.service_id);
-      });
-      const badgeLinksByEntry: Record<string, string[]> = {};
-      ((badgeLinksRes.data || []) as any[]).forEach((l: any) => {
-        (badgeLinksByEntry[l.front_structure_id] ||= []).push(l.badge_id);
-      });
+    let cancelled = false;
+    revalidate<FrontStructurePayload>(
+      "home:frontStructure",
+      async () => {
+        const [entriesRes, linksRes, svcLinksRes, badgeLinksRes, subsRes, servicesRes] = await Promise.all([
+          supabase.from("front_structure").select("*").order("sort_order"),
+          supabase.from("front_structure_subcategories").select("*"),
+          supabase.from("front_structure_services" as any).select("*"),
+          supabase.from("front_structure_badges" as any).select("*"),
+          supabase.from("subcategories").select("id, name_fr, category_id"),
+          supabase.from("services").select("id, name_fr").eq("is_active", true),
+        ]);
 
-      setEntries(
-        (entriesRes.data || [])
+        const subMap: Record<string, string> = {};
+        (subsRes.data || []).forEach((s: any) => { subMap[s.id] = s.name_fr; });
+
+        const svcMap: Record<string, string> = {};
+        (servicesRes.data || []).forEach((s: any) => { svcMap[s.id] = s.name_fr; });
+
+        const linksByEntry: Record<string, string[]> = {};
+        (linksRes.data || []).forEach((l: any) => {
+          (linksByEntry[l.front_structure_id] ||= []).push(l.subcategory_id);
+        });
+        const svcLinksByEntry: Record<string, string[]> = {};
+        ((svcLinksRes.data || []) as any[]).forEach((l: any) => {
+          (svcLinksByEntry[l.front_structure_id] ||= []).push(l.service_id);
+        });
+        const badgeLinksByEntry: Record<string, string[]> = {};
+        ((badgeLinksRes.data || []) as any[]).forEach((l: any) => {
+          (badgeLinksByEntry[l.front_structure_id] ||= []).push(l.badge_id);
+        });
+
+        const builtEntries: FrontEntry[] = (entriesRes.data || [])
           .filter((e: any) => e.show_in_menu !== false)
           .map((e: any) => ({
             id: e.id,
@@ -489,10 +502,13 @@ const Home = () => {
             subcategory_ids: linksByEntry[e.id] || [],
             service_ids: svcLinksByEntry[e.id] || [],
             badge_ids: badgeLinksByEntry[e.id] || [],
-          }))
-      );
-    };
-    load();
+          }));
+
+        return { entries: builtEntries, subcatNames: subMap, serviceNames: svcMap };
+      },
+      (fresh) => { if (!cancelled) apply(fresh); }
+    );
+    return () => { cancelled = true; };
   }, []);
 
   // Resolve the cities table id (for multi-city video assignments)
