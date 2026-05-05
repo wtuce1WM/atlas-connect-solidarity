@@ -233,7 +233,8 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           : it.priceType
       : null;
     const immoBadge = null;
-    const optimizedThumb = optimizeSupabaseImage(it.thumbnail, isPriority ? { width: 240, quality: 50 } : { width: 400 });
+    // LCP image: smaller width (mobile-first) + low quality. Other vignettes: 400px.
+    const optimizedThumb = optimizeSupabaseImage(it.thumbnail, isPriority ? { width: 200, quality: 45 } : { width: 400 });
 
     if (!it.videoId) {
       return (
