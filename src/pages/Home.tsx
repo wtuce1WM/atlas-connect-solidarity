@@ -1339,20 +1339,8 @@ const Home = () => {
             return sortWtuceAndRating(bizA || {}, bizB || {});
           });
 
-          // Pin: when an entry was opened from a homepage card linked to a specific
-          // business (front_structure_homepage_overrides), float that business's docs
-          // to the top, preserving relative order otherwise.
-          if (pinnedBusinessId) {
-            const pinned: any[] = [];
-            const rest: any[] = [];
-            for (const d of limitedDocs) {
-              const biz = resolveVideoEstablishment(d, bizMap, { strict: strictResolve });
-              if (biz?.id === pinnedBusinessId) pinned.push(d);
-              else rest.push(d);
-            }
-            limitedDocs.length = 0;
-            limitedDocs.push(...pinned, ...rest);
-          }
+          // Note: pinning the homepage-card business at the top was removed —
+          // visually redundant with the homepage card itself. Standard ranking applies.
         }
 
 
