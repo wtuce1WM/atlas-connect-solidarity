@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -15,7 +16,12 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [
+    react(),
+    mode === "development" && componentTagger(),
+    // Bundle analyzer — only when ANALYZE=1 is set. Generates dist/stats.html.
+    process.env.ANALYZE === "1" && (visualizer({ filename: "dist/stats.html", template: "treemap", gzipSize: true, brotliSize: false }) as any),
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -32,12 +38,16 @@ export default defineConfig(({ mode }) => ({
         //    converts them into HTTP 103 Early Hints automatically
         manualChunks: (id) => {
           if (!id.includes("node_modules")) return;
-          if (id.includes("react-dom") || id.includes("/react/") || id.includes("react-router")) return "vendor-react";
+          // TipTap / ProseMirror — ONLY used by RichTextEditor (back-office). Keep lazy.
+          if (id.includes("@tiptap") || id.includes("prosemirror")) return "vendor-tiptap";
+          // React core — strict match (avoid catching @tiptap/react etc.)
+          if (id.match(/node_modules\/(react|react-dom|react-router|react-router-dom|@remix-run\/router|scheduler)\//)) return "vendor-react";
           if (id.includes("@radix-ui")) return "vendor-radix";
           if (id.includes("@supabase")) return "vendor-supabase";
           if (id.includes("@tanstack")) return "vendor-query";
           if (id.includes("lucide-react")) return "vendor-icons";
           if (id.includes("date-fns")) return "vendor-date";
+          if (id.includes("@floating-ui")) return "vendor-floating";
         },
       },
     },
