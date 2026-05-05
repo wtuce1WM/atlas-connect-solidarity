@@ -38,26 +38,6 @@ const ImageLightbox = ({
             className="max-w-full max-h-full object-contain"
           />
 
-          {false && images.length > 1 && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white h-12 w-12 rounded-full"
-                onClick={onPrevious}
-              >
-                <ChevronLeft className="h-8 w-8" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white h-12 w-12 rounded-full"
-                onClick={onNext}
-              >
-                <ChevronRight className="h-8 w-8" />
-              </Button>
-            </>
-          )}
         </div>
 
         {images.length > 1 && (
