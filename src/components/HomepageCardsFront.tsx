@@ -288,7 +288,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     }
 
     return (
-      <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group w-full">
+      <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group w-full" style={cvStyle}>
         <button
           type="button"
           onClick={() => {
@@ -305,7 +305,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           aria-label={it.label ? `Filtrer ${it.label}` : `Lire ${it.businessName || ""}`}
         >
           {it.thumbnail ? (
-            <img src={optimizedThumb || it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
+            <img src={optimizedThumb || it.thumbnail} srcSet={thumbSrcSet} alt={it.businessName || ""} className="w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
           ) : isFileVideo && it.videoUrl ? (
             <VideoThumbnail src={it.videoUrl} alt={it.businessName || ""} className="w-full h-full object-cover" />
           ) : (
