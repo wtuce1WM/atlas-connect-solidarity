@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CalendarCheck } from "lucide-react";
 import type { MediaItem } from "@/hooks/useMediaItems";
+import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 
 interface MediaBackgroundProps {
   effectiveMedia: MediaItem | null;
@@ -27,6 +28,23 @@ const MediaBackground = React.memo(function MediaBackground({
   iframeRef,
   onLoadedMetadata,
 }: MediaBackgroundProps) {
+  const { soundOn } = useVideoSoundPreference();
+
+  // Try to honor the user's sound preference; fall back to muted if the browser
+  // blocks autoplay-with-sound.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || effectiveMedia?.kind !== "video" || videoInfo?.type !== "file") return;
+    v.muted = !soundOn;
+    const tryPlay = v.play();
+    if (tryPlay && typeof tryPlay.catch === "function") {
+      tryPlay.catch(() => {
+        v.muted = true;
+        v.play().catch(() => {});
+      });
+    }
+  }, [soundOn, effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, videoRef]);
+
   if (!effectiveMedia) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-muted">
@@ -46,6 +64,7 @@ const MediaBackground = React.memo(function MediaBackground({
           loop
           playsInline
           autoPlay
+          muted={!soundOn}
           onLoadedMetadata={onLoadedMetadata}
         />
       );
