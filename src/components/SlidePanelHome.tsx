@@ -635,9 +635,9 @@ const SlidePanelHome = ({
                       className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
                     >
                     {owner.logo_url && (
-                      <div className="animate-logo-big-full-reveal flex items-center justify-center">
-                        <img
-                          src={owner.logo_url}
+                       <div className="animate-logo-big-full-reveal hidden md:flex items-center justify-center">
+                         <img
+                           src={owner.logo_url}
                           alt={owner.name}
                           className="w-auto h-auto max-w-[70px] max-h-[55px] md:max-w-[140px] md:max-h-[110px] object-contain"
                           style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
@@ -671,8 +671,8 @@ const SlidePanelHome = ({
                       key={`credit-event-${eventId}`}
                       className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
                     >
-                      {eventBusiness?.logo_url ? (
-                        <div className="animate-logo-big-full-reveal flex items-center justify-center">
+                       {eventBusiness?.logo_url ? (
+                         <div className="animate-logo-big-full-reveal hidden md:flex items-center justify-center">
                           <img
                             src={eventBusiness.logo_url}
                             alt={eventBusiness.name}
