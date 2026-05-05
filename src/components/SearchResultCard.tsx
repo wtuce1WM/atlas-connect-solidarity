@@ -1,6 +1,7 @@
 import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
+import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 
 export interface SearchResultBusiness {
   id: string;
@@ -87,7 +88,9 @@ function getLogIcon(l: string) {
 }
 
 export default function SearchResultCard({ business, index, labelLogos, distanceKm, onClick, onMouseEnter, onMouseLeave }: SearchResultCardProps) {
-  const img = business.images?.[0] || business.logo_url;
+  const rawImg = business.images?.[0] || business.logo_url;
+  const img = optimizeSupabaseImage(rawImg, { width: 600, quality: 70 });
+  const isPriority = index < 2;
   const avgOn20 = business.computed_rating ?? business.rating ?? null;
   const totalReviews = business.total_review_count ?? 0;
   const subcat = business.categories?.[0] || null;
@@ -108,7 +111,14 @@ export default function SearchResultCard({ business, index, labelLogos, distance
       className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
     >
       {img ? (
-        <img src={img} alt={business.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+        <img
+          src={img}
+          alt={business.name}
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          loading={isPriority ? "eager" : "lazy"}
+          decoding="async"
+          {...({ fetchpriority: isPriority ? "high" : "low" } as any)}
+        />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
           <Building2 className="h-10 w-10 text-muted-foreground" />
