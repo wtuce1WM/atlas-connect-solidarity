@@ -119,6 +119,8 @@ const SlidePanelHome = ({
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
+  const [, forceRender] = useState(0);
+  useEffect(() => { if (open) forceRender((n) => n + 1); }, [open]);
 
   // Description source (video text is ALWAYS prioritary):
   // - If the video has its own description, use it.
