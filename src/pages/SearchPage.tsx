@@ -3130,9 +3130,19 @@ const SearchPage = () => {
           onClose={() => setHotelSearchPanel(null)}
           onSelectHotel={(_hotelId, businessId) => {
             if (businessId) {
+              const hotelBusinesses = (hotelSearchPanel?.hotels || [])
+                .map((h: any) => h.dbBusiness)
+                .filter((biz: Business | null | undefined): biz is Business => !!biz?.id);
               const availableBusinessIds = (hotelSearchPanel?.hotels || [])
                 .map((h: any) => h.businessId)
                 .filter((id: string | undefined): id is string => !!id);
+
+              if (hotelBusinesses.length > 0) {
+                setPinnedBusinesses(hotelBusinesses);
+                setAllBusinesses(hotelBusinesses);
+                setTotalCount(null);
+                setSearchMessage("");
+              }
 
               if (availableBusinessIds.length > 0) {
                 setAvailabilityRestrictedIds(new Set<string>(availableBusinessIds));
