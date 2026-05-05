@@ -44,6 +44,8 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
   const navigate = useNavigate();
   const cacheKey = `home:cards:${city}`;
   const cachedInitial = getCached<MixedSlot[]>(cacheKey);
+  // Persist last city so index.html can early-prime on next visit.
+  try { localStorage.setItem("oneworld:lastHomepageCity", city); } catch {}
   const [slots, setSlots] = useState<MixedSlot[]>(cachedInitial || []);
   const [loading, setLoading] = useState(!cachedInitial);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -53,17 +55,38 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   useEffect(() => {
     let cancelled = false;
-    const load = async () => {
-      if (isFirstLoad.current) setLoading(true);
+    const apply = (payload: MixedSlot[]) => {
+      if (cancelled) return;
+      setSlots(payload);
+      setCached(cacheKey, payload);
+      setLoading(false);
+      isFirstLoad.current = false;
+    };
 
+    // Fast path: snapshot already fetched by index.html early-prime script.
+    const earlyCity = (window as any).__HOME_SNAPSHOT_CITY__;
+    const earlyPromise = (window as any).__HOME_SNAPSHOT__;
+    if (earlyPromise && earlyCity === city) {
+      Promise.resolve(earlyPromise).then((payload: MixedSlot[] | null) => {
+        if (cancelled) return;
+        if (payload) {
+          apply(payload);
+        } else {
+          // Early-prime returned nothing → fall back to a normal query.
+          loadFromDb();
+        }
+      });
+      return () => { cancelled = true; };
+    }
+
+    const loadFromDb = async () => {
+      if (isFirstLoad.current) setLoading(true);
       const { data, error } = await (supabase as any)
         .from("homepage_cards_snapshots")
         .select("payload")
         .eq("city", city)
         .maybeSingle();
-
       if (cancelled) return;
-
       if (error) {
         console.error("[HomepageCardsFront] snapshot error", error);
         setSlots([]);
@@ -71,70 +94,9 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
         isFirstLoad.current = false;
         return;
       }
-
-      const payload = (data?.payload as MixedSlot[] | null) || [];
-
-      // PASS 1 — render immediately with the snapshot to unblock LCP
-      setSlots(payload);
-      setCached(cacheKey, payload);
-      setLoading(false);
-      isFirstLoad.current = false;
-
-      // PASS 2 — fetch enrichment data in background and patch slots once ready
-      const eventIds = [...new Set(payload.map((slot) => slot.data.eventId).filter(Boolean))] as string[];
-      const immoVideoIds = [...new Set(
-        payload
-          .filter((slot) => (slot.data.label || "").trim().toLowerCase() === "immobilier" && slot.data.videoId)
-          .map((slot) => slot.data.videoId!)
-      )];
-
-      if (eventIds.length === 0 && immoVideoIds.length === 0) return;
-
-      const [eventsRes, immoDocsRes] = await Promise.all([
-        eventIds.length > 0
-          ? (supabase as any).from("events").select("id, name, images").in("id", eventIds)
-          : Promise.resolve({ data: [] }),
-        immoVideoIds.length > 0
-          ? (supabase as any).from("business_documents").select("id, price, price_type").eq("business_is_active", true).in("id", immoVideoIds)
-          : Promise.resolve({ data: [] }),
-      ]);
-
-      if (cancelled) return;
-
-      const eventMap = new Map<string, any>(((eventsRes.data as any[]) || []).map((e) => [e.id, e]));
-      const immoMap = new Map<string, any>(((immoDocsRes.data as any[]) || []).map((d) => [d.id, d]));
-
-      setSlots(payload.map((slot) => {
-        let next = slot;
-        const event = slot.data.eventId ? eventMap.get(slot.data.eventId) : null;
-        if (event) {
-          next = {
-            ...next,
-            data: {
-              ...next.data,
-              videoId: null,
-              videoUrl: null,
-              thumbnail: event.images?.[0] || null,
-              businessName: event.name || next.data.businessName,
-              ownerLogo: null,
-              ownerName: null,
-              ownerId: null,
-              rating: null,
-              reviewCount: null,
-            },
-          };
-        }
-        const immo = next.data.videoId ? immoMap.get(next.data.videoId) : null;
-        if (immo && (next.data.label || "").trim().toLowerCase() === "immobilier") {
-          next = {
-            ...next,
-            data: { ...next.data, price: immo.price ?? null, priceType: immo.price_type ?? null },
-          };
-        }
-        return next;
-      }));
+      apply(((data?.payload as MixedSlot[] | null) || []));
     };
-    load();
+    loadFromDb();
     return () => { cancelled = true; };
   }, [city]);
 
