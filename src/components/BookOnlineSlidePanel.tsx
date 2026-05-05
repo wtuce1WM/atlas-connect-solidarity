@@ -407,7 +407,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   };
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
-  const [videoMuted, setVideoMuted] = useState(true);
+  const [videoMuted, setVideoMuted] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
