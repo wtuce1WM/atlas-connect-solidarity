@@ -37,7 +37,10 @@ export function youtubeThumbnailUrl(y: {
   thumbnail?: string | null;
   video_id: string;
 }): string {
-  return y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`;
+  // Use hqdefault (480x360, ~20KB) for grid/list display instead of maxresdefault
+  // (1280x720, 100-200KB) — saves ~80% of bytes on slow networks. The full-size
+  // image is only loaded when the user opens the immersive video panel.
+  return y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`;
 }
 
 /**
