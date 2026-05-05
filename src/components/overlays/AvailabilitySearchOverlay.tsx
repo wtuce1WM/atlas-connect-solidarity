@@ -4,11 +4,14 @@ import { ChevronLeft, ChevronRight, Search, Users, Loader2, X } from "lucide-rea
 interface AvailabilitySearchOverlayProps {
   language: string;
   isSearching: boolean;
+  initialCheckIn?: string;
+  initialCheckOut?: string;
+  initialAdults?: number;
   onSearch: (checkIn: string, checkOut: string, adults: number) => void;
   onClose: () => void;
 }
 
-export default function AvailabilitySearchOverlay({ language, isSearching, onSearch, onClose }: AvailabilitySearchOverlayProps) {
+export default function AvailabilitySearchOverlay({ language, isSearching, initialCheckIn, initialCheckOut, initialAdults, onSearch, onClose }: AvailabilitySearchOverlayProps) {
   const isEn = language === "en";
 
   const fmt = (d: Date) => d.toISOString().split("T")[0];
@@ -19,7 +22,7 @@ export default function AvailabilitySearchOverlay({ language, isSearching, onSea
   const defaultCheckout = new Date(tomorrow);
   defaultCheckout.setDate(defaultCheckout.getDate() + 3);
 
-  // Restore last search from sessionStorage if still in the future
+  // Priority: explicit initial props > sessionStorage > defaults
   const STORAGE_KEY = "hotel_availability_last_search";
   const saved = (() => {
     try {
@@ -34,13 +37,16 @@ export default function AvailabilitySearchOverlay({ language, isSearching, onSea
     return null;
   })();
 
-  const [checkIn, setCheckIn] = useState<string>(saved?.checkIn ?? fmt(tomorrow));
-  const [checkOut, setCheckOut] = useState<string>(saved?.checkOut ?? fmt(defaultCheckout));
-  const [adults, setAdults] = useState<number>(saved?.adults ?? 2);
+  const validInitialCheckIn = initialCheckIn && initialCheckIn > todayStrInit ? initialCheckIn : null;
+  const validInitialCheckOut = initialCheckOut && initialCheckOut > (validInitialCheckIn || todayStrInit) ? initialCheckOut : null;
+
+  const [checkIn, setCheckIn] = useState<string>(validInitialCheckIn ?? saved?.checkIn ?? fmt(tomorrow));
+  const [checkOut, setCheckOut] = useState<string>(validInitialCheckOut ?? saved?.checkOut ?? fmt(defaultCheckout));
+  const [adults, setAdults] = useState<number>(initialAdults ?? saved?.adults ?? 2);
   const [selectingField, setSelectingField] = useState<"checkin" | "checkout">("checkin");
 
   const [calendarMonth, setCalendarMonth] = useState(() => {
-    const d = new Date((saved?.checkIn ?? fmt(tomorrow)) + "T12:00:00");
+    const d = new Date((validInitialCheckIn ?? saved?.checkIn ?? fmt(tomorrow)) + "T12:00:00");
     return { year: d.getFullYear(), month: d.getMonth() };
   });
 
