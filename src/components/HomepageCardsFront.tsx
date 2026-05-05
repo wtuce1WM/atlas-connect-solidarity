@@ -246,6 +246,18 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     const immoBadge = null;
     // LCP image: smaller width (mobile-first) + low quality. Other vignettes: 400px.
     const optimizedThumb = optimizeSupabaseImage(it.thumbnail, isPriority ? { width: 200, quality: 45 } : { width: 400 });
+    // #8 Retina srcset: serve a 2x variant for high-DPI screens, original (1x) for mobile.
+    const thumb2x = isPriority
+      ? optimizeSupabaseImage(it.thumbnail, { width: 400, quality: 55 })
+      : optimizeSupabaseImage(it.thumbnail, { width: 800 });
+    const thumbSrcSet = optimizedThumb && thumb2x && thumb2x !== optimizedThumb
+      ? `${optimizedThumb} 1x, ${thumb2x} 2x`
+      : undefined;
+    // #6 content-visibility: skip layout/paint for off-screen cards. Keep the first
+    // row (6 cards on lg) eagerly rendered so LCP isn't delayed.
+    const cvStyle: React.CSSProperties | undefined = index >= 6
+      ? { contentVisibility: "auto", containIntrinsicSize: "auto 360px" } as React.CSSProperties
+      : undefined;
 
     if (!it.videoId) {
       return (
