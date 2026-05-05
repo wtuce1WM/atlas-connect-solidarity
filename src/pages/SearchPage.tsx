@@ -214,12 +214,8 @@ const SearchPage = () => {
       sessionStorage.setItem("ai_suggestion_businesses", JSON.stringify(bizData));
     } catch { /* sessionStorage unavailable (private mode/quota) */ }
     setStickyAiAnimationNonce((prev) => prev + 1);
-    // Pre-generate TTS audio in background so it's instant when user clicks speaker
-    if (answer) {
-      const cleanText = answer.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " ");
-      const intro = language === "en" ? "Here is what I found. " : "Voici ce que j'ai trouvé. ";
-      preloadTTS(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-    }
+    // NOTE: TTS preloading removed — it consumed ElevenLabs credits on every search
+    // even when the user never clicked the speaker. Audio is now generated on demand.
   }, [language]);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
