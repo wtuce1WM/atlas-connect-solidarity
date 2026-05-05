@@ -389,18 +389,17 @@ const SlidePanelHome = ({
       >
         {/* Top toolbar : close + WhatsApp/Phone + Share */}
         {!descOverlayOpen && (
-        <div className="absolute top-0 left-0 right-0 z-[70] flex items-center justify-between px-4 py-2 pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 z-[75] flex items-center justify-between px-4 py-2 bg-transparent overflow-visible">
           <button
             type="button"
-            onPointerUp={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
-            className="pointer-events-auto h-11 w-11 flex items-center justify-center rounded-full bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity touch-manipulation"
-            style={{ WebkitTapHighlightColor: "transparent" }}
-            aria-label="Fermer"
+            onClick={onClose}
+            className="h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity"
+            title="Fermer"
+            aria-label="Fermer le panneau"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
-          <div className="pointer-events-auto flex items-center gap-6">
+          <div className="flex items-center gap-6">
             {ctaBusiness?.whatsapp ? (
               <a
                 href={whatsappUrl(ctaBusiness.whatsapp)}
@@ -422,7 +421,7 @@ const SlidePanelHome = ({
               </a>
             ) : null}
           </div>
-          <div className="pointer-events-auto">
+          <div>
             {ctaBusiness && (
               <ShareButton
                 title={ctaBusiness.name || businessName}
