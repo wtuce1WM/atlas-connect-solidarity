@@ -45,11 +45,7 @@ const MediaBackground = React.memo(function MediaBackground({
           className="w-full h-full bg-black object-contain"
           loop
           playsInline
-          muted
           autoPlay
-          onPlay={() => {
-            if (videoRef.current) videoRef.current.muted = true;
-          }}
           onLoadedMetadata={onLoadedMetadata}
         />
       );
