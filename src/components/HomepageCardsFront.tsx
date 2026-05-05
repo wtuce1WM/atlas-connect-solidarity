@@ -5,6 +5,7 @@ import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import SlidePanelHome from "@/components/SlidePanelHome";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
+import { getCached, setCached } from "@/lib/swrCache";
 
 export type HomeCardTarget = { type: "badge" | "event"; id: string } | null;
 
