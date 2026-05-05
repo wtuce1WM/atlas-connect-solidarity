@@ -34,6 +34,7 @@ import MosaicOverlay from "@/components/MosaicOverlay";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 
 import { useBookOnlineData } from "@/hooks/useBookOnlineData";
@@ -117,6 +118,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [cameFromFallback, setCameFromFallback] = useState(false);
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     business, woDescription, destinations, poiBusinesses, isLoading,
@@ -227,11 +229,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     if (!business?.slug) return;
     const hasSubOverlay = selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId;
     if (!hasSubOverlay) {
+      if (location.pathname === "/search") return;
       const currentPath = window.location.pathname;
       const prefix = currentPath.startsWith("/fiche/") ? "/fiche/" : "/business/";
       window.history.replaceState(null, "", `${prefix}${business.slug}`);
     }
-  }, [business?.slug, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId]);
+  }, [business?.slug, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, location.pathname]);
 
   useEffect(() => {
     if (!selectedDestinationId) return;
