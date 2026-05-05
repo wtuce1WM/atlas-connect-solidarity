@@ -340,33 +340,37 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
         ))}
       </div>
 
-      <SlidePanelHome
-        open={activeSlot !== null}
-        onClose={() => setActiveIndex(null)}
-        videoUrl={activeSlot?.data.videoUrl ?? null}
-        videoId={activeSlot?.data.videoId ?? null}
-        businessName={activeSlot?.data.businessName || activeSlot?.data.label || ""}
-        isGeneric={false}
-        currentTime={currentTime}
-        onTimeUpdate={setCurrentTime}
-        onPrev={goPrev}
-        onNext={goNext}
-        hasPrev={hasPrev}
-        hasNext={hasNext}
-        owner={
-          activeSlot && activeSlot.data.ownerId
-            ? { id: activeSlot.data.ownerId, name: activeSlot.data.ownerName || "", logo_url: activeSlot.data.ownerLogo }
-            : null
-        }
-        social={null}
-        description={activeDescription}
-        agendaCity={
-          activeSlot && (activeSlot.data.label || "").trim().toLowerCase() === "agenda"
-            ? city
-            : null
-        }
-        eventId={activeSlot?.data.eventId ?? null}
-      />
+      {activeSlot && (
+        <Suspense fallback={null}>
+          <SlidePanelHome
+            open={activeSlot !== null}
+            onClose={() => setActiveIndex(null)}
+            videoUrl={activeSlot?.data.videoUrl ?? null}
+            videoId={activeSlot?.data.videoId ?? null}
+            businessName={activeSlot?.data.businessName || activeSlot?.data.label || ""}
+            isGeneric={false}
+            currentTime={currentTime}
+            onTimeUpdate={setCurrentTime}
+            onPrev={goPrev}
+            onNext={goNext}
+            hasPrev={hasPrev}
+            hasNext={hasNext}
+            owner={
+              activeSlot && activeSlot.data.ownerId
+                ? { id: activeSlot.data.ownerId, name: activeSlot.data.ownerName || "", logo_url: activeSlot.data.ownerLogo }
+                : null
+            }
+            social={null}
+            description={activeDescription}
+            agendaCity={
+              activeSlot && (activeSlot.data.label || "").trim().toLowerCase() === "agenda"
+                ? city
+                : null
+            }
+            eventId={activeSlot?.data.eventId ?? null}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };
