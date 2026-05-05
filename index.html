@@ -19,8 +19,10 @@
     <link rel="preconnect" href="https://plnphgdrawpsnumnejzc.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="https://plnphgdrawpsnumnejzc.supabase.co">
 
-    <!-- Early-prime homepage snapshot fetch (Test page). Runs in parallel with JS download
-         to warm the HTTP cache so React's eventual query resolves near-instantly. -->
+    <!-- Early-prime homepage snapshot fetch. Runs in parallel with JS download.
+         Result is parked on window.__HOME_SNAPSHOT__ so React reads it synchronously
+         (0 round-trip before first paint). Also emits a <link rel="preload"> for the
+         LCP image as soon as the snapshot arrives. -->
     <script>
       (function() {
         try {
@@ -34,7 +36,30 @@
           if (!city) return;
           var url = "https://plnphgdrawpsnumnejzc.supabase.co/rest/v1/homepage_cards_snapshots?select=payload&city=eq." + encodeURIComponent(city);
           var anon = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
-          fetch(url, { headers: { apikey: anon, Authorization: "Bearer " + anon, Accept: "application/json" } }).catch(function(){});
+          window.__HOME_SNAPSHOT_CITY__ = city;
+          window.__HOME_SNAPSHOT__ = fetch(url, {
+            headers: { apikey: anon, Authorization: "Bearer " + anon, Accept: "application/json" }
+          })
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(rows) {
+              var payload = (rows && rows[0] && rows[0].payload) || null;
+              if (payload && payload[0] && payload[0].data) {
+                var t = payload[0].data.thumbnail;
+                if (t) {
+                  var u = t;
+                  // Same low-res transform as React (width=240, quality=50) for LCP
+                  if (/\/storage\/v1\/object\/public\//.test(t) && !/\?/.test(t)) {
+                    u = t.replace("/object/public/", "/render/image/public/") + "?width=240&quality=50";
+                  }
+                  var link = document.createElement("link");
+                  link.rel = "preload"; link.as = "image"; link.href = u;
+                  link.setAttribute("fetchpriority", "high");
+                  document.head.appendChild(link);
+                }
+              }
+              return payload;
+            })
+            .catch(function() { return null; });
         } catch (e) {}
       })();
     </script>
