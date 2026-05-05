@@ -144,11 +144,12 @@ const Install = () => {
     android: {
       title: "Installer sur Android",
       steps: [
-        { icon: <Smartphone className="h-5 w-5" />, text: <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong>.</> },
+        { icon: <Smartphone className="h-5 w-5" />, text: <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong> (obligatoire — n'utilise pas Samsung Internet ni Firefox, sinon Google Play Protect peut bloquer l'installation).</> },
         { icon: <MoreVertical className="h-5 w-5" />, text: <>Touche le menu <strong>⋮</strong> en haut à droite.</> },
         { icon: <Download className="h-5 w-5" />, text: <>Choisis <strong>« Installer l'application »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.</> },
         { icon: <Check className="h-5 w-5" />, text: <>Confirme. L'icône OW Morocco s'installe comme une vraie app.</> },
       ],
+      note: "Si Google Play Protect affiche « Appli non sécurisée bloquée », c'est que l'installation s'est faite via Samsung Internet ou Firefox. Touche « Plus de détails » puis « Installer quand même », ou réinstalle depuis Chrome pour éviter le message.",
     },
     mac: {
       title: "Installer sur Mac",
