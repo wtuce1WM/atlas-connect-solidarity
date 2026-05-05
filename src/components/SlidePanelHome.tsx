@@ -144,7 +144,9 @@ const SlidePanelHome = ({
 
   const effectiveDescription = (description && description.trim())
     ? description
-    : businessDescription;
+    : (eventId && eventInfo?.description && eventInfo.description.trim())
+      ? eventInfo.description
+      : businessDescription;
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
