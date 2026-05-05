@@ -807,6 +807,12 @@ export const DescriptionPlusInlineButton = ({ onOpen }: { onOpen: () => void }) 
 const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void }) => {
   const open = isOpen;
   const setOpen = onOpenChange;
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [open]);
   return (
     <>
       {open && (
