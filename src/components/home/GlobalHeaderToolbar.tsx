@@ -63,6 +63,7 @@ const GlobalHeaderToolbar = () => {
       return;
     }
     navigate(`/?city=${next}&entry=__home__`);
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
   };
 
   const goBadge = (badge: HashtagBadge) => {
