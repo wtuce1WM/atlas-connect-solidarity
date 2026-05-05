@@ -42,12 +42,14 @@ interface MixedSlot {
 
 const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: Props) => {
   const navigate = useNavigate();
-  const [slots, setSlots] = useState<MixedSlot[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cacheKey = `home:cards:${city}`;
+  const cachedInitial = getCached<MixedSlot[]>(cacheKey);
+  const [slots, setSlots] = useState<MixedSlot[]>(cachedInitial || []);
+  const [loading, setLoading] = useState(!cachedInitial);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [activeDescription, setActiveDescription] = useState<string | null>(null);
-  const isFirstLoad = useRef(true);
+  const isFirstLoad = useRef(!cachedInitial);
 
   useEffect(() => {
     let cancelled = false;
