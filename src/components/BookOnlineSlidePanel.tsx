@@ -20,6 +20,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import BookingOverlay from "@/components/BookingOverlay";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
+import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
 import ContactFlipCard from "@/components/cards/ContactFlipCard";
@@ -180,7 +181,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, [onMosaicStateChange, propagateMosaicState]);
   const showMosaic = showMosaicRaw;
   const [ytBgPlaying, setYtBgPlaying] = useState(true);
-  const [ytBgMuted, setYtBgMuted] = useState(true);
+  const [ytBgMuted, setYtBgMuted] = useState(false);
   const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
   const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
@@ -406,7 +407,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   };
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
-  const [videoMuted, setVideoMuted] = useState(true);
+  const [videoMuted, setVideoMuted] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -424,7 +425,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       if (!v) return;
       const onPlay = () => setVideoPaused(false);
       const onPause = () => setVideoPaused(true);
-      const onVolChange = () => setVideoMuted(v.muted);
+      const onVolChange = () => { setVideoMuted(v.muted); setGlobalSoundOn(!v.muted); };
       v.addEventListener("play", onPlay);
       v.addEventListener("pause", onPause);
       v.addEventListener("volumechange", onVolChange);
@@ -625,7 +626,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId);
 
   // Video info via extracted hook
-  const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null);
+  const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
+  const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
 
   const goMedia = useCallback((dir: 1 | -1) => {
@@ -1106,7 +1108,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           ytBgPlaying={ytBgPlaying}
           ytBgMuted={ytBgMuted}
           setYtBgPlaying={setYtBgPlaying}
-          setYtBgMuted={setYtBgMuted}
+          setYtBgMuted={(m: boolean) => { setYtBgMuted(m); setGlobalSoundOn(!m); }}
           setShowDirections={setShowDirections}
           setShowBookingOverlay={setShowBookingOverlay}
           setBookingOverlayLoaded={setBookingOverlayLoaded}
