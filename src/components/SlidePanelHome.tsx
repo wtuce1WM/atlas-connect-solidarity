@@ -589,7 +589,7 @@ const SlidePanelHome = ({
             )}
           </div>
           <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen ? "hidden" : ""}`}>
-            <div className="fixed lg:absolute inset-x-0 bottom-[4.875rem] lg:bottom-[5.5rem] z-30 px-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
+            <div className="fixed lg:absolute inset-x-0 bottom-[4.5rem] lg:bottom-[5.5rem] z-30 px-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
               {effectiveDescription && (
                 <DescriptionPlusInlineButton
                   key={`desc-plus-${videoId || videoUrl}`}
