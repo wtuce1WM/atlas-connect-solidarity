@@ -142,15 +142,18 @@ const SlidePanelHome = ({
     return () => { cancelled = true; };
   }, [open, owner?.id, pageBusinessId, description]);
 
-  const effectiveDescription = (description && description.trim())
-    ? description
-    : businessDescription;
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
-  const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null } | null>(null);
+  const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null; description: string | null } | null>(null);
   const [poiOverlayBusinessId, setPoiOverlayBusinessId] = useState<string | null>(null);
   useEffect(() => { if (!open) setPoiOverlayBusinessId(null); }, [open]);
+
+  const effectiveDescription = (description && description.trim())
+    ? description
+    : (eventId && eventInfo?.description && eventInfo.description.trim())
+      ? eventInfo.description
+      : businessDescription;
 
   // Resolve a business for the CTA bar:
   // - If `eventId` is set, take the first linked business via event_businesses (eventBusiness).
@@ -172,12 +175,12 @@ const SlidePanelHome = ({
           .limit(1),
         (supabase as any)
           .from("events")
-          .select("name, logo_url")
+          .select("name, logo_url, description")
           .eq("id", eventId)
           .maybeSingle(),
       ]);
       if (cancelled) return;
-      setEventInfo(evRow ? { name: (evRow as any).name, logo_url: (evRow as any).logo_url } : null);
+      setEventInfo(evRow ? { name: (evRow as any).name, logo_url: (evRow as any).logo_url, description: (evRow as any).description ?? null } : null);
       const bizId = ((ebRows as any[]) || [])[0]?.business_id;
       if (!bizId) { setEventBusiness(null); return; }
       const { data: bizRow } = await supabase

@@ -396,6 +396,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
             ? city
             : null
         }
+        eventId={activeSlot?.data.eventId ?? null}
       />
     </div>
   );
