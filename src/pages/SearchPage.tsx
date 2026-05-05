@@ -551,9 +551,10 @@ const SearchPage = () => {
      resetPanelStates();
      setOverlaySelectedBusiness(null);
      setIsOverlayPanelExpanded(false);
-     setCompactPanelBusiness(null);
-     setIsCompactPanelExpanded(false);
-   }, [searchQuery, urlT]);
+      setCompactPanelBusiness(null);
+      setIsCompactPanelExpanded(false);
+      setHotelSearchPanel(null);
+    }, [searchQuery, urlT]);
 
     // Hide page-level scrollbar when slide panel is open on desktop to prevent overlap with right panel
     useEffect(() => {
