@@ -53,6 +53,7 @@ import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { sortWtuceAndRating } from "@/lib/businessRanking";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
+import { getCached, revalidate } from "@/lib/swrCache";
 
 interface FrontEntry {
   id: string;
@@ -358,16 +359,21 @@ const Home = () => {
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
   const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
 
-  // Load all badge names once (small table)
+  // Load all badge names once (small table) — stale-while-revalidate from localStorage
   useEffect(() => {
+    const cached = getCached<Record<string, string>>("home:badgeNames");
+    if (cached) setBadgeNamesById(cached);
     let cancelled = false;
-    (async () => {
-      const { data } = await supabase.from("badges").select("id, name_fr");
-      if (cancelled || !data) return;
-      const map: Record<string, string> = {};
-      for (const b of data as any[]) map[b.id] = b.name_fr;
-      setBadgeNamesById(map);
-    })();
+    revalidate<Record<string, string>>(
+      "home:badgeNames",
+      async () => {
+        const { data } = await supabase.from("badges").select("id, name_fr");
+        const map: Record<string, string> = {};
+        for (const b of (data as any[]) || []) map[b.id] = b.name_fr;
+        return map;
+      },
+      (fresh) => { if (!cancelled) setBadgeNamesById(fresh); }
+    );
     return () => { cancelled = true; };
   }, []);
 
@@ -438,43 +444,56 @@ const Home = () => {
     };
   }, [menuOpen]);
 
-  // Load front structure (independent of city)
+  // Load front structure (independent of city) — stale-while-revalidate
   useEffect(() => {
-    const load = async () => {
-      const [entriesRes, linksRes, svcLinksRes, badgeLinksRes, subsRes, servicesRes] = await Promise.all([
-        supabase.from("front_structure").select("*").order("sort_order"),
-        supabase.from("front_structure_subcategories").select("*"),
-        supabase.from("front_structure_services" as any).select("*"),
-        supabase.from("front_structure_badges" as any).select("*"),
-        supabase.from("subcategories").select("id, name_fr, category_id"),
-        supabase.from("services").select("id, name_fr").eq("is_active", true),
-      ]);
+    type FrontStructurePayload = {
+      entries: FrontEntry[];
+      subcatNames: Record<string, string>;
+      serviceNames: Record<string, string>;
+    };
 
-      const subMap: Record<string, string> = {};
-      (subsRes.data || []).forEach((s: any) => {
-        subMap[s.id] = s.name_fr;
-      });
-      setSubcatNames(subMap);
+    const apply = (payload: FrontStructurePayload) => {
+      setSubcatNames(payload.subcatNames);
+      setServiceNames(payload.serviceNames);
+      setEntries(payload.entries);
+    };
 
-      const svcMap: Record<string, string> = {};
-      (servicesRes.data || []).forEach((s: any) => { svcMap[s.id] = s.name_fr; });
-      setServiceNames(svcMap);
+    const cached = getCached<FrontStructurePayload>("home:frontStructure");
+    if (cached) apply(cached);
 
-      const linksByEntry: Record<string, string[]> = {};
-      (linksRes.data || []).forEach((l: any) => {
-        (linksByEntry[l.front_structure_id] ||= []).push(l.subcategory_id);
-      });
-      const svcLinksByEntry: Record<string, string[]> = {};
-      ((svcLinksRes.data || []) as any[]).forEach((l: any) => {
-        (svcLinksByEntry[l.front_structure_id] ||= []).push(l.service_id);
-      });
-      const badgeLinksByEntry: Record<string, string[]> = {};
-      ((badgeLinksRes.data || []) as any[]).forEach((l: any) => {
-        (badgeLinksByEntry[l.front_structure_id] ||= []).push(l.badge_id);
-      });
+    let cancelled = false;
+    revalidate<FrontStructurePayload>(
+      "home:frontStructure",
+      async () => {
+        const [entriesRes, linksRes, svcLinksRes, badgeLinksRes, subsRes, servicesRes] = await Promise.all([
+          supabase.from("front_structure").select("*").order("sort_order"),
+          supabase.from("front_structure_subcategories").select("*"),
+          supabase.from("front_structure_services" as any).select("*"),
+          supabase.from("front_structure_badges" as any).select("*"),
+          supabase.from("subcategories").select("id, name_fr, category_id"),
+          supabase.from("services").select("id, name_fr").eq("is_active", true),
+        ]);
 
-      setEntries(
-        (entriesRes.data || [])
+        const subMap: Record<string, string> = {};
+        (subsRes.data || []).forEach((s: any) => { subMap[s.id] = s.name_fr; });
+
+        const svcMap: Record<string, string> = {};
+        (servicesRes.data || []).forEach((s: any) => { svcMap[s.id] = s.name_fr; });
+
+        const linksByEntry: Record<string, string[]> = {};
+        (linksRes.data || []).forEach((l: any) => {
+          (linksByEntry[l.front_structure_id] ||= []).push(l.subcategory_id);
+        });
+        const svcLinksByEntry: Record<string, string[]> = {};
+        ((svcLinksRes.data || []) as any[]).forEach((l: any) => {
+          (svcLinksByEntry[l.front_structure_id] ||= []).push(l.service_id);
+        });
+        const badgeLinksByEntry: Record<string, string[]> = {};
+        ((badgeLinksRes.data || []) as any[]).forEach((l: any) => {
+          (badgeLinksByEntry[l.front_structure_id] ||= []).push(l.badge_id);
+        });
+
+        const builtEntries: FrontEntry[] = (entriesRes.data || [])
           .filter((e: any) => e.show_in_menu !== false)
           .map((e: any) => ({
             id: e.id,
@@ -483,10 +502,13 @@ const Home = () => {
             subcategory_ids: linksByEntry[e.id] || [],
             service_ids: svcLinksByEntry[e.id] || [],
             badge_ids: badgeLinksByEntry[e.id] || [],
-          }))
-      );
-    };
-    load();
+          }));
+
+        return { entries: builtEntries, subcatNames: subMap, serviceNames: svcMap };
+      },
+      (fresh) => { if (!cancelled) apply(fresh); }
+    );
+    return () => { cancelled = true; };
   }, []);
 
   // Resolve the cities table id (for multi-city video assignments)
@@ -500,28 +522,35 @@ const Home = () => {
   }, [city]);
 
   // Document ids assigned to this city via business_document_cities (multi-city)
-  // Paginate to bypass PostgREST 1000-row limit.
+  // Paginate to bypass PostgREST 1000-row limit. SWR-cached per city.
   useEffect(() => {
     if (!cityRowId) { setExtraCityDocIds(new Set()); return; }
+    const key = `home:extraCityDocIds:${cityRowId}`;
+    const cached = getCached<string[]>(key);
+    if (cached) setExtraCityDocIds(new Set(cached));
     let cancelled = false;
-    (async () => {
-      const all: string[] = [];
-      const PAGE = 1000;
-      let offset = 0;
-      while (true) {
-         const { data } = await supabase
-          .from("business_document_cities")
-          .select("document_id")
-          .eq("city_id", cityRowId)
-          .order("document_id", { ascending: true })
-          .range(offset, offset + PAGE - 1);
-        const rows = (data as any[]) || [];
-        all.push(...rows.map((r) => r.document_id));
-        if (rows.length < PAGE) break;
-        offset += PAGE;
-      }
-      if (!cancelled) setExtraCityDocIds(new Set(all));
-    })();
+    revalidate<string[]>(
+      key,
+      async () => {
+        const all: string[] = [];
+        const PAGE = 1000;
+        let offset = 0;
+        while (true) {
+          const { data } = await supabase
+            .from("business_document_cities")
+            .select("document_id")
+            .eq("city_id", cityRowId)
+            .order("document_id", { ascending: true })
+            .range(offset, offset + PAGE - 1);
+          const rows = (data as any[]) || [];
+          all.push(...rows.map((r) => r.document_id));
+          if (rows.length < PAGE) break;
+          offset += PAGE;
+        }
+        return all;
+      },
+      (fresh) => { if (!cancelled) setExtraCityDocIds(new Set(fresh)); }
+    );
     return () => { cancelled = true; };
   }, [cityRowId]);
 
