@@ -485,7 +485,7 @@ const SlidePanelHome = ({
                 loop
                 playsInline
                 autoPlay
-                muted
+                muted={!soundOn}
                 className="w-full h-full object-contain"
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
