@@ -921,8 +921,20 @@ const SearchPage = () => {
 
       // Restrict left panel results to the hotels matched against SerpAPI availability
       const availableIds = hotels.map((h: any) => h.businessId).filter(Boolean) as string[];
+      const hotelBusinesses = hotels
+        .map((h: any) => h.dbBusiness)
+        .filter((biz: Business | null | undefined): biz is Business => !!biz?.id);
       if (availableIds.length > 0) {
         setAvailabilityRestrictedIds(new Set(availableIds));
+      }
+      // Push the matched hotels into the map/results pool immediately so they
+      // appear on the right Google Map panel (and as pinned results), even
+      // before the user picks one from the FallbackHotelsPanel overlay.
+      if (hotelBusinesses.length > 0) {
+        setPinnedBusinesses(hotelBusinesses);
+        setAllBusinesses(hotelBusinesses);
+        setTotalCount(null);
+        setSearchMessage("");
       }
 
       // N'altère plus la page Search en arrière-plan : seul l'overlay s'affiche.
