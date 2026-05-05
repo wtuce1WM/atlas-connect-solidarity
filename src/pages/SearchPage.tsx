@@ -829,6 +829,7 @@ const SearchPage = () => {
   const [webOverlay, setWebOverlay] = useState<{ open: boolean; query: string }>({ open: false, query: "" });
   const [hotelSearchPanel, setHotelSearchPanel] = useState<import("@/components/HotelAvailabilityOverlay").FallbackPanelData | null>(null);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
+  const [latestHotelSearchDates, setLatestHotelSearchDates] = useState<{ checkIn?: string; checkOut?: string; adults?: number }>({});
 
   const handleHotelSearch = useCallback(async (intent: { city: string; checkIn?: string; checkOut?: string; adults?: number }) => {
     const lang = language === "en" ? "en" : "fr";
@@ -842,6 +843,7 @@ const SearchPage = () => {
     const checkIn = intent.checkIn || tomorrow.toISOString().split("T")[0];
     const checkOut = intent.checkOut || dayAfter.toISOString().split("T")[0];
     const adults = intent.adults || 2;
+    setLatestHotelSearchDates({ checkIn, checkOut, adults });
 
     setHotelSearchLoading(true);
     try {
