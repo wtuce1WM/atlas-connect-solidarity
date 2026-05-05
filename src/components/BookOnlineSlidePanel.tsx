@@ -92,6 +92,9 @@ interface BookOnlineSlidePanelProps {
   onSearch?: (params: Record<string, string>) => void;
   onSearchBusinessSelect?: (businessId: string) => void;
   onHotelSearch?: (intent: { city: string; checkIn?: string; checkOut?: string; adults?: number }, spokenText: string) => void;
+  initialAvailabilityCheckIn?: string;
+  initialAvailabilityCheckOut?: string;
+  initialAvailabilityAdults?: number;
   onMosaicStateChange?: (open: boolean) => void;
   closeTrigger?: number;
   propagateMosaicState?: boolean;
@@ -99,7 +102,7 @@ interface BookOnlineSlidePanelProps {
   toolbarPortalPrefix?: string;
 }
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -1209,9 +1212,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <AvailabilitySearchOverlay
           language={language}
           isSearching={hotelSearchLoading}
-          initialCheckIn={fallbackPanelData?.checkIn}
-          initialCheckOut={fallbackPanelData?.checkOut}
-          initialAdults={fallbackPanelData?.adults}
+          initialCheckIn={fallbackPanelData?.checkIn ?? initialAvailabilityCheckIn}
+          initialCheckOut={fallbackPanelData?.checkOut ?? initialAvailabilityCheckOut}
+          initialAdults={fallbackPanelData?.adults ?? initialAvailabilityAdults}
           onSearch={(checkIn, checkOut, adults) => {
             handleCheckAvailability(checkIn, checkOut, adults);
           }}
