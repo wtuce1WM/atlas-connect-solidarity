@@ -1,4 +1,5 @@
 import { createPortal } from "react-dom";
+import { useEffect } from "react";
 import { X, Star, MapPin, Building2, Leaf, Award, Truck, Package, Accessibility } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { FallbackPanelData, FallbackHotel } from "@/components/HotelAvailabilityOverlay";
@@ -175,6 +176,15 @@ const HotelResultCard = ({ hotel, onSelectHotel }: { hotel: FallbackHotel; onSel
 const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel, inline }: FallbackHotelsPanelProps) => {
   const { language } = useLanguage();
   const isEn = language === "en";
+
+  useEffect(() => {
+    if (inline) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [inline]);
 
   const sortedHotels = [...data.hotels.filter(h => !h.isCurrentHotel)].sort((a, b) => {
     const aV = a.wtuce_status === "verified" ? 1 : 0;
