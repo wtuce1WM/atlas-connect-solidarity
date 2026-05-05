@@ -134,14 +134,16 @@ const Home = () => {
   const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE);
   const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
 
-  // Preload first video thumbnail to accelerate LCP on /test (cards-only optimization)
+  // Preload first video thumbnail to accelerate LCP (works for Supabase URLs AND YouTube i.ytimg.com posters)
   useEffect(() => {
-    const firstThumb = optimizeSupabaseImage(videos[0]?.thumbnail_url, { width: 400 });
-    if (!firstThumb) return;
+    const raw = videos[0]?.thumbnail_url;
+    if (!raw) return;
+    const isYoutube = /(?:i\.ytimg\.com|img\.youtube\.com)/.test(raw);
+    const href = isYoutube ? raw : (optimizeSupabaseImage(raw, { width: 400 }) || raw);
     const link = document.createElement("link");
     link.rel = "preload";
     link.as = "image";
-    link.href = firstThumb;
+    link.href = href;
     (link as any).fetchPriority = "high";
     document.head.appendChild(link);
     return () => { try { document.head.removeChild(link); } catch {} };
