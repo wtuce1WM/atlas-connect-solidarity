@@ -513,11 +513,15 @@ const Home = () => {
 
   // Resolve the cities table id (for multi-city video assignments)
   useEffect(() => {
+    const key = `home:cityRowId:${city}`;
+    const cached = getCached<string | null>(key);
+    if (cached) setCityRowId(cached);
     let cancelled = false;
-    (async () => {
-      const id = await getCityIdByName(city);
-      if (!cancelled) setCityRowId(id);
-    })();
+    revalidate<string | null>(
+      key,
+      async () => (await getCityIdByName(city)) ?? null,
+      (fresh) => { if (!cancelled) setCityRowId(fresh); }
+    );
     return () => { cancelled = true; };
   }, [city]);
 
