@@ -259,13 +259,15 @@ async function buildSnapshot(supabase: any, city: string) {
     // badge_id is only used to FILTER which video to pick — never displayed as label.
     const label = card.title?.trim() || null;
     const target = computeTarget(card);
+    const event = card.event_id ? eventMap.get(card.event_id) : null;
     if (!doc) {
       const biz = card.business_id ? bizMap.get(card.business_id) : null;
       return {
         key: `extra:${card.id}`, kind: "extra",
         data: {
-          videoId: null, videoUrl: null, thumbnail: null,
-          businessName: biz?.name || null,
+          videoId: null, videoUrl: null,
+          thumbnail: event?.images?.[0] || null,
+          businessName: event?.name || biz?.name || null,
           ownerLogo: null, ownerName: null, ownerId: null,
           rating: null, reviewCount: null, label,
           badgeId: card.badge_id || null,
@@ -277,6 +279,8 @@ async function buildSnapshot(supabase: any, city: string) {
     const ownerBiz = bizMap.get(doc.business_id) || null;
     const dispId = card.business_id || doc.business_id;
     const dispBiz = bizMap.get(dispId) || null;
+    const immo = immoMap.get(doc.id);
+    const isImmo = (label || "").trim().toLowerCase() === "immobilier";
     return {
       key: `extra:${card.id}`, kind: "extra",
       data: {
@@ -292,6 +296,8 @@ async function buildSnapshot(supabase: any, city: string) {
         badgeId: card.badge_id || null,
         eventId: card.event_id || null,
         target,
+        price: isImmo ? (immo?.price ?? null) : null,
+        priceType: isImmo ? (immo?.price_type ?? null) : null,
       },
     };
   });
