@@ -425,7 +425,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       if (!v) return;
       const onPlay = () => setVideoPaused(false);
       const onPause = () => setVideoPaused(true);
-      const onVolChange = () => setVideoMuted(v.muted);
+      const onVolChange = () => { setVideoMuted(v.muted); setGlobalSoundOn(!v.muted); };
       v.addEventListener("play", onPlay);
       v.addEventListener("pause", onPause);
       v.addEventListener("volumechange", onVolChange);
