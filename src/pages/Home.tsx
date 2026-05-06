@@ -2065,7 +2065,10 @@ const Home = () => {
               !!selectedEntry &&
               selectedEntry.id !== HOME_ID &&
               selectedEntry.id !== VLOGS_ID &&
-              !selectedSubId;
+              !selectedSubId &&
+              !videoBadgeFilter &&
+              !videoEventFilter &&
+              !videoPopularSearchFilter;
             const childItems = isParentEntry
               ? selectedEntry.subcategory_ids
                   .filter((id) => subsWithVideos.has(id))
