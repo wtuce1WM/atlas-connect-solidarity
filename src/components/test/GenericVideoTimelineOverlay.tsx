@@ -195,6 +195,21 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     [items, currentTime]
   );
 
+  // Track whether the video has completed at least one full play.
+  // Detect a loop by spotting a backwards jump in currentTime (end → ~0).
+  const [hasCompletedOnce, setHasCompletedOnce] = useState(false);
+  const prevTimeRef = useRef(0);
+  useEffect(() => {
+    if (currentTime + 1 < prevTimeRef.current) {
+      setHasCompletedOnce(true);
+    }
+    prevTimeRef.current = currentTime;
+  }, [currentTime]);
+
+  // Items shown inside the Club popup: all items once the video has played
+  // through once, otherwise only those reached so far.
+  const popupItems = hasCompletedOnce ? items : reachedItems;
+
   const activeId = useMemo(() => {
     if (reachedItems.length === 0) return null;
     const within = [...reachedItems].reverse().find((it) => {
@@ -251,7 +266,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
 
   const saveAll = async () => {
     if (!userId) return;
-    const toSave = reachedItems.filter((it) => !bookmarkedIds.has(it.id));
+    const toSave = popupItems.filter((it) => !bookmarkedIds.has(it.id));
     if (toSave.length === 0) return;
     setSavingAll(true);
     try {
@@ -269,7 +284,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     }
   };
 
-  const unsavedCount = reachedItems.filter((it) => !bookmarkedIds.has(it.id)).length;
+  const unsavedCount = popupItems.filter((it) => !bookmarkedIds.has(it.id)).length;
 
   if (reachedItems.length === 0 && !showClubButton) return null;
 
@@ -395,12 +410,12 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                   {t.saveDesc}
                 </p>
 
-                {reachedItems.length === 0 ? (
+                {popupItems.length === 0 ? (
                   <p className="text-center text-sm text-muted-foreground py-6">{t.noItems}</p>
                 ) : (
                   <>
                     <div className="max-h-[40vh] overflow-y-auto space-y-2 mb-4 pr-1">
-                      {reachedItems.map((it) => {
+                      {popupItems.map((it) => {
                         const isSaved = bookmarkedIds.has(it.id);
                         const isSaving = savingId === it.id;
                         return (
