@@ -2054,7 +2054,15 @@ const Home = () => {
               Sélectionne une entrée dans la colonne de gauche.
             </p>
           ) : loadingVideos && videos.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Chargement des vidéos…</p>
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="relative aspect-[9/16] rounded-lg bg-muted/40 overflow-hidden animate-pulse"
+                  style={{ animationDelay: `${i * 80}ms` }}
+                />
+              ))}
+            </div>
           ) : videos.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Aucune vidéo trouvée{videoEventFilter ? ` pour « ${videoEventFilter.label} »` : videoPopularSearchFilter ? ` pour « ${videoPopularSearchFilter.label} »` : videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
