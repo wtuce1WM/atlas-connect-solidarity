@@ -153,15 +153,19 @@ const Home = () => {
   }, [videos]);
 
   // Reset visible count when videos list changes (new entry/sub/badge/city).
-  // Show only the first card right away, then quickly expand to INITIAL_VISIBLE on next frame
-  // so the user sees result #1 almost immediately, while the rest paint just after.
+  // Progressive reveal: 1 → 3 → 6 cards, with small staggered delays so the first
+  // result appears immediately and subsequent ones paint in waves (better perceived UX).
   useEffect(() => {
     setVisibleCount(FIRST_PAINT);
     if (videos.length <= FIRST_PAINT) return;
-    const id = window.setTimeout(() => {
+    const timers: number[] = [];
+    timers.push(window.setTimeout(() => {
+      setVisibleCount((c) => Math.max(c, Math.min(3, videos.length)));
+    }, 120));
+    timers.push(window.setTimeout(() => {
       setVisibleCount((c) => Math.max(c, Math.min(INITIAL_VISIBLE, videos.length)));
-    }, 50);
-    return () => window.clearTimeout(id);
+    }, 280));
+    return () => { timers.forEach((t) => window.clearTimeout(t)); };
   }, [videos]);
 
 
