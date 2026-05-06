@@ -195,6 +195,21 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     [items, currentTime]
   );
 
+  // Track whether the video has completed at least one full play.
+  // Detect a loop by spotting a backwards jump in currentTime (end → ~0).
+  const [hasCompletedOnce, setHasCompletedOnce] = useState(false);
+  const prevTimeRef = useRef(0);
+  useEffect(() => {
+    if (currentTime + 1 < prevTimeRef.current) {
+      setHasCompletedOnce(true);
+    }
+    prevTimeRef.current = currentTime;
+  }, [currentTime]);
+
+  // Items shown inside the Club popup: all items once the video has played
+  // through once, otherwise only those reached so far.
+  const popupItems = hasCompletedOnce ? items : reachedItems;
+
   const activeId = useMemo(() => {
     if (reachedItems.length === 0) return null;
     const within = [...reachedItems].reverse().find((it) => {
