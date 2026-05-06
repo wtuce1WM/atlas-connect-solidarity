@@ -412,13 +412,12 @@ const Home = () => {
       }),
     [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]
   );
-  const hydratedKeysRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     // When the filter key changes, immediately clear stale results so we don't
-    // briefly show the previous entry/sub/badge cards. Hydrate from cache if any.
-    const cached = readHomeVideosCache<VideoItem>(videosCacheKey);
-    setVideos(cached && cached.length > 0 ? cached : []);
-    hydratedKeysRef.current.add(videosCacheKey);
+    // briefly show the previous entry/sub/badge cards. We do NOT hydrate from
+    // cache here: hydrating then overwriting with the fresh fetch makes the
+    // results visibly render twice. The skeleton bridges the gap instead.
+    setVideos([]);
   }, [videosCacheKey]);
   useEffect(() => {
     if (loadingVideos) return;
