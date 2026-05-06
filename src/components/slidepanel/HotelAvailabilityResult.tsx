@@ -43,7 +43,7 @@ export function HotelAvailabilityResult({
   if (!cardsHidden) return null;
 
   return (
-    <div className={`flex-1 w-full flex flex-col justify-center gap-3 px-0 md:px-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" || externalVideoInteractiveMode ? "pointer-events-none" : "pointer-events-auto"}`}>
+    <div className={`flex-1 w-full flex flex-col justify-start gap-3 px-0 md:px-8 pt-4 md:pt-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" || externalVideoInteractiveMode ? "pointer-events-none" : "pointer-events-auto"}`}>
       {hotelSearchLoading && (
         <div className="flex items-center justify-center gap-2 text-white/80">
           <Loader2 className="h-5 w-5 animate-spin" />
