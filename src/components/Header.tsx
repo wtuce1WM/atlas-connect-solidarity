@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, Menu } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderMenuContent from "@/components/HeaderMenuContent";
 import StructureMenuContent from "@/components/StructureMenuContent";
