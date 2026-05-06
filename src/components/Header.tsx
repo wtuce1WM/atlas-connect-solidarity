@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, Menu } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderMenuContent from "@/components/HeaderMenuContent";
 import StructureMenuContent from "@/components/StructureMenuContent";
@@ -172,12 +172,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
       aria-label="Menu OW"
       aria-expanded={menuOpen}
     >
-      <span
-        className="text-sm font-bold text-foreground tracking-wider"
-        style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.08em" }}
-      >
-        OW
-      </span>
+      <Menu className="h-5 w-5 text-foreground" />
     </button>
   );
 
