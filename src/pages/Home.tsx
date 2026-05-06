@@ -2053,7 +2053,7 @@ const Home = () => {
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
             </p>
-          ) : loadingVideos ? (
+          ) : loadingVideos && videos.length === 0 ? (
             <p className="text-sm text-muted-foreground">Chargement des vidéos…</p>
           ) : videos.length === 0 ? (
             <p className="text-sm text-muted-foreground">
