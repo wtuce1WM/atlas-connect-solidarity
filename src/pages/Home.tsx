@@ -129,12 +129,10 @@ const Home = () => {
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
-  // Progressive reveal: show first card immediately, then quickly expand to a larger initial batch,
-  // and finally lazy-load more on scroll. This improves perceived UX (first result appears instantly).
-  const FIRST_PAINT = 1;
+  // Infinite scroll: render only first N cards initially, load more on scroll (LCP optimization)
   const INITIAL_VISIBLE = 6;
   const VISIBLE_INCREMENT = 12;
-  const [visibleCount, setVisibleCount] = useState<number>(FIRST_PAINT);
+  const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE);
   const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Preload first video thumbnail to accelerate LCP (works for Supabase URLs AND YouTube i.ytimg.com posters)
@@ -152,20 +150,9 @@ const Home = () => {
     return () => { try { document.head.removeChild(link); } catch {} };
   }, [videos]);
 
-  // Reset visible count when videos list changes (new entry/sub/badge/city).
-  // Progressive reveal: 1 → 3 → 6 cards, with small staggered delays so the first
-  // result appears immediately and subsequent ones paint in waves (better perceived UX).
+  // Reset visible count when videos list changes (new entry/sub/badge/city)
   useEffect(() => {
-    setVisibleCount(FIRST_PAINT);
-    if (videos.length <= FIRST_PAINT) return;
-    const timers: number[] = [];
-    timers.push(window.setTimeout(() => {
-      setVisibleCount((c) => Math.max(c, Math.min(3, videos.length)));
-    }, 120));
-    timers.push(window.setTimeout(() => {
-      setVisibleCount((c) => Math.max(c, Math.min(INITIAL_VISIBLE, videos.length)));
-    }, 280));
-    return () => { timers.forEach((t) => window.clearTimeout(t)); };
+    setVisibleCount(INITIAL_VISIBLE);
   }, [videos]);
 
 
@@ -412,12 +399,12 @@ const Home = () => {
       }),
     [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]
   );
+  const hydratedKeysRef = useRef<Set<string>>(new Set());
   useEffect(() => {
-    // When the filter key changes, immediately clear stale results so we don't
-    // briefly show the previous entry/sub/badge cards. We do NOT hydrate from
-    // cache here: hydrating then overwriting with the fresh fetch makes the
-    // results visibly render twice. The skeleton bridges the gap instead.
-    setVideos([]);
+    if (hydratedKeysRef.current.has(videosCacheKey)) return;
+    hydratedKeysRef.current.add(videosCacheKey);
+    const cached = readHomeVideosCache<VideoItem>(videosCacheKey);
+    if (cached && cached.length > 0) setVideos(cached);
   }, [videosCacheKey]);
   useEffect(() => {
     if (loadingVideos) return;
@@ -2053,16 +2040,8 @@ const Home = () => {
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
             </p>
-          ) : loadingVideos && videos.length === 0 ? (
-            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="relative aspect-[9/16] rounded-lg bg-muted/40 overflow-hidden animate-pulse"
-                  style={{ animationDelay: `${i * 80}ms` }}
-                />
-              ))}
-            </div>
+          ) : loadingVideos ? (
+            <p className="text-sm text-muted-foreground">Chargement des vidéos…</p>
           ) : videos.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Aucune vidéo trouvée{videoEventFilter ? ` pour « ${videoEventFilter.label} »` : videoPopularSearchFilter ? ` pour « ${videoPopularSearchFilter.label} »` : videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
