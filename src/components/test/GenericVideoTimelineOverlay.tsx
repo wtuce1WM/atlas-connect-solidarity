@@ -410,12 +410,12 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                   {t.saveDesc}
                 </p>
 
-                {reachedItems.length === 0 ? (
+                {popupItems.length === 0 ? (
                   <p className="text-center text-sm text-muted-foreground py-6">{t.noItems}</p>
                 ) : (
                   <>
                     <div className="max-h-[40vh] overflow-y-auto space-y-2 mb-4 pr-1">
-                      {reachedItems.map((it) => {
+                      {popupItems.map((it) => {
                         const isSaved = bookmarkedIds.has(it.id);
                         const isSaving = savingId === it.id;
                         return (
