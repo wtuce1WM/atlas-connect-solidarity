@@ -112,7 +112,7 @@ export function HotelAvailabilityResult({
         }
 
         return (
-          <div className="flex flex-col items-center justify-center flex-1 w-full">
+          <div className="flex flex-col items-center justify-start w-full">
             <div className="text-left text-white bg-black/40 backdrop-blur-sm rounded-xl px-4 md:px-5 py-4 border border-white/10 w-full md:w-auto">
               <div className="text-[14px] md:text-[20px] font-['Roboto',sans-serif] leading-relaxed space-y-2">
                 {hasAvailability ? (
