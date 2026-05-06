@@ -266,7 +266,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
 
   const saveAll = async () => {
     if (!userId) return;
-    const toSave = reachedItems.filter((it) => !bookmarkedIds.has(it.id));
+    const toSave = popupItems.filter((it) => !bookmarkedIds.has(it.id));
     if (toSave.length === 0) return;
     setSavingAll(true);
     try {
@@ -284,7 +284,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     }
   };
 
-  const unsavedCount = reachedItems.filter((it) => !bookmarkedIds.has(it.id)).length;
+  const unsavedCount = popupItems.filter((it) => !bookmarkedIds.has(it.id)).length;
 
   if (reachedItems.length === 0 && !showClubButton) return null;
 
