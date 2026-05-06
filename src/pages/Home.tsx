@@ -414,10 +414,11 @@ const Home = () => {
   );
   const hydratedKeysRef = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (hydratedKeysRef.current.has(videosCacheKey)) return;
-    hydratedKeysRef.current.add(videosCacheKey);
+    // When the filter key changes, immediately clear stale results so we don't
+    // briefly show the previous entry/sub/badge cards. Hydrate from cache if any.
     const cached = readHomeVideosCache<VideoItem>(videosCacheKey);
-    if (cached && cached.length > 0) setVideos(cached);
+    setVideos(cached && cached.length > 0 ? cached : []);
+    hydratedKeysRef.current.add(videosCacheKey);
   }, [videosCacheKey]);
   useEffect(() => {
     if (loadingVideos) return;
