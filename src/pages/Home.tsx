@@ -129,10 +129,12 @@ const Home = () => {
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
-  // Infinite scroll: render only first N cards initially, load more on scroll (LCP optimization)
+  // Progressive reveal: show first card immediately, then quickly expand to a larger initial batch,
+  // and finally lazy-load more on scroll. This improves perceived UX (first result appears instantly).
+  const FIRST_PAINT = 1;
   const INITIAL_VISIBLE = 6;
   const VISIBLE_INCREMENT = 12;
-  const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE);
+  const [visibleCount, setVisibleCount] = useState<number>(FIRST_PAINT);
   const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Preload first video thumbnail to accelerate LCP (works for Supabase URLs AND YouTube i.ytimg.com posters)
@@ -150,9 +152,16 @@ const Home = () => {
     return () => { try { document.head.removeChild(link); } catch {} };
   }, [videos]);
 
-  // Reset visible count when videos list changes (new entry/sub/badge/city)
+  // Reset visible count when videos list changes (new entry/sub/badge/city).
+  // Show only the first card right away, then quickly expand to INITIAL_VISIBLE on next frame
+  // so the user sees result #1 almost immediately, while the rest paint just after.
   useEffect(() => {
-    setVisibleCount(INITIAL_VISIBLE);
+    setVisibleCount(FIRST_PAINT);
+    if (videos.length <= FIRST_PAINT) return;
+    const id = window.setTimeout(() => {
+      setVisibleCount((c) => Math.max(c, Math.min(INITIAL_VISIBLE, videos.length)));
+    }, 50);
+    return () => window.clearTimeout(id);
   }, [videos]);
 
 
