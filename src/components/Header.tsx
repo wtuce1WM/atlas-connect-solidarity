@@ -172,12 +172,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
       aria-label="Menu OW"
       aria-expanded={menuOpen}
     >
-      <span
-        className="text-sm font-bold text-foreground tracking-wider"
-        style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.08em" }}
-      >
-        OW
-      </span>
+      <Menu className="h-5 w-5 text-foreground" />
     </button>
   );
 
