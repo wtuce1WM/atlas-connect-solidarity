@@ -1905,12 +1905,7 @@ const Home = () => {
             aria-label="Menu Structure"
             aria-expanded={menuOpen}
           >
-            <span
-              className="text-sm font-bold text-foreground tracking-wider"
-              style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.08em" }}
-            >
-              OW
-            </span>
+            <MenuIcon className="h-5 w-5 text-foreground" />
           </button>
         }
         rightContent={
