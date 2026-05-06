@@ -414,7 +414,15 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                   <p className="text-center text-sm text-muted-foreground py-6">{t.noItems}</p>
                 ) : (
                   <>
-                    <div className="max-h-[40vh] overflow-y-auto space-y-2 mb-4 pr-1">
+                    <style>{`
+                      .club-scroll::-webkit-scrollbar { width: 6px; }
+                      .club-scroll::-webkit-scrollbar-track { background: transparent; }
+                      .club-scroll::-webkit-scrollbar-thumb { background: #6050DC; border-radius: 9999px; }
+                      .club-scroll::-webkit-scrollbar-thumb:hover { background: #4d3fc4; }
+                      .club-scroll { scrollbar-width: thin; scrollbar-color: #6050DC transparent; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+                      .club-scroll-mask { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%); }
+                    `}</style>
+                    <div className="club-scroll club-scroll-mask max-h-[40vh] overflow-y-auto space-y-2 mb-4 pr-2 py-2">
                       {popupItems.map((it) => {
                         const isSaved = bookmarkedIds.has(it.id);
                         const isSaving = savingId === it.id;
