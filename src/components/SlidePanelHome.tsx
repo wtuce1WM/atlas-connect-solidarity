@@ -17,6 +17,7 @@ import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import ShareButton from "@/components/ShareButton";
+import BookmarkButton from "@/components/BookmarkButton";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
 import { Phone } from "lucide-react";
