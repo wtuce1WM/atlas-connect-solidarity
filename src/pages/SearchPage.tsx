@@ -497,6 +497,7 @@ const SearchPage = () => {
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
+        setHideResultsMap(false);
         if (returnVideoId) {
           // Defer navigation so BookOnlineSlidePanel's unmount cleanup
           // (which calls history.replaceState to the original URL) runs FIRST.
