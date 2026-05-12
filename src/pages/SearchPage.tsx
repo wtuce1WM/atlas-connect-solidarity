@@ -142,26 +142,28 @@ const SearchPage = () => {
   const textHotelIntentSeqRef = useRef(0);
   useEffect(() => {
     if (!urlQ) return;
-    const looksLikeHotelSearch = /h[oô]tel/i.test(urlQ) && /\s/.test(urlQ);
+    const spokenParam = searchParams.get("spoken") || "";
+    // Use the richer of spoken text or query text to detect hotel intent.
+    // (When triggered from a recent search, q="City" while spoken keeps the full sentence.)
+    const transcriptCandidate = (spokenParam.trim() || urlQ).trim();
+    const looksLikeHotelSearch = /h[oô]tel/i.test(transcriptCandidate) && /\s/.test(transcriptCandidate);
     if (!looksLikeHotelSearch) return;
-    // Skip if this query was already triggered by the voice flow (spoken param present)
-    if (searchParams.get("spoken")) return;
-    const key = `${urlQ}::${urlT}`;
+    const key = `${transcriptCandidate}::${urlT}`;
     if (lastTextHotelKeyRef.current === key) return;
     lastTextHotelKeyRef.current = key;
     const seq = ++textHotelIntentSeqRef.current;
     (async () => {
       try {
         const { data, error } = await supabase.functions.invoke("voice-search-intent", {
-          body: { transcript: urlQ },
+          body: { transcript: transcriptCandidate },
         });
         if (error || !data) return;
         // Drop stale intent results if the user has triggered a newer search since
         if (seq !== textHotelIntentSeqRef.current) return;
         if (data.intent === "hotelSearch" && data.hotelSearch) {
-          handleHotelSearch(data.hotelSearch);
+          handleHotelSearch(data.hotelSearch, transcriptCandidate);
         } else if (data.intent === "hotelAvailability" && data.hotelAvailability) {
-          handleHotelAvailability(data.hotelAvailability, urlQ);
+          handleHotelAvailability(data.hotelAvailability, transcriptCandidate);
         }
       } catch (e) {
         console.warn("Text hotel intent extraction failed:", e);
