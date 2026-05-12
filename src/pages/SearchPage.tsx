@@ -831,6 +831,7 @@ const SearchPage = () => {
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [latestHotelSearchDates, setLatestHotelSearchDates] = useState<{ checkIn?: string; checkOut?: string; adults?: number }>({});
 
+  const hotelSearchSeqRef = useRef(0);
   const handleHotelSearch = useCallback(async (intent: { city: string; checkIn?: string; checkOut?: string; adults?: number }, spokenText?: string) => {
     const lang = language === "en" ? "en" : "fr";
     let cityName = (intent.city || "").trim();
