@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X, ExternalLink } from "lucide-react";
 import OverlayShell from "@/components/overlays/OverlayShell";
 
 interface SpotifyOverlayProps {
@@ -10,20 +10,22 @@ interface SpotifyOverlayProps {
 
 /**
  * Extract a Spotify embed URL from any standard Spotify share URL.
- * Supports: playlist, album, track, episode, show, artist
- * https://open.spotify.com/playlist/4KnqkOXvbgq20nmhvDvAsJ?si=...
- *   → https://open.spotify.com/embed/playlist/4KnqkOXvbgq20nmhvDvAsJ
+ * Supports embeddable types: playlist, album, track, episode, show, artist.
+ * User profiles (/user/) are NOT embeddable by Spotify — handled separately.
  */
 function buildSpotifyEmbedUrl(rawUrl: string): string | null {
   if (!rawUrl) return null;
   const url = rawUrl.trim();
-  // Already an embed URL
   if (/open\.spotify\.com\/embed\//.test(url)) return url.split("?")[0];
   const m = url.match(
-    /open\.spotify\.com\/(playlist|album|track|episode|show|artist|user)\/([a-zA-Z0-9_.-]+)/,
+    /open\.spotify\.com\/(playlist|album|track|episode|show|artist)\/([a-zA-Z0-9]+)/,
   );
   if (!m) return null;
   return `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=oneworldmorocco`;
+}
+
+function isSpotifyUserUrl(rawUrl: string): boolean {
+  return /open\.spotify\.com\/user\//.test((rawUrl || "").trim());
 }
 
 const SpotifyOverlay = ({ url, businessName, language = "fr", onClose }: SpotifyOverlayProps) => {
