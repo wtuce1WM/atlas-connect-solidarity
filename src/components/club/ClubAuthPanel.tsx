@@ -215,6 +215,12 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
             {isLoggingIn ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Crown className="h-4 w-4 mr-2" />}
             {t.login}
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            {t.noAccount}{" "}
+            <button type="button" onClick={() => setMode("register")} className="text-primary hover:underline font-semibold">
+              {t.registerTab}
+            </button>
+          </p>
         </form>
       ) : (
         <form onSubmit={handleRegister} className="space-y-3">
