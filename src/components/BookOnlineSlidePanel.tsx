@@ -1465,11 +1465,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               icon: <span className="flex items-center justify-center w-6 h-6">{categoryIcon ? <DynamicIcon name={categoryIcon} size={22} /> : <Newspaper className="h-[22px] w-[22px]" />}</span>,
               items: menuDocs.map(doc => ({ label: doc.name || 'Menu', onClick: () => { openDocOrBooking(doc.url, doc.name || 'Menu'); } })),
             });
-            if (menuSummaries.length > 0) groups.push({
-              key: 'ai',
-              icon: <Sparkles className="h-[22px] w-[22px]" />,
-              items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setDescOverlayContent({ html: ms.content || '', title: ms.title || 'Menu IA', priceDetails: ms.price_details, avgPriceRange: ms.avg_price_range }); setDescGridSection(null); setSidebarOpenGroup(null); } })),
-            });
+            // Menu IA group removed (per user request)
             if (externalLinks.length > 0) {
               const extDesc = externalLinks[0]?.description?.toLowerCase() || "";
               const extIcon = (extDesc === "presse" || extDesc === "media")
@@ -1493,21 +1489,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 })),
               });
             }
-            if (hasReviewsCard) {
-              const openReviewsOverlay = () => {
-                const html = buildReviewHtml(reviewTexts, reviewPlatforms, avgOn20, totalReviewCount, language);
-                const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
-                setDescOverlayContent({ html, title });
-                setDescGridSection(null);
-                setSidebarOpenGroup(null);
-              };
-              groups.push({
-                key: 'reviews',
-                icon: <Star className="h-[22px] w-[22px] text-gold fill-gold" />,
-                directClick: openReviewsOverlay,
-                items: [],
-              });
-            }
+            // Avis clients group removed (per user request)
             return (
               <div
                 className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end"
