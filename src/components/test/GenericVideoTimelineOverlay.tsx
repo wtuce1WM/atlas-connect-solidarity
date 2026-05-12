@@ -293,7 +293,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
 
   const unsavedCount = popupItems.filter((it) => !bookmarkedIds.has(it.id)).length;
 
-  if (reachedItems.length === 0 && !showClubButton) return null;
+  if (reachedItems.length === 0 && !showClubButton && !clubOpen) return null;
 
   return (
     <>

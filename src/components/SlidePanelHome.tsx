@@ -431,27 +431,14 @@ const SlidePanelHome = ({
               )}
               {rightEl && createPortal(
                 <div className="flex items-center gap-2 shrink-0">
-                  {isGeneric ? (
-                    <button
-                      type="button"
-                      onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                      aria-label="Le Club OWM"
-                    >
-                      <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
-                    </button>
-                  ) : ctaBusiness ? (
-                    <BookmarkButton businessId={ctaBusiness.id} variant="dark" />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => window.dispatchEvent(new CustomEvent("open-club-panel"))}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                      aria-label="Le Club OWM"
-                    >
-                      <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                    className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                    aria-label="Le Club OWM"
+                  >
+                    <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                  </button>
                   <ShareButton
                     title={ctaBusiness?.name || businessName}
                     variant="dark"
@@ -538,7 +525,7 @@ const SlidePanelHome = ({
                 allowFullScreen
               />
             )}
-            {isGeneric && videoId && (
+            {videoId && (
               <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} />
             )}
             {agendaCity && (
