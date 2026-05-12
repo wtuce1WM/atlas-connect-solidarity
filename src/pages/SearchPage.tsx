@@ -139,6 +139,7 @@ const SearchPage = () => {
   // Text-search hotel intent: when typed query looks like a hotel search sentence,
   // run the same intent extraction used by voice and trigger the hotel availability flow.
   const lastTextHotelKeyRef = useRef<string>("");
+  const textHotelIntentSeqRef = useRef(0);
   useEffect(() => {
     if (!urlQ) return;
     const looksLikeHotelSearch = /h[oô]tel/i.test(urlQ) && /\s/.test(urlQ);
@@ -148,12 +149,15 @@ const SearchPage = () => {
     const key = `${urlQ}::${urlT}`;
     if (lastTextHotelKeyRef.current === key) return;
     lastTextHotelKeyRef.current = key;
+    const seq = ++textHotelIntentSeqRef.current;
     (async () => {
       try {
         const { data, error } = await supabase.functions.invoke("voice-search-intent", {
           body: { transcript: urlQ },
         });
         if (error || !data) return;
+        // Drop stale intent results if the user has triggered a newer search since
+        if (seq !== textHotelIntentSeqRef.current) return;
         if (data.intent === "hotelSearch" && data.hotelSearch) {
           handleHotelSearch(data.hotelSearch);
         } else if (data.intent === "hotelAvailability" && data.hotelAvailability) {
