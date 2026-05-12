@@ -966,7 +966,7 @@ const SearchPage = () => {
     } catch (err) {
       console.error("Hotel search voice error:", err);
     } finally {
-      setHotelSearchLoading(false);
+      if (seq === hotelSearchSeqRef.current) setHotelSearchLoading(false);
     }
   }, [language, saveSearch]);
 
