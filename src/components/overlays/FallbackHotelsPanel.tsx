@@ -199,10 +199,13 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel, in
 
   const content = (
     <div className={inline ? "flex flex-col overflow-hidden w-full h-full" : "relative bg-white flex flex-col overflow-hidden w-full h-full lg:rounded-none animate-fade-in lg:animate-slide-in-left"}>
-      <div className="flex items-center justify-end px-4 py-3 border-b border-border shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+        <span className="text-sm font-medium text-foreground truncate">
+          {isEn ? "Hotels available in" : "Hôtels disponibles à"} {data.city}. {data.checkIn} → {data.checkOut} · {data.adults} {isEn ? "adult(s)" : "adulte(s)"}
+        </span>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors"
+          className="p-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors shrink-0 ml-2"
         >
           <X className="h-4 w-4 text-foreground" />
         </button>
