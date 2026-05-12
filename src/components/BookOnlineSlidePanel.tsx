@@ -1071,6 +1071,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           showCards={showCards}
           setShowDirections={setShowDirections}
           setShowFallbackOverlay={setShowFallbackOverlay}
+          onClosePanel={onClose}
           setShowBookingOverlay={setShowBookingOverlay}
           setBookingOverlayLoaded={setBookingOverlayLoaded}
           setBookingOverlayUrl={setBookingOverlayUrl}
