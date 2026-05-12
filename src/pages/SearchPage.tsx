@@ -3171,6 +3171,12 @@ const SearchPage = () => {
         onSearch={(params) => {
           setCompactPanelBusiness(null);
           setIsCompactPanelExpanded(false);
+          setHotelSearchPanel(null);
+          setHotelSearchLoading(false);
+          setAvailabilityRestrictedIds(null);
+          setLatestHotelSearchDates({});
+          hotelSearchSeqRef.current += 1;
+          textHotelIntentSeqRef.current += 1;
           setSelectedCategoryFilter(null);
           setSelectedSubcategoryFilter(null);
           setSelectedServiceFilter(null);
