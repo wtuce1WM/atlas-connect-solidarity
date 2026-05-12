@@ -170,8 +170,16 @@ export default function ResultsTabContent({
             </div>
           ) : filteredBusinesses.length > 0 ? (
             <>
+              {/* Hotel availability search header */}
+              {resolvedHotelSearchInfo && (
+                <div className="sticky z-[21] -mx-4 mb-4 border-y border-primary/40 bg-white px-4 py-2 shadow-sm top-[53px] lg:top-[68px]">
+                  <p className="mx-auto max-w-screen-2xl text-base font-semibold leading-snug text-neutral-900">
+                    {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {resolvedHotelSearchInfo.city}. {resolvedHotelSearchInfo.checkIn} → {resolvedHotelSearchInfo.checkOut} · {resolvedHotelSearchInfo.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
+                  </p>
+                </div>
+              )}
               {/* Bar: Results count + Carte — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-2 md:py-2 lg:py-1.5 lg:hidden" style={{ top: '53px' }}>
+              <div ref={resultsBarRef} data-results-bar className={`sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-2 md:py-2 lg:py-1.5 lg:hidden`} style={{ top: resolvedHotelSearchInfo ? '101px' : '53px' }}>
                 {isSubDesktop && (
                   <button
                     onClick={() => setShowMobileMap(true)}
@@ -182,14 +190,6 @@ export default function ResultsTabContent({
                   </button>
                 )}
               </div>
-              {/* Hotel availability search header */}
-              {resolvedHotelSearchInfo && (
-                <div className="sticky z-[20] -mx-4 mb-4 border-y border-primary/40 bg-white px-4 py-2 shadow-sm" style={{ top: '68px' }}>
-                  <p className="mx-auto max-w-screen-2xl text-base font-semibold leading-snug text-neutral-900">
-                    {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {resolvedHotelSearchInfo.city}. {resolvedHotelSearchInfo.checkIn} → {resolvedHotelSearchInfo.checkOut} · {resolvedHotelSearchInfo.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
-                  </p>
-                </div>
-              )}
               {/* Results grid */}
               <div className={`grid gap-4 ${resolvedHotelSearchInfo ? "pt-8 lg:pt-10" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
