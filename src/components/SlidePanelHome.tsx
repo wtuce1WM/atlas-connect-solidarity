@@ -20,7 +20,7 @@ import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
-import { Phone } from "lucide-react";
+import { Phone, Heart } from "lucide-react";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
@@ -429,14 +429,25 @@ const SlidePanelHome = ({
                 ) : <span />,
                 centerEl
               )}
-              {rightEl && ctaBusiness && createPortal(
+              {rightEl && createPortal(
                 <div className="flex items-center gap-2 shrink-0">
-                  <BookmarkButton businessId={ctaBusiness.id} variant="dark" />
+                  {ctaBusiness ? (
+                    <BookmarkButton businessId={ctaBusiness.id} variant="dark" />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => window.dispatchEvent(new CustomEvent("open-club-panel"))}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                      aria-label="Le Club OWM"
+                    >
+                      <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                    </button>
+                  )}
                   <ShareButton
-                    title={ctaBusiness.name || businessName}
+                    title={ctaBusiness?.name || businessName}
                     variant="dark"
                     className="shrink-0"
-                    shareUrl={ctaBusiness.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
+                    shareUrl={ctaBusiness?.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
                   />
                 </div>,
                 rightEl
