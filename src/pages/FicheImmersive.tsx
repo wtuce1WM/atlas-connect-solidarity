@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 
 const MAP_BG_URL =
-  "https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_EMBED_KEY}&center=31.6295,-7.9811&zoom=6&maptype=roadmap";
+  `https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_EMBED_KEY}&center=31.6295,-7.9811&zoom=6&maptype=roadmap`;
 
 const BackdropMap = ({ children }: { children: React.ReactNode }) => (
   <div className="relative min-h-screen w-full overflow-hidden bg-black">
