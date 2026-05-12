@@ -950,6 +950,11 @@ const SearchPage = () => {
         setSearchParams(prev => {
           const next = new URLSearchParams(prev);
           next.set("pinIds", availableIds.join(","));
+          // Persist hotel search context so the header survives reloads/navigation
+          next.set("hotelCity", cityName);
+          next.set("hotelCheckIn", checkIn);
+          next.set("hotelCheckOut", checkOut);
+          next.set("hotelAdults", String(adults));
           return next;
         }, { replace: true });
       }
