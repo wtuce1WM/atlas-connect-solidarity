@@ -25,7 +25,7 @@ const T = {
     emailUsed: "Cet email est déjà utilisé.",
     successTitle: "Bienvenue au Club OWM !",
     successMsg: "Un email de confirmation vous a été envoyé.",
-    noAccount: "Pas encore de compte ?", required: "* obligatoire",
+    noAccount: "Pas encore membre ?", hasAccount: "Déjà membre ?", required: "* obligatoire",
   },
   en: {
     loginTab: "Sign in", registerTab: "Register",
@@ -39,7 +39,7 @@ const T = {
     emailUsed: "This email is already in use.",
     successTitle: "Welcome to the OWM Club!",
     successMsg: "A confirmation email has been sent.",
-    noAccount: "No account yet?", required: "* required",
+    noAccount: "Not a member yet?", hasAccount: "Already a member?", required: "* required",
   },
   ar: {
     loginTab: "تسجيل الدخول", registerTab: "تسجيل",
@@ -53,7 +53,7 @@ const T = {
     emailUsed: "هذا البريد الإلكتروني مستخدم بالفعل.",
     successTitle: "مرحباً بك في نادي OWM!",
     successMsg: "تم إرسال بريد تأكيد.",
-    noAccount: "ليس لديك حساب؟", required: "* مطلوب",
+    noAccount: "لست عضواً بعد؟", hasAccount: "عضو بالفعل؟", required: "* مطلوب",
   },
 } as const;
 
