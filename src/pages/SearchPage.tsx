@@ -827,11 +827,17 @@ const SearchPage = () => {
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [latestHotelSearchDates, setLatestHotelSearchDates] = useState<{ checkIn?: string; checkOut?: string; adults?: number }>({});
 
-  const handleHotelSearch = useCallback(async (intent: { city: string; checkIn?: string; checkOut?: string; adults?: number }) => {
+  const handleHotelSearch = useCallback(async (intent: { city: string; checkIn?: string; checkOut?: string; adults?: number }, spokenText?: string) => {
     const lang = language === "en" ? "en" : "fr";
     let cityName = (intent.city || "").trim();
     if (!cityName) {
       return;
+    }
+
+    // Save voice/text hotel search to recent searches history
+    const queryToSave = (spokenText || "").trim() || cityName;
+    if (queryToSave) {
+      saveSearch(queryToSave, cityName, "Hôtellerie");
     }
 
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
