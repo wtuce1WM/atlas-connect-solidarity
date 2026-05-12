@@ -2111,6 +2111,16 @@ const SearchPage = () => {
     () => `sticky4-ai-${stickyAiAnimationNonce}`,
     [stickyAiAnimationNonce]
   );
+  const hotelSearchInfoForResults = (() => {
+    if (hotelSearchPanel) return { city: hotelSearchPanel.city, checkIn: hotelSearchPanel.checkIn, checkOut: hotelSearchPanel.checkOut, adults: hotelSearchPanel.adults };
+    const params = new URLSearchParams(window.location.search || searchParams.toString());
+    const city = params.get("hotelCity");
+    const checkIn = params.get("hotelCheckIn");
+    const checkOut = params.get("hotelCheckOut");
+    const adults = params.get("hotelAdults");
+    if (city && checkIn && checkOut && adults) return { city, checkIn, checkOut, adults: parseInt(adults, 10) || 0 };
+    return null;
+  })();
 
   // Word-by-word animation disabled (Sticky 4 bar is disabled) — set immediately to avoid
   // ~22 state updates/sec that cause scroll jank in the left panel during AI loading
@@ -3036,15 +3046,7 @@ const SearchPage = () => {
            fsTopBusinessId={fsTopBusinessId}
            hideAiSuggestion={!!searchParams.get("pinIds")}
            allCityMapBusinesses={allCityMapBusinesses}
-           hotelSearchInfo={(() => {
-             if (hotelSearchPanel) return { city: hotelSearchPanel.city, checkIn: hotelSearchPanel.checkIn, checkOut: hotelSearchPanel.checkOut, adults: hotelSearchPanel.adults };
-             const c = searchParams.get("hotelCity");
-             const ci = searchParams.get("hotelCheckIn");
-             const co = searchParams.get("hotelCheckOut");
-             const a = searchParams.get("hotelAdults");
-             if (c && ci && co && a) return { city: c, checkIn: ci, checkOut: co, adults: parseInt(a, 10) || 0 };
-             return null;
-           })()}
+           hotelSearchInfo={hotelSearchInfoForResults}
         />
       )}
 
