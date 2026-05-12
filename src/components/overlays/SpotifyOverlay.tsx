@@ -78,6 +78,25 @@ const SpotifyOverlay = ({ url, businessName, language = "fr", onClose }: Spotify
             loading="lazy"
             style={{ border: 0 }}
           />
+        ) : isSpotifyUserUrl(url) ? (
+          <div className="flex flex-col items-center gap-4 text-center">
+            <p className="text-white/80 text-sm max-w-md">
+              {language === "en"
+                ? "Spotify user profiles cannot be embedded. Open the profile in Spotify to listen."
+                : language === "ar"
+                ? "لا يمكن تضمين ملفات تعريف مستخدمي Spotify. افتح الملف الشخصي في Spotify للاستماع."
+                : "Les profils utilisateur Spotify ne peuvent pas être intégrés. Ouvrez le profil dans Spotify pour écouter."}
+            </p>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1DB954] hover:bg-[#1ed760] text-black text-sm font-semibold transition-colors"
+            >
+              <ExternalLink className="h-4 w-4" />
+              {language === "en" ? "Open in Spotify" : language === "ar" ? "افتح في Spotify" : "Ouvrir dans Spotify"}
+            </a>
+          </div>
         ) : (
           <div className="text-white/80 text-sm text-center">
             {language === "en"
