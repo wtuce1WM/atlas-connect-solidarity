@@ -1,6 +1,6 @@
 import React from "react";
 import { createPortal } from "react-dom";
-import { ChevronLeft, Minimize2, Phone } from "lucide-react";
+import { ChevronLeft, Minimize2, Phone, Heart } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import ShareButton from "@/components/ShareButton";
@@ -118,9 +118,20 @@ export function ToolbarPortals({
         toolbarCenterPortal
       )}
 
-      {/* Right portal: Share */}
+      {/* Right portal: Heart (Le Club) + Share */}
       {toolbarPortal && !shouldHide && createPortal(
-        <ShareButton title={business.name} variant="dark" className="shrink-0" shareUrl={business.slug ? buildOgShareUrl(business.slug) : undefined} />,
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+            className="h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity shrink-0"
+            title="Le Club OWM"
+            aria-label="Le Club OWM"
+          >
+            <Heart className="h-4 w-4" />
+          </button>
+          <ShareButton title={business.name} variant="dark" className="shrink-0" shareUrl={business.slug ? buildOgShareUrl(business.slug) : undefined} />
+        </div>,
         toolbarPortal
       )}
     </>
