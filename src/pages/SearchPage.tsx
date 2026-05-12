@@ -950,6 +950,11 @@ const SearchPage = () => {
         setSearchParams(prev => {
           const next = new URLSearchParams(prev);
           next.set("pinIds", availableIds.join(","));
+          // Persist hotel search context so the header survives reloads/navigation
+          next.set("hotelCity", cityName);
+          next.set("hotelCheckIn", checkIn);
+          next.set("hotelCheckOut", checkOut);
+          next.set("hotelAdults", String(adults));
           return next;
         }, { replace: true });
       }
@@ -3031,7 +3036,15 @@ const SearchPage = () => {
            fsTopBusinessId={fsTopBusinessId}
            hideAiSuggestion={!!searchParams.get("pinIds")}
            allCityMapBusinesses={allCityMapBusinesses}
-           hotelSearchInfo={hotelSearchPanel ? { city: hotelSearchPanel.city, checkIn: hotelSearchPanel.checkIn, checkOut: hotelSearchPanel.checkOut, adults: hotelSearchPanel.adults } : null}
+           hotelSearchInfo={(() => {
+             if (hotelSearchPanel) return { city: hotelSearchPanel.city, checkIn: hotelSearchPanel.checkIn, checkOut: hotelSearchPanel.checkOut, adults: hotelSearchPanel.adults };
+             const c = searchParams.get("hotelCity");
+             const ci = searchParams.get("hotelCheckIn");
+             const co = searchParams.get("hotelCheckOut");
+             const a = searchParams.get("hotelAdults");
+             if (c && ci && co && a) return { city: c, checkIn: ci, checkOut: co, adults: parseInt(a, 10) || 0 };
+             return null;
+           })()}
         />
       )}
 
