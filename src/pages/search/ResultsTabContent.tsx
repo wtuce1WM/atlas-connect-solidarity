@@ -173,8 +173,8 @@ export default function ResultsTabContent({
               </div>
               {/* Hotel availability search header */}
               {hotelSearchInfo && (
-                <div className="mt-4 mb-2 px-1">
-                  <p className="text-sm font-medium text-neutral-900">
+                <div className="mb-4 rounded-md border border-border bg-muted px-3 py-2 shadow-sm">
+                  <p className="text-base font-semibold leading-snug text-foreground">
                     {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {hotelSearchInfo.city}. {hotelSearchInfo.checkIn} → {hotelSearchInfo.checkOut} · {hotelSearchInfo.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
                   </p>
                 </div>
