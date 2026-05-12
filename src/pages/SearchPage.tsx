@@ -894,6 +894,7 @@ const SearchPage = () => {
           .eq("main_category", "Hôtellerie");
         bizMap = new globalThis.Map((bizData || []).map((b: any) => [b.id, b]));
       }
+      if (seq !== hotelSearchSeqRef.current) return;
 
       const gammeMap = new globalThis.Map(gammes.map((g: any) => [g.id, g]));
       const hotels: any[] = [];
