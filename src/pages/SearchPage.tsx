@@ -2111,6 +2111,16 @@ const SearchPage = () => {
     () => `sticky4-ai-${stickyAiAnimationNonce}`,
     [stickyAiAnimationNonce]
   );
+  const hotelSearchInfoForResults = (() => {
+    if (hotelSearchPanel) return { city: hotelSearchPanel.city, checkIn: hotelSearchPanel.checkIn, checkOut: hotelSearchPanel.checkOut, adults: hotelSearchPanel.adults };
+    const params = new URLSearchParams(window.location.search || searchParams.toString());
+    const city = params.get("hotelCity");
+    const checkIn = params.get("hotelCheckIn");
+    const checkOut = params.get("hotelCheckOut");
+    const adults = params.get("hotelAdults");
+    if (city && checkIn && checkOut && adults) return { city, checkIn, checkOut, adults: parseInt(adults, 10) || 0 };
+    return null;
+  })();
 
   // Word-by-word animation disabled (Sticky 4 bar is disabled) — set immediately to avoid
   // ~22 state updates/sec that cause scroll jank in the left panel during AI loading
@@ -2979,73 +2989,76 @@ const SearchPage = () => {
 
 
       {activeTab === "suggestions" && (
-        <ResultsTabContent
-          resultsRef={resultsRef}
-          resultsBarRef={resultsBarRef}
-          compactPanelBusiness={compactPanelBusiness}
-          hasKnownLocation={hasKnownLocation}
-          hideResultsMap={hideResultsMap}
-          setHideResultsMap={setHideResultsMap}
-          mapPanelCloseTrigger={mapPanelCloseTrigger}
-          onSearchNavigate={(params) => {
-            setCompactPanelBusiness(null);
-            setIsCompactPanelExpanded(false);
-            setSelectedCategoryFilter(null);
-            setSelectedSubcategoryFilter(null);
-            setSelectedServiceFilter(null);
-            if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
-            setActiveTab("suggestions");
-            setSelectedCity("all");
-            setIsGeoCityAutoSelected(false);
-            setSearchParams(params);
-          }}
-          onHotelSearch={handleHotelSearch}
-          onBusinessSelect={(bizId) => {
-            setCompactPanelBusiness({ id: bizId, name: "" } as any);
-            setIsCompactPanelExpanded(false);
-          }}
-          isCategoryFilterActive={isCategoryFilterActive}
-          isMobile={isMobile}
-          isSubDesktop={isSubDesktop}
-          isLoading={isLoading}
-          filteredBusinesses={filteredBusinesses}
-          paginatedBusinesses={paginatedBusinesses}
-          businessLabelLogos={businessLabelLogos}
-          mapPoiItems={mapPoiItems}
-          mapCenterForResults={mapCenterForResults}
-          hoveredResultId={hoveredResultId}
-          setHoveredResultId={setHoveredResultId}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          startResult={startResult}
-          endResult={endResult}
-          displayedResultsCount={displayedResultsCount}
-          goToPage={goToPage}
-          stickyAiText={stickyAiText}
-          searchQuery={searchQuery}
-          spokenText={spokenText}
-          activeTimeSlot={activeTimeSlot}
-          language={language}
-          openCompactPanel={openCompactPanel}
-          getDistanceKm={getDistanceKm}
-          setShowMobileMap={setShowMobileMap}
-          setShowAiPopup={setShowAiPopup}
-          t={t}
-          effectiveCity={effectiveCityForMap}
-           onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
-           fsTopBusinessId={fsTopBusinessId}
-           hideAiSuggestion={!!searchParams.get("pinIds")}
-           allCityMapBusinesses={allCityMapBusinesses}
-           hotelSearchInfo={(() => {
-             if (hotelSearchPanel) return { city: hotelSearchPanel.city, checkIn: hotelSearchPanel.checkIn, checkOut: hotelSearchPanel.checkOut, adults: hotelSearchPanel.adults };
-             const c = searchParams.get("hotelCity");
-             const ci = searchParams.get("hotelCheckIn");
-             const co = searchParams.get("hotelCheckOut");
-             const a = searchParams.get("hotelAdults");
-             if (c && ci && co && a) return { city: c, checkIn: ci, checkOut: co, adults: parseInt(a, 10) || 0 };
-             return null;
-           })()}
-        />
+        <>
+          {hotelSearchInfoForResults && (
+            <div className={`${compactPanelBusiness ? "lg:w-1/2" : hasKnownLocation && !hideResultsMap ? "lg:w-1/2" : ""} bg-white px-4 pt-4`}>
+              <div className="rounded-md border border-border bg-muted px-3 py-2 shadow-sm">
+                <p className="text-base font-semibold leading-snug text-foreground">
+                  {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {hotelSearchInfoForResults.city}. {hotelSearchInfoForResults.checkIn} → {hotelSearchInfoForResults.checkOut} · {hotelSearchInfoForResults.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
+                </p>
+              </div>
+            </div>
+          )}
+          <ResultsTabContent
+            resultsRef={resultsRef}
+            resultsBarRef={resultsBarRef}
+            compactPanelBusiness={compactPanelBusiness}
+            hasKnownLocation={hasKnownLocation}
+            hideResultsMap={hideResultsMap}
+            setHideResultsMap={setHideResultsMap}
+            mapPanelCloseTrigger={mapPanelCloseTrigger}
+            onSearchNavigate={(params) => {
+              setCompactPanelBusiness(null);
+              setIsCompactPanelExpanded(false);
+              setSelectedCategoryFilter(null);
+              setSelectedSubcategoryFilter(null);
+              setSelectedServiceFilter(null);
+              if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+              setActiveTab("suggestions");
+              setSelectedCity("all");
+              setIsGeoCityAutoSelected(false);
+              setSearchParams(params);
+            }}
+            onHotelSearch={handleHotelSearch}
+            onBusinessSelect={(bizId) => {
+              setCompactPanelBusiness({ id: bizId, name: "" } as any);
+              setIsCompactPanelExpanded(false);
+            }}
+            isCategoryFilterActive={isCategoryFilterActive}
+            isMobile={isMobile}
+            isSubDesktop={isSubDesktop}
+            isLoading={isLoading}
+            filteredBusinesses={filteredBusinesses}
+            paginatedBusinesses={paginatedBusinesses}
+            businessLabelLogos={businessLabelLogos}
+            mapPoiItems={mapPoiItems}
+            mapCenterForResults={mapCenterForResults}
+            hoveredResultId={hoveredResultId}
+            setHoveredResultId={setHoveredResultId}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            startResult={startResult}
+            endResult={endResult}
+            displayedResultsCount={displayedResultsCount}
+            goToPage={goToPage}
+            stickyAiText={stickyAiText}
+            searchQuery={searchQuery}
+            spokenText={spokenText}
+            activeTimeSlot={activeTimeSlot}
+            language={language}
+            openCompactPanel={openCompactPanel}
+            getDistanceKm={getDistanceKm}
+            setShowMobileMap={setShowMobileMap}
+            setShowAiPopup={setShowAiPopup}
+            t={t}
+            effectiveCity={effectiveCityForMap}
+            onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
+            fsTopBusinessId={fsTopBusinessId}
+            hideAiSuggestion={!!searchParams.get("pinIds")}
+            allCityMapBusinesses={allCityMapBusinesses}
+            hotelSearchInfo={null}
+          />
+        </>
       )}
 
       {/* Mobile/Tablet Map Overlay — slide-in from right */}
