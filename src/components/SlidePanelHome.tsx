@@ -538,8 +538,8 @@ const SlidePanelHome = ({
                 allowFullScreen
               />
             )}
-            {isGeneric && videoId && (
-              <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} />
+            {videoId && (
+              <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} showStrip={isGeneric} />
             )}
             {agendaCity && (
 
