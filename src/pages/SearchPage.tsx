@@ -958,6 +958,11 @@ const SearchPage = () => {
         setSearchParams(prev => {
           const next = new URLSearchParams(prev);
           next.set("pinIds", availableIds.join(","));
+          // Refresh q/spoken so headers/titles reflect the current hotel search
+          if (spokenText && spokenText.trim()) {
+            next.set("q", spokenText.trim());
+            next.set("spoken", spokenText.trim());
+          }
           // Persist hotel search context so the header survives reloads/navigation
           next.set("hotelCity", cityName);
           next.set("hotelCheckIn", checkIn);
