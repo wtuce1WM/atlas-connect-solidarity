@@ -95,12 +95,37 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "ONE WORLD MOROCCO",
-      "url": "https://oneworldmorocco.com",
-      "logo": "https://oneworldmorocco.com/favicon.webp",
-      "description": "Les meilleures adresses au Maroc : hôtels, restaurants, activités et services.",
-      "sameAs": []
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://oneworldmorocco.com/#organization",
+          "name": "ONE WORLD MOROCCO",
+          "url": "https://oneworldmorocco.com",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://oneworldmorocco.com/favicon.webp"
+          },
+          "description": "Les meilleures adresses au Maroc : hôtels, restaurants, activités et services.",
+          "sameAs": []
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://oneworldmorocco.com/#website",
+          "url": "https://oneworldmorocco.com",
+          "name": "ONE WORLD MOROCCO",
+          "description": "1ère plateforme de e-commerce solidaire au Maroc",
+          "inLanguage": "fr-FR",
+          "publisher": { "@id": "https://oneworldmorocco.com/#organization" },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://oneworldmorocco.com/search?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
     }
     </script>
     <!-- Google Analytics — deferred until after load + idle to free main thread during hydration -->
