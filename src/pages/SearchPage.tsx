@@ -852,6 +852,7 @@ const SearchPage = () => {
     const adults = intent.adults || 2;
     setLatestHotelSearchDates({ checkIn, checkOut, adults });
 
+    const seq = ++hotelSearchSeqRef.current;
     setHotelSearchLoading(true);
     try {
       const [mappingResult, gammeResult] = await Promise.all([
