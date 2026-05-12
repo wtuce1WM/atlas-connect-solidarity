@@ -723,6 +723,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         openBadgeInfo={openBadgeInfo}
       />
 
+      <ClubLoginPopup />
+
       {/* Full-bleed background — extracted component */}
       <div className={externalVideoBackgroundClass}>
         <MediaBackground
