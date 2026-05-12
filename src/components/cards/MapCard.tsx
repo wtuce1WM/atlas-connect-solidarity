@@ -1,3 +1,4 @@
+import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 interface MapCardProps {
   latitude: number | null;
   longitude: number | null;
