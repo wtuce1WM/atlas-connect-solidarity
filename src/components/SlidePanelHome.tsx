@@ -431,7 +431,16 @@ const SlidePanelHome = ({
               )}
               {rightEl && createPortal(
                 <div className="flex items-center gap-2 shrink-0">
-                  {ctaBusiness ? (
+                  {isGeneric ? (
+                    <button
+                      type="button"
+                      onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                      aria-label="Le Club OWM"
+                    >
+                      <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                    </button>
+                  ) : ctaBusiness ? (
                     <BookmarkButton businessId={ctaBusiness.id} variant="dark" />
                   ) : (
                     <button
