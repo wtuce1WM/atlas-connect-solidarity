@@ -831,6 +831,7 @@ const SearchPage = () => {
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [latestHotelSearchDates, setLatestHotelSearchDates] = useState<{ checkIn?: string; checkOut?: string; adults?: number }>({});
 
+  const hotelSearchSeqRef = useRef(0);
   const handleHotelSearch = useCallback(async (intent: { city: string; checkIn?: string; checkOut?: string; adults?: number }, spokenText?: string) => {
     const lang = language === "en" ? "en" : "fr";
     let cityName = (intent.city || "").trim();
@@ -851,6 +852,7 @@ const SearchPage = () => {
     const adults = intent.adults || 2;
     setLatestHotelSearchDates({ checkIn, checkOut, adults });
 
+    const seq = ++hotelSearchSeqRef.current;
     setHotelSearchLoading(true);
     try {
       const [mappingResult, gammeResult] = await Promise.all([
@@ -864,6 +866,7 @@ const SearchPage = () => {
       const serpResult = await supabase.functions.invoke("serpapi-hotels", {
         body: { cityName, checkIn, checkOut, adults, currency: "EUR", maxPages: optimalMaxPages || 1 },
       });
+      if (seq !== hotelSearchSeqRef.current) return;
       const serpHotels = (serpResult.data?.data || []) as any[];
 
       const serpByExactName = new globalThis.Map<string, any>();
@@ -891,6 +894,7 @@ const SearchPage = () => {
           .eq("main_category", "Hôtellerie");
         bizMap = new globalThis.Map((bizData || []).map((b: any) => [b.id, b]));
       }
+      if (seq !== hotelSearchSeqRef.current) return;
 
       const gammeMap = new globalThis.Map(gammes.map((g: any) => [g.id, g]));
       const hotels: any[] = [];
@@ -962,7 +966,7 @@ const SearchPage = () => {
     } catch (err) {
       console.error("Hotel search voice error:", err);
     } finally {
-      setHotelSearchLoading(false);
+      if (seq === hotelSearchSeqRef.current) setHotelSearchLoading(false);
     }
   }, [language, saveSearch]);
 
