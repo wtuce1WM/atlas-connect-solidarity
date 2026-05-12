@@ -25,7 +25,7 @@ const T = {
     emailUsed: "Cet email est déjà utilisé.",
     successTitle: "Bienvenue au Club OWM !",
     successMsg: "Un email de confirmation vous a été envoyé.",
-    noAccount: "Pas encore de compte ?", required: "* obligatoire",
+    noAccount: "Pas encore membre ?", hasAccount: "Déjà membre ?", required: "* obligatoire",
   },
   en: {
     loginTab: "Sign in", registerTab: "Register",
@@ -39,7 +39,7 @@ const T = {
     emailUsed: "This email is already in use.",
     successTitle: "Welcome to the OWM Club!",
     successMsg: "A confirmation email has been sent.",
-    noAccount: "No account yet?", required: "* required",
+    noAccount: "Not a member yet?", hasAccount: "Already a member?", required: "* required",
   },
   ar: {
     loginTab: "تسجيل الدخول", registerTab: "تسجيل",
@@ -53,7 +53,7 @@ const T = {
     emailUsed: "هذا البريد الإلكتروني مستخدم بالفعل.",
     successTitle: "مرحباً بك في نادي OWM!",
     successMsg: "تم إرسال بريد تأكيد.",
-    noAccount: "ليس لديك حساب؟", required: "* مطلوب",
+    noAccount: "لست عضواً بعد؟", hasAccount: "عضو بالفعل؟", required: "* مطلوب",
   },
 } as const;
 
@@ -161,26 +161,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex bg-muted rounded-lg p-1">
-        <button
-          type="button"
-          onClick={() => setMode("login")}
-          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${
-            mode === "login" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          {t.loginTab}
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("register")}
-          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${
-            mode === "register" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          {t.registerTab}
-        </button>
-      </div>
+
 
       <ClubSocialButtons redirectPath={redirectPath} onSuccess={onSuccess} />
 
@@ -234,6 +215,12 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
             {isLoggingIn ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Crown className="h-4 w-4 mr-2" />}
             {t.login}
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            {t.noAccount}{" "}
+            <button type="button" onClick={() => setMode("register")} className="text-primary hover:underline font-semibold">
+              {t.registerTab}
+            </button>
+          </p>
         </form>
       ) : (
         <form onSubmit={handleRegister} className="space-y-3">
@@ -307,6 +294,12 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
             {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Crown className="h-4 w-4 mr-2" />}
             {t.register}
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            {t.hasAccount}{" "}
+            <button type="button" onClick={() => setMode("login")} className="text-primary hover:underline font-semibold">
+              {t.loginTab}
+            </button>
+          </p>
         </form>
       )}
     </div>
