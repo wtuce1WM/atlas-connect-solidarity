@@ -17,6 +17,7 @@ interface HotelAvailabilityResultProps {
   showCards: () => void;
   setShowDirections: (v: boolean) => void;
   setShowFallbackOverlay: (v: boolean) => void;
+  onClosePanel?: () => void;
   setShowBookingOverlay: (v: boolean) => void;
   setBookingOverlayLoaded: (v: boolean) => void;
   setBookingOverlayUrl: (v: string | null) => void;
@@ -35,6 +36,7 @@ export function HotelAvailabilityResult({
   showCards,
   setShowDirections,
   setShowFallbackOverlay,
+  onClosePanel,
   setShowBookingOverlay,
   setBookingOverlayLoaded,
   setBookingOverlayUrl,
@@ -190,7 +192,7 @@ export function HotelAvailabilityResult({
             )}
 
             {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length > 0 && (
-              <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-4 md:px-5 py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 transition-colors w-full md:w-auto" onClick={() => setShowFallbackOverlay(true)}>
+              <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-4 md:px-5 py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 transition-colors w-full md:w-auto" onClick={() => { onClosePanel?.(); }}>
                 <p className="text-[14px] md:text-[20px] font-medium mb-1">
                   {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length} {language === "en" ? "available hotels" : "hôtels disponibles"}
                 </p>
