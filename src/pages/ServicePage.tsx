@@ -480,18 +480,18 @@ const ServicePage = () => {
       // Using business name as query makes Google find the GMB listing and show the labeled red marker.
       // Coordinates-only query (q=lat,lng) returns an unlabeled generic pin without the business name.
       const query = selectedBusiness.name + (selectedBusiness.address ? `, ${selectedBusiness.address}` : "");
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
+      return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${encodeURIComponent(query)}&zoom=17`;
     }
     // When a city is selected, center on the city; otherwise center on Morocco
     if (selectedCity !== "all") {
       const cityData = citiesWithPriority.find(c => c.name === selectedCity);
       if (cityData?.latitude && cityData?.longitude) {
-        return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${cityData.latitude},${cityData.longitude}&zoom=13&maptype=roadmap`;
+        return `https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_EMBED_KEY}&center=${cityData.latitude},${cityData.longitude}&zoom=13&maptype=roadmap`;
       }
       // Fallback: search by city name
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(selectedCity + ", Maroc")}&zoom=13`;
+      return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${encodeURIComponent(selectedCity + ", Maroc")}&zoom=13`;
     }
-    return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=31.7917,-7.0926&zoom=6&maptype=roadmap`;
+    return `https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_EMBED_KEY}&center=31.7917,-7.0926&zoom=6&maptype=roadmap`;
   };
 
   const goToPage = (page: number) => {

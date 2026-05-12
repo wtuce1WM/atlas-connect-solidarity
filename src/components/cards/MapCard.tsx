@@ -36,7 +36,7 @@ const MapCard = ({
 
   if (!lat || !lng) return null;
 
-  const embedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${lat},${lng}&zoom=15`;
+  const embedUrl = `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${lat},${lng}&zoom=15`;
 
   return (
     <div

@@ -434,11 +434,11 @@ const CategoryPage = () => {
       // Using business name as query makes Google find the GMB listing and show the labeled red marker.
       // Coordinates-only query (q=lat,lng) returns an unlabeled generic pin without the business name.
       const query = selectedBusiness.name + (selectedBusiness.address ? `, ${selectedBusiness.address}` : "");
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
+      return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${encodeURIComponent(query)}&zoom=17`;
     }
     // Center on Morocco (lat: 31.7917, lng: -7.0926) when no city selected
     const centerParam = selectedCity !== "all" ? "" : "&center=31.7917,-7.0926";
-    return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedCategoryName)}+${selectedCity !== "all" ? encodeURIComponent(selectedCity) : "Maroc"}${centerParam}&zoom=${selectedCity !== "all" ? 13 : 6}`;
+    return `https://www.google.com/maps/embed/v1/search?key=${GOOGLE_MAPS_EMBED_KEY}&q=${encodeURIComponent(decodedCategoryName)}+${selectedCity !== "all" ? encodeURIComponent(selectedCity) : "Maroc"}${centerParam}&zoom=${selectedCity !== "all" ? 13 : 6}`;
   };
 
   if (isLoading) {

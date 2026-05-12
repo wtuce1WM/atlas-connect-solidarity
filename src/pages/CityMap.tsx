@@ -438,21 +438,21 @@ const CityMap = () => {
       // Using business name as query makes Google find the GMB listing and show the labeled red marker.
       // Coordinates-only query (q=lat,lng) returns an unlabeled generic pin without the business name.
       const query = selectedBusiness.name + (selectedBusiness.address ? `, ${selectedBusiness.address}` : "");
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
+      return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${encodeURIComponent(query)}&zoom=17`;
     }
 
     // Default: show city overview
     if (businesses.length === 0) {
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedCity + ", Maroc")}&zoom=13`;
+      return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${encodeURIComponent(decodedCity + ", Maroc")}&zoom=13`;
     }
 
     // If we have businesses with coordinates, center on the first one
     const businessWithCoords = businesses.find(b => b.latitude && b.longitude);
     if (businessWithCoords) {
-      return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=entreprises+${encodeURIComponent(decodedCity)}&center=${businessWithCoords.latitude},${businessWithCoords.longitude}&zoom=14`;
+      return `https://www.google.com/maps/embed/v1/search?key=${GOOGLE_MAPS_EMBED_KEY}&q=entreprises+${encodeURIComponent(decodedCity)}&center=${businessWithCoords.latitude},${businessWithCoords.longitude}&zoom=14`;
     }
 
-    return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=entreprises+${encodeURIComponent(decodedCity + ", Maroc")}&zoom=13`;
+    return `https://www.google.com/maps/embed/v1/search?key=${GOOGLE_MAPS_EMBED_KEY}&q=entreprises+${encodeURIComponent(decodedCity + ", Maroc")}&zoom=13`;
   };
 
   const handleSelectBusiness = (business: Business) => {
