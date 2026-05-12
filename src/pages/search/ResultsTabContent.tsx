@@ -64,6 +64,7 @@ export interface ResultsTabContentProps {
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
   hideAiSuggestion?: boolean;
+  hotelSearchInfo?: { city: string; checkIn: string; checkOut: string; adults: number } | null;
 }
 
 export default function ResultsTabContent({
