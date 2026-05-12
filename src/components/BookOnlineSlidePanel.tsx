@@ -1598,7 +1598,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                           openDocOrBooking(link.url, link.name || 'Lien', true);
                         }
                       }}
-                      className="shrink-0 h-8 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors overflow-hidden"
+                      className={`shrink-0 h-8 flex items-center gap-1.5 rounded-full text-white transition-colors overflow-hidden ${link.icon ? 'bg-white hover:bg-white/90' : 'bg-white/15 hover:bg-white/30'}`}
                     >
                       {link.icon ? (
                         <img src={link.icon} alt={link.name || ''} className="h-8 w-8 object-contain rounded-full p-1" loading="lazy" />
