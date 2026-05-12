@@ -1489,21 +1489,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 })),
               });
             }
-            if (hasReviewsCard) {
-              const openReviewsOverlay = () => {
-                const html = buildReviewHtml(reviewTexts, reviewPlatforms, avgOn20, totalReviewCount, language);
-                const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
-                setDescOverlayContent({ html, title });
-                setDescGridSection(null);
-                setSidebarOpenGroup(null);
-              };
-              groups.push({
-                key: 'reviews',
-                icon: <Star className="h-[22px] w-[22px] text-gold fill-gold" />,
-                directClick: openReviewsOverlay,
-                items: [],
-              });
-            }
+            // Avis clients group removed (per user request)
             return (
               <div
                 className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end"
