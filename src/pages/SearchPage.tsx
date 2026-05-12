@@ -2989,65 +2989,76 @@ const SearchPage = () => {
 
 
       {activeTab === "suggestions" && (
-        <ResultsTabContent
-          resultsRef={resultsRef}
-          resultsBarRef={resultsBarRef}
-          compactPanelBusiness={compactPanelBusiness}
-          hasKnownLocation={hasKnownLocation}
-          hideResultsMap={hideResultsMap}
-          setHideResultsMap={setHideResultsMap}
-          mapPanelCloseTrigger={mapPanelCloseTrigger}
-          onSearchNavigate={(params) => {
-            setCompactPanelBusiness(null);
-            setIsCompactPanelExpanded(false);
-            setSelectedCategoryFilter(null);
-            setSelectedSubcategoryFilter(null);
-            setSelectedServiceFilter(null);
-            if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
-            setActiveTab("suggestions");
-            setSelectedCity("all");
-            setIsGeoCityAutoSelected(false);
-            setSearchParams(params);
-          }}
-          onHotelSearch={handleHotelSearch}
-          onBusinessSelect={(bizId) => {
-            setCompactPanelBusiness({ id: bizId, name: "" } as any);
-            setIsCompactPanelExpanded(false);
-          }}
-          isCategoryFilterActive={isCategoryFilterActive}
-          isMobile={isMobile}
-          isSubDesktop={isSubDesktop}
-          isLoading={isLoading}
-          filteredBusinesses={filteredBusinesses}
-          paginatedBusinesses={paginatedBusinesses}
-          businessLabelLogos={businessLabelLogos}
-          mapPoiItems={mapPoiItems}
-          mapCenterForResults={mapCenterForResults}
-          hoveredResultId={hoveredResultId}
-          setHoveredResultId={setHoveredResultId}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          startResult={startResult}
-          endResult={endResult}
-          displayedResultsCount={displayedResultsCount}
-          goToPage={goToPage}
-          stickyAiText={stickyAiText}
-          searchQuery={searchQuery}
-          spokenText={spokenText}
-          activeTimeSlot={activeTimeSlot}
-          language={language}
-          openCompactPanel={openCompactPanel}
-          getDistanceKm={getDistanceKm}
-          setShowMobileMap={setShowMobileMap}
-          setShowAiPopup={setShowAiPopup}
-          t={t}
-          effectiveCity={effectiveCityForMap}
-           onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
-           fsTopBusinessId={fsTopBusinessId}
-           hideAiSuggestion={!!searchParams.get("pinIds")}
-           allCityMapBusinesses={allCityMapBusinesses}
-           hotelSearchInfo={hotelSearchInfoForResults}
-        />
+        <>
+          {hotelSearchInfoForResults && (
+            <div className={`${compactPanelBusiness ? "lg:w-1/2" : hasKnownLocation && !hideResultsMap ? "lg:w-1/2" : ""} bg-white px-4 pt-4`}>
+              <div className="rounded-md border border-border bg-muted px-3 py-2 shadow-sm">
+                <p className="text-base font-semibold leading-snug text-foreground">
+                  {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {hotelSearchInfoForResults.city}. {hotelSearchInfoForResults.checkIn} → {hotelSearchInfoForResults.checkOut} · {hotelSearchInfoForResults.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
+                </p>
+              </div>
+            </div>
+          )}
+          <ResultsTabContent
+            resultsRef={resultsRef}
+            resultsBarRef={resultsBarRef}
+            compactPanelBusiness={compactPanelBusiness}
+            hasKnownLocation={hasKnownLocation}
+            hideResultsMap={hideResultsMap}
+            setHideResultsMap={setHideResultsMap}
+            mapPanelCloseTrigger={mapPanelCloseTrigger}
+            onSearchNavigate={(params) => {
+              setCompactPanelBusiness(null);
+              setIsCompactPanelExpanded(false);
+              setSelectedCategoryFilter(null);
+              setSelectedSubcategoryFilter(null);
+              setSelectedServiceFilter(null);
+              if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+              setActiveTab("suggestions");
+              setSelectedCity("all");
+              setIsGeoCityAutoSelected(false);
+              setSearchParams(params);
+            }}
+            onHotelSearch={handleHotelSearch}
+            onBusinessSelect={(bizId) => {
+              setCompactPanelBusiness({ id: bizId, name: "" } as any);
+              setIsCompactPanelExpanded(false);
+            }}
+            isCategoryFilterActive={isCategoryFilterActive}
+            isMobile={isMobile}
+            isSubDesktop={isSubDesktop}
+            isLoading={isLoading}
+            filteredBusinesses={filteredBusinesses}
+            paginatedBusinesses={paginatedBusinesses}
+            businessLabelLogos={businessLabelLogos}
+            mapPoiItems={mapPoiItems}
+            mapCenterForResults={mapCenterForResults}
+            hoveredResultId={hoveredResultId}
+            setHoveredResultId={setHoveredResultId}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            startResult={startResult}
+            endResult={endResult}
+            displayedResultsCount={displayedResultsCount}
+            goToPage={goToPage}
+            stickyAiText={stickyAiText}
+            searchQuery={searchQuery}
+            spokenText={spokenText}
+            activeTimeSlot={activeTimeSlot}
+            language={language}
+            openCompactPanel={openCompactPanel}
+            getDistanceKm={getDistanceKm}
+            setShowMobileMap={setShowMobileMap}
+            setShowAiPopup={setShowAiPopup}
+            t={t}
+            effectiveCity={effectiveCityForMap}
+            onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
+            fsTopBusinessId={fsTopBusinessId}
+            hideAiSuggestion={!!searchParams.get("pinIds")}
+            allCityMapBusinesses={allCityMapBusinesses}
+            hotelSearchInfo={null}
+          />
+        </>
       )}
 
       {/* Mobile/Tablet Map Overlay — slide-in from right */}
