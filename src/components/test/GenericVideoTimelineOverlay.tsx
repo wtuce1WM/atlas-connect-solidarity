@@ -360,7 +360,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
             className="w-[90%] max-w-md rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ backgroundColor: "#6050DC" }} className="p-6 text-white relative">
+            <div style={{ backgroundColor: "#6050DC" }} className="p-3 sm:p-6 text-white relative">
               <button
                 type="button"
                 onClick={() => setClubOpen(false)}
@@ -369,16 +369,16 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
               >
                 <X className="h-5 w-5" />
               </button>
-              <p className="text-sm opacity-90">{t.welcome}</p>
-              <h2 className="text-2xl font-bold mt-1 !font-sans !not-italic">{t.clubName}</h2>
+              <p className="text-xs sm:text-sm opacity-90">{t.welcome}</p>
+              <h2 className="text-xl sm:text-2xl font-bold mt-0.5 sm:mt-1 !font-sans !not-italic">{t.clubName}</h2>
             </div>
 
             {!isLoggedIn ? (
-              <div className="bg-card p-6">
-                <h3 className="text-lg font-semibold text-card-foreground mb-2 !font-sans text-center">
+              <div className="bg-card p-3 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-card-foreground mb-1 sm:mb-2 !font-sans text-center">
                   {t.memberTitle}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-5 text-center">{t.memberDesc}</p>
+                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5 text-center">{t.memberDesc}</p>
                 <ClubAuthPanel redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"} />
               </div>
             ) : (
