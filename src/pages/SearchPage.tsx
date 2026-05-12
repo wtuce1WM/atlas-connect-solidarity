@@ -498,6 +498,10 @@ const SearchPage = () => {
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
         setHideResultsMap(false);
+        // Remonter en haut de la grille de résultats
+        try {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch { window.scrollTo(0, 0); }
         if (returnVideoId) {
           // Defer navigation so BookOnlineSlidePanel's unmount cleanup
           // (which calls history.replaceState to the original URL) runs FIRST.
