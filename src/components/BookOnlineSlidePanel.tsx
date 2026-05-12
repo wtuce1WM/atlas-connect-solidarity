@@ -1465,11 +1465,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               icon: <span className="flex items-center justify-center w-6 h-6">{categoryIcon ? <DynamicIcon name={categoryIcon} size={22} /> : <Newspaper className="h-[22px] w-[22px]" />}</span>,
               items: menuDocs.map(doc => ({ label: doc.name || 'Menu', onClick: () => { openDocOrBooking(doc.url, doc.name || 'Menu'); } })),
             });
-            if (menuSummaries.length > 0) groups.push({
-              key: 'ai',
-              icon: <Sparkles className="h-[22px] w-[22px]" />,
-              items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setDescOverlayContent({ html: ms.content || '', title: ms.title || 'Menu IA', priceDetails: ms.price_details, avgPriceRange: ms.avg_price_range }); setDescGridSection(null); setSidebarOpenGroup(null); } })),
-            });
+            // Menu IA group removed (per user request)
             if (externalLinks.length > 0) {
               const extDesc = externalLinks[0]?.description?.toLowerCase() || "";
               const extIcon = (extDesc === "presse" || extDesc === "media")
