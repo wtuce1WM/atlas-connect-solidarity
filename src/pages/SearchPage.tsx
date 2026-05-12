@@ -952,7 +952,7 @@ const SearchPage = () => {
     } finally {
       setHotelSearchLoading(false);
     }
-  }, [language]);
+  }, [language, saveSearch]);
 
 
   const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
