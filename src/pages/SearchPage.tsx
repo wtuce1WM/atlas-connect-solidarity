@@ -3031,6 +3031,7 @@ const SearchPage = () => {
            fsTopBusinessId={fsTopBusinessId}
            hideAiSuggestion={!!searchParams.get("pinIds")}
            allCityMapBusinesses={allCityMapBusinesses}
+           hotelSearchInfo={hotelSearchPanel ? { city: hotelSearchPanel.city, checkIn: hotelSearchPanel.checkIn, checkOut: hotelSearchPanel.checkOut, adults: hotelSearchPanel.adults } : null}
         />
       )}
 
@@ -3202,6 +3203,8 @@ const SearchPage = () => {
       />
 
       {/* SerpAPI hotel search by city (voice intent: hotelSearch) */}
+      {/* FallbackHotelsPanel commenté: les hôtels disponibles sont déjà affichés
+          dans le panneau de gauche (résultats), avec un en-tête dédié.
       {hotelSearchPanel && (
         <FallbackHotelsPanel
           data={hotelSearchPanel}
@@ -3241,6 +3244,7 @@ const SearchPage = () => {
           }}
         />
       )}
+      */}
       {hotelSearchLoading && (
         <div className="fixed inset-0 z-[230] flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />

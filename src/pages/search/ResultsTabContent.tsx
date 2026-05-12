@@ -64,6 +64,7 @@ export interface ResultsTabContentProps {
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
   hideAiSuggestion?: boolean;
+  hotelSearchInfo?: { city: string; checkIn: string; checkOut: string; adults: number } | null;
 }
 
 export default function ResultsTabContent({
@@ -109,6 +110,7 @@ export default function ResultsTabContent({
   fsTopBusinessId,
   allCityMapBusinesses,
   hideAiSuggestion,
+  hotelSearchInfo,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
@@ -169,6 +171,14 @@ export default function ResultsTabContent({
                   </button>
                 )}
               </div>
+              {/* Hotel availability search header */}
+              {hotelSearchInfo && (
+                <div className="mt-4 mb-2 px-1">
+                  <p className="text-sm font-medium text-foreground">
+                    {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {hotelSearchInfo.city}. {hotelSearchInfo.checkIn} → {hotelSearchInfo.checkOut} · {hotelSearchInfo.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
+                  </p>
+                </div>
+              )}
               {/* Results grid */}
               <div className={`grid gap-4 pt-10 sm:pt-4 md:pt-4 lg:pt-14 pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
