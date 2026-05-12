@@ -866,6 +866,7 @@ const SearchPage = () => {
       const serpResult = await supabase.functions.invoke("serpapi-hotels", {
         body: { cityName, checkIn, checkOut, adults, currency: "EUR", maxPages: optimalMaxPages || 1 },
       });
+      if (seq !== hotelSearchSeqRef.current) return;
       const serpHotels = (serpResult.data?.data || []) as any[];
 
       const serpByExactName = new globalThis.Map<string, any>();
