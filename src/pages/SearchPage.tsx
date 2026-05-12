@@ -3031,6 +3031,7 @@ const SearchPage = () => {
            fsTopBusinessId={fsTopBusinessId}
            hideAiSuggestion={!!searchParams.get("pinIds")}
            allCityMapBusinesses={allCityMapBusinesses}
+           hotelSearchInfo={hotelSearchPanel ? { city: hotelSearchPanel.city, checkIn: hotelSearchPanel.checkIn, checkOut: hotelSearchPanel.checkOut, adults: hotelSearchPanel.adults } : null}
         />
       )}
 
