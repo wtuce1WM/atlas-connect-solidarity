@@ -1637,11 +1637,14 @@ const SearchPage = () => {
           const byId: Record<string, Business> = {};
           (data as unknown as Business[] || []).forEach((b) => { byId[b.id] = { ...b, distance_km: null }; });
           const ordered = orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
+          const pinnedCity = searchParams.get("hotelCity") || searchParams.get("t") || ordered[0]?.city || null;
           setPinnedBusinesses(ordered);
           setAllBusinesses(ordered);
           setTotalCount(null);
           setSearchMessage("");
-          setDetectedCity(searchParams.get("t") || ordered[0]?.city || null);
+          setDetectedCity(pinnedCity);
+          setSelectedCity(pinnedCity || "all");
+          setIsGeoCityAutoSelected(false);
           if (openBusinessParam) openCompactPanel({ id: openBusinessParam, name: ordered.find(b => b.id === openBusinessParam)?.name || "" } as any);
         }
         setIsLoading(false);
