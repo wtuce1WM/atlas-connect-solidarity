@@ -17,6 +17,7 @@ import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import ShareButton from "@/components/ShareButton";
+import BookmarkButton from "@/components/BookmarkButton";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
 import { Phone } from "lucide-react";
@@ -429,12 +430,15 @@ const SlidePanelHome = ({
                 centerEl
               )}
               {rightEl && ctaBusiness && createPortal(
-                <ShareButton
-                  title={ctaBusiness.name || businessName}
-                  variant="dark"
-                  className="shrink-0"
-                  shareUrl={ctaBusiness.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
-                />,
+                <div className="flex items-center gap-2 shrink-0">
+                  <BookmarkButton businessId={ctaBusiness.id} variant="dark" />
+                  <ShareButton
+                    title={ctaBusiness.name || businessName}
+                    variant="dark"
+                    className="shrink-0"
+                    shareUrl={ctaBusiness.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
+                  />
+                </div>,
                 rightEl
               )}
             </>
