@@ -744,7 +744,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         )}
       </div>
 
-      <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
+      <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} hideOnMobile={!!fallbackPanelData && !hotelSearchLoading} />
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
       {!cardsHidden && (

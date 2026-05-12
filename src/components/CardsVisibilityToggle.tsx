@@ -37,16 +37,18 @@ interface DesktopMediaArrowsProps {
   cardsHidden: boolean;
   onPrev: () => void;
   onNext: () => void;
+  hideOnMobile?: boolean;
 }
 
-export const DesktopMediaArrows = ({ totalMedia, cardsHidden, onPrev, onNext }: DesktopMediaArrowsProps) => {
+export const DesktopMediaArrows = ({ totalMedia, cardsHidden, onPrev, onNext, hideOnMobile }: DesktopMediaArrowsProps) => {
   if (totalMedia <= 1 || !cardsHidden) return null;
+  const visibility = hideOnMobile ? "hidden md:flex" : "flex";
   return (
     <>
-      <button onClick={onPrev} className="flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg" aria-label="Previous">
+      <button onClick={onPrev} className={`${visibility} absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg`} aria-label="Previous">
         <ChevronLeft className="h-5 w-5" />
       </button>
-      <button onClick={onNext} className="flex absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg" aria-label="Next">
+      <button onClick={onNext} className={`${visibility} absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg`} aria-label="Next">
         <ChevronRight className="h-5 w-5" />
       </button>
     </>
