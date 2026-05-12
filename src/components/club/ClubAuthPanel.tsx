@@ -161,26 +161,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex bg-muted rounded-lg p-1">
-        <button
-          type="button"
-          onClick={() => setMode("login")}
-          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${
-            mode === "login" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          {t.loginTab}
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("register")}
-          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${
-            mode === "register" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          {t.registerTab}
-        </button>
-      </div>
+
 
       <ClubSocialButtons redirectPath={redirectPath} onSuccess={onSuccess} />
 
