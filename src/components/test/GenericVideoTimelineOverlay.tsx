@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20, formatRating } from "@/lib/ratingUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import ClubSocialButtons from "@/components/club/ClubSocialButtons";
+import ClubAuthPanel from "@/components/club/ClubAuthPanel";
 
 const clubTranslations = {
   fr: {
@@ -379,7 +379,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                   {t.memberTitle}
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-5 text-center">{t.memberDesc}</p>
-                <ClubSocialButtons redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"} />
+                <ClubAuthPanel redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"} />
               </div>
             ) : (
               <div className="bg-card p-6">
