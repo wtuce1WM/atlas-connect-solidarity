@@ -539,7 +539,7 @@ const SlidePanelHome = ({
               />
             )}
             {videoId && (
-              <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} showStrip={isGeneric} />
+              <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} />
             )}
             {agendaCity && (
 
