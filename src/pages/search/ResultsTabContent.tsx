@@ -184,8 +184,8 @@ export default function ResultsTabContent({
               </div>
               {/* Hotel availability search header */}
               {resolvedHotelSearchInfo && (
-                <div className="mb-4 mt-1 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 shadow-sm">
-                  <p className="text-base font-semibold leading-snug text-foreground">
+                <div className="mb-4 mt-1 lg:mt-14 rounded-md border border-primary/40 bg-primary/10 px-3 py-2 shadow-sm">
+                  <p className="text-base font-semibold leading-snug text-neutral-900">
                     {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {resolvedHotelSearchInfo.city}. {resolvedHotelSearchInfo.checkIn} → {resolvedHotelSearchInfo.checkOut} · {resolvedHotelSearchInfo.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
                   </p>
                 </div>
