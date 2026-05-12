@@ -1,6 +1,6 @@
 import React from "react";
 import { createPortal } from "react-dom";
-import { ChevronLeft, Minimize2, Phone } from "lucide-react";
+import { ChevronLeft, Minimize2, Phone, Heart } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import ShareButton from "@/components/ShareButton";
