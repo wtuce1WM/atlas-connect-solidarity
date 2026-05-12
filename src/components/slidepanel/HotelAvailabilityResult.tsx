@@ -17,6 +17,7 @@ interface HotelAvailabilityResultProps {
   showCards: () => void;
   setShowDirections: (v: boolean) => void;
   setShowFallbackOverlay: (v: boolean) => void;
+  onClosePanel?: () => void;
   setShowBookingOverlay: (v: boolean) => void;
   setBookingOverlayLoaded: (v: boolean) => void;
   setBookingOverlayUrl: (v: string | null) => void;
