@@ -429,12 +429,15 @@ const SlidePanelHome = ({
                 centerEl
               )}
               {rightEl && ctaBusiness && createPortal(
-                <ShareButton
-                  title={ctaBusiness.name || businessName}
-                  variant="dark"
-                  className="shrink-0"
-                  shareUrl={ctaBusiness.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
-                />,
+                <div className="flex items-center gap-2 shrink-0">
+                  <BookmarkButton businessId={ctaBusiness.id} variant="dark" />
+                  <ShareButton
+                    title={ctaBusiness.name || businessName}
+                    variant="dark"
+                    className="shrink-0"
+                    shareUrl={ctaBusiness.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
+                  />
+                </div>,
                 rightEl
               )}
             </>
