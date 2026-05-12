@@ -110,6 +110,7 @@ export default function ResultsTabContent({
   fsTopBusinessId,
   allCityMapBusinesses,
   hideAiSuggestion,
+  hotelSearchInfo,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
