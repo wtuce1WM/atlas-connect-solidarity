@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20, formatRating } from "@/lib/ratingUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import ClubSocialButtons from "@/components/club/ClubSocialButtons";
+import ClubAuthPanel from "@/components/club/ClubAuthPanel";
 
 const clubTranslations = {
   fr: {
