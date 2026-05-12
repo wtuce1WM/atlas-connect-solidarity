@@ -20,7 +20,7 @@ function buildSpotifyEmbedUrl(rawUrl: string): string | null {
   // Already an embed URL
   if (/open\.spotify\.com\/embed\//.test(url)) return url.split("?")[0];
   const m = url.match(
-    /open\.spotify\.com\/(playlist|album|track|episode|show|artist)\/([a-zA-Z0-9]+)/,
+    /open\.spotify\.com\/(playlist|album|track|episode|show|artist|user)\/([a-zA-Z0-9_.-]+)/,
   );
   if (!m) return null;
   return `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=oneworldmorocco`;
