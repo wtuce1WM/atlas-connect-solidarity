@@ -619,17 +619,6 @@ const SlidePanelHome = ({
                         href={visibleSocial.url || undefined}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="animate-logo-big-full-reveal pointer-events-auto flex flex-col items-center gap-2 text-white"
-                        style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
-                      >
-                        {visibleSocial.platform === "instagram" && <InstagramIcon className="h-16 w-16 md:h-20 md:w-20" />}
-                        {visibleSocial.platform === "youtube" && <Youtube className="h-16 w-16 md:h-20 md:w-20" />}
-                        {visibleSocial.platform === "tiktok" && <SiTiktok className="h-14 w-14 md:h-[72px] md:w-[72px]" />}
-                      </a>
-                      <a
-                        href={visibleSocial.url || undefined}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors"
                       >
                         <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
