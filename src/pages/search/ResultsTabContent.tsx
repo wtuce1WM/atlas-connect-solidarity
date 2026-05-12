@@ -173,14 +173,14 @@ export default function ResultsTabContent({
               </div>
               {/* Hotel availability search header */}
               {hotelSearchInfo && (
-                <div className="mb-4 rounded-md border border-border bg-muted px-3 py-2 shadow-sm">
+                <div className="mb-4 mt-1 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 shadow-sm">
                   <p className="text-base font-semibold leading-snug text-foreground">
                     {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {hotelSearchInfo.city}. {hotelSearchInfo.checkIn} → {hotelSearchInfo.checkOut} · {hotelSearchInfo.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
                   </p>
                 </div>
               )}
               {/* Results grid */}
-              <div className={`grid gap-4 pt-10 sm:pt-4 md:pt-4 lg:pt-14 pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+              <div className={`grid gap-4 ${hotelSearchInfo ? "pt-0" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const card = (
                     <SearchResultCard
