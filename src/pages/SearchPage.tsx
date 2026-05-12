@@ -461,12 +461,16 @@ const SearchPage = () => {
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
     const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
-       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
+      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
         hasInteractedWithCompactPanelRef.current = true;
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
+        // Ensure the bottom search overlay backdrop (with backdrop-blur) is closed
+        // so that when the slide panel is later closed, results aren't left blurred.
+        setBottomSearchOverlayOpen(false);
+        setBottomSearchCloseTrigger((n) => n + 1);
         setMapPanelCloseTrigger(n => n + 1);
       }, []);
 
@@ -920,6 +924,9 @@ const SearchPage = () => {
         hotels, city: cityName, checkIn, checkOut, adults, source: "serpapi",
         gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
       });
+      // Close the bottom search overlay backdrop so blur doesn't persist behind subsequent panels.
+      setBottomSearchOverlayOpen(false);
+      setBottomSearchCloseTrigger((n) => n + 1);
 
       // Restrict left panel results to the hotels matched against SerpAPI availability
       const availableIds = hotels.map((h: any) => h.businessId).filter(Boolean) as string[];
