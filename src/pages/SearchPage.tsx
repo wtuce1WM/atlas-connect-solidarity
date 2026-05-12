@@ -461,12 +461,16 @@ const SearchPage = () => {
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
     const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
-       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
+      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
         hasInteractedWithCompactPanelRef.current = true;
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
+        // Ensure the bottom search overlay backdrop (with backdrop-blur) is closed
+        // so that when the slide panel is later closed, results aren't left blurred.
+        setBottomSearchOverlayOpen(false);
+        setBottomSearchCloseTrigger((n) => n + 1);
         setMapPanelCloseTrigger(n => n + 1);
       }, []);
 
