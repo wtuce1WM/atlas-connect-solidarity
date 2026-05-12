@@ -67,7 +67,7 @@ const TileButton = ({
     type="button"
     onClick={onClick}
     disabled={disabled}
-    className="relative w-full rounded-md border border-border bg-background hover:bg-muted/50 transition-colors py-3.5 px-4 flex items-center justify-center text-base font-semibold text-foreground disabled:opacity-50"
+    className="relative w-full rounded-md border border-border bg-background hover:bg-muted/50 transition-colors py-3.5 px-4 flex items-center justify-center text-xs sm:text-base font-semibold text-foreground disabled:opacity-50"
   >
     <span className="absolute left-4 flex items-center justify-center w-6 h-6">
       {icon}
