@@ -2990,15 +2990,6 @@ const SearchPage = () => {
 
       {activeTab === "suggestions" && (
         <>
-          {hotelSearchInfoForResults && (
-            <div className={`${compactPanelBusiness ? "lg:w-1/2" : hasKnownLocation && !hideResultsMap ? "lg:w-1/2" : ""} bg-white px-4 pt-4`}>
-              <div className="rounded-md border border-border bg-muted px-3 py-2 shadow-sm">
-                <p className="text-base font-semibold leading-snug text-foreground">
-                  {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {hotelSearchInfoForResults.city}. {hotelSearchInfoForResults.checkIn} → {hotelSearchInfoForResults.checkOut} · {hotelSearchInfoForResults.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
-                </p>
-              </div>
-            </div>
-          )}
           <ResultsTabContent
             resultsRef={resultsRef}
             resultsBarRef={resultsBarRef}
@@ -3056,7 +3047,7 @@ const SearchPage = () => {
             fsTopBusinessId={fsTopBusinessId}
             hideAiSuggestion={!!searchParams.get("pinIds")}
             allCityMapBusinesses={allCityMapBusinesses}
-            hotelSearchInfo={null}
+            hotelSearchInfo={hotelSearchInfoForResults}
           />
         </>
       )}
