@@ -36,6 +36,7 @@ export function HotelAvailabilityResult({
   showCards,
   setShowDirections,
   setShowFallbackOverlay,
+  onClosePanel,
   setShowBookingOverlay,
   setBookingOverlayLoaded,
   setBookingOverlayUrl,
