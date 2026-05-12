@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Navigation, Eye, ExternalLink, ChevronDown } from "lucide-react";

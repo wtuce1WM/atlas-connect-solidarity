@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { useIsMobile } from "@/hooks/use-mobile";

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { businessUrl } from "@/lib/businessUrl";
 import { cleanPhone } from "@/lib/phoneUtils";
 import { Link } from "react-router-dom";

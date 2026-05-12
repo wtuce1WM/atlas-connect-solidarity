@@ -1,4 +1,5 @@
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { useEffect, useState, useMemo } from "react";
 import { useSEO } from "@/hooks/useSEO";
 
