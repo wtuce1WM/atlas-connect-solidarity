@@ -20,7 +20,7 @@ import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
-import { Phone } from "lucide-react";
+import { Phone, Heart } from "lucide-react";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
