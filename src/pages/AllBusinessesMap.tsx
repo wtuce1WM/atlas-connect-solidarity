@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { businessUrl } from "@/lib/businessUrl";
 import { cleanPhone } from "@/lib/phoneUtils";
 import { Link } from "react-router-dom";
@@ -81,15 +82,15 @@ const AllBusinessesMap = () => {
   const getMapUrl = () => {
     if (selectedBusiness) {
       if (selectedBusiness.latitude && selectedBusiness.longitude) {
-        return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=16`;
+        return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=16`;
       }
       const q = encodeURIComponent(`${selectedBusiness.name}, ${selectedBusiness.address || selectedBusiness.city}, Maroc`);
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${q}&zoom=16`;
+      return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${q}&zoom=16`;
     }
     if (selectedCity) {
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(selectedCity + ", Maroc")}&zoom=13`;
+      return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${encodeURIComponent(selectedCity + ", Maroc")}&zoom=13`;
     }
-    return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=Maroc&zoom=6`;
+    return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=Maroc&zoom=6`;
   };
 
   if (isLoading) {

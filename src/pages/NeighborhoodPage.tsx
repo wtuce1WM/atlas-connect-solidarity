@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
@@ -314,15 +315,15 @@ const NeighborhoodPage = () => {
       // Using business name as query makes Google find the GMB listing and show the labeled red marker.
       // Coordinates-only query (q=lat,lng) returns an unlabeled generic pin without the business name.
       const query = selectedBusiness.name + (selectedBusiness.address ? `, ${selectedBusiness.address}` : "");
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
+      return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${encodeURIComponent(query)}&zoom=17`;
     }
 
     const searchQuery = `${decodedNeighborhood} ${cityName}`;
     const businessWithCoords = businesses.find(b => b.latitude && b.longitude);
     if (businessWithCoords) {
-      return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(searchQuery)}&center=${businessWithCoords.latitude},${businessWithCoords.longitude}&zoom=15`;
+      return `https://www.google.com/maps/embed/v1/search?key=${GOOGLE_MAPS_EMBED_KEY}&q=${encodeURIComponent(searchQuery)}&center=${businessWithCoords.latitude},${businessWithCoords.longitude}&zoom=15`;
     }
-    return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(searchQuery + ", Maroc")}&zoom=15`;
+    return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_EMBED_KEY}&q=${encodeURIComponent(searchQuery + ", Maroc")}&zoom=15`;
   };
 
   const handleSelectBusiness = (business: Business) => {

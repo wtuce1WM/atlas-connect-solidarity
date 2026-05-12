@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { X, Info } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 
@@ -77,7 +78,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       </div>
       <div className="flex-1 relative min-h-0">
         <iframe
-          src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
+          src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
           className="absolute inset-0 w-full h-full border-0"
           allowFullScreen
           loading="lazy"
