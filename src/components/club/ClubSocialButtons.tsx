@@ -115,10 +115,12 @@ const ClubSocialButtons = ({ redirectPath = "/club", onSuccess }: Props) => {
   const handleSendCode = async () => {
     if (!phone.trim()) return;
     setSending(true);
-    const { error } = await supabase.auth.signInWithOtp({ phone: phone.trim() });
+    const { data, error } = await supabase.functions.invoke("send-phone-otp", {
+      body: { phone: phone.trim() },
+    });
     setSending(false);
-    if (error) {
-      toast({ title: error.message || t.error, variant: "destructive" });
+    if (error || (data as any)?.error) {
+      toast({ title: (data as any)?.error || error?.message || t.error, variant: "destructive" });
       return;
     }
     toast({ title: t.codeSent });
@@ -128,14 +130,22 @@ const ClubSocialButtons = ({ redirectPath = "/club", onSuccess }: Props) => {
   const handleVerify = async () => {
     if (!code.trim()) return;
     setVerifying(true);
-    const { error } = await supabase.auth.verifyOtp({
-      phone: phone.trim(),
-      token: code.trim(),
-      type: "sms",
+    const { data, error } = await supabase.functions.invoke("verify-phone-otp", {
+      body: { phone: phone.trim(), code: code.trim() },
+    });
+    if (error || (data as any)?.error) {
+      setVerifying(false);
+      toast({ title: (data as any)?.error || error?.message || t.error, variant: "destructive" });
+      return;
+    }
+    const { phone: normPhone, password } = data as { phone: string; password: string };
+    const { error: signErr } = await supabase.auth.signInWithPassword({
+      phone: normPhone,
+      password,
     });
     setVerifying(false);
-    if (error) {
-      toast({ title: error.message || t.error, variant: "destructive" });
+    if (signErr) {
+      toast({ title: signErr.message || t.error, variant: "destructive" });
       return;
     }
     onSuccess?.();
