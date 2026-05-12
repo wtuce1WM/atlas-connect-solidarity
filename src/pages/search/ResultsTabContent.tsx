@@ -114,6 +114,17 @@ export default function ResultsTabContent({
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
+  const resolvedHotelSearchInfo = hotelSearchInfo || (() => {
+    if (typeof window === "undefined") return null;
+    const params = new URLSearchParams(window.location.search);
+    const city = params.get("hotelCity");
+    const checkIn = params.get("hotelCheckIn");
+    const checkOut = params.get("hotelCheckOut");
+    const adults = params.get("hotelAdults");
+    return city && checkIn && checkOut && adults
+      ? { city, checkIn, checkOut, adults: parseInt(adults, 10) || 0 }
+      : null;
+  })();
 
   const handleFsTabClick = (tabId: string | null) => {
     setActiveFsTabId(tabId);
@@ -172,15 +183,15 @@ export default function ResultsTabContent({
                 )}
               </div>
               {/* Hotel availability search header */}
-              {hotelSearchInfo && (
+              {resolvedHotelSearchInfo && (
                 <div className="mb-4 mt-1 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 shadow-sm">
                   <p className="text-base font-semibold leading-snug text-foreground">
-                    {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {hotelSearchInfo.city}. {hotelSearchInfo.checkIn} → {hotelSearchInfo.checkOut} · {hotelSearchInfo.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
+                    {language === "en" ? "Hotels available in" : "Hôtels disponibles à"} {resolvedHotelSearchInfo.city}. {resolvedHotelSearchInfo.checkIn} → {resolvedHotelSearchInfo.checkOut} · {resolvedHotelSearchInfo.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
                   </p>
                 </div>
               )}
               {/* Results grid */}
-              <div className={`grid gap-4 ${hotelSearchInfo ? "pt-0" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+              <div className={`grid gap-4 ${resolvedHotelSearchInfo ? "pt-0" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const card = (
                     <SearchResultCard
