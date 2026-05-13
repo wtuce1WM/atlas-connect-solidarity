@@ -264,7 +264,8 @@ body {
 
 input::placeholder,
 textarea::placeholder {
-  color: hsl(var(--muted-foreground) / 0.45);
+  /* WCAG: blended opacity on sand background must keep ≥ 4.5:1 contrast */
+  color: hsl(var(--muted-foreground) / 0.85);
 }
 
 @keyframes kenburns {
