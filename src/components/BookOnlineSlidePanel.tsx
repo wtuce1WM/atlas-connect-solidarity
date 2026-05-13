@@ -893,7 +893,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* Overlaid content */}
       <div
-        className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[70px] md:pb-[66px]' : 'pb-8'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""} scrollbar-hide`}
+        className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[70px] md:pb-[66px]' : 'pb-8'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""} scrollbar-hide-mobile`}
         style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
         onTouchStart={externalVideoInteractiveMode ? undefined : onTouchStart}
         onTouchMove={externalVideoInteractiveMode ? undefined : onTouchMove}
