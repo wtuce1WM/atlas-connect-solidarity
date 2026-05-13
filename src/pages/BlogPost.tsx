@@ -58,6 +58,22 @@ const BlogPost = () => {
     title: postTitle || "Article",
     description: postTitle ? `${postTitle} – Blog ONE WORLD MOROCCO.` : undefined,
     canonical: slug ? `/blog/${slug}` : undefined,
+    ogUrl: slug ? `/blog/${slug}` : undefined,
+    ogType: "article",
+    ogImage: post?.cover_image_url || undefined,
+    jsonLd: post
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: postTitle,
+          image: post.cover_image_url || undefined,
+          datePublished: post.published_at || undefined,
+          author: post.author_name
+            ? { "@type": "Person", name: post.author_name }
+            : undefined,
+          mainEntityOfPage: slug ? `https://oneworldmorocco.com/blog/${slug}` : undefined,
+        }
+      : undefined,
   });
 
   const getTitle = () => {
