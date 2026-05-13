@@ -435,7 +435,7 @@ const SlidePanelHome = ({
             toolbarRightId="slide-panel-home-toolbar-right"
           />
         )}
-        {!descOverlayOpen && typeof document !== "undefined" && (() => {
+        {!descOverlayOpen && !searchOverlayOpen && typeof document !== "undefined" && (() => {
           const centerEl = document.getElementById("slide-panel-home-toolbar-center");
           const rightEl = document.getElementById("slide-panel-home-toolbar-right");
           return (
