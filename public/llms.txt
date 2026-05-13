@@ -1,0 +1,19 @@
+# ONE WORLD MOROCCO
+
+> Plateforme de e-commerce solidaire qui sélectionne les meilleures adresses au Maroc : hôtels, restaurants, activités et services. 20% de chaque cotisation est reversé à des actions humanitaires.
+
+## Pages
+
+- [Accueil](/): Découverte des meilleures adresses au Maroc, ville par ville.
+- [Recherche](/search): Recherche d'établissements (hôtels, restaurants, activités, services) avec filtres et carte.
+- [Carte](/carte): Carte interactive de toutes les adresses référencées.
+- [Hôtels](/hotels): Recherche de disponibilités et meilleurs tarifs hôteliers au Maroc.
+- [Blog](/blog): Articles et guides de voyage au Maroc.
+- [Mission](/mission): Les 6 piliers de One World Morocco — excellence éthique, sélection 15/20, prix garanti -5%, contact direct, zéro commission, charte éthique.
+- [Club](/club): Programme membre.
+- [Devenir affilié](/devenir-affilie): Programme d'affiliation pour les professionnels.
+- [Contact](/contact): Coordonnées et formulaire de contact.
+
+## Optional
+
+- [Conditions générales](/conditions-generales): Mentions légales.
