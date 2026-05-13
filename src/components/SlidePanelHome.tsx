@@ -426,7 +426,7 @@ const SlidePanelHome = ({
         } : undefined}
       >
         {/* Top toolbar : SlidePanelHeader (même base que SlidePanel de Search) */}
-        {!descOverlayOpen && (
+        {!descOverlayOpen && !searchOverlayOpen && (
           <SlidePanelHeader
             onClose={onClose}
             alwaysDark
@@ -435,7 +435,7 @@ const SlidePanelHome = ({
             toolbarRightId="slide-panel-home-toolbar-right"
           />
         )}
-        {!descOverlayOpen && typeof document !== "undefined" && (() => {
+        {!descOverlayOpen && !searchOverlayOpen && typeof document !== "undefined" && (() => {
           const centerEl = document.getElementById("slide-panel-home-toolbar-center");
           const rightEl = document.getElementById("slide-panel-home-toolbar-right");
           return (
