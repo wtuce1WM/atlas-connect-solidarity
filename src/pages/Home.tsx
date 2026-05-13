@@ -888,21 +888,8 @@ const Home = () => {
           if (so !== 0) return so;
           return String(a.id).localeCompare(String(b.id));
         });
-        // Keep only the first video per displayed business (lowest sort_order in the BO),
-        // grouped by POI when present, otherwise by the real owner (strict, ignores linked_business_id).
-        {
-          const seenGroup = new Set<string>();
-          const kept: any[] = [];
-          for (const d of uniqueDocs) {
-            const biz = resolveVideoEstablishment(d, bizMap, { strict: true });
-            const groupId = d.poi_id || biz?.id || d.business_id || d.id;
-            if (seenGroup.has(groupId)) continue;
-            seenGroup.add(groupId);
-            kept.push(d);
-          }
-          uniqueDocs.length = 0;
-          uniqueDocs.push(...kept);
-        }
+        // No per-business dedupe here: a hashtag view must show ALL videos
+        // tagged with the badge for the current city.
         // Fetch service names for any service_id present on these docs
         const badgeServiceNameById = await fetchServiceNamesByIds(
           uniqueDocs.map((d: any) => d.service_id).filter(Boolean) as string[],
