@@ -123,6 +123,16 @@ const SlidePanelHome = ({
   const [, forceRender] = useState(0);
   useEffect(() => { if (open) forceRender((n) => n + 1); }, [open]);
 
+  // Hide page-level scrollbar when this slide panel is open (all viewports)
+  useEffect(() => {
+    if (open) {
+      document.documentElement.classList.add('hide-scrollbar-panel-open');
+    } else {
+      document.documentElement.classList.remove('hide-scrollbar-panel-open');
+    }
+    return () => { document.documentElement.classList.remove('hide-scrollbar-panel-open'); };
+  }, [open]);
+
   // Description source (video text is ALWAYS prioritary):
   // - If the video has its own description, use it.
   // - Otherwise, fall back to the consulted fiche (pageBusinessId) or the owner's description.
