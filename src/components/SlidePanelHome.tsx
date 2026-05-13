@@ -426,7 +426,7 @@ const SlidePanelHome = ({
         } : undefined}
       >
         {/* Top toolbar : SlidePanelHeader (même base que SlidePanel de Search) */}
-        {!descOverlayOpen && (
+        {!descOverlayOpen && !searchOverlayOpen && (
           <SlidePanelHeader
             onClose={onClose}
             alwaysDark
