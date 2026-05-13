@@ -6,22 +6,23 @@ interface SEOOptions {
   canonical?: string;
   ogImage?: string;
   ogUrl?: string;
+  ogType?: string;
   jsonLd?: Record<string, unknown>;
 }
 
 const SITE_NAME = "ONE WORLD MOROCCO";
-const SITE_TAGLINE = "1ère plateforme de e-commerce solidaire au Maroc";
+const SITE_TAGLINE = "";
 const BASE_URL = "https://oneworldmorocco.com";
 
 /**
  * Sets document.title, meta description, canonical link and optional JSON-LD.
  * Cleans up on unmount (restores defaults).
  */
-export function useSEO({ title, description, canonical, ogImage, ogUrl, jsonLd }: SEOOptions) {
+export function useSEO({ title, description, canonical, ogImage, ogUrl, ogType, jsonLd }: SEOOptions) {
   useEffect(() => {
-    // Title
+    // Title — keep under 60 chars; only append site name if not already present
     const prevTitle = document.title;
-    document.title = title.includes(SITE_TAGLINE) ? title : title.includes(SITE_NAME) ? `${title} – ${SITE_TAGLINE}` : `${title} | ${SITE_NAME} – ${SITE_TAGLINE}`;
+    document.title = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
 
     // Meta description
     let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
@@ -68,6 +69,9 @@ export function useSEO({ title, description, canonical, ogImage, ogUrl, jsonLd }
       const fullUrl = ogUrl.startsWith("http") ? ogUrl : `${BASE_URL}${ogUrl}`;
       ogMetas.push({ property: "og:url", content: fullUrl });
     }
+    if (ogType) {
+      ogMetas.push({ property: "og:type", content: ogType });
+    }
 
     const prevOgValues: { el: HTMLMetaElement; prev: string }[] = [];
     for (const { property, content } of ogMetas) {
@@ -100,5 +104,5 @@ export function useSEO({ title, description, canonical, ogImage, ogUrl, jsonLd }
         el.content = prev;
       }
     };
-  }, [title, description, canonical, ogImage, ogUrl, jsonLd]);
+  }, [title, description, canonical, ogImage, ogUrl, ogType, jsonLd]);
 }
