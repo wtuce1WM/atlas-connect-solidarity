@@ -381,11 +381,13 @@ textarea::placeholder {
 }
 
 /* Hide page scrollbar when slide panel is open on desktop — keeps scroll functional */
-html.hide-scrollbar-panel-open {
+html.hide-scrollbar-panel-open,
+html.hide-scrollbar-search {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-html.hide-scrollbar-panel-open::-webkit-scrollbar {
+html.hide-scrollbar-panel-open::-webkit-scrollbar,
+html.hide-scrollbar-search::-webkit-scrollbar {
   display: none;
 }
 

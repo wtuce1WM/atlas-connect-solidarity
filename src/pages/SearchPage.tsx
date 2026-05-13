@@ -608,6 +608,12 @@ const SearchPage = () => {
       return () => { document.documentElement.classList.remove('hide-scrollbar-panel-open'); };
     }, [compactPanelBusiness]);
 
+    // Always hide native scrollbar on Search page (aligned with Home behaviour)
+    useEffect(() => {
+      document.documentElement.classList.add('hide-scrollbar-search');
+      return () => { document.documentElement.classList.remove('hide-scrollbar-search'); };
+    }, []);
+
     // Auto-open du 1er résultat désactivé : on ne devine jamais l'établissement
     // à partir d'une simple query texte. Les ouvertures explicites
     // (?openBusiness=ID, match exact du nom) restent gérées ailleurs.
