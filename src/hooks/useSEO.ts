@@ -104,5 +104,5 @@ export function useSEO({ title, description, canonical, ogImage, ogUrl, ogType, 
         el.content = prev;
       }
     };
-  }, [title, description, canonical, ogImage, ogUrl, jsonLd]);
+  }, [title, description, canonical, ogImage, ogUrl, ogType, jsonLd]);
 }
