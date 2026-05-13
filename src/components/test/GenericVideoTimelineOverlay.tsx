@@ -353,7 +353,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
       )}
       {clubOpen && (
         <div
-          className="absolute inset-0 z-[90] flex items-end justify-center px-4 pb-2 md:pb-6 lg:items-center lg:pb-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          className="absolute inset-0 z-[90] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setClubOpen(false)}
         >
           <div
