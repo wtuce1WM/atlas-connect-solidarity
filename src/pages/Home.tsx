@@ -458,19 +458,14 @@ const Home = () => {
   // EFFECTS
   // ============================================================
 
-  // SEO: noindex
-  useEffect(() => {
-    const meta = document.createElement("meta");
-    meta.name = "robots";
-    meta.content = "noindex, nofollow";
-    document.head.appendChild(meta);
-    const prevTitle = document.title;
-    document.title = "Home";
-    return () => {
-      meta.remove();
-      document.title = prevTitle;
-    };
-  }, []);
+  // SEO: homepage metadata (indexable)
+  useSEO({
+    title: "ONE WORLD MOROCCO – Hôtels, restaurants & activités au Maroc",
+    description: "Découvrez les meilleures adresses au Maroc : hôtels, restaurants, activités et services sélectionnés par ONE WORLD MOROCCO.",
+    canonical: "/",
+    ogUrl: "/",
+    ogType: "website",
+  });
 
   // Lock body scroll while the front-structure Menu panel is open (avoids double scroll on mobile/tablet).
   // Compensate the scrollbar width to prevent the underlying grid from shifting horizontally.
