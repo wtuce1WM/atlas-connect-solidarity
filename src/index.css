@@ -369,6 +369,17 @@ textarea::placeholder {
   display: none;
 }
 
+/* Hide scrollbar only on mobile/tablette (max-width: 1023px) */
+@media (max-width: 1023px) {
+  .scrollbar-hide-mobile {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide-mobile::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Hide page scrollbar when slide panel is open on desktop — keeps scroll functional */
 html.hide-scrollbar-panel-open {
   scrollbar-width: none;
