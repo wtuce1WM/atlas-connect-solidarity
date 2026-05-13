@@ -69,6 +69,9 @@ export function useSEO({ title, description, canonical, ogImage, ogUrl, ogType, 
       const fullUrl = ogUrl.startsWith("http") ? ogUrl : `${BASE_URL}${ogUrl}`;
       ogMetas.push({ property: "og:url", content: fullUrl });
     }
+    if (ogType) {
+      ogMetas.push({ property: "og:type", content: ogType });
+    }
 
     const prevOgValues: { el: HTMLMetaElement; prev: string }[] = [];
     for (const { property, content } of ogMetas) {
