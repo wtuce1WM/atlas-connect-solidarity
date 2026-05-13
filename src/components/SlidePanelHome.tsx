@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, Suspense } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
@@ -112,7 +113,11 @@ const SlidePanelHome = ({
   returnContext,
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const panelRef = useRef<HTMLDivElement>(null);
+  const swipeStartY = useRef<number | null>(null);
+  const swipeStartX = useRef<number | null>(null);
+  const swipeHandled = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
@@ -400,6 +405,25 @@ const SlidePanelHome = ({
       <div
         ref={panelRef}
         className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-hidden"
+        onTouchStart={isMobile ? (e) => {
+          if (e.touches.length !== 1) return;
+          swipeStartY.current = e.touches[0].clientY;
+          swipeStartX.current = e.touches[0].clientX;
+          swipeHandled.current = false;
+        } : undefined}
+        onTouchMove={isMobile ? (e) => {
+          if (swipeHandled.current || swipeStartY.current === null || swipeStartX.current === null) return;
+          const dy = e.touches[0].clientY - swipeStartY.current;
+          const dx = e.touches[0].clientX - swipeStartX.current;
+          if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.5) {
+            if (dy < 0 && hasNext) { onNext?.(); swipeHandled.current = true; }
+            else if (dy > 0 && hasPrev) { onPrev?.(); swipeHandled.current = true; }
+          }
+        } : undefined}
+        onTouchEnd={isMobile ? () => {
+          swipeStartY.current = null;
+          swipeStartX.current = null;
+        } : undefined}
       >
         {/* Top toolbar : SlidePanelHeader (même base que SlidePanel de Search) */}
         {!descOverlayOpen && (
@@ -483,7 +507,7 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        {(onPrev || onNext) && (
+        {!isMobile && (onPrev || onNext) && (
           <div className="absolute top-1/2 -translate-y-1/2 right-4 z-10 flex flex-col gap-3">
             <button
               type="button"
