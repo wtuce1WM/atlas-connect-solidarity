@@ -888,20 +888,40 @@ const Home = () => {
           if (so !== 0) return so;
           return String(a.id).localeCompare(String(b.id));
         });
-        // No per-business dedupe here: a hashtag view must show ALL videos
-        // tagged with the badge for the current city.
+        // Per-business cap: limit each business to its `front_video_count`
+        // (default 1, max 9). Same rule as subcategory level.
+        const docsByBizBadge = new Map<string, any[]>();
+        for (const d of uniqueDocs) {
+          const biz = resolveVideoEstablishment(d, bizMap);
+          const groupId = biz?.id || d.poi_id || d.business_id || d.id;
+          const arr = docsByBizBadge.get(groupId) || [];
+          arr.push(d);
+          docsByBizBadge.set(groupId, arr);
+        }
+        const limitedBadgeDocs: any[] = [];
+        for (const [groupId, docs] of docsByBizBadge.entries()) {
+          const sorted = [...docs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+          const groupBiz = bizMap.get(groupId) as any;
+          const limit = Math.max(1, Math.min(9, groupBiz?.front_video_count ?? 1));
+          limitedBadgeDocs.push(...sorted.slice(0, limit));
+        }
+        // Preserve global sort_order ordering across groups.
+        limitedBadgeDocs.sort((a: any, b: any) => {
+          const so = (a.sort_order ?? 0) - (b.sort_order ?? 0);
+          if (so !== 0) return so;
+          return String(a.id).localeCompare(String(b.id));
+        });
         // Fetch service names for any service_id present on these docs
         const badgeServiceNameById = await fetchServiceNamesByIds(
-          uniqueDocs.map((d: any) => d.service_id).filter(Boolean) as string[],
+          limitedBadgeDocs.map((d: any) => d.service_id).filter(Boolean) as string[],
         );
         // Fetch all badges associated with each document (for hashtag aggregation)
-        const docBadgesByDocId = await fetchDocBadgesByDocId(uniqueDocs.map((d: any) => d.id).filter(Boolean));
+        const docBadgesByDocId = await fetchDocBadgesByDocId(limitedBadgeDocs.map((d: any) => d.id).filter(Boolean));
         const isVlogsBadge = /^#?\s*vlogs?$/i.test(videoBadgeFilter.label.trim());
         // For all badge filters, also pull in generic_videos and YouTube videos
         // tagged with the same badge.
         const includeExtraSources = true;
-        // No per-business dedupe: show ALL videos tagged with this hashtag.
-        const docVideoItems: VideoItem[] = uniqueDocs.map((d: any) =>
+        const docVideoItems: VideoItem[] = limitedBadgeDocs.map((d: any) =>
           buildDocVideoItem({
             doc: d,
             bizMap,
