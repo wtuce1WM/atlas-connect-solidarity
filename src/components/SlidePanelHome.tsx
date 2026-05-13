@@ -113,7 +113,11 @@ const SlidePanelHome = ({
   returnContext,
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const panelRef = useRef<HTMLDivElement>(null);
+  const swipeStartY = useRef<number | null>(null);
+  const swipeStartX = useRef<number | null>(null);
+  const swipeHandled = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
