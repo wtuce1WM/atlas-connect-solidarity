@@ -598,10 +598,11 @@ const SearchPage = () => {
       setHotelSearchPanel(null);
     }, [searchQuery, urlT]);
 
-    // Hide page-level scrollbar when slide panel is open on desktop to prevent overlap with right panel
+    // Hide page-level scrollbar when slide panel is open to prevent overlap on the right
     useEffect(() => {
       const isDesktop = window.innerWidth >= 1024;
-      if (compactPanelBusiness && isDesktop && !isCompactPanelExpanded) {
+      const shouldHide = !!compactPanelBusiness && (!isDesktop || !isCompactPanelExpanded);
+      if (shouldHide) {
         document.documentElement.classList.add('hide-scrollbar-panel-open');
       } else {
         document.documentElement.classList.remove('hide-scrollbar-panel-open');
