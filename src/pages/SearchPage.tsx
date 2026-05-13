@@ -598,17 +598,15 @@ const SearchPage = () => {
       setHotelSearchPanel(null);
     }, [searchQuery, urlT]);
 
-    // Hide page-level scrollbar when slide panel is open to prevent overlap on the right
+    // Hide page-level scrollbar when slide panel is open (all viewports)
     useEffect(() => {
-      const isDesktop = window.innerWidth >= 1024;
-      const shouldHide = !!compactPanelBusiness && (!isDesktop || !isCompactPanelExpanded);
-      if (shouldHide) {
+      if (compactPanelBusiness) {
         document.documentElement.classList.add('hide-scrollbar-panel-open');
       } else {
         document.documentElement.classList.remove('hide-scrollbar-panel-open');
       }
       return () => { document.documentElement.classList.remove('hide-scrollbar-panel-open'); };
-    }, [compactPanelBusiness, isCompactPanelExpanded]);
+    }, [compactPanelBusiness]);
 
     // Auto-open du 1er résultat désactivé : on ne devine jamais l'établissement
     // à partir d'une simple query texte. Les ouvertures explicites
