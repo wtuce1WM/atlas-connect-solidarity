@@ -35,7 +35,7 @@ const ClubLoginPopup = () => {
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-end justify-center pb-16 lg:items-center lg:pb-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[200] flex items-end justify-center pb-2 lg:items-center lg:pb-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={() => setOpen(false)}
     >
       <div
