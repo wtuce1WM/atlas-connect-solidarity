@@ -377,6 +377,14 @@ const SlidePanelHome = ({
     };
   }, [videoUrl, videoId, soundOn, setSoundOn]);
 
+  // On mobile the embed URL forces mute=1 so autoplay works.
+  // Make sure the mute toggle reflects that when the video changes.
+  useEffect(() => {
+    if (!open || !isMobile) return;
+    setYtMuted(true);
+    setYtPlaying(false);
+  }, [videoUrl, videoId, open, isMobile]);
+
   if (!open || !videoUrl) return null;
 
   const visibleSocial = showSocialBadge ? social : null;
