@@ -45,7 +45,18 @@ Deno.serve(async (req) => {
   }
 });
 
-interface Meta { title: string; description: string; image: string; }
+interface Meta { title: string; description: string; image: string; jsonLd?: Record<string, unknown>; }
+
+const CATEGORY_TO_SCHEMA: Record<string, string> = {
+  "Hôtels": "Hotel",
+  "Hotels": "Hotel",
+  "Restaurants": "Restaurant",
+  "Restaurant": "Restaurant",
+  "Cafés": "CafeOrCoffeeShop",
+  "Bars": "BarOrPub",
+  "Boutiques": "Store",
+  "Shopping": "Store",
+};
 
 async function resolveMeta(supabase: any, path: string, params: URLSearchParams): Promise<Meta> {
   // ---------- Fiche établissement ----------
