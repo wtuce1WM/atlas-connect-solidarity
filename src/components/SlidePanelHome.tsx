@@ -377,6 +377,14 @@ const SlidePanelHome = ({
     };
   }, [videoUrl, videoId, soundOn, setSoundOn]);
 
+  // On mobile the embed URL forces mute=1 so autoplay works.
+  // Make sure the mute toggle reflects that when the video changes.
+  useEffect(() => {
+    if (!open || !isMobile) return;
+    setYtMuted(true);
+    setYtPlaying(false);
+  }, [videoUrl, videoId, open, isMobile]);
+
   if (!open || !videoUrl) return null;
 
   const visibleSocial = showSocialBadge ? social : null;
@@ -393,12 +401,12 @@ const SlidePanelHome = ({
   if (embed.type === "youtube") {
     const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
     embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
-    if (soundOn) {
+    if (soundOn && !isMobile) {
       embedUrl = embedUrl.replace(/[?&]mute=1/, (m) => m[0] + "mute=0");
     }
   } else if (embed.type === "vimeo") {
     embedUrl = embedUrl.replace("loop=0", "loop=1");
-    if (soundOn) embedUrl = embedUrl.replace("muted=1", "muted=0");
+    if (soundOn && !isMobile) embedUrl = embedUrl.replace("muted=1", "muted=0");
   } else if (embed.type === "bunny") {
     embedUrl = embedUrl.replace("loop=false", "loop=true");
   }
