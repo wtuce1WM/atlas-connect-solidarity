@@ -108,6 +108,22 @@ async function fetchDynamicEntries(): Promise<SitemapEntry[]> {
     });
   }
 
+  // Catégories distinctes (route = /category/:categoryName)
+  const { data: catRows, error: catErr } = await supabase
+    .from("businesses")
+    .select("main_category")
+    .eq("is_active", true)
+    .not("main_category", "is", null);
+  if (catErr) throw catErr;
+  const categories = Array.from(new Set(((catRows || []) as { main_category: string }[]).map((r) => r.main_category).filter(Boolean)));
+  for (const cat of categories) {
+    entries.push({
+      path: `/category/${encodeURIComponent(cat)}`,
+      changefreq: "weekly",
+      priority: "0.7",
+    });
+  }
+
   // Villes distinctes (route = /city/:city)
   const { data: cityRows, error: cityErr } = await supabase
     .from("businesses")
