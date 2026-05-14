@@ -380,6 +380,13 @@ const SlidePanelHome = ({
   if (!open || !videoUrl) return null;
 
   const visibleSocial = showSocialBadge ? social : null;
+  const swipeNavigationEnabled = isMobile && !descOverlayOpen && !searchOverlayOpen && !directionsBusiness && !poiOverlayBusinessId && !agendaCity;
+
+  const resetSwipe = () => {
+    swipeStartY.current = null;
+    swipeStartX.current = null;
+    swipeHandled.current = false;
+  };
 
   const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn });
   let embedUrl = embed.embedUrl;
@@ -405,25 +412,31 @@ const SlidePanelHome = ({
       <div
         ref={panelRef}
         className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-hidden"
-        onTouchStart={isMobile ? (e) => {
+        style={swipeNavigationEnabled ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
+        onTouchStart={swipeNavigationEnabled ? (e) => {
           if (e.touches.length !== 1) return;
           swipeStartY.current = e.touches[0].clientY;
           swipeStartX.current = e.touches[0].clientX;
           swipeHandled.current = false;
         } : undefined}
-        onTouchMove={isMobile ? (e) => {
+        onTouchMove={swipeNavigationEnabled ? (e) => {
           if (swipeHandled.current || swipeStartY.current === null || swipeStartX.current === null) return;
           const dy = e.touches[0].clientY - swipeStartY.current;
           const dx = e.touches[0].clientX - swipeStartX.current;
           if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.5) {
-            if (dy < 0 && hasNext) { onNext?.(); swipeHandled.current = true; }
-            else if (dy > 0 && hasPrev) { onPrev?.(); swipeHandled.current = true; }
+            if (dy < 0 && hasNext) {
+              e.preventDefault();
+              swipeHandled.current = true;
+              onNext?.();
+            } else if (dy > 0 && hasPrev) {
+              e.preventDefault();
+              swipeHandled.current = true;
+              onPrev?.();
+            }
           }
         } : undefined}
-        onTouchEnd={isMobile ? () => {
-          swipeStartY.current = null;
-          swipeStartX.current = null;
-        } : undefined}
+        onTouchEnd={swipeNavigationEnabled ? resetSwipe : undefined}
+        onTouchCancel={swipeNavigationEnabled ? resetSwipe : undefined}
       >
         {/* Top toolbar : SlidePanelHeader (même base que SlidePanel de Search) */}
         {!descOverlayOpen && !searchOverlayOpen && (
