@@ -66,15 +66,47 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
     const slug = decodeURIComponent(ficheMatch[1]);
     const { data: biz } = await supabase
       .from("businesses")
-      .select("name, city, description, images, hook_fr")
+      .select("name, city, description, images, hook_fr, address, phone, latitude, longitude, main_category, google_rating, google_review_count, website")
       .eq("slug", slug)
       .eq("is_active", true)
       .maybeSingle();
     if (biz) {
+      const schemaType = (biz.main_category && CATEGORY_TO_SCHEMA[biz.main_category]) || "LocalBusiness";
+      const image = biz.images?.[0] || DEFAULT_OG_IMAGE;
+      const jsonLd: Record<string, unknown> = {
+        "@context": "https://schema.org",
+        "@type": schemaType,
+        name: biz.name,
+        url: `${BASE_URL}/fiche/${slug}`,
+        ...(image && { image }),
+        ...(biz.description && { description: String(biz.description).substring(0, 500) }),
+        ...(biz.phone && { telephone: biz.phone }),
+        ...(biz.website && { sameAs: [biz.website] }),
+        ...(biz.address && {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: biz.address,
+            ...(biz.city && { addressLocality: biz.city }),
+            addressCountry: "MA",
+          },
+        }),
+        ...(biz.latitude && biz.longitude && {
+          geo: { "@type": "GeoCoordinates", latitude: biz.latitude, longitude: biz.longitude },
+        }),
+        ...(biz.google_rating && {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: biz.google_rating,
+            bestRating: 5,
+            reviewCount: biz.google_review_count ?? 1,
+          },
+        }),
+      };
       return {
         title: `${biz.name}${biz.city ? ` – ${biz.city}` : ""} | ${SITE_NAME}`,
         description: biz.hook_fr || (biz.description?.substring(0, 160)) || `Découvrez ${biz.name}.`,
-        image: biz.images?.[0] || DEFAULT_OG_IMAGE,
+        image,
+        jsonLd,
       };
     }
   }
