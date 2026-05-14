@@ -235,7 +235,7 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
   };
 }
 
-function renderOgHtml(meta: { title: string; description: string; image: string; url: string }) {
+function renderOgHtml(meta: { title: string; description: string; image: string; url: string; jsonLd?: Record<string, unknown> }) {
   const e = {
     title: escapeHtml(meta.title),
     description: escapeHtml(meta.description),
