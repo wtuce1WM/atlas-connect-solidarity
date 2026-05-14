@@ -264,7 +264,7 @@ function renderOgHtml(meta: { title: string; description: string; image: string;
   <meta name="twitter:image" content="${e.image}">
   <link rel="canonical" href="${e.url}">
   <meta http-equiv="refresh" content="0;url=${e.url}">
-</head>
+${meta.jsonLd ? `  <script type="application/ld+json">${JSON.stringify(meta.jsonLd).replace(/</g, "\\u003c")}</script>\n` : ""}</head>
 <body>
   <h1>${e.title}</h1>
   <p>${e.description}</p>
