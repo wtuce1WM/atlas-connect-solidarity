@@ -61,6 +61,7 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const CarouselNavDemo = lazy(() => import("./pages/CarouselNavDemo"));
 const FicheImmersive = lazy(() => import("./pages/FicheImmersive"));
 const Test = lazy(() => import("./pages/Home"));
+const HomeMindtrip = lazy(() => import("./pages/HomeMindtrip"));
 const Install = lazy(() => import("./pages/Install"));
 
 const queryClient = new QueryClient();
