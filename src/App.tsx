@@ -61,6 +61,7 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const CarouselNavDemo = lazy(() => import("./pages/CarouselNavDemo"));
 const FicheImmersive = lazy(() => import("./pages/FicheImmersive"));
 const Test = lazy(() => import("./pages/Home"));
+const HomeMindtrip = lazy(() => import("./pages/HomeMindtrip"));
 const Install = lazy(() => import("./pages/Install"));
 
 const queryClient = new QueryClient();
@@ -94,7 +95,7 @@ const BusinessRedirect = () => {
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
-  const hiddenPaths = ["/", "/search", "/test", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
+  const hiddenPaths = ["/", "/search", "/test", "/videos", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <FloatingSearchBar />;
 };
@@ -102,7 +103,7 @@ const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "c
   const location = useLocation();
   if (location.pathname.startsWith("/staff/")) return null;
   const isHome = location.pathname === "/";
-  const hideClub = location.pathname === "/test" || isHome;
+  const hideClub = location.pathname === "/test" || location.pathname === "/videos" || isHome;
   const hideWhatsapp = isHome;
   return (
     <>
@@ -132,7 +133,8 @@ const AppContent = () => {
           <ScrollToTop />
           <RouteTransition>
             <Routes>
-              <Route path="/" element={renderLazyRoute(<Test />)} />
+              <Route path="/" element={renderLazyRoute(<HomeMindtrip />)} />
+              <Route path="/videos" element={renderLazyRoute(<Test />)} />
               <Route path="/ancien-index" element={renderLazyRoute(<Index />)} />
               <Route path="/business/:slug" element={<BusinessRedirect />} />
               <Route path="/city/:city" element={renderLazyRoute(<CityMap />)} />
