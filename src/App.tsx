@@ -133,7 +133,8 @@ const AppContent = () => {
           <ScrollToTop />
           <RouteTransition>
             <Routes>
-              <Route path="/" element={renderLazyRoute(<Test />)} />
+              <Route path="/" element={renderLazyRoute(<HomeMindtrip />)} />
+              <Route path="/videos" element={renderLazyRoute(<Test />)} />
               <Route path="/ancien-index" element={renderLazyRoute(<Index />)} />
               <Route path="/business/:slug" element={<BusinessRedirect />} />
               <Route path="/city/:city" element={renderLazyRoute(<CityMap />)} />
