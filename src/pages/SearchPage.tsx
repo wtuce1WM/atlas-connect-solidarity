@@ -3307,6 +3307,8 @@ const SearchPage = () => {
                        >
                          Tous <span className="ml-0.5 opacity-70">{mobileTotal}</span>
                        </button>
+                       </>)}
+
                        {activeFsTab && (
                          <button
                            type="button"
