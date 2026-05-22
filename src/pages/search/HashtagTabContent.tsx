@@ -45,7 +45,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
         cityId = (cityRow as any)?.id || null;
       }
 
-      const [docBadgeRes, ytBadgeRes] = await Promise.all([
+      const [docBadgeRes, ytBadgeRes, genericBadgeRes] = await Promise.all([
         supabase.from("business_document_badges").select("document_id").eq("badge_id", badgeId),
         supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", badgeId),
         supabase.from("generic_video_badges" as any).select("generic_video_id").eq("badge_id", badgeId),
@@ -163,8 +163,23 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
         owner_name: bizMap[y.business_id]?.name || null,
       }));
 
+      const genericItems: VideoItem[] = ((genericRes.data as any[]) || []).map((g: any) => {
+        const ownerId = firstOwnerByGenericId[g.id] || null;
+        const account = (g.instagram_account || g.tiktok_account || g.youtube_account || "").replace(/^@+/, "");
+        return {
+          _id: `generic:${g.id}`,
+          _kind: "doc",
+          url: g.url,
+          name: g.title || g.name || (account ? `@${account}` : null),
+          description: g.description || null,
+          thumbnail_url: g.thumbnail_url || null,
+          owner_business_id: ownerId,
+          owner_name: account ? `@${account}` : (ownerId ? bizMap[ownerId]?.name || null : null),
+        };
+      });
+
       if (cancelled) return;
-      setItems([...docItems, ...ytItems]);
+      setItems([...docItems, ...ytItems, ...genericItems]);
       setLoading(false);
     })();
     return () => { cancelled = true; };
