@@ -1684,11 +1684,30 @@ const SearchPage = () => {
         setMoreFilterMatchingIds(null);
         setPinnedBusinesses([]);
 
-        const { data: bbData } = await supabase
-          .from("business_badges")
-          .select("business_id")
-          .eq("badge_id", badgeIdParam);
-        const ids = (bbData || []).map((r: any) => r.business_id);
+        // Collect business ids from 3 sources: direct badge tag, tagged documents, tagged youtube videos
+        const [bbRes, docBadgeRes, ytBadgeRes] = await Promise.all([
+          supabase.from("business_badges").select("business_id").eq("badge_id", badgeIdParam),
+          supabase.from("business_document_badges").select("document_id").eq("badge_id", badgeIdParam),
+          supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", badgeIdParam),
+        ]);
+        const idSet = new Set<string>((bbRes.data || []).map((r: any) => r.business_id));
+        const docIds = (docBadgeRes.data || []).map((r: any) => r.document_id);
+        const ytIds = (ytBadgeRes.data || []).map((r: any) => r.youtube_video_id);
+        if (docIds.length > 0) {
+          const { data: docs } = await supabase
+            .from("business_documents")
+            .select("business_id")
+            .in("id", docIds);
+          (docs || []).forEach((r: any) => r.business_id && idSet.add(r.business_id));
+        }
+        if (ytIds.length > 0) {
+          const { data: yts } = await supabase
+            .from("business_youtube_videos")
+            .select("business_id")
+            .in("id", ytIds);
+          (yts || []).forEach((r: any) => r.business_id && idSet.add(r.business_id));
+        }
+        const ids = Array.from(idSet);
         if (fetchId !== latestFetchIdRef.current) return;
         if (ids.length === 0) {
           setAllBusinesses([]);
