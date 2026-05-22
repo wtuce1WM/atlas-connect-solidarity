@@ -545,6 +545,11 @@ const SearchPage = () => {
      // Child tab components manage their own panel state now
    };
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+   useEffect(() => {
+     const h = () => setLocationDialogOpen(true);
+     window.addEventListener("open-location-picker", h);
+     return () => window.removeEventListener("open-location-picker", h);
+   }, []);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
     // showAiPopup moved earlier (before ensureResultsVisibleBelowSticky)
