@@ -189,6 +189,7 @@ async function extractSearchIntent(transcript: string): Promise<{ query: string;
 }
 
 const SILENCE_DELAY_MS = 2000;
+const MAX_RECORDING_MS = 30000;
 
 export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearch, onFlightSearch, onWebSearch, onError, lang = "fr-FR" }: UseVoiceSearchOptions) {
   const [status, setStatus] = useState<VoiceStatus>("idle");
