@@ -3176,15 +3176,15 @@ const SearchPage = () => {
                   }}
                 />
               )}
-              {mobileFsTabId === null && !showAllSearchMarkers && filteredBusinesses.length > 20 && (
+              {mobileFsTabId === null && filteredBusinesses.length > 20 && (
                 <div className="px-3 pb-2">
                   <button
                     type="button"
-                    onClick={() => setShowAllSearchMarkers(true)}
-                    className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm bg-black/50 text-white hover:bg-black/70 transition-colors"
+                    onClick={() => setShowAllSearchMarkers(v => !v)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "bg-black/50 text-white hover:bg-black/70"}`}
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
-                    Voir tous <span className="ml-1 opacity-70">{filteredBusinesses.length}</span>
+                    {showAllSearchMarkers ? "Voir Top 20" : <>Voir tous <span className="ml-1 opacity-70">{filteredBusinesses.length}</span></>}
                   </button>
                 </div>
               )}
