@@ -368,16 +368,20 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   }, [scribe]);
 
   const stopScribeRecording = useCallback(async () => {
+    console.log("[Scribe] stop (user)");
     clearSilenceTimer();
+    clearMaxDurationTimer();
     try { await scribe.disconnect(); } catch { /* ignore */ }
     scribeFinalRef.current = "";
     scribePartialRef.current = "";
     setLiveTranscript("");
     setStatus("idle");
-  }, [scribe, clearSilenceTimer]);
+  }, [scribe, clearSilenceTimer, clearMaxDurationTimer]);
 
   const finishScribeRecording = useCallback(async () => {
+    console.log("[Scribe] finish -> disconnect & process");
     clearSilenceTimer();
+    clearMaxDurationTimer();
     try { await scribe.disconnect(); } catch { /* ignore */ }
     const transcript = `${scribeFinalRef.current} ${scribePartialRef.current}`.trim();
     scribeFinalRef.current = "";
@@ -386,10 +390,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       setStatus("processing");
       processTranscript(transcript).finally(() => setLiveTranscript(""));
     } else {
+      console.warn("[Scribe] finish with empty transcript");
       setLiveTranscript("");
       setStatus("idle");
+      onErrorRef.current?.("Aucun texte détecté, réessayez.");
     }
-  }, [scribe, processTranscript, clearSilenceTimer]);
+  }, [scribe, processTranscript, clearSilenceTimer, clearMaxDurationTimer]);
 
   useEffect(() => { finishScribeRef.current = finishScribeRecording; }, [finishScribeRecording]);
 
