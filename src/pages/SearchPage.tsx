@@ -3479,6 +3479,7 @@ const SearchPage = () => {
         selectedCommodites={moreFilterCommodites}
         onCommoditesChange={setMoreFilterCommodites}
       />
+      <ClubLoginPopup />
     </div>
   );
 };
