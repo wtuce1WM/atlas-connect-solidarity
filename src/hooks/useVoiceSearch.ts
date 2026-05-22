@@ -179,7 +179,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
-    commitStrategy: "vad",
+    commitStrategy: CommitStrategy.VAD,
     onPartialTranscript: (data: { text: string }) => {
       setLiveTranscript((scribeFinalRef.current + " " + (data.text || "")).trim());
     },
