@@ -663,6 +663,30 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [cardsHidden, matterportPinnedInHiddenMode, matterportIndex, totalMedia]);
 
+  // Horizontal swipe on media to navigate (replaces left/right chevrons)
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const handleMediaTouchStart = useCallback((e: React.TouchEvent) => {
+    const t = e.touches[0];
+    swipeStartRef.current = { x: t.clientX, y: t.clientY };
+    onTouchStart?.(e);
+  }, [onTouchStart]);
+  const handleMediaTouchMove = useCallback((e: React.TouchEvent) => {
+    onTouchMove?.(e);
+  }, [onTouchMove]);
+  const handleMediaTouchEnd = useCallback((e: React.TouchEvent) => {
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    if (start) {
+      const t = e.changedTouches[0];
+      const dx = t.clientX - start.x;
+      const dy = t.clientY - start.y;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        goMedia(dx < 0 ? 1 : -1);
+      }
+    }
+    onTouchEnd?.();
+  }, [onTouchEnd, goMedia]);
+
   // Listen for YouTube "ended"
   useEffect(() => {
     if (!videoInfo || videoInfo.type !== "youtube" || totalMedia <= 1) return;
@@ -766,7 +790,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         )}
       </div>
 
-      <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} hideOnMobile={!!fallbackPanelData && !hotelSearchLoading} />
+      
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
       {!cardsHidden && (
@@ -917,9 +941,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       <div
         className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[70px] md:pb-[66px]' : 'pb-8'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""} scrollbar-hide-mobile`}
         style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
-        onTouchStart={externalVideoInteractiveMode ? undefined : onTouchStart}
-        onTouchMove={externalVideoInteractiveMode ? undefined : onTouchMove}
-        onTouchEnd={externalVideoInteractiveMode ? undefined : onTouchEnd}
+        onTouchStart={externalVideoInteractiveMode ? undefined : handleMediaTouchStart}
+        onTouchMove={externalVideoInteractiveMode ? undefined : handleMediaTouchMove}
+        onTouchEnd={externalVideoInteractiveMode ? undefined : handleMediaTouchEnd}
       >
 
         {/* Block 1: Logo + name — extracted component */}
