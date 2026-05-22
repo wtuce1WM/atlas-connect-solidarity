@@ -3064,6 +3064,10 @@ const SearchPage = () => {
         />
       )}
 
+      {activeTab === "hashtag" && badgeIdParam && (
+        <HashtagTabContent badgeId={badgeIdParam} badgeLabel={badgeLabelParam || "#"} />
+      )}
+
 
 
 
