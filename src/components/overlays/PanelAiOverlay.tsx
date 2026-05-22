@@ -23,6 +23,8 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
   const [loading, setLoading] = useState(false);
+  const [cachedQuery, setCachedQuery] = useState<string>("");
+  const [cachedCount, setCachedCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (!open) { setAnswer(""); setBusinesses([]); return; }
