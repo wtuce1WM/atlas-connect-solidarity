@@ -126,6 +126,8 @@ const SearchPage = () => {
   const pinIdsParam = searchParams.get("pinIds") || "";
   const badgeIdParam = searchParams.get("badgeId") || "";
   const badgeLabelParam = searchParams.get("badgeLabel") || "";
+  const [hashtagCount, setHashtagCount] = useState<number | undefined>(undefined);
+  useEffect(() => { setHashtagCount(undefined); }, [badgeIdParam, searchParams.get("city")]);
   useEffect(() => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
@@ -2202,7 +2204,7 @@ const SearchPage = () => {
         }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {[
             { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
-            ...(badgeIdParam && badgeLabelParam ? [{ key: "hashtag", icon: <Hash className="h-4 w-4" />, label: badgeLabelParam, count: undefined as number | undefined }] : []),
+            ...(badgeIdParam && badgeLabelParam ? [{ key: "hashtag", icon: <Hash className="h-4 w-4" />, label: badgeLabelParam, count: hashtagCount }] : []),
             { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },
             { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
           ].map((tab) => (
@@ -3045,6 +3047,7 @@ const SearchPage = () => {
           badgeId={badgeIdParam}
           badgeLabel={badgeLabelParam || "#"}
           city={searchParams.get("city") || null}
+          onCountChange={setHashtagCount}
         />
       )}
 

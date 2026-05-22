@@ -22,11 +22,12 @@ interface Props {
   badgeId: string;
   badgeLabel: string;
   city?: string | null;
+  onCountChange?: (count: number) => void;
 }
 
 const ytThumb = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
-export default function HashtagTabContent({ badgeId, badgeLabel, city }: Props) {
+export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountChange }: Props) {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VideoItem[]>([]);
   const [activeItem, setActiveItem] = useState<VideoItem | null>(null);
@@ -207,11 +208,13 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city }: Props) 
       });
 
       if (cancelled) return;
-      setItems([...docItems, ...ytItems, ...genericItems]);
+      const all = [...docItems, ...ytItems, ...genericItems];
+      setItems(all);
+      onCountChange?.(all.length);
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [badgeId, city]);
+  }, [badgeId, city, onCountChange]);
 
   const isGenericActive = activeItem?._kind === "generic";
   const activeOwner = activeItem && activeItem.owner_business_id
