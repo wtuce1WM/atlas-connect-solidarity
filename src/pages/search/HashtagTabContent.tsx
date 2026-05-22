@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Play } from "lucide-react";
+import { Play, Youtube } from "lucide-react";
+import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
+import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 import SlidePanelHome from "@/components/SlidePanelHome";
 import { isAgendaLabel, formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
+
 
 interface EventInfo {
   name: string | null;
