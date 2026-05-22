@@ -141,6 +141,24 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
 
       {/* Content — same styling as fullscreen overlay */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+        {onAskAssistant && (
+          <div className="max-w-3xl mx-auto mb-4">
+            <button
+              type="button"
+              onClick={() => { ttsStop(); onAskAssistant(); }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-foreground text-background font-semibold text-sm hover:opacity-90 transition-opacity"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>
+                {language === "fr"
+                  ? "Demandez à l'assistant IA"
+                  : language === "ar"
+                  ? "اسأل المساعد الذكي"
+                  : "Ask the AI assistant"}
+              </span>
+            </button>
+          </div>
+        )}
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-4 py-12">
             <Loader2 className="h-8 w-8 animate-spin text-gold" />
