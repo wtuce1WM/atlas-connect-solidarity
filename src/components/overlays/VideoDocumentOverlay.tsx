@@ -4,6 +4,7 @@ import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import type { VideoDoc } from "@/hooks/useBookOnlineData";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VideoDocumentOverlayProps {
   activeVideo: { url: string; name: string | null; description: string | null };
