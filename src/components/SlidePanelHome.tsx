@@ -781,6 +781,7 @@ const SlidePanelHome = ({
               <PanelSearchBar
                 iconVariant="black"
                 onOverlayChange={setSearchOverlayOpen}
+                onHashtagsOverlayChange={setHashtagsOverlayOpen}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
                   navigate(`/search?${sp.toString()}`);
