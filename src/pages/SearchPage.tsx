@@ -576,26 +576,25 @@ const SearchPage = () => {
       }, []);
       // Navigate to the prev/next business in the result list (dir = -1 or 1)
       const goToBusinessOffset = useCallback((dir: number) => {
-        const orderedIds = (pinIdsParam || "").split(",").map(s => s.trim()).filter(Boolean);
+        const list = filteredBusinesses;
         const currentId = compactPanelBusiness?.id;
-        if (!orderedIds.length || !currentId) return;
-        const idx = orderedIds.indexOf(currentId);
+        if (!list.length || !currentId) return;
+        const idx = list.findIndex(b => b.id === currentId);
         if (idx === -1) return;
         const nextIdx = idx + dir;
-        if (nextIdx < 0 || nextIdx >= orderedIds.length) return;
-        const nextId = orderedIds[nextIdx];
-        const next = allBusinesses.find(b => b.id === nextId);
-        openCompactPanel({ id: nextId, name: next?.name || "" } as any);
-      }, [pinIdsParam, compactPanelBusiness?.id, allBusinesses, openCompactPanel]);
+        if (nextIdx < 0 || nextIdx >= list.length) return;
+        const next = list[nextIdx];
+        openCompactPanel({ id: next.id, name: next.name || "" } as any);
+      }, [filteredBusinesses, compactPanelBusiness?.id, openCompactPanel]);
       const businessNavInfo = useMemo(() => {
-        const orderedIds = (pinIdsParam || "").split(",").map(s => s.trim()).filter(Boolean);
+        const list = filteredBusinesses;
         const currentId = compactPanelBusiness?.id;
-        const idx = currentId ? orderedIds.indexOf(currentId) : -1;
+        const idx = currentId ? list.findIndex(b => b.id === currentId) : -1;
         return {
           hasPrev: idx > 0,
-          hasNext: idx >= 0 && idx < orderedIds.length - 1,
+          hasNext: idx >= 0 && idx < list.length - 1,
         };
-      }, [pinIdsParam, compactPanelBusiness?.id]);
+      }, [filteredBusinesses, compactPanelBusiness?.id]);
       const onPanelTouchEnd = useCallback(() => {
         if (!swipeActiveRef.current) return;
         const dy = swipeOffsetY;
