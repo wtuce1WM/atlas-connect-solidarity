@@ -60,6 +60,7 @@ import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
 import ResultsTabContent from "@/pages/search/ResultsTabContent";
 import HashtagTabContent from "@/pages/search/HashtagTabContent";
+import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE } from "@/pages/search/utils";
 
 import type { Business, SearchResult } from "@/pages/search/types";
