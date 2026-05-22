@@ -31,9 +31,11 @@ interface PanelSearchBarProps {
   iconVariant?: "white" | "black";
   /** Render the trigger itself on a solid white surface without blur */
   solidBackground?: boolean;
+  /** Minimize horizontal footprint (icon-only width, centered) */
+  compact?: boolean;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
