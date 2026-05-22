@@ -298,7 +298,7 @@ export default function ResultsTabContent({
                 center={mapCenterForResults}
                 fitToMarkers
               />
-              <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col bg-black">
+              <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col">
                 <div className="flex items-center gap-3 px-3 py-3">
                   <button
                     type="button"
@@ -307,15 +307,17 @@ export default function ResultsTabContent({
                   >
                     <X className="h-4 w-4" />
                   </button>
-                  <span className="text-sm font-medium text-white truncate drop-shadow-md">
+                  <span className="text-sm font-medium text-black truncate">
                     {mapPoiItems.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{spokenText || searchQuery || (activeFsTabId ? `${frontTabs.find(t => t.id === activeFsTabId)?.name || ''}${effectiveCity ? ` à ${effectiveCity}` : ''}`.trim() : '')}"
                   </span>
                 </div>
-                <FrontStructureNavBar
-                  tabs={frontTabs}
-                  activeTabId={activeFsTabId}
-                  onTabClick={handleFsTabClick}
-                />
+                <div className="bg-black/50 backdrop-blur-sm">
+                  <FrontStructureNavBar
+                    tabs={frontTabs}
+                    activeTabId={activeFsTabId}
+                    onTabClick={handleFsTabClick}
+                  />
+                </div>
               </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}
