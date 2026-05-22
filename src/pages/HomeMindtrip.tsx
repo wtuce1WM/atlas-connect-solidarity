@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useSEO } from "@/hooks/useSEO";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
+import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 
 const HomeMindtrip = () => {
   useSEO({
@@ -24,14 +25,17 @@ const HomeMindtrip = () => {
 
       {/* HERO */}
       <section className="relative min-h-[92vh] w-full overflow-hidden">
-        <img
-          src={heroImage}
-          alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="eager"
-          fetchPriority="high"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
+        <picture>
+          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
+          <img
+            src={heroImage}
+            alt="Maroc — riad, piscine et tagine, composition réalisme magique"
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+          />
+        </picture>
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent md:bg-gradient-to-r md:from-background/80 md:via-background/40 md:to-transparent" />
 
         <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-6 py-24 md:px-12">
           <h1 className="font-josefin text-5xl font-light leading-[0.95] tracking-tight text-foreground md:text-7xl lg:text-8xl">
