@@ -1954,7 +1954,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam]);
+  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam, badgeIdParam]);
 
   // Fetch label logos for search result businesses
   useEffect(() => {
