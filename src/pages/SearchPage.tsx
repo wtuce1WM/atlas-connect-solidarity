@@ -3124,6 +3124,9 @@ const SearchPage = () => {
             hideAiSuggestion={!!searchParams.get("pinIds")}
             allCityMapBusinesses={allCityMapBusinesses}
             hotelSearchInfo={hotelSearchInfoForResults}
+            showAllSearchMarkers={showAllSearchMarkers}
+            onToggleShowAllSearchMarkers={() => setShowAllSearchMarkers(true)}
+            searchResultsTotal={filteredBusinesses.length}
           />
         </>
       )}
