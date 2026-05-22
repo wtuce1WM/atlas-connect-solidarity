@@ -558,7 +558,8 @@ const SearchPage = () => {
         closeCompactPanel();
       }, [closeCompactPanel, isCompactPanelExpanded]);
 
-      // Mobile swipe-down to close the compact panel (started from the header area only)
+      // Mobile vertical swipe to navigate prev/next business in result list
+      // (swipe up = previous, swipe down = next). Started from the header area only.
       const swipeStartYRef = useRef<number | null>(null);
       const swipeActiveRef = useRef(false);
       const [swipeOffsetY, setSwipeOffsetY] = useState(0);
@@ -574,7 +575,7 @@ const SearchPage = () => {
       const onPanelTouchMove = useCallback((e: React.TouchEvent) => {
         if (!swipeActiveRef.current || swipeStartYRef.current == null) return;
         const dy = e.touches[0].clientY - swipeStartYRef.current;
-        if (dy > 0) setSwipeOffsetY(dy);
+        setSwipeOffsetY(dy);
       }, []);
       const onPanelTouchEnd = useCallback(() => {
         if (!swipeActiveRef.current) return;
@@ -582,8 +583,20 @@ const SearchPage = () => {
         swipeActiveRef.current = false;
         swipeStartYRef.current = null;
         setSwipeOffsetY(0);
-        if (dy > 120) handleCompactPanelClose();
-      }, [swipeOffsetY, handleCompactPanelClose]);
+        if (Math.abs(dy) < 120) return;
+        const orderedIds = (pinIdsParam || "").split(",").map(s => s.trim()).filter(Boolean);
+        const currentId = compactPanelBusiness?.id;
+        if (!orderedIds.length || !currentId) return;
+        const idx = orderedIds.indexOf(currentId);
+        if (idx === -1) return;
+        // swipe down (dy > 0) → next ; swipe up (dy < 0) → previous
+        const nextIdx = dy > 0 ? idx + 1 : idx - 1;
+        if (nextIdx < 0 || nextIdx >= orderedIds.length) return;
+        const nextId = orderedIds[nextIdx];
+        const next = allBusinesses.find(b => b.id === nextId);
+        openCompactPanel({ id: nextId, name: next?.name || "" } as any);
+      }, [swipeOffsetY, pinIdsParam, compactPanelBusiness?.id, allBusinesses, openCompactPanel]);
+
 
 
 
@@ -3558,7 +3571,7 @@ const SearchPage = () => {
             className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col animate-slide-in-right lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${isCompactPanelExpanded ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
             style={{
               height: isSubDesktop ? undefined : "100vh",
-              transform: isMobile && swipeOffsetY > 0 ? `translateY(${swipeOffsetY}px)` : undefined,
+              transform: isMobile && swipeOffsetY !== 0 ? `translateY(${swipeOffsetY}px)` : undefined,
               transition: isMobile && swipeOffsetY === 0 ? "transform 0.2s ease-out" : undefined,
             }}
             onTouchStart={onPanelTouchStart}
