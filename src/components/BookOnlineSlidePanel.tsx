@@ -797,7 +797,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
-      {(onPrevBusiness || onNextBusiness) && !cardsHidden && (
+      {(onPrevBusiness || onNextBusiness) && (
         <div className="absolute top-1/2 -translate-y-1/2 left-4 z-30 flex flex-col gap-3 pointer-events-auto">
           <button
             type="button"
