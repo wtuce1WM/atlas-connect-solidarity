@@ -151,6 +151,9 @@ const SearchInput = ({
 
   const voiceStatus = voiceControl?.status ?? internalVoice.status;
   const toggleRecording = voiceControl?.toggleRecording ?? internalVoice.toggleRecording;
+  const liveTranscript = voiceControl?.liveTranscript ?? internalVoice.liveTranscript;
+  const isVoiceActive = voiceStatus === "recording" || voiceStatus === "processing";
+  const displayValue = isVoiceActive && liveTranscript ? liveTranscript : inputValue;
   const shouldClear = clearOnSubmit ?? !isControlled;
 
   const handleSubmit = () => {
@@ -233,7 +236,7 @@ const SearchInput = ({
           <Input
             type="text"
             placeholder={placeholder}
-            value={inputValue}
+            value={displayValue}
             autoComplete="off"
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -263,7 +266,7 @@ const SearchInput = ({
           <Input
             type="text"
             placeholder={placeholder}
-            value={inputValue}
+            value={displayValue}
             autoComplete="off"
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
