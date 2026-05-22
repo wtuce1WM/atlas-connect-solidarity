@@ -797,6 +797,29 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
+      {(onPrevBusiness || onNextBusiness) && !cardsHidden && (
+        <div className="absolute top-1/2 -translate-y-1/2 left-4 z-30 flex flex-col gap-3 pointer-events-auto">
+          <button
+            type="button"
+            onClick={onPrevBusiness}
+            disabled={!hasPrevBusiness}
+            className="w-11 h-11 rounded-full bg-black/50 hover:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors"
+            aria-label="Établissement précédent"
+          >
+            <ChevronUp className="h-6 w-6" />
+          </button>
+          <button
+            type="button"
+            onClick={onNextBusiness}
+            disabled={!hasNextBusiness}
+            className="w-11 h-11 rounded-full bg-black/50 hover:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors"
+            aria-label="Établissement suivant"
+          >
+            <ChevronDown className="h-6 w-6" />
+          </button>
+        </div>
+      )}
+
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
       {!cardsHidden && (
