@@ -88,7 +88,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
           >
-            <ChevronUp className="h-3.5 w-3.5" />
+            <ChevronUp className="hidden md:inline-block h-3.5 w-3.5" />
             <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Afficher</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
           </button>
