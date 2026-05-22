@@ -125,31 +125,12 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             {language === "fr" ? "Suggestion IA" : language === "ar" ? "اقتراح الذكاء" : "AI Suggestion"}
           </span>
         </div>
-        {/* TTS speaker */}
-        {answer && !loading && (
-          <button
-            type="button"
-            onClick={() => {
-              if (ttsStatus === "playing" || ttsStatus === "loading") {
-                ttsStop();
-              } else {
-                const cleanText = answer.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                ttsSpeak(cleanText);
-              }
-            }}
-            className="ml-auto w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity"
-            title={language === "fr" ? "Écouter" : language === "ar" ? "استمع" : "Listen"}
-          >
-            {ttsStatus === "loading" ? <Loader className="h-4 w-4 animate-spin" /> : ttsStatus === "playing" ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-          </button>
-        )}
       </div>
 
-      {/* Content — same styling as fullscreen overlay */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-        {/* Query + count + "Voir les résultats" CTA + Speaker (same as SearchPage left panel) */}
-        {(cachedQuery || cachedCount !== null) && (
-          <div className="max-w-3xl mx-auto mb-5 text-center">
+      {/* Actions block — directly below "Suggestion IA" header */}
+      {((cachedQuery || cachedCount !== null) || onAskAssistant) && (
+        <div className="shrink-0 px-4 sm:px-6 py-4 border-b border-border">
+          <div className="max-w-3xl mx-auto text-center">
             {cachedCount !== null && (
               <p className="text-gold font-semibold mb-1">
                 {cachedCount}{" "}
@@ -159,14 +140,15 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             {cachedQuery && (
               <p className="text-sm text-foreground/80 italic mb-3 line-clamp-3">« {cachedQuery} »</p>
             )}
-            <button
-              type="button"
-              onClick={handleClose}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase"
-            >
-              {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
-            </button>
-            {/* Speaker TTS below CTA */}
+            {(cachedQuery || cachedCount !== null) && (
+              <button
+                type="button"
+                onClick={handleClose}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase"
+              >
+                {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
+              </button>
+            )}
             {answer && !loading && (
               <div className="mt-3 flex justify-center">
                 <button
@@ -186,26 +168,29 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
                 </button>
               </div>
             )}
+            {onAskAssistant && (
+              <button
+                type="button"
+                onClick={() => { ttsStop(); onAskAssistant(); }}
+                className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-foreground text-background font-semibold text-sm hover:opacity-90 transition-opacity"
+              >
+                <Sparkles className="h-4 w-4" />
+                <span>
+                  {language === "fr"
+                    ? "Demandez à l'assistant IA"
+                    : language === "ar"
+                    ? "اسأل المساعد الذكي"
+                    : "Ask the AI assistant"}
+                </span>
+              </button>
+            )}
           </div>
-        )}
-        {onAskAssistant && (
-          <div className="max-w-3xl mx-auto mb-4">
-            <button
-              type="button"
-              onClick={() => { ttsStop(); onAskAssistant(); }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-foreground text-background font-semibold text-sm hover:opacity-90 transition-opacity"
-            >
-              <Sparkles className="h-4 w-4" />
-              <span>
-                {language === "fr"
-                  ? "Demandez à l'assistant IA"
-                  : language === "ar"
-                  ? "اسأل المساعد الذكي"
-                  : "Ask the AI assistant"}
-              </span>
-            </button>
-          </div>
-        )}
+        </div>
+      )}
+
+      {/* Content — same styling as fullscreen overlay */}
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-4 py-12">
             <Loader2 className="h-8 w-8 animate-spin text-gold" />
