@@ -798,21 +798,23 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
       {(onPrevBusiness || onNextBusiness) && (
-        <div className="absolute inset-y-0 left-4 z-30 flex flex-col justify-between py-6 pointer-events-auto">
+        <div className="absolute top-1/2 -translate-y-1/2 right-3 z-30 flex flex-col gap-2 pointer-events-none">
           <button
             type="button"
             onClick={onPrevBusiness}
             disabled={!hasPrevBusiness}
-            className="w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+            className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
             aria-label="Établissement précédent"
           >
             <ChevronUp className="h-5 w-5" />
           </button>
+          {/* Spacer reserving room for the centered right media-arrow */}
+          <div className="w-9 h-9" />
           <button
             type="button"
             onClick={onNextBusiness}
             disabled={!hasNextBusiness}
-            className="w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+            className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
             aria-label="Établissement suivant"
           >
             <ChevronDown className="h-5 w-5" />
