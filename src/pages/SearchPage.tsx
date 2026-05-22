@@ -3133,9 +3133,20 @@ const SearchPage = () => {
                 >
                   <X className="h-4 w-4" />
                 </button>
-                <span className="text-sm font-medium text-black truncate">
+                <span className="flex-1 text-sm font-medium text-black truncate">
                   {mobileMapPoiItemsFinal.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{mobileFsTabId ? `${mobileFrontTabs.find(t => t.id === mobileFsTabId)?.name || ''}${effectiveCityForMap ? ` à ${effectiveCityForMap}` : ''}`.trim() : searchQuery}"
                 </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                    className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                    aria-label="Le Club OWM"
+                  >
+                    <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                  </button>
+                  <ShareButton title={searchQuery || "Recherche"} variant="dark" className="shrink-0" />
+                </div>
               </div>
               {mobileFrontTabs.length > 0 && (
                 <FrontStructureNavBar
