@@ -47,6 +47,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VideoItem[]>([]);
   const [activeItem, setActiveItem] = useState<VideoItem | null>(null);
+  useEffect(() => { setActiveItem(null); }, [badgeId]);
   const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
