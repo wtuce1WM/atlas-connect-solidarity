@@ -202,6 +202,11 @@ const SearchPage = () => {
     setShowAllSearchMarkers(false);
   }, [searchQuery]);
 
+  // Reset "Voir tous" when switching between FS tabs
+  useEffect(() => {
+    setShowAllSearchMarkers(false);
+  }, [fsFilterSubcategories]);
+
   const categoryFromUrl = searchParams.get("category") || "";
   
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
@@ -1464,8 +1469,16 @@ const SearchPage = () => {
       const bRating = bCount >= 10 ? (b.computed_rating ?? b.rating ?? -1) : -1;
       return bRating - aRating;
     });
-    return buildMapPoiItems(matching.slice(0, 20), guardDesktop);
-  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses, buildMapPoiItems]);
+    const sliced = showAllSearchMarkers ? matching : matching.slice(0, 20);
+    return buildMapPoiItems(sliced, guardDesktop);
+  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses, buildMapPoiItems, showAllSearchMarkers]);
+
+  // Total matching count for the active FS category tab (full pool, before slicing)
+  const fsMatchingCount = useMemo(() => {
+    if (!fsFilterSubcategories) return 0;
+    const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
+    return pool.filter(b => b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))).length;
+  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses]);
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
@@ -3162,6 +3175,7 @@ const SearchPage = () => {
             showAllSearchMarkers={showAllSearchMarkers}
             onToggleShowAllSearchMarkers={() => setShowAllSearchMarkers(v => !v)}
             searchResultsTotal={totalCount ?? filteredBusinesses.length}
+            fsMatchingCount={fsMatchingCount}
           />
         </>
       )}
@@ -3211,19 +3225,23 @@ const SearchPage = () => {
                   }}
                 />
               )}
-              {mobileFsTabId === null && (totalCount ?? filteredBusinesses.length) > 20 && (
-                <div className="flex items-center gap-2 px-3 pb-2 -mt-1">
-                  <div className="ml-3 w-3 h-3 border-l border-b border-white/50 rounded-bl-md -mt-3" />
-                  <button
-                    type="button"
-                    onClick={() => setShowAllSearchMarkers(v => !v)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "bg-black/50 text-white hover:bg-black/70"}`}
-                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                  >
-                    {showAllSearchMarkers ? "Voir Top 20" : <>Voir tous <span className="ml-1 opacity-70">{totalCount ?? filteredBusinesses.length}</span></>}
-                  </button>
-                </div>
-              )}
+              {(() => {
+                const mobileTotal = mobileFsTabId === null ? (totalCount ?? filteredBusinesses.length) : fsMatchingCount;
+                if (mobileTotal <= 20) return null;
+                return (
+                  <div className="flex items-center gap-2 px-3 pb-2 -mt-1">
+                    <div className="ml-3 w-3 h-3 border-l border-b border-white/50 rounded-bl-md -mt-3" />
+                    <button
+                      type="button"
+                      onClick={() => setShowAllSearchMarkers(v => !v)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "bg-black/50 text-white hover:bg-black/70"}`}
+                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    >
+                      {showAllSearchMarkers ? "Voir Top 20" : <>Voir tous <span className="ml-1 opacity-70">{mobileTotal}</span></>}
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           ) : (
             <button
