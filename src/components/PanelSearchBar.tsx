@@ -155,6 +155,10 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
             city={businessCity}
             category={businessCategory}
             businessName={businessName}
+            onAskAssistant={() => {
+              setAiOverlayOpen(false);
+              setOverlay(true);
+            }}
           />
         </OverlayShell>
       )}
