@@ -3124,15 +3124,15 @@ const SearchPage = () => {
       {isSubDesktop && showMobileMap && (
         <div className="fixed inset-0 z-[201] bg-background animate-slide-in-right lg:hidden">
           {activeTab === "suggestions" ? (
-            <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col backdrop-blur-sm">
-              <div className="flex items-center gap-3 px-3 py-3">
+            <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col">
+              <div className="flex items-center gap-3 px-3 py-3 bg-white/70 backdrop-blur-md">
                 <button
                   onClick={() => setShowMobileMap(false)}
                   className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
                 >
                   <X className="h-4 w-4" />
                 </button>
-                <span className="text-sm font-medium text-white truncate drop-shadow-md">
+                <span className="text-sm font-medium text-black truncate">
                   {mobileMapPoiItemsFinal.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{mobileFsTabId ? `${mobileFrontTabs.find(t => t.id === mobileFsTabId)?.name || ''}${effectiveCityForMap ? ` à ${effectiveCityForMap}` : ''}`.trim() : searchQuery}"
                 </span>
               </div>
