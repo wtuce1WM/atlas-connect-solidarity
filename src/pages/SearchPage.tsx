@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash } from "lucide-react";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
@@ -58,6 +58,7 @@ import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
 import ResultsTabContent from "@/pages/search/ResultsTabContent";
+import HashtagTabContent from "@/pages/search/HashtagTabContent";
 import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE } from "@/pages/search/utils";
 
 import type { Business, SearchResult } from "@/pages/search/types";
@@ -124,6 +125,7 @@ const SearchPage = () => {
   const openBusinessParam = searchParams.get("openBusiness") || "";
   const pinIdsParam = searchParams.get("pinIds") || "";
   const badgeIdParam = searchParams.get("badgeId") || "";
+  const badgeLabelParam = searchParams.get("badgeLabel") || "";
   useEffect(() => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
@@ -226,7 +228,14 @@ const SearchPage = () => {
     // NOTE: TTS preloading removed — it consumed ElevenLabs credits on every search
     // even when the user never clicked the speaker. Audio is now generated on demand.
   }, [language, searchQuery, allBusinesses, totalCount]);
-   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
+   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations" | "hashtag">(
+     searchParams.get("badgeId") ? "hashtag" : "suggestions"
+   );
+   useEffect(() => {
+     if (badgeIdParam && activeTab !== "hashtag") setActiveTab("hashtag");
+     if (!badgeIdParam && activeTab === "hashtag") setActiveTab("suggestions");
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [badgeIdParam]);
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
@@ -1684,30 +1693,11 @@ const SearchPage = () => {
         setMoreFilterMatchingIds(null);
         setPinnedBusinesses([]);
 
-        // Collect business ids from 3 sources: direct badge tag, tagged documents, tagged youtube videos
-        const [bbRes, docBadgeRes, ytBadgeRes] = await Promise.all([
-          supabase.from("business_badges").select("business_id").eq("badge_id", badgeIdParam),
-          supabase.from("business_document_badges").select("document_id").eq("badge_id", badgeIdParam),
-          supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", badgeIdParam),
-        ]);
-        const idSet = new Set<string>((bbRes.data || []).map((r: any) => r.business_id));
-        const docIds = (docBadgeRes.data || []).map((r: any) => r.document_id);
-        const ytIds = (ytBadgeRes.data || []).map((r: any) => r.youtube_video_id);
-        if (docIds.length > 0) {
-          const { data: docs } = await supabase
-            .from("business_documents")
-            .select("business_id")
-            .in("id", docIds);
-          (docs || []).forEach((r: any) => r.business_id && idSet.add(r.business_id));
-        }
-        if (ytIds.length > 0) {
-          const { data: yts } = await supabase
-            .from("business_youtube_videos")
-            .select("business_id")
-            .in("id", ytIds);
-          (yts || []).forEach((r: any) => r.business_id && idSet.add(r.business_id));
-        }
-        const ids = Array.from(idSet);
+        const { data: bbData } = await supabase
+          .from("business_badges")
+          .select("business_id")
+          .eq("badge_id", badgeIdParam);
+        const ids = (bbData || []).map((r: any) => r.business_id);
         if (fetchId !== latestFetchIdRef.current) return;
         if (ids.length === 0) {
           setAllBusinesses([]);
@@ -2244,6 +2234,7 @@ const SearchPage = () => {
         }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {[
             { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
+            ...(badgeIdParam && badgeLabelParam ? [{ key: "hashtag", icon: <Hash className="h-4 w-4" />, label: badgeLabelParam, count: undefined as number | undefined }] : []),
             { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },
             { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
           ].map((tab) => (
@@ -3079,6 +3070,10 @@ const SearchPage = () => {
             setIsCompactPanelExpanded(false);
           }}
         />
+      )}
+
+      {activeTab === "hashtag" && badgeIdParam && (
+        <HashtagTabContent badgeId={badgeIdParam} badgeLabel={badgeLabelParam || "#"} />
       )}
 
 
