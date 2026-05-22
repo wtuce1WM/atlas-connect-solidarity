@@ -51,13 +51,6 @@ const HomeMindtrip = () => {
             >
               Découvrir nos adresses
             </Link>
-            <Link
-              to="/videos"
-              className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-background/60 px-6 py-3.5 font-josefin text-sm uppercase tracking-widest text-foreground backdrop-blur transition hover:bg-foreground hover:text-background"
-            >
-              <PlayCircle className="h-5 w-5" />
-              Explorer les vidéos
-            </Link>
           </div>
         </div>
 
