@@ -37,7 +37,8 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
     const city = readLastHomepageCity() || "Marrakech";
     const sp = new URLSearchParams(location.pathname === "/search" ? location.search : "");
     sp.set("city", city);
-    sp.set("q", badge.name_fr);
+    sp.delete("q");
+    sp.delete("spoken");
     sp.set("badgeId", badge.id);
     sp.set("badgeLabel", badge.name_fr);
     sp.delete("openBusiness");
