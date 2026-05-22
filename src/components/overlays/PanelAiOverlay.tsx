@@ -103,11 +103,47 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
 
   const [closing, setClosing] = useState(false);
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
   const handleClose = useCallback(() => {
     ttsStop();
     setClosing(true);
     setTimeout(() => { setClosing(false); onClose(); }, 200);
   }, [onClose, ttsStop]);
+
+  const handleSaveToClub = useCallback(async () => {
+    if (!businesses.length) return;
+    setSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        toast({
+          title: language === "fr" ? "Connexion requise" : language === "ar" ? "تسجيل الدخول مطلوب" : "Login required",
+          description: language === "fr" ? "Connectez-vous au Club OWM pour sauvegarder vos adresses." : language === "ar" ? "سجّل الدخول إلى نادي OWM لحفظ عناوينك." : "Sign in to Club OWM to save your places.",
+          variant: "destructive",
+        });
+        return;
+      }
+      const rows = businesses.map((b) => ({ user_id: session.user.id, business_id: b.id }));
+      const { error } = await supabase
+        .from("bookmarks" as any)
+        .upsert(rows as any, { onConflict: "user_id,business_id", ignoreDuplicates: true });
+      if (error) throw error;
+      toast({
+        title: language === "fr" ? "Sauvegardé dans Club OWM" : language === "ar" ? "تم الحفظ في نادي OWM" : "Saved to Club OWM",
+        description: `${businesses.length} ${language === "fr" ? "adresse(s) ajoutée(s) à vos favoris." : language === "ar" ? "عنوان (عناوين) أُضيفت." : "place(s) added to your favorites."}`,
+      });
+    } catch (err) {
+      console.error("Save to Club failed:", err);
+      toast({
+        title: language === "fr" ? "Erreur" : "Error",
+        description: language === "fr" ? "Impossible de sauvegarder pour le moment." : "Unable to save right now.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  }, [businesses, language, toast]);
 
   if (!open && !closing) return null;
 
@@ -128,7 +164,21 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             {language === "fr" ? "Suggestion IA" : language === "ar" ? "اقتراح الذكاء" : "AI Suggestion"}
           </span>
         </div>
+        {/* Save to Club OWM */}
+        {businesses.length > 0 && (
+          <button
+            type="button"
+            onClick={handleSaveToClub}
+            disabled={saving}
+            className="ml-auto w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-50"
+            title={language === "fr" ? "Sauvegarder dans Club OWM" : language === "ar" ? "حفظ في نادي OWM" : "Save to Club OWM"}
+            aria-label={language === "fr" ? "Sauvegarder dans Club OWM" : "Save to Club OWM"}
+          >
+            {saving ? <Loader className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4" />}
+          </button>
+        )}
       </div>
+
 
       {/* Actions block — directly below "Suggestion IA" header */}
       {((cachedQuery || cachedCount !== null) || onAskAssistant) && (
