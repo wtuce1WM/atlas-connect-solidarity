@@ -16,9 +16,11 @@ interface PanelAiOverlayProps {
   businessName?: string | null;
   /** Called when user clicks the "Ask AI assistant" CTA (opens fulltext + voice search) */
   onAskAssistant?: () => void;
+  /** Called when user clicks the "See results" CTA — should return to the search list+map view */
+  onSeeResults?: () => void;
 }
 
-const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant }: PanelAiOverlayProps) => {
+const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
@@ -143,7 +145,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             {(cachedQuery || cachedCount !== null) && (
               <button
                 type="button"
-                onClick={handleClose}
+                onClick={() => { ttsStop(); (onSeeResults ?? onClose)(); }}
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase"
               >
                 {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
