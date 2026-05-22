@@ -66,6 +66,9 @@ export interface ResultsTabContentProps {
   allCityMapBusinesses?: Business[];
   hideAiSuggestion?: boolean;
   hotelSearchInfo?: { city: string; checkIn: string; checkOut: string; adults: number } | null;
+  showAllSearchMarkers?: boolean;
+  onToggleShowAllSearchMarkers?: () => void;
+  searchResultsTotal?: number;
 }
 
 export default function ResultsTabContent({
