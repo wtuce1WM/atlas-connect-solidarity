@@ -419,6 +419,24 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
                         style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
                       />
                     </div>
+                  ) : item.social ? (
+                    <div className="absolute inset-x-0 bottom-[15%] z-[6] flex flex-col items-center justify-center gap-2 px-2 pointer-events-none text-white">
+                      <div
+                        className="flex items-center justify-center"
+                        style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
+                      >
+                        {item.social.platform === "instagram" && <InstagramIcon className="h-10 w-10" />}
+                        {item.social.platform === "youtube" && <Youtube className="h-10 w-10" />}
+                        {item.social.platform === "tiktok" && <SiTiktok className="h-9 w-9" />}
+                      </div>
+                      {item.social.account && (
+                        <div className="flex items-center gap-1 rounded-full bg-black/80 border border-white/15 px-2 py-0.5">
+                          <span className="text-[10px] font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                            Follow @{item.social.account}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   ) : item.owner_name ? (
                     <div className="absolute inset-x-0 bottom-[10%] z-[6] flex items-center justify-center px-2 pointer-events-none">
                       <span
