@@ -1,26 +1,29 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import VideoDocumentOverlay from "@/components/overlays/VideoDocumentOverlay";
-import type { VideoDoc } from "@/hooks/useBookOnlineData";
 import { Play } from "lucide-react";
 
-interface VideoItem extends VideoDoc {
+interface VideoItem {
   _id: string;
   _kind: "doc" | "youtube";
+  url: string;
+  name: string | null;
+  description: string | null;
+  thumbnail_url: string | null;
+  owner_business_id: string | null;
+  owner_name: string | null;
 }
 
 interface Props {
   badgeId: string;
   badgeLabel: string;
+  onOpenVideo: (businessId: string, videoUrl: string, name: string | null) => void;
 }
 
 const ytThumb = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
-export default function HashtagTabContent({ badgeId, badgeLabel }: Props) {
+export default function HashtagTabContent({ badgeId, badgeLabel, onOpenVideo }: Props) {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VideoItem[]>([]);
-  const [active, setActive] = useState<VideoItem | null>(null);
-  const [closing, setClosing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,7 +40,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel }: Props) {
         docIds.length
           ? supabase
               .from("business_documents")
-              .select("id, url, name, description, thumbnail_url, city, price, price_type, business_id, business_is_active, type")
+              .select("id, url, name, description, thumbnail_url, business_id, business_is_active, type")
               .in("id", docIds)
               .eq("business_is_active", true)
               .in("type", ["instagram_video", "tiktok_video", "youtube_video", "video"])
@@ -62,7 +65,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel }: Props) {
       if (bizIds.length) {
         const { data: bizs } = await supabase
           .from("businesses")
-          .select("id, name, logo_url, instagram_url")
+          .select("id, name")
           .in("id", bizIds);
         (bizs || []).forEach((b: any) => { bizMap[b.id] = b; });
       }
@@ -72,15 +75,10 @@ export default function HashtagTabContent({ badgeId, badgeLabel }: Props) {
         _kind: "doc",
         url: d.url,
         name: d.name || null,
-        city: d.city || null,
-        price: d.price || null,
-        price_type: d.price_type || null,
         description: d.description || null,
         thumbnail_url: d.thumbnail_url || null,
         owner_business_id: d.business_id || null,
         owner_name: bizMap[d.business_id]?.name || null,
-        owner_logo: bizMap[d.business_id]?.logo_url || null,
-        owner_instagram: bizMap[d.business_id]?.instagram_url || null,
       }));
 
       const ytItems: VideoItem[] = (ytRes.data || []).map((y: any) => ({
@@ -88,15 +86,10 @@ export default function HashtagTabContent({ badgeId, badgeLabel }: Props) {
         _kind: "youtube",
         url: `https://www.youtube.com/watch?v=${y.video_id}`,
         name: y.title || null,
-        city: null,
-        price: null,
-        price_type: null,
         description: null,
         thumbnail_url: y.custom_thumbnail_url || y.thumbnail || ytThumb(y.video_id),
         owner_business_id: y.business_id || null,
         owner_name: bizMap[y.business_id]?.name || null,
-        owner_logo: bizMap[y.business_id]?.logo_url || null,
-        owner_instagram: bizMap[y.business_id]?.instagram_url || null,
       }));
 
       if (cancelled) return;
@@ -105,8 +98,6 @@ export default function HashtagTabContent({ badgeId, badgeLabel }: Props) {
     })();
     return () => { cancelled = true; };
   }, [badgeId]);
-
-  const handleClose = useCallback(() => setClosing(true), []);
 
   return (
     <div className="w-full px-4 py-6">
@@ -126,8 +117,12 @@ export default function HashtagTabContent({ badgeId, badgeLabel }: Props) {
           {items.map((item) => (
             <button
               key={item._id}
-              onClick={() => { setActive(item); setClosing(false); }}
-              className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group focus:outline-none focus:ring-2 focus:ring-primary"
+              onClick={() => {
+                if (!item.owner_business_id) return;
+                onOpenVideo(item.owner_business_id, item.url, item.name);
+              }}
+              disabled={!item.owner_business_id}
+              className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {item.thumbnail_url ? (
                 <img
@@ -152,27 +147,6 @@ export default function HashtagTabContent({ badgeId, badgeLabel }: Props) {
             </button>
           ))}
         </div>
-      )}
-
-      {active && (
-        <VideoDocumentOverlay
-          activeVideo={{ url: active.url, name: active.name, description: active.description }}
-          videoDocs={items}
-          closing={closing}
-          businessId={active.owner_business_id || undefined}
-          businessName={active.owner_name || undefined}
-          onClose={handleClose}
-          onNavigate={(v) => {
-            const next = items.find((it) => it.url === v.url);
-            if (next) setActive(next);
-          }}
-          onAnimationEnd={() => {
-            if (closing) {
-              setActive(null);
-              setClosing(false);
-            }
-          }}
-        />
       )}
     </div>
   );

@@ -472,6 +472,7 @@ const SearchPage = () => {
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
+    const [compactPanelInitialVideoUrl, setCompactPanelInitialVideoUrl] = useState<string | null>(null);
     const [bottomSearchOverlayOpen, setBottomSearchOverlayOpen] = useState(false);
     const [bottomSearchCloseTrigger, setBottomSearchCloseTrigger] = useState(0);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
@@ -507,6 +508,7 @@ const SearchPage = () => {
           if (returnContext) sessionStorage.removeItem("returnToTestContext");
         } catch { /* sessionStorage unavailable */ }
         setCompactPanelBusiness(null);
+        setCompactPanelInitialVideoUrl(null);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
         setHideResultsMap(false);
@@ -3073,7 +3075,14 @@ const SearchPage = () => {
       )}
 
       {activeTab === "hashtag" && badgeIdParam && (
-        <HashtagTabContent badgeId={badgeIdParam} badgeLabel={badgeLabelParam || "#"} />
+        <HashtagTabContent
+          badgeId={badgeIdParam}
+          badgeLabel={badgeLabelParam || "#"}
+          onOpenVideo={(bizId, videoUrl) => {
+            setCompactPanelInitialVideoUrl(videoUrl);
+            openCompactPanel({ id: bizId, name: "" } as any);
+          }}
+        />
       )}
 
 
@@ -3440,6 +3449,7 @@ const SearchPage = () => {
               <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
                 <BookOnlineSlidePanel
                   businessId={compactPanelBusiness.id}
+                  initialVideoUrl={compactPanelInitialVideoUrl || undefined}
                   onClose={closeCompactPanel}
                   externalOverlayActive={showAiPopup}
                   forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
