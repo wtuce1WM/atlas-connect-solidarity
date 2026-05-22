@@ -1399,17 +1399,52 @@ const SearchPage = () => {
     return () => { cancelled = true; };
   }, [effectiveCityForMap]);
 
+  // Fetch ALL search results (beyond current page) when "Voir tous" is toggled
+  const [allSearchMapBusinesses, setAllSearchMapBusinesses] = useState<Business[]>([]);
+  useEffect(() => {
+    setAllSearchMapBusinesses([]);
+  }, [searchQuery, spokenText, language]);
+  useEffect(() => {
+    if (!showAllSearchMarkers) return;
+    if (!totalCount || totalCount <= filteredBusinesses.length) return;
+    if (allSearchMapBusinesses.length >= totalCount) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
+        body: {
+          query: searchQuery.trim() || categoryFromUrl || undefined,
+          spoken: spokenText || undefined,
+          language: language,
+          pageSize: totalCount,
+          offset: 0,
+          compact: "card",
+        }
+      });
+      if (cancelled || error || !data) return;
+      setAllSearchMapBusinesses((data.businesses || []) as Business[]);
+    })();
+    return () => { cancelled = true; };
+  }, [showAllSearchMarkers, totalCount, filteredBusinesses.length, allSearchMapBusinesses.length, searchQuery, spokenText, language, categoryFromUrl]);
+
+  // Pool used for "Voir tous": full results when fetched, otherwise current page
+  const searchMapPool = useMemo(() => {
+    if (showAllSearchMarkers && allSearchMapBusinesses.length > filteredBusinesses.length) {
+      return allSearchMapBusinesses;
+    }
+    return filteredBusinesses;
+  }, [showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
+
   // "Tous" tab: show search results only (desktop) — capped to 20 unless "Voir tous" is toggled
   const mapPoiItemsSearch: PoiMapItem[] = useMemo(() => {
-    const items = buildMapPoiItems(filteredBusinesses, true);
+    const items = buildMapPoiItems(searchMapPool, true);
     return showAllSearchMarkers ? items : items.slice(0, 20);
-  }, [buildMapPoiItems, filteredBusinesses, showAllSearchMarkers]);
+  }, [buildMapPoiItems, searchMapPool, showAllSearchMarkers]);
 
   // "Tous" tab: mobile/tablet
   const mobileMapPoiItems: PoiMapItem[] = useMemo(() => {
-    const items = buildMapPoiItems(filteredBusinesses, false);
+    const items = buildMapPoiItems(searchMapPool, false);
     return showAllSearchMarkers ? items : items.slice(0, 20);
-  }, [buildMapPoiItems, filteredBusinesses, showAllSearchMarkers]);
+  }, [buildMapPoiItems, searchMapPool, showAllSearchMarkers]);
 
   // Helper: sort and slice for front structure category filtering
   const buildFsCategoryItems = useCallback((guardDesktop: boolean): PoiMapItem[] => {
@@ -3126,7 +3161,7 @@ const SearchPage = () => {
             hotelSearchInfo={hotelSearchInfoForResults}
             showAllSearchMarkers={showAllSearchMarkers}
             onToggleShowAllSearchMarkers={() => setShowAllSearchMarkers(v => !v)}
-            searchResultsTotal={filteredBusinesses.length}
+            searchResultsTotal={totalCount ?? filteredBusinesses.length}
           />
         </>
       )}
@@ -3176,7 +3211,7 @@ const SearchPage = () => {
                   }}
                 />
               )}
-              {mobileFsTabId === null && filteredBusinesses.length > 20 && (
+              {mobileFsTabId === null && (totalCount ?? filteredBusinesses.length) > 20 && (
                 <div className="px-3 pb-2">
                   <button
                     type="button"
@@ -3184,7 +3219,7 @@ const SearchPage = () => {
                     className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "bg-black/50 text-white hover:bg-black/70"}`}
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
-                    {showAllSearchMarkers ? "Voir Top 20" : <>Voir tous <span className="ml-1 opacity-70">{filteredBusinesses.length}</span></>}
+                    {showAllSearchMarkers ? "Voir Top 20" : <>Voir tous <span className="ml-1 opacity-70">{totalCount ?? filteredBusinesses.length}</span></>}
                   </button>
                 </div>
               )}
