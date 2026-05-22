@@ -1,4 +1,6 @@
 import { Mic, X } from "lucide-react";
+import { useEffect, useRef } from "react";
+
 
 interface VoiceSearchOverlayProps {
   isOpen: boolean;
@@ -12,13 +14,26 @@ interface VoiceSearchOverlayProps {
 const ACCENT = "#6050dc";
 
 const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
+  // Anti-rebond mobile : ignore les clics synthétisés (ghost click) durant les
+  // premières 500ms après l'ouverture, sinon le tap sur le mic qui a déclenché
+  // l'ouverture est rejoué sur les boutons de l'overlay et le referme aussitôt.
+  const openedAtRef = useRef<number>(0);
+  useEffect(() => {
+    if (isOpen) openedAtRef.current = Date.now();
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const guardClick = (handler?: () => void) => () => {
+    if (Date.now() - openedAtRef.current < 500) return;
+    handler?.();
+  };
 
   return (
     <div className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-200`}>
       {/* Close button */}
       <button
-        onClick={onClose}
+        onClick={guardClick(onClose)}
         className="absolute top-6 right-6 p-2 rounded-full hover:bg-muted transition-colors"
       >
         <X className="h-6 w-6 text-muted-foreground" />
@@ -74,7 +89,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
 
           {/* Main button */}
           <button
-            onClick={liveTranscript && onFinish ? onFinish : onClose}
+            onClick={guardClick(liveTranscript && onFinish ? onFinish : onClose)}
             className="relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105"
             style={{
               backgroundColor: "hsl(var(--background))",
