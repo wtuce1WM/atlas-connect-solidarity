@@ -432,14 +432,14 @@ const SlidePanelHome = ({
           const dy = e.touches[0].clientY - swipeStartY.current;
           const dx = e.touches[0].clientX - swipeStartX.current;
           if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.5) {
-            if (dy < 0 && hasNext) {
-              e.preventDefault();
-              swipeHandled.current = true;
-              onNext?.();
-            } else if (dy > 0 && hasPrev) {
+            if (dy < 0 && hasPrev) {
               e.preventDefault();
               swipeHandled.current = true;
               onPrev?.();
+            } else if (dy > 0 && hasNext) {
+              e.preventDefault();
+              swipeHandled.current = true;
+              onNext?.();
             }
           }
         } : undefined}
