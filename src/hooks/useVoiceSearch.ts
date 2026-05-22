@@ -346,6 +346,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   }, [scribe]);
 
   const finishScribeRecording = useCallback(async () => {
+    clearSilenceTimer();
     try { await scribe.disconnect(); } catch { /* ignore */ }
     const transcript = scribeFinalRef.current.trim();
     scribeFinalRef.current = "";
@@ -356,7 +357,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       setLiveTranscript("");
       setStatus("idle");
     }
-  }, [scribe, processTranscript]);
+  }, [scribe, processTranscript, clearSilenceTimer]);
+
+  useEffect(() => { finishScribeRef.current = finishScribeRecording; }, [finishScribeRecording]);
 
   // ====================== Web Speech API path (default) ======================
   const startRecording = useCallback(() => {
