@@ -1928,6 +1928,25 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           closeTrigger={closeTrigger}
           compact
           onSeeResults={onClose}
+          leadingControls={
+            effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? (
+              <VideoControls
+                type="file"
+                videoRef={videoRef as React.RefObject<HTMLVideoElement>}
+                paused={videoPaused}
+                muted={videoMuted}
+              />
+            ) : effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && !cardsHidden ? (
+              <VideoControls
+                type="youtube"
+                iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
+                playing={ytBgPlaying}
+                muted={ytBgMuted}
+                onPlayingChange={setYtBgPlaying}
+                onMutedChange={(m) => { setYtBgMuted(m); setGlobalSoundOn(!m); }}
+              />
+            ) : undefined
+          }
         />
       )}
 
