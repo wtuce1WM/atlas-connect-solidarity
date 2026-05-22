@@ -684,7 +684,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         goMedia(dx < 0 ? 1 : -1);
       }
     }
-    onTouchEnd?.(e);
+    onTouchEnd?.();
   }, [onTouchEnd, goMedia]);
 
   // Listen for YouTube "ended"
