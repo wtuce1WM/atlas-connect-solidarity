@@ -93,13 +93,13 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
   return (
     <>
       {/* Trigger bar fixed at bottom */}
-      <div className={`absolute bottom-0 z-[85] py-3 flex items-center justify-center gap-6 md:gap-10 ${compact && !leadingControls ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'}`}>
+      <div className={`absolute bottom-0 z-[85] py-3 flex items-center justify-center gap-3 md:gap-10 ${compact && !leadingControls ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'}`}>
         {leadingControls}
         <button
           type="button"
           onClick={() => setOverlay(true)}
           aria-label="Search"
-          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
         >
           <Search className="h-5 w-5 md:h-6 md:w-6" />
         </button>
@@ -107,7 +107,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
           type="button"
           onClick={() => setAiOverlayOpen(true)}
           aria-label="Suggestion IA"
-          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
         >
           <Sparkles className="h-5 w-5 md:h-6 md:w-6" />
         </button>
@@ -115,7 +115,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
           type="button"
           onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
           aria-label="Géolocalisation"
-          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
         >
           <MapPin className="h-5 w-5 md:h-6 md:w-6" />
         </button>
@@ -123,7 +123,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
           type="button"
           onClick={() => setHashtagsOverlayOpen(true)}
           aria-label="Hashtags"
-          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
         >
           <Hash className="h-5 w-5 md:h-6 md:w-6" />
         </button>

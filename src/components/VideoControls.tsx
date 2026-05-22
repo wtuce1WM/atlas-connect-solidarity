@@ -22,14 +22,14 @@ type VideoControlsProps = (FileVideoControlsProps | YouTubeVideoControlsProps) &
 };
 
 const btnClass =
-  "w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors";
+  "shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors";
 const iconClass = "h-5 w-5 md:h-6 md:w-6";
 
 const VideoControls = (props: VideoControlsProps) => {
   if (props.type === "file") {
     const { videoRef, paused, muted } = props;
     return (
-      <div className={`flex items-center gap-6 md:gap-10 ${props.className ?? ""}`}>
+      <div className={`flex items-center gap-3 md:gap-10 ${props.className ?? ""}`}>
         <button
           type="button"
           onClick={() => {
@@ -62,7 +62,7 @@ const VideoControls = (props: VideoControlsProps) => {
   // YouTube
   const { iframeRef, playing, muted, onPlayingChange, onMutedChange } = props;
   return (
-    <div className={`flex items-center gap-6 md:gap-10 ${props.className ?? ""}`}>
+    <div className={`flex items-center gap-3 md:gap-10 ${props.className ?? ""}`}>
       <button
         type="button"
         onClick={() => {
