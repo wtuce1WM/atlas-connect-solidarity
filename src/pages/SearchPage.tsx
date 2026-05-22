@@ -3250,6 +3250,11 @@ const SearchPage = () => {
                          <button
                            type="button"
                            onClick={() => {
+                             const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0) ? allCityMapBusinesses : filteredBusinesses;
+                             const ids = pool
+                               .filter(b => b.categories?.some((cat: string) => activeFsTab.subcategoryNames.has(cat)))
+                               .map(b => b.id);
+                             if (ids.length === 0) return;
                              const q = `${activeFsTab.name}${effectiveCityForMap ? ` à ${effectiveCityForMap}` : ''}`;
                              setShowMobileMap(false);
                              setCompactPanelBusiness(null);
@@ -3262,7 +3267,7 @@ const SearchPage = () => {
                              setActiveTab("suggestions");
                              setSelectedCity("all");
                              setIsGeoCityAutoSelected(false);
-                             setSearchParams({ q });
+                             setSearchParams({ q, pinIds: ids.join(",") });
                            }}
                            className="px-3 py-1 rounded-full transition-colors text-white/80 hover:text-white"
                          >
