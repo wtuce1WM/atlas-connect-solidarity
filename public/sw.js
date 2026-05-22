@@ -6,9 +6,9 @@
 //     thumbnails (i.ytimg.com / img.youtube.com). 2nd+ visits are instant.
 //     Cache is capped via simple LRU eviction (~150 entries each).
 
-const SNAPSHOT_CACHE = "oneworld-snapshot-v1";
-const IMG_CACHE = "oneworld-images-v1";
-const YT_CACHE = "oneworld-yt-thumbs-v1";
+const SNAPSHOT_CACHE = "oneworld-snapshot-v2";
+const IMG_CACHE = "oneworld-images-v2";
+const YT_CACHE = "oneworld-yt-thumbs-v2";
 const SNAPSHOT_PATH = "/rest/v1/homepage_cards_snapshots";
 
 const IMG_CACHE_MAX = 200;
