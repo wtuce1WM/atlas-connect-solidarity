@@ -431,7 +431,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
                       </div>
                       {item.social.account && (
                         <div className="flex items-center gap-1 rounded-full bg-black/80 border border-white/15 px-2 py-0.5">
-                          <span className="text-[10px] font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                          <span className="text-[10px] font-medium text-white normal-case" style={{ fontFamily: "'Roboto', sans-serif" }}>
                             Follow @{item.social.account}
                           </span>
                         </div>
