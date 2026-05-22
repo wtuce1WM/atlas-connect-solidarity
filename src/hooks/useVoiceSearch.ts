@@ -222,6 +222,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
   }, []);
 
+  const clearMaxDurationTimer = useCallback(() => {
+    if (maxDurationTimerRef.current) {
+      clearTimeout(maxDurationTimerRef.current);
+      maxDurationTimerRef.current = null;
+    }
+  }, []);
+
   const processTranscript = useCallback(async (transcript: string) => {
     if (!transcript.trim()) {
       setStatus("idle");
