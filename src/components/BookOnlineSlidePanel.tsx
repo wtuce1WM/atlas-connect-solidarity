@@ -1904,6 +1904,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           darkBackground={true}
           closeTrigger={closeTrigger}
           compact
+          onSeeResults={onClose}
         />
       )}
 
