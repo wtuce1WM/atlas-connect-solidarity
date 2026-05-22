@@ -402,7 +402,7 @@ const MobileSearchOverlay = ({
       <VoiceSearchOverlay
         isOpen={voice.status === "recording" || voice.status === "processing"}
         liveTranscript={voice.liveTranscript}
-        onClose={voice.cancelRecording ?? voice.toggleRecording}
+        onClose={voice.toggleRecording}
         onFinish={voice.finishRecording}
       />
     </div>
