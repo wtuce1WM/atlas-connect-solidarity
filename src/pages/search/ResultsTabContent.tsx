@@ -365,8 +365,13 @@ export default function ResultsTabContent({
                           <button
                             type="button"
                             onClick={() => {
+                              const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0) ? allCityMapBusinesses : filteredBusinesses;
+                              const ids = pool
+                                .filter(b => b.categories?.some((cat: string) => activeFsTab.subcategoryNames.has(cat)))
+                                .map(b => b.id);
+                              if (ids.length === 0) return;
                               const q = `${activeFsTab.name}${effectiveCity ? ` à ${effectiveCity}` : ''}`;
-                              onSearchNavigate({ q });
+                              onSearchNavigate({ q, pinIds: ids.join(",") });
                             }}
                             className="px-3 py-1 rounded-full transition-colors text-white/80 hover:text-white"
                           >
