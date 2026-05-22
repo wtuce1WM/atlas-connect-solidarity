@@ -1,11 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Search, Sparkles, MapPin } from "lucide-react";
+import { Search, Sparkles, MapPin, Hash } from "lucide-react";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import PanelAiOverlay from "@/components/overlays/PanelAiOverlay";
+import PanelHashtagsOverlay from "@/components/overlays/PanelHashtagsOverlay";
 import OverlayShell from "@/components/overlays/OverlayShell";
 
 interface PanelSearchBarProps {
@@ -46,6 +47,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
     onOverlayChange?.(open);
   }, [onOverlayChange]);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
+  const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const { toast } = useToast();
   const geo = useGeolocation();
 
@@ -108,7 +110,17 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
         >
           <MapPin className="h-5 w-5 md:h-6 md:w-6" />
         </button>
+        <button
+          type="button"
+          onClick={() => setHashtagsOverlayOpen(true)}
+          aria-label="Hashtags"
+          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+        >
+          <Hash className="h-5 w-5 md:h-6 md:w-6" />
+        </button>
       </div>
+
+      <PanelHashtagsOverlay open={hashtagsOverlayOpen} onClose={() => setHashtagsOverlayOpen(false)} />
 
 
       {/* Search overlay — covers toolbar */}
