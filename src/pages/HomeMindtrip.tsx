@@ -39,7 +39,7 @@ const HomeMindtrip = () => {
 
         <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-6 py-24 md:px-12">
           <h1 className="font-josefin text-5xl font-light leading-[0.95] tracking-tight text-foreground md:text-7xl lg:text-8xl">
-            Voyagez<br />autrement<span className="text-primary">.</span>
+            Le Maroc<br />autrement<span className="text-primary">.</span>
           </h1>
           <p className="mt-6 max-w-xl font-roboto text-base text-foreground/80 md:text-lg">
             ONE WORLD MOROCCO vous emmène à la rencontre du Maroc qui nous touche : adresses vérifiées,
