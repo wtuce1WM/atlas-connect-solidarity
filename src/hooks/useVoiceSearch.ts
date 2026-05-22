@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useScribe, CommitStrategy } from "@elevenlabs/react";
+import { setScribeMicrophoneSetup, type ScribeMicrophoneConfig } from "@elevenlabs/client/internal";
 
 type VoiceStatus = "idle" | "recording" | "processing" | "error";
 
@@ -74,6 +75,7 @@ declare global {
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const SCRIBE_SAMPLE_RATE = 16000;
 
 // Detect iOS (iPhone/iPad/iPod, including iPadOS reporting as Mac with touch)
 function isIOS(): boolean {
@@ -82,6 +84,77 @@ function isIOS(): boolean {
   const iOSClassic = /iPad|iPhone|iPod/.test(ua);
   const iPadOS = ua.includes("Mac") && typeof document !== "undefined" && "ontouchend" in document;
   return iOSClassic || iPadOS;
+}
+
+function base64FromBytes(bytes: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function resampleAudio(input: Float32Array, inputRate: number, outputRate: number): Float32Array {
+  if (inputRate === outputRate) return input.slice();
+  const ratio = inputRate / outputRate;
+  const outputLength = Math.max(1, Math.floor(input.length / ratio));
+  const output = new Float32Array(outputLength);
+  for (let i = 0; i < outputLength; i++) {
+    const sourceIndex = i * ratio;
+    const left = Math.floor(sourceIndex);
+    const right = Math.min(left + 1, input.length - 1);
+    const weight = sourceIndex - left;
+    output[i] = input[left] * (1 - weight) + input[right] * weight;
+  }
+  return output;
+}
+
+function pcm16Base64FromFloat32(input: Float32Array): string {
+  const buffer = new ArrayBuffer(input.length * 2);
+  const view = new DataView(buffer);
+  for (let i = 0; i < input.length; i++) {
+    const sample = Math.max(-1, Math.min(1, input[i]));
+    view.setInt16(i * 2, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+  }
+  return base64FromBytes(new Uint8Array(buffer));
+}
+
+async function setupScribeMicrophoneFromStream(
+  stream: MediaStream,
+  audioContext: AudioContext,
+  onAudioData: (base64Audio: string) => void,
+) {
+  const [audioTrack] = stream.getAudioTracks();
+  if (!audioTrack || audioTrack.readyState === "ended") throw new Error("Microphone indisponible");
+
+  if (audioContext.state === "suspended") await audioContext.resume();
+
+  const source = audioContext.createMediaStreamSource(stream);
+  const processor = audioContext.createScriptProcessor(4096, 1, 1);
+  const silentGain = audioContext.createGain();
+  silentGain.gain.value = 0;
+
+  processor.onaudioprocess = (event) => {
+    const input = event.inputBuffer.getChannelData(0);
+    const resampled = resampleAudio(input, audioContext.sampleRate, SCRIBE_SAMPLE_RATE);
+    onAudioData(pcm16Base64FromFloat32(resampled));
+  };
+
+  source.connect(processor);
+  processor.connect(silentGain);
+  silentGain.connect(audioContext.destination);
+
+  return {
+    mediaStreamTrack: audioTrack,
+    cleanup: () => {
+      processor.disconnect();
+      source.disconnect();
+      silentGain.disconnect();
+      stream.getTracks().forEach((track) => track.stop());
+      if (audioContext.state !== "closed") void audioContext.close();
+    },
+  };
 }
 
 async function extractSearchIntent(transcript: string): Promise<{ query: string; category: string; timeKeyword: string; intent: string; hotelAvailability: HotelAvailabilityIntent | null; hotelSearch: HotelSearchIntent | null; flightSearch: FlightSearchIntent | null; webSearch: WebSearchIntent | null }> {
@@ -123,6 +196,8 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const accumulatedTranscriptRef = useRef<string>("");
+  const pendingScribeStreamRef = useRef<MediaStream | null>(null);
+  const pendingScribeAudioContextRef = useRef<AudioContext | null>(null);
 
   // Garder les callbacks en ref pour éviter les problèmes de closure dans les handlers async
   const onTranscriptRef = useRef(onTranscript);
@@ -190,12 +265,33 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   });
 
   const startScribeRecording = useCallback(async () => {
+    let mediaStream = pendingScribeStreamRef.current;
+    let audioContext = pendingScribeAudioContextRef.current;
+    pendingScribeStreamRef.current = null;
+    pendingScribeAudioContextRef.current = null;
+
     try {
       scribeFinalRef.current = "";
       setLiveTranscript("");
       setStatus("recording");
 
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!mediaStream) {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+        });
+      }
+      if (!audioContext) {
+        const sampleRate = mediaStream.getAudioTracks()[0]?.getSettings().sampleRate;
+        audioContext = new AudioContext(sampleRate ? { sampleRate } : undefined);
+      }
+
+      setScribeMicrophoneSetup(async (_config: ScribeMicrophoneConfig, onAudioData) => {
+        if (!mediaStream || !audioContext) throw new Error("Microphone indisponible");
+        const result = await setupScribeMicrophoneFromStream(mediaStream, audioContext, onAudioData);
+        mediaStream = null;
+        audioContext = null;
+        return result;
+      });
 
       const res = await fetch(`${SUPABASE_URL}/functions/v1/elevenlabs-scribe-token`, {
         method: "POST",
@@ -219,6 +315,8 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       });
     } catch (e) {
       console.error("[Scribe] start failed:", e);
+      mediaStream?.getTracks().forEach((track) => track.stop());
+      if (audioContext && audioContext.state !== "closed") void audioContext.close();
       setStatus("idle");
       const msg = e instanceof Error ? e.message : String(e);
       if (/permission|denied|NotAllowed/i.test(msg)) {
@@ -252,7 +350,47 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   // ====================== Web Speech API path (default) ======================
   const startRecording = useCallback(() => {
     if (useScribePath) {
-      void startScribeRecording();
+      try {
+        pendingScribeStreamRef.current?.getTracks().forEach((track) => track.stop());
+        pendingScribeStreamRef.current = null;
+        if (pendingScribeAudioContextRef.current && pendingScribeAudioContextRef.current.state !== "closed") {
+          void pendingScribeAudioContextRef.current.close();
+        }
+        pendingScribeAudioContextRef.current = null;
+
+        scribeFinalRef.current = "";
+        setLiveTranscript("");
+        setStatus("recording");
+
+        const audioContext = new AudioContext();
+        void audioContext.resume();
+        const streamPromise = navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+        });
+        streamPromise
+          .then((stream) => {
+            pendingScribeStreamRef.current = stream;
+            pendingScribeAudioContextRef.current = audioContext;
+            void startScribeRecording();
+          })
+          .catch((e) => {
+            if (audioContext.state !== "closed") void audioContext.close();
+            console.error("[Scribe] getUserMedia failed:", e);
+            const msg = e instanceof Error ? e.message : String(e);
+            if (/permission|denied|NotAllowed/i.test(msg)) {
+              onErrorRef.current?.("Microphone bloqué. Autorisez le micro dans les réglages Safari.");
+            } else {
+              onErrorRef.current?.(`Erreur vocale: ${msg}`);
+            }
+            setStatus("idle");
+          });
+      } catch (e) {
+        console.error("[Scribe] microphone init failed:", e);
+        const msg = e instanceof Error ? e.message : String(e);
+        onErrorRef.current?.(`Erreur vocale: ${msg}`);
+        setStatus("idle");
+        return;
+      }
       return;
     }
 
