@@ -3164,6 +3164,7 @@ const SearchPage = () => {
                     if (!tabId) {
                       setFsFilterSubcategories(null);
                     } else {
+                      setShowAllSearchMarkers(false);
                       const tab = mobileFrontTabs.find(t => t.id === tabId);
                       if (tab) {
                         setFsFilterSubcategories(new Set(tab.subcategoryNames));
@@ -3171,6 +3172,18 @@ const SearchPage = () => {
                     }
                   }}
                 />
+              )}
+              {mobileFsTabId === null && !showAllSearchMarkers && filteredBusinesses.length > 20 && (
+                <div className="px-3 pb-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAllSearchMarkers(true)}
+                    className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm bg-black/50 text-white hover:bg-black/70 transition-colors"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  >
+                    Voir tous <span className="ml-1 opacity-70">{filteredBusinesses.length}</span>
+                  </button>
+                </div>
               )}
             </div>
           ) : (
