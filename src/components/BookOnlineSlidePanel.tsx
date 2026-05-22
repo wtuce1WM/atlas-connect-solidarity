@@ -266,7 +266,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   useEffect(() => {
     const saved = savedUrlRef.current;
-    return () => { window.history.replaceState(null, "", saved); };
+    return () => {
+      // Only restore the saved URL if it was cosmetically rewritten (i.e. we're
+      // no longer on /search). If the user navigated to a new /search URL
+      // (e.g. via the Hashtags overlay), keep that navigation intact.
+      if (window.location.pathname !== "/search") {
+        window.history.replaceState(null, "", saved);
+      }
+    };
   }, []);
 
   // Close interceptor
