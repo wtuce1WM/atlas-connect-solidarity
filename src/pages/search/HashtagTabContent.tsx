@@ -2,7 +2,16 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Play } from "lucide-react";
 import SlidePanelHome from "@/components/SlidePanelHome";
-import { isAgendaLabel } from "@/lib/homeHelpers";
+import { isAgendaLabel, formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
+
+interface EventInfo {
+  name: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  days_of_week: string[] | null;
+  start_time: string | null;
+  end_time: string | null;
+}
 
 interface VideoItem {
   _id: string;
@@ -17,8 +26,10 @@ interface VideoItem {
   owner_logo_bg: string | null;
   generic_video_id: string | null;
   event_id?: string | null;
+  eventInfo?: EventInfo | null;
   social: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
 }
+
 
 interface Props {
   badgeId: string;
