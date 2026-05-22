@@ -3045,12 +3045,9 @@ const SearchPage = () => {
           badgeId={badgeIdParam}
           badgeLabel={badgeLabelParam || "#"}
           city={searchParams.get("city") || null}
-          onOpenVideo={(bizId, videoUrl) => {
-            setCompactPanelInitialVideoUrl(videoUrl);
-            openCompactPanel({ id: bizId, name: "" } as any);
-          }}
         />
       )}
+
 
 
 
