@@ -251,27 +251,35 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   // instead, which gives desktop-grade quality.
   const useScribePath = isIOS();
   const scribeFinalRef = useRef<string>("");
+  const scribePartialRef = useRef<string>("");
 
   const finishScribeRef = useRef<() => void>(() => {});
+
+  const scheduleScribeAutoFinish = useCallback(() => {
+    clearSilenceTimer();
+    const candidate = `${scribeFinalRef.current} ${scribePartialRef.current}`.trim();
+    if (candidate) {
+      silenceTimerRef.current = setTimeout(() => {
+        finishScribeRef.current();
+      }, SILENCE_DELAY_MS);
+    }
+  }, [clearSilenceTimer]);
 
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
     commitStrategy: CommitStrategy.VAD,
     onPartialTranscript: (data: { text: string }) => {
-      setLiveTranscript((scribeFinalRef.current + " " + (data.text || "")).trim());
-      // Reset silence timer on any speech activity
-      clearSilenceTimer();
+      scribePartialRef.current = data.text || "";
+      setLiveTranscript(`${scribeFinalRef.current} ${scribePartialRef.current}`.trim());
+      // iOS/Scribe can stay on partial text without emitting a committed segment.
+      scheduleScribeAutoFinish();
     },
     onCommittedTranscript: (data: { text: string }) => {
       scribeFinalRef.current = (scribeFinalRef.current + " " + (data.text || "")).trim();
+      scribePartialRef.current = "";
       setLiveTranscript(scribeFinalRef.current);
       // Auto-finish after SILENCE_DELAY_MS of no new partials/commits
-      clearSilenceTimer();
-      if (scribeFinalRef.current) {
-        silenceTimerRef.current = setTimeout(() => {
-          finishScribeRef.current();
-        }, SILENCE_DELAY_MS);
-      }
+      scheduleScribeAutoFinish();
     },
   });
 
