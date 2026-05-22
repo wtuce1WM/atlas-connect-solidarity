@@ -22,6 +22,8 @@ interface PanelSearchBarProps {
   businessName?: string | null;
   /** Called when the search overlay opens or closes */
   onOverlayChange?: (open: boolean) => void;
+  /** Called when the hashtags overlay opens or closes */
+  onHashtagsOverlayChange?: (open: boolean) => void;
   /** Use a dark (black) background instead of transparent */
   darkBackground?: boolean;
   /** Increment to force-close all overlays from outside */
