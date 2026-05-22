@@ -357,6 +357,10 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         }
         pendingScribeAudioContextRef.current = null;
 
+        scribeFinalRef.current = "";
+        setLiveTranscript("");
+        setStatus("recording");
+
         const audioContext = new AudioContext();
         const streamPromise = navigator.mediaDevices.getUserMedia({
           audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
@@ -385,7 +389,6 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         setStatus("idle");
         return;
       }
-      void startScribeRecording();
       return;
     }
 
