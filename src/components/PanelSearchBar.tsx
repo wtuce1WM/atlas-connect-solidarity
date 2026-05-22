@@ -81,17 +81,19 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
   return (
     <>
       {/* Trigger bar fixed at bottom */}
-      <div className={`absolute bottom-0 z-[85] py-3 ${compact ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'} ${darkBackground ? 'bg-black' : ''}`}>
+      <div className={`absolute bottom-0 z-[85] py-3 ${compact ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'}`}>
         <button
           type="button"
           onClick={() => setOverlay(true)}
           className={`${compact ? 'w-auto px-3 py-2' : 'w-full px-4 py-3'} flex items-center justify-center gap-3 border rounded-xl ${
             solidBackground
               ? 'bg-searchbar-surface border-border shadow-sm'
-              : `bg-transparent backdrop-blur-sm ${isBlack ? 'border-black ring-1 ring-white ring-offset-0' : 'border-white/40'}`
+              : darkBackground
+                ? `bg-black ${isBlack ? 'border-black ring-1 ring-white ring-offset-0' : 'border-white/40'}`
+                : `bg-transparent backdrop-blur-sm ${isBlack ? 'border-black ring-1 ring-white ring-offset-0' : 'border-white/40'}`
           }`}
         >
-          <Search className={`h-4 w-4 shrink-0 ${solidBackground ? 'text-foreground' : isBlack ? 'text-black [filter:drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)]' : 'text-white'}`} />
+          <Search className={`h-4 w-4 shrink-0 ${solidBackground ? 'text-foreground' : darkBackground ? 'text-white' : isBlack ? 'text-black [filter:drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)]' : 'text-white'}`} />
         </button>
       </div>
 
