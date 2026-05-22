@@ -100,6 +100,14 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
         >
           <Sparkles className="h-5 w-5 md:h-6 md:w-6" />
         </button>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
+          aria-label="Géolocalisation"
+          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+        >
+          <MapPin className="h-5 w-5 md:h-6 md:w-6" />
+        </button>
       </div>
 
 
