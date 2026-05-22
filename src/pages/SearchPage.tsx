@@ -3073,7 +3073,14 @@ const SearchPage = () => {
       )}
 
       {activeTab === "hashtag" && badgeIdParam && (
-        <HashtagTabContent badgeId={badgeIdParam} badgeLabel={badgeLabelParam || "#"} />
+        <HashtagTabContent
+          badgeId={badgeIdParam}
+          badgeLabel={badgeLabelParam || "#"}
+          onOpenVideo={(bizId, videoUrl) => {
+            setCompactPanelInitialVideoUrl(videoUrl);
+            openCompactPanel({ id: bizId, name: "" } as any);
+          }}
+        />
       )}
 
 
