@@ -3632,6 +3632,10 @@ const SearchPage = () => {
                     setCompactPanelBusiness({ id: bizId, name: "" } as any);
                     setIsCompactPanelExpanded(false);
                   }}
+                  onPrevBusiness={() => goToBusinessOffset(-1)}
+                  onNextBusiness={() => goToBusinessOffset(1)}
+                  hasPrevBusiness={businessNavInfo.hasPrev}
+                  hasNextBusiness={businessNavInfo.hasNext}
                 />
               </Suspense>
             </div>
