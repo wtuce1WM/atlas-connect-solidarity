@@ -674,7 +674,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       </div>
 
       {showSearchBar && (
-        <PanelSearchBar onSearch={onSearch} onBusinessSelect={onSearchBusinessSelect} />
+        <PanelSearchBar onSearch={onSearch} onBusinessSelect={onSearchBusinessSelect} compact />
       )}
 
       {/* Recursive business overlay */}
