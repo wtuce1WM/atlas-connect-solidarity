@@ -143,7 +143,12 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
               setManualCity: geo.setManualCity,
             }}
           />
-          {/* AI Suggestion overlay — on top of search overlay */}
+        </OverlayShell>
+      )}
+
+      {/* AI Suggestion overlay — independent, can be triggered standalone */}
+      {aiOverlayOpen && (
+        <OverlayShell zClass="z-[92]" coverToolbar={!noToolbarOffset}>
           <PanelAiOverlay
             open={aiOverlayOpen}
             onClose={() => setAiOverlayOpen(false)}
