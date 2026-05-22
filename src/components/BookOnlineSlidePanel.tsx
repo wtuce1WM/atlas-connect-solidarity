@@ -1903,6 +1903,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           onOverlayChange={setSearchOverlayActive}
           darkBackground={false}
           closeTrigger={closeTrigger}
+          compact
         />
       )}
 
