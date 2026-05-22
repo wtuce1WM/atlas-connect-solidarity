@@ -14,9 +14,11 @@ interface PanelAiOverlayProps {
   category?: string | null;
   /** Current business name for context */
   businessName?: string | null;
+  /** Called when user clicks the "Ask AI assistant" CTA (opens fulltext + voice search) */
+  onAskAssistant?: () => void;
 }
 
-const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAiOverlayProps) => {
+const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
