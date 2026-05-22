@@ -3228,19 +3228,26 @@ const SearchPage = () => {
               {(() => {
                 const mobileTotal = mobileFsTabId === null ? (totalCount ?? filteredBusinesses.length) : fsMatchingCount;
                 if (mobileTotal <= 20) return null;
-                return (
-                  <div className="flex items-center gap-2 px-3 pb-2 -mt-1">
-                    <div className="ml-3 w-3 h-3 border-l border-b border-white/50 rounded-bl-md -mt-3" />
-                    <button
-                      type="button"
-                      onClick={() => setShowAllSearchMarkers(v => !v)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "bg-black/50 text-white hover:bg-black/70"}`}
-                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                    >
-                      {showAllSearchMarkers ? "Voir Top 20" : <>Voir tous <span className="ml-1 opacity-70">{mobileTotal}</span></>}
-                    </button>
-                  </div>
-                );
+                 return (
+                   <div className="flex items-center px-3 pb-2">
+                     <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                       <button
+                         type="button"
+                         onClick={() => { if (showAllSearchMarkers) setShowAllSearchMarkers(false); }}
+                         className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                       >
+                         Top 20
+                       </button>
+                       <button
+                         type="button"
+                         onClick={() => { if (!showAllSearchMarkers) setShowAllSearchMarkers(true); }}
+                         className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                       >
+                         Tous <span className="ml-0.5 opacity-70">{mobileTotal}</span>
+                       </button>
+                     </div>
+                   </div>
+                 );
               })()}
             </div>
           ) : (
