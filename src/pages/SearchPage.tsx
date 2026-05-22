@@ -219,12 +219,12 @@ const SearchPage = () => {
       }));
       sessionStorage.setItem("ai_suggestion_businesses", JSON.stringify(bizData));
       sessionStorage.setItem("ai_suggestion_query", searchQuery || "");
-      sessionStorage.setItem("ai_suggestion_count", String((allBusinesses || []).length));
+      sessionStorage.setItem("ai_suggestion_count", String(totalCount ?? (allBusinesses || []).length));
     } catch { /* sessionStorage unavailable (private mode/quota) */ }
     setStickyAiAnimationNonce((prev) => prev + 1);
     // NOTE: TTS preloading removed — it consumed ElevenLabs credits on every search
     // even when the user never clicked the speaker. Audio is now generated on demand.
-  }, [language, searchQuery, allBusinesses]);
+  }, [language, searchQuery, allBusinesses, totalCount]);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
