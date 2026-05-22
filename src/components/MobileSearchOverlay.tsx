@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Search, Clock, X, Mic, MicOff, Loader, TrendingUp, MapPin, MapPinOff, Sparkles } from "lucide-react";
 import { businessUrl } from "@/lib/businessUrl";
 import PanelLocationOverlay from "@/components/overlays/PanelLocationOverlay";
+import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 
 interface GeoDisplayState {
   isEnabled: boolean;
@@ -397,6 +398,13 @@ const MobileSearchOverlay = ({
           </div>
         )}
       </div>
+
+      <VoiceSearchOverlay
+        isOpen={voice.status === "recording" || voice.status === "processing"}
+        liveTranscript={voice.liveTranscript}
+        onClose={voice.toggleRecording}
+        onFinish={voice.finishRecording}
+      />
     </div>
   );
 };
