@@ -337,6 +337,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       const data = await res.json();
       if (!data?.token) throw new Error("Pas de token reçu");
 
+      console.log("[Scribe] connecting…");
       await scribe.connect({
         token: data.token,
         microphone: {
@@ -345,6 +346,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
           autoGainControl: true,
         },
       });
+      console.log("[Scribe] connected");
+      // Hard safety cap: stop after MAX_RECORDING_MS even if no transcript ever arrives
+      clearMaxDurationTimer();
+      maxDurationTimerRef.current = setTimeout(() => {
+        console.warn("[Scribe] max duration reached -> auto-finish");
+        finishScribeRef.current();
+      }, MAX_RECORDING_MS);
     } catch (e) {
       console.error("[Scribe] start failed:", e);
       mediaStream?.getTracks().forEach((track) => track.stop());
