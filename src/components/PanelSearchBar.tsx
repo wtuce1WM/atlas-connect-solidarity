@@ -6,6 +6,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import PanelAiOverlay from "@/components/overlays/PanelAiOverlay";
+import PanelHashtagsOverlay from "@/components/overlays/PanelHashtagsOverlay";
 import OverlayShell from "@/components/overlays/OverlayShell";
 
 interface PanelSearchBarProps {
