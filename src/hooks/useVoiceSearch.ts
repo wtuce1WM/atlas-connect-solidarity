@@ -252,15 +252,26 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const useScribePath = isIOS();
   const scribeFinalRef = useRef<string>("");
 
+  const finishScribeRef = useRef<() => void>(() => {});
+
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
     commitStrategy: CommitStrategy.VAD,
     onPartialTranscript: (data: { text: string }) => {
       setLiveTranscript((scribeFinalRef.current + " " + (data.text || "")).trim());
+      // Reset silence timer on any speech activity
+      clearSilenceTimer();
     },
     onCommittedTranscript: (data: { text: string }) => {
       scribeFinalRef.current = (scribeFinalRef.current + " " + (data.text || "")).trim();
       setLiveTranscript(scribeFinalRef.current);
+      // Auto-finish after SILENCE_DELAY_MS of no new partials/commits
+      clearSilenceTimer();
+      if (scribeFinalRef.current) {
+        silenceTimerRef.current = setTimeout(() => {
+          finishScribeRef.current();
+        }, SILENCE_DELAY_MS);
+      }
     },
   });
 
@@ -328,13 +339,15 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   }, [scribe]);
 
   const stopScribeRecording = useCallback(async () => {
+    clearSilenceTimer();
     try { await scribe.disconnect(); } catch { /* ignore */ }
     scribeFinalRef.current = "";
     setLiveTranscript("");
     setStatus("idle");
-  }, [scribe]);
+  }, [scribe, clearSilenceTimer]);
 
   const finishScribeRecording = useCallback(async () => {
+    clearSilenceTimer();
     try { await scribe.disconnect(); } catch { /* ignore */ }
     const transcript = scribeFinalRef.current.trim();
     scribeFinalRef.current = "";
@@ -345,7 +358,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       setLiveTranscript("");
       setStatus("idle");
     }
-  }, [scribe, processTranscript]);
+  }, [scribe, processTranscript, clearSilenceTimer]);
+
+  useEffect(() => { finishScribeRef.current = finishScribeRecording; }, [finishScribeRecording]);
 
   // ====================== Web Speech API path (default) ======================
   const startRecording = useCallback(() => {
