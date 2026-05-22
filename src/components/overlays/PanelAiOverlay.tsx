@@ -27,12 +27,16 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
   const [cachedCount, setCachedCount] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!open) { setAnswer(""); setBusinesses([]); return; }
+    if (!open) { setAnswer(""); setBusinesses([]); setCachedQuery(""); setCachedCount(null); return; }
 
     // Try to reuse previously generated AI text from search results
     try {
       const cached = sessionStorage.getItem("ai_suggestion_text");
       const cachedBiz = sessionStorage.getItem("ai_suggestion_businesses");
+      const cachedQ = sessionStorage.getItem("ai_suggestion_query");
+      const cachedC = sessionStorage.getItem("ai_suggestion_count");
+      if (cachedQ) setCachedQuery(cachedQ);
+      if (cachedC) setCachedCount(Number(cachedC));
       if (cached) {
         setAnswer(cached);
         if (cachedBiz) setBusinesses(JSON.parse(cachedBiz));
