@@ -77,13 +77,14 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         if (candidateIds.length > 0) {
           const query = (supabase as any)
             .from("events")
-            .select("id, name, images, videos, default_business_id, city_id, end_date")
+            .select("id, name, images, videos, default_business_id, city_id, start_date, end_date, days_of_week, start_time, end_time")
             .in("id", candidateIds)
             .or(`end_date.gte.${today},end_date.is.null`)
             .order("start_date", { ascending: true });
           const { data } = filterByCity && cityId ? await query.eq("city_id", cityId) : await query;
           eventRows = ((data as any[]) || []).filter((ev) => ev?.images?.[0] || ev?.videos?.[0]);
         }
+
         const evBizIds = Array.from(new Set(eventRows.map((ev) => ev.default_business_id).filter(Boolean)));
         const evBizMap: Record<string, any> = {};
         if (evBizIds.length) {
