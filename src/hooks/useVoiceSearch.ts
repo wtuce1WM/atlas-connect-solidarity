@@ -385,6 +385,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         pendingScribeAudioContextRef.current = null;
 
         scribeFinalRef.current = "";
+        scribePartialRef.current = "";
         setLiveTranscript("");
         setStatus("recording");
 
