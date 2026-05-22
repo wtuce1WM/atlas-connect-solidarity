@@ -147,6 +147,47 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
 
       {/* Content — same styling as fullscreen overlay */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+        {/* Query + count + "Voir les résultats" CTA + Speaker (same as SearchPage left panel) */}
+        {(cachedQuery || cachedCount !== null) && (
+          <div className="max-w-3xl mx-auto mb-5 text-center">
+            {cachedCount !== null && (
+              <p className="text-gold font-semibold mb-1">
+                {cachedCount}{" "}
+                {language === "en" ? "results for" : language === "ar" ? "نتيجة لـ" : "résultats à"}
+              </p>
+            )}
+            {cachedQuery && (
+              <p className="text-sm text-foreground/80 italic mb-3 line-clamp-3">« {cachedQuery} »</p>
+            )}
+            <button
+              type="button"
+              onClick={handleClose}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase"
+            >
+              {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
+            </button>
+            {/* Speaker TTS below CTA */}
+            {answer && !loading && (
+              <div className="mt-3 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (ttsStatus === "playing" || ttsStatus === "loading") {
+                      ttsStop();
+                    } else {
+                      const cleanText = answer.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                      ttsSpeak(cleanText);
+                    }
+                  }}
+                  className="w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity"
+                  title={language === "fr" ? "Écouter" : language === "ar" ? "استمع" : "Listen"}
+                >
+                  {ttsStatus === "loading" ? <Loader className="h-4 w-4 animate-spin" /> : ttsStatus === "playing" ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
         {onAskAssistant && (
           <div className="max-w-3xl mx-auto mb-4">
             <button
