@@ -575,8 +575,10 @@ const SearchPage = () => {
         setSwipeOffsetY(dy);
       }, []);
       // Navigate to the prev/next business in the result list (dir = -1 or 1)
+      // Uses a ref-bridged list because filteredBusinesses is declared later.
+      const filteredBusinessesRef = useRef<Business[]>([]);
       const goToBusinessOffset = useCallback((dir: number) => {
-        const list = filteredBusinesses;
+        const list = filteredBusinessesRef.current;
         const currentId = compactPanelBusiness?.id;
         if (!list.length || !currentId) return;
         const idx = list.findIndex(b => b.id === currentId);
@@ -585,16 +587,17 @@ const SearchPage = () => {
         if (nextIdx < 0 || nextIdx >= list.length) return;
         const next = list[nextIdx];
         openCompactPanel({ id: next.id, name: next.name || "" } as any);
-      }, [filteredBusinesses, compactPanelBusiness?.id, openCompactPanel]);
+      }, [compactPanelBusiness?.id, openCompactPanel]);
+      const [navTick, setNavTick] = useState(0);
       const businessNavInfo = useMemo(() => {
-        const list = filteredBusinesses;
+        const list = filteredBusinessesRef.current;
         const currentId = compactPanelBusiness?.id;
         const idx = currentId ? list.findIndex(b => b.id === currentId) : -1;
         return {
           hasPrev: idx > 0,
           hasNext: idx >= 0 && idx < list.length - 1,
         };
-      }, [filteredBusinesses, compactPanelBusiness?.id]);
+      }, [compactPanelBusiness?.id, navTick]);
       const onPanelTouchEnd = useCallback(() => {
         if (!swipeActiveRef.current) return;
         const dy = swipeOffsetY;
