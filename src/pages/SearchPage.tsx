@@ -124,6 +124,7 @@ const SearchPage = () => {
   const openBusinessParam = searchParams.get("openBusiness") || "";
   const pinIdsParam = searchParams.get("pinIds") || "";
   const badgeIdParam = searchParams.get("badgeId") || "";
+  const badgeLabelParam = searchParams.get("badgeLabel") || "";
   useEffect(() => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
