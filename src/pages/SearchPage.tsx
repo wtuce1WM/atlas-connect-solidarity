@@ -1397,13 +1397,13 @@ const SearchPage = () => {
     return () => { cancelled = true; };
   }, [effectiveCityForMap]);
 
-  // "Tous" tab: show search results only (desktop)
+  // "Tous" tab: show search results only (desktop) — capped to 20 like FS tabs
   const mapPoiItemsSearch: PoiMapItem[] = useMemo(() => {
-    return buildMapPoiItems(filteredBusinesses, true);
+    return buildMapPoiItems(filteredBusinesses, true).slice(0, 20);
   }, [buildMapPoiItems, filteredBusinesses]);
 
   // "Tous" tab: mobile/tablet
-  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false), [buildMapPoiItems, filteredBusinesses]);
+  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false).slice(0, 20), [buildMapPoiItems, filteredBusinesses]);
 
   // Helper: sort and slice for front structure category filtering
   const buildFsCategoryItems = useCallback((guardDesktop: boolean): PoiMapItem[] => {
