@@ -208,11 +208,13 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
       });
 
       if (cancelled) return;
-      setItems([...docItems, ...ytItems, ...genericItems]);
+      const all = [...docItems, ...ytItems, ...genericItems];
+      setItems(all);
+      onCountChange?.(all.length);
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [badgeId, city]);
+  }, [badgeId, city, onCountChange]);
 
   const isGenericActive = activeItem?._kind === "generic";
   const activeOwner = activeItem && activeItem.owner_business_id
