@@ -1711,6 +1711,8 @@ const SearchPage = () => {
         return;
       }
 
+      setPinnedBusinesses([]);
+
       if (!searchQuery.trim() && !categoryFromUrl) {
         if (fetchId !== latestFetchIdRef.current) return;
         setAllBusinesses([]);
