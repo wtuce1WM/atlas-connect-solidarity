@@ -46,7 +46,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
 
 
   return (
-    <div className="fixed inset-0 z-[110] bg-background flex flex-col">
+    <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[230] bg-background flex flex-col">
       <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
           <Hash className="h-4 w-4 text-gold" />
