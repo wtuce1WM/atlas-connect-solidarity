@@ -558,6 +558,33 @@ const SearchPage = () => {
         closeCompactPanel();
       }, [closeCompactPanel, isCompactPanelExpanded]);
 
+      // Mobile swipe-down to close the compact panel (started from the header area only)
+      const swipeStartYRef = useRef<number | null>(null);
+      const swipeActiveRef = useRef(false);
+      const [swipeOffsetY, setSwipeOffsetY] = useState(0);
+      const onPanelTouchStart = useCallback((e: React.TouchEvent) => {
+        if (!isMobile) return;
+        const t = e.touches[0];
+        // Only initiate from top 80px (header) to avoid hijacking content scroll
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        if (t.clientY - rect.top > 80) return;
+        swipeStartYRef.current = t.clientY;
+        swipeActiveRef.current = true;
+      }, [isMobile]);
+      const onPanelTouchMove = useCallback((e: React.TouchEvent) => {
+        if (!swipeActiveRef.current || swipeStartYRef.current == null) return;
+        const dy = e.touches[0].clientY - swipeStartYRef.current;
+        if (dy > 0) setSwipeOffsetY(dy);
+      }, []);
+      const onPanelTouchEnd = useCallback(() => {
+        if (!swipeActiveRef.current) return;
+        const dy = swipeOffsetY;
+        swipeActiveRef.current = false;
+        swipeStartYRef.current = null;
+        setSwipeOffsetY(0);
+        if (dy > 120) handleCompactPanelClose();
+      }, [swipeOffsetY, handleCompactPanelClose]);
+
 
 
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
