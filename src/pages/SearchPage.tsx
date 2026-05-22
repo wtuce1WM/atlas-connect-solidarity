@@ -577,6 +577,28 @@ const SearchPage = () => {
         const dy = e.touches[0].clientY - swipeStartYRef.current;
         setSwipeOffsetY(dy);
       }, []);
+      // Navigate to the prev/next business in the result list (dir = -1 or 1)
+      const goToBusinessOffset = useCallback((dir: number) => {
+        const orderedIds = (pinIdsParam || "").split(",").map(s => s.trim()).filter(Boolean);
+        const currentId = compactPanelBusiness?.id;
+        if (!orderedIds.length || !currentId) return;
+        const idx = orderedIds.indexOf(currentId);
+        if (idx === -1) return;
+        const nextIdx = idx + dir;
+        if (nextIdx < 0 || nextIdx >= orderedIds.length) return;
+        const nextId = orderedIds[nextIdx];
+        const next = allBusinesses.find(b => b.id === nextId);
+        openCompactPanel({ id: nextId, name: next?.name || "" } as any);
+      }, [pinIdsParam, compactPanelBusiness?.id, allBusinesses, openCompactPanel]);
+      const businessNavInfo = useMemo(() => {
+        const orderedIds = (pinIdsParam || "").split(",").map(s => s.trim()).filter(Boolean);
+        const currentId = compactPanelBusiness?.id;
+        const idx = currentId ? orderedIds.indexOf(currentId) : -1;
+        return {
+          hasPrev: idx > 0,
+          hasNext: idx >= 0 && idx < orderedIds.length - 1,
+        };
+      }, [pinIdsParam, compactPanelBusiness?.id]);
       const onPanelTouchEnd = useCallback(() => {
         if (!swipeActiveRef.current) return;
         const dy = swipeOffsetY;
@@ -584,18 +606,9 @@ const SearchPage = () => {
         swipeStartYRef.current = null;
         setSwipeOffsetY(0);
         if (Math.abs(dy) < 120) return;
-        const orderedIds = (pinIdsParam || "").split(",").map(s => s.trim()).filter(Boolean);
-        const currentId = compactPanelBusiness?.id;
-        if (!orderedIds.length || !currentId) return;
-        const idx = orderedIds.indexOf(currentId);
-        if (idx === -1) return;
         // swipe down (dy > 0) → next ; swipe up (dy < 0) → previous
-        const nextIdx = dy > 0 ? idx + 1 : idx - 1;
-        if (nextIdx < 0 || nextIdx >= orderedIds.length) return;
-        const nextId = orderedIds[nextIdx];
-        const next = allBusinesses.find(b => b.id === nextId);
-        openCompactPanel({ id: nextId, name: next?.name || "" } as any);
-      }, [swipeOffsetY, pinIdsParam, compactPanelBusiness?.id, allBusinesses, openCompactPanel]);
+        goToBusinessOffset(dy > 0 ? 1 : -1);
+      }, [swipeOffsetY, goToBusinessOffset]);
 
 
 
