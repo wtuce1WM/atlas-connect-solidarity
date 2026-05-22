@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -81,7 +81,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
   return (
     <>
       {/* Trigger bar fixed at bottom */}
-      <div className={`absolute bottom-0 z-[85] py-3 ${compact ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'}`}>
+      <div className={`absolute bottom-0 z-[85] py-3 flex items-center gap-2 ${compact ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'}`}>
         <button
           type="button"
           onClick={() => setOverlay(true)}
@@ -94,6 +94,21 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
           }`}
         >
           <Search className={`h-4 w-4 shrink-0 ${solidBackground ? 'text-foreground' : darkBackground ? 'text-white' : isBlack ? 'text-black [filter:drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)]' : 'text-white'}`} />
+        </button>
+        <button
+          type="button"
+          onClick={() => setAiOverlayOpen(true)}
+          aria-label="Suggestion IA"
+          className={`px-3 py-2 flex items-center justify-center gap-1.5 border rounded-xl ${
+            solidBackground
+              ? 'bg-searchbar-surface border-border shadow-sm'
+              : darkBackground
+                ? `bg-black ${isBlack ? 'border-black ring-1 ring-white ring-offset-0' : 'border-white/40'}`
+                : `bg-transparent backdrop-blur-sm ${isBlack ? 'border-black ring-1 ring-white ring-offset-0' : 'border-white/40'}`
+          }`}
+        >
+          <Sparkles className={`h-4 w-4 shrink-0 ${solidBackground ? 'text-foreground' : darkBackground ? 'text-white' : isBlack ? 'text-black [filter:drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)_drop-shadow(0_0_0.5px_white)]' : 'text-white'}`} />
+          <span className={`text-xs font-semibold ${solidBackground ? 'text-foreground' : darkBackground ? 'text-white' : isBlack ? 'text-black' : 'text-white'}`}>IA</span>
         </button>
       </div>
 
@@ -128,7 +143,12 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
               setManualCity: geo.setManualCity,
             }}
           />
-          {/* AI Suggestion overlay — on top of search overlay */}
+        </OverlayShell>
+      )}
+
+      {/* AI Suggestion overlay — independent, can be triggered standalone */}
+      {aiOverlayOpen && (
+        <OverlayShell zClass="z-[92]" coverToolbar={!noToolbarOffset}>
           <PanelAiOverlay
             open={aiOverlayOpen}
             onClose={() => setAiOverlayOpen(false)}
