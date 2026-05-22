@@ -69,6 +69,7 @@ export interface ResultsTabContentProps {
   showAllSearchMarkers?: boolean;
   onToggleShowAllSearchMarkers?: () => void;
   searchResultsTotal?: number;
+  fsMatchingCount?: number;
 }
 
 export default function ResultsTabContent({
