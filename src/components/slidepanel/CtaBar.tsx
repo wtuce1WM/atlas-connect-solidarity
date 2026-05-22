@@ -68,6 +68,8 @@ interface CtaBarProps {
   setBookingOverlayUrl: (v: string | null) => void;
   setBookingOverlayTitle: (v: string | undefined) => void;
   setActiveBusinessId: (id: string) => void;
+  /** Skip rendering the play/mute VideoControls (they may be rendered elsewhere, e.g. in PanelSearchBar) */
+  hideVideoControls?: boolean;
 }
 
 export function CtaBar({
