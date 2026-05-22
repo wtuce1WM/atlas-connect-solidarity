@@ -126,6 +126,8 @@ const SearchPage = () => {
   const pinIdsParam = searchParams.get("pinIds") || "";
   const badgeIdParam = searchParams.get("badgeId") || "";
   const badgeLabelParam = searchParams.get("badgeLabel") || "";
+  const [hashtagCount, setHashtagCount] = useState<number | undefined>(undefined);
+  useEffect(() => { setHashtagCount(undefined); }, [badgeIdParam, searchParams.get("city")]);
   useEffect(() => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
