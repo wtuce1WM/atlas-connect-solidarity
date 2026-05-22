@@ -16,7 +16,7 @@ interface VideoItem {
   owner_logo_url: string | null;
   owner_logo_bg: string | null;
   generic_video_id: string | null;
-  event_id: string | null;
+  event_id?: string | null;
   social: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
 }
 
