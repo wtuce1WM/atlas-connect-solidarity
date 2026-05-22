@@ -218,6 +218,8 @@ const SearchPage = () => {
         tripadvisor_review_count: b.tripadvisor_review_count,
       }));
       sessionStorage.setItem("ai_suggestion_businesses", JSON.stringify(bizData));
+      sessionStorage.setItem("ai_suggestion_query", searchQuery || "");
+      sessionStorage.setItem("ai_suggestion_count", String((allBusinesses || []).length));
     } catch { /* sessionStorage unavailable (private mode/quota) */ }
     setStickyAiAnimationNonce((prev) => prev + 1);
     // NOTE: TTS preloading removed — it consumed ElevenLabs credits on every search
