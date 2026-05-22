@@ -36,13 +36,10 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
   const goBadge = (badge: HashtagBadge) => {
     const city = readLastHomepageCity() || "Marrakech";
     const sp = new URLSearchParams(location.pathname === "/search" ? location.search : "");
-    sp.set("city", city);
-    sp.delete("q");
-    sp.delete("spoken");
+    if (!sp.get("city")) sp.set("city", city);
     sp.set("badgeId", badge.id);
     sp.set("badgeLabel", badge.name_fr);
     sp.delete("openBusiness");
-    sp.set("_t", String(Date.now()));
     navigate(`/search?${sp.toString()}`);
     onClose();
   };
