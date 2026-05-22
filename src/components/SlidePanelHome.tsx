@@ -528,7 +528,7 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        {!isMobile && (onPrev || onNext) && (
+        {(onPrev || onNext) && (
           <div className="absolute top-1/2 -translate-y-1/2 right-4 z-10 flex flex-col gap-3">
             <button
               type="button"
