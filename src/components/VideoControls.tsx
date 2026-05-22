@@ -29,7 +29,7 @@ const VideoControls = (props: VideoControlsProps) => {
   if (props.type === "file") {
     const { videoRef, paused, muted } = props;
     return (
-      <div className={`flex items-center gap-6 md:gap-10 ${props.className ?? ""}`}>
+      <div className={`flex items-center gap-3 md:gap-10 ${props.className ?? ""}`}>
         <button
           type="button"
           onClick={() => {
