@@ -81,11 +81,11 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
   return (
     <>
       {/* Trigger bar fixed at bottom */}
-      <div className={`absolute bottom-0 left-0 right-0 z-[85] py-3 px-4 ${darkBackground ? 'bg-black' : ''}`}>
+      <div className={`absolute bottom-0 z-[85] py-3 ${compact ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'} ${darkBackground ? 'bg-black' : ''}`}>
         <button
           type="button"
           onClick={() => setOverlay(true)}
-          className={`w-full flex items-center justify-center gap-3 px-4 py-3 border rounded-xl ${
+          className={`${compact ? 'w-auto px-3 py-2' : 'w-full px-4 py-3'} flex items-center justify-center gap-3 border rounded-xl ${
             solidBackground
               ? 'bg-searchbar-surface border-border shadow-sm'
               : `bg-transparent backdrop-blur-sm ${isBlack ? 'border-black ring-1 ring-white ring-offset-0' : 'border-white/40'}`
