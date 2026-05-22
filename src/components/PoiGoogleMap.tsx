@@ -286,7 +286,6 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       zoomControl: false,
       gestureHandling: "greedy",
     });
-    });
     infoWindowRef.current = new gmaps.InfoWindow();
   }, [ready, center]);
 
