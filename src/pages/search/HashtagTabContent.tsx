@@ -397,7 +397,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
                 <>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
                   <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
-                  {item.name && !(item._kind === "generic" && !item.owner_logo_url && item.social?.account) && (
+                  {item.name && !(item._kind === "generic" && item.social?.account) && (
                     <div className="absolute inset-x-0 top-[12%] z-[10] flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
                       <p
                         className="text-sm font-bold text-white"
