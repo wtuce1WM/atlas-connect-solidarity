@@ -285,22 +285,6 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       fullscreenControl: false,
       zoomControl: false,
       gestureHandling: "greedy",
-      styles: [
-        { elementType: "geometry", stylers: [{ color: "#1d1d1d" }] },
-        { elementType: "labels.text.stroke", stylers: [{ color: "#1d1d1d" }] },
-        { elementType: "labels.text.fill", stylers: [{ color: "#6b6b6b" }] },
-        { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#333333" }] },
-        { featureType: "road", elementType: "geometry", stylers: [{ color: "#2c2c2c" }] },
-        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#555555" }] },
-        { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#3a3a3a" }] },
-        { featureType: "water", elementType: "geometry", stylers: [{ color: "#0e0e0e" }] },
-        { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3d3d3d" }] },
-        { featureType: "poi", elementType: "geometry", stylers: [{ color: "#252525" }] },
-        { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#555555" }] },
-        { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#1a2e1a" }] },
-        { featureType: "transit", elementType: "geometry", stylers: [{ color: "#252525" }] },
-        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#1d1d1d" }] },
-      ],
     });
     infoWindowRef.current = new gmaps.InfoWindow();
   }, [ready, center]);
