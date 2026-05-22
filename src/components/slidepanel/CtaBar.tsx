@@ -68,6 +68,8 @@ interface CtaBarProps {
   setBookingOverlayUrl: (v: string | null) => void;
   setBookingOverlayTitle: (v: string | undefined) => void;
   setActiveBusinessId: (id: string) => void;
+  /** Skip rendering the play/mute VideoControls (they may be rendered elsewhere, e.g. in PanelSearchBar) */
+  hideVideoControls?: boolean;
 }
 
 export function CtaBar({
@@ -110,6 +112,7 @@ export function CtaBar({
   setBookingOverlayUrl,
   setBookingOverlayTitle,
   setActiveBusinessId,
+  hideVideoControls,
 }: CtaBarProps) {
   const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || !!shopCta || !!url4Cta || !!url5Cta)) || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
 
@@ -321,10 +324,10 @@ export function CtaBar({
       />
 
       {/* Video controls */}
-      {effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
+      {!hideVideoControls && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
         <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
       )}
-      {effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && !cardsHidden && (
+      {!hideVideoControls && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && !cardsHidden && (
         <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
       )}
     </div>

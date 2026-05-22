@@ -775,28 +775,6 @@ const SlidePanelHome = ({
                   )}
                 </div>
               )}
-              {embed.type === "file" && (
-                <div className="pointer-events-auto">
-                  <VideoControls
-                    type="file"
-                    videoRef={videoRef}
-                    paused={filePaused}
-                    muted={fileMuted}
-                  />
-                </div>
-              )}
-              {embed.type === "youtube" && (
-                <div className="pointer-events-auto">
-                  <VideoControls
-                    type="youtube"
-                    iframeRef={iframeRef}
-                    playing={ytPlaying}
-                    muted={ytMuted}
-                    onPlayingChange={setYtPlaying}
-                    onMutedChange={(m) => { setYtMuted(m); setSoundOn(!m); }}
-                  />
-                </div>
-              )}
             </div>
             <div className="pointer-events-auto">
               <PanelSearchBar
@@ -807,6 +785,25 @@ const SlidePanelHome = ({
                   navigate(`/search?${sp.toString()}`);
                 }}
                 onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+                leadingControls={
+                  embed.type === "file" ? (
+                    <VideoControls
+                      type="file"
+                      videoRef={videoRef}
+                      paused={filePaused}
+                      muted={fileMuted}
+                    />
+                  ) : embed.type === "youtube" ? (
+                    <VideoControls
+                      type="youtube"
+                      iframeRef={iframeRef}
+                      playing={ytPlaying}
+                      muted={ytMuted}
+                      onPlayingChange={setYtPlaying}
+                      onMutedChange={(m) => { setYtMuted(m); setSoundOn(!m); }}
+                    />
+                  ) : undefined
+                }
               />
             </div>
           </div>

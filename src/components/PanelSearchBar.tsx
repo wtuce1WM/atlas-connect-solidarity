@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, type ReactNode } from "react";
 import { Search, Sparkles, MapPin, Hash } from "lucide-react";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
@@ -36,9 +36,11 @@ interface PanelSearchBarProps {
   compact?: boolean;
   /** Called when the user clicks "Voir les résultats" inside the AI suggestion overlay */
   onSeeResults?: () => void;
+  /** Extra controls (e.g. video play/mute) rendered before the 4 default round buttons */
+  leadingControls?: ReactNode;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, leadingControls }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -85,7 +87,8 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
   return (
     <>
       {/* Trigger bar fixed at bottom */}
-      <div className={`absolute bottom-0 z-[85] py-3 flex items-center justify-center gap-6 md:gap-10 ${compact ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'}`}>
+      <div className={`absolute bottom-0 z-[85] py-3 flex items-center justify-center gap-6 md:gap-10 ${compact && !leadingControls ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'}`}>
+        {leadingControls}
         <button
           type="button"
           onClick={() => setOverlay(true)}
