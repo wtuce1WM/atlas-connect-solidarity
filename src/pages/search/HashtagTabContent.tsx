@@ -124,9 +124,18 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
             owner_logo_bg: biz?.logo_bg || null,
             generic_video_id: null,
             event_id: ev.id,
+            eventInfo: {
+              name: ev.name ?? null,
+              start_date: ev.start_date ?? null,
+              end_date: ev.end_date ?? null,
+              days_of_week: ev.days_of_week ?? null,
+              start_time: ev.start_time ?? null,
+              end_time: ev.end_time ?? null,
+            },
             social: null,
           };
         });
+
         if (cancelled) return;
         setItems(eventItems);
         onCountChange?.(eventItems.length);
