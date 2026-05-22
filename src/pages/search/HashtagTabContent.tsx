@@ -1,30 +1,36 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Play } from "lucide-react";
+import SlidePanelHome from "@/components/SlidePanelHome";
 
 interface VideoItem {
   _id: string;
-  _kind: "doc" | "youtube";
+  _kind: "doc" | "youtube" | "generic";
   url: string;
   name: string | null;
   description: string | null;
   thumbnail_url: string | null;
   owner_business_id: string | null;
   owner_name: string | null;
+  owner_logo_url: string | null;
+  owner_logo_bg: string | null;
+  generic_video_id: string | null;
+  social: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
 }
 
 interface Props {
   badgeId: string;
   badgeLabel: string;
   city?: string | null;
-  onOpenVideo: (businessId: string, videoUrl: string, name: string | null) => void;
 }
 
 const ytThumb = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
-export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVideo }: Props) {
+export default function HashtagTabContent({ badgeId, badgeLabel, city }: Props) {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VideoItem[]>([]);
+  const [activeItem, setActiveItem] = useState<VideoItem | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,7 +142,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
       if (bizIds.length) {
         const { data: bizs } = await supabase
           .from("businesses")
-          .select("id, name")
+          .select("id, name, logo_url, logo_bg")
           .in("id", bizIds);
         (bizs || []).forEach((b: any) => { bizMap[b.id] = b; });
       }
@@ -150,6 +156,10 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
         thumbnail_url: d.thumbnail_url || null,
         owner_business_id: d.business_id || null,
         owner_name: bizMap[d.business_id]?.name || null,
+        owner_logo_url: bizMap[d.business_id]?.logo_url || null,
+        owner_logo_bg: bizMap[d.business_id]?.logo_bg || null,
+        generic_video_id: null,
+        social: null,
       }));
 
       const ytItems: VideoItem[] = (ytRes.data || []).map((y: any) => ({
@@ -161,20 +171,38 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
         thumbnail_url: y.custom_thumbnail_url || y.thumbnail || ytThumb(y.video_id),
         owner_business_id: y.business_id || null,
         owner_name: bizMap[y.business_id]?.name || null,
+        owner_logo_url: bizMap[y.business_id]?.logo_url || null,
+        owner_logo_bg: bizMap[y.business_id]?.logo_bg || null,
+        generic_video_id: null,
+        social: null,
       }));
 
       const genericItems: VideoItem[] = ((genericRes.data as any[]) || []).map((g: any) => {
         const ownerId = firstOwnerByGenericId[g.id] || null;
-        const account = (g.instagram_account || g.tiktok_account || g.youtube_account || "").replace(/^@+/, "");
+        const igAcc = (g.instagram_account || "").replace(/^@+/, "");
+        const ttAcc = (g.tiktok_account || "").replace(/^@+/, "");
+        const ytAcc = (g.youtube_account || "").replace(/^@+/, "");
+        const account = igAcc || ttAcc || ytAcc;
+        const social = igAcc
+          ? { platform: "instagram" as const, account: igAcc, url: `https://www.instagram.com/${igAcc}` }
+          : ttAcc
+            ? { platform: "tiktok" as const, account: ttAcc, url: `https://www.tiktok.com/@${ttAcc}` }
+            : ytAcc
+              ? { platform: "youtube" as const, account: ytAcc, url: `https://www.youtube.com/@${ytAcc}` }
+              : null;
         return {
           _id: `generic:${g.id}`,
-          _kind: "doc",
+          _kind: "generic" as const,
           url: g.url,
           name: g.title || g.name || (account ? `@${account}` : null),
           description: g.description || null,
           thumbnail_url: g.thumbnail_url || null,
           owner_business_id: ownerId,
           owner_name: account ? `@${account}` : (ownerId ? bizMap[ownerId]?.name || null : null),
+          owner_logo_url: ownerId ? bizMap[ownerId]?.logo_url || null : null,
+          owner_logo_bg: ownerId ? bizMap[ownerId]?.logo_bg || null : null,
+          generic_video_id: g.id,
+          social,
         };
       });
 
@@ -184,6 +212,16 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
     })();
     return () => { cancelled = true; };
   }, [badgeId, city]);
+
+  const isGenericActive = activeItem?._kind === "generic";
+  const activeOwner = activeItem && activeItem.owner_business_id
+    ? {
+        id: activeItem.owner_business_id,
+        name: activeItem.owner_name || "",
+        logo_url: activeItem.owner_logo_url,
+        logo_bg: activeItem.owner_logo_bg,
+      }
+    : null;
 
   return (
     <div className="w-full px-4 py-6">
@@ -204,11 +242,8 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
             <button
               key={item._id}
               onClick={() => {
-                if (item.owner_business_id) {
-                  onOpenVideo(item.owner_business_id, item.url, item.name);
-                } else if (item.url) {
-                  window.open(item.url, "_blank", "noopener,noreferrer");
-                }
+                setCurrentTime(0);
+                setActiveItem(item);
               }}
               className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group focus:outline-none focus:ring-2 focus:ring-primary"
             >
@@ -236,6 +271,23 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
           ))}
         </div>
       )}
+
+      <SlidePanelHome
+        open={!!activeItem}
+        onClose={() => setActiveItem(null)}
+        videoUrl={activeItem?.url || null}
+        videoId={isGenericActive ? activeItem?.generic_video_id || null : null}
+        businessName={activeItem?.owner_name || ""}
+        pageBusinessId={!isGenericActive ? activeItem?.owner_business_id || null : null}
+        isGeneric={isGenericActive}
+        owner={activeOwner}
+        social={activeItem?.social || null}
+        showSocialBadge={!!activeItem?.social}
+        description={activeItem?.description || null}
+        currentTime={currentTime}
+        onTimeUpdate={setCurrentTime}
+        returnContext={null}
+      />
     </div>
   );
 }
