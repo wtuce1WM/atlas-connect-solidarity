@@ -1,4 +1,6 @@
 import { Mic, X } from "lucide-react";
+import { useEffect, useRef } from "react";
+
 
 interface VoiceSearchOverlayProps {
   isOpen: boolean;
@@ -12,7 +14,20 @@ interface VoiceSearchOverlayProps {
 const ACCENT = "#6050dc";
 
 const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
+  // Anti-rebond mobile : ignore les clics synthétisés (ghost click) durant les
+  // premières 500ms après l'ouverture, sinon le tap sur le mic qui a déclenché
+  // l'ouverture est rejoué sur les boutons de l'overlay et le referme aussitôt.
+  const openedAtRef = useRef<number>(0);
+  useEffect(() => {
+    if (isOpen) openedAtRef.current = Date.now();
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const guardClick = (handler?: () => void) => () => {
+    if (Date.now() - openedAtRef.current < 500) return;
+    handler?.();
+  };
 
   return (
     <div className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-200`}>
