@@ -54,6 +54,74 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         cityId = (cityRow as any)?.id || null;
       }
 
+      // Special case: #Agenda → 1 vignette par événement (comme /videos)
+      if (isAgendaLabel(badgeLabel)) {
+        const today = new Date().toISOString().slice(0, 10);
+        const { data: links } = await (supabase as any)
+          .from("event_badges")
+          .select("event_id")
+          .eq("badge_id", badgeId);
+        const candidateIds = ((links as any[]) || []).map((l) => l.event_id).filter(Boolean);
+        let eventRows: any[] = [];
+        if (candidateIds.length > 0) {
+          const query = (supabase as any)
+            .from("events")
+            .select("id, name, images, videos, default_business_id, city_id, end_date")
+            .in("id", candidateIds)
+            .or(`end_date.gte.${today},end_date.is.null`)
+            .order("start_date", { ascending: true });
+          const { data } = filterByCity && cityId ? await query.eq("city_id", cityId) : await query;
+          eventRows = ((data as any[]) || []).filter((ev) => ev?.images?.[0] || ev?.videos?.[0]);
+        }
+        const evBizIds = Array.from(new Set(eventRows.map((ev) => ev.default_business_id).filter(Boolean)));
+        const evBizMap: Record<string, any> = {};
+        if (evBizIds.length) {
+          const { data: bizs } = await supabase
+            .from("businesses")
+            .select("id, name, logo_url, logo_bg")
+            .in("id", evBizIds);
+          (bizs || []).forEach((b: any) => { evBizMap[b.id] = b; });
+        }
+        // Resolve thumbnails from business_documents matching the first video URL
+        const firstVideoUrls = eventRows.map((ev) => (ev.videos || []).filter(Boolean)[0]).filter(Boolean) as string[];
+        const thumbByUrl = new Map<string, string>();
+        if (firstVideoUrls.length > 0) {
+          const { data: docs } = await supabase
+            .from("business_documents")
+            .select("url, thumbnail_url")
+            .eq("business_is_active", true)
+            .in("url", firstVideoUrls);
+          ((docs as any[]) || []).forEach((d: any) => {
+            if (d.url && d.thumbnail_url) thumbByUrl.set(d.url, d.thumbnail_url);
+          });
+        }
+        const eventItems: VideoItem[] = eventRows.map((ev: any) => {
+          const firstVideo = (ev.videos || []).filter(Boolean)[0] || "";
+          const firstImage = (ev.images || []).filter(Boolean)[0] || null;
+          const biz = ev.default_business_id ? evBizMap[ev.default_business_id] : null;
+          return {
+            _id: `event:${ev.id}`,
+            _kind: "event",
+            url: firstVideo,
+            name: ev.name || null,
+            description: null,
+            thumbnail_url: firstImage || (firstVideo ? thumbByUrl.get(firstVideo) || null : null),
+            owner_business_id: biz?.id || null,
+            owner_name: biz?.name || null,
+            owner_logo_url: biz?.logo_url || null,
+            owner_logo_bg: biz?.logo_bg || null,
+            generic_video_id: null,
+            event_id: ev.id,
+            social: null,
+          };
+        });
+        if (cancelled) return;
+        setItems(eventItems);
+        onCountChange?.(eventItems.length);
+        setLoading(false);
+        return;
+      }
+
       const [docBadgeRes, ytBadgeRes, genericBadgeRes] = await Promise.all([
         supabase.from("business_document_badges").select("document_id").eq("badge_id", badgeId),
         supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", badgeId),
