@@ -62,7 +62,7 @@ const VideoControls = (props: VideoControlsProps) => {
   // YouTube
   const { iframeRef, playing, muted, onPlayingChange, onMutedChange } = props;
   return (
-    <div className={`flex items-center gap-6 md:gap-10 ${props.className ?? ""}`}>
+    <div className={`flex items-center gap-3 md:gap-10 ${props.className ?? ""}`}>
       <button
         type="button"
         onClick={() => {
