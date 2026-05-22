@@ -236,7 +236,7 @@ const SearchInput = ({
           <Input
             type="text"
             placeholder={placeholder}
-            value={inputValue}
+            value={displayValue}
             autoComplete="off"
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -266,7 +266,7 @@ const SearchInput = ({
           <Input
             type="text"
             placeholder={placeholder}
-            value={inputValue}
+            value={displayValue}
             autoComplete="off"
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
