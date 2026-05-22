@@ -357,6 +357,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         social={activeItem?.social || null}
         showSocialBadge={!!activeItem?.social}
         description={activeItem?.description || null}
+        eventId={activeItem?.event_id || null}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         returnContext={null}
