@@ -130,7 +130,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [badgeId]);
+  }, [badgeId, city]);
 
   return (
     <div className="w-full px-4 py-6">
