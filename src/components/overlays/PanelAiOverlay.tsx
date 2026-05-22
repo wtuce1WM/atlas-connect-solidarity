@@ -117,13 +117,10 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
-        toast({
-          title: language === "fr" ? "Connexion requise" : language === "ar" ? "تسجيل الدخول مطلوب" : "Login required",
-          description: language === "fr" ? "Connectez-vous au Club OWM pour sauvegarder vos adresses." : language === "ar" ? "سجّل الدخول إلى نادي OWM لحفظ عناوينك." : "Sign in to Club OWM to save your places.",
-          variant: "destructive",
-        });
+        window.dispatchEvent(new Event("open-generic-club-popup"));
         return;
       }
+
       const rows = businesses.map((b) => ({ user_id: session.user.id, business_id: b.id }));
       const { error } = await supabase
         .from("bookmarks" as any)
