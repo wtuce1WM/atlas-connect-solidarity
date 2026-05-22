@@ -339,7 +339,8 @@ export default function ResultsTabContent({
                   onTabClick={handleFsTabClick}
                 />
                 {activeFsTabId === null && (searchResultsTotal ?? 0) > 20 && (
-                  <div className="px-3 pb-2">
+                  <div className="flex items-center gap-2 px-3 pb-2 -mt-1">
+                    <div className="ml-3 w-3 h-3 border-l border-b border-white/50 rounded-bl-md -mt-3" />
                     <button
                       type="button"
                       onClick={() => onToggleShowAllSearchMarkers?.()}
