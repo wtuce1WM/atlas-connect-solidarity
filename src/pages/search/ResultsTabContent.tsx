@@ -340,19 +340,23 @@ export default function ResultsTabContent({
                   activeTabId={activeFsTabId}
                   onTabClick={handleFsTabClick}
                 />
-                {activeFsTabId === null && (searchResultsTotal ?? 0) > 20 && (
-                  <div className="flex items-center gap-2 px-3 pb-2 -mt-1">
-                    <div className="ml-3 w-3 h-3 border-l border-b border-white/50 rounded-bl-md -mt-3" />
-                    <button
-                      type="button"
-                      onClick={() => onToggleShowAllSearchMarkers?.()}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "bg-black/50 text-white hover:bg-black/70"}`}
-                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                    >
-                      {showAllSearchMarkers ? "Voir Top 20" : <>Voir tous <span className="ml-1 opacity-70">{searchResultsTotal}</span></>}
-                    </button>
-                  </div>
-                )}
+                {(() => {
+                  const total = activeFsTabId === null ? (searchResultsTotal ?? 0) : (fsMatchingCount ?? 0);
+                  if (total <= 20) return null;
+                  return (
+                    <div className="flex items-center gap-2 px-3 pb-2 -mt-1">
+                      <div className="ml-3 w-3 h-3 border-l border-b border-white/50 rounded-bl-md -mt-3" />
+                      <button
+                        type="button"
+                        onClick={() => onToggleShowAllSearchMarkers?.()}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "bg-black/50 text-white hover:bg-black/70"}`}
+                        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                      >
+                        {showAllSearchMarkers ? "Voir Top 20" : <>Voir tous <span className="ml-1 opacity-70">{total}</span></>}
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}
