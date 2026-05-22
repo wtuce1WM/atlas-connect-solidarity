@@ -3,7 +3,7 @@ import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/component
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Building2, Compass } from "lucide-react";
+import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Building2, Compass } from "lucide-react";
 import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
 import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
@@ -104,9 +104,14 @@ interface BookOnlineSlidePanelProps {
   toolbarPortalPrefix?: string;
   /** If provided, auto-opens the video overlay for the matching URL once videoDocs loaded */
   initialVideoUrl?: string;
+  /** Navigate to previous/next business in the result list (Search page) */
+  onPrevBusiness?: () => void;
+  onNextBusiness?: () => void;
+  hasPrevBusiness?: boolean;
+  hasNextBusiness?: boolean;
 }
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl, onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -791,6 +796,29 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       </div>
 
       <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
+
+      {(onPrevBusiness || onNextBusiness) && !cardsHidden && (
+        <div className="absolute top-1/2 -translate-y-1/2 left-4 z-30 flex flex-col gap-3 pointer-events-auto">
+          <button
+            type="button"
+            onClick={onPrevBusiness}
+            disabled={!hasPrevBusiness}
+            className="w-11 h-11 rounded-full bg-black/50 hover:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors"
+            aria-label="Établissement précédent"
+          >
+            <ChevronUp className="h-6 w-6" />
+          </button>
+          <button
+            type="button"
+            onClick={onNextBusiness}
+            disabled={!hasNextBusiness}
+            className="w-11 h-11 rounded-full bg-black/50 hover:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors"
+            aria-label="Établissement suivant"
+          >
+            <ChevronDown className="h-6 w-6" />
+          </button>
+        </div>
+      )}
 
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
