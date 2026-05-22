@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SearchInput from "@/components/SearchInput";
 import { useSEO } from "@/hooks/useSEO";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
