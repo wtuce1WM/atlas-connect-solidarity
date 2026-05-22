@@ -35,18 +35,17 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
 
   const goBadge = (badge: HashtagBadge) => {
     const city = readLastHomepageCity() || "Marrakech";
-    if (location.pathname === "/search") {
-      const sp = new URLSearchParams(location.search);
-      sp.set("city", city);
-      sp.set("badgeId", badge.id);
-      sp.set("badgeLabel", badge.name_fr);
-      navigate(`/search?${sp.toString()}`);
-    } else {
-      const params = new URLSearchParams({ city, entry: "__home__", badgeId: badge.id, badgeLabel: badge.name_fr });
-      navigate(`/?${params.toString()}`);
-    }
+    const sp = new URLSearchParams(location.pathname === "/search" ? location.search : "");
+    sp.set("city", city);
+    sp.set("q", badge.name_fr);
+    sp.set("badgeId", badge.id);
+    sp.set("badgeLabel", badge.name_fr);
+    sp.delete("openBusiness");
+    sp.set("_t", String(Date.now()));
+    navigate(`/search?${sp.toString()}`);
     onClose();
   };
+
 
   return (
     <div className="absolute inset-0 z-[90] bg-background flex flex-col">
