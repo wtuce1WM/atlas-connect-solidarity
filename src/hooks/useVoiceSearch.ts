@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useScribe } from "@elevenlabs/react";
 
 type VoiceStatus = "idle" | "recording" | "processing" | "error";
 
@@ -73,6 +74,15 @@ declare global {
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+// Detect iOS (iPhone/iPad/iPod, including iPadOS reporting as Mac with touch)
+function isIOS(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  const iOSClassic = /iPad|iPhone|iPod/.test(ua);
+  const iPadOS = ua.includes("Mac") && typeof document !== "undefined" && "ontouchend" in document;
+  return iOSClassic || iPadOS;
+}
 
 async function extractSearchIntent(transcript: string): Promise<{ query: string; category: string; timeKeyword: string; intent: string; hotelAvailability: HotelAvailabilityIntent | null; hotelSearch: HotelSearchIntent | null; flightSearch: FlightSearchIntent | null; webSearch: WebSearchIntent | null }> {
   try {
@@ -160,7 +170,92 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
   }, []);
 
+  // ====================== ElevenLabs Scribe (iOS only) ======================
+  // On iOS, the native Web Speech API uses Siri's local dictation which is
+  // very poor in French and on proper nouns. We use ElevenLabs Scribe realtime
+  // instead, which gives desktop-grade quality.
+  const useScribePath = isIOS();
+  const scribeFinalRef = useRef<string>("");
+
+  const scribe = useScribe({
+    modelId: "scribe_v2_realtime",
+    commitStrategy: "vad",
+    onPartialTranscript: (data: { text: string }) => {
+      setLiveTranscript((scribeFinalRef.current + " " + (data.text || "")).trim());
+    },
+    onCommittedTranscript: (data: { text: string }) => {
+      scribeFinalRef.current = (scribeFinalRef.current + " " + (data.text || "")).trim();
+      setLiveTranscript(scribeFinalRef.current);
+    },
+  });
+
+  const startScribeRecording = useCallback(async () => {
+    try {
+      scribeFinalRef.current = "";
+      setLiveTranscript("");
+      setStatus("recording");
+
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/elevenlabs-scribe-token`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) throw new Error(`Token HTTP ${res.status}`);
+      const data = await res.json();
+      if (!data?.token) throw new Error("Pas de token reçu");
+
+      await scribe.connect({
+        token: data.token,
+        microphone: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+    } catch (e) {
+      console.error("[Scribe] start failed:", e);
+      setStatus("idle");
+      const msg = e instanceof Error ? e.message : String(e);
+      if (/permission|denied|NotAllowed/i.test(msg)) {
+        onErrorRef.current?.("Microphone bloqué. Autorisez le micro dans les réglages Safari.");
+      } else {
+        onErrorRef.current?.(`Erreur vocale: ${msg}`);
+      }
+    }
+  }, [scribe]);
+
+  const stopScribeRecording = useCallback(async () => {
+    try { await scribe.disconnect(); } catch { /* ignore */ }
+    scribeFinalRef.current = "";
+    setLiveTranscript("");
+    setStatus("idle");
+  }, [scribe]);
+
+  const finishScribeRecording = useCallback(async () => {
+    try { await scribe.disconnect(); } catch { /* ignore */ }
+    const transcript = scribeFinalRef.current.trim();
+    scribeFinalRef.current = "";
+    if (transcript) {
+      setStatus("processing");
+      processTranscript(transcript).finally(() => setLiveTranscript(""));
+    } else {
+      setLiveTranscript("");
+      setStatus("idle");
+    }
+  }, [scribe, processTranscript]);
+
+  // ====================== Web Speech API path (default) ======================
   const startRecording = useCallback(() => {
+    if (useScribePath) {
+      void startScribeRecording();
+      return;
+    }
+
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
@@ -195,17 +290,14 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         }
       }
 
-      // Update live transcript for display
       setLiveTranscript((finalTranscript + interimTranscript).trim());
 
       if (finalTranscript.trim()) {
         accumulatedTranscriptRef.current = finalTranscript.trim();
       }
 
-      // Réinitialiser le timer de silence à chaque nouveau résultat
       clearSilenceTimer();
       silenceTimerRef.current = setTimeout(() => {
-        // 2 secondes de silence → arrêter et traiter
         if (recognitionRef.current) {
           recognitionRef.current.stop();
           recognitionRef.current = null;
@@ -218,8 +310,6 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
     recognition.onerror = (event) => {
       console.error("[VoiceSearch] onerror:", event.error, "| inIframe:", window.self !== window.top, "| secure:", window.isSecureContext);
-      // Arrêt volontaire (silence timer / finish / stop) ou transcript déjà capturé :
-      // on ignore les erreurs tardives ("no-speech"/"aborted" émises par Chrome après stop()).
       if (recognitionRef.current === null || accumulatedTranscriptRef.current) {
         clearSilenceTimer();
         recognitionRef.current = null;
@@ -240,7 +330,6 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
           );
         }
       } else if (event.error === "no-speech" || event.error === "aborted") {
-        // Silencieux : pas de toast si rien n'a été dit.
         setStatus("idle");
         return;
       } else {
@@ -250,11 +339,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     };
 
     recognition.onend = () => {
-      // Si onend arrive sans que le timer ait déclenché (fin naturelle), on traite
       if (recognitionRef.current !== null) {
         recognitionRef.current = null;
       }
-      // Si un transcript accumulé existe et que le timer n'a pas encore déclenché, on traite immédiatement
       clearSilenceTimer();
       const transcript = accumulatedTranscriptRef.current;
       accumulatedTranscriptRef.current = "";
@@ -267,9 +354,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
     recognitionRef.current = recognition;
     recognition.start();
-  }, [lang, clearSilenceTimer, processTranscript, status]);
+  }, [lang, clearSilenceTimer, processTranscript, status, useScribePath, startScribeRecording]);
 
   const stopRecording = useCallback(() => {
+    if (useScribePath) {
+      void stopScribeRecording();
+      return;
+    }
     clearSilenceTimer();
     accumulatedTranscriptRef.current = "";
     setLiveTranscript("");
@@ -278,10 +369,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       recognitionRef.current = null;
     }
     setStatus("idle");
-  }, [clearSilenceTimer]);
+  }, [clearSilenceTimer, useScribePath, stopScribeRecording]);
 
-  // Stop recording and immediately process whatever was said (like the silence timer)
   const finishRecording = useCallback(() => {
+    if (useScribePath) {
+      void finishScribeRecording();
+      return;
+    }
     clearSilenceTimer();
     if (recognitionRef.current) {
       recognitionRef.current.stop();
@@ -290,7 +384,6 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     const transcript = accumulatedTranscriptRef.current;
     accumulatedTranscriptRef.current = "";
     if (transcript) {
-      // Set processing immediately — keep liveTranscript visible until processing starts
       setStatus("processing");
       processTranscript(transcript).finally(() => {
         setLiveTranscript("");
@@ -299,7 +392,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       setLiveTranscript("");
       setStatus("idle");
     }
-  }, [clearSilenceTimer, processTranscript]);
+  }, [clearSilenceTimer, processTranscript, useScribePath, finishScribeRecording]);
 
   const toggleRecording = useCallback(() => {
     if (status === "recording") {
