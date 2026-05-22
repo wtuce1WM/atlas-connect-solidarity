@@ -161,6 +161,10 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
               setAiOverlayOpen(false);
               setOverlay(true);
             }}
+            onSeeResults={onSeeResults ? () => {
+              setAiOverlayOpen(false);
+              onSeeResults();
+            } : undefined}
           />
         </OverlayShell>
       )}
