@@ -33,9 +33,11 @@ interface PanelSearchBarProps {
   solidBackground?: boolean;
   /** Minimize horizontal footprint (icon-only width, centered) */
   compact?: boolean;
+  /** Called when the user clicks "Voir les résultats" inside the AI suggestion overlay */
+  onSeeResults?: () => void;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
