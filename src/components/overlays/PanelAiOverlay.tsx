@@ -91,10 +91,12 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAi
   }, [answer, businesses, onClose]);
 
   const [closing, setClosing] = useState(false);
+  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const handleClose = useCallback(() => {
+    ttsStop();
     setClosing(true);
     setTimeout(() => { setClosing(false); onClose(); }, 200);
-  }, [onClose]);
+  }, [onClose, ttsStop]);
 
   if (!open && !closing) return null;
 
@@ -115,6 +117,24 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAi
             {language === "fr" ? "Suggestion IA" : language === "ar" ? "اقتراح الذكاء" : "AI Suggestion"}
           </span>
         </div>
+        {/* TTS speaker */}
+        {answer && !loading && (
+          <button
+            type="button"
+            onClick={() => {
+              if (ttsStatus === "playing" || ttsStatus === "loading") {
+                ttsStop();
+              } else {
+                const cleanText = answer.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                ttsSpeak(cleanText);
+              }
+            }}
+            className="ml-auto w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity"
+            title={language === "fr" ? "Écouter" : language === "ar" ? "استمع" : "Listen"}
+          >
+            {ttsStatus === "loading" ? <Loader className="h-4 w-4 animate-spin" /> : ttsStatus === "playing" ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+        )}
       </div>
 
       {/* Content — same styling as fullscreen overlay */}
