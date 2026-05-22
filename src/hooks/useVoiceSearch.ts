@@ -291,6 +291,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
     try {
       scribeFinalRef.current = "";
+      scribePartialRef.current = "";
       setLiveTranscript("");
       setStatus("recording");
 
@@ -350,6 +351,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     clearSilenceTimer();
     try { await scribe.disconnect(); } catch { /* ignore */ }
     scribeFinalRef.current = "";
+    scribePartialRef.current = "";
     setLiveTranscript("");
     setStatus("idle");
   }, [scribe, clearSilenceTimer]);
@@ -357,8 +359,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const finishScribeRecording = useCallback(async () => {
     clearSilenceTimer();
     try { await scribe.disconnect(); } catch { /* ignore */ }
-    const transcript = scribeFinalRef.current.trim();
+    const transcript = `${scribeFinalRef.current} ${scribePartialRef.current}`.trim();
     scribeFinalRef.current = "";
+    scribePartialRef.current = "";
     if (transcript) {
       setStatus("processing");
       processTranscript(transcript).finally(() => setLiveTranscript(""));
