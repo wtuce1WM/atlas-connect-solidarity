@@ -22,11 +22,12 @@ interface Props {
   badgeId: string;
   badgeLabel: string;
   city?: string | null;
+  onCountChange?: (count: number) => void;
 }
 
 const ytThumb = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
-export default function HashtagTabContent({ badgeId, badgeLabel, city }: Props) {
+export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountChange }: Props) {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VideoItem[]>([]);
   const [activeItem, setActiveItem] = useState<VideoItem | null>(null);
