@@ -224,7 +224,7 @@ const SearchPage = () => {
     setStickyAiAnimationNonce((prev) => prev + 1);
     // NOTE: TTS preloading removed — it consumed ElevenLabs credits on every search
     // even when the user never clicked the speaker. Audio is now generated on demand.
-  }, [language, searchQuery, allBusinesses]);
+  }, [language, searchQuery, allBusinesses, totalCount]);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
