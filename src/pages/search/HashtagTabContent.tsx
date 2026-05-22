@@ -204,11 +204,13 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
             <button
               key={item._id}
               onClick={() => {
-                if (!item.owner_business_id) return;
-                onOpenVideo(item.owner_business_id, item.url, item.name);
+                if (item.owner_business_id) {
+                  onOpenVideo(item.owner_business_id, item.url, item.name);
+                } else if (item.url) {
+                  window.open(item.url, "_blank", "noopener,noreferrer");
+                }
               }}
-              disabled={!item.owner_business_id}
-              className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {item.thumbnail_url ? (
                 <img
