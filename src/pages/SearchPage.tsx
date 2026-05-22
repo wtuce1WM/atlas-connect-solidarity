@@ -3175,6 +3175,7 @@ const SearchPage = () => {
             showAllSearchMarkers={showAllSearchMarkers}
             onToggleShowAllSearchMarkers={() => setShowAllSearchMarkers(v => !v)}
             searchResultsTotal={totalCount ?? filteredBusinesses.length}
+            fsMatchingCount={fsMatchingCount}
           />
         </>
       )}
