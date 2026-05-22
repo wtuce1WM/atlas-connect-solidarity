@@ -16,12 +16,13 @@ interface VideoItem {
 interface Props {
   badgeId: string;
   badgeLabel: string;
+  city?: string | null;
   onOpenVideo: (businessId: string, videoUrl: string, name: string | null) => void;
 }
 
 const ytThumb = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
-export default function HashtagTabContent({ badgeId, badgeLabel, onOpenVideo }: Props) {
+export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVideo }: Props) {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VideoItem[]>([]);
 
@@ -29,12 +30,44 @@ export default function HashtagTabContent({ badgeId, badgeLabel, onOpenVideo }: 
     let cancelled = false;
     (async () => {
       setLoading(true);
+
+      // Resolve city → city_id when a city is provided
+      let cityId: string | null = null;
+      const effectiveCity = (city || "").trim();
+      const filterByCity = effectiveCity && effectiveCity.toLowerCase() !== "all";
+      if (filterByCity) {
+        const { data: cityRow } = await supabase
+          .from("cities")
+          .select("id")
+          .or(`name_fr.ilike.${effectiveCity},name_en.ilike.${effectiveCity},name_ar.ilike.${effectiveCity}`)
+          .limit(1)
+          .maybeSingle();
+        cityId = (cityRow as any)?.id || null;
+      }
+
       const [docBadgeRes, ytBadgeRes] = await Promise.all([
         supabase.from("business_document_badges").select("document_id").eq("badge_id", badgeId),
         supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", badgeId),
       ]);
-      const docIds = (docBadgeRes.data || []).map((r: any) => r.document_id);
-      const ytIds = (ytBadgeRes.data || []).map((r: any) => r.youtube_video_id);
+      let docIds = (docBadgeRes.data || []).map((r: any) => r.document_id);
+      let ytIds = (ytBadgeRes.data || []).map((r: any) => r.youtube_video_id);
+
+      // Restrict to docs/yt linked to the requested city
+      if (filterByCity && cityId) {
+        const [docCityRes, ytCityRes] = await Promise.all([
+          docIds.length
+            ? supabase.from("business_document_cities").select("document_id").eq("city_id", cityId).in("document_id", docIds)
+            : Promise.resolve({ data: [] as any[] }),
+          ytIds.length
+            ? supabase.from("business_youtube_video_cities").select("youtube_video_id").eq("city_id", cityId).in("youtube_video_id", ytIds)
+            : Promise.resolve({ data: [] as any[] }),
+        ]);
+        docIds = (docCityRes.data || []).map((r: any) => r.document_id);
+        ytIds = (ytCityRes.data || []).map((r: any) => r.youtube_video_id);
+      } else if (filterByCity && !cityId) {
+        docIds = [];
+        ytIds = [];
+      }
 
       const [docsRes, ytRes] = await Promise.all([
         docIds.length
@@ -97,7 +130,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, onOpenVideo }: 
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [badgeId]);
+  }, [badgeId, city]);
 
   return (
     <div className="w-full px-4 py-6">
