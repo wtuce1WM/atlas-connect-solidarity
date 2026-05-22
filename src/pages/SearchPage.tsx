@@ -202,6 +202,11 @@ const SearchPage = () => {
     setShowAllSearchMarkers(false);
   }, [searchQuery]);
 
+  // Reset "Voir tous" when switching between FS tabs
+  useEffect(() => {
+    setShowAllSearchMarkers(false);
+  }, [fsFilterSubcategories]);
+
   const categoryFromUrl = searchParams.get("category") || "";
   
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
