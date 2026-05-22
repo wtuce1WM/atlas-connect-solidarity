@@ -66,6 +66,9 @@ export interface ResultsTabContentProps {
   allCityMapBusinesses?: Business[];
   hideAiSuggestion?: boolean;
   hotelSearchInfo?: { city: string; checkIn: string; checkOut: string; adults: number } | null;
+  showAllSearchMarkers?: boolean;
+  onToggleShowAllSearchMarkers?: () => void;
+  searchResultsTotal?: number;
 }
 
 export default function ResultsTabContent({
@@ -112,6 +115,9 @@ export default function ResultsTabContent({
   allCityMapBusinesses,
   hideAiSuggestion,
   hotelSearchInfo,
+  showAllSearchMarkers,
+  onToggleShowAllSearchMarkers,
+  searchResultsTotal,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
@@ -332,6 +338,18 @@ export default function ResultsTabContent({
                   activeTabId={activeFsTabId}
                   onTabClick={handleFsTabClick}
                 />
+                {activeFsTabId === null && !showAllSearchMarkers && (searchResultsTotal ?? 0) > 20 && (
+                  <div className="px-3 pb-2">
+                    <button
+                      type="button"
+                      onClick={() => onToggleShowAllSearchMarkers?.()}
+                      className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm bg-black/50 text-white hover:bg-black/70 transition-colors"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    >
+                      Voir tous <span className="ml-1 opacity-70">{searchResultsTotal}</span>
+                    </button>
+                  </div>
+                )}
               </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}

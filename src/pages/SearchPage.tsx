@@ -193,11 +193,13 @@ const SearchPage = () => {
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
   const [mobileFsTabId, setMobileFsTabId] = useState<string | null>(null);
+  const [showAllSearchMarkers, setShowAllSearchMarkers] = useState(false);
 
   // Reset front structure filter when search query changes
   useEffect(() => {
     setFsFilterSubcategories(null);
     setMobileFsTabId(null);
+    setShowAllSearchMarkers(false);
   }, [searchQuery]);
 
   const categoryFromUrl = searchParams.get("category") || "";
@@ -1397,13 +1399,17 @@ const SearchPage = () => {
     return () => { cancelled = true; };
   }, [effectiveCityForMap]);
 
-  // "Tous" tab: show search results only (desktop) — capped to 20 like FS tabs
+  // "Tous" tab: show search results only (desktop) — capped to 20 unless "Voir tous" is toggled
   const mapPoiItemsSearch: PoiMapItem[] = useMemo(() => {
-    return buildMapPoiItems(filteredBusinesses, true).slice(0, 20);
-  }, [buildMapPoiItems, filteredBusinesses]);
+    const items = buildMapPoiItems(filteredBusinesses, true);
+    return showAllSearchMarkers ? items : items.slice(0, 20);
+  }, [buildMapPoiItems, filteredBusinesses, showAllSearchMarkers]);
 
   // "Tous" tab: mobile/tablet
-  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false).slice(0, 20), [buildMapPoiItems, filteredBusinesses]);
+  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => {
+    const items = buildMapPoiItems(filteredBusinesses, false);
+    return showAllSearchMarkers ? items : items.slice(0, 20);
+  }, [buildMapPoiItems, filteredBusinesses, showAllSearchMarkers]);
 
   // Helper: sort and slice for front structure category filtering
   const buildFsCategoryItems = useCallback((guardDesktop: boolean): PoiMapItem[] => {
@@ -3118,6 +3124,9 @@ const SearchPage = () => {
             hideAiSuggestion={!!searchParams.get("pinIds")}
             allCityMapBusinesses={allCityMapBusinesses}
             hotelSearchInfo={hotelSearchInfoForResults}
+            showAllSearchMarkers={showAllSearchMarkers}
+            onToggleShowAllSearchMarkers={() => setShowAllSearchMarkers(true)}
+            searchResultsTotal={filteredBusinesses.length}
           />
         </>
       )}
@@ -3158,6 +3167,7 @@ const SearchPage = () => {
                     if (!tabId) {
                       setFsFilterSubcategories(null);
                     } else {
+                      setShowAllSearchMarkers(false);
                       const tab = mobileFrontTabs.find(t => t.id === tabId);
                       if (tab) {
                         setFsFilterSubcategories(new Set(tab.subcategoryNames));
@@ -3165,6 +3175,18 @@ const SearchPage = () => {
                     }
                   }}
                 />
+              )}
+              {mobileFsTabId === null && !showAllSearchMarkers && filteredBusinesses.length > 20 && (
+                <div className="px-3 pb-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAllSearchMarkers(true)}
+                    className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm bg-black/50 text-white hover:bg-black/70 transition-colors"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  >
+                    Voir tous <span className="ml-1 opacity-70">{filteredBusinesses.length}</span>
+                  </button>
+                </div>
               )}
             </div>
           ) : (
