@@ -3161,7 +3161,7 @@ const SearchPage = () => {
             hotelSearchInfo={hotelSearchInfoForResults}
             showAllSearchMarkers={showAllSearchMarkers}
             onToggleShowAllSearchMarkers={() => setShowAllSearchMarkers(v => !v)}
-            searchResultsTotal={filteredBusinesses.length}
+            searchResultsTotal={totalCount ?? filteredBusinesses.length}
           />
         </>
       )}
