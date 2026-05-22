@@ -3286,11 +3286,13 @@ const SearchPage = () => {
               )}
               {(() => {
                 const mobileTotal = mobileFsTabId === null ? (totalCount ?? filteredBusinesses.length) : fsMatchingCount;
-                if (mobileTotal <= 20) return null;
                 const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
+                const showToggle = mobileTotal > 20;
+                if (!showToggle && !activeFsTab) return null;
                  return (
                    <div className="flex items-center px-3 pb-2">
                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                       {showToggle && (<>
                        <button
                          type="button"
                          onClick={() => { if (showAllSearchMarkers) setShowAllSearchMarkers(false); }}
