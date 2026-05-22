@@ -193,11 +193,13 @@ const SearchPage = () => {
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
   const [mobileFsTabId, setMobileFsTabId] = useState<string | null>(null);
+  const [showAllSearchMarkers, setShowAllSearchMarkers] = useState(false);
 
   // Reset front structure filter when search query changes
   useEffect(() => {
     setFsFilterSubcategories(null);
     setMobileFsTabId(null);
+    setShowAllSearchMarkers(false);
   }, [searchQuery]);
 
   const categoryFromUrl = searchParams.get("category") || "";
