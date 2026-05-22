@@ -339,11 +339,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   }, [scribe]);
 
   const stopScribeRecording = useCallback(async () => {
+    clearSilenceTimer();
     try { await scribe.disconnect(); } catch { /* ignore */ }
     scribeFinalRef.current = "";
     setLiveTranscript("");
     setStatus("idle");
-  }, [scribe]);
+  }, [scribe, clearSilenceTimer]);
 
   const finishScribeRecording = useCallback(async () => {
     clearSilenceTimer();
