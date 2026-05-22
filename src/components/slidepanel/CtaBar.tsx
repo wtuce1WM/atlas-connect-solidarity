@@ -112,6 +112,7 @@ export function CtaBar({
   setBookingOverlayUrl,
   setBookingOverlayTitle,
   setActiveBusinessId,
+  hideVideoControls,
 }: CtaBarProps) {
   const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || !!shopCta || !!url4Cta || !!url5Cta)) || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
 
