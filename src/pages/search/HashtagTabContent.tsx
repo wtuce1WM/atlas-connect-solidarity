@@ -390,15 +390,45 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
                   </>
                 );
               })() : (
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-left">
-                  {item.owner_name && (
-                    <div className="text-[10px] text-white/80 truncate">{item.owner_name}</div>
-                  )}
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+                  <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
                   {item.name && (
-                    <div className="text-xs text-white font-medium line-clamp-2">{item.name}</div>
+                    <div className="absolute inset-x-0 top-[12%] z-[10] flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
+                      <p
+                        className="text-sm font-bold text-white"
+                        style={{
+                          fontFamily: "'Roboto', sans-serif",
+                          letterSpacing: "0.02em",
+                          filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
+                        }}
+                      >
+                        {item.name}
+                      </p>
+                    </div>
                   )}
-                </div>
+                  {item.owner_logo_url ? (
+                    <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
+                      <img
+                        src={item.owner_logo_url}
+                        alt={item.owner_name || ""}
+                        className="w-auto h-auto max-w-[100px] max-h-[72px] object-contain"
+                        style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
+                      />
+                    </div>
+                  ) : item.owner_name ? (
+                    <div className="absolute inset-x-0 bottom-[10%] z-[6] flex items-center justify-center px-2 pointer-events-none">
+                      <span
+                        className="text-xs font-semibold text-white text-center line-clamp-2"
+                        style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
+                      >
+                        {item.owner_name}
+                      </span>
+                    </div>
+                  ) : null}
+                </>
               )}
+
 
             </button>
           ))}
