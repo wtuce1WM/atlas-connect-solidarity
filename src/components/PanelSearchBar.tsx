@@ -22,6 +22,8 @@ interface PanelSearchBarProps {
   businessName?: string | null;
   /** Called when the search overlay opens or closes */
   onOverlayChange?: (open: boolean) => void;
+  /** Called when the hashtags overlay opens or closes */
+  onHashtagsOverlayChange?: (open: boolean) => void;
   /** Use a dark (black) background instead of transparent */
   darkBackground?: boolean;
   /** Increment to force-close all overlays from outside */
@@ -40,7 +42,7 @@ interface PanelSearchBarProps {
   leadingControls?: ReactNode;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, leadingControls }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, leadingControls }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -49,7 +51,11 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
     onOverlayChange?.(open);
   }, [onOverlayChange]);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
-  const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
+  const [hashtagsOverlayOpen, _setHashtagsOverlayOpen] = useState(false);
+  const setHashtagsOverlayOpen = useCallback((open: boolean) => {
+    _setHashtagsOverlayOpen(open);
+    onHashtagsOverlayChange?.(open);
+  }, [onHashtagsOverlayChange]);
   const { toast } = useToast();
   const geo = useGeolocation();
 

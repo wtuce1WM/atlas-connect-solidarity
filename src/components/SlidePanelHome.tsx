@@ -123,6 +123,7 @@ const SlidePanelHome = ({
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
+  const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
   const [, forceRender] = useState(0);
@@ -508,7 +509,7 @@ const SlidePanelHome = ({
         })()}
 
         {/* BusinessHeader: Logo + Nom + Ville + Quartier + Adresse */}
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
           <div className="absolute top-16 md:top-14 lg:top-16 left-2 right-2 z-[65] pointer-events-none">
             <BusinessHeader
               business={{
@@ -780,6 +781,7 @@ const SlidePanelHome = ({
               <PanelSearchBar
                 iconVariant="black"
                 onOverlayChange={setSearchOverlayOpen}
+                onHashtagsOverlayChange={setHashtagsOverlayOpen}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
                   navigate(`/search?${sp.toString()}`);
