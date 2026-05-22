@@ -196,6 +196,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const [liveTranscript, setLiveTranscript] = useState("");
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const maxDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const accumulatedTranscriptRef = useRef<string>("");
   const pendingScribeStreamRef = useRef<MediaStream | null>(null);
   const pendingScribeAudioContextRef = useRef<AudioContext | null>(null);
