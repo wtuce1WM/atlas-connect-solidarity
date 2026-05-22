@@ -148,7 +148,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
 
       {/* AI Suggestion overlay — independent, can be triggered standalone */}
       {aiOverlayOpen && (
-        <OverlayShell zClass="z-[92]" coverToolbar={!noToolbarOffset}>
+        <OverlayShell zClass="z-[92]" coverToolbar={false}>
           <PanelAiOverlay
             open={aiOverlayOpen}
             onClose={() => setAiOverlayOpen(false)}
