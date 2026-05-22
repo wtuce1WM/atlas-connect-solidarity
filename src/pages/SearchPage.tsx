@@ -508,6 +508,7 @@ const SearchPage = () => {
           if (returnContext) sessionStorage.removeItem("returnToTestContext");
         } catch { /* sessionStorage unavailable */ }
         setCompactPanelBusiness(null);
+        setCompactPanelInitialVideoUrl(null);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
         setHideResultsMap(false);
