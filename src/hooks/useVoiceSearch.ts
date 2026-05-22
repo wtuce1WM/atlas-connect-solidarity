@@ -196,6 +196,8 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const accumulatedTranscriptRef = useRef<string>("");
+  const pendingScribeStreamRef = useRef<MediaStream | null>(null);
+  const pendingScribeAudioContextRef = useRef<AudioContext | null>(null);
 
   // Garder les callbacks en ref pour éviter les problèmes de closure dans les handlers async
   const onTranscriptRef = useRef(onTranscript);
@@ -263,12 +265,32 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   });
 
   const startScribeRecording = useCallback(async () => {
+    let mediaStream = pendingScribeStreamRef.current;
+    let audioContext = pendingScribeAudioContextRef.current;
+    pendingScribeStreamRef.current = null;
+    pendingScribeAudioContextRef.current = null;
+
     try {
       scribeFinalRef.current = "";
       setLiveTranscript("");
       setStatus("recording");
 
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!mediaStream) {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+        });
+      }
+      if (!audioContext) {
+        audioContext = new AudioContext({ sampleRate: mediaStream.getAudioTracks()[0]?.getSettings().sampleRate });
+      }
+
+      setScribeMicrophoneSetup(async (_config: ScribeMicrophoneConfig, onAudioData) => {
+        if (!mediaStream || !audioContext) throw new Error("Microphone indisponible");
+        const result = await setupScribeMicrophoneFromStream(mediaStream, audioContext, onAudioData);
+        mediaStream = null;
+        audioContext = null;
+        return result;
+      });
 
       const res = await fetch(`${SUPABASE_URL}/functions/v1/elevenlabs-scribe-token`, {
         method: "POST",
@@ -292,6 +314,8 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       });
     } catch (e) {
       console.error("[Scribe] start failed:", e);
+      mediaStream?.getTracks().forEach((track) => track.stop());
+      if (audioContext && audioContext.state !== "closed") void audioContext.close();
       setStatus("idle");
       const msg = e instanceof Error ? e.message : String(e);
       if (/permission|denied|NotAllowed/i.test(msg)) {
