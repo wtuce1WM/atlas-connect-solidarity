@@ -4,6 +4,7 @@ import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import type { VideoDoc } from "@/hooks/useBookOnlineData";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VideoDocumentOverlayProps {
   activeVideo: { url: string; name: string | null; description: string | null };
@@ -93,8 +94,47 @@ const VideoDocumentOverlay = ({
   const isVerticalHint = overlayVid.isVertical;
   const isFile = overlayVid.type === "file";
 
+  // Vertical swipe nav (mobile) — same behavior as SlidePanelHome
+  const isMobile = useIsMobile();
+  const swipeStartY = useRef<number | null>(null);
+  const swipeStartX = useRef<number | null>(null);
+  const swipeHandled = useRef(false);
+  const swipeEnabled = isMobile && !descExpanded;
+  const resetSwipe = () => {
+    swipeStartY.current = null;
+    swipeStartX.current = null;
+    swipeHandled.current = false;
+  };
+
   return (
-    <div className="absolute inset-0 z-[85] overflow-hidden">
+    <div
+      className="absolute inset-0 z-[85] overflow-hidden"
+      style={swipeEnabled ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
+      onTouchStart={swipeEnabled ? (e) => {
+        if (e.touches.length !== 1) return;
+        swipeStartY.current = e.touches[0].clientY;
+        swipeStartX.current = e.touches[0].clientX;
+        swipeHandled.current = false;
+      } : undefined}
+      onTouchMove={swipeEnabled ? (e) => {
+        if (swipeHandled.current || swipeStartY.current === null || swipeStartX.current === null) return;
+        const dy = e.touches[0].clientY - swipeStartY.current;
+        const dx = e.touches[0].clientX - swipeStartX.current;
+        if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.5) {
+          if (dy < 0 && hasNext) {
+            e.preventDefault();
+            swipeHandled.current = true;
+            goTo(currentIdx + 1);
+          } else if (dy > 0 && hasPrev) {
+            e.preventDefault();
+            swipeHandled.current = true;
+            goTo(currentIdx - 1);
+          }
+        }
+      } : undefined}
+      onTouchEnd={swipeEnabled ? resetSwipe : undefined}
+      onTouchCancel={swipeEnabled ? resetSwipe : undefined}
+    >
     <div
       className={`absolute inset-0 bg-black overflow-hidden ${closing ? 'animate-slide-out-bottom' : 'animate-slide-in-left'}`}
       onAnimationEnd={() => { if (closing) onAnimationEnd(); }}
