@@ -3161,7 +3161,7 @@ const SearchPage = () => {
         <HashtagTabContent
           badgeId={badgeIdParam}
           badgeLabel={badgeLabelParam || "#"}
-          city={searchParams.get("city") || null}
+          city={effectiveCityForMap || searchParams.get("city") || null}
           onCountChange={setHashtagCount}
         />
       )}
