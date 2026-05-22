@@ -123,6 +123,7 @@ const SearchPage = () => {
   const urlT = searchParams.get("_t") || "";
   const openBusinessParam = searchParams.get("openBusiness") || "";
   const pinIdsParam = searchParams.get("pinIds") || "";
+  const badgeIdParam = searchParams.get("badgeId") || "";
   useEffect(() => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
