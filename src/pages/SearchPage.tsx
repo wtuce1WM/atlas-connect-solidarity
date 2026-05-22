@@ -1399,13 +1399,17 @@ const SearchPage = () => {
     return () => { cancelled = true; };
   }, [effectiveCityForMap]);
 
-  // "Tous" tab: show search results only (desktop) — capped to 20 like FS tabs
+  // "Tous" tab: show search results only (desktop) — capped to 20 unless "Voir tous" is toggled
   const mapPoiItemsSearch: PoiMapItem[] = useMemo(() => {
-    return buildMapPoiItems(filteredBusinesses, true).slice(0, 20);
-  }, [buildMapPoiItems, filteredBusinesses]);
+    const items = buildMapPoiItems(filteredBusinesses, true);
+    return showAllSearchMarkers ? items : items.slice(0, 20);
+  }, [buildMapPoiItems, filteredBusinesses, showAllSearchMarkers]);
 
   // "Tous" tab: mobile/tablet
-  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false).slice(0, 20), [buildMapPoiItems, filteredBusinesses]);
+  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => {
+    const items = buildMapPoiItems(filteredBusinesses, false);
+    return showAllSearchMarkers ? items : items.slice(0, 20);
+  }, [buildMapPoiItems, filteredBusinesses, showAllSearchMarkers]);
 
   // Helper: sort and slice for front structure category filtering
   const buildFsCategoryItems = useCallback((guardDesktop: boolean): PoiMapItem[] => {
