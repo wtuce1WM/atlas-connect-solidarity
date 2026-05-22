@@ -411,7 +411,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
                       </p>
                     </div>
                   )}
-                  {item.owner_logo_url ? (
+                  {item._kind !== "generic" && item.owner_logo_url ? (
                     <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
                       <img
                         src={item.owner_logo_url}
