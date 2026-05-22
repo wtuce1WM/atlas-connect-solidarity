@@ -311,7 +311,7 @@ export default function ResultsTabContent({
                     {mapPoiItems.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{spokenText || searchQuery || (activeFsTabId ? `${frontTabs.find(t => t.id === activeFsTabId)?.name || ''}${effectiveCity ? ` à ${effectiveCity}` : ''}`.trim() : '')}"
                   </span>
                 </div>
-                <div className="bg-black/50 backdrop-blur-sm">
+                <div className="bg-white/70 backdrop-blur-md">
                   <FrontStructureNavBar
                     tabs={frontTabs}
                     activeTabId={activeFsTabId}
