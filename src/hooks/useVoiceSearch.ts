@@ -189,12 +189,14 @@ async function extractSearchIntent(transcript: string): Promise<{ query: string;
 }
 
 const SILENCE_DELAY_MS = 2000;
+const MAX_RECORDING_MS = 30000;
 
 export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearch, onFlightSearch, onWebSearch, onError, lang = "fr-FR" }: UseVoiceSearchOptions) {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const [liveTranscript, setLiveTranscript] = useState("");
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const maxDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const accumulatedTranscriptRef = useRef<string>("");
   const pendingScribeStreamRef = useRef<MediaStream | null>(null);
   const pendingScribeAudioContextRef = useRef<AudioContext | null>(null);
@@ -217,6 +219,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
+    }
+  }, []);
+
+  const clearMaxDurationTimer = useCallback(() => {
+    if (maxDurationTimerRef.current) {
+      clearTimeout(maxDurationTimerRef.current);
+      maxDurationTimerRef.current = null;
     }
   }, []);
 
@@ -260,6 +269,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     const candidate = `${scribeFinalRef.current} ${scribePartialRef.current}`.trim();
     if (candidate) {
       silenceTimerRef.current = setTimeout(() => {
+        console.log("[Scribe] silence timer fired -> auto-finish");
         finishScribeRef.current();
       }, SILENCE_DELAY_MS);
     }
@@ -269,12 +279,14 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     modelId: "scribe_v2_realtime",
     commitStrategy: CommitStrategy.VAD,
     onPartialTranscript: (data: { text: string }) => {
+      console.log("[Scribe] partial:", data.text);
       scribePartialRef.current = data.text || "";
       setLiveTranscript(`${scribeFinalRef.current} ${scribePartialRef.current}`.trim());
       // iOS/Scribe can stay on partial text without emitting a committed segment.
       scheduleScribeAutoFinish();
     },
     onCommittedTranscript: (data: { text: string }) => {
+      console.log("[Scribe] committed:", data.text);
       scribeFinalRef.current = (scribeFinalRef.current + " " + (data.text || "")).trim();
       scribePartialRef.current = "";
       setLiveTranscript(scribeFinalRef.current);
@@ -325,6 +337,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       const data = await res.json();
       if (!data?.token) throw new Error("Pas de token reçu");
 
+      console.log("[Scribe] connecting…");
       await scribe.connect({
         token: data.token,
         microphone: {
@@ -333,6 +346,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
           autoGainControl: true,
         },
       });
+      console.log("[Scribe] connected");
+      // Hard safety cap: stop after MAX_RECORDING_MS even if no transcript ever arrives
+      clearMaxDurationTimer();
+      maxDurationTimerRef.current = setTimeout(() => {
+        console.warn("[Scribe] max duration reached -> auto-finish");
+        finishScribeRef.current();
+      }, MAX_RECORDING_MS);
     } catch (e) {
       console.error("[Scribe] start failed:", e);
       mediaStream?.getTracks().forEach((track) => track.stop());
@@ -348,16 +368,20 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   }, [scribe]);
 
   const stopScribeRecording = useCallback(async () => {
+    console.log("[Scribe] stop (user)");
     clearSilenceTimer();
+    clearMaxDurationTimer();
     try { await scribe.disconnect(); } catch { /* ignore */ }
     scribeFinalRef.current = "";
     scribePartialRef.current = "";
     setLiveTranscript("");
     setStatus("idle");
-  }, [scribe, clearSilenceTimer]);
+  }, [scribe, clearSilenceTimer, clearMaxDurationTimer]);
 
   const finishScribeRecording = useCallback(async () => {
+    console.log("[Scribe] finish -> disconnect & process");
     clearSilenceTimer();
+    clearMaxDurationTimer();
     try { await scribe.disconnect(); } catch { /* ignore */ }
     const transcript = `${scribeFinalRef.current} ${scribePartialRef.current}`.trim();
     scribeFinalRef.current = "";
@@ -366,10 +390,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       setStatus("processing");
       processTranscript(transcript).finally(() => setLiveTranscript(""));
     } else {
+      console.warn("[Scribe] finish with empty transcript");
       setLiveTranscript("");
       setStatus("idle");
+      onErrorRef.current?.("Aucun texte détecté, réessayez.");
     }
-  }, [scribe, processTranscript, clearSilenceTimer]);
+  }, [scribe, processTranscript, clearSilenceTimer, clearMaxDurationTimer]);
 
   useEffect(() => { finishScribeRef.current = finishScribeRecording; }, [finishScribeRecording]);
 
