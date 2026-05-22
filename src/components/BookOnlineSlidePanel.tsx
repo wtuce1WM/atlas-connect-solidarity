@@ -168,6 +168,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
    const [descOverlayContent, setDescOverlayContent] = useState<{ html: string; title: string; priceDetails?: string | null; avgPriceRange?: unknown } | null>(null);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
+  const consumedInitialVideoRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!initialVideoUrl) return;
+    if (consumedInitialVideoRef.current === initialVideoUrl) return;
+    if (!videoDocs || videoDocs.length === 0) return;
+    const match = videoDocs.find(v => v.url === initialVideoUrl);
+    consumedInitialVideoRef.current = initialVideoUrl;
+    setActiveVideoOverlay({
+      url: initialVideoUrl,
+      name: match?.name ?? null,
+      description: match?.description ?? null,
+    });
+  }, [initialVideoUrl, videoDocs]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [showExtLinksOverlay, setShowExtLinksOverlay] = useState(false);
   const [extLinksOrigin, setExtLinksOrigin] = useState<'carousel' | 'description'>('carousel');
