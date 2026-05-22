@@ -47,6 +47,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
     onOverlayChange?.(open);
   }, [onOverlayChange]);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
+  const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
   const { toast } = useToast();
   const geo = useGeolocation();
 
