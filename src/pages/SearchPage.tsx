@@ -1469,8 +1469,16 @@ const SearchPage = () => {
       const bRating = bCount >= 10 ? (b.computed_rating ?? b.rating ?? -1) : -1;
       return bRating - aRating;
     });
-    return buildMapPoiItems(matching.slice(0, 20), guardDesktop);
-  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses, buildMapPoiItems]);
+    const sliced = showAllSearchMarkers ? matching : matching.slice(0, 20);
+    return buildMapPoiItems(sliced, guardDesktop);
+  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses, buildMapPoiItems, showAllSearchMarkers]);
+
+  // Total matching count for the active FS category tab (full pool, before slicing)
+  const fsMatchingCount = useMemo(() => {
+    if (!fsFilterSubcategories) return 0;
+    const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
+    return pool.filter(b => b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))).length;
+  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses]);
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
