@@ -3448,6 +3448,7 @@ const SearchPage = () => {
               <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
                 <BookOnlineSlidePanel
                   businessId={compactPanelBusiness.id}
+                  initialVideoUrl={compactPanelInitialVideoUrl || undefined}
                   onClose={closeCompactPanel}
                   externalOverlayActive={showAiPopup}
                   forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
