@@ -298,7 +298,7 @@ export default function ResultsTabContent({
                 center={mapCenterForResults}
                 fitToMarkers
               />
-              <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col backdrop-blur-sm">
+              <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col bg-black">
                 <div className="flex items-center gap-3 px-3 py-3">
                   <button
                     type="button"
