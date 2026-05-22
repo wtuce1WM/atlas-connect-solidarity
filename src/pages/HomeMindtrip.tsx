@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SearchInput from "@/components/SearchInput";
 import { useSEO } from "@/hooks/useSEO";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
@@ -44,13 +45,12 @@ const HomeMindtrip = () => {
           <p className="mt-6 max-w-xl font-roboto text-base text-foreground/80 md:text-lg">
             Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité sur le terrain.
           </p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Link
-              to="/search"
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 font-josefin text-sm uppercase tracking-widest text-background transition hover:bg-primary"
-            >
-              Découvrir nos adresses
-            </Link>
+          <div className="mt-10 w-full max-w-2xl rounded-full bg-black p-1.5 shadow-2xl ring-1 ring-white/10 [&_input]:!bg-transparent [&_input]:!text-white [&_input]:!placeholder-white/60">
+            <SearchInput
+              variant="hero"
+              placeholder="Rechercher un hôtel, un restaurant, une expérience…"
+              showSuggestions
+            />
           </div>
         </div>
 
