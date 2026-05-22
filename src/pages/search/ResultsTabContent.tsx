@@ -119,6 +119,7 @@ export default function ResultsTabContent({
   showAllSearchMarkers,
   onToggleShowAllSearchMarkers,
   searchResultsTotal,
+  fsMatchingCount,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
