@@ -45,31 +45,44 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
         cityId = (cityRow as any)?.id || null;
       }
 
-      const [docBadgeRes, ytBadgeRes] = await Promise.all([
+      const [docBadgeRes, ytBadgeRes, genericBadgeRes] = await Promise.all([
         supabase.from("business_document_badges").select("document_id").eq("badge_id", badgeId),
         supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", badgeId),
+        supabase.from("generic_video_badges" as any).select("generic_video_id").eq("badge_id", badgeId),
       ]);
       let docIds = (docBadgeRes.data || []).map((r: any) => r.document_id);
       let ytIds = (ytBadgeRes.data || []).map((r: any) => r.youtube_video_id);
+      let genericIds = ((genericBadgeRes.data as any[]) || []).map((r: any) => r.generic_video_id);
 
       // Restrict to docs/yt linked to the requested city
       if (filterByCity && cityId) {
-        const [docCityRes, ytCityRes] = await Promise.all([
+        const [docCityRes, ytCityRes, genericCityRes, genericLegacyCityRes] = await Promise.all([
           docIds.length
             ? supabase.from("business_document_cities").select("document_id").eq("city_id", cityId).in("document_id", docIds)
             : Promise.resolve({ data: [] as any[] }),
           ytIds.length
             ? supabase.from("business_youtube_video_cities").select("youtube_video_id").eq("city_id", cityId).in("youtube_video_id", ytIds)
             : Promise.resolve({ data: [] as any[] }),
+          genericIds.length
+            ? supabase.from("generic_video_cities" as any).select("generic_video_id").eq("city_id", cityId).in("generic_video_id", genericIds)
+            : Promise.resolve({ data: [] as any[] }),
+          genericIds.length
+            ? supabase.from("generic_videos" as any).select("id").in("id", genericIds).ilike("city", effectiveCity)
+            : Promise.resolve({ data: [] as any[] }),
         ]);
         docIds = (docCityRes.data || []).map((r: any) => r.document_id);
         ytIds = (ytCityRes.data || []).map((r: any) => r.youtube_video_id);
+        genericIds = Array.from(new Set([
+          ...(((genericCityRes.data as any[]) || []).map((r: any) => r.generic_video_id)),
+          ...(((genericLegacyCityRes.data as any[]) || []).map((r: any) => r.id)),
+        ]));
       } else if (filterByCity && !cityId) {
         docIds = [];
         ytIds = [];
+        genericIds = [];
       }
 
-      const [docsRes, ytRes] = await Promise.all([
+      const [docsRes, ytRes, genericRes] = await Promise.all([
         docIds.length
           ? supabase
               .from("business_documents")
@@ -86,12 +99,37 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
               .eq("business_is_active", true)
               .eq("is_visible", true)
           : Promise.resolve({ data: [] as any[] }),
+        genericIds.length
+          ? supabase
+              .from("generic_videos" as any)
+              .select("id, url, name, title, description, thumbnail_url, instagram_account, tiktok_account, youtube_account, sort_order")
+              .in("id", genericIds)
+              .order("sort_order", { ascending: true })
+          : Promise.resolve({ data: [] as any[] }),
       ]);
+
+      const genericVideoIds = ((genericRes.data as any[]) || []).map((g: any) => g.id).filter(Boolean);
+      const [genericBizLinksRes, genericPoiLinksRes] = await Promise.all([
+        genericVideoIds.length
+          ? supabase.from("generic_video_businesses" as any).select("generic_video_id, business_id, sort_order").in("generic_video_id", genericVideoIds).order("sort_order", { ascending: true })
+          : Promise.resolve({ data: [] as any[] }),
+        genericVideoIds.length
+          ? supabase.from("generic_video_pois" as any).select("generic_video_id, poi_id, sort_order").in("generic_video_id", genericVideoIds).order("sort_order", { ascending: true })
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+      const firstOwnerByGenericId: Record<string, string> = {};
+      (((genericBizLinksRes.data as any[]) || [])).forEach((l: any) => {
+        if (!firstOwnerByGenericId[l.generic_video_id]) firstOwnerByGenericId[l.generic_video_id] = l.business_id;
+      });
+      (((genericPoiLinksRes.data as any[]) || [])).forEach((l: any) => {
+        if (!firstOwnerByGenericId[l.generic_video_id]) firstOwnerByGenericId[l.generic_video_id] = l.poi_id;
+      });
 
       const bizIds = Array.from(
         new Set([
           ...((docsRes.data || []).map((r: any) => r.business_id).filter(Boolean)),
           ...((ytRes.data || []).map((r: any) => r.business_id).filter(Boolean)),
+          ...Object.values(firstOwnerByGenericId).filter(Boolean),
         ])
       );
       const bizMap: Record<string, any> = {};
@@ -125,8 +163,23 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onOpenVid
         owner_name: bizMap[y.business_id]?.name || null,
       }));
 
+      const genericItems: VideoItem[] = ((genericRes.data as any[]) || []).map((g: any) => {
+        const ownerId = firstOwnerByGenericId[g.id] || null;
+        const account = (g.instagram_account || g.tiktok_account || g.youtube_account || "").replace(/^@+/, "");
+        return {
+          _id: `generic:${g.id}`,
+          _kind: "doc",
+          url: g.url,
+          name: g.title || g.name || (account ? `@${account}` : null),
+          description: g.description || null,
+          thumbnail_url: g.thumbnail_url || null,
+          owner_business_id: ownerId,
+          owner_name: account ? `@${account}` : (ownerId ? bizMap[ownerId]?.name || null : null),
+        };
+      });
+
       if (cancelled) return;
-      setItems([...docItems, ...ytItems]);
+      setItems([...docItems, ...ytItems, ...genericItems]);
       setLoading(false);
     })();
     return () => { cancelled = true; };
