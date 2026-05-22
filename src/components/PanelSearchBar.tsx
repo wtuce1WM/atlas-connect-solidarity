@@ -93,7 +93,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
   return (
     <>
       {/* Trigger bar fixed at bottom */}
-      <div className={`absolute bottom-0 z-[85] py-3 flex items-center justify-center gap-6 md:gap-10 ${compact && !leadingControls ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'}`}>
+      <div className={`absolute bottom-0 z-[85] py-3 flex items-center justify-center gap-3 md:gap-10 ${compact && !leadingControls ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'}`}>
         {leadingControls}
         <button
           type="button"
