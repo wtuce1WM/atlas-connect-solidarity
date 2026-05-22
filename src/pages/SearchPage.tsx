@@ -123,6 +123,7 @@ const SearchPage = () => {
   const urlT = searchParams.get("_t") || "";
   const openBusinessParam = searchParams.get("openBusiness") || "";
   const pinIdsParam = searchParams.get("pinIds") || "";
+  const badgeIdParam = searchParams.get("badgeId") || "";
   useEffect(() => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
@@ -1668,6 +1669,48 @@ const SearchPage = () => {
         return;
       }
 
+      // ── Badge filter path: load businesses tagged with this badge ──
+      if (badgeIdParam) {
+        setIsLoading(true);
+        setAiAnswerText("");
+        setShowAiPopup(false);
+        setDetectedSubcategory(null);
+        setSelectedCategoryFilter(null);
+        setSelectedSubcategoryFilter(null);
+        setSelectedServiceFilter(null);
+        setMoreFilterTimeSlots([]);
+        setMoreFilterEngagements([]);
+        setMoreFilterCommodites([]);
+        setMoreFilterMatchingIds(null);
+        setPinnedBusinesses([]);
+
+        const { data: bbData } = await supabase
+          .from("business_badges")
+          .select("business_id")
+          .eq("badge_id", badgeIdParam);
+        const ids = (bbData || []).map((r: any) => r.business_id);
+        if (fetchId !== latestFetchIdRef.current) return;
+        if (ids.length === 0) {
+          setAllBusinesses([]);
+          setTotalCount(0);
+          setIsLoading(false);
+          return;
+        }
+        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, presentation_mode, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, computed_rating, total_review_count, gamme_id, badge_id, hook_fr, hook_en, hook_ar, opening_hours, show_opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, priority_score";
+        const { data: bizData } = await supabase
+          .from("businesses")
+          .select(selectFields)
+          .eq("is_active", true)
+          .in("id", ids);
+        if (fetchId !== latestFetchIdRef.current) return;
+        const list = ((bizData as unknown as Business[]) || []).map(b => ({ ...b, distance_km: null }));
+        setAllBusinesses(list);
+        setTotalCount(list.length);
+        setSearchMessage("");
+        setIsLoading(false);
+        return;
+      }
+
       setPinnedBusinesses([]);
 
       if (!searchQuery.trim() && !categoryFromUrl) {
@@ -1911,7 +1954,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam]);
+  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam, badgeIdParam]);
 
   // Fetch label logos for search result businesses
   useEffect(() => {
