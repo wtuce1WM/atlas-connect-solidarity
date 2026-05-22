@@ -1377,6 +1377,13 @@ const SearchPage = () => {
     return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam, availabilityRestrictedIds]);
 
+  // Keep nav ref in sync so the slide-panel chevrons reflect the current displayed list
+  useEffect(() => {
+    filteredBusinessesRef.current = filteredBusinesses;
+    setNavTick(t => t + 1);
+  }, [filteredBusinesses]);
+
+
   // Build subcategory name → icon name map
   const subcategoryIconMap = useMemo(() => {
     const map: Record<string, string> = {};
