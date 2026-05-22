@@ -349,6 +349,42 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   // ====================== Web Speech API path (default) ======================
   const startRecording = useCallback(() => {
     if (useScribePath) {
+      try {
+        pendingScribeStreamRef.current?.getTracks().forEach((track) => track.stop());
+        pendingScribeStreamRef.current = null;
+        if (pendingScribeAudioContextRef.current && pendingScribeAudioContextRef.current.state !== "closed") {
+          void pendingScribeAudioContextRef.current.close();
+        }
+        pendingScribeAudioContextRef.current = null;
+
+        const audioContext = new AudioContext();
+        const streamPromise = navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+        });
+        streamPromise
+          .then((stream) => {
+            pendingScribeStreamRef.current = stream;
+            pendingScribeAudioContextRef.current = audioContext;
+            void startScribeRecording();
+          })
+          .catch((e) => {
+            if (audioContext.state !== "closed") void audioContext.close();
+            console.error("[Scribe] getUserMedia failed:", e);
+            const msg = e instanceof Error ? e.message : String(e);
+            if (/permission|denied|NotAllowed/i.test(msg)) {
+              onErrorRef.current?.("Microphone bloqué. Autorisez le micro dans les réglages Safari.");
+            } else {
+              onErrorRef.current?.(`Erreur vocale: ${msg}`);
+            }
+            setStatus("idle");
+          });
+      } catch (e) {
+        console.error("[Scribe] microphone init failed:", e);
+        const msg = e instanceof Error ? e.message : String(e);
+        onErrorRef.current?.(`Erreur vocale: ${msg}`);
+        setStatus("idle");
+        return;
+      }
       void startScribeRecording();
       return;
     }
