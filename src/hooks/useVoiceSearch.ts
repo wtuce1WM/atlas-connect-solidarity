@@ -269,6 +269,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     const candidate = `${scribeFinalRef.current} ${scribePartialRef.current}`.trim();
     if (candidate) {
       silenceTimerRef.current = setTimeout(() => {
+        console.log("[Scribe] silence timer fired -> auto-finish");
         finishScribeRef.current();
       }, SILENCE_DELAY_MS);
     }
@@ -278,12 +279,14 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     modelId: "scribe_v2_realtime",
     commitStrategy: CommitStrategy.VAD,
     onPartialTranscript: (data: { text: string }) => {
+      console.log("[Scribe] partial:", data.text);
       scribePartialRef.current = data.text || "";
       setLiveTranscript(`${scribeFinalRef.current} ${scribePartialRef.current}`.trim());
       // iOS/Scribe can stay on partial text without emitting a committed segment.
       scheduleScribeAutoFinish();
     },
     onCommittedTranscript: (data: { text: string }) => {
+      console.log("[Scribe] committed:", data.text);
       scribeFinalRef.current = (scribeFinalRef.current + " " + (data.text || "")).trim();
       scribePartialRef.current = "";
       setLiveTranscript(scribeFinalRef.current);
