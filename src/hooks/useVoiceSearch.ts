@@ -399,6 +399,20 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
   useEffect(() => { finishScribeRef.current = finishScribeRecording; }, [finishScribeRecording]);
 
+  // iOS PWA: when the app goes to background, AudioContext + WebSocket get suspended
+  // and the recording silently breaks. Auto-finish to avoid a stuck "recording" state.
+  useEffect(() => {
+    if (!useScribePath) return;
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden" && status === "recording") {
+        console.log("[Scribe] visibility hidden during recording -> auto-finish");
+        finishScribeRef.current();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [useScribePath, status]);
+
   // ====================== Web Speech API path (default) ======================
   const startRecording = useCallback(() => {
     if (useScribePath) {
