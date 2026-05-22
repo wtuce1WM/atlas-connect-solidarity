@@ -612,7 +612,7 @@ const SearchPage = () => {
      aiPopupShownRef.current = false;
      hasAutoAlignedResultsRef.current = false;
      hasInteractedWithCompactPanelRef.current = false;
-     setActiveTab("suggestions");
+      setActiveTab(badgeIdParam ? "hashtag" : "suggestions");
      resetPanelStates();
      setOverlaySelectedBusiness(null);
      setIsOverlayPanelExpanded(false);
