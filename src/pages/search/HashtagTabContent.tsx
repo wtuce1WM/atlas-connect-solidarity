@@ -353,14 +353,53 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
                   <Play className="h-8 w-8" />
                 </div>
               )}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-left">
-                {item.owner_name && (
-                  <div className="text-[10px] text-white/80 truncate">{item.owner_name}</div>
-                )}
-                {item.name && (
-                  <div className="text-xs text-white font-medium line-clamp-2">{item.name}</div>
-                )}
-              </div>
+              {item.eventInfo ? (() => {
+                const ei = item.eventInfo;
+                const dateStr = formatEventDateRange(ei.start_date, ei.end_date);
+                const daysStr = formatDaysOfWeek(ei.days_of_week);
+                const timeStr = formatTimeRange(ei.start_time, ei.end_time);
+                const textShadow = "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))";
+                return (
+                  <>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+                    <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
+                    <div className="absolute inset-x-0 top-[6%] z-20 flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
+                      {ei.name && (
+                        <p
+                          className="text-sm font-bold text-white mt-3"
+                          style={{
+                            fontFamily: "'Roboto', sans-serif",
+                            letterSpacing: "0.02em",
+                            filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
+                          }}
+                        >
+                          {ei.name}
+                        </p>
+                      )}
+                    </div>
+                    {(dateStr || daysStr || timeStr) && (
+                      <div
+                        className="absolute inset-x-0 bottom-[8%] z-20 flex flex-col items-center gap-1 px-3 pointer-events-none text-center text-white"
+                        style={{ filter: textShadow }}
+                      >
+                        {dateStr && <p className="text-xs font-semibold">{dateStr}</p>}
+                        {daysStr && <p className="text-xs font-semibold">{daysStr}</p>}
+                        {timeStr && <p className="text-xs font-semibold">{timeStr}</p>}
+                      </div>
+                    )}
+                  </>
+                );
+              })() : (
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-left">
+                  {item.owner_name && (
+                    <div className="text-[10px] text-white/80 truncate">{item.owner_name}</div>
+                  )}
+                  {item.name && (
+                    <div className="text-xs text-white font-medium line-clamp-2">{item.name}</div>
+                  )}
+                </div>
+              )}
+
             </button>
           ))}
         </div>
