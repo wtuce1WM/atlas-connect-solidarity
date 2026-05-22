@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
-import { Building2, ChevronLeft, ChevronRight, Map, Clock, MapPin, X } from "lucide-react";
+import { Building2, ChevronLeft, ChevronRight, Map, Clock, MapPin, X, Heart } from "lucide-react";
+import ShareButton from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
 import SearchResultCard from "@/components/SearchResultCard";
 import AISuggestionCard from "@/components/AISuggestionCard";
@@ -307,9 +308,24 @@ export default function ResultsTabContent({
                   >
                     <X className="h-4 w-4" />
                   </button>
-                  <span className="text-sm font-medium text-black truncate">
+                  <span className="flex-1 text-sm font-medium text-black truncate">
                     {mapPoiItems.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{spokenText || searchQuery || (activeFsTabId ? `${frontTabs.find(t => t.id === activeFsTabId)?.name || ''}${effectiveCity ? ` à ${effectiveCity}` : ''}`.trim() : '')}"
                   </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                      aria-label="Le Club OWM"
+                    >
+                      <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                    </button>
+                    <ShareButton
+                      title={spokenText || searchQuery || "Recherche"}
+                      variant="dark"
+                      className="shrink-0"
+                    />
+                  </div>
                 </div>
                 <FrontStructureNavBar
                   tabs={frontTabs}
