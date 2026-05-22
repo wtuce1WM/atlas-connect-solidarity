@@ -42,7 +42,7 @@ const HomeMindtrip = () => {
             Le Maroc<br />autrement<span className="text-foreground">.</span>
           </h1>
           <p className="mt-6 max-w-xl font-roboto text-base text-foreground/80 md:text-lg">
-            Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité concrètes sur le terrain.
+            Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité sur le terrain.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <Link
