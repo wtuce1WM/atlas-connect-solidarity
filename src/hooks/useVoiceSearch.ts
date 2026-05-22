@@ -218,6 +218,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
     recognition.onerror = (event) => {
       console.error("[VoiceSearch] onerror:", event.error, "| inIframe:", window.self !== window.top, "| secure:", window.isSecureContext);
+      // Arrêt volontaire (silence timer / finish / stop) ou transcript déjà capturé :
+      // on ignore les erreurs tardives ("no-speech"/"aborted" émises par Chrome après stop()).
+      if (recognitionRef.current === null || accumulatedTranscriptRef.current) {
+        clearSilenceTimer();
+        recognitionRef.current = null;
+        return;
+      }
       clearSilenceTimer();
       recognitionRef.current = null;
       accumulatedTranscriptRef.current = "";
@@ -232,8 +239,10 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
             "Microphone bloqué. Cliquez sur 🔒 dans la barre d'adresse → Autoriser le micro, puis rechargez la page."
           );
         }
-      } else if (event.error === "no-speech") {
-        onErrorRef.current?.("Aucune parole détectée, réessayez.");
+      } else if (event.error === "no-speech" || event.error === "aborted") {
+        // Silencieux : pas de toast si rien n'a été dit.
+        setStatus("idle");
+        return;
       } else {
         onErrorRef.current?.(`Erreur vocale: ${event.error}`);
       }
