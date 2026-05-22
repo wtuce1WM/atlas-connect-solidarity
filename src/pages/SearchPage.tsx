@@ -231,11 +231,15 @@ const SearchPage = () => {
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations" | "hashtag">(
      searchParams.get("badgeId") ? "hashtag" : "suggestions"
    );
-   useEffect(() => {
-     if (badgeIdParam && activeTab !== "hashtag") setActiveTab("hashtag");
-     if (!badgeIdParam && activeTab === "hashtag") setActiveTab("suggestions");
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [badgeIdParam]);
+    useEffect(() => {
+      if (badgeIdParam && activeTab !== "hashtag") {
+        setActiveTab("hashtag");
+        setCompactPanelBusiness(null);
+        setCompactPanelInitialVideoUrl(null);
+      }
+      if (!badgeIdParam && activeTab === "hashtag") setActiveTab("suggestions");
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [badgeIdParam]);
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
