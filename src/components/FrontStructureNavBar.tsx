@@ -35,10 +35,10 @@ export default function FrontStructureNavBar({ tabs, activeTabId, onTabClick }: 
       {/* "Tous" tab */}
       <button
         onClick={() => onTabClick(null)}
-        className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors whitespace-nowrap ${
+        className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors whitespace-nowrap backdrop-blur-sm ${
           activeTabId === null
             ? "bg-[#D4AF37] text-black"
-            : "bg-white/20 text-white hover:bg-white/30"
+            : "bg-black/50 text-white hover:bg-black/70"
         }`}
         style={{ fontFamily: "'Josefin Sans', sans-serif" }}
       >
@@ -49,10 +49,10 @@ export default function FrontStructureNavBar({ tabs, activeTabId, onTabClick }: 
           key={tab.id}
           data-tab-id={tab.id}
           onClick={() => onTabClick(tab.id)}
-          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors whitespace-nowrap ${
+          className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors whitespace-nowrap backdrop-blur-sm ${
             activeTabId === tab.id
               ? "bg-[#D4AF37] text-black"
-              : "bg-white/20 text-white hover:bg-white/30"
+              : "bg-black/50 text-white hover:bg-black/70"
           }`}
           style={{ fontFamily: "'Josefin Sans', sans-serif" }}
         >
