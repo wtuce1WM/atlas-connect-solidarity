@@ -3211,7 +3211,7 @@ const SearchPage = () => {
                   }}
                 />
               )}
-              {mobileFsTabId === null && filteredBusinesses.length > 20 && (
+              {mobileFsTabId === null && (totalCount ?? filteredBusinesses.length) > 20 && (
                 <div className="px-3 pb-2">
                   <button
                     type="button"
@@ -3219,7 +3219,7 @@ const SearchPage = () => {
                     className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider whitespace-nowrap backdrop-blur-sm transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "bg-black/50 text-white hover:bg-black/70"}`}
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
-                    {showAllSearchMarkers ? "Voir Top 20" : <>Voir tous <span className="ml-1 opacity-70">{filteredBusinesses.length}</span></>}
+                    {showAllSearchMarkers ? "Voir Top 20" : <>Voir tous <span className="ml-1 opacity-70">{totalCount ?? filteredBusinesses.length}</span></>}
                   </button>
                 </div>
               )}
