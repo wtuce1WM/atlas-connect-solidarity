@@ -653,7 +653,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
       )}
 
       {showSearchBar && (
-        <PanelSearchBar onSearch={onSearch} onBusinessSelect={onSearchBusinessSelect} />
+        <PanelSearchBar onSearch={onSearch} onBusinessSelect={onSearchBusinessSelect} compact />
       )}
 
       {/* Recursive SlidePanel for selected POI */}
