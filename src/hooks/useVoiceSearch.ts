@@ -281,7 +281,8 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         });
       }
       if (!audioContext) {
-        audioContext = new AudioContext({ sampleRate: mediaStream.getAudioTracks()[0]?.getSettings().sampleRate });
+        const sampleRate = mediaStream.getAudioTracks()[0]?.getSettings().sampleRate;
+        audioContext = new AudioContext(sampleRate ? { sampleRate } : undefined);
       }
 
       setScribeMicrophoneSetup(async (_config: ScribeMicrophoneConfig, onAudioData) => {
@@ -362,6 +363,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         setStatus("recording");
 
         const audioContext = new AudioContext();
+        void audioContext.resume();
         const streamPromise = navigator.mediaDevices.getUserMedia({
           audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
         });
