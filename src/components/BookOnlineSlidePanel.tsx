@@ -102,9 +102,11 @@ interface BookOnlineSlidePanelProps {
   propagateMosaicState?: boolean;
   /** Optional prefix for toolbar portal IDs (used by POI/KP sub-panels) */
   toolbarPortalPrefix?: string;
+  /** If provided, auto-opens the video overlay for the matching URL once videoDocs loaded */
+  initialVideoUrl?: string;
 }
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
