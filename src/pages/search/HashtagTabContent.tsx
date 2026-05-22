@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Play } from "lucide-react";
 import SlidePanelHome from "@/components/SlidePanelHome";
+import { isAgendaLabel } from "@/lib/homeHelpers";
 
 interface VideoItem {
   _id: string;
-  _kind: "doc" | "youtube" | "generic";
+  _kind: "doc" | "youtube" | "generic" | "event";
   url: string;
   name: string | null;
   description: string | null;
@@ -15,6 +16,7 @@ interface VideoItem {
   owner_logo_url: string | null;
   owner_logo_bg: string | null;
   generic_video_id: string | null;
+  event_id: string | null;
   social: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
 }
 
