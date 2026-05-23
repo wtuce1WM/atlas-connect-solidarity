@@ -122,106 +122,132 @@ const Blog = () => {
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {/* Articles de blog (les plus récents en premier) */}
-            {posts.map((post) => (
-              <Link key={post.id} to={`/blog/${post.slug}`}>
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
-                  <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 bg-primary/90 text-primary-foreground text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full">
-                    <Database className="h-2.5 w-2.5" /> dynamique
-                  </span>
-                  {post.cover_image_url && (
-                    <div className="aspect-video overflow-hidden">
-                      <img
-                        src={post.cover_image_url}
-                        alt={getTitle(post)}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  )}
-                  <CardContent className="p-6">
-                    <h2 className="text-xl font-semibold mb-3 line-clamp-2 font-['Playfair_Display'] italic">
-                      {getTitle(post)}
-                    </h2>
-                    {getExcerpt(post) && (
-                      <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                        {getExcerpt(post)}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <div className="flex items-center gap-4">
-                        {post.author_name && (
-                          <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {post.author_name}
-                          </span>
+            {(() => {
+              type Item = { key: string; date: string; node: JSX.Element };
+              const items: Item[] = [];
+
+              posts.forEach((post) => {
+                items.push({
+                  key: post.id,
+                  date: post.published_at || post.created_at,
+                  node: (
+                    <Link key={post.id} to={`/blog/${post.slug}`}>
+                      <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
+                        <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 bg-primary/90 text-primary-foreground text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full">
+                          <Database className="h-2.5 w-2.5" /> dynamique
+                        </span>
+                        {post.cover_image_url && (
+                          <div className="aspect-video overflow-hidden">
+                            <img
+                              src={post.cover_image_url}
+                              alt={getTitle(post)}
+                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
                         )}
-                        {post.published_at && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {format(new Date(post.published_at), "d MMM yyyy", { locale: getDateLocale() })}
-                          </span>
+                        <CardContent className="p-6">
+                          <h2 className="text-xl font-semibold mb-3 line-clamp-2 font-['Playfair_Display'] italic">
+                            {getTitle(post)}
+                          </h2>
+                          {getExcerpt(post) && (
+                            <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                              {getExcerpt(post)}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <div className="flex items-center gap-4">
+                              {post.author_name && (
+                                <span className="flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  {post.author_name}
+                                </span>
+                              )}
+                              {post.published_at && (
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  {format(new Date(post.published_at), "d MMM yyyy", { locale: getDateLocale() })}
+                                </span>
+                              )}
+                            </div>
+                            <ArrowRight className="h-4 w-4 text-primary" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ),
+                });
+              });
+
+              // Carte Marrakech (la plus récente)
+              items.push({
+                key: "static-marrakech",
+                date: "2026-05-23T00:00:00Z",
+                node: (
+                  <Link key="static-marrakech" to="/blog/5-jours-marrakech-artisanat">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.marrakech ? (
+                          <img src={staticHeroes.marrakech} alt="Artisanat à Marrakech" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
                         )}
                       </div>
-                      <ArrowRight className="h-4 w-4 text-primary" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          5 jours à Marrakech pour découvrir le meilleur de l'artisanat marocain
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Itinéraire en 5 étapes — 31 adresses sélectionnées à Guéliz, dans la Médina, à Sidi Ghanem et au-delà.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
 
-            {/* Carte Essaouira Vue sur Mer */}
-            <Link to="/blog/essaouira-vue-mer">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
-                <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                  {staticHeroes.essaouira ? (
-                    <img src={staticHeroes.essaouira} alt="Essaouira vue sur mer" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                  ) : (
-                    <MapPin className="h-16 w-16 text-primary" />
-                  )}
-                </div>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                    Établissements à Essaouira avec vue sur mer
-                  </h2>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                    Découvrez notre sélection des meilleurs établissements d'Essaouira offrant une vue imprenable sur l'océan Atlantique.
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-primary font-medium">
-                      <MapPin className="h-3 w-3" /> Essaouira
-                    </span>
-                    <ArrowRight className="h-4 w-4 text-primary" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+              // Carte Essaouira
+              items.push({
+                key: "static-essaouira",
+                date: "2025-11-01T00:00:00Z",
+                node: (
+                  <Link key="static-essaouira" to="/blog/essaouira-vue-mer">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.essaouira ? (
+                          <img src={staticHeroes.essaouira} alt="Essaouira vue sur mer" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Établissements à Essaouira avec vue sur mer
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Découvrez notre sélection des meilleurs établissements d'Essaouira offrant une vue imprenable sur l'océan Atlantique.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Essaouira
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
 
-            {/* Carte 5 jours à Marrakech — Artisanat */}
-            <Link to="/blog/5-jours-marrakech-artisanat">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
-                <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                  {staticHeroes.marrakech ? (
-                    <img src={staticHeroes.marrakech} alt="Artisanat à Marrakech" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                  ) : (
-                    <MapPin className="h-16 w-16 text-primary" />
-                  )}
-                </div>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                    5 jours à Marrakech pour découvrir le meilleur de l'artisanat marocain
-                  </h2>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                    Itinéraire en 5 étapes — 31 adresses sélectionnées à Guéliz, dans la Médina, à Sidi Ghanem et au-delà.
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-primary font-medium">
-                      <MapPin className="h-3 w-3" /> Marrakech
-                    </span>
-                    <ArrowRight className="h-4 w-4 text-primary" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+              return items
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .map((i) => <div key={i.key}>{i.node}</div>);
+            })()}
           </div>
         )}
       </div>
