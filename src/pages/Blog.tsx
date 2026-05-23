@@ -3,7 +3,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import Header from "@/components/Header";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Calendar, User, ArrowRight, MapPin, Database } from "lucide-react";
@@ -71,7 +71,7 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <HomeMindtripHeader />
       <div className="bg-black pt-28 pb-12">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl md:text-4xl font-bold text-white">

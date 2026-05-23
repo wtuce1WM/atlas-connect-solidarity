@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import ShareButton from "@/components/ShareButton";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -14,7 +14,7 @@ const Mission = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <HomeMindtripHeader />
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="max-w-4xl mx-auto">
