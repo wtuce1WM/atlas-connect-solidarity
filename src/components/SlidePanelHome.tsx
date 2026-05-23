@@ -198,12 +198,21 @@ const SlidePanelHome = ({
           .limit(1),
         (supabase as any)
           .from("events")
-          .select("name, logo_url, description")
+          .select("name, logo_url, description, start_date, end_date, days_of_week, start_time, end_time")
           .eq("id", eventId)
           .maybeSingle(),
       ]);
       if (cancelled) return;
-      setEventInfo(evRow ? { name: (evRow as any).name, logo_url: (evRow as any).logo_url, description: (evRow as any).description ?? null } : null);
+      setEventInfo(evRow ? {
+        name: (evRow as any).name,
+        logo_url: (evRow as any).logo_url,
+        description: (evRow as any).description ?? null,
+        start_date: (evRow as any).start_date ?? null,
+        end_date: (evRow as any).end_date ?? null,
+        days_of_week: (evRow as any).days_of_week ?? null,
+        start_time: (evRow as any).start_time ?? null,
+        end_time: (evRow as any).end_time ?? null,
+      } : null);
       const bizId = ((ebRows as any[]) || [])[0]?.business_id;
       if (!bizId) { setEventBusiness(null); return; }
       const { data: bizRow } = await supabase
