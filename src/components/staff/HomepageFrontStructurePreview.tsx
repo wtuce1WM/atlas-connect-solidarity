@@ -722,6 +722,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         event_id: nextEventId,
         eventName: nextEvent?.name || (patch.event_id !== undefined ? null : card.eventName),
         businessName: nextBusiness?.name || (patch.business_id !== undefined ? null : card.businessName),
+        search_query: patch.search_query !== undefined ? patch.search_query : card.search_query,
       };
     }));
     await refreshExtraCard(cardId);
