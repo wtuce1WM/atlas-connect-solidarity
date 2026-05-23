@@ -250,7 +250,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const extraRows: ExtraCard[] = ((extraRes as any).data || []).map((r: any) => ({
         id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id,
         video_document_id: r.video_document_id, title: r.title ?? null, sort_order: r.sort_order,
-        event_id: r.event_id ?? null,
+        event_id: r.event_id ?? null, search_query: r.search_query ?? null,
       }));
       const eventsList: EventLite[] = (((eventsRes as any).data) || []).map((e: any) => ({ id: e.id, name: e.name }));
       const eventMap = new Map(eventsList.map((e) => [e.id, e]));
