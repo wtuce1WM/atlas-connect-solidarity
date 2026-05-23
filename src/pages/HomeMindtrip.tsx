@@ -34,6 +34,44 @@ const HomeMindtrip = () => {
     canonical: "/",
   });
 
+  const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
+  const [videos, setVideos] = useState<VideoSlot[]>([]);
+  const [loadingVideos, setLoadingVideos] = useState(true);
+  const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
+
+  useSEO({
+    title: "ONE WORLD MOROCCO — Voyagez autrement au Maroc",
+    description:
+      "Inspirez-vous des meilleures adresses du Maroc : hôtels, restaurants, expériences et itinéraires sélectionnés et vérifiés.",
+    canonical: "/",
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingVideos(true);
+    (supabase as any)
+      .from("homepage_cards_snapshots")
+      .select("payload")
+      .eq("city", selectedCity)
+      .maybeSingle()
+      .then(({ data }: any) => {
+        if (cancelled) return;
+        const payload = (data?.payload as any[]) || [];
+        const slots: VideoSlot[] = payload
+          .filter((s) => s?.data?.videoId && (s?.data?.videoUrl || s?.data?.thumbnail))
+          .map((s, i) => ({
+            key: s.key || `v-${i}`,
+            videoId: s.data.videoId,
+            videoUrl: s.data.videoUrl,
+            thumbnail: s.data.thumbnail,
+            label: s.data.businessName || s.data.label || null,
+          }));
+        setVideos(slots);
+        setLoadingVideos(false);
+      });
+    return () => { cancelled = true; };
+  }, [selectedCity]);
+
   const scrollToNext = () => {
     const el = document.getElementById("how-it-works");
     el?.scrollIntoView({ behavior: "smooth" });
