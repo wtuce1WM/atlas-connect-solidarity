@@ -133,10 +133,13 @@ const AppContent = () => {
   
   return (
     <div dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "font-arabic" : ""}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <Suspense fallback={null}>
+        <TooltipProvider>
+          <Suspense fallback={null}><Toaster /></Suspense>
+          <Suspense fallback={null}><Sonner /></Suspense>
+        </TooltipProvider>
+      </Suspense>
+      <BrowserRouter>
           <ScrollToTop />
           <RouteTransition>
             <Routes>
