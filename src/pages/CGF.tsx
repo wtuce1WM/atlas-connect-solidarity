@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { useSEO } from "@/hooks/useSEO";
 
@@ -10,7 +10,7 @@ const CGF = () => {
   });
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <HomeMindtripHeader />
       <main className="container mx-auto px-4 py-24 max-w-3xl">
         <h1 className="text-3xl font-bold mb-2">Conditions Générales de Fonctionnement</h1>
         <p className="text-lg text-muted-foreground mb-10">One World Morocco</p>

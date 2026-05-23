@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Users, Lock, Mail, Eye, EyeOff } from "lucide-react";
-import Header from "@/components/Header";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
@@ -149,7 +149,7 @@ const AffiliatesLogin = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <Header />
+      <HomeMindtripHeader />
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="flex flex-col items-center justify-center">
