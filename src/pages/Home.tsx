@@ -2216,6 +2216,7 @@ const Home = () => {
 
                                 if (bizIds.size > 0) sp.set("pinIds", Array.from(bizIds).join(","));
                                 sp.set("label", cleanLabel);
+                                sp.set("pinBadge", badgeId);
                                 navigate(`/search?${sp.toString()}`);
                               })();
                             }

@@ -131,6 +131,57 @@ const SearchPage = () => {
   const subcatsParam = searchParams.get("subcats") || "";
   const subcategoryNamesFromUrl = subcatsParam ? subcatsParam.split("|").filter(Boolean) : [];
   const labelFromUrl = searchParams.get("label") || "";
+  const pinBadgeParam = searchParams.get("pinBadge") || "";
+  const cityFromUrlForThumbs = searchParams.get("city") || "";
+  const [pinThumbMap, setPinThumbMap] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const ids = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
+    if (!pinBadgeParam || !cityFromUrlForThumbs || ids.length === 0) {
+      setPinThumbMap({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data: cityRow } = await supabase
+        .from("cities")
+        .select("id")
+        .or(`name_fr.ilike.${cityFromUrlForThumbs},name_en.ilike.${cityFromUrlForThumbs},name_ar.ilike.${cityFromUrlForThumbs}`)
+        .limit(1)
+        .maybeSingle();
+      const cityId = (cityRow as any)?.id;
+      if (!cityId) { if (!cancelled) setPinThumbMap({}); return; }
+      const { data: badgeDocs } = await supabase
+        .from("business_document_badges")
+        .select("document_id")
+        .eq("badge_id", pinBadgeParam);
+      const docIds = (badgeDocs || []).map((r: any) => r.document_id);
+      if (!docIds.length) { if (!cancelled) setPinThumbMap({}); return; }
+      const { data: cityDocs } = await supabase
+        .from("business_document_cities")
+        .select("document_id")
+        .eq("city_id", cityId)
+        .in("document_id", docIds);
+      const cityDocIds = (cityDocs || []).map((r: any) => r.document_id);
+      if (!cityDocIds.length) { if (!cancelled) setPinThumbMap({}); return; }
+      const { data: docs } = await supabase
+        .from("business_documents")
+        .select("business_id, thumbnail_url, thumbnail_locked")
+        .in("id", cityDocIds)
+        .in("business_id", ids)
+        .eq("business_is_active", true)
+        .eq("thumbnail_locked", true)
+        .not("thumbnail_url", "is", null);
+      const map: Record<string, string> = {};
+      for (const d of (docs || []) as any[]) {
+        if (d.business_id && d.thumbnail_url && !map[d.business_id]) {
+          map[d.business_id] = d.thumbnail_url;
+        }
+      }
+      if (!cancelled) setPinThumbMap(map);
+    })();
+    return () => { cancelled = true; };
+  }, [pinIdsParam, pinBadgeParam, cityFromUrlForThumbs]);
   const [hashtagCount, setHashtagCount] = useState<number | undefined>(undefined);
   useEffect(() => { setHashtagCount(undefined); }, [badgeIdParam, searchParams.get("city")]);
   useEffect(() => {
@@ -1261,11 +1312,17 @@ const SearchPage = () => {
   }, [effectiveCityForMap, neighborhoodCoords, citiesWithPriority, allBusinesses]);
 
   const filteredBusinesses = useMemo(() => {
+    const applyPinThumb = (b: Business): Business => {
+      const t = pinThumbMap[b.id];
+      if (!t) return b;
+      const rest = (b.images || []).filter(u => u !== t);
+      return { ...b, images: [t, ...rest] };
+    };
     if (pinIdsParam && pinnedBusinesses.length > 0) {
       const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
       const byId: Record<string, Business> = {};
       for (const b of pinnedBusinesses) byId[b.id] = b;
-      return orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
+      return orderedIds.map(id => byId[id]).filter(Boolean).map(applyPinThumb) as Business[];
     }
 
     const isServerPaginatedResults = totalCount !== null;
@@ -1390,12 +1447,12 @@ const SearchPage = () => {
       const allowSet = new Set(orderedIds);
       const byId: Record<string, Business> = {};
       for (const b of filtered) if (allowSet.has(b.id)) byId[b.id] = b;
-      const ordered = orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
+      const ordered = orderedIds.map(id => byId[id]).filter(Boolean).map(applyPinThumb) as Business[];
       return ordered;
     }
 
-    return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam, availabilityRestrictedIds]);
+    return [...filtered].sort(sortWtuceAndRating).map(applyPinThumb);
+  }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam, availabilityRestrictedIds, pinThumbMap]);
 
   // Keep nav ref in sync so the slide-panel chevrons reflect the current displayed list
   useEffect(() => {
