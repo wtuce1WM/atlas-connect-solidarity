@@ -199,10 +199,25 @@ const HomeMindtrip = () => {
             {STEPS.map((s, i) => (
               <div
                 key={s.title}
-                className={`grid items-center gap-10 md:grid-cols-2 md:gap-16 ${
-                  i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
-                }`}
+                className={
+                  i === 0
+                    ? "space-y-8"
+                    : `grid items-center gap-10 md:grid-cols-2 md:gap-16 ${
+                        i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
+                      }`
+                }
               >
+                {i === 0 ? (
+                  <div>
+                    <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
+                      Étape {i + 1}
+                    </span>
+                    <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
+                      {s.title}
+                    </h3>
+                    <p className="mt-4 max-w-2xl font-roboto text-base text-foreground/70">{s.desc}</p>
+                  </div>
+                ) : null}
                 {i === 0 ? (
                   <div className="min-w-0">
                     <div className="flex items-center gap-3">
