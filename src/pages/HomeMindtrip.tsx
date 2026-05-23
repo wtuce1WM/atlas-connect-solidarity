@@ -65,6 +65,7 @@ const HomeMindtrip = () => {
             thumbnail: s.data.thumbnail,
             businessName: s.data.businessName ?? null,
             label: s.data.label ?? null,
+            subcategoryNames: Array.isArray(s.data.subcategoryNames) ? s.data.subcategoryNames : [],
           }));
         setVideos(slots);
         setLoadingVideos(false);
