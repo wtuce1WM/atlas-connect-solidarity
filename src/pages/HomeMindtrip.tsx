@@ -252,11 +252,6 @@ const HomeMindtrip = () => {
                             <Play className="h-5 w-5 fill-white text-white" />
                           </div>
                         </div>
-                        {v.businessName && (
-                          <div className="pointer-events-none absolute inset-x-0 bottom-0 px-2 py-1.5">
-                            <p className="truncate font-josefin text-[11px] font-medium text-white">{v.businessName}</p>
-                          </div>
-                        )}
                       </button>
                       {v.label && (
                         <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
