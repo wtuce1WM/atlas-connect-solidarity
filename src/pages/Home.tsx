@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getVideoEmbed } from "@/lib/videoEmbed";
-import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
+import type { SearchResultBusiness } from "@/components/SearchResultCard";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import { businessUrl } from "@/lib/businessUrl";
 import { buildHomeVideosCacheKey, readHomeVideosCache, writeHomeVideosCache } from "@/lib/homeVideosCache";
