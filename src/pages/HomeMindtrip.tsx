@@ -13,6 +13,7 @@ import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import stepVerifiedImage from "@/assets/home-mindtrip/step-verified.jpg";
 import stepClubImage from "@/assets/home-mindtrip/step-club.jpg";
 import stepBookingImage from "@/assets/home-mindtrip/step-booking.jpg";
+import BookingFloatingScene from "@/components/home/BookingFloatingScene";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -388,16 +389,7 @@ const HomeMindtrip = () => {
                     />
                   </div>
                 ) : (
-                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                    <img
-                      src={stepBookingImage}
-                      alt="Réservation d'un riad à Marrakech — fontaine en zellige, lanterne en laiton et carnet de voyage"
-                      loading="lazy"
-                      width={1024}
-                      height={1024}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
+                  <BookingFloatingScene />
                 )}
                 {i !== 0 && (
                   <div>
