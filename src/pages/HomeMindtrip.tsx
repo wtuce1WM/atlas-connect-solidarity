@@ -13,6 +13,7 @@ import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import stepVerifiedImage from "@/assets/home-mindtrip/step-verified.jpg";
 import stepClubImage from "@/assets/home-mindtrip/step-club.jpg";
 import stepBookingImage from "@/assets/home-mindtrip/step-booking.jpg";
+import BookingFloatingScene from "@/components/home/BookingFloatingScene";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
