@@ -26,6 +26,11 @@ type VideoCard = {
 
 const HomeMindtrip = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
+  const [videos, setVideos] = useState<VideoCard[]>([]);
+  const [loadingVideos, setLoadingVideos] = useState(false);
+  const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
+
   useSEO({
     title: "ONE WORLD MOROCCO — Voyagez autrement au Maroc",
     description:
@@ -33,10 +38,41 @@ const HomeMindtrip = () => {
     canonical: "/",
   });
 
-  const scrollToNext = () => {
-    const el = document.getElementById("how-it-works");
-    el?.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoadingVideos(true);
+      const cityId = CITY_IDS[selectedCity];
+      const { data: links } = await supabase
+        .from("business_youtube_video_cities")
+        .select("youtube_video_id")
+        .eq("city_id", cityId);
+      const ids = (links || []).map((l: any) => l.youtube_video_id);
+      if (ids.length === 0) {
+        if (!cancelled) { setVideos([]); setLoadingVideos(false); }
+        return;
+      }
+      const { data: vids } = await supabase
+        .from("business_youtube_videos")
+        .select("id, video_id, title, thumbnail, custom_thumbnail_url, sort_order, business_is_active, is_visible, business_id, businesses(name)")
+        .in("id", ids)
+        .eq("is_visible", true)
+        .eq("business_is_active", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled) return;
+      const cards: VideoCard[] = (vids || []).map((v: any) => ({
+        id: v.id,
+        videoUrl: `https://www.youtube.com/watch?v=${v.video_id}`,
+        thumbnail: v.custom_thumbnail_url || v.thumbnail || `https://img.youtube.com/vi/${v.video_id}/hqdefault.jpg`,
+        label: v.businesses?.name || v.title || "",
+      }));
+      setVideos(cards);
+      setLoadingVideos(false);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [selectedCity]);
+
 
   return (
     <div className="min-h-screen bg-background">
