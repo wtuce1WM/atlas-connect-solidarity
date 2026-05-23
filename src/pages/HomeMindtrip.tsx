@@ -1,35 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X, Play } from "lucide-react";
+import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
-import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
-import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
-const CITY_IDS: Record<"Marrakech" | "Essaouira", string> = {
-  Marrakech: "41545fd3-2c2c-4609-8d55-842fd7e2edde",
-  Essaouira: "3f96c12a-0635-4f70-8de0-2578a66bcc07",
-};
-type CityKey = keyof typeof CITY_IDS;
-
-type VideoCard = {
-  id: string;
-  videoUrl: string;
-  thumbnail: string;
-  label: string;
-};
+const CITIES = ["Marrakech", "Essaouira"] as const;
+type CityKey = (typeof CITIES)[number];
 
 const HomeMindtrip = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
-  const [videos, setVideos] = useState<VideoCard[]>([]);
-  const [loadingVideos, setLoadingVideos] = useState(false);
-  const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
 
   useSEO({
     title: "ONE WORLD MOROCCO — Voyagez autrement au Maroc",
@@ -38,47 +23,12 @@ const HomeMindtrip = () => {
     canonical: "/",
   });
 
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      setLoadingVideos(true);
-      const cityId = CITY_IDS[selectedCity];
-      const { data: links } = await supabase
-        .from("business_youtube_video_cities")
-        .select("youtube_video_id")
-        .eq("city_id", cityId);
-      const ids = (links || []).map((l: any) => l.youtube_video_id);
-      if (ids.length === 0) {
-        if (!cancelled) { setVideos([]); setLoadingVideos(false); }
-        return;
-      }
-      const { data: vids } = await supabase
-        .from("business_youtube_videos")
-        .select("id, video_id, title, thumbnail, custom_thumbnail_url, sort_order, business_is_active, is_visible, business_id, businesses(name)")
-        .in("id", ids)
-        .eq("is_visible", true)
-        .eq("business_is_active", true)
-        .order("sort_order", { ascending: true });
-      if (cancelled) return;
-      const cards: VideoCard[] = (vids || []).map((v: any) => ({
-        id: v.id,
-        videoUrl: `https://www.youtube.com/watch?v=${v.video_id}`,
-        thumbnail: v.custom_thumbnail_url || v.thumbnail || `https://img.youtube.com/vi/${v.video_id}/hqdefault.jpg`,
-        label: v.businesses?.name || v.title || "",
-      }));
-      setVideos(cards);
-      setLoadingVideos(false);
-    };
-    load();
-    return () => { cancelled = true; };
-  }, [selectedCity]);
-
-
-
   const scrollToNext = () => {
     const el = document.getElementById("how-it-works");
     el?.scrollIntoView({ behavior: "smooth" });
   };
+
+
 
 
 
@@ -182,11 +132,11 @@ const HomeMindtrip = () => {
         </button>
       </section>
 
-      {/* VIDEOS BY CITY */}
+      {/* VIDEOS BY CITY — embeds /videos with the same JSON-driven logic */}
       <section className="bg-background py-12 md:py-16">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <div className="flex items-center gap-3">
-            {(Object.keys(CITY_IDS) as CityKey[]).map((city) => {
+            {CITIES.map((city) => {
               const active = selectedCity === city;
               return (
                 <button
@@ -205,53 +155,18 @@ const HomeMindtrip = () => {
             })}
           </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {loadingVideos && videos.length === 0 ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="aspect-square animate-pulse rounded-lg bg-muted" />
-              ))
-            ) : videos.length === 0 ? (
-              <p className="col-span-full font-roboto text-sm text-foreground/60">
-                Aucune vidéo pour {selectedCity}.
-              </p>
-            ) : (
-              videos.map((v) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  onClick={() => setActiveVideoUrl(v.videoUrl)}
-                  className="group relative aspect-square overflow-hidden rounded-lg bg-muted text-left"
-                >
-                  <img
-                    src={v.thumbnail}
-                    alt={v.label}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm">
-                      <Play className="h-5 w-5 fill-white text-white" />
-                    </div>
-                  </div>
-                  {v.label && (
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
-                      <p className="truncate font-josefin text-[11px] font-medium text-white">
-                        {v.label}
-                      </p>
-                    </div>
-                  )}
-                </button>
-              ))
-            )}
+          <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-background">
+            <iframe
+              key={selectedCity}
+              src={`/videos?city=${encodeURIComponent(selectedCity)}&entry=__home__`}
+              title={`Vidéos ${selectedCity}`}
+              className="block h-[80vh] w-full"
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
 
-      {activeVideoUrl && (
-        <div className="fixed inset-0 z-[80]">
-          <FullscreenVideoOverlay videoUrl={activeVideoUrl} onClose={() => setActiveVideoUrl(null)} />
-        </div>
-      )}
 
 
 
