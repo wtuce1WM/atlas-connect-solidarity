@@ -2450,8 +2450,12 @@ const SearchPage = () => {
     }
   };
 
-  const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
-  const endResult = Math.min(startResult + ITEMS_PER_PAGE - 1, serverTotalCount);
+  const startResult = pinIdsParam
+    ? (currentPage === 1 ? 1 : PIN_PAGE1_SIZE + (currentPage - 2) * ITEMS_PER_PAGE + 1)
+    : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endResult = pinIdsParam
+    ? Math.min(startResult + (currentPage === 1 ? PIN_PAGE1_SIZE : ITEMS_PER_PAGE) - 1, serverTotalCount)
+    : Math.min(startResult + ITEMS_PER_PAGE - 1, serverTotalCount);
   const displayedResultsCount = serverTotalCount;
   const stickyAiText = useMemo(
     () => aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " "),
