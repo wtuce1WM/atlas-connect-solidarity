@@ -207,7 +207,7 @@ const HomeMindtrip = () => {
             {loadingVideos ? (
               <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4 lg:grid-cols-6">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="aspect-square animate-pulse rounded-lg bg-muted/40" />
+                  <div key={i} className="aspect-[3/4] animate-pulse rounded-lg bg-muted/40" />
                 ))}
               </div>
             ) : videos.length === 0 ? (
@@ -226,7 +226,7 @@ const HomeMindtrip = () => {
                     navigate(`/search?q=${encodeURIComponent(q)}&_t=${Date.now()}`);
                   };
                   return (
-                    <div key={v.key} className="group relative aspect-square overflow-hidden rounded-lg bg-muted">
+                    <div key={v.key} className="group relative aspect-[3/4] overflow-hidden rounded-lg bg-muted">
                       <button
                         type="button"
                         onClick={() => v.videoUrl && setActiveVideoUrl(v.videoUrl)}
