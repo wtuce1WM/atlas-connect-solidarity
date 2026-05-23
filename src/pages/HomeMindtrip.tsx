@@ -5,8 +5,6 @@ import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
 import { useSEO } from "@/hooks/useSEO";
-import heroImage from "@/assets/home-mindtrip/hero.jpg";
-import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import heroBg from "@/assets/home-mindtrip/hero-bg.jpg";
 import heroPortal from "@/assets/home-mindtrip/hero-portal.png";
