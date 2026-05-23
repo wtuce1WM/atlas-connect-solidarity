@@ -1862,12 +1862,66 @@ const SearchPage = () => {
         setMoreFilterCommodites([]);
         setMoreFilterMatchingIds(null);
 
+        let effectiveOrderedIds = orderedIds;
+        const contextBadgeId = await resolvePinContextBadgeId();
+        const contextCity = searchParams.get("city") || "";
+        if (contextBadgeId && contextCity) {
+          const { data: cityRow } = await supabase
+            .from("cities")
+            .select("id")
+            .or(`name_fr.ilike.${contextCity},name_en.ilike.${contextCity},name_ar.ilike.${contextCity}`)
+            .limit(1)
+            .maybeSingle();
+          const cityId = (cityRow as any)?.id || null;
+
+          if (cityId) {
+            const [docBadgeRes, ytBadgeRes] = await Promise.all([
+              supabase.from("business_document_badges").select("document_id").eq("badge_id", contextBadgeId),
+              supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", contextBadgeId),
+            ]);
+            let docIds = (docBadgeRes.data || []).map((r: any) => r.document_id);
+            let ytIds = (ytBadgeRes.data || []).map((r: any) => r.youtube_video_id);
+
+            const [docCityRes, ytCityRes] = await Promise.all([
+              docIds.length
+                ? supabase.from("business_document_cities").select("document_id").eq("city_id", cityId).in("document_id", docIds)
+                : Promise.resolve({ data: [] as any[] }),
+              ytIds.length
+                ? supabase.from("business_youtube_video_cities").select("youtube_video_id").eq("city_id", cityId).in("youtube_video_id", ytIds)
+                : Promise.resolve({ data: [] as any[] }),
+            ]);
+            docIds = (docCityRes.data || []).map((r: any) => r.document_id);
+            ytIds = (ytCityRes.data || []).map((r: any) => r.youtube_video_id);
+
+            const validBizIds = new Set<string>();
+            if (docIds.length) {
+              const { data } = await supabase
+                .from("business_documents")
+                .select("business_id")
+                .in("id", docIds)
+                .eq("business_is_active", true);
+              (data || []).forEach((r: any) => r.business_id && validBizIds.add(r.business_id));
+            }
+            if (ytIds.length) {
+              const { data } = await supabase
+                .from("business_youtube_videos")
+                .select("business_id")
+                .in("id", ytIds)
+                .eq("business_is_active", true);
+              (data || []).forEach((r: any) => r.business_id && validBizIds.add(r.business_id));
+            }
+            if (validBizIds.size > 0) {
+              effectiveOrderedIds = orderedIds.filter(id => validBizIds.has(id));
+            }
+          }
+        }
+
         const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, presentation_mode, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, computed_rating, total_review_count, gamme_id, badge_id, hook_fr, hook_en, hook_ar, opening_hours, show_opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, priority_score";
         const { data, error } = await supabase
           .from("businesses")
           .select(selectFields)
           .eq("is_active", true)
-          .in("id", orderedIds);
+          .in("id", effectiveOrderedIds);
 
         if (fetchId !== latestFetchIdRef.current) return;
         if (error) {
@@ -1877,7 +1931,7 @@ const SearchPage = () => {
         } else {
           const byId: Record<string, Business> = {};
           (data as unknown as Business[] || []).forEach((b) => { byId[b.id] = { ...b, distance_km: null }; });
-          const ordered = orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
+          const ordered = effectiveOrderedIds.map(id => byId[id]).filter(Boolean) as Business[];
           const pinnedCity = searchParams.get("hotelCity") || searchParams.get("t") || ordered[0]?.city || null;
           setPinnedBusinesses(ordered);
           setAllBusinesses(ordered);
