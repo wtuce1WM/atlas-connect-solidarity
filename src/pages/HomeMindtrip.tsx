@@ -369,23 +369,23 @@ const HomeMindtrip = () => {
                     </div>
                   </div>
                 )}
-                <div>
-                  <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
-                    Étape {i + 1}
-                  </span>
-                  <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
-                    {s.title}
-                  </h3>
-                  <p className="mt-4 max-w-lg font-roboto text-base text-foreground/70">{s.desc}</p>
-                  {i !== 0 && (
+                {i !== 0 && (
+                  <div>
+                    <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
+                      Étape {i + 1}
+                    </span>
+                    <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
+                      {s.title}
+                    </h3>
+                    <p className="mt-4 max-w-lg font-roboto text-base text-foreground/70">{s.desc}</p>
                     <Link
                       to={s.href}
                       className="mt-6 inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
                     >
                       {s.cta} →
                     </Link>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
