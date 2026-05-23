@@ -512,13 +512,13 @@ const HomeMindtrip = () => {
 const HotelAvailabilityWidget = () => {
   const navigate = useNavigate();
   const fmt = (d: Date) => d.toISOString().split("T")[0];
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const after = new Date(tomorrow);
-  after.setDate(after.getDate() + 3);
+  const arrival = new Date();
+  arrival.setDate(arrival.getDate() + 30);
+  const departure = new Date();
+  departure.setDate(departure.getDate() + 35);
 
   const [city, setCity] = useState<string>("Marrakech");
-  const [checkIn, setCheckIn] = useState<string>(fmt(tomorrow));
+  const [checkIn, setCheckIn] = useState<string>(fmt(arrival));
   const [checkOut, setCheckOut] = useState<string>(fmt(after));
   const [adults, setAdults] = useState<number>(2);
 
