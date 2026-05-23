@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { MapPin, Phone, Mail, Menu } from "lucide-react";
+import { MapPin, Phone, Mail, Menu, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderMenuContent from "@/components/HeaderMenuContent";
 import StructureMenuContent from "@/components/StructureMenuContent";
@@ -165,7 +165,15 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
     </div>
   );
 
-  const defaultLeft = (
+  const defaultLeft = isSearchPage ? (
+    <Link
+      to="/"
+      className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors"
+      aria-label="Accueil"
+    >
+      <Home className="h-5 w-5 text-foreground" />
+    </Link>
+  ) : (
     <button
       type="button"
       onClick={() => setMenuOpen((v) => !v)}
