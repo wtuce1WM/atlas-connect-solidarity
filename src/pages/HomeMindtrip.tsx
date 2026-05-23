@@ -71,6 +71,9 @@ const HomeMindtrip = () => {
     };
     load();
     return () => { cancelled = true; };
+  }, [selectedCity]);
+
+
 
   const scrollToNext = () => {
     const el = document.getElementById("how-it-works");
