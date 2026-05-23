@@ -50,6 +50,8 @@ interface SlidePanelHomeProps {
   social?: SocialInfo | null;
   showSocialBadge?: boolean;
   description?: string | null;
+  /** Titre/nom de la vidéo à afficher en haut (comme sur la vignette) */
+  videoName?: string | null;
   /** When set, displays the list of events for this city (Agenda card) */
   agendaCity?: string | null;
   /** When set, displays CTAs for the event's linked business (via event_businesses) */
