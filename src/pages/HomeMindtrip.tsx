@@ -64,8 +64,6 @@ const HomeMindtrip = () => {
             thumbnail: s.data.thumbnail,
             businessName: s.data.businessName ?? null,
             label: s.data.label ?? null,
-            badgeName: s.data.badgeName ?? null,
-            searchQuery: s.data.searchQuery ?? null,
           }));
         setVideos(slots);
         setLoadingVideos(false);
