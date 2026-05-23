@@ -137,9 +137,7 @@ const AppContent = () => {
         <TooltipProvider>
           <Suspense fallback={null}><Toaster /></Suspense>
           <Suspense fallback={null}><Sonner /></Suspense>
-        </TooltipProvider>
-      </Suspense>
-      <BrowserRouter>
+          <BrowserRouter>
           <ScrollToTop />
           <RouteTransition>
             <Routes>
