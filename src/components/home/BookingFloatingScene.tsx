@@ -144,8 +144,7 @@ const BookingFloatingScene = () => {
             <img src={petalsImg} alt="" className="w-full select-none" draggable={false} />
           </div>
         </div>
-      </div>
-    </>
+    </div>
   );
 };
 
