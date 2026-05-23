@@ -47,6 +47,7 @@ const Club = lazy(() => import("./pages/Club"));
 const LogoEffectsDemo = lazy(() => import("./pages/LogoEffectsDemo"));
 const AIEffectsDemo = lazy(() => import("./pages/AIEffectsDemo"));
 const CGF = lazy(() => import("./pages/CGF"));
+const Corporate = lazy(() => import("./pages/Corporate"));
 const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
@@ -184,6 +185,7 @@ const AppContent = () => {
               <Route path="/fiche/:slug" element={renderLazyRoute(<FicheImmersive />)} />
               <Route path="/test" element={renderLazyRoute(<Test />)} />
               <Route path="/install" element={renderLazyRoute(<Install />)} />
+              <Route path="/corporate" element={renderLazyRoute(<Corporate />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={renderLazyRoute(<NotFound />)} />
             </Routes>
