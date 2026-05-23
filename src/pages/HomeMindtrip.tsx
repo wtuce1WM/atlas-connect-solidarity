@@ -218,37 +218,59 @@ const HomeMindtrip = () => {
               <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4 lg:grid-cols-6">
                 {videos.map((v) => {
                   const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
+                  const handleLabelClick = (e: React.MouseEvent) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!v.label) return;
+                    const q = v.kind === "entry" ? v.label : `${v.label} ${selectedCity}`;
+                    navigate(`/search?q=${encodeURIComponent(q)}&_t=${Date.now()}`);
+                  };
                   return (
-                    <button
-                      key={v.key}
-                      type="button"
-                      onClick={() => v.videoUrl && setActiveVideoUrl(v.videoUrl)}
-                      className="group relative aspect-square overflow-hidden rounded-lg bg-muted text-left"
-                      aria-label={v.label ? `Lire ${v.label}` : "Lire la vidéo"}
-                    >
-                      {thumb ? (
-                        <img
-                          src={thumb}
-                          alt={v.label || ""}
-                          loading="lazy"
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-white/5">
-                          <Play className="h-8 w-8 text-white/40" />
+                    <div key={v.key} className="group relative aspect-square overflow-hidden rounded-lg bg-muted">
+                      <button
+                        type="button"
+                        onClick={() => v.videoUrl && setActiveVideoUrl(v.videoUrl)}
+                        className="absolute inset-0 h-full w-full text-left"
+                        aria-label={v.businessName ? `Lire ${v.businessName}` : "Lire la vidéo"}
+                      >
+                        {thumb ? (
+                          <img
+                            src={thumb}
+                            alt={v.businessName || v.label || ""}
+                            loading="lazy"
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-white/5">
+                            <Play className="h-8 w-8 text-white/40" />
+                          </div>
+                        )}
+                        <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/60 to-transparent" />
+                        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/60 to-transparent" />
+                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm">
+                            <Play className="h-5 w-5 fill-white text-white" />
+                          </div>
                         </div>
-                      )}
-                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm">
-                          <Play className="h-5 w-5 fill-white text-white" />
-                        </div>
-                      </div>
+                        {v.businessName && (
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 px-2 py-1.5">
+                            <p className="truncate font-josefin text-[11px] font-medium text-white">{v.businessName}</p>
+                          </div>
+                        )}
+                      </button>
                       {v.label && (
-                        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
-                          <p className="truncate font-josefin text-[11px] font-medium text-white">{v.label}</p>
+                        <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
+                          <button
+                            type="button"
+                            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                            onClick={handleLabelClick}
+                            className="rounded-md border-2 border-black bg-white px-2.5 py-1 text-center text-[11px] font-bold uppercase tracking-wide text-black shadow-lg line-clamp-2 hover:bg-white/90 transition-colors cursor-pointer"
+                          >
+                            {v.label}
+                          </button>
                         </div>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>
