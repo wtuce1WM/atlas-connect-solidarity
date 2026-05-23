@@ -362,12 +362,14 @@ const HomeMindtrip = () => {
                     {s.title}
                   </h3>
                   <p className="mt-4 max-w-lg font-roboto text-base text-foreground/70">{s.desc}</p>
-                  <Link
-                    to={s.href}
-                    className="mt-6 inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
-                  >
-                    {s.cta} →
-                  </Link>
+                  {i !== 0 && (
+                    <Link
+                      to={s.href}
+                      className="mt-6 inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
+                    >
+                      {s.cta} →
+                    </Link>
+                  )}
                 </div>
               </div>
             ))}
