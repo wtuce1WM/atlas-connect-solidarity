@@ -26,6 +26,7 @@ type VideoSlot = {
   subcategoryNames: string[];
   badgeId: string | null;
   eventId: string | null;
+  businessId: string | null;
 };
 
 const HomeMindtrip = () => {
@@ -70,6 +71,7 @@ const HomeMindtrip = () => {
             subcategoryNames: Array.isArray(s.data.subcategoryNames) ? s.data.subcategoryNames : [],
             badgeId: s.data.badgeId ?? (s.data.target?.type === "badge" ? s.data.target.id : null),
             eventId: s.data.eventId ?? (s.data.target?.type === "event" ? s.data.target.id : null),
+            businessId: s.data.businessId ?? null,
           }));
         setVideos(slots);
         setLoadingVideos(false);
@@ -232,6 +234,21 @@ const HomeMindtrip = () => {
                   const goSearch = async (e: React.MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    // Manual card linked to a business but no badge/event → open BookOnlineSlidePanel directly
+                    let businessId = v.businessId;
+                    if (!businessId && !v.badgeId && !v.eventId && v.kind === "extra" && v.key.startsWith("extra:")) {
+                      const cardId = v.key.slice("extra:".length);
+                      const { data: card } = await (supabase as any)
+                        .from("front_structure_homepage_extra_cards")
+                        .select("business_id")
+                        .eq("id", cardId)
+                        .maybeSingle();
+                      businessId = (card as any)?.business_id || null;
+                    }
+                    if (!v.badgeId && !v.eventId && businessId) {
+                      navigate(`/search?openBusiness=${encodeURIComponent(businessId)}&_t=${Date.now()}`);
+                      return;
+                    }
                     if (v.badgeId) {
                       // Look up the real badge name to decide hashtag vs. results tab
                       const { data: badge } = await (supabase as any)
