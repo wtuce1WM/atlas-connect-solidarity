@@ -542,12 +542,6 @@ const HotelAvailabilityWidget = () => {
         >
           <option value="Marrakech">Marrakech</option>
           <option value="Essaouira">Essaouira</option>
-          <option value="Casablanca">Casablanca</option>
-          <option value="Fès">Fès</option>
-          <option value="Tanger">Tanger</option>
-          <option value="Agadir">Agadir</option>
-          <option value="Rabat">Rabat</option>
-          <option value="Ouarzazate">Ouarzazate</option>
         </select>
       </label>
       <label className="flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60">
