@@ -712,6 +712,7 @@ serve(async (req) => {
         .overlaps("categories", subcategoryNames)
         .eq("city", city)
         .order("priority_score", { ascending: false, nullsFirst: false })
+        .order("id", { ascending: true })
         .range(offset, offset + pageSize - 1);
       if (bypassErr) throw bypassErr;
       return new Response(JSON.stringify({
