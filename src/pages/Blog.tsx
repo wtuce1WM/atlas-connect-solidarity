@@ -220,6 +220,39 @@ const Blog = () => {
                 });
               });
 
+              // Carte Activités enfants Marrakech
+              items.push({
+                key: "static-kids-marrakech",
+                date: "2026-05-24T00:00:00Z",
+                node: (
+                  <Link key="static-kids-marrakech" to="/blog/activites-enfants-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-pink-50 to-amber-50 dark:from-pink-950/30 dark:to-amber-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.kids ? (
+                          <img src={staticHeroes.kids} alt="Activités pour les enfants à Marrakech" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Activités pour les enfants à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Notre sélection d'adresses testées et approuvées pour les familles — regroupées par type d'activité.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
               // Carte Marrakech (la plus récente)
               items.push({
                 key: "static-marrakech",
