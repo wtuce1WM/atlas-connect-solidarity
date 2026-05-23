@@ -219,7 +219,7 @@ const HomeMindtrip = () => {
                     <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
                       {s.title}
                     </h3>
-                    <p className="mt-4 font-roboto text-base text-foreground/70 whitespace-nowrap">{s.desc}</p>
+                    <p className="mt-4 font-roboto text-base text-foreground/70 md:whitespace-nowrap">{s.desc}</p>
                   </div>
                 ) : null}
                 {i === 0 ? (
