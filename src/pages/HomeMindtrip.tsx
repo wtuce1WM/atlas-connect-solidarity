@@ -136,7 +136,7 @@ const HomeMindtrip = () => {
       <section className="bg-background py-12 md:py-16">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <div className="flex items-center gap-3">
-            {(Object.keys(CITY_IDS) as CityKey[]).map((city) => {
+            {CITIES.map((city) => {
               const active = selectedCity === city;
               return (
                 <button
