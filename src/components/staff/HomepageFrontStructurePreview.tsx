@@ -154,7 +154,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id")
+          .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id, search_query")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
         supabase
