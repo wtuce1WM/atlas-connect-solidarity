@@ -110,6 +110,7 @@ const SlidePanelHome = ({
   social,
   showSocialBadge = false,
   description,
+  videoName,
   agendaCity,
   eventId,
   returnContext,
