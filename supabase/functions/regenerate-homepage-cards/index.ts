@@ -23,7 +23,7 @@ async function buildSnapshot(supabase: any, city: string) {
     supabase.from("badges").select("id, name_fr"),
     supabase
       .from("front_structure_homepage_extra_cards")
-      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id")
+      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id, search_query")
       .eq("city", city)
       .order("sort_order", { ascending: true }),
     supabase
@@ -260,6 +260,8 @@ async function buildSnapshot(supabase: any, city: string) {
     const label = card.title?.trim() || null;
     const target = computeTarget(card);
     const event = card.event_id ? eventMap.get(card.event_id) : null;
+    const badgeName = card.badge_id ? (badgeMap.get(card.badge_id) || null) : null;
+    const searchQuery = card.search_query?.trim() || null;
     if (!doc) {
       const biz = card.business_id ? bizMap.get(card.business_id) : null;
       return {
@@ -271,6 +273,8 @@ async function buildSnapshot(supabase: any, city: string) {
           ownerLogo: null, ownerName: null, ownerId: null,
           rating: null, reviewCount: null, label,
           badgeId: card.badge_id || null,
+          badgeName,
+          searchQuery,
           eventId: card.event_id || null,
           target,
         },
@@ -294,6 +298,8 @@ async function buildSnapshot(supabase: any, city: string) {
         reviewCount: dispBiz?.total_review_count ?? null,
         label,
         badgeId: card.badge_id || null,
+        badgeName,
+        searchQuery,
         eventId: card.event_id || null,
         target,
         price: isImmo ? (immo?.price ?? null) : null,
