@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X, Play } from "lucide-react";
 
 import Footer from "@/components/Footer";
