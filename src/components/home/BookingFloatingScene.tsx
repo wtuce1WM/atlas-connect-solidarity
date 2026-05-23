@@ -60,18 +60,17 @@ const BookingFloatingScene = () => {
   };
 
   return (
-    <>
+    <div
+      ref={ref}
+      className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(28_55%_92%)] via-[hsl(20_45%_88%)] to-[hsl(15_55%_82%)]"
+      aria-hidden="true"
+    >
       <style>{`
         @keyframes float-slow { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-14px) } }
         @keyframes float-med  { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-22px) } }
         @keyframes drift      { 0%,100% { transform: translate(0,0) rotate(0deg) } 50% { transform: translate(10px,-18px) rotate(8deg) } }
         @keyframes drift-rev  { 0%,100% { transform: translate(0,0) rotate(0deg) } 50% { transform: translate(-12px,-14px) rotate(-10deg) } }
       `}</style>
-      <div
-        ref={ref}
-        className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(28_55%_92%)] via-[hsl(20_45%_88%)] to-[hsl(15_55%_82%)]"
-        aria-hidden="true"
-      >
         {/* Nuages — arrière-plan, parallaxe faible */}
         <div className="absolute -top-6 -left-10 w-[55%] opacity-80" style={tx(-14)}>
           <div style={{ animation: "float-slow 9s ease-in-out infinite" }}>
