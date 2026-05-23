@@ -23,6 +23,7 @@ type VideoSlot = {
   thumbnail: string | null;
   businessName: string | null;
   label: string | null;
+  subcategoryNames: string[];
 };
 
 const HomeMindtrip = () => {
