@@ -23,6 +23,11 @@ const HomeMindtrip = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* TOP LOGO */}
+      <Link to="/" aria-label="Accueil" className="absolute left-6 top-4 z-20 md:left-12">
+        <img src={logoHamsa} alt="One World Morocco" className="h-14 w-auto md:h-16" />
+      </Link>
+
       {/* TOP LINKS */}
       <nav className="absolute left-0 right-0 top-0 z-20 mx-auto flex max-w-7xl items-center justify-end gap-6 px-6 py-5 md:px-12">
         <Link to="/devenir-affilie" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
