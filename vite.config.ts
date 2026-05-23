@@ -50,7 +50,10 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("@radix-ui")) return "vendor-radix-shared";
           if (id.includes("@supabase")) return "vendor-supabase";
           if (id.includes("@tanstack")) return "vendor-query";
-          if (id.includes("lucide-react")) return "vendor-icons";
+          // lucide-react: do NOT force a single chunk. Each icon is its own
+          // ES module; let Rollup tree-shake and co-locate icons with the
+          // routes that use them. A forced chunk loaded all ~1000 icons (~900 kB)
+          // on every page even when only 5 icons were used.
           if (id.includes("date-fns")) return "vendor-date";
           if (id.includes("@floating-ui")) return "vendor-floating";
         },
