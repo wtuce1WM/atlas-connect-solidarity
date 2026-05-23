@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck } from "lucide-react";
+import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
