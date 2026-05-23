@@ -221,11 +221,14 @@ const HomeMindtrip = () => {
                 {videos.map((v) => {
                   const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
                   if (!v.label) return null;
-                  const q = `${v.label} ${selectedCity}`;
+                  const useSubcats = v.kind === "entry" && v.subcategoryNames.length > 0;
+                  const url = useSubcats
+                    ? `/search?subcats=${encodeURIComponent(v.subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
+                    : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
                   const goSearch = (e: React.MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    navigate(`/search?q=${encodeURIComponent(q)}&_t=${Date.now()}`);
+                    navigate(url);
                   };
                   return (
                     <div key={v.key} className="group relative aspect-[9/16] w-[160px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[200px]">
