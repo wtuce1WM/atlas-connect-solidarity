@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
+import stepVerifiedImage from "@/assets/home-mindtrip/step-verified.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -361,6 +362,17 @@ const HomeMindtrip = () => {
                         </div>
                       )}
                     </div>
+                  </div>
+                ) : i === 1 ? (
+                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+                    <img
+                      src={stepVerifiedImage}
+                      alt="Adresses vérifiées au Maroc — riad, thé à la menthe et carnet de voyage"
+                      loading="lazy"
+                      width={1024}
+                      height={1024}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                 ) : (
                   <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
