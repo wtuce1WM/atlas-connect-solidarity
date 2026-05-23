@@ -218,12 +218,8 @@ const HomeMindtrip = () => {
               <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide-mobile -mx-6 px-6 md:-mx-12 md:px-12">
                 {videos.map((v) => {
                   const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
-                  // Priority: searchQuery (extra) → badgeName (extra) → label (entry name or extra title)
-                  const baseQ = v.kind === "extra"
-                    ? (v.searchQuery || v.badgeName || v.label)
-                    : v.label;
-                  if (!baseQ) return null;
-                  const q = v.kind === "extra" && !v.searchQuery ? `${baseQ} ${selectedCity}` : baseQ;
+                  if (!v.label) return null;
+                  const q = `${v.label} ${selectedCity}`;
                   const goSearch = (e: React.MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
