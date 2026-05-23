@@ -708,6 +708,7 @@ serve(async (req) => {
       const { data: rows, error: bypassErr, count } = await supabase
         .from("businesses")
         .select(SELECT, { count: "exact" })
+        .eq("is_active", true)
         .overlaps("categories", subcategoryNames)
         .eq("city", city)
         .order("priority_score", { ascending: false, nullsFirst: false })
