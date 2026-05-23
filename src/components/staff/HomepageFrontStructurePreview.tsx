@@ -59,6 +59,7 @@ interface ExtraCard {
   title: string | null;
   sort_order: number;
   event_id: string | null;
+  search_query: string | null;
 }
 
 interface ExtraCardPreview {
