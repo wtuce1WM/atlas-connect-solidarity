@@ -48,6 +48,10 @@
   .crest{height:62px;width:62px;background:var(--img-logo) center/contain no-repeat;
     filter:drop-shadow(0 6px 14px rgba(0,0,0,.45));transition:height .5s,width .5s}
   header.scrolled .crest{height:50px;width:50px}
+  .brand{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--cream)}
+  .brand-logo{height:42px;width:auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45));transition:height .5s}
+  header.scrolled .brand-logo{height:34px}
+  .brand-name{font-family:'Playfair Display',serif;font-size:15px;letter-spacing:.22em;text-transform:uppercase;color:var(--cream)}
 
   .hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;
     background:#0c0805;overflow:hidden}
@@ -255,10 +259,10 @@
 <div class="grain"></div>
 
 <header id="hdr">
-  <div class="urls">
-    <a href="http://www.oneworldmorocco.com" target="_blank">www.oneworldmorocco.com</a>
-    <a href="http://www.wtuce.org" target="_blank">www.wtuce.org</a>
-  </div>
+  <a href="/" class="brand" aria-label="One World Morocco — Accueil">
+    <img src="/logo-hamsa-gold.png" alt="One World Morocco" class="brand-logo" />
+    <span class="brand-name">ONE WORLD MOROCCO</span>
+  </a>
   <div class="nav">
     <nav>
       <a href="#modele">Le Modèle</a>
@@ -266,7 +270,6 @@
       <a href="#villes">Villes Pionnières</a>
       <a href="#abonnements">Abonnements</a>
     </nav>
-    <div class="crest" role="img" aria-label="One World Morocco"></div>
   </div>
 </header>
 
