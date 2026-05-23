@@ -205,9 +205,9 @@ const HomeMindtrip = () => {
 
           <div className="relative mt-6">
             {loadingVideos ? (
-              <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4 lg:grid-cols-6">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="aspect-[9/16] animate-pulse rounded-lg bg-muted/40" />
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide-mobile">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="aspect-[9/16] w-[160px] shrink-0 animate-pulse rounded-lg bg-muted/40 md:w-[200px]" />
                 ))}
               </div>
             ) : videos.length === 0 ? (
@@ -215,7 +215,7 @@ const HomeMindtrip = () => {
                 Aucune vidéo pour {selectedCity}.
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4 lg:grid-cols-6">
+              <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide-mobile -mx-6 px-6 md:-mx-12 md:px-12">
                 {videos.map((v) => {
                   const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
                   const handleLabelClick = (e: React.MouseEvent) => {
@@ -226,7 +226,7 @@ const HomeMindtrip = () => {
                     navigate(`/search?q=${encodeURIComponent(q)}&_t=${Date.now()}`);
                   };
                   return (
-                    <div key={v.key} className="group relative aspect-[9/16] overflow-hidden rounded-lg bg-muted">
+                    <div key={v.key} className="group relative aspect-[9/16] w-[160px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[200px]">
                       <button
                         type="button"
                         onClick={() => v.videoUrl && setActiveVideoUrl(v.videoUrl)}
