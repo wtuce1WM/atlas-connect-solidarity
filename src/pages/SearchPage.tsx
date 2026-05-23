@@ -135,14 +135,28 @@ const SearchPage = () => {
   const cityFromUrlForThumbs = searchParams.get("city") || "";
   const [pinThumbMap, setPinThumbMap] = useState<Record<string, string>>({});
 
+  const resolvePinContextBadgeId = useCallback(async () => {
+    const directBadgeId = pinBadgeParam || badgeIdParam;
+    if (directBadgeId) return directBadgeId;
+
+    const label = (labelFromUrl || badgeLabelParam || "").replace(/^#+/, "").trim();
+    if (!label) return "";
+
+    const { data } = await supabase.from("badges").select("id, name_fr");
+    const target = normalizeText(label);
+    return ((data as any[]) || []).find((badge: any) => normalizeText(badge.name_fr || "") === target)?.id || "";
+  }, [pinBadgeParam, badgeIdParam, labelFromUrl, badgeLabelParam]);
+
   useEffect(() => {
     const ids = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
-    if (!pinBadgeParam || !cityFromUrlForThumbs || ids.length === 0) {
+    if (!cityFromUrlForThumbs || ids.length === 0) {
       setPinThumbMap({});
       return;
     }
     let cancelled = false;
     (async () => {
+      const badgeId = await resolvePinContextBadgeId();
+      if (!badgeId) { if (!cancelled) setPinThumbMap({}); return; }
       const { data: cityRow } = await supabase
         .from("cities")
         .select("id")
@@ -154,7 +168,7 @@ const SearchPage = () => {
       const { data: badgeDocs } = await supabase
         .from("business_document_badges")
         .select("document_id")
-        .eq("badge_id", pinBadgeParam);
+        .eq("badge_id", badgeId);
       const docIds = (badgeDocs || []).map((r: any) => r.document_id);
       if (!docIds.length) { if (!cancelled) setPinThumbMap({}); return; }
       const { data: cityDocs } = await supabase
@@ -181,7 +195,7 @@ const SearchPage = () => {
       if (!cancelled) setPinThumbMap(map);
     })();
     return () => { cancelled = true; };
-  }, [pinIdsParam, pinBadgeParam, cityFromUrlForThumbs]);
+  }, [pinIdsParam, resolvePinContextBadgeId, cityFromUrlForThumbs]);
   const [hashtagCount, setHashtagCount] = useState<number | undefined>(undefined);
   useEffect(() => { setHashtagCount(undefined); }, [badgeIdParam, searchParams.get("city")]);
   useEffect(() => {
