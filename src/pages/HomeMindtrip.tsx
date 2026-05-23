@@ -26,6 +26,7 @@ type VideoSlot = {
   subcategoryNames: string[];
   badgeId: string | null;
   eventId: string | null;
+  businessId: string | null;
 };
 
 const HomeMindtrip = () => {
