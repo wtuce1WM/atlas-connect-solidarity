@@ -2932,6 +2932,7 @@ export type Database = {
           created_at: string
           event_id: string | null
           id: string
+          search_query: string | null
           sort_order: number
           title: string | null
           updated_at: string
@@ -2944,6 +2945,7 @@ export type Database = {
           created_at?: string
           event_id?: string | null
           id?: string
+          search_query?: string | null
           sort_order?: number
           title?: string | null
           updated_at?: string
@@ -2956,6 +2958,7 @@ export type Database = {
           created_at?: string
           event_id?: string | null
           id?: string
+          search_query?: string | null
           sort_order?: number
           title?: string | null
           updated_at?: string
