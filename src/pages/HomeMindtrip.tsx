@@ -11,6 +11,7 @@ import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import stepVerifiedImage from "@/assets/home-mindtrip/step-verified.jpg";
+import stepClubImage from "@/assets/home-mindtrip/step-club.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -371,6 +372,17 @@ const HomeMindtrip = () => {
                       loading="lazy"
                       width={1024}
                       height={1024}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : i === 2 ? (
+                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+                    <img
+                      src={stepClubImage}
+                      alt="Carte de Marrakech, carnet de voyage et favoris — Le Club OWM"
+                      loading="lazy"
+                      width={1024}
+                      height={768}
                       className="h-full w-full object-cover"
                     />
                   </div>
