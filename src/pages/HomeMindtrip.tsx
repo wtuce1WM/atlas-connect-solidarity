@@ -404,6 +404,14 @@ const HomeMindtrip = () => {
                     <p className="mt-4 max-w-lg font-roboto text-base text-foreground/70">{s.desc}</p>
                     {i === 3 ? (
                       <HotelAvailabilityWidget />
+                    ) : i === 1 ? (
+                      <div className="mt-6 w-full max-w-xl">
+                        <SearchInput
+                          variant="hero"
+                          placeholder="Rechercher un hôtel, un restaurant, une expérience…"
+                          showSuggestions
+                        />
+                      </div>
                     ) : (
                       <Link
                         to={s.href}
