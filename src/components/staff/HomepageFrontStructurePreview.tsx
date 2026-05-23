@@ -678,7 +678,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     }));
   };
 
-  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; event_id?: string | null }) => {
+  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; event_id?: string | null; search_query?: string | null }) => {
       if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(patch.video_document_id)) {
