@@ -161,6 +161,29 @@ const Blog = () => {
                 </CardContent>
               </Card>
             </Link>
+
+            {/* Carte 5 jours à Marrakech — Artisanat */}
+            <Link to="/blog/5-jours-marrakech-artisanat">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                  <MapPin className="h-16 w-16 text-primary" />
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    5 jours à Marrakech pour découvrir le meilleur de l'artisanat marocain
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Itinéraire en 5 étapes — 31 adresses sélectionnées à Guéliz, dans la Médina, à Sidi Ghanem et au-delà.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-primary font-medium">
+                      <MapPin className="h-3 w-3" /> Marrakech
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         )}
       </div>
