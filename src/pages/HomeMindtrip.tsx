@@ -24,6 +24,8 @@ type VideoSlot = {
   businessName: string | null;
   label: string | null;
   subcategoryNames: string[];
+  badgeId: string | null;
+  eventId: string | null;
 };
 
 const HomeMindtrip = () => {
@@ -66,6 +68,8 @@ const HomeMindtrip = () => {
             businessName: s.data.businessName ?? null,
             label: s.data.label ?? null,
             subcategoryNames: Array.isArray(s.data.subcategoryNames) ? s.data.subcategoryNames : [],
+            badgeId: s.data.badgeId ?? (s.data.target?.type === "badge" ? s.data.target.id : null),
+            eventId: s.data.eventId ?? (s.data.target?.type === "event" ? s.data.target.id : null),
           }));
         setVideos(slots);
         setLoadingVideos(false);
@@ -222,7 +226,9 @@ const HomeMindtrip = () => {
                   const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
                   if (!v.label) return null;
                   const useSubcats = v.kind === "entry" && v.subcategoryNames.length > 0;
-                  const url = useSubcats
+                  const url = v.badgeId
+                    ? `/search?city=${encodeURIComponent(selectedCity)}&badgeId=${encodeURIComponent(v.badgeId)}&badgeLabel=${encodeURIComponent(v.label)}&_t=${Date.now()}`
+                    : useSubcats
                     ? `/search?subcats=${encodeURIComponent(v.subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
                     : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
                   const goSearch = (e: React.MouseEvent) => {
