@@ -29,6 +29,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -49,6 +50,35 @@ const Blog = () => {
       setIsLoading(false);
     };
     fetchPosts();
+
+    // Hero images for static blog cards (same logic as their pages)
+    const fetchStaticHeroes = async () => {
+      const [essRes, mrkRes] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("images, services")
+          .eq("city", "Essaouira")
+          .eq("is_active", true)
+          .order("priority_score", { ascending: false })
+          .limit(20),
+        supabase
+          .from("businesses")
+          .select("images")
+          .eq("id", "83d7e07e-128c-47a3-92c6-225a53e34b42")
+          .maybeSingle(),
+      ]);
+      const seaKW = ["vue sur mer", "vue mer"];
+      const essImg = essRes.data
+        ?.find((b: any) =>
+          b.images?.length &&
+          b.services?.some((s: string) => seaKW.includes(s.toLowerCase()))
+        )?.images?.[0];
+      setStaticHeroes({
+        essaouira: essImg,
+        marrakech: (mrkRes.data as any)?.images?.[0],
+      });
+    };
+    fetchStaticHeroes();
   }, []);
 
   const getTitle = (post: BlogPost) => {
