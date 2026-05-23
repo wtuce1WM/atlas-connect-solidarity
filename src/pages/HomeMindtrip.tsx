@@ -1,16 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X } from "lucide-react";
+import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X, Play } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
+import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
 import { useSEO } from "@/hooks/useSEO";
+import { supabase } from "@/integrations/supabase/client";
+import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
 type CityKey = (typeof CITIES)[number];
+
+type VideoSlot = {
+  key: string;
+  videoId: string | null;
+  videoUrl: string | null;
+  thumbnail: string | null;
+  label: string | null;
+};
 
 const HomeMindtrip = () => {
   const [menuOpen, setMenuOpen] = useState(false);
