@@ -2568,7 +2568,7 @@ const SearchPage = () => {
         const aiQuery = baseQuery && cityForAi && !baseQuery.toLowerCase().includes(cityForAi.toLowerCase())
           ? `${baseQuery} à ${cityForAi}`
           : baseQuery;
-        const shouldRender = !!aiQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && !searchParams.get("pinIds");
+        const shouldRender = !!aiQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText;
         if (!shouldRender) return null;
         return (
           <div className="hidden">
