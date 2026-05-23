@@ -101,7 +101,7 @@ const GlobalFloatingSearchBar = () => {
   const hiddenPaths = ["/", "/corporate", "/club", "/install", "/search", "/test", "/videos", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   if (location.pathname.startsWith("/blog")) return null;
-  return <FloatingSearchBar />;
+  return <Suspense fallback={null}><FloatingSearchBar /></Suspense>;
 };
 const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "club" | "whatsapp" | null; setActivePanel: (v: "club" | "whatsapp" | null) => void }) => {
   const location = useLocation();
@@ -111,11 +111,12 @@ const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "c
   const isBlog = location.pathname.startsWith("/blog");
   const hideClub = location.pathname === "/test" || location.pathname === "/videos" || isHome || noFloating || isBlog;
   const hideWhatsapp = isHome || noFloating;
+  if (hideClub && hideWhatsapp) return null;
   return (
-    <>
+    <Suspense fallback={null}>
       {!hideClub && <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />}
       {!hideWhatsapp && <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />}
-    </>
+    </Suspense>
   );
 };
 
