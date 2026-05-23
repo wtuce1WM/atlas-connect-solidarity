@@ -68,8 +68,8 @@ const HomeMindtrip = () => {
             businessName: s.data.businessName ?? null,
             label: s.data.label ?? null,
             subcategoryNames: Array.isArray(s.data.subcategoryNames) ? s.data.subcategoryNames : [],
-            badgeId: s.data.badgeId ?? s.data.target?.id ?? null,
-            eventId: s.data.eventId ?? null,
+            badgeId: s.data.badgeId ?? (s.data.target?.type === "badge" ? s.data.target.id : null),
+            eventId: s.data.eventId ?? (s.data.target?.type === "event" ? s.data.target.id : null),
           }));
         setVideos(slots);
         setLoadingVideos(false);
