@@ -260,8 +260,6 @@ async function buildSnapshot(supabase: any, city: string) {
     const label = card.title?.trim() || null;
     const target = computeTarget(card);
     const event = card.event_id ? eventMap.get(card.event_id) : null;
-    const badgeName = card.badge_id ? (badgeMap.get(card.badge_id) || null) : null;
-    const searchQuery = card.search_query?.trim() || null;
     if (!doc) {
       const biz = card.business_id ? bizMap.get(card.business_id) : null;
       return {
