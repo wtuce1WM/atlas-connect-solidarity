@@ -79,6 +79,7 @@ interface ExtraCardPreview {
   title: string | null;
   event_id: string | null;
   eventName: string | null;
+  search_query: string | null;
 }
 
 interface BizLite { id: string; name: string }
