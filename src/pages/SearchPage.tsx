@@ -3407,7 +3407,7 @@ const SearchPage = () => {
             effectiveCity={effectiveCityForMap}
             onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
             fsTopBusinessId={fsTopBusinessId}
-            hideAiSuggestion={!!searchParams.get("pinIds")}
+            hideAiSuggestion={false}
             allCityMapBusinesses={allCityMapBusinesses}
             hotelSearchInfo={hotelSearchInfoForResults}
             showAllSearchMarkers={showAllSearchMarkers}
