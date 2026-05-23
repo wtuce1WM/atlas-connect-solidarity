@@ -2053,7 +2053,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam, badgeIdParam]);
+  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam, badgeIdParam, subcatsParam, cityFromUrl]);
 
   // Fetch label logos for search result businesses
   useEffect(() => {
