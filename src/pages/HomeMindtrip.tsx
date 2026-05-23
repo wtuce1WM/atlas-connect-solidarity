@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X } from "lucide-react";
+import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X, Play } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
+import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
 import { useSEO } from "@/hooks/useSEO";
+import { supabase } from "@/integrations/supabase/client";
+import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
@@ -12,9 +15,23 @@ import logoHamsa from "@/assets/logo-hamsa-gold.png";
 const CITIES = ["Marrakech", "Essaouira"] as const;
 type CityKey = (typeof CITIES)[number];
 
+type VideoSlot = {
+  key: string;
+  videoId: string | null;
+  videoUrl: string | null;
+  thumbnail: string | null;
+  label: string | null;
+};
+
 const HomeMindtrip = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+
+
+
   const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
+  const [videos, setVideos] = useState<VideoSlot[]>([]);
+  const [loadingVideos, setLoadingVideos] = useState(true);
+  const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
 
   useSEO({
     title: "ONE WORLD MOROCCO — Voyagez autrement au Maroc",
@@ -22,6 +39,32 @@ const HomeMindtrip = () => {
       "Inspirez-vous des meilleures adresses du Maroc : hôtels, restaurants, expériences et itinéraires sélectionnés et vérifiés.",
     canonical: "/",
   });
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingVideos(true);
+    (supabase as any)
+      .from("homepage_cards_snapshots")
+      .select("payload")
+      .eq("city", selectedCity)
+      .maybeSingle()
+      .then(({ data }: any) => {
+        if (cancelled) return;
+        const payload = (data?.payload as any[]) || [];
+        const slots: VideoSlot[] = payload
+          .filter((s) => s?.data?.videoId && (s?.data?.videoUrl || s?.data?.thumbnail))
+          .map((s, i) => ({
+            key: s.key || `v-${i}`,
+            videoId: s.data.videoId,
+            videoUrl: s.data.videoUrl,
+            thumbnail: s.data.thumbnail,
+            label: s.data.businessName || s.data.label || null,
+          }));
+        setVideos(slots);
+        setLoadingVideos(false);
+      });
+    return () => { cancelled = true; };
+  }, [selectedCity]);
 
   const scrollToNext = () => {
     const el = document.getElementById("how-it-works");
@@ -155,14 +198,61 @@ const HomeMindtrip = () => {
             })}
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-background">
-            <iframe
-              key={selectedCity}
-              src={`/videos?city=${encodeURIComponent(selectedCity)}&entry=__home__`}
-              title={`Vidéos ${selectedCity}`}
-              className="block h-[80vh] w-full"
-              loading="lazy"
-            />
+          <div className="relative mt-6">
+            {loadingVideos ? (
+              <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4 lg:grid-cols-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="aspect-square animate-pulse rounded-lg bg-muted/40" />
+                ))}
+              </div>
+            ) : videos.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                Aucune vidéo pour {selectedCity}.
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4 lg:grid-cols-6">
+                {videos.map((v) => {
+                  const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
+                  return (
+                    <button
+                      key={v.key}
+                      type="button"
+                      onClick={() => v.videoUrl && setActiveVideoUrl(v.videoUrl)}
+                      className="group relative aspect-square overflow-hidden rounded-lg bg-muted text-left"
+                      aria-label={v.label ? `Lire ${v.label}` : "Lire la vidéo"}
+                    >
+                      {thumb ? (
+                        <img
+                          src={thumb}
+                          alt={v.label || ""}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-white/5">
+                          <Play className="h-8 w-8 text-white/40" />
+                        </div>
+                      )}
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm">
+                          <Play className="h-5 w-5 fill-white text-white" />
+                        </div>
+                      </div>
+                      {v.label && (
+                        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
+                          <p className="truncate font-josefin text-[11px] font-medium text-white">{v.label}</p>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {activeVideoUrl && (
+              <div className="fixed inset-0 z-[80] bg-black">
+                <FullscreenVideoOverlay videoUrl={activeVideoUrl} onClose={() => setActiveVideoUrl(null)} />
+              </div>
+            )}
           </div>
         </div>
       </section>
