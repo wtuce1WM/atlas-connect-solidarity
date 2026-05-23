@@ -584,20 +584,6 @@ const SlidePanelHome = ({
                 allowFullScreen
               />
             )}
-            {videoName && !(isGeneric && social?.account && videoName === `@${social.account}`) && (
-              <div className="absolute inset-x-0 top-[6%] z-[25] flex justify-center px-6 pointer-events-none text-center">
-                <p
-                  className="text-base md:text-lg font-bold text-white line-clamp-3"
-                  style={{
-                    fontFamily: "'Roboto', sans-serif",
-                    letterSpacing: "0.02em",
-                    filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
-                  }}
-                >
-                  {videoName}
-                </p>
-              </div>
-            )}
             {videoId && (
               <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} />
             )}
