@@ -509,6 +509,96 @@ const HomeMindtrip = () => {
   );
 };
 
+const HotelAvailabilityWidget = () => {
+  const navigate = useNavigate();
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const after = new Date(tomorrow);
+  after.setDate(after.getDate() + 3);
+
+  const [city, setCity] = useState<string>("Marrakech");
+  const [checkIn, setCheckIn] = useState<string>(fmt(tomorrow));
+  const [checkOut, setCheckOut] = useState<string>(fmt(after));
+  const [adults, setAdults] = useState<number>(2);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams({ city, checkIn, checkOut, adults: String(adults) });
+    navigate(`/hotel-search?${params.toString()}`);
+  };
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mt-6 grid w-full max-w-lg gap-3 rounded-2xl border border-border/40 bg-background/40 p-4 backdrop-blur sm:grid-cols-2"
+    >
+      <label className="flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60 sm:col-span-2">
+        Destination
+        <select
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          className="rounded-md border border-border/40 bg-background px-3 py-2 font-roboto text-sm text-foreground"
+        >
+          <option value="Marrakech">Marrakech</option>
+          <option value="Essaouira">Essaouira</option>
+          <option value="Casablanca">Casablanca</option>
+          <option value="Fès">Fès</option>
+          <option value="Tanger">Tanger</option>
+          <option value="Agadir">Agadir</option>
+          <option value="Rabat">Rabat</option>
+          <option value="Ouarzazate">Ouarzazate</option>
+        </select>
+      </label>
+      <label className="flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60">
+        Arrivée
+        <input
+          type="date"
+          value={checkIn}
+          min={fmt(new Date())}
+          onChange={(e) => {
+            setCheckIn(e.target.value);
+            if (checkOut <= e.target.value) {
+              const d = new Date(e.target.value);
+              d.setDate(d.getDate() + 1);
+              setCheckOut(fmt(d));
+            }
+          }}
+          className="rounded-md border border-border/40 bg-background px-3 py-2 font-roboto text-sm text-foreground"
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60">
+        Départ
+        <input
+          type="date"
+          value={checkOut}
+          min={checkIn}
+          onChange={(e) => setCheckOut(e.target.value)}
+          className="rounded-md border border-border/40 bg-background px-3 py-2 font-roboto text-sm text-foreground"
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60">
+        Voyageurs
+        <input
+          type="number"
+          min={1}
+          max={12}
+          value={adults}
+          onChange={(e) => setAdults(Math.max(1, Number(e.target.value) || 1))}
+          className="rounded-md border border-border/40 bg-background px-3 py-2 font-roboto text-sm text-foreground"
+        />
+      </label>
+      <button
+        type="submit"
+        className="rounded-full bg-primary px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90"
+      >
+        Voir les disponibilités
+      </button>
+    </form>
+  );
+};
+
+
 const STEPS = [
   {
     title: "Inspirez-vous en vidéo.",
