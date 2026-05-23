@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
-import HeaderMenuContent from "@/components/HeaderMenuContent";
+const HeaderMenuContent = lazy(() => import("@/components/HeaderMenuContent"));
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
 import PanelSearchBar from "@/components/PanelSearchBar";
-import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { businessUrl } from "@/lib/businessUrl";
 import { buildHomeVideosCacheKey, readHomeVideosCache, writeHomeVideosCache } from "@/lib/homeVideosCache";
 import { useSEO } from "@/hooks/useSEO";
