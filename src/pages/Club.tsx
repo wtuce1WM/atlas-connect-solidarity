@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Header from "@/components/Header";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Crown, Loader2, Mail, Eye, EyeOff } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -331,7 +331,7 @@ const Club = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <HomeMindtripHeader />
         <main className="pt-24 pb-16 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
@@ -342,7 +342,7 @@ const Club = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <HomeMindtripHeader />
       <main className="pt-24 pb-40 md:pb-24">
         {/* Hero */}
         <section className="bg-primary text-primary-foreground py-16 px-4">

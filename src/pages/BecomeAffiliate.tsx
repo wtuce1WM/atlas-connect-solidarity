@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
@@ -234,7 +234,7 @@ const BecomeAffiliate = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <HomeMindtripHeader />
       <main className="pt-24 pb-20">
         {/* Hero */}
         <section className="container mx-auto px-4 text-center mb-20">
