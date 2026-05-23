@@ -2399,18 +2399,27 @@ const SearchPage = () => {
       />
 
       {/* Hidden AISearchAnswer instance — generates AI text for Sticky 4 (overlay disabled) */}
-      {searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && !searchParams.get("pinIds") && (
-        <div className="hidden">
-          <AISearchAnswer
-            query={spokenText || searchQuery}
-            spokenText={spokenText || undefined}
-            businesses={filteredBusinesses}
-            isSearchLoading={isLoading}
-            onAnswerReady={handleAiAnswerReady}
-            externalRegenerateKey={aiRegenerateKey}
-          />
-        </div>
-      )}
+      {(() => {
+        const cityForAi = searchParams.get("city") || "";
+        const baseQuery = (spokenText || searchQuery || labelFromUrl || subcategoryNamesFromUrl.join(", ") || categoryFromUrl || "").trim();
+        const aiQuery = baseQuery && cityForAi && !baseQuery.toLowerCase().includes(cityForAi.toLowerCase())
+          ? `${baseQuery} à ${cityForAi}`
+          : baseQuery;
+        const shouldRender = !!aiQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && !searchParams.get("pinIds");
+        if (!shouldRender) return null;
+        return (
+          <div className="hidden">
+            <AISearchAnswer
+              query={aiQuery}
+              spokenText={spokenText || undefined}
+              businesses={filteredBusinesses}
+              isSearchLoading={isLoading}
+              onAnswerReady={handleAiAnswerReady}
+              externalRegenerateKey={aiRegenerateKey}
+            />
+          </div>
+        );
+      })()}
 
       {/* Warning Overlay — forces user to pick city + category */}
       {!isLoading && !!disambiguationType && allBusinesses.length > 0 && !compactPanelBusiness && !showAiPopup && !warningDismissed && (
