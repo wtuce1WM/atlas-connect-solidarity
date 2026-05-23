@@ -17,9 +17,11 @@ type CityKey = (typeof CITIES)[number];
 
 type VideoSlot = {
   key: string;
+  kind: "entry" | "extra";
   videoId: string | null;
   videoUrl: string | null;
   thumbnail: string | null;
+  businessName: string | null;
   label: string | null;
 };
 
