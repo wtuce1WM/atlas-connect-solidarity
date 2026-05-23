@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck } from "lucide-react";
-import Header from "@/components/Header";
+
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
 import { useSEO } from "@/hooks/useSEO";
@@ -22,7 +22,6 @@ const HomeMindtrip = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
 
       {/* HERO */}
       <section className="relative min-h-[92vh] w-full overflow-hidden">
