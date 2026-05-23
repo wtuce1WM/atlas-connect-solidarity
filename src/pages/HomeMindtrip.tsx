@@ -375,6 +375,17 @@ const HomeMindtrip = () => {
                       className="h-full w-full object-cover"
                     />
                   </div>
+                ) : i === 2 ? (
+                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+                    <img
+                      src={stepClubImage}
+                      alt="Carte de Marrakech, carnet de voyage et favoris — Le Club OWM"
+                      loading="lazy"
+                      width={1024}
+                      height={768}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-muted to-muted">
