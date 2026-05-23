@@ -99,7 +99,7 @@ const BlogPost = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <HomeMindtripHeader />
         <div className="flex justify-center items-center py-40">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -111,7 +111,7 @@ const BlogPost = () => {
   if (!post) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <HomeMindtripHeader />
         <div className="container mx-auto px-4 py-40 text-center">
           <p className="text-muted-foreground">{t("blog.notFound")}</p>
           <button onClick={() => navigate("/blog")} className="mt-4 text-primary hover:underline">
@@ -125,7 +125,7 @@ const BlogPost = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <HomeMindtripHeader />
       <div className="bg-black pt-28 pb-8">
         <div className="container mx-auto px-4">
           <button
