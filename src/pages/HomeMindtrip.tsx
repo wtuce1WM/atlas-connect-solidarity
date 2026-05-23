@@ -5,14 +5,9 @@ import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
 import { useSEO } from "@/hooks/useSEO";
+import heroImage from "@/assets/home-mindtrip/hero.jpg";
+import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
-import heroBg from "@/assets/home-mindtrip/hero-bg.jpg";
-import heroPortal from "@/assets/home-mindtrip/hero-portal.png";
-import heroDoor from "@/assets/home-mindtrip/hero-door.png";
-import heroTea from "@/assets/home-mindtrip/hero-tea.png";
-import heroCamel from "@/assets/home-mindtrip/hero-camel.png";
-import cloudImg from "@/assets/home-mindtrip/cloud.png";
-import petalImg from "@/assets/home-mindtrip/petal.png";
 
 const HomeMindtrip = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -87,47 +82,21 @@ const HomeMindtrip = () => {
 
 
       {/* HERO */}
+
       <section className="relative min-h-[92vh] w-full overflow-hidden">
-        {/* Background */}
-        <img
-          src={heroBg}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="eager"
-          fetchPriority="high"
-        />
-
-        {/* Decorative layered composition (right side on desktop) */}
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          {/* Distant clouds */}
-          <img src={cloudImg} alt="" loading="lazy" className="absolute left-[4%] top-[55%] w-[22%] opacity-90 animate-float-slow" />
-          <img src={cloudImg} alt="" loading="lazy" className="absolute left-[48%] top-[72%] w-[28%] opacity-95 animate-float-soft [animation-delay:-3s]" />
-          <img src={cloudImg} alt="" loading="lazy" className="absolute left-[68%] top-[20%] w-[18%] opacity-70 animate-float-slow [animation-delay:-6s]" />
-
-          {/* Camel silhouette */}
-          <img src={heroCamel} alt="" loading="lazy" className="absolute left-[18%] top-[28%] hidden w-[7%] opacity-80 animate-float-soft md:block [animation-delay:-2s]" />
-
-          {/* Portal — anchor centerpiece */}
-          <img src={heroPortal} alt="" loading="lazy" className="absolute right-[18%] top-[8%] hidden h-[78%] w-auto drop-shadow-2xl animate-float-slow md:block" />
-
-          {/* Carved door */}
-          <img src={heroDoor} alt="" loading="lazy" className="absolute right-[6%] top-[24%] hidden h-[60%] w-auto rotate-[6deg] drop-shadow-2xl animate-float-soft md:block [animation-delay:-4s]" />
-
-          {/* Tea glass with steam */}
-          <img src={heroTea} alt="" loading="lazy" className="absolute left-[28%] top-[44%] hidden h-[36%] w-auto drop-shadow-xl animate-float-soft md:block [animation-delay:-1s]" />
-
-          {/* Petals */}
-          <img src={petalImg} alt="" loading="lazy" className="absolute left-[24%] top-[24%] w-[5%] animate-drift-petal" />
-          <img src={petalImg} alt="" loading="lazy" className="absolute left-[80%] top-[48%] w-[6%] animate-drift-petal [animation-delay:-4s]" />
-          <img src={petalImg} alt="" loading="lazy" className="absolute left-[58%] top-[80%] w-[4%] animate-drift-petal [animation-delay:-8s]" />
-        </div>
-
-        {/* Readability gradient over copy */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent md:bg-gradient-to-r md:from-background/90 md:via-background/50 md:to-transparent" />
+        <picture>
+          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
+          <img
+            src={heroImage}
+            alt="Maroc — riad, piscine et tagine, composition réalisme magique"
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+          />
+        </picture>
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent md:bg-gradient-to-r md:from-background/80 md:via-background/40 md:to-transparent" />
 
         <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-6 py-24 md:px-12">
-
           <h1 className="font-josefin text-5xl font-light leading-[0.95] tracking-tight text-foreground md:text-7xl lg:text-8xl">
             Le Maroc<br />autrement<span className="text-foreground">.</span>
           </h1>

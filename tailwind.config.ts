@@ -145,19 +145,6 @@ export default {
           "0%": { transform: "scale(0.3)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
-        "float-slow": {
-          "0%, 100%": { transform: "translate3d(0,0,0) rotate(0deg)" },
-          "50%": { transform: "translate3d(8px,-18px,0) rotate(2deg)" },
-        },
-        "float-soft": {
-          "0%, 100%": { transform: "translate3d(0,0,0) rotate(0deg)" },
-          "50%": { transform: "translate3d(-10px,-12px,0) rotate(-3deg)" },
-        },
-        "drift-petal": {
-          "0%": { transform: "translate3d(0,0,0) rotate(0deg)" },
-          "50%": { transform: "translate3d(14px,-22px,0) rotate(18deg)" },
-          "100%": { transform: "translate3d(0,0,0) rotate(0deg)" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -169,10 +156,6 @@ export default {
         "fade-in": "fade-in 0.3s ease-out",
         "ripple": "ripple 2.4s ease-out infinite",
         "zoom-out-center": "zoom-out-center 0.35s cubic-bezier(0.16,1,0.3,1)",
-        "float-slow": "float-slow 9s ease-in-out infinite",
-        "float-soft": "float-soft 11s ease-in-out infinite",
-        "drift-petal": "drift-petal 13s ease-in-out infinite",
-
       },
     },
   },
