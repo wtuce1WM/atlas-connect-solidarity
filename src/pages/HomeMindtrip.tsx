@@ -188,8 +188,50 @@ const HomeMindtrip = () => {
         </button>
       </section>
 
+      {/* HOW IT WORKS */}
+      <section id="how-it-works" className="bg-background py-24 md:py-32">
+        <div className="mx-auto max-w-7xl px-6 md:px-12">
+          <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
+            Comment ça marche
+          </h2>
+
+          <div className="mt-16 space-y-24">
+            {STEPS.map((s, i) => (
+              <div
+                key={s.title}
+                className={`grid items-center gap-10 md:grid-cols-2 md:gap-16 ${
+                  i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
+                }`}
+              >
+                <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-muted to-muted">
+                    <s.icon className="h-20 w-20 text-primary/60" strokeWidth={1} />
+                  </div>
+                </div>
+                <div>
+                  <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
+                    Étape {i + 1}
+                  </span>
+                  <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
+                    {s.title}
+                  </h3>
+                  <p className="mt-4 max-w-lg font-roboto text-base text-foreground/70">{s.desc}</p>
+                  <Link
+                    to={s.href}
+                    className="mt-6 inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
+                  >
+                    {s.cta} →
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* VIDEOS BY CITY — embeds /videos with the same JSON-driven logic */}
       <section className="bg-background py-12 md:py-16">
+
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <div className="flex items-center gap-3">
             {CITIES.map((city) => {
