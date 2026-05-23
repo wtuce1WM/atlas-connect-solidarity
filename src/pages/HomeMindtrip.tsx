@@ -510,7 +510,7 @@ const STEPS = [
   },
   {
     title: "Construisez votre itinéraire.",
-    desc: "Marrakech, Essaouira, Fès, Chefchaouen… mixez les destinations et créez le voyage qui vous ressemble.",
+    desc: "Marrakech, Essaouira, suivez les établissements qui vous intéressent, gardez les points d'intérêts dans votre compte Le Club OWM, soyez informé des bons plans, agenda, annonces...",
     cta: "Toutes les destinations",
     href: "/carte",
     icon: Compass,
