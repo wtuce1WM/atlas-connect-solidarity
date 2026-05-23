@@ -176,7 +176,8 @@ const Install = () => {
 
   return (
     <main className="min-h-dvh bg-background text-foreground">
-      <div className="mx-auto max-w-2xl px-6 py-12">
+      <HomeMindtripHeader />
+      <div className="mx-auto max-w-2xl px-6 pt-24 pb-12 md:pt-28">
         {/* Header */}
         <header className="text-center mb-10">
           <button
