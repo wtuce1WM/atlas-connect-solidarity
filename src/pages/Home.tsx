@@ -2149,7 +2149,14 @@ const Home = () => {
                             return;
                           }
                           if (clickedManualBadge && v.manualCard?.badgeId) {
-                            void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
+                            // Navigate to /search: the Hashtag tab filters by video badges
+                            // (business_document_badges / business_youtube_video_badges),
+                            // exactly the behaviour expected for manual cards.
+                            const sp = new URLSearchParams();
+                            sp.set("badgeId", v.manualCard.badgeId);
+                            sp.set("badgeLabel", v.manualCard.label);
+                            if (city) sp.set("city", city);
+                            navigate(`/search?${sp.toString()}`);
                             return;
                           }
 
