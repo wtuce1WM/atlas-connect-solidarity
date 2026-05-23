@@ -96,7 +96,7 @@ const BusinessRedirect = () => {
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
-  const hiddenPaths = ["/", "/corporate", "/search", "/test", "/videos", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
+  const hiddenPaths = ["/", "/corporate", "/club", "/install", "/search", "/test", "/videos", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <FloatingSearchBar />;
 };
@@ -104,9 +104,9 @@ const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "c
   const location = useLocation();
   if (location.pathname.startsWith("/staff/")) return null;
   const isHome = location.pathname === "/";
-  const isCorporate = location.pathname === "/corporate";
-  const hideClub = location.pathname === "/test" || location.pathname === "/videos" || isHome || isCorporate;
-  const hideWhatsapp = isHome || isCorporate;
+  const noFloating = ["/corporate", "/club", "/install"].includes(location.pathname);
+  const hideClub = location.pathname === "/test" || location.pathname === "/videos" || isHome || noFloating;
+  const hideWhatsapp = isHome || noFloating;
   return (
     <>
       {!hideClub && <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />}
