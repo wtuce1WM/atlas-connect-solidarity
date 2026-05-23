@@ -222,6 +222,9 @@ async function buildSnapshot(supabase: any, city: string) {
   const entryCards = entries.map((entry: any) => {
     const doc = firstDocByEntry[entry.id];
     const overrideBusinessId = overrideByEntry[entry.id] || null;
+    const subcategoryNames = (entry.subcategory_ids || [])
+      .map((id: string) => subcatNameById.get(id))
+      .filter(Boolean) as string[];
     if (!doc) {
       return {
         key: `entry:${entry.id}`, kind: "entry",
@@ -230,6 +233,7 @@ async function buildSnapshot(supabase: any, city: string) {
           businessName: overrideBusinessId ? (bizMap.get(overrideBusinessId)?.name || null) : null,
           ownerLogo: null, ownerName: null, ownerId: null,
           rating: null, reviewCount: null, label: entry.name,
+          subcategoryNames,
         },
       };
     }
@@ -248,6 +252,7 @@ async function buildSnapshot(supabase: any, city: string) {
         rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
         reviewCount: dispBiz?.total_review_count ?? null,
         label: entry.name,
+        subcategoryNames,
       },
     };
   });
