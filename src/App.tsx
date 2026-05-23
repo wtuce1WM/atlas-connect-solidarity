@@ -34,6 +34,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const EssaouiraSeaView = lazy(() => import("./pages/EssaouiraSeaView"));
 const MarrakechArtisanat5Jours = lazy(() => import("./pages/MarrakechArtisanat5Jours"));
+const MarrakechActivitesEnfants = lazy(() => import("./pages/MarrakechActivitesEnfants"));
 const BlogAnimations = lazy(() => import("./pages/BlogAnimations"));
 const BlogTypography = lazy(() => import("./pages/BlogTypography"));
 const BlogBrummellTypography = lazy(() => import("./pages/BlogBrummellTypography"));
@@ -163,6 +164,7 @@ const AppContent = () => {
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
               <Route path="/blog/essaouira-vue-mer" element={renderLazyRoute(<EssaouiraSeaView />)} />
               <Route path="/blog/5-jours-marrakech-artisanat" element={renderLazyRoute(<MarrakechArtisanat5Jours />)} />
+              <Route path="/blog/activites-enfants-marrakech" element={renderLazyRoute(<MarrakechActivitesEnfants />)} />
               <Route path="/staff/animations" element={<StaffRouteGuard>{renderLazyRoute(<BlogAnimations />)}</StaffRouteGuard>} />
               <Route path="/staff/carousel-nav-demo" element={<StaffRouteGuard>{renderLazyRoute(<CarouselNavDemo />)}</StaffRouteGuard>} />
               <Route path="/blog/ancien-accueil" element={renderLazyRoute(<AncienAccueil />)} />

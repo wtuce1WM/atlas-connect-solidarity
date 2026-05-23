@@ -29,7 +29,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -53,7 +53,8 @@ const Blog = () => {
 
     // Hero images for static blog cards (same logic as their pages)
     const fetchStaticHeroes = async () => {
-      const [essRes, mrkRes] = await Promise.all([
+      const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
+      const [essRes, mrkRes, kidsDocRes, kidsYtRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("images, services")
@@ -66,6 +67,14 @@ const Blog = () => {
           .select("images")
           .eq("id", "83d7e07e-128c-47a3-92c6-225a53e34b42")
           .maybeSingle(),
+        supabase
+          .from("business_document_badges")
+          .select("document_id")
+          .eq("badge_id", KIDS_BADGE_ID),
+        supabase
+          .from("business_youtube_video_badges")
+          .select("youtube_video_id")
+          .eq("badge_id", KIDS_BADGE_ID),
       ]);
       const seaKW = ["vue sur mer", "vue mer"];
       const essImg = essRes.data
@@ -73,9 +82,42 @@ const Blog = () => {
           b.images?.length &&
           b.services?.some((s: string) => seaKW.includes(s.toLowerCase()))
         )?.images?.[0];
+
+      // Hero kids : 1ʳᵉ image d'un établissement Marrakech avec badge Enfants
+      const kidsBizIds = new Set<string>();
+      const docIds = (kidsDocRes.data || []).map((r: any) => r.document_id);
+      const ytIds = (kidsYtRes.data || []).map((r: any) => r.youtube_video_id);
+      if (docIds.length) {
+        const { data } = await supabase
+          .from("business_documents")
+          .select("business_id")
+          .in("id", docIds);
+        (data || []).forEach((r: any) => r.business_id && kidsBizIds.add(r.business_id));
+      }
+      if (ytIds.length) {
+        const { data } = await supabase
+          .from("business_youtube_videos")
+          .select("business_id")
+          .in("id", ytIds);
+        (data || []).forEach((r: any) => r.business_id && kidsBizIds.add(r.business_id));
+      }
+      let kidsImg: string | undefined;
+      if (kidsBizIds.size) {
+        const { data } = await supabase
+          .from("businesses")
+          .select("images")
+          .in("id", Array.from(kidsBizIds))
+          .eq("is_active", true)
+          .eq("city", "Marrakech")
+          .order("priority_score", { ascending: false })
+          .limit(20);
+        kidsImg = (data || []).find((b: any) => b.images?.length)?.images?.[0];
+      }
+
       setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
+        kids: kidsImg,
       });
     };
     fetchStaticHeroes();
@@ -176,6 +218,39 @@ const Blog = () => {
                     </Link>
                   ),
                 });
+              });
+
+              // Carte Activités enfants Marrakech
+              items.push({
+                key: "static-kids-marrakech",
+                date: "2026-05-24T00:00:00Z",
+                node: (
+                  <Link key="static-kids-marrakech" to="/blog/activites-enfants-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-pink-50 to-amber-50 dark:from-pink-950/30 dark:to-amber-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.kids ? (
+                          <img src={staticHeroes.kids} alt="Activités pour les enfants à Marrakech" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Activités pour les enfants à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Notre sélection d'adresses testées et approuvées pour les familles — regroupées par type d'activité.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
               });
 
               // Carte Marrakech (la plus récente)
