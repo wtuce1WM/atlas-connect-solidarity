@@ -168,7 +168,7 @@ const SlidePanelHome = ({
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
-  const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null; description: string | null } | null>(null);
+  const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null; description: string | null; start_date: string | null; end_date: string | null; days_of_week: string[] | null; start_time: string | null; end_time: string | null } | null>(null);
   const [poiOverlayBusinessId, setPoiOverlayBusinessId] = useState<string | null>(null);
   useEffect(() => { if (!open) setPoiOverlayBusinessId(null); }, [open]);
 
