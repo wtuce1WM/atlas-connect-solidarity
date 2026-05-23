@@ -103,7 +103,7 @@ const HomeMindtrip = () => {
           <p className="mt-6 max-w-xl font-roboto text-base text-foreground/80 md:text-lg">
             Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité sur le terrain.
           </p>
-          <div className="mt-10 w-full max-w-2xl rounded-full bg-black p-1.5 shadow-2xl ring-1 ring-white/10 [&_input]:!bg-transparent [&_input]:!text-white [&_input]:!placeholder-white/60">
+          <div className="mt-10 w-full max-w-2xl">
             <SearchInput
               variant="hero"
               placeholder="Rechercher un hôtel, un restaurant, une expérience…"
