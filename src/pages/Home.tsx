@@ -1887,7 +1887,9 @@ const Home = () => {
 
   const structureList = (
     <div className="pt-[60px]">
-      <HeaderMenuContent onNavigate={() => setMenuOpen(false)} />
+      <Suspense fallback={null}>
+        <HeaderMenuContent onNavigate={() => setMenuOpen(false)} />
+      </Suspense>
     </div>
   );
 
