@@ -55,7 +55,7 @@ const HotelSearch = () => {
   const [checkOut, setCheckOut] = useState(searchParams.get("checkOut") || "");
   const [adults, setAdults] = useState(searchParams.get("adults") || "2");
   const [rooms, setRooms] = useState(searchParams.get("rooms") || "1");
-  const [stars, setStars] = useState("");
+  const [stars, setStars] = useState(searchParams.get("stars") || "");
   const [currency, setCurrency] = useState(searchParams.get("currency") || "EUR");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<HotelResult[]>([]);

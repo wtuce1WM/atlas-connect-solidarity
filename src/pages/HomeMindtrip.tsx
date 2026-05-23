@@ -520,31 +520,34 @@ const HotelAvailabilityWidget = () => {
   const [city, setCity] = useState<string>("Marrakech");
   const [checkIn, setCheckIn] = useState<string>(fmt(arrival));
   const [checkOut, setCheckOut] = useState<string>(fmt(departure));
-  const [adults, setAdults] = useState<number>(2);
+  const [adults, setAdults] = useState<string>("2");
+  const [rooms, setRooms] = useState<string>("1");
+  const [stars, setStars] = useState<string>("all");
+  const [currency, setCurrency] = useState<string>("EUR");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams({ city, checkIn, checkOut, adults: String(adults) });
+    const params = new URLSearchParams({ city, checkIn, checkOut, adults, rooms, currency });
+    if (stars && stars !== "all") params.set("stars", stars);
     navigate(`/hotels?${params.toString()}`);
   };
+
+  const fieldCls = "rounded-md border border-border/40 bg-background px-3 py-2 font-roboto text-sm text-foreground";
+  const labelCls = "flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60";
 
   return (
     <form
       onSubmit={submit}
-      className="mt-6 grid w-full max-w-lg gap-3 rounded-2xl border border-border/40 bg-background/40 p-4 backdrop-blur sm:grid-cols-2"
+      className="mt-6 grid w-full max-w-2xl gap-3 rounded-2xl border border-border/40 bg-background/40 p-4 backdrop-blur sm:grid-cols-2 lg:grid-cols-3"
     >
-      <label className="flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60 sm:col-span-2">
+      <label className={`${labelCls} sm:col-span-2 lg:col-span-3`}>
         Destination
-        <select
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          className="rounded-md border border-border/40 bg-background px-3 py-2 font-roboto text-sm text-foreground"
-        >
+        <select value={city} onChange={(e) => setCity(e.target.value)} className={fieldCls}>
           <option value="Marrakech">Marrakech</option>
           <option value="Essaouira">Essaouira</option>
         </select>
       </label>
-      <label className="flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60">
+      <label className={labelCls}>
         Arrivée
         <input
           type="date"
@@ -558,33 +561,51 @@ const HotelAvailabilityWidget = () => {
               setCheckOut(fmt(d));
             }
           }}
-          className="rounded-md border border-border/40 bg-background px-3 py-2 font-roboto text-sm text-foreground"
+          className={fieldCls}
         />
       </label>
-      <label className="flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60">
+      <label className={labelCls}>
         Départ
         <input
           type="date"
           value={checkOut}
           min={checkIn}
           onChange={(e) => setCheckOut(e.target.value)}
-          className="rounded-md border border-border/40 bg-background px-3 py-2 font-roboto text-sm text-foreground"
+          className={fieldCls}
         />
       </label>
-      <label className="flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60">
-        Voyageurs
-        <input
-          type="number"
-          min={1}
-          max={12}
-          value={adults}
-          onChange={(e) => setAdults(Math.max(1, Number(e.target.value) || 1))}
-          className="rounded-md border border-border/40 bg-background px-3 py-2 font-roboto text-sm text-foreground"
-        />
+      <label className={labelCls}>
+        Adultes
+        <select value={adults} onChange={(e) => setAdults(e.target.value)} className={fieldCls}>
+          {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{n}</option>)}
+        </select>
+      </label>
+      <label className={labelCls}>
+        Chambres
+        <select value={rooms} onChange={(e) => setRooms(e.target.value)} className={fieldCls}>
+          {[1, 2, 3].map((n) => <option key={n} value={n}>{n}</option>)}
+        </select>
+      </label>
+      <label className={labelCls}>
+        Étoiles
+        <select value={stars} onChange={(e) => setStars(e.target.value)} className={fieldCls}>
+          <option value="all">Toutes</option>
+          <option value="5">★★★★★</option>
+          <option value="4,5">★★★★ +</option>
+          <option value="3,4,5">★★★ +</option>
+        </select>
+      </label>
+      <label className={labelCls}>
+        Devise
+        <select value={currency} onChange={(e) => setCurrency(e.target.value)} className={fieldCls}>
+          <option value="MAD">MAD (Dirham)</option>
+          <option value="EUR">EUR (Euro)</option>
+          <option value="USD">USD (Dollar)</option>
+        </select>
       </label>
       <button
         type="submit"
-        className="rounded-full bg-primary px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90"
+        className="rounded-full bg-primary px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 sm:col-span-2 lg:col-span-3"
       >
         Voir les disponibilités
       </button>
