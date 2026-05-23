@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X } from "lucide-react";
+import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X, Play } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
+import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
+import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
+
+const CITY_IDS: Record<"Marrakech" | "Essaouira", string> = {
+  Marrakech: "41545fd3-2c2c-4609-8d55-842fd7e2edde",
+  Essaouira: "3f96c12a-0635-4f70-8de0-2578a66bcc07",
+};
+type CityKey = keyof typeof CITY_IDS;
+
+type VideoCard = {
+  id: string;
+  videoUrl: string;
+  thumbnail: string;
+  label: string;
+};
 
 const HomeMindtrip = () => {
   const [menuOpen, setMenuOpen] = useState(false);
