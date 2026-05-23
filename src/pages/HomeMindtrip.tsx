@@ -24,8 +24,11 @@ const HomeMindtrip = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* TOP LOGO */}
-      <Link to="/" aria-label="Accueil" className="absolute left-6 top-4 z-20 md:left-12">
+      <Link to="/" aria-label="Accueil" className="absolute left-6 top-4 z-20 flex items-center gap-3 md:left-12">
         <img src={logoHamsa} alt="One World Morocco" className="h-14 w-auto md:h-16" />
+        <span className="font-josefin text-lg font-light tracking-[0.2em] text-foreground md:text-xl">
+          ONE WORLD MOROCCO
+        </span>
       </Link>
 
       {/* TOP LINKS */}
