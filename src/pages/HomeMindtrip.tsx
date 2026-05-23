@@ -10,6 +10,7 @@ import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
 const HomeMindtrip = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
   useSEO({
     title: "ONE WORLD MOROCCO — Voyagez autrement au Maroc",
     description:
