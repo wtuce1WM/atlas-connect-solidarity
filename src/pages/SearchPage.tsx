@@ -1312,11 +1312,17 @@ const SearchPage = () => {
   }, [effectiveCityForMap, neighborhoodCoords, citiesWithPriority, allBusinesses]);
 
   const filteredBusinesses = useMemo(() => {
+    const applyPinThumb = (b: Business): Business => {
+      const t = pinThumbMap[b.id];
+      if (!t) return b;
+      const rest = (b.images || []).filter(u => u !== t);
+      return { ...b, images: [t, ...rest] };
+    };
     if (pinIdsParam && pinnedBusinesses.length > 0) {
       const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
       const byId: Record<string, Business> = {};
       for (const b of pinnedBusinesses) byId[b.id] = b;
-      return orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
+      return orderedIds.map(id => byId[id]).filter(Boolean).map(applyPinThumb) as Business[];
     }
 
     const isServerPaginatedResults = totalCount !== null;
