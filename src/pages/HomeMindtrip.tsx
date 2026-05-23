@@ -222,20 +222,24 @@ const HomeMindtrip = () => {
               <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide-mobile -mx-6 px-6 md:-mx-12 md:px-12">
                 {videos.map((v) => {
                   const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
-                  const handleLabelClick = (e: React.MouseEvent) => {
+                  // Priority: searchQuery (extra) → badgeName (extra) → label (entry name or extra title)
+                  const baseQ = v.kind === "extra"
+                    ? (v.searchQuery || v.badgeName || v.label)
+                    : v.label;
+                  if (!baseQ) return null;
+                  const q = v.kind === "extra" && !v.searchQuery ? `${baseQ} ${selectedCity}` : baseQ;
+                  const goSearch = (e: React.MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (!v.label) return;
-                    const q = v.kind === "entry" ? v.label : `${v.label} ${selectedCity}`;
                     navigate(`/search?q=${encodeURIComponent(q)}&_t=${Date.now()}`);
                   };
                   return (
                     <div key={v.key} className="group relative aspect-[9/16] w-[160px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[200px]">
                       <button
                         type="button"
-                        onClick={() => v.videoUrl && setActiveVideoUrl(v.videoUrl)}
+                        onClick={goSearch}
                         className="absolute inset-0 h-full w-full text-left"
-                        aria-label={v.businessName ? `Lire ${v.businessName}` : "Lire la vidéo"}
+                        aria-label={`Voir les résultats pour ${q}`}
                       >
                         {thumb ? (
                           <img
@@ -251,18 +255,13 @@ const HomeMindtrip = () => {
                         )}
                         <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/60 to-transparent" />
                         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/60 to-transparent" />
-                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm">
-                            <Play className="h-5 w-5 fill-white text-white" />
-                          </div>
-                        </div>
                       </button>
                       {v.label && (
                         <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
                           <button
                             type="button"
                             onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                            onClick={handleLabelClick}
+                            onClick={goSearch}
                             className="rounded-md border-2 border-black bg-white px-2.5 py-1 text-center text-[11px] font-bold uppercase tracking-wide text-black shadow-lg line-clamp-2 hover:bg-white/90 transition-colors cursor-pointer"
                           >
                             {v.label}
@@ -272,11 +271,6 @@ const HomeMindtrip = () => {
                     </div>
                   );
                 })}
-              </div>
-            )}
-            {activeVideoUrl && (
-              <div className="fixed inset-0 z-[80] bg-black">
-                <FullscreenVideoOverlay videoUrl={activeVideoUrl} onClose={() => setActiveVideoUrl(null)} />
               </div>
             )}
           </div>
