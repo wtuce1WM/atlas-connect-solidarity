@@ -182,6 +182,79 @@ const HomeMindtrip = () => {
         </button>
       </section>
 
+      {/* VIDEOS BY CITY */}
+      <section className="bg-background py-12 md:py-16">
+        <div className="mx-auto max-w-7xl px-6 md:px-12">
+          <div className="flex items-center gap-3">
+            {(Object.keys(CITY_IDS) as CityKey[]).map((city) => {
+              const active = selectedCity === city;
+              return (
+                <button
+                  key={city}
+                  type="button"
+                  onClick={() => setSelectedCity(city)}
+                  className={`rounded-full px-5 py-2 font-josefin text-sm uppercase tracking-[0.2em] transition ${
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border text-foreground/70 hover:text-foreground"
+                  }`}
+                >
+                  {city}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            {loadingVideos && videos.length === 0 ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="aspect-square animate-pulse rounded-lg bg-muted" />
+              ))
+            ) : videos.length === 0 ? (
+              <p className="col-span-full font-roboto text-sm text-foreground/60">
+                Aucune vidéo pour {selectedCity}.
+              </p>
+            ) : (
+              videos.map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => setActiveVideoUrl(v.videoUrl)}
+                  className="group relative aspect-square overflow-hidden rounded-lg bg-muted text-left"
+                >
+                  <img
+                    src={v.thumbnail}
+                    alt={v.label}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm">
+                      <Play className="h-5 w-5 fill-white text-white" />
+                    </div>
+                  </div>
+                  {v.label && (
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
+                      <p className="truncate font-josefin text-[11px] font-medium text-white">
+                        {v.label}
+                      </p>
+                    </div>
+                  )}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {activeVideoUrl && (
+        <div className="fixed inset-0 z-[80]">
+          <FullscreenVideoOverlay videoUrl={activeVideoUrl} onClose={() => setActiveVideoUrl(null)} />
+        </div>
+      )}
+
+
+
       {/* HOW IT WORKS */}
       <section id="how-it-works" className="bg-background py-24 md:py-32">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
