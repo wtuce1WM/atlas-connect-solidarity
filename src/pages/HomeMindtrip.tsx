@@ -4,7 +4,7 @@ import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, 
 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
-import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
+
 import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
