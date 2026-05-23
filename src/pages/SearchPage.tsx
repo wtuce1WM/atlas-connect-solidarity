@@ -1815,8 +1815,12 @@ const SearchPage = () => {
   }, [serverTotalCount]);
   // With server-side pagination, filteredBusinesses already contains only the current page's results
   const paginatedBusinesses = useMemo(() => {
+    if (pinIdsParam) {
+      const start = (currentPage - 1) * ITEMS_PER_PAGE;
+      return filteredBusinesses.slice(start, start + ITEMS_PER_PAGE);
+    }
     return filteredBusinesses;
-  }, [filteredBusinesses]);
+  }, [filteredBusinesses, pinIdsParam, currentPage]);
 
   // Reset page when filter changes
   useEffect(() => {
