@@ -245,11 +245,17 @@ const HomeMindtrip = () => {
                         return;
                       }
                       // Non-# badge → Résultats tab: pin businesses tagged with this badge in the selected city
-                      const { data: links } = await supabase
-                        .from("business_badges")
-                        .select("business_id")
-                        .eq("badge_id", v.badgeId);
-                      const ids = ((links as any[]) || []).map((l) => l.business_id).filter(Boolean);
+                      const [{ data: links }, { data: docLinks }] = await Promise.all([
+                        supabase.from("business_badges").select("business_id").eq("badge_id", v.badgeId),
+                        supabase
+                          .from("business_document_badges")
+                          .select("business_documents!inner(business_id, linked_business_id)")
+                          .eq("badge_id", v.badgeId),
+                      ]);
+                      const ids = Array.from(new Set([
+                        ...((links as any[]) || []).map((l) => l.business_id),
+                        ...((docLinks as any[]) || []).map((l) => l.business_documents?.linked_business_id || l.business_documents?.business_id),
+                      ].filter(Boolean)));
                       if (ids.length === 0) { navigate(defaultUrl); return; }
                       const { data: bizRows } = await supabase
                         .from("businesses")
