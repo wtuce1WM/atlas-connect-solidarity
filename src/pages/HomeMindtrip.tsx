@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
+import stepVerifiedImage from "@/assets/home-mindtrip/step-verified.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
