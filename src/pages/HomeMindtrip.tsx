@@ -203,11 +203,157 @@ const HomeMindtrip = () => {
                   i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
                 }`}
               >
-                <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-muted to-muted">
-                    <s.icon className="h-20 w-20 text-primary/60" strokeWidth={1} />
+                {i === 0 ? (
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-3">
+                      {CITIES.map((city) => {
+                        const active = selectedCity === city;
+                        return (
+                          <button
+                            key={city}
+                            type="button"
+                            onClick={() => setSelectedCity(city)}
+                            className={`rounded-full px-5 py-2 font-josefin text-sm uppercase tracking-[0.2em] transition ${
+                              active
+                                ? "bg-primary text-primary-foreground"
+                                : "border border-border text-foreground/70 hover:text-foreground"
+                            }`}
+                          >
+                            {city}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="relative mt-6">
+                      {loadingVideos ? (
+                        <div className="flex gap-3 overflow-x-auto scrollbar-hide-mobile">
+                          {Array.from({ length: 4 }).map((_, idx) => (
+                            <div key={idx} className="aspect-[9/16] w-[140px] shrink-0 animate-pulse rounded-lg bg-muted/40 md:w-[160px]" />
+                          ))}
+                        </div>
+                      ) : videos.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                          Aucune vidéo pour {selectedCity}.
+                        </div>
+                      ) : (
+                        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide-mobile">
+                          {videos.map((v) => {
+                            const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
+                            if (!v.label) return null;
+                            const useSubcats = v.kind === "entry" && v.subcategoryNames.length > 0;
+                            const defaultUrl = useSubcats
+                              ? `/search?subcats=${encodeURIComponent(v.subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
+                              : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
+                            const goSearch = async (e: React.MouseEvent) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              let businessId = v.businessId;
+                              if (!businessId && !v.badgeId && !v.eventId && v.kind === "extra" && v.key.startsWith("extra:")) {
+                                const cardId = v.key.slice("extra:".length);
+                                const { data: card } = await (supabase as any)
+                                  .from("front_structure_homepage_extra_cards")
+                                  .select("business_id")
+                                  .eq("id", cardId)
+                                  .maybeSingle();
+                                businessId = (card as any)?.business_id || null;
+                              }
+                              if (!v.badgeId && !v.eventId && businessId) {
+                                navigate(`/search?pinIds=${encodeURIComponent(businessId)}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label || "")}&openBusiness=${encodeURIComponent(businessId)}&_t=${Date.now()}`);
+                                return;
+                              }
+                              if (v.badgeId) {
+                                const { data: badge } = await (supabase as any)
+                                  .from("badges")
+                                  .select("name_fr")
+                                  .eq("id", v.badgeId)
+                                  .maybeSingle();
+                                const badgeName: string = (badge as any)?.name_fr || v.label || "";
+                                if (badgeName.trim().startsWith("#")) {
+                                  navigate(`/search?city=${encodeURIComponent(selectedCity)}&badgeId=${encodeURIComponent(v.badgeId)}&badgeLabel=${encodeURIComponent(badgeName)}&_t=${Date.now()}`);
+                                  return;
+                                }
+                                const [{ data: links }, { data: docLinks }] = await Promise.all([
+                                  supabase.from("business_badges").select("business_id").eq("badge_id", v.badgeId),
+                                  supabase
+                                    .from("business_document_badges")
+                                    .select("business_documents!inner(business_id, linked_business_id)")
+                                    .eq("badge_id", v.badgeId),
+                                ]);
+                                const ids = Array.from(new Set([
+                                  ...((links as any[]) || []).map((l) => l.business_id),
+                                  ...((docLinks as any[]) || []).map((l) => l.business_documents?.linked_business_id || l.business_documents?.business_id),
+                                ].filter(Boolean)));
+                                if (ids.length === 0) { navigate(defaultUrl); return; }
+                                const { data: bizRows } = await supabase
+                                  .from("businesses")
+                                  .select("id, city, priority_score, wtuce_status")
+                                  .in("id", ids)
+                                  .eq("is_active", true)
+                                  .ilike("city", selectedCity);
+                                const ordered = ((bizRows as any[]) || [])
+                                  .sort((a, b) => {
+                                    const av = a.wtuce_status === "verified" ? 0 : 1;
+                                    const bv = b.wtuce_status === "verified" ? 0 : 1;
+                                    if (av !== bv) return av - bv;
+                                    return (b.priority_score || 0) - (a.priority_score || 0);
+                                  })
+                                  .map((b) => b.id);
+                                if (ordered.length === 0) { navigate(defaultUrl); return; }
+                                navigate(`/search?pinIds=${ordered.join(",")}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`);
+                                return;
+                              }
+                              navigate(defaultUrl);
+                            };
+                            return (
+                              <div key={v.key} className="group relative aspect-[9/16] w-[140px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[160px]">
+                                <button
+                                  type="button"
+                                  onClick={goSearch}
+                                  className="absolute inset-0 h-full w-full text-left"
+                                  aria-label={`Voir les résultats pour ${v.label} ${selectedCity}`}
+                                >
+                                  {thumb ? (
+                                    <img
+                                      src={thumb}
+                                      alt={v.businessName || v.label || ""}
+                                      loading="lazy"
+                                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                    />
+                                  ) : (
+                                    <div className="flex h-full w-full items-center justify-center bg-white/5">
+                                      <Play className="h-8 w-8 text-white/40" />
+                                    </div>
+                                  )}
+                                  <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/60 to-transparent" />
+                                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/60 to-transparent" />
+                                </button>
+                                {v.label && (
+                                  <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
+                                    <button
+                                      type="button"
+                                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                      onClick={goSearch}
+                                      className="rounded-md border-2 border-black bg-white px-2 py-1 text-center text-[10px] font-bold uppercase tracking-wide text-black shadow-lg line-clamp-2 hover:bg-white/90 transition-colors cursor-pointer"
+                                    >
+                                      {v.label}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-muted to-muted">
+                      <s.icon className="h-20 w-20 text-primary/60" strokeWidth={1} />
+                    </div>
+                  </div>
+                )}
                 <div>
                   <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
                     Étape {i + 1}
@@ -229,156 +375,6 @@ const HomeMindtrip = () => {
         </div>
       </section>
 
-      {/* VIDEOS BY CITY — embeds /videos with the same JSON-driven logic */}
-      <section className="bg-background py-12 md:py-16">
-
-        <div className="mx-auto max-w-7xl px-6 md:px-12">
-          <div className="flex items-center gap-3">
-            {CITIES.map((city) => {
-              const active = selectedCity === city;
-              return (
-                <button
-                  key={city}
-                  type="button"
-                  onClick={() => setSelectedCity(city)}
-                  className={`rounded-full px-5 py-2 font-josefin text-sm uppercase tracking-[0.2em] transition ${
-                    active
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border text-foreground/70 hover:text-foreground"
-                  }`}
-                >
-                  {city}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="relative mt-6">
-            {loadingVideos ? (
-              <div className="flex gap-3 overflow-x-auto scrollbar-hide-mobile">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="aspect-[9/16] w-[160px] shrink-0 animate-pulse rounded-lg bg-muted/40 md:w-[200px]" />
-                ))}
-              </div>
-            ) : videos.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-                Aucune vidéo pour {selectedCity}.
-              </div>
-            ) : (
-              <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide-mobile -mx-6 px-6 md:-mx-12 md:px-12">
-                {videos.map((v) => {
-                  const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
-                  if (!v.label) return null;
-                  const useSubcats = v.kind === "entry" && v.subcategoryNames.length > 0;
-                  const defaultUrl = useSubcats
-                    ? `/search?subcats=${encodeURIComponent(v.subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
-                    : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
-                  const goSearch = async (e: React.MouseEvent) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Manual card linked to a business but no badge/event → open BookOnlineSlidePanel directly
-                    let businessId = v.businessId;
-                    if (!businessId && !v.badgeId && !v.eventId && v.kind === "extra" && v.key.startsWith("extra:")) {
-                      const cardId = v.key.slice("extra:".length);
-                      const { data: card } = await (supabase as any)
-                        .from("front_structure_homepage_extra_cards")
-                        .select("business_id")
-                        .eq("id", cardId)
-                        .maybeSingle();
-                      businessId = (card as any)?.business_id || null;
-                    }
-                    if (!v.badgeId && !v.eventId && businessId) {
-                      navigate(`/search?pinIds=${encodeURIComponent(businessId)}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label || "")}&openBusiness=${encodeURIComponent(businessId)}&_t=${Date.now()}`);
-                      return;
-                    }
-                    if (v.badgeId) {
-                      // Look up the real badge name to decide hashtag vs. results tab
-                      const { data: badge } = await (supabase as any)
-                        .from("badges")
-                        .select("name_fr")
-                        .eq("id", v.badgeId)
-                        .maybeSingle();
-                      const badgeName: string = (badge as any)?.name_fr || v.label || "";
-                      if (badgeName.trim().startsWith("#")) {
-                        navigate(`/search?city=${encodeURIComponent(selectedCity)}&badgeId=${encodeURIComponent(v.badgeId)}&badgeLabel=${encodeURIComponent(badgeName)}&_t=${Date.now()}`);
-                        return;
-                      }
-                      // Non-# badge → Résultats tab: pin businesses tagged with this badge in the selected city
-                      const [{ data: links }, { data: docLinks }] = await Promise.all([
-                        supabase.from("business_badges").select("business_id").eq("badge_id", v.badgeId),
-                        supabase
-                          .from("business_document_badges")
-                          .select("business_documents!inner(business_id, linked_business_id)")
-                          .eq("badge_id", v.badgeId),
-                      ]);
-                      const ids = Array.from(new Set([
-                        ...((links as any[]) || []).map((l) => l.business_id),
-                        ...((docLinks as any[]) || []).map((l) => l.business_documents?.linked_business_id || l.business_documents?.business_id),
-                      ].filter(Boolean)));
-                      if (ids.length === 0) { navigate(defaultUrl); return; }
-                      const { data: bizRows } = await supabase
-                        .from("businesses")
-                        .select("id, city, priority_score, wtuce_status")
-                        .in("id", ids)
-                        .eq("is_active", true)
-                        .ilike("city", selectedCity);
-                      const ordered = ((bizRows as any[]) || [])
-                        .sort((a, b) => {
-                          const av = a.wtuce_status === "verified" ? 0 : 1;
-                          const bv = b.wtuce_status === "verified" ? 0 : 1;
-                          if (av !== bv) return av - bv;
-                          return (b.priority_score || 0) - (a.priority_score || 0);
-                        })
-                        .map((b) => b.id);
-                      if (ordered.length === 0) { navigate(defaultUrl); return; }
-                      navigate(`/search?pinIds=${ordered.join(",")}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`);
-                      return;
-                    }
-                    navigate(defaultUrl);
-                  };
-                  return (
-                    <div key={v.key} className="group relative aspect-[9/16] w-[160px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[200px]">
-                      <button
-                        type="button"
-                        onClick={goSearch}
-                        className="absolute inset-0 h-full w-full text-left"
-                        aria-label={`Voir les résultats pour ${v.label} ${selectedCity}`}
-                      >
-                        {thumb ? (
-                          <img
-                            src={thumb}
-                            alt={v.businessName || v.label || ""}
-                            loading="lazy"
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-white/5">
-                            <Play className="h-8 w-8 text-white/40" />
-                          </div>
-                        )}
-                        <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/60 to-transparent" />
-                        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/60 to-transparent" />
-                      </button>
-                      {v.label && (
-                        <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
-                          <button
-                            type="button"
-                            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                            onClick={goSearch}
-                            className="rounded-md border-2 border-black bg-white px-2.5 py-1 text-center text-[11px] font-bold uppercase tracking-wide text-black shadow-lg line-clamp-2 hover:bg-white/90 transition-colors cursor-pointer"
-                          >
-                            {v.label}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
 
 
 
