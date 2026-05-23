@@ -226,7 +226,9 @@ const HomeMindtrip = () => {
                   const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
                   if (!v.label) return null;
                   const useSubcats = v.kind === "entry" && v.subcategoryNames.length > 0;
-                  const url = useSubcats
+                  const url = v.badgeId
+                    ? `/search?city=${encodeURIComponent(selectedCity)}&badgeId=${encodeURIComponent(v.badgeId)}&badgeLabel=${encodeURIComponent(v.label)}&_t=${Date.now()}`
+                    : useSubcats
                     ? `/search?subcats=${encodeURIComponent(v.subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
                     : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
                   const goSearch = (e: React.MouseEvent) => {
