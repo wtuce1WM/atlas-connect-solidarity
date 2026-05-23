@@ -207,7 +207,7 @@ const HomeMindtrip = () => {
                   i === 0
                     ? "space-y-8"
                     : `grid items-center gap-10 md:grid-cols-2 md:gap-16 ${
-                        i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
+                        i % 2 === 1 && i !== 3 ? "md:[&>*:first-child]:order-2" : ""
                       }`
                 }
               >
