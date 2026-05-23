@@ -173,7 +173,11 @@ const Blog = () => {
             <Link to="/blog/essaouira-vue-mer">
               <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
                 <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                  <MapPin className="h-16 w-16 text-primary" />
+                  {staticHeroes.essaouira ? (
+                    <img src={staticHeroes.essaouira} alt="Essaouira vue sur mer" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                  ) : (
+                    <MapPin className="h-16 w-16 text-primary" />
+                  )}
                 </div>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
