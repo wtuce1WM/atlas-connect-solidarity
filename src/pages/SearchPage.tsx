@@ -1810,7 +1810,7 @@ const SearchPage = () => {
 
       setPinnedBusinesses([]);
 
-      if (!searchQuery.trim() && !categoryFromUrl) {
+      if (!searchQuery.trim() && !categoryFromUrl && subcategoryNamesFromUrl.length === 0) {
         if (fetchId !== latestFetchIdRef.current) return;
         setAllBusinesses([]);
         setTotalCount(null);
@@ -1834,15 +1834,17 @@ const SearchPage = () => {
       setPreciseMatch(false);
       setSearchMode(null);
       try {
+        const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
         // Use edge function for full-text search with server-side pagination
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
           body: { 
-            query: searchQuery.trim() || categoryFromUrl || undefined,
-            spoken: spokenText || undefined,
+            query: useSubcatBypass ? undefined : (searchQuery.trim() || categoryFromUrl || undefined),
+            spoken: useSubcatBypass ? undefined : (spokenText || undefined),
             language: language,
             pageSize: SERVER_PAGE_SIZE,
             offset: 0,
             compact: "card",
+            ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : {}),
           }
         });
 
