@@ -511,8 +511,8 @@ const STEPS = [
   {
     title: "Construisez votre itinéraire.",
     desc: "Marrakech, Essaouira, suivez les établissements qui vous intéressent, gardez les points d'intérêts dans votre compte Le Club OWM, soyez informé des bons plans, agenda, annonces...",
-    cta: "Toutes les destinations",
-    href: "/carte",
+    cta: "Inscrivez-vous",
+    href: "/club",
     icon: Compass,
   },
   {
