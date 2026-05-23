@@ -305,6 +305,7 @@ async function buildSnapshot(supabase: any, city: string) {
         label,
         badgeId: card.badge_id || null,
         eventId: card.event_id || null,
+        businessId: card.business_id || null,
         target,
         price: isImmo ? (immo?.price ?? null) : null,
         priceType: isImmo ? (immo?.price_type ?? null) : null,
