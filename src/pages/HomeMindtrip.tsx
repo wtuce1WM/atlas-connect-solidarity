@@ -35,7 +35,7 @@ type VideoSlot = {
 };
 
 const HomeMindtrip = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  
   const navigate = useNavigate();
 
 
