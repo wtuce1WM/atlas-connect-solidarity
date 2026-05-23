@@ -8,6 +8,11 @@ import { useSEO } from "@/hooks/useSEO";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
+import heroBg from "@/assets/home-mindtrip/hero-bg.jpg";
+import heroPortal from "@/assets/home-mindtrip/hero-portal.png";
+import heroDoor from "@/assets/home-mindtrip/hero-door.png";
+import heroTea from "@/assets/home-mindtrip/hero-tea.png";
+import heroCamel from "@/assets/home-mindtrip/hero-camel.png";
 import cloudImg from "@/assets/home-mindtrip/cloud.png";
 import petalImg from "@/assets/home-mindtrip/petal.png";
 
