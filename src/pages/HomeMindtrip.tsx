@@ -23,26 +23,29 @@ const HomeMindtrip = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* TOP BAR */}
-      <nav className="absolute left-0 right-0 top-0 z-20 mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5 md:px-12">
-        <Link to="/" aria-label="Accueil" className="flex items-center gap-3">
-          <img src={logoHamsa} alt="One World Morocco" className="h-8 w-auto md:h-9" />
-          <span className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground">
-            ONE WORLD MOROCCO
-          </span>
-        </Link>
-        <div className="flex items-center gap-6">
-          <Link to="/devenir-affilie" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
-            Ajoutez votre entreprise
+      {/* TOP BAR — sticky */}
+      <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-background/70 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4 md:px-12">
+          <Link to="/" aria-label="Accueil" className="flex items-center gap-3">
+            <img src={logoHamsa} alt="One World Morocco" className="h-8 w-auto md:h-9" />
+            <span className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground">
+              ONE WORLD MOROCCO
+            </span>
           </Link>
-          <Link to="/club" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
-            Le club OWM
-          </Link>
-          <Link to="/install" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
-            Application
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link to="/devenir-affilie" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
+              Ajoutez votre entreprise
+            </Link>
+            <Link to="/club" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
+              Le club OWM
+            </Link>
+            <Link to="/install" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
+              Application
+            </Link>
+          </div>
         </div>
       </nav>
+
 
 
       {/* HERO */}
