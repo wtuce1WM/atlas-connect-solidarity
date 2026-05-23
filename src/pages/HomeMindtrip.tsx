@@ -23,6 +23,7 @@ type VideoSlot = {
   thumbnail: string | null;
   businessName: string | null;
   label: string | null;
+  subcategoryNames: string[];
 };
 
 const HomeMindtrip = () => {
@@ -64,6 +65,7 @@ const HomeMindtrip = () => {
             thumbnail: s.data.thumbnail,
             businessName: s.data.businessName ?? null,
             label: s.data.label ?? null,
+            subcategoryNames: Array.isArray(s.data.subcategoryNames) ? s.data.subcategoryNames : [],
           }));
         setVideos(slots);
         setLoadingVideos(false);
@@ -219,11 +221,14 @@ const HomeMindtrip = () => {
                 {videos.map((v) => {
                   const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
                   if (!v.label) return null;
-                  const q = `${v.label} ${selectedCity}`;
+                  const useSubcats = v.kind === "entry" && v.subcategoryNames.length > 0;
+                  const url = useSubcats
+                    ? `/search?subcats=${encodeURIComponent(v.subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
+                    : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
                   const goSearch = (e: React.MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    navigate(`/search?q=${encodeURIComponent(q)}&_t=${Date.now()}`);
+                    navigate(url);
                   };
                   return (
                     <div key={v.key} className="group relative aspect-[9/16] w-[160px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[200px]">
@@ -231,7 +236,7 @@ const HomeMindtrip = () => {
                         type="button"
                         onClick={goSearch}
                         className="absolute inset-0 h-full w-full text-left"
-                        aria-label={`Voir les résultats pour ${q}`}
+                        aria-label={`Voir les résultats pour ${v.label} ${selectedCity}`}
                       >
                         {thumb ? (
                           <img

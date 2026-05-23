@@ -699,7 +699,35 @@ serve(async (req) => {
     skipRerank,
     mainCategory,
     compact,
-    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null } = await req.json();
+    subcategoryNames,
+    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null; subcategoryNames?: string[] } = await req.json();
+
+    // ── BYPASS: front-structure entry + city → deterministic filter (no FTS, no LLM) ──
+    if (Array.isArray(subcategoryNames) && subcategoryNames.length > 0 && city) {
+      const SELECT = "id, name, slug, city, neighborhood, address, phone, whatsapp, main_category, categories, services, logo_url, images, latitude, longitude, rating, computed_rating, total_review_count, wtuce_status, opening_hours, show_opening_hours, is_open_24h, default_service, engagements, priority_score, hook_fr, hook_en, hook_ar, gamme_id, badge_id, vacation_dates, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count";
+      const { data: rows, error: bypassErr, count } = await supabase
+        .from("businesses")
+        .select(SELECT, { count: "exact" })
+        .overlaps("categories", subcategoryNames)
+        .eq("city", city)
+        .order("priority_score", { ascending: false, nullsFirst: false })
+        .range(offset, offset + pageSize - 1);
+      if (bypassErr) throw bypassErr;
+      return new Response(JSON.stringify({
+        businesses: rows || [],
+        searchLevel: "exact",
+        message: "",
+        totalResults: (rows || []).length,
+        totalCount: count ?? (rows || []).length,
+        detectedSubcategory: null,
+        detectedCity: city,
+        detectedNeighborhood: null,
+        detectedCategory: null,
+        detectedService: null,
+        searchMode: "broad",
+        disambiguationType: null,
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     const isAutocomplete = mode === "autocomplete";
 
