@@ -542,20 +542,25 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && videoName && !(isGeneric && social?.account && videoName === `@${social.account}`) && (
-          <div className="absolute top-40 md:top-40 lg:top-44 left-4 right-4 z-[60] pointer-events-none flex justify-center">
-            <p
-              className="text-sm md:text-base font-bold text-white text-center line-clamp-3"
-              style={{
-                fontFamily: "'Roboto', sans-serif",
-                letterSpacing: "0.02em",
-                filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
-              }}
-            >
-              {videoName}
-            </p>
-          </div>
-        )}
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && videoName && !(isGeneric && social?.account && videoName === `@${social.account}`) && (() => {
+          const dateStr = eventId && eventInfo ? formatEventDateRange(eventInfo.start_date, eventInfo.end_date) : null;
+          const daysStr = eventId && eventInfo ? formatDaysOfWeek(eventInfo.days_of_week) : null;
+          const timeStr = eventId && eventInfo ? formatTimeRange(eventInfo.start_time, eventInfo.end_time) : null;
+          const shadow = "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))";
+          return (
+            <div className="absolute top-40 md:top-40 lg:top-44 left-4 right-4 z-[60] pointer-events-none flex flex-col items-center gap-1 text-center">
+              <p
+                className="text-sm md:text-base font-bold text-white line-clamp-3"
+                style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: "0.02em", filter: shadow }}
+              >
+                {videoName}
+              </p>
+              {dateStr && <p className="text-xs md:text-sm font-semibold text-white" style={{ filter: shadow }}>{dateStr}</p>}
+              {daysStr && <p className="text-xs md:text-sm font-semibold text-white" style={{ filter: shadow }}>{daysStr}</p>}
+              {timeStr && <p className="text-xs md:text-sm font-semibold text-white" style={{ filter: shadow }}>{timeStr}</p>}
+            </div>
+          );
+        })()}
 
         {(onPrev || onNext) && (
           <div className="absolute top-1/2 -translate-y-1/2 right-4 z-10 flex flex-col gap-3">
