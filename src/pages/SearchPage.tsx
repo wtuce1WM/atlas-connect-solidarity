@@ -1080,6 +1080,23 @@ const SearchPage = () => {
     }
   }, [language, saveSearch]);
 
+  // Auto-trigger hotel search when URL contains hotelCity + dates + adults (e.g. from home widget)
+  const autoHotelSearchRef = useRef(false);
+  useEffect(() => {
+    if (autoHotelSearchRef.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const city = params.get("hotelCity");
+    const checkIn = params.get("hotelCheckIn");
+    const checkOut = params.get("hotelCheckOut");
+    const adults = params.get("hotelAdults");
+    if (city && checkIn && checkOut && adults) {
+      autoHotelSearchRef.current = true;
+      handleHotelSearch({ city, checkIn, checkOut, adults: parseInt(adults, 10) || 2 }, params.get("spoken") || undefined);
+    }
+  }, [handleHotelSearch]);
+
+
+
 
   const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
