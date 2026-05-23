@@ -704,7 +704,7 @@ serve(async (req) => {
 
     // ── BYPASS: front-structure entry + city → deterministic filter (no FTS, no LLM) ──
     if (Array.isArray(subcategoryNames) && subcategoryNames.length > 0 && city) {
-      const SELECT = "id, name, slug, city, neighborhood, address, phone, whatsapp, main_category, categories, services, logo_url, images, latitude, longitude, rating, computed_rating, total_review_count, wtuce_status, opening_hours, show_opening_hours, is_open_24h, default_service, engagements, priority_score, hook_fr, hook_en, hook_ar, gamme_id, badge_id, vacation_dates, destination_enriched, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count";
+      const SELECT = "id, name, slug, city, neighborhood, address, phone, whatsapp, main_category, categories, services, logo_url, images, latitude, longitude, rating, computed_rating, total_review_count, wtuce_status, opening_hours, show_opening_hours, is_open_24h, default_service, engagements, priority_score, hook_fr, hook_en, hook_ar, gamme_id, badge_id, vacation_dates, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count";
       const { data: rows, error: bypassErr, count } = await supabase
         .from("businesses")
         .select(SELECT, { count: "exact" })
