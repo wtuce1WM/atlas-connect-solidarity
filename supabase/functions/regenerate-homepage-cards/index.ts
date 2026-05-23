@@ -294,8 +294,6 @@ async function buildSnapshot(supabase: any, city: string) {
         reviewCount: dispBiz?.total_review_count ?? null,
         label,
         badgeId: card.badge_id || null,
-        badgeName,
-        searchQuery,
         eventId: card.event_id || null,
         target,
         price: isImmo ? (immo?.price ?? null) : null,
