@@ -99,6 +99,7 @@ const GlobalFloatingSearchBar = () => {
   // Hide on home page and staff/affiliate backoffice pages
   const hiddenPaths = ["/", "/corporate", "/club", "/install", "/search", "/test", "/videos", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
+  if (location.pathname.startsWith("/blog")) return null;
   return <FloatingSearchBar />;
 };
 const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "club" | "whatsapp" | null; setActivePanel: (v: "club" | "whatsapp" | null) => void }) => {
@@ -106,7 +107,8 @@ const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "c
   if (location.pathname.startsWith("/staff/")) return null;
   const isHome = location.pathname === "/";
   const noFloating = ["/corporate", "/club", "/install"].includes(location.pathname);
-  const hideClub = location.pathname === "/test" || location.pathname === "/videos" || isHome || noFloating;
+  const isBlog = location.pathname.startsWith("/blog");
+  const hideClub = location.pathname === "/test" || location.pathname === "/videos" || isHome || noFloating || isBlog;
   const hideWhatsapp = isHome || noFloating;
   return (
     <>
