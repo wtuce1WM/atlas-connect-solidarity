@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSEO } from "@/hooks/useSEO";
 import { businessUrl } from "@/lib/businessUrl";
-import Header from "@/components/Header";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -157,7 +157,7 @@ const MarrakechArtisanat5Jours = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <HomeMindtripHeader />
 
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
