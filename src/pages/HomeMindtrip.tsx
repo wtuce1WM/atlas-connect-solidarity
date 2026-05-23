@@ -198,14 +198,61 @@ const HomeMindtrip = () => {
             })}
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-background">
-            <iframe
-              key={selectedCity}
-              src={`/videos?city=${encodeURIComponent(selectedCity)}&entry=__home__`}
-              title={`Vidéos ${selectedCity}`}
-              className="block h-[80vh] w-full"
-              loading="lazy"
-            />
+          <div className="relative mt-6">
+            {loadingVideos ? (
+              <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4 lg:grid-cols-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="aspect-square animate-pulse rounded-lg bg-muted/40" />
+                ))}
+              </div>
+            ) : videos.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                Aucune vidéo pour {selectedCity}.
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4 lg:grid-cols-6">
+                {videos.map((v) => {
+                  const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
+                  return (
+                    <button
+                      key={v.key}
+                      type="button"
+                      onClick={() => v.videoUrl && setActiveVideoUrl(v.videoUrl)}
+                      className="group relative aspect-square overflow-hidden rounded-lg bg-muted text-left"
+                      aria-label={v.label ? `Lire ${v.label}` : "Lire la vidéo"}
+                    >
+                      {thumb ? (
+                        <img
+                          src={thumb}
+                          alt={v.label || ""}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-white/5">
+                          <Play className="h-8 w-8 text-white/40" />
+                        </div>
+                      )}
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm">
+                          <Play className="h-5 w-5 fill-white text-white" />
+                        </div>
+                      </div>
+                      {v.label && (
+                        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
+                          <p className="truncate font-josefin text-[11px] font-medium text-white">{v.label}</p>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {activeVideoUrl && (
+              <div className="fixed inset-0 z-[80] bg-black">
+                <FullscreenVideoOverlay videoUrl={activeVideoUrl} onClose={() => setActiveVideoUrl(null)} />
+              </div>
+            )}
           </div>
         </div>
       </section>
