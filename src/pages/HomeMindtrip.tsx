@@ -25,14 +25,8 @@ type VideoSlot = {
 
 const HomeMindtrip = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
 
-  useSEO({
-    title: "ONE WORLD MOROCCO — Voyagez autrement au Maroc",
-    description:
-      "Inspirez-vous des meilleures adresses du Maroc : hôtels, restaurants, expériences et itinéraires sélectionnés et vérifiés.",
-    canonical: "/",
-  });
+
 
   const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
   const [videos, setVideos] = useState<VideoSlot[]>([]);
