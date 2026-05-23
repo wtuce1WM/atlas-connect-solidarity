@@ -1809,14 +1809,22 @@ const SearchPage = () => {
   // We request SERVER_PAGE_SIZE (21) from the server so that after the AI suggestion card takes 1 slot,
   // the user still sees 20 real business results per page.
   const serverTotalCount = totalCount ?? filteredBusinesses.length;
+  // In pinIds mode, page 1 shows 23 businesses (AI suggestion card takes the 4th slot
+  // → 24 cards total in the grid). Subsequent pages show ITEMS_PER_PAGE (20).
+  const PIN_PAGE1_SIZE = ITEMS_PER_PAGE + 3;
   const totalPages = useMemo(() => {
+    if (pinIdsParam) {
+      if (serverTotalCount <= PIN_PAGE1_SIZE) return 1;
+      return 1 + Math.ceil((serverTotalCount - PIN_PAGE1_SIZE) / ITEMS_PER_PAGE);
+    }
     if (serverTotalCount <= ITEMS_PER_PAGE) return 1;
     return Math.ceil(serverTotalCount / ITEMS_PER_PAGE);
-  }, [serverTotalCount]);
+  }, [serverTotalCount, pinIdsParam]);
   // With server-side pagination, filteredBusinesses already contains only the current page's results
   const paginatedBusinesses = useMemo(() => {
     if (pinIdsParam) {
-      const start = (currentPage - 1) * ITEMS_PER_PAGE;
+      if (currentPage === 1) return filteredBusinesses.slice(0, PIN_PAGE1_SIZE);
+      const start = PIN_PAGE1_SIZE + (currentPage - 2) * ITEMS_PER_PAGE;
       return filteredBusinesses.slice(start, start + ITEMS_PER_PAGE);
     }
     return filteredBusinesses;
@@ -2442,8 +2450,12 @@ const SearchPage = () => {
     }
   };
 
-  const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
-  const endResult = Math.min(startResult + ITEMS_PER_PAGE - 1, serverTotalCount);
+  const startResult = pinIdsParam
+    ? (currentPage === 1 ? 1 : PIN_PAGE1_SIZE + (currentPage - 2) * ITEMS_PER_PAGE + 1)
+    : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endResult = pinIdsParam
+    ? Math.min(startResult + (currentPage === 1 ? PIN_PAGE1_SIZE : ITEMS_PER_PAGE) - 1, serverTotalCount)
+    : Math.min(startResult + ITEMS_PER_PAGE - 1, serverTotalCount);
   const displayedResultsCount = serverTotalCount;
   const stickyAiText = useMemo(
     () => aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " "),
