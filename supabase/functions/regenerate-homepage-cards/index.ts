@@ -15,7 +15,7 @@ function deriveThumbnail(url: string): string | null {
 }
 
 async function buildSnapshot(supabase: any, city: string) {
-  const [cityRowRes, entriesRes, linksRes, overridesRes, badgesRes, extraRes, orderRes] = await Promise.all([
+  const [cityRowRes, entriesRes, linksRes, overridesRes, badgesRes, extraRes, orderRes, subcatRes] = await Promise.all([
     supabase.from("cities").select("id").eq("name_fr", city).maybeSingle(),
     supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
     supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
@@ -31,7 +31,11 @@ async function buildSnapshot(supabase: any, city: string) {
       .select("item_type, item_id, sort_order")
       .eq("city", city)
       .order("sort_order", { ascending: true }),
+    supabase.from("subcategories").select("id, name_fr"),
   ]);
+  const subcatNameById = new Map<string, string>(
+    ((subcatRes.data as any[]) || []).map((s) => [s.id, s.name_fr])
+  );
 
   const cityRowId = (cityRowRes.data as any)?.id || null;
   const linkedDocIdsRes = cityRowId
