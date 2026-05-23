@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check } from "lucide-react";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import { resolveHomepageCity } from "@/lib/cityHomepage";
 
 type Platform = "ios" | "android" | "mac" | "windows";
