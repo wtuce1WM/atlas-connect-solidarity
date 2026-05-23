@@ -98,7 +98,18 @@ const HomeMindtrip = () => {
         </picture>
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent md:bg-gradient-to-r md:from-background/80 md:via-background/40 md:to-transparent" />
 
+        {/* Floating decorative layers */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 z-[5] hidden md:block">
+          <img src={cloudImg} alt="" loading="lazy" className="absolute left-[6%] top-[58%] w-[22%] opacity-80 mix-blend-screen animate-float-slow" />
+          <img src={cloudImg} alt="" loading="lazy" className="absolute left-[52%] top-[70%] w-[26%] opacity-70 mix-blend-screen animate-float-soft [animation-delay:-3s]" />
+          <img src={cloudImg} alt="" loading="lazy" className="absolute left-[30%] top-[18%] w-[18%] opacity-50 mix-blend-screen animate-float-slow [animation-delay:-6s]" />
+          <img src={petalImg} alt="" loading="lazy" className="absolute left-[28%] top-[28%] w-[5%] animate-drift-petal" />
+          <img src={petalImg} alt="" loading="lazy" className="absolute left-[78%] top-[45%] w-[6%] animate-drift-petal [animation-delay:-4s]" />
+          <img src={petalImg} alt="" loading="lazy" className="absolute left-[58%] top-[78%] w-[4%] animate-drift-petal [animation-delay:-8s]" />
+        </div>
+
         <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-6 py-24 md:px-12">
+
           <h1 className="font-josefin text-5xl font-light leading-[0.95] tracking-tight text-foreground md:text-7xl lg:text-8xl">
             Le Maroc<br />autrement<span className="text-foreground">.</span>
           </h1>
