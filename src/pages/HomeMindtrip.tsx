@@ -71,6 +71,7 @@ const HomeMindtrip = () => {
             subcategoryNames: Array.isArray(s.data.subcategoryNames) ? s.data.subcategoryNames : [],
             badgeId: s.data.badgeId ?? (s.data.target?.type === "badge" ? s.data.target.id : null),
             eventId: s.data.eventId ?? (s.data.target?.type === "event" ? s.data.target.id : null),
+            businessId: s.data.businessId ?? null,
           }));
         setVideos(slots);
         setLoadingVideos(false);
