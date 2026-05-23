@@ -226,15 +226,50 @@ const HomeMindtrip = () => {
                   const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
                   if (!v.label) return null;
                   const useSubcats = v.kind === "entry" && v.subcategoryNames.length > 0;
-                  const url = v.badgeId
-                    ? `/search?city=${encodeURIComponent(selectedCity)}&badgeId=${encodeURIComponent(v.badgeId)}&badgeLabel=${encodeURIComponent(v.label)}&_t=${Date.now()}`
-                    : useSubcats
+                  const defaultUrl = useSubcats
                     ? `/search?subcats=${encodeURIComponent(v.subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
                     : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
-                  const goSearch = (e: React.MouseEvent) => {
+                  const goSearch = async (e: React.MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    navigate(url);
+                    if (v.badgeId) {
+                      // Look up the real badge name to decide hashtag vs. results tab
+                      const { data: badge } = await (supabase as any)
+                        .from("badges")
+                        .select("name_fr")
+                        .eq("id", v.badgeId)
+                        .maybeSingle();
+                      const badgeName: string = (badge as any)?.name_fr || v.label || "";
+                      if (badgeName.trim().startsWith("#")) {
+                        navigate(`/search?city=${encodeURIComponent(selectedCity)}&badgeId=${encodeURIComponent(v.badgeId)}&badgeLabel=${encodeURIComponent(badgeName)}&_t=${Date.now()}`);
+                        return;
+                      }
+                      // Non-# badge → Résultats tab: pin businesses tagged with this badge in the selected city
+                      const { data: links } = await supabase
+                        .from("business_badges")
+                        .select("business_id")
+                        .eq("badge_id", v.badgeId);
+                      const ids = ((links as any[]) || []).map((l) => l.business_id).filter(Boolean);
+                      if (ids.length === 0) { navigate(defaultUrl); return; }
+                      const { data: bizRows } = await supabase
+                        .from("businesses")
+                        .select("id, city, priority_score, wtuce_status")
+                        .in("id", ids)
+                        .eq("is_active", true)
+                        .ilike("city", selectedCity);
+                      const ordered = ((bizRows as any[]) || [])
+                        .sort((a, b) => {
+                          const av = a.wtuce_status === "verified" ? 0 : 1;
+                          const bv = b.wtuce_status === "verified" ? 0 : 1;
+                          if (av !== bv) return av - bv;
+                          return (b.priority_score || 0) - (a.priority_score || 0);
+                        })
+                        .map((b) => b.id);
+                      if (ordered.length === 0) { navigate(defaultUrl); return; }
+                      navigate(`/search?pinIds=${ordered.join(",")}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`);
+                      return;
+                    }
+                    navigate(defaultUrl);
                   };
                   return (
                     <div key={v.key} className="group relative aspect-[9/16] w-[160px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[200px]">
