@@ -319,7 +319,7 @@ export default function ResultsTabContent({
                     <X className="h-4 w-4" />
                   </button>
                   <span className="flex-1 text-sm font-medium text-black truncate">
-                    {mapPoiItems.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{spokenText || searchQuery || (activeFsTabId ? `${frontTabs.find(t => t.id === activeFsTabId)?.name || ''}${effectiveCity ? ` à ${effectiveCity}` : ''}`.trim() : '')}"
+                    {mapPoiItems.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{spokenText || searchQuery || (activeFsTabId ? `${frontTabs.find(t => t.id === activeFsTabId)?.name || ''}${effectiveCity ? ` à ${effectiveCity}` : ''}`.trim() : (labelFromUrl ? `${labelFromUrl}${effectiveCity ? ` à ${effectiveCity}` : ''}`.trim() : ''))}"
                   </span>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
