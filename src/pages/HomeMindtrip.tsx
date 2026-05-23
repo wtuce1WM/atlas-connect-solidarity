@@ -1,4 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X } from "lucide-react";
+
+import Footer from "@/components/Footer";
+import SearchInput from "@/components/SearchInput";
+import { useSEO } from "@/hooks/useSEO";
+import heroImage from "@/assets/home-mindtrip/hero.jpg";
+import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
+import logoHamsa from "@/assets/logo-hamsa-gold.png";
+
+const CITIES = ["Marrakech", "Essaouira"] as const;
+type CityKey = (typeof CITIES)[number];
+
+const HomeMindtrip = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
+
+  useSEO({
+    title: "ONE WORLD MOROCCO — Voyagez autrement au Maroc",
+    description:
+      "Inspirez-vous des meilleures adresses du Maroc : hôtels, restaurants, expériences et itinéraires sélectionnés et vérifiés.",
+    canonical: "/",
+  });
+
+  const scrollToNext = () => {
+    const el = document.getElementById("how-it-works");
+    el?.scrollIntoView({ behavior: "smooth" });
+  };
+
+
 import { Link } from "react-router-dom";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Menu, X, Play } from "lucide-react";
 
