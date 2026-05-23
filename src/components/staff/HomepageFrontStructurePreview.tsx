@@ -999,6 +999,19 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                     )}
                   </div>
                   <div>
+                    <label className="text-[9px] text-muted-foreground">Requête</label>
+                    <Input
+                      key={`sq-${card.cardId}-${card.search_query || ""}`}
+                      defaultValue={card.search_query || ""}
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (v !== (card.search_query || "")) updateExtraCard(card.cardId, { search_query: v || null });
+                      }}
+                      placeholder="Requête de recherche…"
+                      className="h-5 px-1 text-[9px]"
+                    />
+                  </div>
+                  <div>
                     <label className="text-[9px] text-muted-foreground">
                       Événement {card.event_id && <span className="text-primary">(lié)</span>}
                     </label>
