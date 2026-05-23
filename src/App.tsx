@@ -202,7 +202,8 @@ const AppContent = () => {
           <GlobalFloatingSearchBar />
           <FloatingButtonsGuard activePanel={activePanel} setActivePanel={setActivePanel} />
         </BrowserRouter>
-      </TooltipProvider>
+        </TooltipProvider>
+      </Suspense>
     </div>
   );
 };
