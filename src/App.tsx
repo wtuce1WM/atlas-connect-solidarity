@@ -6,10 +6,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate, useParams } from "react-router-dom";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
-import FloatingSearchBar from "@/components/FloatingSearchBar";
-import StaffRouteGuard from "@/components/StaffRouteGuard";
-import FloatingClubButton from "@/components/FloatingClubButton";
-import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
+const FloatingSearchBar = lazy(() => import("@/components/FloatingSearchBar"));
+const StaffRouteGuard = lazy(() => import("@/components/StaffRouteGuard"));
+const FloatingClubButton = lazy(() => import("@/components/FloatingClubButton"));
+const FloatingWhatsAppButton = lazy(() => import("@/components/FloatingWhatsAppButton"));
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
 const Index = lazy(() => import("./pages/Index"));
@@ -101,7 +101,7 @@ const GlobalFloatingSearchBar = () => {
   const hiddenPaths = ["/", "/corporate", "/club", "/install", "/search", "/test", "/videos", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   if (location.pathname.startsWith("/blog")) return null;
-  return <FloatingSearchBar />;
+  return <Suspense fallback={null}><FloatingSearchBar /></Suspense>;
 };
 const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "club" | "whatsapp" | null; setActivePanel: (v: "club" | "whatsapp" | null) => void }) => {
   const location = useLocation();
@@ -111,11 +111,12 @@ const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "c
   const isBlog = location.pathname.startsWith("/blog");
   const hideClub = location.pathname === "/test" || location.pathname === "/videos" || isHome || noFloating || isBlog;
   const hideWhatsapp = isHome || noFloating;
+  if (hideClub && hideWhatsapp) return null;
   return (
-    <>
+    <Suspense fallback={null}>
       {!hideClub && <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />}
       {!hideWhatsapp && <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />}
-    </>
+    </Suspense>
   );
 };
 
