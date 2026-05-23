@@ -144,7 +144,12 @@ const SearchPage = () => {
 
     const { data } = await supabase.from("badges").select("id, name_fr");
     const target = normalizeText(label);
-    return ((data as any[]) || []).find((badge: any) => normalizeText(badge.name_fr || "") === target)?.id || "";
+    const stripS = (s: string) => s.replace(/s$/, "");
+    const targetSingular = stripS(target);
+    return ((data as any[]) || []).find((badge: any) => {
+      const n = normalizeText(badge.name_fr || "");
+      return n === target || n === targetSingular || stripS(n) === target || stripS(n) === targetSingular;
+    })?.id || "";
   }, [pinBadgeParam, badgeIdParam, labelFromUrl, badgeLabelParam]);
 
   useEffect(() => {
