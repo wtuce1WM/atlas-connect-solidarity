@@ -17,7 +17,7 @@ const HomeMindtripHeader = () => {
         </Link>
 
         <div className="hidden items-center gap-6 md:flex">
-          <Link to="/devenir-affilie" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
+          <Link to="/corporate" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
             Ajoutez votre entreprise
           </Link>
           <Link to="/club" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
@@ -42,7 +42,7 @@ const HomeMindtripHeader = () => {
       {menuOpen && (
         <div className="border-t border-white/10 bg-background/95 backdrop-blur-md md:hidden">
           <div className="flex flex-col gap-1 px-4 py-3">
-            <Link to="/devenir-affilie" onClick={() => setMenuOpen(false)} className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 py-2">
+            <Link to="/corporate" onClick={() => setMenuOpen(false)} className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 py-2">
               Ajoutez votre entreprise
             </Link>
             <Link to="/club" onClick={() => setMenuOpen(false)} className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 py-2">
