@@ -1447,12 +1447,12 @@ const SearchPage = () => {
       const allowSet = new Set(orderedIds);
       const byId: Record<string, Business> = {};
       for (const b of filtered) if (allowSet.has(b.id)) byId[b.id] = b;
-      const ordered = orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
+      const ordered = orderedIds.map(id => byId[id]).filter(Boolean).map(applyPinThumb) as Business[];
       return ordered;
     }
 
-    return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam, availabilityRestrictedIds]);
+    return [...filtered].sort(sortWtuceAndRating).map(applyPinThumb);
+  }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam, availabilityRestrictedIds, pinThumbMap]);
 
   // Keep nav ref in sync so the slide-panel chevrons reflect the current displayed list
   useEffect(() => {
