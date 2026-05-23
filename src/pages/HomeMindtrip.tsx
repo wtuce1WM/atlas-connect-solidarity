@@ -525,7 +525,7 @@ const HotelAvailabilityWidget = () => {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams({ city, checkIn, checkOut, adults: String(adults) });
-    navigate(`/hotel-search?${params.toString()}`);
+    navigate(`/hotels?${params.toString()}`);
   };
 
   return (
