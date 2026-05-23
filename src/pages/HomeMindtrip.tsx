@@ -36,7 +36,7 @@ const HomeMindtrip = () => {
   const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
   const [videos, setVideos] = useState<VideoSlot[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
-  const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
+  
 
   useSEO({
     title: "ONE WORLD MOROCCO — Voyagez autrement au Maroc",
