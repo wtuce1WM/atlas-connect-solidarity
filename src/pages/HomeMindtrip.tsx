@@ -528,7 +528,7 @@ const STEPS = [
     icon: Compass,
   },
   {
-    title: "Réservez l'esprit léger.",
+    title: "Réservez l'esprit léger, participez à l'économie direct-to-local.",
     desc: "Réservez directement vos hôtels, restaurants et activités auprès de partenaires de confiance.",
     cta: "Voir les hôtels",
     href: "/hotels",
