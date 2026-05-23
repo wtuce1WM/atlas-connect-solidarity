@@ -322,19 +322,49 @@
           <div class="them"><span>Booking · Airbnb · Expedia</span><span class="v">jusqu'à 25%</span></div>
         </div>
       </div>
-      <div class="model-visual reveal">
+      <div class="model-visual reveal" style="position:relative">
         <video
+          id="modelVideo"
           class="ph"
           src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1777800001847-84ntzf.mp4"
           poster="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/thumbs/generic-1777800015758-60ney6.jpg"
           autoplay muted loop playsinline preload="metadata"
           style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit"
         ></video>
+        <div style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:3">
+          <button type="button" id="modelPlayBtn" aria-label="Play/Pause" style="width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">
+            <svg id="modelPlayIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+          </button>
+          <button type="button" id="modelMuteBtn" aria-label="Mute/Unmute" style="width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">
+            <svg id="modelMuteIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.04v7.91A4.5 4.5 0 0 0 16.5 12z"/><line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+        </div>
         <div class="tag">
           <b>20%</b>
           <small>Reversés à des causes humanitaires au Maroc</small>
         </div>
       </div>
+      <script>
+        (function(){
+          var v=document.getElementById('modelVideo');
+          var pb=document.getElementById('modelPlayBtn');
+          var mb=document.getElementById('modelMuteBtn');
+          var pi=document.getElementById('modelPlayIcon');
+          var mi=document.getElementById('modelMuteIcon');
+          if(!v||!pb||!mb) return;
+          var playIcon='<rect x="7" y="5" width="3" height="14"/><rect x="14" y="5" width="3" height="14"/>';
+          var pauseIcon='<polygon points="6,4 20,12 6,20"/>';
+          var muteIcon='<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.04v7.91A4.5 4.5 0 0 0 16.5 12z"/><line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2"/>';
+          var soundIcon='<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.04v7.91A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06A7 7 0 0 1 14 18.7v2.06a9 9 0 0 0 0-17.54z"/>';
+          function syncP(){pi.innerHTML=v.paused?pauseIcon:playIcon;}
+          function syncM(){mi.innerHTML=v.muted?muteIcon:soundIcon;}
+          pb.addEventListener('click',function(){v.paused?v.play():v.pause();});
+          mb.addEventListener('click',function(){v.muted=!v.muted;});
+          v.addEventListener('play',syncP);v.addEventListener('pause',syncP);
+          v.addEventListener('volumechange',syncM);
+          syncP();syncM();
+        })();
+      </script>
     </div>
   </div>
 </section>
