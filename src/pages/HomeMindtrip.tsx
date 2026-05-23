@@ -58,10 +58,12 @@ const HomeMindtrip = () => {
           .filter((s) => s?.data?.videoId && (s?.data?.videoUrl || s?.data?.thumbnail))
           .map((s, i) => ({
             key: s.key || `v-${i}`,
+            kind: s.kind === "extra" ? "extra" : "entry",
             videoId: s.data.videoId,
             videoUrl: s.data.videoUrl,
             thumbnail: s.data.thumbnail,
-            label: s.data.businessName || s.data.label || null,
+            businessName: s.data.businessName ?? null,
+            label: s.data.label ?? null,
           }));
         setVideos(slots);
         setLoadingVideos(false);
