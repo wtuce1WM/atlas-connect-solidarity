@@ -2251,14 +2251,16 @@ const SearchPage = () => {
     const offset = (page - 1) * ITEMS_PER_PAGE;
     setIsLoading(true);
     try {
+      const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
       const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
         body: {
-          query: searchQuery.trim() || searchParams.get("category") || undefined,
-          spoken: searchParams.get("spoken") || undefined,
+          query: useSubcatBypass ? undefined : (searchQuery.trim() || searchParams.get("category") || undefined),
+          spoken: useSubcatBypass ? undefined : (searchParams.get("spoken") || undefined),
           language: language,
           pageSize: SERVER_PAGE_SIZE,
           offset,
           compact: "card",
+          ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : {}),
         }
       });
       if (error) throw error;
