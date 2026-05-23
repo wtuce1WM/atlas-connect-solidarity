@@ -1,0 +1,1 @@
+DELETE FROM blog_posts WHERE id IN ('5157772f-b054-41ac-91c4-d6895227fe6f','ab90e3e8-c54a-4dcc-a0c4-a27760fc148e','7cc33642-d522-4965-aac5-4f9f5aa7b154');
