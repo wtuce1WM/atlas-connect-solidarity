@@ -674,6 +674,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       title: card.title,
       event_id: card.event_id,
       eventName,
+      search_query: card.search_query,
     }));
   };
 
