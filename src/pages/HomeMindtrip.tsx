@@ -22,8 +22,21 @@ const HomeMindtrip = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* TOP LINKS */}
+      <nav className="absolute left-0 right-0 top-0 z-20 mx-auto flex max-w-7xl items-center justify-end gap-6 px-6 py-5 md:px-12">
+        <Link to="/devenir-affilie" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
+          Ajoutez votre entreprise
+        </Link>
+        <Link to="/club" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
+          Le club OWM
+        </Link>
+        <Link to="/install" className="font-josefin text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground">
+          Application
+        </Link>
+      </nav>
 
       {/* HERO */}
+
       <section className="relative min-h-[92vh] w-full overflow-hidden">
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
