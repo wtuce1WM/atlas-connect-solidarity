@@ -2404,6 +2404,12 @@ const SearchPage = () => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
 
+    // When results are pinned (pinIds), all businesses are already loaded;
+    // pagination must stay client-side to preserve coherence.
+    if (pinIdsParam) {
+      return;
+    }
+
     // Compute server offset for the requested page
     const offset = (page - 1) * ITEMS_PER_PAGE;
     setIsLoading(true);
