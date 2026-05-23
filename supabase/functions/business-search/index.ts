@@ -705,22 +705,33 @@ serve(async (req) => {
     // ── BYPASS: front-structure entry + city → deterministic filter (no FTS, no LLM) ──
     if (Array.isArray(subcategoryNames) && subcategoryNames.length > 0 && city) {
       const SELECT = "id, name, slug, city, neighborhood, address, phone, whatsapp, main_category, categories, services, logo_url, images, latitude, longitude, rating, computed_rating, total_review_count, wtuce_status, opening_hours, show_opening_hours, is_open_24h, default_service, engagements, priority_score, hook_fr, hook_en, hook_ar, gamme_id, badge_id, vacation_dates, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count";
-      const { data: rows, error: bypassErr, count } = await supabase
+      const { data: allRows, error: bypassErr } = await supabase
         .from("businesses")
-        .select(SELECT, { count: "exact" })
+        .select(SELECT)
         .eq("is_active", true)
         .overlaps("categories", subcategoryNames)
-        .eq("city", city)
-        .order("priority_score", { ascending: false, nullsFirst: false })
-        .order("id", { ascending: true })
-        .range(offset, offset + pageSize - 1);
+        .eq("city", city);
       if (bypassErr) throw bypassErr;
+      // Same ranking as text/voice search: verified > priority_score > rating (min 10 reviews) > id
+      const sorted = (allRows || []).slice().sort((a: any, b: any) => {
+        const aV = a.wtuce_status === "verified" ? 0 : 1;
+        const bV = b.wtuce_status === "verified" ? 0 : 1;
+        if (aV !== bV) return aV - bV;
+        const aP = a.priority_score || 0;
+        const bP = b.priority_score || 0;
+        if (aP !== bP) return bP - aP;
+        const aR = (a.total_review_count ?? 0) >= 10 ? (a.computed_rating ?? (a.rating ? Number(a.rating) : -1)) : -1;
+        const bR = (b.total_review_count ?? 0) >= 10 ? (b.computed_rating ?? (b.rating ? Number(b.rating) : -1)) : -1;
+        if (aR !== bR) return bR - aR;
+        return String(a.id).localeCompare(String(b.id));
+      });
+      const rows = sorted.slice(offset, offset + pageSize);
       return new Response(JSON.stringify({
-        businesses: rows || [],
+        businesses: rows,
         searchLevel: "exact",
         message: "",
-        totalResults: (rows || []).length,
-        totalCount: count ?? (rows || []).length,
+        totalResults: rows.length,
+        totalCount: sorted.length,
         detectedSubcategory: null,
         detectedCity: city,
         detectedNeighborhood: null,
