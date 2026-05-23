@@ -236,7 +236,7 @@ const HomeMindtrip = () => {
                         type="button"
                         onClick={goSearch}
                         className="absolute inset-0 h-full w-full text-left"
-                        aria-label={`Voir les résultats pour ${q}`}
+                        aria-label={`Voir les résultats pour ${v.label} ${selectedCity}`}
                       >
                         {thumb ? (
                           <img
