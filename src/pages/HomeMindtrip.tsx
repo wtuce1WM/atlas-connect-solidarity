@@ -519,7 +519,7 @@ const HotelAvailabilityWidget = () => {
 
   const [city, setCity] = useState<string>("Marrakech");
   const [checkIn, setCheckIn] = useState<string>(fmt(arrival));
-  const [checkOut, setCheckOut] = useState<string>(fmt(after));
+  const [checkOut, setCheckOut] = useState<string>(fmt(departure));
   const [adults, setAdults] = useState<number>(2);
 
   const submit = (e: React.FormEvent) => {
