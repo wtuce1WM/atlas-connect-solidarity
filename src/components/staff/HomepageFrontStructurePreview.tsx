@@ -59,6 +59,7 @@ interface ExtraCard {
   title: string | null;
   sort_order: number;
   event_id: string | null;
+  search_query: string | null;
 }
 
 interface ExtraCardPreview {
@@ -78,6 +79,7 @@ interface ExtraCardPreview {
   title: string | null;
   event_id: string | null;
   eventName: string | null;
+  search_query: string | null;
 }
 
 interface BizLite { id: string; name: string }
@@ -152,7 +154,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id")
+          .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id, search_query")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
         supabase
@@ -248,7 +250,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const extraRows: ExtraCard[] = ((extraRes as any).data || []).map((r: any) => ({
         id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id,
         video_document_id: r.video_document_id, title: r.title ?? null, sort_order: r.sort_order,
-        event_id: r.event_id ?? null,
+        event_id: r.event_id ?? null, search_query: r.search_query ?? null,
       }));
       const eventsList: EventLite[] = (((eventsRes as any).data) || []).map((e: any) => ({ id: e.id, name: e.name }));
       const eventMap = new Map(eventsList.map((e) => [e.id, e]));
@@ -403,6 +405,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             title: card.title,
             event_id: card.event_id,
             eventName,
+            search_query: card.search_query,
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
@@ -425,6 +428,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           title: card.title,
           event_id: card.event_id,
           eventName,
+          search_query: card.search_query,
         };
       });
 
@@ -537,7 +541,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   const refreshExtraCard = async (cardId: string) => {
     const { data: row, error: rowError } = await (supabase as any)
       .from("front_structure_homepage_extra_cards")
-      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, popular_search_id, event_id")
+      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, popular_search_id, event_id, search_query")
       .eq("id", cardId)
       .maybeSingle();
 
@@ -552,6 +556,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       title: row.title ?? null,
       sort_order: row.sort_order,
       event_id: row.event_id ?? null,
+      search_query: row.search_query ?? null,
     };
 
     const badgeName = card.badge_id
@@ -669,10 +674,11 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       title: card.title,
       event_id: card.event_id,
       eventName,
+      search_query: card.search_query,
     }));
   };
 
-  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; event_id?: string | null }) => {
+  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; event_id?: string | null; search_query?: string | null }) => {
       if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(patch.video_document_id)) {
@@ -716,6 +722,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         event_id: nextEventId,
         eventName: nextEvent?.name || (patch.event_id !== undefined ? null : card.eventName),
         businessName: nextBusiness?.name || (patch.business_id !== undefined ? null : card.businessName),
+        search_query: patch.search_query !== undefined ? patch.search_query : card.search_query,
       };
     }));
     await refreshExtraCard(cardId);
@@ -990,6 +997,19 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                         )}
                       </>
                     )}
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-muted-foreground">Requête</label>
+                    <Input
+                      key={`sq-${card.cardId}-${card.search_query || ""}`}
+                      defaultValue={card.search_query || ""}
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (v !== (card.search_query || "")) updateExtraCard(card.cardId, { search_query: v || null });
+                      }}
+                      placeholder="Requête de recherche…"
+                      className="h-5 px-1 text-[9px]"
+                    />
                   </div>
                   <div>
                     <label className="text-[9px] text-muted-foreground">
