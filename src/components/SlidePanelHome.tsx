@@ -543,7 +543,7 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && videoName && !(isGeneric && social?.account && videoName === `@${social.account}`) && (() => {
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && videoName && !(isGeneric && social?.account && videoName === `@${social.account}`) && (() => {
           const dateStr = eventId && eventInfo ? formatEventDateRange(eventInfo.start_date, eventInfo.end_date) : null;
           const daysStr = eventId && eventInfo ? formatDaysOfWeek(eventInfo.days_of_week) : null;
           const timeStr = eventId && eventInfo ? formatTimeRange(eventInfo.start_time, eventInfo.end_time) : null;
