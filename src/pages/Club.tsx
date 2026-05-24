@@ -63,6 +63,40 @@ const Club = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Hero parallax: mouse + scroll → CSS vars on .club-hero
+  useEffect(() => {
+    const hero = document.querySelector<HTMLElement>(".club-hero");
+    if (!hero) return;
+    let mx = 0, my = 0, sy = 0, raf = 0;
+    const apply = () => {
+      hero.style.setProperty("--mx", mx.toFixed(3));
+      hero.style.setProperty("--my", my.toFixed(3));
+      hero.style.setProperty("--sy", sy.toFixed(3));
+      raf = 0;
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(apply); };
+    const onMove = (e: MouseEvent) => {
+      const r = hero.getBoundingClientRect();
+      mx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      my = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      schedule();
+    };
+    const onScroll = () => {
+      const r = hero.getBoundingClientRect();
+      sy = Math.max(-1, Math.min(1, -r.top / Math.max(1, r.height)));
+      schedule();
+    };
+    hero.addEventListener("mousemove", onMove);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      hero.removeEventListener("mousemove", onMove);
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+
   const countryFlag = (code: string | null) => {
     if (!code || code.length !== 2 || !/^[A-Za-z]{2}$/.test(code)) return null;
     return code.toUpperCase().replace(/./g, (c) => String.fromCodePoint(0x1F1E6 - 65 + c.charCodeAt(0)));
