@@ -67,6 +67,8 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
       "17469777-4da8-4d8f-957b-282b1c87dc7d", // Galerie Talsint
       "7bbaf3cf-59fc-4b11-9f02-e4c9b0402f4a", // El Ghali Art Gallery
       "9e0a2a43-5fc3-445b-92a8-6ffb9d9f42f2", // Soufiane Zarib
+      "4e19dfb4-3a68-44ed-9476-f8d733aa90cc", // Tamegroute Pottery
+      "5635c89e-62c9-47b0-be3e-2f73a1a13db0", // Boutique Stella Cadente Dar El Bacha
     ],
   },
   {
