@@ -94,12 +94,19 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
     ],
   },
   {
-    title: "Jour 5 — Hors les murs & inspirations en ligne",
+    title: "Jour 5 — Hors les murs",
     subtitle:
-      "Les adresses en périphérie et les e-shops à parcourir pour prolonger l'expérience depuis chez soi.",
+      "Les adresses en périphérie pour prolonger l'exploration au-delà du centre.",
     ids: [
       "5ce3d474-40d6-4847-9277-47d3c2482b38", // Maison Blaoui
       "f3de3d68-9dec-4547-869b-afe4fdb9bdda", // Boucherouite Rug
+    ],
+  },
+  {
+    title: "Inspirations en ligne",
+    subtitle:
+      "Les e-shops à parcourir pour prolonger l'expérience depuis chez soi.",
+    ids: [
       "9799f930-a2bf-439a-9100-30d04fd7783e", // 33 rue Majorelle eShop
       "6876ac64-6fe5-45ca-89c4-d5691a84a887", // The Boho Lab eShop
       "57da6ab6-def6-40c0-ba8c-bf0589ba36bf", // Chabi Chic
