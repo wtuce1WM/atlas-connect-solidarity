@@ -333,7 +333,11 @@ const Blog = () => {
                   <Link key="static-galeries-marrakech" to="/blog/galeries-art-marrakech">
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
                       <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <MapPin className="h-16 w-16 text-primary" />
+                        {staticHeroes.galeries ? (
+                          <img src={staticHeroes.galeries} alt="Galeries d'art à Marrakech" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
                       </div>
                       <CardContent className="p-6">
                         <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
