@@ -348,7 +348,7 @@ const SlidePanelHome = ({
   const { soundOn, setSoundOn } = useVideoSoundPreference();
   const [filePaused, setFilePaused] = useState(true);
   const [fileMuted, setFileMuted] = useState(!soundOn);
-  const [ytPlaying, setYtPlaying] = useState(false);
+  const [ytPlaying, setYtPlaying] = useState(true);
   const [ytMuted, setYtMuted] = useState(!soundOn);
 
   useEffect(() => {
@@ -397,8 +397,54 @@ const SlidePanelHome = ({
   useEffect(() => {
     if (!open || !isMobile) return;
     setYtMuted(true);
-    setYtPlaying(false);
+    setYtPlaying(true);
   }, [videoUrl, videoId, open, isMobile]);
+
+  // Sync YouTube iframe state with the real player (onStateChange + volume)
+  useEffect(() => {
+    if (!open) return;
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const subscribe = () => {
+      const w = iframe.contentWindow;
+      if (!w) return;
+      w.postMessage(JSON.stringify({ event: "listening" }), "*");
+      w.postMessage(JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"] }), "*");
+    };
+
+    // Subscribe once iframe is loaded, and re-subscribe on src change
+    iframe.addEventListener("load", subscribe);
+    // In case it's already loaded
+    subscribe();
+
+    const onMessage = (e: MessageEvent) => {
+      if (!e.data || typeof e.data !== "string") return;
+      if (!e.origin.includes("youtube.com") && !e.origin.includes("youtube-nocookie.com")) return;
+      try {
+        const data = JSON.parse(e.data);
+        const info = data?.info;
+        if (info && typeof info === "object") {
+          if (typeof info.playerState === "number") {
+            // 1 = playing, 2 = paused, 3 = buffering, 0 = ended
+            if (info.playerState === 1) setYtPlaying(true);
+            else if (info.playerState === 2 || info.playerState === 0) setYtPlaying(false);
+          }
+          if (typeof info.muted === "boolean") {
+            setYtMuted(info.muted);
+            setSoundOn(!info.muted);
+          }
+        }
+      } catch {}
+    };
+    window.addEventListener("message", onMessage);
+
+    return () => {
+      iframe.removeEventListener("load", subscribe);
+      window.removeEventListener("message", onMessage);
+    };
+  }, [open, videoUrl, videoId, setSoundOn]);
+
 
   if (!open || !videoUrl) return null;
 
