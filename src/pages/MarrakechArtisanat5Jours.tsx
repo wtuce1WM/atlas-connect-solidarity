@@ -334,31 +334,6 @@ const MarrakechArtisanat5Jours = () => {
             );
           })}
 
-          {/* CTA */}
-          <section className="bg-black py-12">
-            <div className="container mx-auto px-4 text-center">
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-4 font-['Playfair_Display'] italic">
-                Continuer l'exploration sur la{" "}
-                <span className="text-gold">carte</span>
-              </h2>
-              <div className="flex justify-center gap-4 flex-wrap">
-                <Button
-                  onClick={() => navigate("/city/Marrakech")}
-                  className="bg-gold text-black hover:bg-gold/80 gap-2"
-                >
-                  <MapPin className="h-4 w-4" />
-                  Voir la carte de Marrakech
-                </Button>
-                <Button
-                  onClick={() => navigate("/carte")}
-                  variant="outline"
-                  className="border-gold/50 text-gold hover:bg-gold/10 gap-2"
-                >
-                  Carte du Maroc
-                </Button>
-              </div>
-            </div>
-          </section>
         </>
       )}
 
