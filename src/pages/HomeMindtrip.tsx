@@ -382,28 +382,6 @@ const HomeMindtrip = () => {
 
 
 
-      {/* TOOLKIT */}
-      <section className="border-y border-border bg-muted/30 py-24">
-        <div className="mx-auto max-w-7xl px-6 md:px-12">
-          <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
-            Tout ce qu'il faut pour votre prochain voyage
-          </h2>
-          <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-            {TOOLKIT.map((t) => (
-              <Link
-                key={t.label}
-                to={t.href}
-                className="group flex flex-col items-start gap-3 rounded-xl border border-border bg-background p-6 transition hover:border-primary"
-              >
-                <t.icon className="h-7 w-7 text-primary" strokeWidth={1.5} />
-                <span className="font-josefin text-base text-foreground group-hover:text-primary">
-                  {t.label}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* INSPIRATION */}
       <section className="py-24 md:py-32">
@@ -442,24 +420,6 @@ const HomeMindtrip = () => {
         </div>
       </section>
 
-      {/* AMBASSADOR CTA */}
-      <section className="relative overflow-hidden bg-foreground py-24 text-background">
-        <div className="mx-auto max-w-4xl px-6 text-center md:px-12">
-          <h2 className="font-josefin text-4xl font-light tracking-tight md:text-6xl">
-            Devenez ambassadeur.
-          </h2>
-          <p className="mx-auto mt-6 max-w-xl font-roboto text-background/80">
-            Vous aimez partager vos coups de cœur au Maroc ? Rejoignez le réseau ONE WORLD MOROCCO
-            et soyez rémunéré pour faire ce que vous aimez.
-          </p>
-          <Link
-            to="/devenir-affilie"
-            className="mt-10 inline-flex rounded-full bg-primary px-8 py-4 font-josefin text-sm uppercase tracking-widest text-primary-foreground transition hover:bg-primary/90"
-          >
-            En savoir plus
-          </Link>
-        </div>
-      </section>
 
       <Footer variant="verified" />
     </div>
