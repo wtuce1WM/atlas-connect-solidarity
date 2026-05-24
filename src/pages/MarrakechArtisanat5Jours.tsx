@@ -100,7 +100,6 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
       "Les adresses en périphérie pour prolonger l'exploration au-delà du centre.",
     ids: [
       "5ce3d474-40d6-4847-9277-47d3c2482b38", // Maison Blaoui
-      "f3de3d68-9dec-4547-869b-afe4fdb9bdda", // Boucherouite Rug
     ],
   },
   {
