@@ -70,7 +70,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
         </button>
       </div>
       <div className="relative z-10 flex-1 overflow-y-auto p-4">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col items-center gap-2">
           {badges.map((b) => (
             <button
               key={b.id}
