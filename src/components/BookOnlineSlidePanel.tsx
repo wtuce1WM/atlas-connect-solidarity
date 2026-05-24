@@ -1668,8 +1668,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             const hasAnything = socialItems.length > 0 || menuDocs.length > 0 || externalLinks.length > 0;
             if (!hasAnything) return null;
             return (
-              <div className="relative z-20 shrink-0">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-transparent backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none">
+              <div className="relative z-40 shrink-0 isolate pointer-events-auto">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none">
                   {socialItems.map((s, i) => (
                     <button
                       key={i}
