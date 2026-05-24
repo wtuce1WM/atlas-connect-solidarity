@@ -101,6 +101,10 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
       "Les adresses en périphérie pour prolonger l'exploration au-delà du centre.",
     ids: [
       "5ce3d474-40d6-4847-9277-47d3c2482b38", // Maison Blaoui
+      "cd8316e8-6393-4cd7-b649-e734ac87c0d9", // Studio Céramique
+      "70867925-2132-44b6-8a8c-1f1963efcdfd", // Le Verre Beldi
+      "e881d8af-d9f9-47bd-87da-049ea98fa936", // Popham design
+      "440e90b7-f9a9-4617-a504-af7cda38317b", // Lamajestic Home
     ],
   },
   {
