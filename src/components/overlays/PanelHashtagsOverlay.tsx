@@ -76,7 +76,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
               key={b.id}
               type="button"
               onClick={() => goBadge(b)}
-              className="inline-flex items-center rounded-full border border-white bg-white text-black hover:bg-white/90 px-3 py-1.5 text-xs font-medium transition-colors"
+              className="inline-flex items-center rounded-full border border-white/40 bg-white/30 backdrop-blur-sm text-black hover:bg-white/50 px-3 py-1.5 text-xs font-medium transition-colors"
               title={`Filtrer par ${b.name_fr}`}
             >
               {b.name_fr}
