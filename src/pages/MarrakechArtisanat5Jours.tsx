@@ -46,6 +46,7 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
       "26152d49-2481-43b6-ab4e-f7201192acec", // Atelier Beni
       "f2735220-9627-4fe9-a94c-a29c22d7263b", // Some Slowconcept
       "f3de3d68-9dec-4547-869b-afe4fdb9bdda", // Boucherouite Rug
+      "f675535d-72f1-46dc-a45a-007a4691539a", // Moro Boutique
     ],
   },
   {
