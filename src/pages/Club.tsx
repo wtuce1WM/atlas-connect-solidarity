@@ -345,11 +345,15 @@ const Club = () => {
       <HomeMindtripHeader />
       <main className="pt-24 pb-40 md:pb-24">
         {/* Hero */}
-        <section className="bg-primary text-primary-foreground py-16 px-4">
-          <div className="max-w-3xl mx-auto text-center">
+        <section
+          className="relative text-primary-foreground py-24 px-4 bg-primary bg-cover bg-center"
+          style={{ backgroundImage: "url('/hero_magical_realism_v2.jpg')" }}
+        >
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="relative max-w-3xl mx-auto text-center">
             <Crown className="h-12 w-12 mx-auto mb-4 opacity-90" />
-            <h1 className="text-4xl font-bold mb-3">{t.title}</h1>
-            <p className="text-lg opacity-90">{t.subtitle}</p>
+            <h1 className="text-4xl font-bold mb-3 drop-shadow-lg">{t.title}</h1>
+            <p className="text-lg opacity-95 drop-shadow">{t.subtitle}</p>
           </div>
         </section>
 
