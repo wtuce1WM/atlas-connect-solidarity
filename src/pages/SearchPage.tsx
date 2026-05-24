@@ -561,8 +561,9 @@ const SearchPage = () => {
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [compactPanelInitialVideoUrl, setCompactPanelInitialVideoUrl] = useState<string | null>(null);
-    const [bottomSearchOverlayOpen, setBottomSearchOverlayOpen] = useState(false);
-    const [bottomSearchCloseTrigger, setBottomSearchCloseTrigger] = useState(0);
+   const [bottomSearchOverlayOpen, setBottomSearchOverlayOpen] = useState(false);
+   const [bottomAiOverlayOpen, setBottomAiOverlayOpen] = useState(false);
+   const [bottomSearchCloseTrigger, setBottomSearchCloseTrigger] = useState(0);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
     const [isNestedMosaicOpen, setIsNestedMosaicOpen] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
@@ -3751,7 +3752,7 @@ const SearchPage = () => {
         return !compactPanelBusiness && !rightMapVisible;
       })() && (
         <>
-          {bottomSearchOverlayOpen && (
+          {(bottomSearchOverlayOpen || bottomAiOverlayOpen) && (
             <div
               className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
               onClick={() => setBottomSearchCloseTrigger((n) => n + 1)}
@@ -3759,7 +3760,7 @@ const SearchPage = () => {
           )}
           <div
             className={`fixed pointer-events-none ${
-              bottomSearchOverlayOpen
+              (bottomSearchOverlayOpen || bottomAiOverlayOpen)
                 ? "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2 z-[201]"
                 : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]"
             }`}
@@ -3776,6 +3777,7 @@ const SearchPage = () => {
                   setIsCompactPanelExpanded(false);
                 }}
                 onOverlayChange={setBottomSearchOverlayOpen}
+                onAiOverlayChange={setBottomAiOverlayOpen}
                 closeTrigger={bottomSearchCloseTrigger}
                 noToolbarOffset
                 iconVariant="black"
