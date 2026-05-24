@@ -692,7 +692,7 @@ const SearchPage = () => {
         swipeActiveRef.current = false;
         swipeStartYRef.current = null;
         setSwipeOffsetY(0);
-        if (Math.abs(dy) < 120) return;
+        if (Math.abs(dy) < 220) return;
         // swipe down (dy > 0) → next ; swipe up (dy < 0) → previous
         goToBusinessOffset(dy > 0 ? 1 : -1);
       }, [swipeOffsetY, goToBusinessOffset]);
