@@ -33,24 +33,23 @@ interface Gamme {
 }
 
 // Galeries d'art à Marrakech, organisées par quartier
+// Liste exactement les 24 résultats de la recherche "galeries d'art à marrakech"
 const SECTIONS: { title: string; subtitle: string; ids: string[] }[] = [
   {
     title: "Guéliz — l'épicentre des galeries",
     subtitle:
       "Le quartier moderne concentre la majorité des galeries d'art contemporain de Marrakech : immeubles Art déco, vernissages et scène picturale en pleine effervescence.",
     ids: [
+      "0125a0f2-d135-466d-915b-3806f3a885cb", // Librairie Booklore
+      "17eed0b1-9bac-48bb-a09f-c61ffa484a07", // Marie Bastide Marrakech
+      "0714e640-e346-4615-8152-039e0c60633f", // Loft Art Gallery Marrakech
       "aa6cf354-7e05-4349-ace4-6190c1f591de", // Comptoir des Mines Galerie
+      "d34054f4-c338-42eb-ab62-316ea2025264", // Galerie 127
+      "89b0d1e1-87eb-4459-8cae-e5f3b5a4a5c6", // Galerie Siniya28
       "ef6a07cd-0045-4a44-92db-05de78d854e2", // Matisse Art Gallery
       "d27a00db-168c-44dc-8037-089d8ec93ab5", // David Bloch Gallery
-      "0714e640-e346-4615-8152-039e0c60633f", // Loft Art Gallery Marrakech
-      "d34054f4-c338-42eb-ab62-316ea2025264", // Galerie 127
       "5a067e27-4a03-489f-965d-1a6ec907f463", // La Galerie 38
-      "89b0d1e1-87eb-4459-8cae-e5f3b5a4a5c6", // Galerie Siniya28
-      "54ce061e-4f1f-4228-ac0b-0d973af5ac1d", // Galerie Bertrand
-      "7547f653-74b4-4900-ba76-7c0e92fab42f", // Artelier Workshop & Gallery
-      "0346c6e1-7437-4459-b234-f0d14afe8f7e", // Design Art Gallery Apartment
-      "52639c35-6494-403b-9cee-76a606d89c25", // Galerie des Tanneurs Gueliz
-      "9c526b9d-a77d-47a4-81b1-aef82e888773", // Galerie des Tanneurs Majorelle
+      "7d05266e-48b7-4452-9f08-510ab7471391", // La boutique du Jardin Majorelle
     ],
   },
   {
@@ -58,12 +57,10 @@ const SECTIONS: { title: string; subtitle: string; ids: string[] }[] = [
     subtitle:
       "Demeures historiques et riads transformés en espaces d'exposition : ici, l'architecture elle-même devient une œuvre d'art.",
     ids: [
-      "17469777-4da8-4d8f-957b-282b1c87dc7d", // Galerie Talsint - Palais Saâdien
-      "7bbaf3cf-59fc-4b11-9f02-e4c9b0402f4a", // El Ghali Art Gallery
-      "885b2367-143e-4045-b2c3-30e0c0866184", // La Qoubba Galerie D'Art
+      "b484d0cd-6c47-43a2-b388-8ad34f590cd8", // Banksy Universe Marrakech
+      "b6166ca2-0a61-42f2-99e4-447c2d7a88cb", // Museum in The Medina at Izza (Bab Doukkala)
       "22e7ba79-c9fb-4dc3-930a-243820f72d02", // Riad Yima Boutique & Art Gallery
-      "4ff43053-ef51-46a9-a388-043e7147af48", // Galerie des Tanneurs Medina
-      "200e05aa-b7f5-40c6-9437-7197ed4cbade", // Riad Gallery 49
+      "528c004f-7fed-4020-a066-da81c132b645", // NoBorder Marrakech
     ],
   },
   {
@@ -71,18 +68,23 @@ const SECTIONS: { title: string; subtitle: string; ids: string[] }[] = [
     subtitle:
       "Le quartier industriel devenu repère des designers : galeries et showrooms du Maroc contemporain.",
     ids: [
-      "182051bb-cb32-455a-9f95-95d68d403dc9", // MCC Gallery
       "1109c9b7-1f45-47a7-bed6-5f0cfe5a0aa3", // D&CO Art Gallery
+      "28dbe3de-f719-41a9-908e-2808d9ad869f", // Jajjah by Hassan Hajjaj
+      "182051bb-cb32-455a-9f95-95d68d403dc9", // MCC Gallery
+      "a739a50a-e81c-4561-bb60-acc8943b3547", // LRNCE
+      "f4d5136a-09d5-4e1f-ad4b-697064040bbc", // De Bouche à Oreille
+      "e0ff5293-49ed-43f1-a378-122750fed381", // Rigotang
     ],
   },
   {
     title: "Hors les murs",
     subtitle:
-      "Quelques adresses en périphérie qui valent le détour pour les amateurs d'art.",
+      "Quelques adresses en périphérie ou en ligne qui valent le détour pour les amateurs d'art.",
     ids: [
-      "911e2d1c-34a3-43a2-976c-87a853cd3c42", // BLACKROOM ORENZO ART GALLERY
-      "da608ad0-0fa7-4004-a494-7078dd9388cc", // Marrakech Design Galerie
+      "911e2d1c-34a3-43a2-976c-87a853cd3c42", // BLACKROOM ORENZO ART GALLERY (Route de l'Ourika)
+      "61e9a244-f345-4431-a5a1-a88b19f97264", // Orenzo (Route de l'Ourika)
       "b9c63e43-40fd-4fa3-87be-2fc7d2714f2f", // Galerie 208
+      "6119fc0e-f6d2-4720-a0aa-423513589dcd", // Jajjah eShop
     ],
   },
 ];
