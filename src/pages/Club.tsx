@@ -63,6 +63,40 @@ const Club = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Hero parallax: mouse + scroll → CSS vars on .club-hero
+  useEffect(() => {
+    const hero = document.querySelector<HTMLElement>(".club-hero");
+    if (!hero) return;
+    let mx = 0, my = 0, sy = 0, raf = 0;
+    const apply = () => {
+      hero.style.setProperty("--mx", mx.toFixed(3));
+      hero.style.setProperty("--my", my.toFixed(3));
+      hero.style.setProperty("--sy", sy.toFixed(3));
+      raf = 0;
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(apply); };
+    const onMove = (e: MouseEvent) => {
+      const r = hero.getBoundingClientRect();
+      mx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      my = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      schedule();
+    };
+    const onScroll = () => {
+      const r = hero.getBoundingClientRect();
+      sy = Math.max(-1, Math.min(1, -r.top / Math.max(1, r.height)));
+      schedule();
+    };
+    hero.addEventListener("mousemove", onMove);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      hero.removeEventListener("mousemove", onMove);
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+
   const countryFlag = (code: string | null) => {
     if (!code || code.length !== 2 || !/^[A-Za-z]{2}$/.test(code)) return null;
     return code.toUpperCase().replace(/./g, (c) => String.fromCodePoint(0x1F1E6 - 65 + c.charCodeAt(0)));
@@ -345,17 +379,21 @@ const Club = () => {
       <HomeMindtripHeader />
       <main className="pt-24 pb-40 md:pb-24">
         {/* Hero */}
-        <section
-          className="relative text-primary-foreground py-24 px-4 bg-primary bg-cover bg-center"
-          style={{ backgroundImage: "url('/hero_magical_realism_v2.jpg')" }}
-        >
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="relative max-w-3xl mx-auto text-center">
-            <Crown className="h-12 w-12 mx-auto mb-4 opacity-90" />
-            <h1 className="text-4xl font-bold mb-3 drop-shadow-lg">{t.title}</h1>
-            <p className="text-lg opacity-95 drop-shadow">{t.subtitle}</p>
+        <section className="club-hero relative overflow-hidden text-primary-foreground min-h-[70vh] flex items-center justify-center px-4">
+          <div
+            className="club-hero-bg absolute inset-[-6%] bg-cover bg-center"
+            style={{ backgroundImage: "url('/hero_magical_realism_v2.jpg')" }}
+          />
+          <div className="club-hero-halo absolute pointer-events-none" />
+          <div className="club-hero-ember absolute pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-black/70 pointer-events-none" />
+          <div className="club-hero-inner relative z-10 max-w-3xl mx-auto text-center py-20">
+            <Crown className="h-12 w-12 mx-auto mb-4 opacity-90 drop-shadow-lg" />
+            <h1 className="text-4xl md:text-5xl font-bold mb-3 drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]">{t.title}</h1>
+            <p className="text-lg opacity-95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">{t.subtitle}</p>
           </div>
         </section>
+
 
         <section className="max-w-3xl mx-auto px-4 py-12">
           {user ? (
