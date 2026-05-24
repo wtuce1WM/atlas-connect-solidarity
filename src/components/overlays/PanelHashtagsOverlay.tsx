@@ -53,7 +53,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
       <div className="absolute inset-0 bg-black/40 lg:hidden pointer-events-none" />
 
 
-      <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-border">
+      <div className="relative z-10 shrink-0 flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
           <Hash className="h-4 w-4 text-gold" />
           <h2 className="text-sm font-semibold text-foreground" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
