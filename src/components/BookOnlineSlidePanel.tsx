@@ -804,10 +804,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         )}
       </div>
 
-      <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
+      <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} hideOnMobile={availabilityConfirmationShown} />
 
       {(onPrevBusiness || onNextBusiness) && (
-        <div className={`absolute top-1/2 -translate-y-1/2 right-3 z-30 ${cardsHidden ? 'flex' : 'hidden md:flex'} flex-col gap-2 pointer-events-none`}>
+        <div className={`absolute top-1/2 -translate-y-1/2 right-3 z-30 ${cardsHidden && !availabilityConfirmationShown ? 'flex' : 'hidden md:flex'} flex-col gap-2 pointer-events-none`}>
           <button
             type="button"
             onClick={onPrevBusiness}
