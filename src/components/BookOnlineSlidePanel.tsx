@@ -48,6 +48,8 @@ import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import SpotifyOverlay from "@/components/overlays/SpotifyOverlay";
+import SubstackArticlesOverlay from "@/components/overlays/SubstackArticlesOverlay";
+import SubstackIcon from "@/components/icons/SubstackIcon";
 import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
@@ -228,6 +230,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
   const [showHoursOverlay, setShowHoursOverlay] = useState(false);
   const [showSpotifyOverlay, setShowSpotifyOverlay] = useState(false);
+  const [showSubstackOverlay, setShowSubstackOverlay] = useState(false);
   const [showSoundCloudOverlay, setShowSoundCloudOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
@@ -1220,6 +1223,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
+      {showSubstackOverlay && (business as any)?.substack_url && (
+        <SubstackArticlesOverlay
+          substackUrl={(business as any).substack_url}
+          businessName={business?.name}
+          onClose={() => setShowSubstackOverlay(false)}
+        />
+      )}
+
       {/* SoundCloud Overlay */}
       {showSoundCloudOverlay && business?.soundcloud_url && (
         <SoundCloudOverlay
@@ -1642,7 +1653,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           })()}
           {/* Social / Menu / External links strip */}
           {!descGridSection && (() => {
-            const socialItems: { name: string; url: string; icon: React.ReactNode }[] = [
+            const socialItems: { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[] = [
               business?.instagram_url && { name: "Instagram", url: business.instagram_url, icon: <InstagramIcon className="h-4 w-4" /> },
               business?.facebook_url && { name: "Facebook", url: business.facebook_url, icon: <FacebookIcon className="h-4 w-4" /> },
               business?.tiktok_url && { name: "TikTok", url: business.tiktok_url, icon: <TikTokIcon className="h-5 w-5" /> },
@@ -1652,7 +1663,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               business?.pinterest_url && { name: "Pinterest", url: business.pinterest_url, icon: <PinterestIcon className="h-4 w-4" /> },
               business?.vimeo_url && { name: "Vimeo", url: business.vimeo_url, icon: <VimeoIcon className="h-4 w-4" /> },
               business?.snapchat_url && { name: "Snapchat", url: business.snapchat_url, icon: <SnapchatIcon className="h-4 w-4" /> },
-            ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode }[];
+              (business as any)?.substack_url && { name: "Substack", url: (business as any).substack_url, icon: <SubstackIcon className="h-4 w-4 text-[#FF6719]" />, onClick: () => setShowSubstackOverlay(true) },
+            ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[];
             const hasAnything = socialItems.length > 0 || menuDocs.length > 0 || externalLinks.length > 0;
             if (!hasAnything) return null;
             return (
@@ -1661,7 +1673,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   {socialItems.map((s, i) => (
                     <button
                       key={i}
-                      onClick={() => window.open(s.url, "_blank", "noopener")}
+                      onClick={() => (s.onClick ? s.onClick() : window.open(s.url, "_blank", "noopener"))}
                       className="shrink-0 h-8 w-8 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       title={s.name}
                     >
