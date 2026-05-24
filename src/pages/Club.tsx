@@ -365,7 +365,7 @@ const Club = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <HomeMindtripHeader />
+        <HomeMindtripHeader alwaysWhite />
         <main className="pt-24 pb-16 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
@@ -376,7 +376,7 @@ const Club = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <HomeMindtripHeader />
+      <HomeMindtripHeader alwaysWhite />
       {/* Hero — full bleed from top of screen */}
       <section className="club-hero relative overflow-hidden text-primary-foreground min-h-[80vh] flex items-center justify-center px-4">
         <div
