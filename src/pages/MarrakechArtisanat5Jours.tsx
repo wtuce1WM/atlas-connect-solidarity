@@ -252,6 +252,13 @@ const MarrakechArtisanat5Jours = () => {
                       <Link
                         key={b.id}
                         to={businessUrl(b)}
+                        id={`entry-${b.id}`}
+                        onClick={() => {
+                          try {
+                            sessionStorage.setItem("returnToBlogPath", "/blog/5-jours-marrakech-artisanat");
+                            sessionStorage.setItem("returnToBlogEntryId", b.id);
+                          } catch {}
+                        }}
                         className="group"
                       >
                         <Card className="overflow-hidden border-border/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 h-full">
