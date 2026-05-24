@@ -348,7 +348,7 @@ const SlidePanelHome = ({
   const { soundOn, setSoundOn } = useVideoSoundPreference();
   const [filePaused, setFilePaused] = useState(true);
   const [fileMuted, setFileMuted] = useState(!soundOn);
-  const [ytPlaying, setYtPlaying] = useState(false);
+  const [ytPlaying, setYtPlaying] = useState(true);
   const [ytMuted, setYtMuted] = useState(!soundOn);
 
   useEffect(() => {
