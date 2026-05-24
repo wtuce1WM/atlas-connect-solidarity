@@ -632,6 +632,15 @@ const SearchPage = () => {
         }
       }, [navigate]);
 
+      // Listen for external requests to close the slide panel (e.g. from the
+      // hashtags overlay inside the panel itself).
+      useEffect(() => {
+        const onCloseEvt = () => closeCompactPanel();
+        window.addEventListener("close-compact-panel", onCloseEvt);
+        return () => window.removeEventListener("close-compact-panel", onCloseEvt);
+      }, [closeCompactPanel]);
+
+
       const handleCompactPanelClose = useCallback(() => {
         // If panel is in expanded/mosaic mode, collapse back to the panel instead of closing
         if (isCompactPanelExpanded) {
