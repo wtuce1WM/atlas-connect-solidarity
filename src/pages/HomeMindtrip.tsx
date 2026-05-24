@@ -382,28 +382,6 @@ const HomeMindtrip = () => {
 
 
 
-      {/* TOOLKIT */}
-      <section className="border-y border-border bg-muted/30 py-24">
-        <div className="mx-auto max-w-7xl px-6 md:px-12">
-          <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
-            Tout ce qu'il faut pour votre prochain voyage
-          </h2>
-          <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-            {TOOLKIT.map((t) => (
-              <Link
-                key={t.label}
-                to={t.href}
-                className="group flex flex-col items-start gap-3 rounded-xl border border-border bg-background p-6 transition hover:border-primary"
-              >
-                <t.icon className="h-7 w-7 text-primary" strokeWidth={1.5} />
-                <span className="font-josefin text-base text-foreground group-hover:text-primary">
-                  {t.label}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* INSPIRATION */}
       <section className="py-24 md:py-32">
