@@ -197,12 +197,6 @@ const MarrakechGaleriesArt = () => {
       {/* Suggestion IA */}
       <section className="bg-background py-10 border-b border-border/50">
         <div className="container mx-auto px-4 max-w-3xl">
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-4 w-4 text-gold" />
-            <span className="text-xs uppercase tracking-widest text-gold font-medium">
-              Suggestion IA
-            </span>
-          </div>
           <div className="prose prose-invert max-w-none text-foreground/80 text-base leading-relaxed">
             <p>
               Bienvenue dans la ville ocre, véritable épicentre de la créativité
