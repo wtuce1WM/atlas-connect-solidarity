@@ -433,27 +433,51 @@ const HomeMindtrip = () => {
                 Inspirez-vous
               </h2>
               <p className="mt-3 max-w-xl font-roboto text-foreground/70">
-                Explorez les destinations qui font battre le cœur du Maroc.
+                Nos derniers guides pour explorer le Maroc autrement.
               </p>
             </div>
             <Link
-              to="/search"
+              to="/blog"
               className="hidden md:inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
             >
-              Toutes les destinations →
+              Tous les articles →
             </Link>
           </div>
 
-          <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {DESTINATIONS.map((d) => (
+          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+            {[
+              {
+                title: "5 jours à Marrakech pour découvrir le meilleur de l'artisanat marocain",
+                href: "/blog/5-jours-marrakech-artisanat",
+                image: blogHeroes.marrakech,
+              },
+              {
+                title: "Les galeries d'art à Marrakech",
+                href: "/blog/galeries-art-marrakech",
+                image: blogHeroes.galeries,
+              },
+              {
+                title: "Activités pour les enfants à Marrakech",
+                href: "/blog/activites-enfants-marrakech",
+                image: blogHeroes.kids,
+              },
+            ].map((a) => (
               <Link
-                key={d.name}
-                to={d.href}
-                className="group relative aspect-[9/16] overflow-hidden rounded-2xl bg-muted"
+                key={a.href}
+                to={a.href}
+                className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/80 to-transparent p-5">
-                  <span className="font-josefin text-xl text-background">{d.name}</span>
+                {a.image ? (
+                  <img
+                    src={a.image}
+                    alt={a.title}
+                    className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
+                )}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent p-6">
+                  <span className="font-josefin text-xl leading-tight text-background">{a.title}</span>
                 </div>
               </Link>
             ))}
