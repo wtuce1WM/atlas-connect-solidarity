@@ -65,6 +65,7 @@ import {
   SoundCloudIcon,
   SpotifyIcon,
 } from "./SocialMediaIcons";
+import SubstackIcon from "@/components/icons/SubstackIcon";
 import {
   AlertDialog,
   AlertDialogAction,
