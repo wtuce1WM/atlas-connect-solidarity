@@ -47,6 +47,7 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
       "f2735220-9627-4fe9-a94c-a29c22d7263b", // Some Slowconcept
       "f3de3d68-9dec-4547-869b-afe4fdb9bdda", // Boucherouite Rug
       "f675535d-72f1-46dc-a45a-007a4691539a", // Moro Boutique
+      "318f88c8-209a-45cb-9094-9d2ed147f1aa", // Musée Pierre Bergé des Arts Berbères
     ],
   },
   {
