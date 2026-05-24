@@ -47,7 +47,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
 
   return (
     <div
-      className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[230] lg:bg-background flex flex-col bg-no-repeat bg-cover bg-center lg:bg-none"
+      className="absolute inset-0 bg-background flex flex-col bg-no-repeat bg-cover bg-center"
       style={{ backgroundImage: "url('/hero_magical_realism_v3.jpg')" }}
     >
       
