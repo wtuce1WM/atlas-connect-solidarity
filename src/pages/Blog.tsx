@@ -54,7 +54,7 @@ const Blog = () => {
     // Hero images for static blog cards (same logic as their pages)
     const fetchStaticHeroes = async () => {
       const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
-      const [essRes, mrkRes, kidsDocRes, kidsYtRes] = await Promise.all([
+      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("images, services")
@@ -75,6 +75,11 @@ const Blog = () => {
           .from("business_youtube_video_badges")
           .select("youtube_video_id")
           .eq("badge_id", KIDS_BADGE_ID),
+        supabase
+          .from("businesses")
+          .select("images")
+          .eq("id", "b484d0cd-6c47-43a2-b388-8ad34f590cd8")
+          .maybeSingle(),
       ]);
       const seaKW = ["vue sur mer", "vue mer"];
       const essImg = essRes.data
