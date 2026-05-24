@@ -786,7 +786,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         openBadgeInfo={openBadgeInfo}
       />
 
-      <ClubLoginPopup />
+      {/* ClubLoginPopup is mounted globally (SearchPage). Avoid duplicate instance here. */}
 
       {/* Full-bleed background — extracted component */}
       <div className={externalVideoBackgroundClass}>
