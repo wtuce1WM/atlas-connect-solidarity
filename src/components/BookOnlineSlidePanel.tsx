@@ -1714,25 +1714,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             );
           })()}
-          {images.length > 1 && !descGridSection && (
-            <div className="relative z-20 shrink-0">
-              <div className="flex items-center gap-1.5 px-2 py-1 md:py-2 bg-transparent backdrop-blur-sm border-t border-white/10">
-              {images.slice(0, 5).map((img, i) => (
-                  <div
-                    key={i}
-                    className={`relative w-[calc((100%-6px)/2)] md:w-[calc((100%-6*4px)/5)] shrink-0 aspect-[5/4] md:aspect-[4/3] lg:aspect-[3/2] rounded-md overflow-hidden cursor-pointer ${i >= 2 ? 'hidden md:block' : ''}`}
-                    style={{ maxHeight: 'none' }}
-                    onClick={() => { setDescGridSection("images"); setDescGridPage(0); }}
-                  >
-                    <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                      <Plus className="h-5 w-5 md:h-6 md:w-6 text-white drop-shadow-lg" strokeWidth={3} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
           <div className="shrink-0 h-[3.5rem] md:h-[3.75rem]" />
         </OverlayShell>
       )}
