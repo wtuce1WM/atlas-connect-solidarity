@@ -53,21 +53,21 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
       <div className="absolute inset-0 bg-black/40 lg:hidden pointer-events-none" />
 
 
-      <div className="relative z-10 shrink-0 flex items-center justify-between px-4 py-3 border-b border-border">
+      <div className="relative z-10 shrink-0 flex items-center gap-2 px-4 py-3 border-b border-border">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="w-9 h-9 rounded-full bg-white hover:bg-white/90 flex items-center justify-center text-black"
+        >
+          <X className="h-4 w-4" />
+        </button>
         <div className="flex items-center gap-2">
           <Hash className="h-4 w-4 text-black" />
           <h2 className="text-sm font-semibold text-foreground" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
             Hashtags
           </h2>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center text-foreground"
-        >
-          <X className="h-4 w-4" />
-        </button>
       </div>
       <div className="relative z-10 flex-1 overflow-y-auto p-4">
         <div className="flex flex-col items-center gap-2">
