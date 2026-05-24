@@ -3,7 +3,11 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
-const HomeMindtripHeader = () => {
+interface Props {
+  alwaysWhite?: boolean;
+}
+
+const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -14,8 +18,9 @@ const HomeMindtripHeader = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const whiteText = alwaysWhite || scrolled;
   const linkClass = `font-josefin text-sm uppercase tracking-[0.2em] transition ${
-    scrolled ? "text-white/85 hover:text-white" : "text-black hover:text-black/70"
+    whiteText ? "text-white/85 hover:text-white" : "text-black hover:text-black/70"
   }`;
 
 
