@@ -445,7 +445,7 @@ const SlidePanelHome = ({
           if (swipeHandled.current || swipeStartY.current === null || swipeStartX.current === null) return;
           const dy = e.touches[0].clientY - swipeStartY.current;
           const dx = e.touches[0].clientX - swipeStartX.current;
-          if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.5) {
+          if (Math.abs(dy) > 160 && Math.abs(dy) > Math.abs(dx) * 1.5) {
             if (dy < 0 && hasPrev) {
               e.preventDefault();
               swipeHandled.current = true;
