@@ -436,12 +436,6 @@ const HomeMindtrip = () => {
                 Nos derniers guides pour explorer le Maroc autrement.
               </p>
             </div>
-            <Link
-              to="/blog"
-              className="hidden md:inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
-            >
-              Tous les articles →
-            </Link>
           </div>
 
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
