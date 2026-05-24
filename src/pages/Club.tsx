@@ -377,22 +377,24 @@ const Club = () => {
   return (
     <div className="min-h-screen bg-background">
       <HomeMindtripHeader />
-      <main className="pt-24 pb-40 md:pb-24">
-        {/* Hero */}
-        <section className="club-hero relative overflow-hidden text-primary-foreground min-h-[70vh] flex items-center justify-center px-4">
-          <div
-            className="club-hero-bg absolute inset-[-6%] bg-cover bg-center"
-            style={{ backgroundImage: "url('/hero_magical_realism_v2.jpg')" }}
-          />
-          <div className="club-hero-halo absolute pointer-events-none" />
-          <div className="club-hero-ember absolute pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-black/70 pointer-events-none" />
-          <div className="club-hero-inner relative z-10 max-w-3xl mx-auto text-center py-20">
-            <Crown className="h-12 w-12 mx-auto mb-4 opacity-90 drop-shadow-lg" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-3 drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]">{t.title}</h1>
-            <p className="text-lg opacity-95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">{t.subtitle}</p>
-          </div>
-        </section>
+      {/* Hero — full bleed from top of screen */}
+      <section className="club-hero relative overflow-hidden text-primary-foreground min-h-[80vh] flex items-center justify-center px-4">
+        <div
+          className="club-hero-bg absolute inset-[-6%] bg-cover bg-center"
+          style={{ backgroundImage: "url('/hero_magical_realism_v2.jpg')" }}
+        />
+        <div className="club-hero-halo absolute pointer-events-none" />
+        <div className="club-hero-ember absolute pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-black/70 pointer-events-none" />
+        <div className="club-hero-inner relative z-10 max-w-3xl mx-auto text-center py-20 pt-32">
+          <Crown className="h-12 w-12 mx-auto mb-4 opacity-90 drop-shadow-lg" />
+          <h1 className="text-4xl md:text-5xl font-bold mb-3 drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]">{t.title}</h1>
+          <p className="text-lg opacity-95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">{t.subtitle}</p>
+        </div>
+      </section>
+
+      <main className="pb-40 md:pb-24">
+
 
 
         <section className="max-w-3xl mx-auto px-4 py-12">

@@ -81,19 +81,19 @@ const HeroSection = () => {
         isExiting ? "opacity-0 -translate-y-16" : "opacity-100"
       }`}
     >
-      {/* Hero Background Image — disabled
+      {/* Hero Background Image — full bleed from top */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-[kenburns_25s_ease-in-out_infinite_alternate]"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url(${heroBackground})`,
+          backgroundImage: `url('/hero_magical_realism_v1.jpg')`,
           transform: `translateY(${scrollY * 0.35}px)`,
           willChange: "transform",
         }}
       />
-      */}
 
-      {/* Overlay with gradient to black at bottom */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/40 to-white" />
+      {/* Overlay with gradient to white at bottom for content legibility */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/70 to-white" />
+
 
       {/* Logo CSS — single spin + float */}
       <div className="absolute inset-0 z-[20] lg:z-[90] flex items-start justify-center pt-24 pointer-events-none">
