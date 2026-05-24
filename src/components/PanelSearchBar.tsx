@@ -135,7 +135,11 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
         </button>
       </div>
 
-      <PanelHashtagsOverlay open={hashtagsOverlayOpen} onClose={() => setHashtagsOverlayOpen(false)} />
+      {hashtagsOverlayOpen && (
+        <OverlayShell zClass="z-[92]" coverToolbar={false}>
+          <PanelHashtagsOverlay open={hashtagsOverlayOpen} onClose={() => setHashtagsOverlayOpen(false)} />
+        </OverlayShell>
+      )}
 
 
       {/* Search overlay — covers toolbar */}
