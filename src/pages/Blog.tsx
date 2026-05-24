@@ -319,7 +319,35 @@ const Blog = () => {
                 ),
               });
 
-              return items
+              // Carte Galeries d'art Marrakech
+              items.push({
+                key: "static-galeries-marrakech",
+                date: "2026-05-24T00:00:00Z",
+                node: (
+                  <Link key="static-galeries-marrakech" to="/blog/galeries-art-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        <MapPin className="h-16 w-16 text-primary" />
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Les galeries d'art à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Notre sélection de 23 galeries d'art à Marrakech : Guéliz, Médina, Sidi Ghanem et au-delà.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
                 .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .map((i) => <div key={i.key}>{i.node}</div>);
             })()}
