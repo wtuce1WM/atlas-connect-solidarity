@@ -1593,6 +1593,7 @@ export type Database = {
           snapchat_url: string | null
           soundcloud_url: string | null
           spotify_url: string | null
+          substack_url: string | null
           telegram: string | null
           tiktok_url: string | null
           total_review_count: number | null
@@ -1764,6 +1765,7 @@ export type Database = {
           snapchat_url?: string | null
           soundcloud_url?: string | null
           spotify_url?: string | null
+          substack_url?: string | null
           telegram?: string | null
           tiktok_url?: string | null
           total_review_count?: number | null
@@ -1935,6 +1937,7 @@ export type Database = {
           snapchat_url?: string | null
           soundcloud_url?: string | null
           spotify_url?: string | null
+          substack_url?: string | null
           telegram?: string | null
           tiktok_url?: string | null
           total_review_count?: number | null
@@ -5838,6 +5841,7 @@ export type Database = {
               snapchat_url: string | null
               soundcloud_url: string | null
               spotify_url: string | null
+              substack_url: string | null
               telegram: string | null
               tiktok_url: string | null
               total_review_count: number | null
@@ -6025,6 +6029,7 @@ export type Database = {
               snapchat_url: string | null
               soundcloud_url: string | null
               spotify_url: string | null
+              substack_url: string | null
               telegram: string | null
               tiktok_url: string | null
               total_review_count: number | null
