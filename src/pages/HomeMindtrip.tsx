@@ -420,24 +420,6 @@ const HomeMindtrip = () => {
         </div>
       </section>
 
-      {/* AMBASSADOR CTA */}
-      <section className="relative overflow-hidden bg-foreground py-24 text-background">
-        <div className="mx-auto max-w-4xl px-6 text-center md:px-12">
-          <h2 className="font-josefin text-4xl font-light tracking-tight md:text-6xl">
-            Devenez ambassadeur.
-          </h2>
-          <p className="mx-auto mt-6 max-w-xl font-roboto text-background/80">
-            Vous aimez partager vos coups de cœur au Maroc ? Rejoignez le réseau ONE WORLD MOROCCO
-            et soyez rémunéré pour faire ce que vous aimez.
-          </p>
-          <Link
-            to="/devenir-affilie"
-            className="mt-10 inline-flex rounded-full bg-primary px-8 py-4 font-josefin text-sm uppercase tracking-widest text-primary-foreground transition hover:bg-primary/90"
-          >
-            En savoir plus
-          </Link>
-        </div>
-      </section>
 
       <Footer variant="verified" />
     </div>
