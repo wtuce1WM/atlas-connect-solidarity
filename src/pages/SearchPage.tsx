@@ -563,6 +563,7 @@ const SearchPage = () => {
     const [compactPanelInitialVideoUrl, setCompactPanelInitialVideoUrl] = useState<string | null>(null);
    const [bottomSearchOverlayOpen, setBottomSearchOverlayOpen] = useState(false);
    const [bottomAiOverlayOpen, setBottomAiOverlayOpen] = useState(false);
+   const [bottomHashtagsOverlayOpen, setBottomHashtagsOverlayOpen] = useState(false);
    const [bottomSearchCloseTrigger, setBottomSearchCloseTrigger] = useState(0);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
     const [isNestedMosaicOpen, setIsNestedMosaicOpen] = useState(false);
