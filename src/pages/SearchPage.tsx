@@ -2176,7 +2176,8 @@ const SearchPage = () => {
 
             // Auto-open business detail when exact name match found
             const biz = data.businesses || [];
-            if (biz.length >= 1 && searchQuery.trim()) {
+            // Skip exact-match auto-open when user explicitly navigated to a hashtag filter
+            if (biz.length >= 1 && searchQuery.trim() && !searchParams.get("badgeId")) {
               const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/s\b/g, "").trim();
               const qNorm = normalize(searchQuery);
               const exactMatch = biz.find((b: Business) => normalize(b.name) === qNorm);
