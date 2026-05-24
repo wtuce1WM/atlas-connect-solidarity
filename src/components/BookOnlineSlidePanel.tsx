@@ -1714,7 +1714,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             );
           })()}
-          <div className="shrink-0 h-[3.5rem] md:h-[3.75rem]" />
+          <div className="shrink-0 h-[5rem] md:h-[5.25rem]" />
         </OverlayShell>
       )}
 
