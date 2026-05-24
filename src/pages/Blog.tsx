@@ -29,7 +29,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -54,7 +54,7 @@ const Blog = () => {
     // Hero images for static blog cards (same logic as their pages)
     const fetchStaticHeroes = async () => {
       const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
-      const [essRes, mrkRes, kidsDocRes, kidsYtRes] = await Promise.all([
+      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("images, services")
@@ -75,6 +75,11 @@ const Blog = () => {
           .from("business_youtube_video_badges")
           .select("youtube_video_id")
           .eq("badge_id", KIDS_BADGE_ID),
+        supabase
+          .from("businesses")
+          .select("images")
+          .eq("id", "b484d0cd-6c47-43a2-b388-8ad34f590cd8")
+          .maybeSingle(),
       ]);
       const seaKW = ["vue sur mer", "vue mer"];
       const essImg = essRes.data
@@ -118,6 +123,7 @@ const Blog = () => {
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
         kids: kidsImg,
+        galeries: (galRes.data as any)?.images?.[0],
       });
     };
     fetchStaticHeroes();
@@ -327,7 +333,11 @@ const Blog = () => {
                   <Link key="static-galeries-marrakech" to="/blog/galeries-art-marrakech">
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
                       <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <MapPin className="h-16 w-16 text-primary" />
+                        {staticHeroes.galeries ? (
+                          <img src={staticHeroes.galeries} alt="Galeries d'art à Marrakech" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
                       </div>
                       <CardContent className="p-6">
                         <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
