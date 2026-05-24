@@ -128,6 +128,7 @@ const SlidePanelHome = ({
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [hashtagsOverlayOpen, setHashtagsOverlayOpen] = useState(false);
+  const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
   const [, forceRender] = useState(0);
@@ -461,7 +462,7 @@ const SlidePanelHome = ({
         onTouchCancel={swipeNavigationEnabled ? resetSwipe : undefined}
       >
         {/* Top toolbar : SlidePanelHeader (même base que SlidePanel de Search) */}
-        {!descOverlayOpen && !searchOverlayOpen && (
+        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && (
           <SlidePanelHeader
             onClose={onClose}
             alwaysDark
@@ -470,7 +471,7 @@ const SlidePanelHome = ({
             toolbarRightId="slide-panel-home-toolbar-right"
           />
         )}
-        {!descOverlayOpen && !searchOverlayOpen && typeof document !== "undefined" && (() => {
+        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && typeof document !== "undefined" && (() => {
           const centerEl = document.getElementById("slide-panel-home-toolbar-center");
           const rightEl = document.getElementById("slide-panel-home-toolbar-right");
           return (
@@ -522,7 +523,7 @@ const SlidePanelHome = ({
         })()}
 
         {/* BusinessHeader: Logo + Nom + Ville + Quartier + Adresse */}
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
           <div className="absolute top-16 md:top-14 lg:top-16 left-2 right-2 z-[65] pointer-events-none">
             <BusinessHeader
               business={{
@@ -542,7 +543,7 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && videoName && !(isGeneric && social?.account && videoName === `@${social.account}`) && (() => {
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && videoName && !(isGeneric && social?.account && videoName === `@${social.account}`) && (() => {
           const dateStr = eventId && eventInfo ? formatEventDateRange(eventInfo.start_date, eventInfo.end_date) : null;
           const daysStr = eventId && eventInfo ? formatDaysOfWeek(eventInfo.days_of_week) : null;
           const timeStr = eventId && eventInfo ? formatTimeRange(eventInfo.start_time, eventInfo.end_time) : null;
@@ -814,6 +815,7 @@ const SlidePanelHome = ({
               <PanelSearchBar
                 iconVariant="black"
                 onOverlayChange={setSearchOverlayOpen}
+                onAiOverlayChange={setAiOverlayOpen}
                 onHashtagsOverlayChange={setHashtagsOverlayOpen}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
