@@ -69,6 +69,9 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
       "9e0a2a43-5fc3-445b-92a8-6ffb9d9f42f2", // Soufiane Zarib
       "4e19dfb4-3a68-44ed-9476-f8d733aa90cc", // Tamegroute Pottery
       "5635c89e-62c9-47b0-be3e-2f73a1a13db0", // Boutique Stella Cadente Dar El Bacha
+      "99da0b77-1ebc-47ee-a7d2-12bf43dbfcab", // Maison culturelle du tapis
+      "1beba427-08aa-4aee-89b2-de3a6b7eef79", // Monde des Arts de la Parure (MAP)
+      "dc157d9e-22f3-4d02-9988-1dc6eeb17c0b", // Musée de l'Élégance Marocaine
     ],
   },
   {
