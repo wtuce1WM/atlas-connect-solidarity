@@ -45,6 +45,7 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
       "17eed0b1-9bac-48bb-a09f-c61ffa484a07", // Marie Bastide
       "26152d49-2481-43b6-ab4e-f7201192acec", // Atelier Beni
       "f2735220-9627-4fe9-a94c-a29c22d7263b", // Some Slowconcept
+      "f3de3d68-9dec-4547-869b-afe4fdb9bdda", // Boucherouite Rug
     ],
   },
   {
@@ -99,7 +100,6 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
       "Les adresses en périphérie pour prolonger l'exploration au-delà du centre.",
     ids: [
       "5ce3d474-40d6-4847-9277-47d3c2482b38", // Maison Blaoui
-      "f3de3d68-9dec-4547-869b-afe4fdb9bdda", // Boucherouite Rug
     ],
   },
   {
