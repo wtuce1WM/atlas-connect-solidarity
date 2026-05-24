@@ -36,11 +36,12 @@ const HomeMindtripHeader = () => {
           />
           <span
             className={`font-josefin text-xs uppercase tracking-[0.18em] sm:text-sm sm:tracking-[0.22em] transition-colors ${
-              scrolled ? "text-white" : "text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]"
+              scrolled ? "text-white" : "text-black"
             }`}
           >
             ONE WORLD MOROCCO
           </span>
+
         </Link>
 
         <div className="hidden items-center gap-6 md:flex">
