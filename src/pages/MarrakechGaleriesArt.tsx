@@ -102,7 +102,7 @@ const MarrakechGaleriesArt = () => {
   useSEO({
     title: "Les galeries d'art à Marrakech",
     description:
-      "Notre sélection de 23 galeries d'art à Marrakech : Guéliz, Médina, Sidi Ghanem et au-delà. Art contemporain, design, photographie et scène picturale marocaine.",
+      "Notre sélection de 24 galeries d'art à Marrakech : Guéliz, Médina, Sidi Ghanem et au-delà. Art contemporain, design, photographie et scène picturale marocaine.",
     canonical: RETURN_PATH,
   });
 
@@ -186,7 +186,7 @@ const MarrakechGaleriesArt = () => {
               <span className="text-gold">à Marrakech</span>
             </h1>
             <p className="mt-4 text-white/70 max-w-2xl text-lg">
-              Notre sélection de 23 galeries — de Guéliz à Sidi Ghanem en
+              Notre sélection de 24 galeries — de Guéliz à Sidi Ghanem en
               passant par la Médina — pour explorer la scène artistique
               contemporaine de la ville ocre.
             </p>
