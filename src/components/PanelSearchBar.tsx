@@ -44,7 +44,7 @@ interface PanelSearchBarProps {
   leadingControls?: ReactNode;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, leadingControls }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, leadingControls }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -52,7 +52,11 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
     setSearchOverlayOpen(open);
     onOverlayChange?.(open);
   }, [onOverlayChange]);
-  const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
+  const [aiOverlayOpen, _setAiOverlayOpen] = useState(false);
+  const setAiOverlayOpen = useCallback((open: boolean) => {
+    _setAiOverlayOpen(open);
+    onAiOverlayChange?.(open);
+  }, [onAiOverlayChange]);
   const [hashtagsOverlayOpen, _setHashtagsOverlayOpen] = useState(false);
   const setHashtagsOverlayOpen = useCallback((open: boolean) => {
     _setHashtagsOverlayOpen(open);
