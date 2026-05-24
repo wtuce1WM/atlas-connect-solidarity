@@ -161,6 +161,21 @@ const MarrakechArtisanat5Jours = () => {
     fetch();
   }, []);
 
+  // Restore scroll to previously clicked entry when returning from Search slidepanel
+  useEffect(() => {
+    if (isLoading) return;
+    let scrollId: string | null = null;
+    try {
+      scrollId = sessionStorage.getItem("returnToBlogScrollId");
+      if (scrollId) sessionStorage.removeItem("returnToBlogScrollId");
+    } catch {}
+    if (!scrollId) return;
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`entry-${scrollId}`);
+      if (el) el.scrollIntoView({ behavior: "auto", block: "center" });
+    });
+  }, [isLoading]);
+
   const getHook = (b: Business) => {
     if (language === "ar" && b.hook_ar) return b.hook_ar;
     if (language === "en" && b.hook_en) return b.hook_en;
@@ -252,6 +267,13 @@ const MarrakechArtisanat5Jours = () => {
                       <Link
                         key={b.id}
                         to={businessUrl(b)}
+                        id={`entry-${b.id}`}
+                        onClick={() => {
+                          try {
+                            sessionStorage.setItem("returnToBlogPath", "/blog/5-jours-marrakech-artisanat");
+                            sessionStorage.setItem("returnToBlogEntryId", b.id);
+                          } catch {}
+                        }}
                         className="group"
                       >
                         <Card className="overflow-hidden border-border/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 h-full">

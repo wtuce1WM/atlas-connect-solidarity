@@ -589,11 +589,17 @@ const SearchPage = () => {
         // Read the flag BEFORE unmounting the panel (whose cleanup rewrites the URL).
         let returnVideoId: string | null = null;
         let returnContext: string | null = null;
+        let returnBlogPath: string | null = null;
+        let returnBlogEntryId: string | null = null;
         try {
           returnVideoId = sessionStorage.getItem("returnToTestVideoId");
           returnContext = sessionStorage.getItem("returnToTestContext");
           if (returnVideoId) sessionStorage.removeItem("returnToTestVideoId");
           if (returnContext) sessionStorage.removeItem("returnToTestContext");
+          returnBlogPath = sessionStorage.getItem("returnToBlogPath");
+          returnBlogEntryId = sessionStorage.getItem("returnToBlogEntryId");
+          if (returnBlogPath) sessionStorage.removeItem("returnToBlogPath");
+          if (returnBlogEntryId) sessionStorage.removeItem("returnToBlogEntryId");
         } catch { /* sessionStorage unavailable */ }
         setCompactPanelBusiness(null);
         setCompactPanelInitialVideoUrl(null);
@@ -611,6 +617,15 @@ const SearchPage = () => {
             params.delete("openVideo");
             const qs = params.toString();
             navigate(`/test${qs ? `?${qs}` : ""}`, { replace: true });
+          }, 0);
+        } else if (returnBlogPath) {
+          // Return-to-Blog flow: navigate back to the originating blog article
+          // and scroll to the previously clicked entry.
+          if (returnBlogEntryId) {
+            try { sessionStorage.setItem("returnToBlogScrollId", returnBlogEntryId); } catch {}
+          }
+          setTimeout(() => {
+            navigate(returnBlogPath!, { replace: true });
           }, 0);
         }
       }, [navigate]);
