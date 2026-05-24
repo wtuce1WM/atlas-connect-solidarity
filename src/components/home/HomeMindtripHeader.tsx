@@ -41,7 +41,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
           />
           <span
             className={`font-josefin text-xs uppercase tracking-[0.18em] sm:text-sm sm:tracking-[0.22em] transition-colors ${
-              scrolled ? "text-white" : "text-black"
+              whiteText ? "text-white" : "text-black"
             }`}
           >
             ONE WORLD MOROCCO
