@@ -43,6 +43,47 @@ const HomeMindtrip = () => {
   const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
   const [videos, setVideos] = useState<VideoSlot[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
+  const [blogHeroes, setBlogHeroes] = useState<{ marrakech?: string; galeries?: string; kids?: string }>({});
+
+  useEffect(() => {
+    const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
+    (async () => {
+      const [mrkRes, galRes, kidsDocRes, kidsYtRes] = await Promise.all([
+        supabase.from("businesses").select("images").eq("id", "83d7e07e-128c-47a3-92c6-225a53e34b42").maybeSingle(),
+        supabase.from("businesses").select("images").eq("id", "b484d0cd-6c47-43a2-b388-8ad34f590cd8").maybeSingle(),
+        supabase.from("business_document_badges").select("document_id").eq("badge_id", KIDS_BADGE_ID),
+        supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", KIDS_BADGE_ID),
+      ]);
+      const kidsBizIds = new Set<string>();
+      const docIds = (kidsDocRes.data || []).map((r: any) => r.document_id);
+      const ytIds = (kidsYtRes.data || []).map((r: any) => r.youtube_video_id);
+      if (docIds.length) {
+        const { data } = await supabase.from("business_documents").select("business_id").in("id", docIds);
+        (data || []).forEach((r: any) => r.business_id && kidsBizIds.add(r.business_id));
+      }
+      if (ytIds.length) {
+        const { data } = await supabase.from("business_youtube_videos").select("business_id").in("id", ytIds);
+        (data || []).forEach((r: any) => r.business_id && kidsBizIds.add(r.business_id));
+      }
+      let kidsImg: string | undefined;
+      if (kidsBizIds.size) {
+        const { data } = await supabase
+          .from("businesses")
+          .select("images")
+          .in("id", Array.from(kidsBizIds))
+          .eq("is_active", true)
+          .eq("city", "Marrakech")
+          .order("priority_score", { ascending: false })
+          .limit(20);
+        kidsImg = (data || []).find((b: any) => b.images?.length)?.images?.[0];
+      }
+      setBlogHeroes({
+        marrakech: (mrkRes.data as any)?.images?.[0],
+        galeries: (galRes.data as any)?.images?.[0],
+        kids: kidsImg,
+      });
+    })();
+  }, []);
   
 
   useSEO({
@@ -392,27 +433,51 @@ const HomeMindtrip = () => {
                 Inspirez-vous
               </h2>
               <p className="mt-3 max-w-xl font-roboto text-foreground/70">
-                Explorez les destinations qui font battre le cœur du Maroc.
+                Nos derniers guides pour explorer le Maroc autrement.
               </p>
             </div>
             <Link
-              to="/search"
+              to="/blog"
               className="hidden md:inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
             >
-              Toutes les destinations →
+              Tous les articles →
             </Link>
           </div>
 
-          <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {DESTINATIONS.map((d) => (
+          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+            {[
+              {
+                title: "5 jours à Marrakech pour découvrir le meilleur de l'artisanat marocain",
+                href: "/blog/5-jours-marrakech-artisanat",
+                image: blogHeroes.marrakech,
+              },
+              {
+                title: "Les galeries d'art à Marrakech",
+                href: "/blog/galeries-art-marrakech",
+                image: blogHeroes.galeries,
+              },
+              {
+                title: "Activités pour les enfants à Marrakech",
+                href: "/blog/activites-enfants-marrakech",
+                image: blogHeroes.kids,
+              },
+            ].map((a) => (
               <Link
-                key={d.name}
-                to={d.href}
-                className="group relative aspect-[9/16] overflow-hidden rounded-2xl bg-muted"
+                key={a.href}
+                to={a.href}
+                className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/80 to-transparent p-5">
-                  <span className="font-josefin text-xl text-background">{d.name}</span>
+                {a.image ? (
+                  <img
+                    src={a.image}
+                    alt={a.title}
+                    className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
+                )}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent p-6">
+                  <span className="font-josefin text-xl leading-tight text-background">{a.title}</span>
                 </div>
               </Link>
             ))}
