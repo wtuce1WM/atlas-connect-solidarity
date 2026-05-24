@@ -1,5 +1,7 @@
 import HeroSection from "@/components/HeroSection";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
+
 import Footer from "@/components/Footer";
 import { useSEO } from "@/hooks/useSEO";
 
@@ -11,7 +13,9 @@ const Index = () => {
   });
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
+      <HomeMindtripHeader />
       <HeroSection />
+
       <DynamicLabelSections pageType="home" />
       
       <Footer variant="verified" />
