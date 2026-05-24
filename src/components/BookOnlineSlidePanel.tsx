@@ -657,6 +657,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
+  const availabilityConfirmationShown = cardsHidden && !hotelSearchLoading && !!fallbackPanelData && !!fallbackPanelData.hotels.find((h: any) => h.isCurrentHotel);
 
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
