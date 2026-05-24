@@ -13,7 +13,9 @@ const Index = () => {
   });
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
+      <HomeMindtripHeader />
       <HeroSection />
+
       <DynamicLabelSections pageType="home" />
       
       <Footer variant="verified" />
