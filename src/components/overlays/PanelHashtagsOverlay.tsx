@@ -47,9 +47,11 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
 
   return (
     <div
-      className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[230] bg-background flex flex-col bg-no-repeat bg-cover bg-center lg:bg-none"
+      className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[230] lg:bg-background flex flex-col bg-no-repeat bg-cover bg-center lg:bg-none"
       style={{ backgroundImage: "url('/hero_magical_realism_v1.jpg')" }}
     >
+      <div className="absolute inset-0 bg-black/40 lg:hidden pointer-events-none" />
+
 
       <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
