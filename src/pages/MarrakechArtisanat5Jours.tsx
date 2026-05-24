@@ -88,6 +88,9 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
       "a739a50a-e81c-4561-bb60-acc8943b3547", // LRNCE
       "f2b8472f-97e1-4cd8-b18c-cbd77b8a12c0", // Soufiane Zarib Warehouse
       "b65d87eb-f35f-4c2b-a2bc-f274496bdd9c", // Côté Bougie Marrakech
+      "f717da80-62cd-4306-adbf-ec17cda2138c", // Atelier Landon
+      "65cbf91a-ebec-4b9f-88bc-dc5ba7d7218a", // La Marrakechoise
+      "dc2a53f3-62ad-478e-984d-64fde2d85801", // The Food Bag Foundation
     ],
   },
   {
