@@ -161,7 +161,7 @@ const HomeMindtrip = () => {
           <h1 className="font-josefin text-5xl font-light leading-[0.95] tracking-tight text-foreground md:text-7xl lg:text-8xl">
             Le Maroc<br />autrement<span className="text-foreground">.</span>
           </h1>
-          <p className="mt-6 max-w-xl font-roboto text-base text-foreground/80 md:text-lg">
+          <p className="mt-6 max-w-xl font-roboto text-base font-bold text-foreground/80 md:text-lg">
             Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité sur le terrain.
           </p>
           <div className="mt-10 w-full max-w-2xl">
