@@ -500,6 +500,31 @@
   addEventListener('scroll',()=>hdr.classList.toggle('scrolled',scrollY>60));
   const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{threshold:.14});
   document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%4*90)+'ms';io.observe(el)});
+  // Hero parallax: mouse + scroll
+  (function(){
+    const hero=document.getElementById('hero');if(!hero)return;
+    let mx=0,my=0,tx=0,ty=0,sy=0,ticking=false;
+    const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce)return;
+    function update(){
+      tx+=(mx-tx)*.08;ty+=(my-ty)*.08;
+      hero.style.setProperty('--mx',tx.toFixed(3));
+      hero.style.setProperty('--my',ty.toFixed(3));
+      hero.style.setProperty('--sy',sy.toFixed(3));
+      if(Math.abs(mx-tx)>.001||Math.abs(my-ty)>.001){requestAnimationFrame(update)}else{ticking=false}
+    }
+    function kick(){if(!ticking){ticking=true;requestAnimationFrame(update)}}
+    hero.addEventListener('mousemove',e=>{
+      const r=hero.getBoundingClientRect();
+      mx=((e.clientX-r.left)/r.width-.5)*2;
+      my=((e.clientY-r.top)/r.height-.5)*2;kick();
+    });
+    hero.addEventListener('mouseleave',()=>{mx=0;my=0;kick()});
+    addEventListener('scroll',()=>{
+      const r=hero.getBoundingClientRect();
+      sy=Math.max(-1,Math.min(1,-r.top/r.height));kick();
+    },{passive:true});
+  })();
 </script>
 </body>
 </html>
