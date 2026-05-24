@@ -462,7 +462,7 @@ const SlidePanelHome = ({
         onTouchCancel={swipeNavigationEnabled ? resetSwipe : undefined}
       >
         {/* Top toolbar : SlidePanelHeader (même base que SlidePanel de Search) */}
-        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && (
+        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && (
           <SlidePanelHeader
             onClose={onClose}
             alwaysDark
@@ -471,7 +471,7 @@ const SlidePanelHome = ({
             toolbarRightId="slide-panel-home-toolbar-right"
           />
         )}
-        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && typeof document !== "undefined" && (() => {
+        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && typeof document !== "undefined" && (() => {
           const centerEl = document.getElementById("slide-panel-home-toolbar-center");
           const rightEl = document.getElementById("slide-panel-home-toolbar-right");
           return (
