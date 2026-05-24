@@ -46,8 +46,14 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
 
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[230] bg-background flex flex-col">
-      <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-border">
+    <div
+      className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[230] lg:bg-background flex flex-col bg-no-repeat bg-cover bg-center lg:bg-none"
+      style={{ backgroundImage: "url('/hero_magical_realism_v1.jpg')" }}
+    >
+      <div className="absolute inset-0 bg-black/40 lg:hidden pointer-events-none" />
+
+
+      <div className="relative z-10 shrink-0 flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
           <Hash className="h-4 w-4 text-gold" />
           <h2 className="text-sm font-semibold text-foreground" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
@@ -63,7 +69,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
           <X className="h-4 w-4" />
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="relative z-10 flex-1 overflow-y-auto p-4">
         <div className="flex flex-wrap gap-2">
           {badges.map((b) => (
             <button
