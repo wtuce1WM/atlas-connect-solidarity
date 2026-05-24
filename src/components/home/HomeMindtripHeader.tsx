@@ -15,8 +15,9 @@ const HomeMindtripHeader = () => {
   }, []);
 
   const linkClass = `font-josefin text-sm uppercase tracking-[0.2em] transition ${
-    scrolled ? "text-white/80 hover:text-white" : "text-white/90 hover:text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
+    scrolled ? "text-white/85 hover:text-white" : "text-black hover:text-black/70"
   }`;
+
 
   return (
     <nav
