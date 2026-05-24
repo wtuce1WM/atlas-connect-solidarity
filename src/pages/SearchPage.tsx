@@ -3753,7 +3753,7 @@ const SearchPage = () => {
         return !compactPanelBusiness && !rightMapVisible;
       })() && (
         <>
-          {(bottomSearchOverlayOpen || bottomAiOverlayOpen) && (
+          {(bottomSearchOverlayOpen || bottomAiOverlayOpen || bottomHashtagsOverlayOpen) && (
             <div
               className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
               onClick={() => setBottomSearchCloseTrigger((n) => n + 1)}
@@ -3761,7 +3761,7 @@ const SearchPage = () => {
           )}
           <div
             className={`fixed pointer-events-none ${
-              (bottomSearchOverlayOpen || bottomAiOverlayOpen)
+              (bottomSearchOverlayOpen || bottomAiOverlayOpen || bottomHashtagsOverlayOpen)
                 ? "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2 z-[201]"
                 : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]"
             }`}
@@ -3779,6 +3779,7 @@ const SearchPage = () => {
                 }}
                 onOverlayChange={setBottomSearchOverlayOpen}
                 onAiOverlayChange={setBottomAiOverlayOpen}
+                onHashtagsOverlayChange={setBottomHashtagsOverlayOpen}
                 closeTrigger={bottomSearchCloseTrigger}
                 noToolbarOffset
                 iconVariant="black"
