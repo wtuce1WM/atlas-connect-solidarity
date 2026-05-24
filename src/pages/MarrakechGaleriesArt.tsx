@@ -209,12 +209,12 @@ const MarrakechGaleriesArt = () => {
               et de l'art contemporain en Afrique. Marrakech est une destination
               fascinante où l'art s'exprime à chaque coin de rue, mêlant
               traditions ancestrales et visions ultra-modernes. Explorez le
-              quartier industriel de <strong>Sidi Ghanem</strong> pour découvrir
+              quartier industriel de <strong className="text-black">Sidi Ghanem</strong> pour découvrir
               des ateliers de designers et des espaces d'exposition
               avant-gardistes. Pour une immersion totale, flânez dans le
-              quartier de <strong>Guéliz</strong>, qui regorge de galeries
+              quartier de <strong className="text-black">Guéliz</strong>, qui regorge de galeries
               prestigieuses nichées dans des immeubles Art déco, offrant un
-              regard unique sur la scène picturale marocaine. En médina,
+              regard unique sur la scène picturale marocaine. En <strong className="text-black">Médina</strong>,
               certains palais et demeures historiques se transforment souvent
               en centres culturels vibrants où l'architecture elle-même devient
               une œuvre d'art.
