@@ -33,7 +33,7 @@ interface Gamme {
   color_hex: string | null;
 }
 
-// 5 jours organisés par quartier — 43 adresses au total
+// 5 jours organisés par quartier — 44 adresses au total
 const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
   {
     title: "Jour 1 — Guéliz, le quartier créatif",
@@ -135,7 +135,7 @@ const MarrakechArtisanat5Jours = () => {
   useSEO({
     title: "5 jours à Marrakech pour découvrir l'artisanat marocain",
     description:
-      "Itinéraire de 5 jours à Marrakech : 43 adresses sélectionnées (Guéliz, Médina, Sidi Ghanem) pour découvrir le meilleur de l'artisanat marocain.",
+      "Itinéraire de 5 jours à Marrakech : 44 adresses sélectionnées (Guéliz, Médina, Sidi Ghanem) pour découvrir le meilleur de l'artisanat marocain.",
     canonical: "/blog/5-jours-marrakech-artisanat",
   });
 
@@ -221,7 +221,7 @@ const MarrakechArtisanat5Jours = () => {
               </span>
             </h1>
             <p className="mt-4 text-white/70 max-w-2xl text-lg">
-              Un itinéraire en 5 étapes — 43 adresses sélectionnées à Guéliz,
+              Un itinéraire en 5 étapes — 44 adresses sélectionnées à Guéliz,
               dans la Médina, à Sidi Ghanem et au-delà — pour explorer les
               boutiques, ateliers et galeries qui font vivre l'artisanat
               marocain aujourd'hui.
