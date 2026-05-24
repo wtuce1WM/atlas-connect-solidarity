@@ -92,7 +92,7 @@ const EssaouiraSeaView = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <HomeMindtripHeader />
+      <HomeMindtripHeader alwaysWhite />
 
       {/* Hero Section */}
       <div className="relative h-[60vh] min-h-[400px] overflow-hidden">

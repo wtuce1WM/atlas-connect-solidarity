@@ -137,7 +137,7 @@ const MarrakechActivitesEnfants = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <HomeMindtripHeader />
+      <HomeMindtripHeader alwaysWhite />
 
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
