@@ -43,6 +43,47 @@ const HomeMindtrip = () => {
   const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
   const [videos, setVideos] = useState<VideoSlot[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
+  const [blogHeroes, setBlogHeroes] = useState<{ marrakech?: string; galeries?: string; kids?: string }>({});
+
+  useEffect(() => {
+    const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
+    (async () => {
+      const [mrkRes, galRes, kidsDocRes, kidsYtRes] = await Promise.all([
+        supabase.from("businesses").select("images").eq("id", "83d7e07e-128c-47a3-92c6-225a53e34b42").maybeSingle(),
+        supabase.from("businesses").select("images").eq("id", "b484d0cd-6c47-43a2-b388-8ad34f590cd8").maybeSingle(),
+        supabase.from("business_document_badges").select("document_id").eq("badge_id", KIDS_BADGE_ID),
+        supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", KIDS_BADGE_ID),
+      ]);
+      const kidsBizIds = new Set<string>();
+      const docIds = (kidsDocRes.data || []).map((r: any) => r.document_id);
+      const ytIds = (kidsYtRes.data || []).map((r: any) => r.youtube_video_id);
+      if (docIds.length) {
+        const { data } = await supabase.from("business_documents").select("business_id").in("id", docIds);
+        (data || []).forEach((r: any) => r.business_id && kidsBizIds.add(r.business_id));
+      }
+      if (ytIds.length) {
+        const { data } = await supabase.from("business_youtube_videos").select("business_id").in("id", ytIds);
+        (data || []).forEach((r: any) => r.business_id && kidsBizIds.add(r.business_id));
+      }
+      let kidsImg: string | undefined;
+      if (kidsBizIds.size) {
+        const { data } = await supabase
+          .from("businesses")
+          .select("images")
+          .in("id", Array.from(kidsBizIds))
+          .eq("is_active", true)
+          .eq("city", "Marrakech")
+          .order("priority_score", { ascending: false })
+          .limit(20);
+        kidsImg = (data || []).find((b: any) => b.images?.length)?.images?.[0];
+      }
+      setBlogHeroes({
+        marrakech: (mrkRes.data as any)?.images?.[0],
+        galeries: (galRes.data as any)?.images?.[0],
+        kids: kidsImg,
+      });
+    })();
+  }, []);
   
 
   useSEO({
