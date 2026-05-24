@@ -67,7 +67,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       </div>
 
       {menuOpen && (
-        <div className="border-t border-white/10 bg-[rgba(26,18,11,0.95)] backdrop-blur-md md:hidden">
+        <div className="border-t border-white/10 bg-black/30 backdrop-blur-xl md:hidden">
           <div className="flex flex-col gap-1 px-4 py-3">
             <Link to="/corporate" onClick={() => setMenuOpen(false)} className="font-josefin text-sm uppercase tracking-[0.2em] text-white/85 py-2">
               Ajoutez votre entreprise
