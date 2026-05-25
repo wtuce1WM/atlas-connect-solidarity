@@ -62,7 +62,9 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
           aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}
-          className="text-white md:hidden drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
+          className={`md:hidden drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] ${
+            blackHamburger && !scrolled ? "text-black" : "text-white"
+          }`}
         >
           {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
