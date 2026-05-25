@@ -73,13 +73,12 @@ const Install = () => {
     setPlatform(detectPlatform());
     document.title = "Installer l'app — ONE WORLD MOROCCO";
 
-    // Already installed (standalone mode) → redirect to /test with resolved city
+    // Mark as installed if in standalone mode, but stay on this page
+    // (the user explicitly navigated here from the footer link)
     const isStandalone =
       window.matchMedia?.("(display-mode: standalone)").matches || Boolean((navigator as NavigatorWithStandalone).standalone);
     if (isStandalone) {
       setInstalled(true);
-      redirectStandaloneToHome();
-      return;
     }
 
     const readCapturedInstallPrompt = () => {
