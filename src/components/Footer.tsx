@@ -149,6 +149,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               
               <li><a href="/staff/login" className="transition-colors hover:text-gold">{t("footer.staff")}</a></li>
               <li><Link to="/blog" className="transition-colors hover:text-gold">{t("footer.blog")}</Link></li>
+              <li><Link to="/install" className="transition-colors hover:text-gold">Application</Link></li>
               <li><Link to="/devenir-affilie" className="transition-colors hover:text-gold">{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
             </ul>
           </div>
