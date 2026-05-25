@@ -8,6 +8,8 @@ interface Props {
 }
 
 const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
+  const location = useLocation();
+  const blackHamburger = location.pathname === "/" || location.pathname === "/install";
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
