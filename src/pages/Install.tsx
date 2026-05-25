@@ -267,6 +267,33 @@ const Install = () => {
           )}
         </section>
 
+        {/* Update button */}
+        <div className="mt-10 text-center">
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                if ("serviceWorker" in navigator) {
+                  const regs = await navigator.serviceWorker.getRegistrations();
+                  await Promise.all(regs.map((r) => r.update()));
+                }
+                if ("caches" in window) {
+                  const keys = await caches.keys();
+                  await Promise.all(keys.map((k) => caches.delete(k)));
+                }
+              } catch {}
+              window.location.reload();
+            }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-roboto font-medium shadow-md hover:opacity-90 transition"
+          >
+            <Download className="h-4 w-4" />
+            Vérifier les mises à jour
+          </button>
+          <p className="mt-3 text-xs text-muted-foreground/70 font-roboto">
+            Recharge l'app avec la dernière version disponible.
+          </p>
+        </div>
+
         {/* Footer info */}
         <footer className="mt-10 text-center space-y-3">
           <p className="text-sm text-muted-foreground font-roboto">
