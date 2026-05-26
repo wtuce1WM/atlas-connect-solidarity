@@ -661,10 +661,10 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
           })()}
 
           {/* Owner logo + badge */}
-          <OwnerLogoOverlay logoBigOverlay={logoBigOverlay} logoBigFadingOut={logoBigFadingOut} cardsHidden={cardsHidden} currentMediaUrl={currentMedia?.url} videoDocs={ownerVideoDocs} currentBusinessId={businessId} />
+          <OwnerLogoOverlay logoBigOverlay={logoBigOverlay} logoBigFadingOut={logoBigFadingOut} cardsHidden={cardsHidden} currentMediaUrl={currentMedia?.url} videoDocs={ownerVideoDocs} currentBusinessId={entityId} />
           <OwnerBadge
             cardsHidden={cardsHidden} currentMediaKind={currentMedia?.kind} currentMediaUrl={currentMedia?.url}
-            videoDocs={ownerVideoDocs} currentBusinessId={businessId}
+            videoDocs={ownerVideoDocs} currentBusinessId={entityId}
             onNavigateToOwner={(ownerId) => {
               const cv = linkedVideos.find(v => v.businessId === ownerId);
               if (cv?.ownerSlug) navigate(businessUrl({ id: cv.businessId, slug: cv.ownerSlug }));
