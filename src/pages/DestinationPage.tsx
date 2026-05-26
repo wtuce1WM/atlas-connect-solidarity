@@ -51,8 +51,9 @@ interface Business {
 
 const ITEMS_PER_PAGE = 20;
 
-const DestinationPage = () => {
-  const { destinationName } = useParams<{ destinationName: string }>();
+const DestinationPage = ({ overrideName }: { overrideName?: string } = {}) => {
+  const params = useParams<{ destinationName: string }>();
+  const destinationName = overrideName ?? params.destinationName;
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<Business[]>([]);

@@ -100,22 +100,10 @@ const VanityResolver = () => {
   // DestinationPage reads :destinationName from params; provide via a wrapper.
   return (
     <Suspense fallback={null}>
-      <DestinationVanityWrapper nameFr={resolved.nameFr} />
+      <DestinationPage overrideName={resolved.nameFr} />
     </Suspense>
   );
 };
 
-// DestinationPage uses useParams().destinationName. We override URL params by
-// briefly rewriting history (cosmetic), keeping the vanity slug visible.
-const DestinationVanityWrapper = ({ nameFr }: { nameFr: string }) => {
-  // Render DestinationPage but force the :destinationName via a memory route
-  // is overkill — instead, push name as a query and let DestinationPage adapt
-  // would require code changes. Minimal: redirect to /destination/<name>.
-  // (Destinations are rare vs businesses; keep simple.)
-  if (typeof window !== "undefined") {
-    window.location.replace(`/destination/${encodeURIComponent(nameFr)}`);
-  }
-  return null;
-};
 
 export default VanityResolver;
