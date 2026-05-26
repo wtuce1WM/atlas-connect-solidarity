@@ -524,7 +524,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
         {/* Overlaid content */}
         <div
-          className={`relative z-10 flex flex-col h-full p-4 md:p-6 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[160px] md:pb-[170px]' : ''}`}
+          className={`relative z-10 flex flex-col h-full p-4 md:p-6 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[88px] md:pb-[92px]' : ''}`}
           style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
           onTouchStart={onDragTouchStart} onTouchMove={onDragTouchMove} onTouchEnd={onDragTouchEnd}
         >
