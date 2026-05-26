@@ -39,6 +39,7 @@ const VideoDocumentOverlay = ({
   onNavigate,
   onAnimationEnd,
   onOwnerClick,
+  onControlsApi,
 }: VideoDocumentOverlayProps) => {
   // User's persisted sound preference takes precedence over the per-business default.
   const { soundOn, setSoundOn } = useVideoSoundPreference();
