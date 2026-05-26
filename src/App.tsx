@@ -67,6 +67,7 @@ const FicheImmersive = lazy(() => import("./pages/FicheImmersive"));
 const Test = lazy(() => import("./pages/Home"));
 const HomeMindtrip = lazy(() => import("./pages/HomeMindtrip"));
 const Install = lazy(() => import("./pages/Install"));
+const VanityResolver = lazy(() => import("./pages/VanityResolver"));
 
 const queryClient = new QueryClient();
 
@@ -198,6 +199,7 @@ const AppContent = () => {
               <Route path="/install" element={renderLazyRoute(<Install />)} />
               <Route path="/corporate" element={renderLazyRoute(<Corporate />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/:vanitySlug" element={renderLazyRoute(<VanityResolver />)} />
               <Route path="*" element={renderLazyRoute(<NotFound />)} />
             </Routes>
           </RouteTransition>
