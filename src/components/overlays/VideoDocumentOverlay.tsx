@@ -269,8 +269,9 @@ const VideoDocumentOverlay = ({
         );
       })()}
 
-      {/* Custom Play/Pause + Mute controls — only for native file videos */}
-      {isFile && (
+      {/* Custom Play/Pause + Mute controls — only for native file videos.
+          Hidden when the parent renders them inline via onControlsApi. */}
+      {isFile && !onControlsApi && (
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-6 md:gap-10 z-20">
           <button
             onClick={togglePlay}
