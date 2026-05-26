@@ -228,15 +228,46 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
     return () => { cancelled = true; };
   }, [entityId, isDestination, businessId, destinationId, language]);
 
-  // Fetch POI businesses linked to this POI (fallback to city POIs if none linked)
+  // Fetch linked items: POI businesses (when POI) or destination's provider businesses (when destination)
   useEffect(() => {
+    if (!entityId) return;
     let cancelled = false;
 
-    const fetchLinkedPois = async () => {
+    const fetchLinked = async () => {
+      if (isDestination) {
+        const { data: links } = await (supabase
+          .from("business_destinations" as any)
+          .select("business_id")
+          .eq("destination_id", destinationId!) as any);
+        const bizIds = ((links || []) as any[]).map((l: any) => l.business_id);
+        if (cancelled) return;
+        if (bizIds.length === 0) { setLinkedPois([]); setCityPoisForTabs([]); return; }
+        const all: any[] = [];
+        for (let i = 0; i < bizIds.length; i += 500) {
+          const { data } = await supabase
+            .from("businesses")
+            .select("id, name, slug, latitude, longitude, images, city, neighborhood, rating, main_category")
+            .eq("is_active", true)
+            .in("id", bizIds.slice(i, i + 500));
+          if (data) all.push(...data);
+        }
+        if (cancelled) return;
+        setLinkedPois(all.map((b: any) => ({
+          id: b.id, name: b.name, latitude: b.latitude, longitude: b.longitude,
+          images: b.images, city: b.city, neighborhood: b.neighborhood,
+          rating: b.rating ? Number(b.rating) : null, subcategory: b.main_category,
+        })));
+        setCityPoisForTabs(all.map((b: any) => ({
+          id: b.id, name: b.name, slug: b.slug, images: b.images,
+          rating: b.rating ? Number(b.rating) : null,
+        })));
+        return;
+      }
+
       const { data: poiLinks } = await supabase
         .from("business_poi_businesses")
         .select("poi_business_id")
-        .eq("business_id", businessId);
+        .eq("business_id", businessId!);
 
       const poiIds = ((poiLinks || []) as { poi_business_id: string }[])
         .map((link) => link.poi_business_id)
@@ -253,7 +284,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
             .eq("is_active", true)
             .eq("is_poi", true)
             .eq("city", poiCity)
-            .neq("id", businessId)
+            .neq("id", businessId!)
             .order("priority_score", { ascending: false })
             .limit(50);
           if (!cancelled && cityPois) {
@@ -302,9 +333,9 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
       );
     };
 
-    fetchLinkedPois();
+    fetchLinked();
     return () => { cancelled = true; };
-  }, [businessId, poi?.city]);
+  }, [entityId, isDestination, businessId, destinationId, poi?.city]);
 
   // Fetch videos linked to this POI (business_documents + generic_videos)
   useEffect(() => {
