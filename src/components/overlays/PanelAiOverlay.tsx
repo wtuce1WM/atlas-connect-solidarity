@@ -19,9 +19,13 @@ interface PanelAiOverlayProps {
   onAskAssistant?: () => void;
   /** Called when user clicks the "See results" CTA — should return to the search list+map view */
   onSeeResults?: () => void;
+  /** Pre-generated AI text (from Sticky 4 on /search) — when provided, the panel reuses it instead of regenerating */
+  presetAnswer?: string | null;
+  /** Businesses pool matching presetAnswer (for parseInline thumbnails) */
+  presetBusinesses?: BusinessData[] | null;
 }
 
-const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults }: PanelAiOverlayProps) => {
+const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, presetAnswer, presetBusinesses }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
