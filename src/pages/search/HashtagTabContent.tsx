@@ -423,9 +423,10 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
                     <div className="absolute inset-x-0 top-[6%] z-20 flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
                       {ei.name && (
                         <p
-                          className="text-[11px] sm:text-sm font-bold text-white mt-3"
+                          className="text-sm md:text-base font-bold text-white mt-3 normal-case line-clamp-3"
                           style={{
                             fontFamily: "'Roboto', sans-serif",
+                            textTransform: "none",
                             letterSpacing: "0.02em",
                             filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
                           }}
