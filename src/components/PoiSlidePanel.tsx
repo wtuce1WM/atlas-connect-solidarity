@@ -458,7 +458,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
     owner_name: cv.ownerName || null,
   })), [linkedVideos]);
 
-  const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, ownerVideoDocs, businessId);
+  const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, ownerVideoDocs, entityId);
 
   const displayDescription = poi?.poi_description || poi?.description || null;
   const displayHook = useMemo(() => {
