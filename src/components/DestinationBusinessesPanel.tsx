@@ -101,6 +101,17 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     return () => observer.disconnect();
   }, [businesses]);
 
+  // Geolocate user once when directions overlay opens
+  useEffect(() => {
+    if (!showDirections) return;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`),
+        () => {}
+      );
+    }
+  }, [showDirections]);
+
   const getName = () => {
     if (language === "en" && destination.name_en) return destination.name_en;
     if (language === "ar" && destination.name_ar) return destination.name_ar;
