@@ -262,7 +262,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         _id: `yt:${y.id}`,
         _kind: "youtube",
         url: `https://www.youtube.com/watch?v=${y.video_id}`,
-        name: y.title || null,
+        name: y.title || bizMap[y.business_id]?.hook_fr || null,
         description: null,
         thumbnail_url: y.custom_thumbnail_url || y.thumbnail || ytThumb(y.video_id),
         owner_business_id: y.business_id || null,
