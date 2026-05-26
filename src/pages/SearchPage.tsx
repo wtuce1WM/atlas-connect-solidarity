@@ -2662,8 +2662,21 @@ const SearchPage = () => {
       )}
 
       {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
-      {showAiPopup && (
+      {showAiPopup && (() => {
+        const closeToResults = () => {
+          setShowAiPopup(false);
+          setOverlaySelectedBusiness(null);
+          setActiveTab("suggestions");
+          setCurrentPage(1);
+          setShowMobileMap(false);
+          setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            setTimeout(() => ensureResultsVisibleBelowSticky("smooth"), 350);
+          }, 50);
+        };
+        return (
         <div className="fixed inset-0 z-[9990] flex bg-white animate-in fade-in duration-200">
+
           {/* Left panel: AI suggestion */}
           <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
           {/* Mobile sticky top bar: speaker + CTA + close */}
@@ -2695,7 +2708,7 @@ const SearchPage = () => {
             </div>
             {/* CTA center */}
             <button
-              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+              onClick={closeToResults}
               className="inline-flex items-center px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase whitespace-nowrap"
             >
               {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
@@ -2722,7 +2735,7 @@ const SearchPage = () => {
             <div className="pt-2 sm:pt-14 pb-3 text-center">
               {/* Desktop CTA */}
               <button
-                onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+                onClick={closeToResults}
                 className="hidden sm:inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors mb-4"
               >
                 {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
@@ -3046,7 +3059,7 @@ const SearchPage = () => {
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
               <div className="flex flex-col items-center gap-4 pt-14 pb-24">
                 <button
-                  onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+                  onClick={closeToResults}
                   className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
                 >
                   {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
@@ -3114,7 +3127,9 @@ const SearchPage = () => {
             </div>
           )}
         </div>
-      )}
+        );
+      })()}
+
       {showResultsOverlay && isMobile && !compactPanelBusiness && (
         <div
           className={`fixed inset-0 z-[60] flex items-end transition-all duration-400 ${overlayDismissing ? 'pointer-events-none' : ''}`}
