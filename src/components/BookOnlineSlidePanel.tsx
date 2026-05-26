@@ -1352,7 +1352,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       )}
 
       {/* Full Description Overlay */}
-      {showDescriptionOverlay && woDescription && (
+      {showDescriptionOverlay && (woDescription || descGridSection || descOverlayContent) && (
         <OverlayShell zClass="z-[80]" animClass="animate-zoom-out-center" className="flex flex-col">
           {images[0] && (
             <div
