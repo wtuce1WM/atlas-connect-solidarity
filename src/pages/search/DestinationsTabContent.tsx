@@ -177,15 +177,12 @@ const DestinationsTabContent = ({
         const hasPrev = idx > 0;
         const hasNext = idx >= 0 && idx < allDestItems.length - 1;
         return (
-          <DestinationBusinessesPanel
-            destination={selectedDestination}
-            language={language}
+          <PoiSlidePanel
+            destinationId={selectedDestination.id}
             onClose={() => setSelectedDestination(null)}
-            onBusinessClick={(bizId) => setDestSelectedBusinessId(bizId)}
+            slideFrom="right"
             onPrevDestination={hasPrev ? () => setSelectedDestination(allDestItems[idx - 1]) : undefined}
             onNextDestination={hasNext ? () => setSelectedDestination(allDestItems[idx + 1]) : undefined}
-            hasPrevDestination={hasPrev}
-            hasNextDestination={hasNext}
           />
         );
       })()}
