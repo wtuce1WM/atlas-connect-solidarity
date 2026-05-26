@@ -36,14 +36,16 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
   useEffect(() => {
     if (!open) { setAnswer(""); setBusinesses([]); setCachedQuery(""); setCachedCount(null); return; }
 
-    // PRIORITY 1: Use the exact text shown in Sticky 4 (passed via props).
-    // Guarantees that the overlay shows the SAME text as the results page.
-    if (presetAnswer) {
-      setAnswer(presetAnswer);
-      // Build the widest pool for parseInline: merge presetBusinesses (visible
-      // page from /search, ~24 rows) with the richer cached pool persisted by
-      // SearchPage (up to 100). Without this, any business cited by the AI
-      // outside the visible page renders as plain text (no thumbnail/link).
+    // When the parent EXPLICITLY drives the AI text via presetAnswer (search page),
+    // we must NEVER fall back to sessionStorage (which may still hold the previous
+    // search's text after the user refined city/subcategory and regeneration is in
+    // flight). Detect "controlled mode" by the prop being defined (incl. empty string).
+    const controlled = presetAnswer !== undefined && presetAnswer !== null;
+
+    if (controlled) {
+      // Show whatever the parent currently has (may be "" during regeneration → loading state).
+      setAnswer(presetAnswer || "");
+      // Build widest business pool for parseInline (merge cache + visible page).
       try {
         const byId = new Map<string, BusinessData>();
         const cachedBiz = sessionStorage.getItem("ai_suggestion_businesses");
@@ -55,6 +57,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
           for (const b of presetBusinesses) if (b?.id) byId.set(b.id, b);
         }
         if (byId.size > 0) setBusinesses(Array.from(byId.values()));
+        else if (presetBusinesses && presetBusinesses.length > 0) setBusinesses(presetBusinesses);
       } catch {
         if (presetBusinesses && presetBusinesses.length > 0) setBusinesses(presetBusinesses);
       }
@@ -64,10 +67,12 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
         if (cachedQ) setCachedQuery(cachedQ);
         if (cachedC) setCachedCount(Number(cachedC));
       } catch {}
+      // Show loader while parent's text is empty — do NOT regenerate or read stale cache.
+      setLoading(!presetAnswer);
       return;
     }
 
-    // PRIORITY 2: Reuse previously generated AI text from search results (sessionStorage)
+    // UNCONTROLLED mode (e.g. business detail overlay): reuse sessionStorage if any.
     try {
       const cached = sessionStorage.getItem("ai_suggestion_text");
       const cachedBiz = sessionStorage.getItem("ai_suggestion_businesses");
