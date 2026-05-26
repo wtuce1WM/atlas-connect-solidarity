@@ -6,6 +6,14 @@ import type { VideoDoc } from "@/hooks/useBookOnlineData";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+export interface VideoOverlayControlsApi {
+  isPlaying: boolean;
+  isMuted: boolean;
+  isFile: boolean;
+  togglePlay: () => void;
+  toggleMute: () => void;
+}
+
 interface VideoDocumentOverlayProps {
   activeVideo: { url: string; name: string | null; description: string | null };
   videoDocs: VideoDoc[];
@@ -17,6 +25,7 @@ interface VideoDocumentOverlayProps {
   onNavigate: (video: { url: string; name: string | null; description: string | null }) => void;
   onAnimationEnd: () => void;
   onOwnerClick?: (ownerId: string) => void;
+  onControlsApi?: (api: VideoOverlayControlsApi | null) => void;
 }
 
 const VideoDocumentOverlay = ({
