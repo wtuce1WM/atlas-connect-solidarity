@@ -77,7 +77,10 @@ interface PoiFull {
   carousel_badge: string | null;
 }
 
-const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBar, onSearch, onSearchBusinessSelect }: PoiSlidePanelProps) => {
+const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom", showSearchBar, onSearch, onSearchBusinessSelect, onPrevDestination, onNextDestination }: PoiSlidePanelProps) => {
+  // Stable identifier used for effect dependencies & keys (one of the two must be set)
+  const entityId = businessId || destinationId || "";
+  const isDestination = !businessId && !!destinationId;
   const { language } = useLanguage();
   const navigate = useNavigate();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
