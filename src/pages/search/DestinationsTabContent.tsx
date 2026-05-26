@@ -172,14 +172,23 @@ const DestinationsTabContent = ({
       )}
 
       {/* Destination businesses panel */}
-      {selectedDestination && (
-        <DestinationBusinessesPanel
-          destination={selectedDestination}
-          language={language}
-          onClose={() => setSelectedDestination(null)}
-          onBusinessClick={(bizId) => setDestSelectedBusinessId(bizId)}
-        />
-      )}
+      {selectedDestination && (() => {
+        const idx = allDestItems.findIndex((d) => d.id === selectedDestination.id);
+        const hasPrev = idx > 0;
+        const hasNext = idx >= 0 && idx < allDestItems.length - 1;
+        return (
+          <DestinationBusinessesPanel
+            destination={selectedDestination}
+            language={language}
+            onClose={() => setSelectedDestination(null)}
+            onBusinessClick={(bizId) => setDestSelectedBusinessId(bizId)}
+            onPrevDestination={hasPrev ? () => setSelectedDestination(allDestItems[idx - 1]) : undefined}
+            onNextDestination={hasNext ? () => setSelectedDestination(allDestItems[idx + 1]) : undefined}
+            hasPrevDestination={hasPrev}
+            hasNextDestination={hasNext}
+          />
+        );
+      })()}
 
       {/* Backdrop for mobile */}
       {destSelectedBusinessId && isSubDesktop && (
