@@ -3624,10 +3624,10 @@ const SearchPage = () => {
                 setShowMobileMap(false);
                 setActiveTab("suggestions");
                 setCurrentPage(1);
-                requestAnimationFrame(() => {
+                setTimeout(() => {
                   window.scrollTo({ top: 0, behavior: "smooth" });
-                  document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
-                });
+                  setTimeout(() => ensureResultsVisibleBelowSticky("smooth"), 350);
+                }, 50);
               }}
             />
           </div>
