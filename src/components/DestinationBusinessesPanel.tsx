@@ -39,16 +39,16 @@ interface DestinationBusinessesPanelProps {
 
 const SELECT_FIELDS = "id, name, city, neighborhood, images, rating, computed_rating, total_review_count, wtuce_status";
 
-const SidebarCta = ({ icon: Icon, label, onClick, customIcon }: { icon?: any; label: string; onClick: () => void; customIcon?: React.ReactNode }) => (
-  <div
+const RoundCta = ({ icon: Icon, label, onClick }: { icon: any; label: string; onClick: () => void }) => (
+  <button
+    type="button"
     onClick={onClick}
-    className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
+    aria-label={label}
+    title={label}
+    className="w-12 h-12 rounded-full bg-black/70 hover:bg-black/85 backdrop-blur-md border border-white/15 text-white shadow-lg flex items-center justify-center transition-colors"
   >
-    <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-      {label}
-    </span>
-    {customIcon ?? (Icon && <Icon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />)}
-  </div>
+    <Icon className="h-5 w-5" />
+  </button>
 );
 
 const DestinationBusinessesPanel = ({
@@ -276,34 +276,20 @@ const DestinationBusinessesPanel = ({
           </div>
         )}
 
-        {/* Left sidebar CTAs */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
-          {hasMap && (
-            <SidebarCta icon={MapPin} label={language === "en" ? "Location" : "Localisation"} onClick={() => setShowDirections(true)} />
-          )}
-          {hasVideos && (
-            <SidebarCta icon={Film} label={language === "en" ? "Videos" : "Vidéos"} onClick={() => { setActiveVideoIndex(0); setShowVideos(true); }} />
-          )}
-          {hasImages && (
-            <SidebarCta icon={ImageIcon} label="Images" onClick={() => setIsLightboxOpen(true)} />
-          )}
-          <SidebarCta icon={Building2} label={providersLabel} onClick={() => setShowProviders(true)} />
-        </div>
-
-        {/* Name card (BookOnlineSlidePanel BusinessHeader style) — pinned at top under toolbar */}
-        <div className="absolute top-14 left-3 right-3 z-20 pointer-events-none">
-          <div className="w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[4.5rem] md:h-[5.5rem] pointer-events-auto">
+        {/* Name card — pinned at top, beside toolbar buttons */}
+        <div className="absolute top-2 left-16 right-16 z-20 pointer-events-none">
+          <div className="w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[3.25rem] md:h-[3.75rem] pointer-events-auto">
             <div className="absolute inset-0 flex items-center gap-4 px-4 md:px-6">
               <div className="min-w-0 flex-1 text-center md:text-left">
                 <h2
-                  className="text-base md:text-xl font-bold uppercase min-w-0 flex-1 line-clamp-2"
-                  style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", WebkitTextStroke: "0.8px currentColor", textShadow: "0 0 0 currentColor" }}
+                  className="text-sm md:text-lg font-bold uppercase min-w-0 flex-1 line-clamp-1"
+                  style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", WebkitTextStroke: "0.6px currentColor", textShadow: "0 0 0 currentColor" }}
                 >
                   {getName()}
                 </h2>
                 {destination.region && destination.region.length > 0 && (
-                  <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5 justify-center md:justify-start truncate">
-                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  <p className="text-[10px] md:text-xs text-white/80 flex items-center gap-1 mt-0.5 justify-center md:justify-start truncate">
+                    <MapPin className="h-3 w-3 shrink-0" />
                     {destination.region.join(", ")}
                   </p>
                 )}
@@ -314,7 +300,7 @@ const DestinationBusinessesPanel = ({
 
         {/* Center overlay: hook + "+" */}
         {(destination.hook || hasDescription) && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-6 pb-32">
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-6 pb-40">
             {destination.hook && (
               <p
                 className="text-base md:text-lg text-white/90 font-semibold text-center max-w-xl leading-relaxed"
@@ -339,19 +325,32 @@ const DestinationBusinessesPanel = ({
           </div>
         )}
 
-        {/* Itinéraire CTA (bottom) */}
-        {hasMap && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 px-4 w-[min(90%,360px)]">
-            <button
-              onClick={() => setShowDirections(true)}
-              className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors"
-              style={{ fontFamily: "'Josefin Sans', sans-serif", height: "40px" }}
-            >
-              <Navigation className="h-4 w-4" />
-              <span className="truncate">{language === "en" ? "Directions" : language === "ar" ? "الاتجاهات" : "Itinéraire"}</span>
-            </button>
+        {/* Bottom stack: Itinéraire CTA above row of round CTAs */}
+        <div className="absolute bottom-4 left-0 right-0 z-30 flex flex-col items-center gap-3 px-4 pointer-events-none">
+          {hasMap && (
+            <div className="w-[min(90%,360px)] pointer-events-auto">
+              <button
+                onClick={() => setShowDirections(true)}
+                className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors"
+                style={{ fontFamily: "'Josefin Sans', sans-serif", height: "40px" }}
+              >
+                <Navigation className="h-4 w-4" />
+                <span className="truncate">{language === "en" ? "Directions" : language === "ar" ? "الاتجاهات" : "Itinéraire"}</span>
+              </button>
+            </div>
+          )}
+          <div className="flex items-center justify-center gap-3 pointer-events-auto">
+            {hasVideos && (
+              <RoundCta icon={Film} label={language === "en" ? "Videos" : "Vidéos"} onClick={() => { setActiveVideoIndex(0); setShowVideos(true); }} />
+            )}
+            {hasImages && (
+              <RoundCta icon={ImageIcon} label="Images" onClick={() => setIsLightboxOpen(true)} />
+            )}
+            <RoundCta icon={Building2} label={providersLabel} onClick={() => setShowProviders(true)} />
           </div>
-        )}
+        </div>
+
+
 
 
 
