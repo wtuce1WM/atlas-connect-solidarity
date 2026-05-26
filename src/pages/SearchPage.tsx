@@ -329,7 +329,7 @@ const SearchPage = () => {
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
           body: {
             query: searchQuery.trim() || categoryFromUrl || undefined,
-            spoken: spokenText || undefined,
+            spoken: spokenForAi || undefined,
             language,
             pageSize: Math.min(totalCount, 100),
             offset: 0,
