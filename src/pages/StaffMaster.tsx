@@ -156,6 +156,10 @@ const StaffMaster = () => {
               <DollarSign className="h-4 w-4" />
               Prix
             </TabsTrigger>
+            <TabsTrigger value="vanity-urls" className="gap-2">
+              <LinkIcon className="h-4 w-4" />
+              Alias URL
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
