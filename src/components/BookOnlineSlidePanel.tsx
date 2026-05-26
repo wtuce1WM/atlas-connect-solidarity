@@ -2021,7 +2021,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 paused={videoPaused}
                 muted={videoMuted}
               />
-            ) : effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && !cardsHidden ? (
+            ) : effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? (
               <VideoControls
                 type="youtube"
                 iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
