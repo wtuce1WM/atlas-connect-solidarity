@@ -113,20 +113,9 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
           const img = dest.image_url || (dest.images && dest.images.length > 0 ? dest.images[0] : null);
           const name = getName(dest);
 
-          return (
-            <Link
-              key={dest.id}
-              to={`/destination/${dest.id}`}
-              onClick={(e) => {
-                if (onDestinationClick) {
-                  e.preventDefault();
-                  onDestinationClick(dest.id);
-                }
-              }}
-              onMouseEnter={() => onHover?.(dest.id)}
-              onMouseLeave={() => onHover?.(null)}
-              className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
-            >
+          const commonClass = "group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative block w-full text-left";
+          const inner = (
+            <>
               {img ? (
                 <img src={img} alt={name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
               ) : (
@@ -149,13 +138,39 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
                 </button>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
               <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
                 <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{name}</p>
                 {dest.hook && (
                   <p className="text-sm text-white/80 line-clamp-2">{dest.hook}</p>
                 )}
               </div>
+            </>
+          );
+
+          if (onDestinationClick) {
+            return (
+              <button
+                key={dest.id}
+                type="button"
+                onClick={() => onDestinationClick(dest.id)}
+                onMouseEnter={() => onHover?.(dest.id)}
+                onMouseLeave={() => onHover?.(null)}
+                className={commonClass}
+              >
+                {inner}
+              </button>
+            );
+          }
+
+          return (
+            <Link
+              key={dest.id}
+              to={`/destination/${dest.id}`}
+              onMouseEnter={() => onHover?.(dest.id)}
+              onMouseLeave={() => onHover?.(null)}
+              className={commonClass}
+            >
+              {inner}
             </Link>
           );
         })}
