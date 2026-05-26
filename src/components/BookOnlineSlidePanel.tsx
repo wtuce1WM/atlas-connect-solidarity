@@ -1005,7 +1005,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           avgOn20={avgOn20}
           totalReviewCount={totalReviewCount}
           onOpenReviews={handleOpenReviews}
-          openBadgeInfo={hideOpeningInfo ? undefined : openBadgeInfo}
+          openBadgeInfo={openBadgeInfo}
         />
 
         {/* Top bar: toggle, flags, rating — below BusinessHeader */}
