@@ -40,6 +40,9 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "providers">("info");
+  const [showDirections, setShowDirections] = useState(false);
+  const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
+  const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const providersRef = useRef<HTMLDivElement>(null);
 
