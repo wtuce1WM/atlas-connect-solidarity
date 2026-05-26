@@ -196,7 +196,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         ytIds.length
           ? supabase
               .from("business_youtube_videos")
-              .select("id, video_id, title, thumbnail, custom_thumbnail_url, business_id, business_is_active, is_visible")
+              .select("id, video_id, title, thumbnail, custom_thumbnail_url, business_id, business_is_active, is_visible, sort_order")
               .in("id", ytIds)
               .eq("business_is_active", true)
               .eq("is_visible", true)
