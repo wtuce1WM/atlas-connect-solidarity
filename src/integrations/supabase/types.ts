@@ -5224,6 +5224,30 @@ export type Database = {
         }
         Relationships: []
       }
+      vanity_urls: {
+        Row: {
+          created_at: string
+          slug: string
+          target_id: string
+          target_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          slug: string
+          target_id: string
+          target_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          slug?: string
+          target_id?: string
+          target_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       voice_intent_rules: {
         Row: {
           created_at: string
