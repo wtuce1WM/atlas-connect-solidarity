@@ -40,7 +40,24 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     // Guarantees that the overlay shows the SAME text as the results page.
     if (presetAnswer) {
       setAnswer(presetAnswer);
-      if (presetBusinesses && presetBusinesses.length > 0) setBusinesses(presetBusinesses);
+      // Build the widest pool for parseInline: merge presetBusinesses (visible
+      // page from /search, ~24 rows) with the richer cached pool persisted by
+      // SearchPage (up to 100). Without this, any business cited by the AI
+      // outside the visible page renders as plain text (no thumbnail/link).
+      try {
+        const byId = new Map<string, BusinessData>();
+        const cachedBiz = sessionStorage.getItem("ai_suggestion_businesses");
+        if (cachedBiz) {
+          const arr = JSON.parse(cachedBiz) as BusinessData[];
+          if (Array.isArray(arr)) for (const b of arr) if (b?.id) byId.set(b.id, b);
+        }
+        if (presetBusinesses && presetBusinesses.length > 0) {
+          for (const b of presetBusinesses) if (b?.id) byId.set(b.id, b);
+        }
+        if (byId.size > 0) setBusinesses(Array.from(byId.values()));
+      } catch {
+        if (presetBusinesses && presetBusinesses.length > 0) setBusinesses(presetBusinesses);
+      }
       try {
         const cachedQ = sessionStorage.getItem("ai_suggestion_query");
         const cachedC = sessionStorage.getItem("ai_suggestion_count");
