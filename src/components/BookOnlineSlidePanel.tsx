@@ -1989,7 +1989,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           onSeeResults={onClose}
           leadingControls={
             activeVideoOverlay ? (
-              overlayControlsApi && overlayControlsApi.isFile ? (
+              overlayControlsApi ? (
                 <div className="flex items-center gap-3 md:gap-10">
                   <button
                     type="button"
