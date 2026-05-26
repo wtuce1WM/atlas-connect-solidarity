@@ -307,6 +307,37 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
       setItems(all);
       onCountChange?.(all.length);
       setLoading(false);
+
+      // For generic YouTube videos without a title/name, fetch the title from
+      // YouTube oEmbed (no API key, CORS-enabled) and patch the item name.
+      const ytToFetch = ((genericRes.data as any[]) || []).filter((g: any) => {
+        if (g.title || g.name) return false;
+        return typeof g.url === "string" && /youtu\.?be/i.test(g.url);
+      });
+      if (ytToFetch.length > 0) {
+        const updates = await Promise.all(
+          ytToFetch.map(async (g: any) => {
+            try {
+              const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(g.url)}&format=json`);
+              if (!res.ok) return null;
+              const j = await res.json();
+              return j?.title ? { id: g.id, title: j.title as string } : null;
+            } catch { return null; }
+          }),
+        );
+        if (cancelled) return;
+        const titleById = new Map<string, string>();
+        updates.forEach((u) => { if (u) titleById.set(u.id, u.title); });
+        if (titleById.size > 0) {
+          setItems((prev) => prev.map((it) => {
+            if (it._kind !== "generic" || !it.generic_video_id) return it;
+            const t = titleById.get(it.generic_video_id);
+            if (!t) return it;
+            // Only patch if current name was a fallback (hook or @account), not a real title.
+            return { ...it, name: t };
+          }));
+        }
+      }
     })();
     return () => { cancelled = true; };
   }, [badgeId, badgeLabel, city, onCountChange]);
