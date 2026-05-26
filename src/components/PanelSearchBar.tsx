@@ -191,6 +191,10 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
             businessName={businessName}
             presetAnswer={aiAnswerText ?? null}
             presetBusinesses={(aiBusinesses ?? null) as any}
+            onBusinessClick={(b) => {
+              setAiOverlayOpen(false);
+              onBusinessSelect?.(b.id);
+            }}
             onAskAssistant={() => {
               setAiOverlayOpen(false);
               setOverlay(true);
