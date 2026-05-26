@@ -153,7 +153,16 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
           body: { query: combinedQuery, city: city ?? undefined, page: 1, pageSize: 100 },
         });
         const arr = (searchData as any)?.businesses;
-        if (Array.isArray(arr) && arr.length > 0) refinedBusinesses = arr as BusinessData[];
+        if (Array.isArray(arr) && arr.length > 0) {
+          refinedBusinesses = arr as BusinessData[];
+          // Merge into pool so parseInline can resolve names from refined results
+          setBusinesses((prev) => {
+            const byId = new Map<string, BusinessData>();
+            for (const b of prev) byId.set(b.id, b);
+            for (const b of refinedBusinesses) byId.set(b.id, b);
+            return Array.from(byId.values());
+          });
+        }
       } catch (e) {
         console.warn("Refinement search failed, falling back to cached pool:", e);
       }
