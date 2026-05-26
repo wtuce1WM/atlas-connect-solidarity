@@ -314,6 +314,47 @@ const SearchPage = () => {
     // NOTE: TTS preloading removed — it consumed ElevenLabs credits on every search
     // even when the user never clicked the speaker. Audio is now generated on demand.
   }, [language, searchQuery, allBusinesses, totalCount]);
+
+  // When server-side pagination hides part of the results, fetch the full pool once
+  // and rewrite sessionStorage so the AI overlay can refine across ALL results (up to 100),
+  // not only the visible page (~24).
+  useEffect(() => {
+    if (!aiAnswerText) return;
+    if (!totalCount || totalCount <= (allBusinesses?.length || 0)) return;
+    if (totalCount <= 0) return;
+    let cancelled = false;
+    const spokenForAi = searchParams.get("spoken") || "";
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
+          body: {
+            query: searchQuery.trim() || categoryFromUrl || undefined,
+            spoken: spokenForAi || undefined,
+            language,
+            pageSize: Math.min(totalCount, 100),
+            offset: 0,
+            compact: "card",
+          },
+        });
+        if (cancelled || error || !data?.businesses) return;
+        const bizData = (data.businesses as any[]).slice(0, 100).map((b: any) => ({
+          id: b.id, name: b.name, city: b.city, main_category: b.main_category,
+          categories: b.categories, hook_fr: b.hook_fr, rating: b.rating,
+          wtuce_status: b.wtuce_status, images: b.images, logo_url: b.logo_url,
+          neighborhood: b.neighborhood, google_rating: b.google_rating,
+          google_review_count: b.google_review_count, tripadvisor_rating: b.tripadvisor_rating,
+          tripadvisor_review_count: b.tripadvisor_review_count,
+        }));
+        try {
+          sessionStorage.setItem("ai_suggestion_businesses", JSON.stringify(bizData));
+          sessionStorage.setItem("ai_suggestion_count", String(totalCount));
+        } catch {}
+      } catch (err) {
+        console.error("[AI overlay] fetch full pool error:", err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [aiAnswerText, totalCount, allBusinesses?.length, searchQuery, searchParams, language, categoryFromUrl]);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations" | "hashtag">(
      searchParams.get("badgeId") ? "hashtag" : "suggestions"
    );
