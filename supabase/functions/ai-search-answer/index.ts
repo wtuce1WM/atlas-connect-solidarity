@@ -45,9 +45,13 @@ serve(async (req) => {
     const noResultsCfg = cfg.no_results_instructions || "";
     const boostVerified = cfg.boost_verified !== "false";
 
-    // Build context from top search results (max 10)
-    const topBusinesses = businesses.slice(0, 10);
+    // For the initial suggestion we keep 10 businesses to stay concise.
+    // For chat refinements (history present), expose the full pool so the model can
+    // pick relevant matches across ALL results — not just the first 10.
+    const isRefinement = Array.isArray(history) && history.length > 0;
+    const topBusinesses = businesses.slice(0, isRefinement ? 60 : 10);
     const hasResults = topBusinesses.length > 0;
+
 
     // Fetch relevant knowledge entries to enrich AI context
     const queryTerms = query.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
