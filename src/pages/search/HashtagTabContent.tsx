@@ -303,7 +303,29 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
       });
 
       if (cancelled) return;
-      const all = [...docItems, ...ytItems, ...genericItems];
+
+      // Per-business cap on internal videos (docs + youtube): keep only the first
+      // `front_video_count` (default 1, max 9) per establishment, ordered by the
+      // establishment's internal sort_order. Generic videos are NOT limited.
+      const groupedByBiz = new Map<string, { _id: string; sort_order: number }[]>();
+      const pushToGroup = (bizId: string | null, _id: string, sort_order: any) => {
+        if (!bizId) return;
+        const arr = groupedByBiz.get(bizId) || [];
+        arr.push({ _id, sort_order: typeof sort_order === "number" ? sort_order : Number.MAX_SAFE_INTEGER });
+        groupedByBiz.set(bizId, arr);
+      };
+      (docsRes.data || []).forEach((d: any) => pushToGroup(d.business_id || null, `doc:${d.id}`, d.sort_order));
+      (ytRes.data || []).forEach((y: any) => pushToGroup(y.business_id || null, `yt:${y.id}`, y.sort_order));
+      const allowedInternalIds = new Set<string>();
+      for (const [bizId, arr] of groupedByBiz.entries()) {
+        const limit = Math.max(1, Math.min(9, bizMap[bizId]?.front_video_count ?? 1));
+        arr.sort((a, b) => a.sort_order - b.sort_order);
+        arr.slice(0, limit).forEach((x) => allowedInternalIds.add(x._id));
+      }
+      const limitedDocItems = docItems.filter((it) => allowedInternalIds.has(it._id));
+      const limitedYtItems = ytItems.filter((it) => allowedInternalIds.has(it._id));
+
+      const all = [...limitedDocItems, ...limitedYtItems, ...genericItems];
       setItems(all);
       onCountChange?.(all.length);
       setLoading(false);
