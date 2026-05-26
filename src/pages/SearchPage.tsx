@@ -3620,6 +3620,11 @@ const SearchPage = () => {
               }}
               closeTrigger={mapPanelCloseTrigger}
               solidBackground
+              onSeeResults={() => {
+                setActiveTab("suggestions");
+                setCurrentPage(1);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
             />
           </div>
         </div>
