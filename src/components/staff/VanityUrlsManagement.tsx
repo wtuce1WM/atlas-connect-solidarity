@@ -156,7 +156,17 @@ const VanityUrlsManagement = () => {
               {targetResults.map(r => (
                 <button
                   key={r.id}
-                  onClick={() => { setTargetId(r.id); setTargetLabel(r.label); setTargetResults([]); setTargetQuery(r.label); }}
+                  onClick={() => {
+                    setTargetId(r.id);
+                    setTargetLabel(r.label);
+                    setTargetResults([]);
+                    setTargetQuery(r.label);
+                    // Auto-remplit le slug avec le nom (avant le " — ville" éventuel) si vide
+                    if (!slug.trim()) {
+                      const base = r.label.split(" — ")[0];
+                      setSlug(slugify(base));
+                    }
+                  }}
                   className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-b-0"
                 >{r.label}</button>
               ))}
