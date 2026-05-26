@@ -361,7 +361,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
     }
 
     if (!businessId) return;
-    let cancelled = false;
+    // (`cancelled` already declared above)
     const fetchVideos = async () => {
       const [{ data: poiLinkedDocs }, { data: ownDocs }, { data: gvPoiLinks }] = await Promise.all([
         supabase
