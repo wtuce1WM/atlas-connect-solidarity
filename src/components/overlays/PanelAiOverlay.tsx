@@ -239,7 +239,15 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             {(cachedQuery || cachedCount !== null) && (
               <button
                 type="button"
-                onClick={() => { ttsStop(); (onSeeResults ?? onClose)(); }}
+                onClick={() => {
+                  ttsStop();
+                  if (onSeeResults) {
+                    handleClose();
+                    setTimeout(() => onSeeResults(), 210);
+                  } else {
+                    handleClose();
+                  }
+                }}
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase"
               >
                 {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
