@@ -473,3 +473,61 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
 };
 
 export default PanelAiOverlay;
+
+/**
+ * Horizontal-scroll strip of square thumbnails for businesses cited
+ * (bold-wrapped) inside the AI answer. Mirrors the image style used by
+ * SearchResultCard in the Results tab.
+ */
+const CitedThumbnails = ({
+  answer,
+  businesses,
+  onClick,
+}: {
+  answer: string;
+  businesses: BusinessData[];
+  onClick: (b: BusinessData) => void;
+}) => {
+  const cited = useMemo(
+    () => extractCitedBusinesses(answer, businesses),
+    [answer, businesses]
+  );
+  if (!cited.length) return null;
+  return (
+    <div className="-mx-4 sm:-mx-6 px-4 sm:px-6 overflow-x-auto scrollbar-none">
+      <div className="flex gap-3 pb-1">
+        {cited.map((b) => {
+          const img = (b.images && b.images[0]) || b.logo_url || null;
+          return (
+            <button
+              key={b.id}
+              type="button"
+              onClick={() => onClick(b)}
+              className="group shrink-0 w-32 sm:w-40 text-left"
+              title={b.name}
+            >
+              <div className="aspect-square w-full overflow-hidden rounded-xl bg-muted">
+                {img ? (
+                  <img
+                    src={img}
+                    alt={b.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">
+                    {b.name.slice(0, 2).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <p className="mt-1.5 text-xs font-medium text-foreground line-clamp-2">
+                {b.name}
+              </p>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
