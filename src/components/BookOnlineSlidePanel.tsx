@@ -552,7 +552,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const openBadgeInfo = useOpenStatus({ business, language });
 
   // Bottom tabs
-  const hasVideosCarousel = videoDocs.length > 0;
+  // Non-YouTube/Vimeo videos (own hosted files + generic videos linked to the POI)
+  const nonExternalVideoDocs = useMemo(
+    () => (videoDocs || []).filter((d: any) => !isExternalVideoUrl(d.url)),
+    [videoDocs]
+  );
+  const hasVideosCarousel = nonExternalVideoDocs.length > 0;
   const hasYoutubeChannel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
   // External (YouTube/Vimeo/etc.) videos attached to this business or POI — used when the business has no YouTube channel
   const externalVideoDocs = useMemo(
