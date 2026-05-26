@@ -657,16 +657,27 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               }}
             />
 
-            {currentMedia?.kind === "video" && (
-              <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
-            )}
           </div>
         </div>
       </div>
 
-      {showSearchBar && (
-        <PanelSearchBar onSearch={onSearch} onBusinessSelect={onSearchBusinessSelect} compact />
-      )}
+      <PanelSearchBar
+        iconVariant="black"
+        darkBackground
+        compact
+        onSearch={onSearch}
+        onBusinessSelect={onSearchBusinessSelect}
+        leadingControls={
+          currentMedia?.kind === "video" ? (
+            <VideoControls
+              type="file"
+              videoRef={videoRef as React.RefObject<HTMLVideoElement>}
+              paused={videoPaused}
+              muted={videoMuted}
+            />
+          ) : undefined
+        }
+      />
 
       {/* Recursive business overlay */}
       {activeBusinessId && (
