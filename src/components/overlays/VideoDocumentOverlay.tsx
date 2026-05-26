@@ -56,26 +56,34 @@ const VideoDocumentOverlay = ({
     );
   }, []);
 
+  // Keep latest state in refs so the action callbacks below stay stable
+  // (their identity must not change between mousedown and mouseup, otherwise
+  // the parent re-renders and swaps the buttons mid-click).
+  const isPlayingRef = useRef(isPlaying);
+  const isMutedRef = useRef(isMuted);
+  useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
+  useEffect(() => { isMutedRef.current = isMuted; }, [isMuted]);
+
   const togglePlay = useCallback(() => {
+    const playing = isPlayingRef.current;
     if (videoRef.current) {
-      if (isPlaying) videoRef.current.pause(); else videoRef.current.play();
+      if (playing) videoRef.current.pause(); else videoRef.current.play();
     } else {
-      postCmd(isPlaying ? "pauseVideo" : "playVideo");
+      postCmd(playing ? "pauseVideo" : "playVideo");
     }
-    setIsPlaying(p => !p);
-  }, [isPlaying, postCmd]);
+    setIsPlaying(!playing);
+  }, [postCmd]);
 
   const toggleMute = useCallback(() => {
-    const next = !isMuted;
+    const next = !isMutedRef.current;
     if (videoRef.current) {
       videoRef.current.muted = next;
     } else {
       postCmd(next ? "mute" : "unMute");
     }
     setIsMuted(next);
-    // Persist user's choice across all videos / panels / sessions
     setSoundOn(!next);
-  }, [isMuted, postCmd, setSoundOn]);
+  }, [postCmd, setSoundOn]);
 
   const vidUrl = activeVideo.url;
   const currentIdx = videoDocs.findIndex(v => v.url === vidUrl);
@@ -104,12 +112,18 @@ const VideoDocumentOverlay = ({
   const isVerticalHint = overlayVid.isVertical;
   const isFile = overlayVid.type === "file";
 
-  // Expose controls API to parent so it can render the buttons inline (e.g. in the search bar row).
+  // Expose controls API to parent. We push state on each change but do NOT
+  // null the API on cleanup, otherwise the parent buttons would unmount
+  // between mousedown and mouseup and the click would be lost / mis-routed.
   useEffect(() => {
-    if (!onControlsApi) return;
-    onControlsApi({ isPlaying, isMuted, isFile, togglePlay, toggleMute });
-    return () => onControlsApi(null);
+    onControlsApi?.({ isPlaying, isMuted, isFile, togglePlay, toggleMute });
   }, [onControlsApi, isPlaying, isMuted, isFile, togglePlay, toggleMute]);
+
+  // Clear API only when the overlay unmounts.
+  useEffect(() => {
+    return () => { onControlsApi?.(null); };
+  }, [onControlsApi]);
+
 
 
 
