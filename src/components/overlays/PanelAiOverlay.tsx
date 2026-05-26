@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { X, Sparkles, Loader2, Volume2, VolumeX, Loader, Heart } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { X, Sparkles, Loader2, Volume2, VolumeX, Loader, Heart, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -105,11 +105,57 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+
+  // Conversational chat state
+  const [chatTurns, setChatTurns] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) { setChatTurns([]); setChatInput(""); setChatLoading(false); }
+  }, [open]);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [chatTurns, chatLoading]);
+
   const handleClose = useCallback(() => {
     ttsStop();
     setClosing(true);
     setTimeout(() => { setClosing(false); onClose(); }, 200);
   }, [onClose, ttsStop]);
+
+  const sendChat = useCallback(async () => {
+    const text = chatInput.trim();
+    if (!text || chatLoading) return;
+    ttsStop();
+    setChatInput("");
+    // Seed history with the initial AI suggestion so the model keeps context
+    const history = answer
+      ? [{ role: "assistant" as const, content: answer }, ...chatTurns]
+      : [...chatTurns];
+    setChatTurns((prev) => [...prev, { role: "user", content: text }]);
+    setChatLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-search-answer", {
+        body: {
+          query: text,
+          businesses,
+          language,
+          history,
+        },
+      });
+      if (error) throw error;
+      const reply = (data?.answer || "").trim() || (language === "fr" ? "Désolé, je n'ai pas de réponse." : "Sorry, no answer.");
+      setChatTurns((prev) => [...prev, { role: "assistant", content: reply }]);
+    } catch (err) {
+      console.error("Chat error:", err);
+      setChatTurns((prev) => [...prev, { role: "assistant", content: language === "fr" ? "Erreur, réessayez." : "Error, please retry." }]);
+    } finally {
+      setChatLoading(false);
+    }
+  }, [chatInput, chatLoading, chatTurns, answer, businesses, language, ttsStop]);
 
   const handleSaveToClub = useCallback(async () => {
     if (!businesses.length) return;
@@ -218,28 +264,12 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
                 </button>
               </div>
             )}
-            {onAskAssistant && (
-              <button
-                type="button"
-                onClick={() => { ttsStop(); onAskAssistant(); }}
-                className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-foreground text-background font-semibold text-sm hover:opacity-90 transition-opacity"
-              >
-                <Sparkles className="h-4 w-4" />
-                <span>
-                  {language === "fr"
-                    ? "Demandez à l'assistant IA"
-                    : language === "ar"
-                    ? "اسأل المساعد الذكي"
-                    : "Ask the AI assistant"}
-                </span>
-              </button>
-            )}
           </div>
         </div>
       )}
 
       {/* Content — same styling as fullscreen overlay */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
 
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-4 py-12">
@@ -249,13 +279,69 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             </span>
           </div>
         ) : (
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-3xl mx-auto space-y-6">
             <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
               {renderedContent}
             </div>
+
+            {chatTurns.map((turn, i) => (
+              <div key={i} className={turn.role === "user" ? "flex justify-end" : ""}>
+                {turn.role === "user" ? (
+                  <div className="max-w-[85%] rounded-2xl bg-primary text-primary-foreground px-4 py-2 text-sm">
+                    {turn.content}
+                  </div>
+                ) : (
+                  <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
+                    {parseInline(turn.content, businesses, () => onClose(), `panel-ai-chat-${i}`)}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {chatLoading && (
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <Loader2 className="h-4 w-4 animate-spin text-gold" />
+                {language === "fr" ? "L'assistant réfléchit…" : language === "ar" ? "المساعد يفكر…" : "Assistant is thinking…"}
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* Sticky chat composer */}
+      {!loading && (
+        <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
+          <form
+            onSubmit={(e) => { e.preventDefault(); sendChat(); }}
+            className="max-w-3xl mx-auto flex items-end gap-2"
+          >
+            <textarea
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); }
+              }}
+              rows={1}
+              placeholder={
+                language === "fr"
+                  ? "Affinez votre demande (ex : avec piscine, plus calme, moins cher…)"
+                  : language === "ar"
+                  ? "حسّن طلبك…"
+                  : "Refine your request (e.g. with pool, quieter, cheaper…)"
+              }
+              className="flex-1 resize-none rounded-2xl border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 max-h-32"
+            />
+            <button
+              type="submit"
+              disabled={!chatInput.trim() || chatLoading}
+              className="w-10 h-10 shrink-0 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40"
+              aria-label={language === "fr" ? "Envoyer" : "Send"}
+            >
+              {chatLoading ? <Loader className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 };
