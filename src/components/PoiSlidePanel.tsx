@@ -23,12 +23,17 @@ import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import { businessUrl } from "@/lib/businessUrl";
 
 interface PoiSlidePanelProps {
-  businessId: string;
+  /** Either businessId (POI business) OR destinationId (destinations table). businessId takes precedence if both set. */
+  businessId?: string;
+  destinationId?: string;
   onClose: () => void;
   slideFrom?: "right" | "bottom";
   showSearchBar?: boolean;
   onSearch?: (params: Record<string, string>) => void;
   onSearchBusinessSelect?: (businessId: string) => void;
+  /** Optional nav between sibling destinations (only used when destinationId is set) */
+  onPrevDestination?: () => void;
+  onNextDestination?: () => void;
 }
 
 interface PoiFull {
