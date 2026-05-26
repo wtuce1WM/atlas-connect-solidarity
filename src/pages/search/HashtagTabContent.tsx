@@ -247,7 +247,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         _id: `doc:${d.id}`,
         _kind: "doc",
         url: d.url,
-        name: d.name || null,
+        name: d.name || bizMap[d.business_id]?.hook_fr || null,
         description: d.description || null,
         thumbnail_url: d.thumbnail_url || null,
         owner_business_id: d.business_id || null,
