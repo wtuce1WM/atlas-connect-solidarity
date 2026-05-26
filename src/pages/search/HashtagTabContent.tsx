@@ -448,6 +448,20 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
                       </span>
                     </div>
                   ) : null}
+                  {item._kind !== "generic" && item.owner_name && (
+                    <div className="absolute inset-x-0 bottom-2 z-[7] flex items-center justify-center px-2 pointer-events-none">
+                      <span
+                        className="text-xs font-semibold text-white text-center line-clamp-2 uppercase"
+                        style={{
+                          fontFamily: "'Josefin Sans', sans-serif",
+                          letterSpacing: "0.08em",
+                          filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))",
+                        }}
+                      >
+                        {item.owner_name}
+                      </span>
+                    </div>
+                  )}
                 </>
               )}
 
