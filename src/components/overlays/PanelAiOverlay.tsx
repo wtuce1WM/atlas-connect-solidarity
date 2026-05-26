@@ -364,7 +364,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
                   </div>
                 ) : (
                   <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
-                    {parseInline(turn.content, businesses, () => onClose(), `panel-ai-chat-${i}`)}
+                    {parseInline(turn.content, businesses, (b) => { if (onBusinessClick) { onBusinessClick(b); } onClose(); }, `panel-ai-chat-${i}`)}
                   </div>
                 )}
               </div>
