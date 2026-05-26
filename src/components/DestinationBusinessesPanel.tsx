@@ -468,7 +468,7 @@ const DestinationBusinessesPanel = ({
       </div>
 
       {isLightboxOpen && imgs.length > 0 && (() => {
-        const items: MediaItem[] = imgs.map((src, i) => ({ type: "image" as const, src, alt: `${getName()} - ${i + 1}` }));
+        const items: LightboxMediaItem[] = imgs.map((src, i) => ({ type: "image" as const, src, alt: `${getName()} - ${i + 1}` }));
         return (
           <FullscreenLightbox
             items={items}
