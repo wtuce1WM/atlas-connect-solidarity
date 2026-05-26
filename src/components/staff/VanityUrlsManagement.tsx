@@ -62,7 +62,7 @@ const VanityUrlsManagement = () => {
     const destMap = new Map((destRes.data || []).map((d: any) => [d.id, d.name_fr]));
     setRows(list.map(r => ({
       ...r,
-      target_label: r.target_type === "business" ? bizMap.get(r.target_id) : destMap.get(r.target_id),
+      target_label: (r.target_type === "business" ? bizMap.get(r.target_id) : destMap.get(r.target_id)) as string | undefined,
     })));
     setLoading(false);
   };
