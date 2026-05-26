@@ -360,7 +360,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
 };
 
 export default AISearchAnswer;
-export { parseInline };
+export { parseInline, findBusiness, getImage };
 export type { BusinessData };
 
 /**

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
-import { parseInline, extractCitedBusinesses, type BusinessData } from "@/components/AISearchAnswer";
+import { parseInline, extractCitedBusinesses, getImage, type BusinessData } from "@/components/AISearchAnswer";
 
 interface PanelAiOverlayProps {
   open: boolean;
@@ -497,7 +497,7 @@ const CitedThumbnails = ({
     <div className="-mx-4 sm:-mx-6 px-4 sm:px-6 overflow-x-auto scrollbar-none">
       <div className="flex gap-3 pb-1">
         {cited.map((b) => {
-          const img = (b.images && b.images[0]) || b.logo_url || null;
+          const img = getImage(b);
           return (
             <button
               key={b.id}
