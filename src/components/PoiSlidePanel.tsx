@@ -129,7 +129,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
 
   const { videoPaused, videoMuted, pauseAndMute } = useVideoSync(videoRef as React.RefObject<HTMLVideoElement>, currentMedia);
 
-  // Reset state on businessId change
+  // Reset state when entity changes
   useEffect(() => {
     setCurrentMediaIndex(0);
     setDescExpanded(true);
@@ -140,7 +140,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
     setLinkedPois([]);
     setCityPoisForTabs([]);
     setLinkedVideos([]);
-  }, [businessId]);
+  }, [entityId]);
 
   // Pause/mute background video when an overlay opens
   useEffect(() => {
@@ -151,9 +151,10 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
   // Cosmetic URL rewriting
   useEffect(() => {
     if (poi?.name) {
-      window.history.replaceState(null, "", `/poi/${encodeURIComponent(poi.name)}`);
+      const prefix = isDestination ? "destination" : "poi";
+      window.history.replaceState(null, "", `/${prefix}/${encodeURIComponent(poi.name)}`);
     }
-  }, [poi?.name]);
+  }, [poi?.name, isDestination]);
 
   // Restore URL on unmount
   useEffect(() => {
@@ -161,15 +162,63 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
     return () => { window.history.replaceState(null, "", saved); };
   }, []);
 
-  // Fetch POI data
+  // Fetch POI / destination data
   useEffect(() => {
+    if (!entityId) return;
     let cancelled = false;
     const fetchPoi = async () => {
       setIsLoading(true);
+      if (isDestination) {
+        const { data } = await supabase
+          .from("destinations" as any)
+          .select("id, name_fr, name_en, name_ar, image_url, images, hook, description, latitude, longitude, region, videos")
+          .eq("id", destinationId!)
+          .maybeSingle();
+        if (cancelled) return;
+        if (!data) { setPoi(null); setIsLoading(false); return; }
+        const d = data as any;
+        const localizedName =
+          language === "ar" && d.name_ar ? d.name_ar
+            : language === "en" && d.name_en ? d.name_en
+              : d.name_fr;
+        const imgs = (d.images && d.images.length > 0 ? d.images : (d.image_url ? [d.image_url] : [])) as string[];
+        const mapped: PoiFull = {
+          id: d.id,
+          name: localizedName,
+          description: d.description ?? null,
+          poi_description: null,
+          poi_hook: d.hook ?? null,
+          hook_fr: null, hook_en: null, hook_ar: null,
+          images: imgs,
+          video_1_url: null,
+          latitude: d.latitude ?? null,
+          longitude: d.longitude ?? null,
+          city: Array.isArray(d.region) && d.region.length > 0 ? d.region.join(", ") : null,
+          neighborhood: null,
+          address: null,
+          phone: null, whatsapp: null, skype: null,
+          logo_url: null,
+          opening_hours: null,
+          show_opening_hours: false,
+          is_open_24h: false,
+          google_rating: null, google_review_count: null,
+          tripadvisor_rating: null, tripadvisor_review_count: null,
+          restaurant_guru_rating: null, restaurant_guru_review_count: null,
+          reserve_now_url: null, reserve_now_force_external: false,
+          presentation_mode: "",
+          online_shop_url: null, online_shop_force_external: false,
+          online_shop_presentation_mode: "",
+          website: null, website_force_external: false, website_presentation_mode: "",
+          carousel_badge: null,
+        };
+        setPoi(mapped);
+        setIsLoading(false);
+        return;
+      }
       const { data } = await supabase
         .from("businesses")
         .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, video_1_url, latitude, longitude, city, neighborhood, address, phone, whatsapp, skype, logo_url, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, reserve_now_url, reserve_now_force_external, presentation_mode, online_shop_url, online_shop_force_external, online_shop_presentation_mode, website, website_force_external, website_presentation_mode, carousel_badge")
-        .eq("id", businessId)
+        .eq("id", businessId!)
         .maybeSingle();
       if (cancelled) return;
       setPoi(data as PoiFull | null);
@@ -177,7 +226,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
     };
     fetchPoi();
     return () => { cancelled = true; };
-  }, [businessId]);
+  }, [entityId, isDestination, businessId, destinationId, language]);
 
   // Fetch POI businesses linked to this POI (fallback to city POIs if none linked)
   useEffect(() => {
