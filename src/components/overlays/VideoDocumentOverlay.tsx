@@ -104,6 +104,15 @@ const VideoDocumentOverlay = ({
   const isVerticalHint = overlayVid.isVertical;
   const isFile = overlayVid.type === "file";
 
+  // Expose controls API to parent so it can render the buttons inline (e.g. in the search bar row).
+  useEffect(() => {
+    if (!onControlsApi) return;
+    onControlsApi({ isPlaying, isMuted, isFile, togglePlay, toggleMute });
+    return () => onControlsApi(null);
+  }, [onControlsApi, isPlaying, isMuted, isFile, togglePlay, toggleMute]);
+
+
+
   // Vertical swipe nav (mobile) — same behavior as SlidePanelHome
   const isMobile = useIsMobile();
   const swipeStartY = useRef<number | null>(null);
