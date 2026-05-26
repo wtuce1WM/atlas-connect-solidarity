@@ -23,12 +23,17 @@ import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import { businessUrl } from "@/lib/businessUrl";
 
 interface PoiSlidePanelProps {
-  businessId: string;
+  /** Either businessId (POI business) OR destinationId (destinations table). businessId takes precedence if both set. */
+  businessId?: string;
+  destinationId?: string;
   onClose: () => void;
   slideFrom?: "right" | "bottom";
   showSearchBar?: boolean;
   onSearch?: (params: Record<string, string>) => void;
   onSearchBusinessSelect?: (businessId: string) => void;
+  /** Optional nav between sibling destinations (only used when destinationId is set) */
+  onPrevDestination?: () => void;
+  onNextDestination?: () => void;
 }
 
 interface PoiFull {
@@ -72,7 +77,10 @@ interface PoiFull {
   carousel_badge: string | null;
 }
 
-const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBar, onSearch, onSearchBusinessSelect }: PoiSlidePanelProps) => {
+const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom", showSearchBar, onSearch, onSearchBusinessSelect, onPrevDestination, onNextDestination }: PoiSlidePanelProps) => {
+  // Stable identifier used for effect dependencies & keys (one of the two must be set)
+  const entityId = businessId || destinationId || "";
+  const isDestination = !businessId && !!destinationId;
   const { language } = useLanguage();
   const navigate = useNavigate();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
@@ -121,7 +129,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
 
   const { videoPaused, videoMuted, pauseAndMute } = useVideoSync(videoRef as React.RefObject<HTMLVideoElement>, currentMedia);
 
-  // Reset state on businessId change
+  // Reset state when entity changes
   useEffect(() => {
     setCurrentMediaIndex(0);
     setDescExpanded(true);
@@ -132,7 +140,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
     setLinkedPois([]);
     setCityPoisForTabs([]);
     setLinkedVideos([]);
-  }, [businessId]);
+  }, [entityId]);
 
   // Pause/mute background video when an overlay opens
   useEffect(() => {
@@ -143,9 +151,10 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
   // Cosmetic URL rewriting
   useEffect(() => {
     if (poi?.name) {
-      window.history.replaceState(null, "", `/poi/${encodeURIComponent(poi.name)}`);
+      const prefix = isDestination ? "destination" : "poi";
+      window.history.replaceState(null, "", `/${prefix}/${encodeURIComponent(poi.name)}`);
     }
-  }, [poi?.name]);
+  }, [poi?.name, isDestination]);
 
   // Restore URL on unmount
   useEffect(() => {
@@ -153,15 +162,63 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
     return () => { window.history.replaceState(null, "", saved); };
   }, []);
 
-  // Fetch POI data
+  // Fetch POI / destination data
   useEffect(() => {
+    if (!entityId) return;
     let cancelled = false;
     const fetchPoi = async () => {
       setIsLoading(true);
+      if (isDestination) {
+        const { data } = await supabase
+          .from("destinations" as any)
+          .select("id, name_fr, name_en, name_ar, image_url, images, hook, description, latitude, longitude, region, videos")
+          .eq("id", destinationId!)
+          .maybeSingle();
+        if (cancelled) return;
+        if (!data) { setPoi(null); setIsLoading(false); return; }
+        const d = data as any;
+        const localizedName =
+          language === "ar" && d.name_ar ? d.name_ar
+            : language === "en" && d.name_en ? d.name_en
+              : d.name_fr;
+        const imgs = (d.images && d.images.length > 0 ? d.images : (d.image_url ? [d.image_url] : [])) as string[];
+        const mapped: PoiFull = {
+          id: d.id,
+          name: localizedName,
+          description: d.description ?? null,
+          poi_description: null,
+          poi_hook: d.hook ?? null,
+          hook_fr: null, hook_en: null, hook_ar: null,
+          images: imgs,
+          video_1_url: null,
+          latitude: d.latitude ?? null,
+          longitude: d.longitude ?? null,
+          city: Array.isArray(d.region) && d.region.length > 0 ? d.region.join(", ") : null,
+          neighborhood: null,
+          address: null,
+          phone: null, whatsapp: null, skype: null,
+          logo_url: null,
+          opening_hours: null,
+          show_opening_hours: false,
+          is_open_24h: false,
+          google_rating: null, google_review_count: null,
+          tripadvisor_rating: null, tripadvisor_review_count: null,
+          restaurant_guru_rating: null, restaurant_guru_review_count: null,
+          reserve_now_url: null, reserve_now_force_external: false,
+          presentation_mode: "",
+          online_shop_url: null, online_shop_force_external: false,
+          online_shop_presentation_mode: "",
+          website: null, website_force_external: false, website_presentation_mode: "",
+          carousel_badge: null,
+        };
+        setPoi(mapped);
+        setIsLoading(false);
+        return;
+      }
       const { data } = await supabase
         .from("businesses")
         .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, video_1_url, latitude, longitude, city, neighborhood, address, phone, whatsapp, skype, logo_url, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, reserve_now_url, reserve_now_force_external, presentation_mode, online_shop_url, online_shop_force_external, online_shop_presentation_mode, website, website_force_external, website_presentation_mode, carousel_badge")
-        .eq("id", businessId)
+        .eq("id", businessId!)
         .maybeSingle();
       if (cancelled) return;
       setPoi(data as PoiFull | null);
@@ -169,17 +226,48 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
     };
     fetchPoi();
     return () => { cancelled = true; };
-  }, [businessId]);
+  }, [entityId, isDestination, businessId, destinationId, language]);
 
-  // Fetch POI businesses linked to this POI (fallback to city POIs if none linked)
+  // Fetch linked items: POI businesses (when POI) or destination's provider businesses (when destination)
   useEffect(() => {
+    if (!entityId) return;
     let cancelled = false;
 
-    const fetchLinkedPois = async () => {
+    const fetchLinked = async () => {
+      if (isDestination) {
+        const { data: links } = await (supabase
+          .from("business_destinations" as any)
+          .select("business_id")
+          .eq("destination_id", destinationId!) as any);
+        const bizIds = ((links || []) as any[]).map((l: any) => l.business_id);
+        if (cancelled) return;
+        if (bizIds.length === 0) { setLinkedPois([]); setCityPoisForTabs([]); return; }
+        const all: any[] = [];
+        for (let i = 0; i < bizIds.length; i += 500) {
+          const { data } = await supabase
+            .from("businesses")
+            .select("id, name, slug, latitude, longitude, images, city, neighborhood, rating, main_category")
+            .eq("is_active", true)
+            .in("id", bizIds.slice(i, i + 500));
+          if (data) all.push(...data);
+        }
+        if (cancelled) return;
+        setLinkedPois(all.map((b: any) => ({
+          id: b.id, name: b.name, latitude: b.latitude, longitude: b.longitude,
+          images: b.images, city: b.city, neighborhood: b.neighborhood,
+          rating: b.rating ? Number(b.rating) : null, subcategory: b.main_category,
+        })));
+        setCityPoisForTabs(all.map((b: any) => ({
+          id: b.id, name: b.name, slug: b.slug, images: b.images,
+          rating: b.rating ? Number(b.rating) : null,
+        })));
+        return;
+      }
+
       const { data: poiLinks } = await supabase
         .from("business_poi_businesses")
         .select("poi_business_id")
-        .eq("business_id", businessId);
+        .eq("business_id", businessId!);
 
       const poiIds = ((poiLinks || []) as { poi_business_id: string }[])
         .map((link) => link.poi_business_id)
@@ -196,7 +284,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
             .eq("is_active", true)
             .eq("is_poi", true)
             .eq("city", poiCity)
-            .neq("id", businessId)
+            .neq("id", businessId!)
             .order("priority_score", { ascending: false })
             .limit(50);
           if (!cancelled && cityPois) {
@@ -245,14 +333,35 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
       );
     };
 
-    fetchLinkedPois();
+    fetchLinked();
     return () => { cancelled = true; };
-  }, [businessId, poi?.city]);
+  }, [entityId, isDestination, businessId, destinationId, poi?.city]);
 
   // Fetch videos linked to this POI (business_documents + generic_videos)
+  // or — for destinations — derive from the destination's `videos` array.
   useEffect(() => {
-    if (!businessId) return;
+    if (!entityId) return;
     let cancelled = false;
+
+    if (isDestination) {
+      (async () => {
+        const { data } = await supabase
+          .from("destinations" as any)
+          .select("videos")
+          .eq("id", destinationId!)
+          .maybeSingle();
+        if (cancelled) return;
+        const urls = (((data as any)?.videos as string[] | null) || []).filter(Boolean);
+        setLinkedVideos(urls.map((url, i) => ({
+          url, name: null, thumbnailUrl: null,
+          businessId: destinationId!, ownerName: "", ownerLogo: null, ownerSlug: null,
+        })));
+      })();
+      return () => { cancelled = true; };
+    }
+
+    if (!businessId) return;
+    // (`cancelled` already declared above)
     const fetchVideos = async () => {
       const [{ data: poiLinkedDocs }, { data: ownDocs }, { data: gvPoiLinks }] = await Promise.all([
         supabase
@@ -340,7 +449,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
     };
     fetchVideos();
     return () => { cancelled = true; };
-  }, [businessId]);
+  }, [entityId, isDestination, businessId, destinationId]);
 
   const ownerVideoDocs = useMemo(() => linkedVideos.map(cv => ({
     url: cv.url,
@@ -349,7 +458,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
     owner_name: cv.ownerName || null,
   })), [linkedVideos]);
 
-  const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, ownerVideoDocs, businessId);
+  const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, ownerVideoDocs, entityId);
 
   const displayDescription = poi?.poi_description || poi?.description || null;
   const displayHook = useMemo(() => {
@@ -397,6 +506,16 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
             <button onClick={() => setShowMosaic((p) => !p)} className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}>
               {showMosaic ? <Minimize2 className="h-4 w-4" /> : <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />}
             </button>
+          )}
+          {isDestination && (onPrevDestination || onNextDestination) && (
+            <>
+              <button onClick={onPrevDestination} disabled={!onPrevDestination} className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" aria-label="Destination précédente">
+                <ChevronUp className="h-4 w-4" />
+              </button>
+              <button onClick={onNextDestination} disabled={!onNextDestination} className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" aria-label="Destination suivante">
+                <ChevronUp className="h-4 w-4 rotate-180" />
+              </button>
+            </>
           )}
         </div>
       )}
@@ -552,10 +671,10 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
           })()}
 
           {/* Owner logo + badge */}
-          <OwnerLogoOverlay logoBigOverlay={logoBigOverlay} logoBigFadingOut={logoBigFadingOut} cardsHidden={cardsHidden} currentMediaUrl={currentMedia?.url} videoDocs={ownerVideoDocs} currentBusinessId={businessId} />
+          <OwnerLogoOverlay logoBigOverlay={logoBigOverlay} logoBigFadingOut={logoBigFadingOut} cardsHidden={cardsHidden} currentMediaUrl={currentMedia?.url} videoDocs={ownerVideoDocs} currentBusinessId={entityId} />
           <OwnerBadge
             cardsHidden={cardsHidden} currentMediaKind={currentMedia?.kind} currentMediaUrl={currentMedia?.url}
-            videoDocs={ownerVideoDocs} currentBusinessId={businessId}
+            videoDocs={ownerVideoDocs} currentBusinessId={entityId}
             onNavigateToOwner={(ownerId) => {
               const cv = linkedVideos.find(v => v.businessId === ownerId);
               if (cv?.ownerSlug) navigate(businessUrl({ id: cv.businessId, slug: cv.ownerSlug }));

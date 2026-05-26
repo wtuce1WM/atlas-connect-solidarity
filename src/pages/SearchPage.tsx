@@ -34,7 +34,7 @@ import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
 import PoiSection from "@/components/PoiSection";
 import DestinationSection, { type DestinationItem } from "@/components/DestinationSection";
-import DestinationBusinessesPanel from "@/components/DestinationBusinessesPanel";
+
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import SearchResultCard from "@/components/SearchResultCard";
