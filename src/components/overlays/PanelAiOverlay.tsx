@@ -105,11 +105,57 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+
+  // Conversational chat state
+  const [chatTurns, setChatTurns] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) { setChatTurns([]); setChatInput(""); setChatLoading(false); }
+  }, [open]);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [chatTurns, chatLoading]);
+
   const handleClose = useCallback(() => {
     ttsStop();
     setClosing(true);
     setTimeout(() => { setClosing(false); onClose(); }, 200);
   }, [onClose, ttsStop]);
+
+  const sendChat = useCallback(async () => {
+    const text = chatInput.trim();
+    if (!text || chatLoading) return;
+    ttsStop();
+    setChatInput("");
+    // Seed history with the initial AI suggestion so the model keeps context
+    const history = answer
+      ? [{ role: "assistant" as const, content: answer }, ...chatTurns]
+      : [...chatTurns];
+    setChatTurns((prev) => [...prev, { role: "user", content: text }]);
+    setChatLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-search-answer", {
+        body: {
+          query: text,
+          businesses,
+          language,
+          history,
+        },
+      });
+      if (error) throw error;
+      const reply = (data?.answer || "").trim() || (language === "fr" ? "Désolé, je n'ai pas de réponse." : "Sorry, no answer.");
+      setChatTurns((prev) => [...prev, { role: "assistant", content: reply }]);
+    } catch (err) {
+      console.error("Chat error:", err);
+      setChatTurns((prev) => [...prev, { role: "assistant", content: language === "fr" ? "Erreur, réessayez." : "Error, please retry." }]);
+    } finally {
+      setChatLoading(false);
+    }
+  }, [chatInput, chatLoading, chatTurns, answer, businesses, language, ttsStop]);
 
   const handleSaveToClub = useCallback(async () => {
     if (!businesses.length) return;
