@@ -453,7 +453,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
                   {item.name && !(item._kind === "generic" && item.social?.account && item.name === `@${item.social.account}`) && (
                     <div className="absolute inset-x-0 top-[12%] z-[10] flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
                       <p
-                        className="text-sm font-bold text-white"
+                        className="text-[11px] sm:text-sm font-bold text-white"
                         style={{
                           fontFamily: "'Roboto', sans-serif",
                           letterSpacing: "0.02em",
