@@ -39,16 +39,16 @@ interface DestinationBusinessesPanelProps {
 
 const SELECT_FIELDS = "id, name, city, neighborhood, images, rating, computed_rating, total_review_count, wtuce_status";
 
-const SidebarCta = ({ icon: Icon, label, onClick, customIcon }: { icon?: any; label: string; onClick: () => void; customIcon?: React.ReactNode }) => (
-  <div
+const RoundCta = ({ icon: Icon, label, onClick }: { icon: any; label: string; onClick: () => void }) => (
+  <button
+    type="button"
     onClick={onClick}
-    className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
+    aria-label={label}
+    title={label}
+    className="w-12 h-12 rounded-full bg-black/70 hover:bg-black/85 backdrop-blur-md border border-white/15 text-white shadow-lg flex items-center justify-center transition-colors"
   >
-    <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-      {label}
-    </span>
-    {customIcon ?? (Icon && <Icon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />)}
-  </div>
+    <Icon className="h-5 w-5" />
+  </button>
 );
 
 const DestinationBusinessesPanel = ({
