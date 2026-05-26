@@ -1012,7 +1012,7 @@ const Home = () => {
                 showSocialBadge: !!social,
                 description: v.description ?? null,
                 manualCard: null,
-                videoName: v.title || v.name || null,
+                videoName: v.title || v.name || (isVlogsBadge ? null : (biz as any)?.hook_fr) || null,
                 badge_ids: gvBadgesByVideo[v.id] || [],
               } as VideoItem;
             });
@@ -1440,7 +1440,7 @@ const Home = () => {
                   description: v.description ?? null,
                   manualCard: null,
                   badge_ids: gvBadgesByVideo[v.id] || [],
-                  videoName: v.title || v.name || null,
+                  videoName: v.title || v.name || (isVlogsContext ? null : (biz as any)?.hook_fr) || null,
                 } as VideoItem;
               });
           }

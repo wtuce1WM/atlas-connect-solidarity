@@ -238,7 +238,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
       if (bizIds.length) {
         const { data: bizs } = await supabase
           .from("businesses")
-          .select("id, name, logo_url, logo_bg")
+          .select("id, name, logo_url, logo_bg, hook_fr")
           .in("id", bizIds);
         (bizs || []).forEach((b: any) => { bizMap[b.id] = b; });
       }
@@ -290,7 +290,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
           _id: `generic:${g.id}`,
           _kind: "generic" as const,
           url: g.url,
-          name: g.title || g.name || (account ? `@${account}` : null),
+          name: g.title || g.name || (ownerId ? bizMap[ownerId]?.hook_fr || null : null) || (account ? `@${account}` : null),
           description: g.description || null,
           thumbnail_url: g.thumbnail_url || null,
           owner_business_id: ownerId,
