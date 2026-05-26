@@ -168,7 +168,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     } finally {
       setChatLoading(false);
     }
-  }, [chatInput, chatLoading, chatTurns, answer, businesses, language, ttsStop]);
+  }, [chatInput, chatLoading, chatTurns, answer, businesses, language, city, ttsStop]);
 
   const handleSaveToClub = useCallback(async () => {
     if (!businesses.length) return;
