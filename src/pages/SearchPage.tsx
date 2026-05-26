@@ -2708,7 +2708,7 @@ const SearchPage = () => {
             </div>
             {/* CTA center */}
             <button
-              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+              onClick={closeToResults}
               className="inline-flex items-center px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase whitespace-nowrap"
             >
               {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
