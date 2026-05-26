@@ -1986,6 +1986,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           compact
           onSeeResults={onClose}
           leadingControls={
+            activeVideoOverlay ? undefined :
             effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? (
               <VideoControls
                 type="file"
