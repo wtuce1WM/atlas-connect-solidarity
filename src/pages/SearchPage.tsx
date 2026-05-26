@@ -3127,7 +3127,9 @@ const SearchPage = () => {
             </div>
           )}
         </div>
-      )}
+        );
+      })()}
+
       {showResultsOverlay && isMobile && !compactPanelBusiness && (
         <div
           className={`fixed inset-0 z-[60] flex items-end transition-all duration-400 ${overlayDismissing ? 'pointer-events-none' : ''}`}
