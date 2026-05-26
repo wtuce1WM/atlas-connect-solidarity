@@ -197,17 +197,30 @@ const PoiTabContent = ({
             alwaysDark
           />
           <div className="flex-1 min-h-0 overflow-visible">
-            <BookOnlineSlidePanel
-              businessId={poiSelectedBusinessId}
-              onClose={() => {
-                setPoiSelectedBusinessId(null);
-                setPoiPanelExpanded(false);
-              }}
-              forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
-              showSearchBar
-              onSearch={onSearchNavigate}
-              onSearchBusinessSelect={onBusinessSelect}
-            />
+            {(() => {
+              const idx = allPois.findIndex((p) => p.id === poiSelectedBusinessId);
+              return (
+                <BookOnlineSlidePanel
+                  businessId={poiSelectedBusinessId}
+                  onClose={() => {
+                    setPoiSelectedBusinessId(null);
+                    setPoiPanelExpanded(false);
+                  }}
+                  forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
+                  showSearchBar
+                  onSearch={onSearchNavigate}
+                  onSearchBusinessSelect={onBusinessSelect}
+                  onPrevBusiness={() => {
+                    if (idx > 0) setPoiSelectedBusinessId(allPois[idx - 1].id);
+                  }}
+                  onNextBusiness={() => {
+                    if (idx >= 0 && idx < allPois.length - 1) setPoiSelectedBusinessId(allPois[idx + 1].id);
+                  }}
+                  hasPrevBusiness={idx > 0}
+                  hasNextBusiness={idx >= 0 && idx < allPois.length - 1}
+                />
+              );
+            })()}
           </div>
         </div>
       )}
