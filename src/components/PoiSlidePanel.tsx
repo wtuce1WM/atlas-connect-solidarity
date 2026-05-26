@@ -338,7 +338,28 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
   }, [entityId, isDestination, businessId, destinationId, poi?.city]);
 
   // Fetch videos linked to this POI (business_documents + generic_videos)
+  // or — for destinations — derive from the destination's `videos` array.
   useEffect(() => {
+    if (!entityId) return;
+    let cancelled = false;
+
+    if (isDestination) {
+      (async () => {
+        const { data } = await supabase
+          .from("destinations" as any)
+          .select("videos")
+          .eq("id", destinationId!)
+          .maybeSingle();
+        if (cancelled) return;
+        const urls = (((data as any)?.videos as string[] | null) || []).filter(Boolean);
+        setLinkedVideos(urls.map((url, i) => ({
+          url, name: null, thumbnailUrl: null,
+          businessId: destinationId!, ownerName: "", ownerLogo: null, ownerSlug: null,
+        })));
+      })();
+      return () => { cancelled = true; };
+    }
+
     if (!businessId) return;
     let cancelled = false;
     const fetchVideos = async () => {
