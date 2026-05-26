@@ -323,6 +323,7 @@ const SearchPage = () => {
     if (!totalCount || totalCount <= (allBusinesses?.length || 0)) return;
     if (totalCount <= 0) return;
     let cancelled = false;
+    const spokenForAi = searchParams.get("spoken") || "";
     (async () => {
       try {
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
