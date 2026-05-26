@@ -524,12 +524,16 @@ const DestinationBusinessesPanel = ({
         })()}
       </div>
 
-      {isLightboxOpen && imgs.length > 0 && (() => {
-        const items: LightboxMediaItem[] = imgs.map((src, i) => ({ type: "image" as const, src, alt: `${getName()} - ${i + 1}` }));
+      {isLightboxOpen && totalMedia > 0 && (() => {
+        const items: LightboxMediaItem[] = mediaItems.map((m, i) => ({
+          type: m.kind === "video" ? ("video" as const) : ("image" as const),
+          src: m.url,
+          alt: `${getName()} - ${i + 1}`,
+        }));
         return (
           <FullscreenLightbox
             items={items}
-            currentIndex={currentImageIndex}
+            currentIndex={safeIndex}
             onIndexChange={setCurrentImageIndex}
             onClose={() => setIsLightboxOpen(false)}
           />
