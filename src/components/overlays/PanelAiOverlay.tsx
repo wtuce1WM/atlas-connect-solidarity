@@ -45,22 +45,11 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     if (controlled) {
       // Show whatever the parent currently has (may be "" during regeneration → loading state).
       setAnswer(presetAnswer || "");
-      // Build widest business pool for parseInline (merge cache + visible page).
-      try {
-        const byId = new Map<string, BusinessData>();
-        const cachedBiz = sessionStorage.getItem("ai_suggestion_businesses");
-        if (cachedBiz) {
-          const arr = JSON.parse(cachedBiz) as BusinessData[];
-          if (Array.isArray(arr)) for (const b of arr) if (b?.id) byId.set(b.id, b);
-        }
-        if (presetBusinesses && presetBusinesses.length > 0) {
-          for (const b of presetBusinesses) if (b?.id) byId.set(b.id, b);
-        }
-        if (byId.size > 0) setBusinesses(Array.from(byId.values()));
-        else if (presetBusinesses && presetBusinesses.length > 0) setBusinesses(presetBusinesses);
-      } catch {
-        if (presetBusinesses && presetBusinesses.length > 0) setBusinesses(presetBusinesses);
-      }
+      // Use EXACTLY the same business pool as the Case 4 popup on /search
+      // (allBusinesses passed via presetBusinesses). Do NOT merge sessionStorage cache:
+      // a stale cache from a previous query can shadow the current page's items
+      // and break thumbnail resolution in parseInline.
+      setBusinesses(presetBusinesses && presetBusinesses.length > 0 ? presetBusinesses : []);
       try {
         const cachedQ = sessionStorage.getItem("ai_suggestion_query");
         const cachedC = sessionStorage.getItem("ai_suggestion_count");
