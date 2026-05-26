@@ -362,3 +362,27 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
 export default AISearchAnswer;
 export { parseInline };
 export type { BusinessData };
+
+/**
+ * Extract the businesses cited in an AI answer (text wrapped in **...**),
+ * preserving order of appearance and de-duplicating by id.
+ */
+export const extractCitedBusinesses = (
+  text: string,
+  businesses: BusinessData[]
+): BusinessData[] => {
+  if (!text) return [];
+  const out: BusinessData[] = [];
+  const seen = new Set<string>();
+  const re = /\*\*(.+?)\*\*/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const match = findBusiness(m[1], businesses);
+    if (match && !seen.has(match.id)) {
+      seen.add(match.id);
+      out.push(match);
+    }
+  }
+  return out;
+};
+
