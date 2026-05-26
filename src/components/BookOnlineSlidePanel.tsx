@@ -552,7 +552,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const openBadgeInfo = useOpenStatus({ business, language });
 
   // Bottom tabs
-  const hasVideosCarousel = videoDocs.length > 0;
+  // Non-YouTube/Vimeo videos (own hosted files + generic videos linked to the POI)
+  const nonExternalVideoDocs = useMemo(
+    () => (videoDocs || []).filter((d: any) => !isExternalVideoUrl(d.url)),
+    [videoDocs]
+  );
+  const hasVideosCarousel = nonExternalVideoDocs.length > 0;
   const hasYoutubeChannel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
   // External (YouTube/Vimeo/etc.) videos attached to this business or POI — used when the business has no YouTube channel
   const externalVideoDocs = useMemo(
@@ -891,7 +896,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
-          {videoDocs.length >= 2 && (
+          {nonExternalVideoDocs.length >= 1 && (
             <div onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Vidéos</span>
               <Film className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
@@ -1388,7 +1393,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               } else if (descGridSection === "videos") {
                 // Reorder videoDocs to match allVideoUrls order (own → linked → external)
                 const urlOrder = new Map(allVideoUrls.map((u, i) => [u, i]));
-                const sortedVideoDocs = [...videoDocs].sort(
+                const sortedVideoDocs = [...nonExternalVideoDocs].sort(
                   (a, b) => (urlOrder.get(a.url) ?? 999) - (urlOrder.get(b.url) ?? 999)
                 );
                 gridItems = sortedVideoDocs.map((vid, i) => {
