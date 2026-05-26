@@ -175,6 +175,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
    const [descOverlayContent, setDescOverlayContent] = useState<{ html: string; title: string; priceDetails?: string | null; avgPriceRange?: unknown } | null>(null);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
+  const [overlayControlsApi, setOverlayControlsApi] = useState<import("@/components/overlays/VideoDocumentOverlay").VideoOverlayControlsApi | null>(null);
   const consumedInitialVideoRef = useRef<string | null>(null);
   useEffect(() => {
     if (!initialVideoUrl) return;
