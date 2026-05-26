@@ -189,6 +189,8 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
             city={businessCity}
             category={businessCategory}
             businessName={businessName}
+            presetAnswer={aiAnswerText ?? null}
+            presetBusinesses={(aiBusinesses ?? null) as any}
             onAskAssistant={() => {
               setAiOverlayOpen(false);
               setOverlay(true);
