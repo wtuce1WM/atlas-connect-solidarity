@@ -1,58 +1,49 @@
-# Refonte homepage façon Mindtrip + déplacement vers /videos
+# Plan : enrichir DestinationBusinessesPanel
 
-## Objectif
-- Remplacer la homepage actuelle (page "Home" = mur de vidéos) par une page d'accueil éditoriale inspirée de https://mindtrip.ai/home, adaptée à ONE WORLD MOROCCO.
-- Conserver intégralement la homepage actuelle, accessible à `/videos`.
+Garder `DestinationBusinessesPanel.tsx` comme **seul** fichier à modifier (pas de refacto de BookOnlineSlidePanel). On porte uniquement la **présentation** visuelle, pas la logique business.
 
-## Routage
-- `/` → nouvelle page `HomeMindtrip.tsx`
-- `/videos` → page actuelle (composant `Home.tsx`, déjà utilisé via `Test`)
-- `/test` reste tel quel (alias dev), pour éviter de casser des liens internes
-- Mettre à jour `GlobalFloatingSearchBar` et `FloatingButtonsGuard` dans `App.tsx` pour traiter `/videos` comme l'actuel `/test` (cacher la search bar flottante, cacher le bouton Club)
+## Ce qu'on ajoute (inspiré de BookOnlineSlidePanel)
 
-## Nouvelle page d'accueil (`src/pages/HomeMindtrip.tsx`)
-Structure inspirée de Mindtrip, adaptée Maroc/ONE WORLD MOROCCO :
+1. **Média plein écran en fond** (image courante) au lieu du carrousel en haut
+   - Image en `absolute inset-0 object-cover`
+   - Dégradé sombre au bas pour lisibilité du contenu
+   - Flèches précédent/suivant si plusieurs images
+   - Compteur "x / N" + bouton "Voir les N photos" en bas à gauche
+   - Clic ouvre `FullscreenLightbox`
 
-1. **Hero plein écran**
-   - Visuel hero (on réutilise `hero_v3_riad_logo.jpg` déjà validé ou une variante — à confirmer)
-   - Titre éditorial type "Voyagez autrement au Maroc."
-   - Sous-titre court
-   - 2 CTA : "Explorer les vidéos" (→ `/videos`) et "Découvrir nos adresses" (→ `/search`)
-   - Flèche "Découvrir" qui scroll vers la section suivante
+2. **Bouton fullscreen / expand** (déjà présent → on garde)
 
-2. **Section "Comment ça marche"** (4 blocs alternés image/texte, façon Mindtrip)
-   - Inspiration par les vidéos
-   - Adresses vérifiées
-   - Itinéraires personnalisés
-   - Réservation simplifiée
+3. **Header overlay transparent** : nom de la destination + région en superposition (style BookOnlineSlidePanel, fond noir translucide), au lieu du titre dans le flux
 
-3. **Section "Nouveautés"** (3-4 cartes : Événements, Hôtels, Restaurants, Expériences) avec lien "Découvrir"
+4. **Cluster de CTAs ronds en bas** (style identique à BookOnlineSlidePanel lignes 880-985, fond `bg-black/80 backdrop-blur` + label au hover) :
+   - **Itinéraire** (icône `Navigation`) → ouvre Google Maps depuis lat/lng de la destination, ou `DirectionsOverlay` si tu préfères
+   - **Localisation** (icône `MapPin`) → mini carte de la destination (overlay)
+   - **Images** (icône `ImageIcon`) → ouvre lightbox plein écran
+   - Le CTA Itinéraire est placé **au-dessus** du rang des autres boutons ronds, comme demandé
 
-4. **Section "Tout ce qu'il faut pour votre prochain voyage"** (grille de modules : Hôtels, Restaurants, Activités, Tours, Vols)
+5. **Bloc Description** : conservé tel quel, dans un panneau scrollable par-dessus le média
 
-5. **Section "Inspirez-vous"** — destinations populaires (Marrakech, Essaouira, etc.), cartes cliquables vers `/destination/...`
+6. **Bloc Prestataires** : conservé tel quel (grille de vignettes business existante)
 
-6. **Section "Devenez ambassadeur"** (lien `/devenir-affilie`)
-
-7. **Footer** existant (`<Footer variant="verified" />`)
-
-Charte visuelle : tokens existants (Josefin Sans / Roboto, Terracotta, fond crème), pas de couleurs en dur. Animations légères au scroll (fade/translate) via Tailwind/Motion.
+## Ce qu'on **n'ajoute pas** (exclu explicitement)
+- CTA Langues
+- CTA Horaires
+- CTA Disponibilité
+- Badge ouvert / fermé
+- Tous les CTAs business spécifiques (Réserver, Shop, WhatsApp, Appeler, Avis, Spotify, YouTube, KP, POI, etc.)
+- Navigation prev/next entre destinations (pas demandé)
 
 ## Détails techniques
-- Nouveau fichier `src/pages/HomeMindtrip.tsx` + sous-composants `src/components/homeMindtrip/` (Hero, HowItWorks, NewSection, Toolkit, Inspiration, AmbassadorCTA)
-- `src/App.tsx` :
-  - Importer `HomeMindtrip` en lazy
-  - `path="/"` → `HomeMindtrip`
-  - Ajouter `path="/videos"` → `Test` (= `Home`)
-  - Étendre `hiddenPaths` et la logique `FloatingButtonsGuard` pour inclure `/videos`
-- SEO via `useSEO` : titre + meta dédiés à la nouvelle home
-- Liens internes : remplacer les éventuels `to="/"` qui pointaient vers le mur de vidéos par `to="/videos"` (à auditer ; sinon laisser et utiliser le bouton Hero)
-- Aucune modif backend, aucune migration, aucune touche à la logique métier `Home.tsx`
+
+- Fichier touché : `src/components/DestinationBusinessesPanel.tsx` uniquement
+- Pas de modif de `BookOnlineSlidePanel.tsx`, `DestinationsTabContent.tsx`, ni du back-end
+- Réutilisation directe des composants existants : `FullscreenLightbox`, `SlidePanelHeader`, `BookmarkButton`, icônes `lucide-react`
+- Pour Itinéraire : ouverture d'un lien `https://www.google.com/maps/dir/?api=1&destination=lat,lng` dans un nouvel onglet (solution minimale, sans dépendre de `DirectionsOverlay` qui attend un objet `business`)
+- Layout général repris de BookOnlineSlidePanel : média plein conteneur + contenu scrollable par-dessus avec gradient
 
 ## Hors scope
-- Pas de refonte des sections internes du mur de vidéos
-- Pas de nouvelles intégrations (AI chat, etc.) — on reste sur des CTA qui pointent vers les pages existantes
-- Pas de redirection 301 serveur : `/` affiche désormais la nouvelle home, l'ancienne reste vivante à `/videos`
+- Aucune modif de schéma DB
+- Aucune logique métier
+- Aucun changement sur les autres onglets de Search
 
-## Question rapide avant de coder
-Le hero : on part sur `hero_v3_riad_logo.jpg` (validé), ou tu veux qu'on génère un nouveau visuel hero pensé spécifiquement pour cette home (composition plus large, plus de respiration à gauche pour le texte) ?
+Une fois ce plan validé, j'implémente en une seule passe sur `DestinationBusinessesPanel.tsx`.
