@@ -229,6 +229,10 @@ const StaffMaster = () => {
             <PricingManagement />
           </TabsContent>
 
+          <TabsContent value="vanity-urls">
+            <VanityUrlsManagement />
+          </TabsContent>
+
           {isAdmin && (
             <TabsContent value="users">
               <UserManagement />
