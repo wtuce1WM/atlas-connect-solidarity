@@ -157,47 +157,98 @@ const DestinationBusinessesPanel = ({
   const hasDescription = !!destination.description;
   const providersLabel = language === "en" ? "Providers" : language === "ar" ? "مزودون" : "Prestataires";
 
+  // Unified media list: images then videos
+  const mediaItems = useMemo(
+    () => [
+      ...imgs.map((url) => ({ kind: "image" as const, url })),
+      ...videos.map((url) => ({ kind: "video" as const, url })),
+    ],
+    [imgs, videos]
+  );
+  const totalMedia = mediaItems.length;
+  const safeIndex = totalMedia > 0 ? Math.min(currentImageIndex, totalMedia - 1) : 0;
+  const currentMedia = mediaItems[safeIndex];
+
+  const videoInfo = useMemo(() => {
+    if (!currentMedia || currentMedia.kind !== "video") return null;
+    return getVideoEmbed(currentMedia.url, window.location.origin, { background: true, defaultSoundOn: false, autoplay: true });
+  }, [currentMedia]);
+
+  // Toolbar right portal (Share button) — mounted only when portal exists
+  const [toolbarReady, setToolbarReady] = useState(false);
+  useEffect(() => {
+    const check = () => setToolbarReady(!!document.getElementById("slide-panel-toolbar"));
+    check();
+    const id = window.setInterval(check, 100);
+    const stop = window.setTimeout(() => window.clearInterval(id), 1500);
+    return () => { window.clearInterval(id); window.clearTimeout(stop); };
+  }, [destination.id]);
+  const toolbarRightEl = toolbarReady ? document.getElementById("slide-panel-toolbar") : null;
+
   return (
     <>
       <div className="fixed top-0 left-0 right-0 bottom-0 z-40 bg-black flex flex-col shadow-2xl overflow-hidden animate-slide-in-right lg:top-[53px] lg:left-auto lg:w-1/2 lg:border-l lg:border-border">
-        <SlidePanelHeader
-          onClose={onClose}
-          mobileTransparent
-          centerContent={<span className="text-sm font-semibold text-foreground truncate max-w-[60vw]">{getName()}</span>}
-        />
+        <SlidePanelHeader onClose={onClose} mobileTransparent />
 
-        {/* Full-bleed background image */}
+        {toolbarRightEl && createPortal(
+          <ShareButton title={getName()} variant="dark" className="shrink-0" />,
+          toolbarRightEl
+        )}
+
+        {/* Full-bleed background media (image / video file / youtube) */}
         <div className="absolute inset-0 z-0">
-          {imgs.length > 0 && (
+          {currentMedia?.kind === "image" && (
             <img
-              src={imgs[currentImageIndex]}
-              alt={`${getName()} - ${currentImageIndex + 1}`}
+              src={currentMedia.url}
+              alt={`${getName()} - ${safeIndex + 1}`}
               className="w-full h-full object-cover cursor-pointer"
               onClick={() => setIsLightboxOpen(true)}
+            />
+          )}
+          {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
+            <video
+              key={currentMedia.url}
+              src={currentMedia.url}
+              className="w-full h-full object-cover bg-black"
+              loop
+              playsInline
+              autoPlay
+              muted
+            />
+          )}
+          {currentMedia?.kind === "video" && videoInfo && videoInfo.type !== "file" && (
+            <iframe
+              key={currentMedia.url}
+              src={videoInfo.embedUrl}
+              className="w-full h-full pointer-events-none"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+              frameBorder="0"
+              style={{ border: 0 }}
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/40" />
         </div>
 
         {/* Media prev/next */}
-        {imgs.length > 1 && (
+        {totalMedia > 1 && (
           <>
             <button
-              onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? imgs.length - 1 : i - 1); }}
+              onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? totalMedia - 1 : i - 1); }}
               className="absolute left-1/2 -translate-x-[calc(50%+60px)] top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-black flex items-center justify-center shadow-lg"
-              aria-label="Image précédente"
+              aria-label="Média précédent"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === imgs.length - 1 ? 0 : i + 1); }}
+              onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === totalMedia - 1 ? 0 : i + 1); }}
               className="absolute left-1/2 translate-x-[calc(50%+20px)] top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-black flex items-center justify-center shadow-lg"
-              aria-label="Image suivante"
+              aria-label="Média suivant"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 rounded-full bg-black/60 text-xs text-white">
-              {currentImageIndex + 1} / {imgs.length}
+              {safeIndex + 1} / {totalMedia}
             </div>
           </>
         )}
@@ -239,50 +290,54 @@ const DestinationBusinessesPanel = ({
           <SidebarCta icon={Building2} label={providersLabel} onClick={() => setShowProviders(true)} />
         </div>
 
-        {/* Center overlay: name + region + Itinéraire + "+" */}
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-6 pb-32">
-          <h1
-            className="text-3xl md:text-5xl font-bold text-white text-center max-w-[85%] leading-tight"
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7))",
-            }}
-          >
-            {getName()}
-          </h1>
-          {destination.region && destination.region.length > 0 && (
-            <p
-              className="mt-2 text-sm md:text-base text-white/90 text-center"
-              style={{
-                fontFamily: "'Josefin Sans', sans-serif",
-                filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.7))",
-              }}
-            >
-              {destination.region.join(", ")}
-            </p>
-          )}
-          {destination.hook && (
-            <p
-              className="mt-4 text-base md:text-lg text-white/90 font-semibold text-center max-w-xl leading-relaxed"
-              style={{
-                fontFamily: "'Josefin Sans', sans-serif",
-                filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.7))",
-              }}
-            >
-              {destination.hook}
-            </p>
-          )}
-          {hasDescription && (
-            <button
-              onClick={() => setShowDescription(true)}
-              className="mt-6 w-12 h-12 rounded-full border-2 border-white flex items-center justify-center pointer-events-auto transform-gpu transition-transform duration-200 ease-out hover:scale-125"
-              style={{ backgroundColor: "#25D366" }}
-              aria-label={language === "en" ? "Read more" : "En savoir plus"}
-            >
-              <span className="text-2xl text-white font-light leading-none">+</span>
-            </button>
-          )}
+        {/* Name card (BookOnlineSlidePanel BusinessHeader style) — pinned at top under toolbar */}
+        <div className="absolute top-14 left-3 right-3 z-20 pointer-events-none">
+          <div className="w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[4.5rem] md:h-[5.5rem] pointer-events-auto">
+            <div className="absolute inset-0 flex items-center gap-4 px-4 md:px-6">
+              <div className="min-w-0 flex-1 text-center md:text-left">
+                <h2
+                  className="text-base md:text-xl font-bold uppercase min-w-0 flex-1 line-clamp-2"
+                  style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", WebkitTextStroke: "0.8px currentColor", textShadow: "0 0 0 currentColor" }}
+                >
+                  {getName()}
+                </h2>
+                {destination.region && destination.region.length > 0 && (
+                  <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5 justify-center md:justify-start truncate">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    {destination.region.join(", ")}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Center overlay: hook + "+" */}
+        {(destination.hook || hasDescription) && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-6 pb-32">
+            {destination.hook && (
+              <p
+                className="text-base md:text-lg text-white/90 font-semibold text-center max-w-xl leading-relaxed"
+                style={{
+                  fontFamily: "'Josefin Sans', sans-serif",
+                  filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.7))",
+                }}
+              >
+                {destination.hook}
+              </p>
+            )}
+            {hasDescription && (
+              <button
+                onClick={() => setShowDescription(true)}
+                className="mt-6 w-12 h-12 rounded-full border-2 border-white flex items-center justify-center pointer-events-auto transform-gpu transition-transform duration-200 ease-out hover:scale-125"
+                style={{ backgroundColor: "#25D366" }}
+                aria-label={language === "en" ? "Read more" : "En savoir plus"}
+              >
+                <span className="text-2xl text-white font-light leading-none">+</span>
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Itinéraire CTA (bottom) */}
         {hasMap && (
@@ -297,6 +352,8 @@ const DestinationBusinessesPanel = ({
             </button>
           </div>
         )}
+
+
 
         {/* Providers overlay */}
         {showProviders && (
