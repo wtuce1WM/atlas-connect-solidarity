@@ -1393,7 +1393,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               } else if (descGridSection === "videos") {
                 // Reorder videoDocs to match allVideoUrls order (own → linked → external)
                 const urlOrder = new Map(allVideoUrls.map((u, i) => [u, i]));
-                const sortedVideoDocs = [...videoDocs].sort(
+                const sortedVideoDocs = [...nonExternalVideoDocs].sort(
                   (a, b) => (urlOrder.get(a.url) ?? 999) - (urlOrder.get(b.url) ?? 999)
                 );
                 gridItems = sortedVideoDocs.map((vid, i) => {
