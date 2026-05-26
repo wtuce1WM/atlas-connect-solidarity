@@ -1,13 +1,16 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Film, Image as ImageIcon, Building2 } from "lucide-react";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
-import type { MediaItem } from "@/components/FullscreenLightbox";
+import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import BookmarkButton from "@/components/BookmarkButton";
+import ShareButton from "@/components/ShareButton";
+import { getVideoEmbed } from "@/lib/videoEmbed";
 import type { DestinationItem } from "@/components/DestinationSection";
 
 interface Business {
