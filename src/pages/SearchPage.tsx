@@ -2662,8 +2662,21 @@ const SearchPage = () => {
       )}
 
       {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
-      {showAiPopup && (
+      {showAiPopup && (() => {
+        const closeToResults = () => {
+          setShowAiPopup(false);
+          setOverlaySelectedBusiness(null);
+          setActiveTab("suggestions");
+          setCurrentPage(1);
+          setShowMobileMap(false);
+          setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            setTimeout(() => ensureResultsVisibleBelowSticky("smooth"), 350);
+          }, 50);
+        };
+        return (
         <div className="fixed inset-0 z-[9990] flex bg-white animate-in fade-in duration-200">
+
           {/* Left panel: AI suggestion */}
           <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
           {/* Mobile sticky top bar: speaker + CTA + close */}
