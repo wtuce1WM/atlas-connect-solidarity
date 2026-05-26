@@ -801,19 +801,24 @@ export function useBookOnlineData(businessId: string) {
   }, [destinations, language]);
 
   // Derived: all video URLs — order:
-  //   1. own fiche videos, internal and external mixed by front_sort_order
+  //   1. own fiche internal videos (uploaded files)
   //   2. linked videos
   //   3. POI-linked videos
   //   4. generic videos
+  //   5. own fiche YouTube / external videos
   // Stable within each bucket via DB front_sort_order / sort_order.
   const allVideoUrls = useMemo(() => {
     const legacyVideo = business?.video_1_url?.trim() || null;
+    const isExternal = (url?: string | null) => !!url && /youtube\.com|youtu\.be|youtube-nocookie\.com|vimeo\.com|player\.vimeo\.com|iframe\.mediadelivery\.net|dailymotion\.com|tiktok\.com|instagram\.com|facebook\.com|fb\.watch/i.test(url);
     const rank = (d: VideoDoc) => {
-      if (d.owner_business_id === businessId) return 0; // own fiche, regardless of hosting type
-      if (d.owner_business_id && !d.is_poi_linked) return 1; // linked KP/business videos
+      const own = d.owner_business_id === businessId;
+      if (own && !isExternal(d.url)) return 0; // own fiche internal
+      if (d.owner_business_id && !d.is_poi_linked && !own) return 1; // linked KP/business videos
       if (d.is_poi_linked) return 2; // POI-linked videos
-      return 3; // generic videos
+      if (!d.owner_business_id) return 3; // generic videos
+      return 4; // own fiche external (YouTube etc.)
     };
+
     const sorted = videoDocs
       .map((d, i) => ({ d, i }))
       .sort((a, b) => rank(a.d) - rank(b.d) || a.i - b.i)
