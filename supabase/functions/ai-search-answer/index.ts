@@ -167,6 +167,12 @@ ${knowledgeContext}` : ''}`;
         model,
         messages: [
           { role: "system", content: systemPrompt },
+          ...(Array.isArray(history)
+            ? history
+                .filter((m: any) => m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"))
+                .slice(-10)
+                .map((m: any) => ({ role: m.role, content: m.content }))
+            : []),
           { role: "user", content: query },
         ],
         max_tokens: maxTokens,
