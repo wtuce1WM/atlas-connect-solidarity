@@ -344,30 +344,6 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
       )}
     </div>
   );
-          </div>
-        </div>
-      )}
-
-      {/* Content — same styling as fullscreen overlay */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-
-        {loading ? (
-          <div className="flex flex-col items-center justify-center gap-4 py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-gold" />
-            <span className="text-sm text-muted-foreground">
-              {language === "fr" ? "Génération en cours…" : language === "ar" ? "جارٍ التحميل…" : "Generating…"}
-            </span>
-          </div>
-        ) : (
-          <div className="max-w-3xl mx-auto">
-            <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
-              {renderedContent}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
 };
 
 export default PanelAiOverlay;
