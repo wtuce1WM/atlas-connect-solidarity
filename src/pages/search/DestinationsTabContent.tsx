@@ -202,6 +202,7 @@ const DestinationsTabContent = ({
                 setDestPanelExpanded(false);
               }}
               forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
+              hideOpeningInfo
             />
           </div>
         </div>

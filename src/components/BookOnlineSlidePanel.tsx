@@ -111,9 +111,11 @@ interface BookOnlineSlidePanelProps {
   onNextBusiness?: () => void;
   hasPrevBusiness?: boolean;
   hasNextBusiness?: boolean;
+  /** Simplified mode for Destinations: hides hours/availability CTAs and open/closed badge */
+  hideOpeningInfo?: boolean;
 }
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl, onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl, onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness, hideOpeningInfo }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -879,12 +881,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             )}
           </div>
           )}
-          {isHotelWithPrice ? (
+          {!hideOpeningInfo && isHotelWithPrice ? (
             <div onClick={() => setShowAvailabilitySearch(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[130px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Disponibilité</span>
               <CalendarCheck className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
-          ) : hasOpeningHours && !business?.is_open_24h ? (
+          ) : !hideOpeningInfo && hasOpeningHours && !business?.is_open_24h ? (
             <div onClick={() => setShowHoursOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Horaires</span>
               <Clock className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
@@ -1005,7 +1007,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           avgOn20={avgOn20}
           totalReviewCount={totalReviewCount}
           onOpenReviews={handleOpenReviews}
-          openBadgeInfo={openBadgeInfo}
+          openBadgeInfo={hideOpeningInfo ? undefined : openBadgeInfo}
         />
 
         {/* Top bar: toggle, flags, rating — below BusinessHeader */}
