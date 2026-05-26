@@ -23,9 +23,11 @@ interface PanelAiOverlayProps {
   presetAnswer?: string | null;
   /** Businesses pool matching presetAnswer (for parseInline thumbnails) */
   presetBusinesses?: BusinessData[] | null;
+  /** Called when user clicks a business thumbnail/link inside the AI text */
+  onBusinessClick?: (business: BusinessData) => void;
 }
 
-const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, presetAnswer, presetBusinesses }: PanelAiOverlayProps) => {
+const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, presetAnswer, presetBusinesses, onBusinessClick }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
@@ -122,13 +124,17 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     return parseInline(
       answer,
       businesses,
-      () => {
-        // Business click in panel context — just close overlay
-        onClose();
+      (b) => {
+        if (onBusinessClick) {
+          onBusinessClick(b);
+          onClose();
+        } else {
+          onClose();
+        }
       },
       "panel-ai"
     );
-  }, [answer, businesses, onClose]);
+  }, [answer, businesses, onClose, onBusinessClick]);
 
   const [closing, setClosing] = useState(false);
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
@@ -358,7 +364,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
                   </div>
                 ) : (
                   <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
-                    {parseInline(turn.content, businesses, () => onClose(), `panel-ai-chat-${i}`)}
+                    {parseInline(turn.content, businesses, (b) => { if (onBusinessClick) { onBusinessClick(b); } onClose(); }, `panel-ai-chat-${i}`)}
                   </div>
                 )}
               </div>
