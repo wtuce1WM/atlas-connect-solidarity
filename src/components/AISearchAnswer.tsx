@@ -45,25 +45,50 @@ interface AISearchAnswerProps {
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['`]/g, "'").trim();
 
+const STOPWORDS = new Set([
+  "le","la","les","l","un","une","des","de","du","d","au","aux","a","à",
+  "et","ou","the","of","el","restaurant","cafe","café","riad","hotel","hôtel",
+  "spa","boutique","shop","maison","villa","palais","dar"
+]);
+
+const tokenize = (s: string): string[] =>
+  normalize(s)
+    .replace(/[()[\]{}«»"'`.,;:!?\-–—/\\|]/g, " ")
+    .split(/\s+/)
+    .filter(t => t.length > 1 && !STOPWORDS.has(t));
+
 const findBusiness = (name: string, businesses: BusinessData[]): BusinessData | null => {
   const n = normalize(name);
   const exact = businesses.find(b => normalize(b.name) === n);
   if (exact) return exact;
-  const cityPattern = /(.+?)(?:\s+[àa]\s+|\s*[-–—]\s*)(.+)$/i;
+  const cityPattern = /(.+?)(?:\s+[àa]\s+|\s*[-–—]\s*|\s*[(［].+?[)］]\s*$)/i;
   const cityMatch = n.match(cityPattern);
   if (cityMatch) {
     const namePart = cityMatch[1].trim();
-    const cityPart = cityMatch[2].trim();
-    const withCity = businesses.find(b => normalize(b.name) === namePart && normalize(b.city) === cityPart);
-    if (withCity) return withCity;
-    const withCityPartial = businesses.find(b =>
-      (normalize(b.name) === namePart || normalize(b.name).includes(namePart)) &&
-      normalize(b.city).includes(cityPart)
-    );
-    if (withCityPartial) return withCityPartial;
+    const exactStripped = businesses.find(b => normalize(b.name) === namePart);
+    if (exactStripped) return exactStripped;
   }
-  return businesses.find(b => n.includes(normalize(b.name)) || normalize(b.name).includes(n))
-    || null;
+  const incl = businesses.find(b => n.includes(normalize(b.name)) || normalize(b.name).includes(n));
+  if (incl) return incl;
+
+  // Token-based fallback (Jaccard on significant words)
+  const queryTokens = new Set(tokenize(name));
+  if (queryTokens.size === 0) return null;
+  let best: { b: BusinessData; score: number } | null = null;
+  for (const b of businesses) {
+    const bTokens = new Set(tokenize(b.name));
+    if (bTokens.size === 0) continue;
+    let inter = 0;
+    queryTokens.forEach(t => { if (bTokens.has(t)) inter++; });
+    const union = queryTokens.size + bTokens.size - inter;
+    const jaccard = inter / union;
+    const coverage = inter / bTokens.size; // share of business name covered
+    const score = Math.max(jaccard, coverage * 0.9);
+    if (score >= 0.6 && (!best || score > best.score)) {
+      best = { b, score };
+    }
+  }
+  return best?.b ?? null;
 };
 
 const getImage = (b: BusinessData): string | null => {
