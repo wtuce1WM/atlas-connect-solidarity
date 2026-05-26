@@ -111,9 +111,11 @@ interface BookOnlineSlidePanelProps {
   onNextBusiness?: () => void;
   hasPrevBusiness?: boolean;
   hasNextBusiness?: boolean;
+  /** Simplified mode for Destinations: hides hours/availability CTAs and open/closed badge */
+  hideOpeningInfo?: boolean;
 }
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl, onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl, onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness, hideOpeningInfo }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
