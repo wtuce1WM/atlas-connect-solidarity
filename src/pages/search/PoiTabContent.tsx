@@ -189,14 +189,26 @@ const PoiTabContent = ({
           }`}
           style={{ height: isSubDesktop ? undefined : "100vh" }}
         >
-          <BookOnlineSlidePanel
-            businessId={poiSelectedBusinessId}
+          <SlidePanelHeader
             onClose={() => {
               setPoiSelectedBusinessId(null);
               setPoiPanelExpanded(false);
             }}
-            forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
+            alwaysDark
           />
+          <div className="flex-1 min-h-0 overflow-visible">
+            <BookOnlineSlidePanel
+              businessId={poiSelectedBusinessId}
+              onClose={() => {
+                setPoiSelectedBusinessId(null);
+                setPoiPanelExpanded(false);
+              }}
+              forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
+              showSearchBar
+              onSearch={onSearchNavigate}
+              onSearchBusinessSelect={onBusinessSelect}
+            />
+          </div>
         </div>
       )}
 
