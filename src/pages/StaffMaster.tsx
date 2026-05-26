@@ -25,6 +25,7 @@ import BrokenLinksManagement from "@/components/staff/BrokenLinksManagement";
 import HotelApiComparison from "@/components/staff/HotelApiComparison";
 import PricingManagement from "@/components/staff/PricingManagement";
 import BlogManagement from "@/components/staff/BlogManagement";
+import VanityUrlsManagement from "@/components/staff/VanityUrlsManagement";
 import KBViewer from "@/components/staff/KBViewer";
 
 const StaffMaster = () => {
