@@ -42,9 +42,13 @@ interface PanelSearchBarProps {
   onSeeResults?: () => void;
   /** Extra controls (e.g. video play/mute) rendered before the 4 default round buttons */
   leadingControls?: ReactNode;
+  /** Pre-generated AI text from /search Sticky 4 — forwarded to PanelAiOverlay to keep both views in sync */
+  aiAnswerText?: string | null;
+  /** Businesses pool matching aiAnswerText (for thumbnail resolution) */
+  aiBusinesses?: any[] | null;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, leadingControls }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, leadingControls, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -185,6 +189,8 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
             city={businessCity}
             category={businessCategory}
             businessName={businessName}
+            presetAnswer={aiAnswerText ?? null}
+            presetBusinesses={(aiBusinesses ?? null) as any}
             onAskAssistant={() => {
               setAiOverlayOpen(false);
               setOverlay(true);

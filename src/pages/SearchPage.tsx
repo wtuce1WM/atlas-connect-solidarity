@@ -3676,6 +3676,8 @@ const SearchPage = () => {
               }}
               closeTrigger={mapPanelCloseTrigger}
               solidBackground
+              aiAnswerText={aiAnswerText}
+              aiBusinesses={allBusinesses as any}
               onSeeResults={() => {
                 setShowMobileMap(false);
                 setActiveTab("suggestions");
@@ -3861,6 +3863,8 @@ const SearchPage = () => {
                 noToolbarOffset
                 iconVariant="black"
                 solidBackground
+                aiAnswerText={aiAnswerText}
+                aiBusinesses={allBusinesses as any}
                 onSeeResults={() => {
                   setShowMobileMap(false);
                   setActiveTab("suggestions");

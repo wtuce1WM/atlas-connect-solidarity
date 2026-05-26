@@ -19,9 +19,13 @@ interface PanelAiOverlayProps {
   onAskAssistant?: () => void;
   /** Called when user clicks the "See results" CTA — should return to the search list+map view */
   onSeeResults?: () => void;
+  /** Pre-generated AI text (from Sticky 4 on /search) — when provided, the panel reuses it instead of regenerating */
+  presetAnswer?: string | null;
+  /** Businesses pool matching presetAnswer (for parseInline thumbnails) */
+  presetBusinesses?: BusinessData[] | null;
 }
 
-const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults }: PanelAiOverlayProps) => {
+const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, presetAnswer, presetBusinesses }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
@@ -32,7 +36,21 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
   useEffect(() => {
     if (!open) { setAnswer(""); setBusinesses([]); setCachedQuery(""); setCachedCount(null); return; }
 
-    // Try to reuse previously generated AI text from search results
+    // PRIORITY 1: Use the exact text shown in Sticky 4 (passed via props).
+    // Guarantees that the overlay shows the SAME text as the results page.
+    if (presetAnswer) {
+      setAnswer(presetAnswer);
+      if (presetBusinesses && presetBusinesses.length > 0) setBusinesses(presetBusinesses);
+      try {
+        const cachedQ = sessionStorage.getItem("ai_suggestion_query");
+        const cachedC = sessionStorage.getItem("ai_suggestion_count");
+        if (cachedQ) setCachedQuery(cachedQ);
+        if (cachedC) setCachedCount(Number(cachedC));
+      } catch {}
+      return;
+    }
+
+    // PRIORITY 2: Reuse previously generated AI text from search results (sessionStorage)
     try {
       const cached = sessionStorage.getItem("ai_suggestion_text");
       const cachedBiz = sessionStorage.getItem("ai_suggestion_businesses");
@@ -86,7 +104,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     };
 
     generate();
-  }, [open, city, category, businessName, language]);
+  }, [open, city, category, businessName, language, presetAnswer, presetBusinesses]);
 
   const renderedContent = useMemo(() => {
     if (!answer) return null;
