@@ -3806,9 +3806,13 @@ const SearchPage = () => {
                 iconVariant="black"
                 solidBackground
                 onSeeResults={() => {
+                  setShowMobileMap(false);
                   setActiveTab("suggestions");
                   setCurrentPage(1);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
+                  requestAnimationFrame(() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
+                  });
                 }}
               />
             </div>
