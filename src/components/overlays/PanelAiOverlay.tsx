@@ -23,9 +23,11 @@ interface PanelAiOverlayProps {
   presetAnswer?: string | null;
   /** Businesses pool matching presetAnswer (for parseInline thumbnails) */
   presetBusinesses?: BusinessData[] | null;
+  /** Called when user clicks a business thumbnail/link inside the AI text */
+  onBusinessClick?: (business: BusinessData) => void;
 }
 
-const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, presetAnswer, presetBusinesses }: PanelAiOverlayProps) => {
+const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, presetAnswer, presetBusinesses, onBusinessClick }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
