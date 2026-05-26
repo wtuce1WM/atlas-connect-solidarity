@@ -124,13 +124,17 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     return parseInline(
       answer,
       businesses,
-      () => {
-        // Business click in panel context — just close overlay
-        onClose();
+      (b) => {
+        if (onBusinessClick) {
+          onBusinessClick(b);
+          onClose();
+        } else {
+          onClose();
+        }
       },
       "panel-ai"
     );
-  }, [answer, businesses, onClose]);
+  }, [answer, businesses, onClose, onBusinessClick]);
 
   const [closing, setClosing] = useState(false);
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
