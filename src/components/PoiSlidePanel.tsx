@@ -507,6 +507,16 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
               {showMosaic ? <Minimize2 className="h-4 w-4" /> : <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />}
             </button>
           )}
+          {isDestination && (onPrevDestination || onNextDestination) && (
+            <>
+              <button onClick={onPrevDestination} disabled={!onPrevDestination} className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" aria-label="Destination précédente">
+                <ChevronUp className="h-4 w-4" />
+              </button>
+              <button onClick={onNextDestination} disabled={!onNextDestination} className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" aria-label="Destination suivante">
+                <ChevronUp className="h-4 w-4 rotate-180" />
+              </button>
+            </>
+          )}
         </div>
       )}
 
