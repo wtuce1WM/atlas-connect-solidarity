@@ -3059,7 +3059,7 @@ const SearchPage = () => {
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
               <div className="flex flex-col items-center gap-4 pt-14 pb-24">
                 <button
-                  onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+                  onClick={closeToResults}
                   className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
                 >
                   {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
