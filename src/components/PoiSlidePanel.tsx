@@ -449,7 +449,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
     };
     fetchVideos();
     return () => { cancelled = true; };
-  }, [businessId]);
+  }, [entityId, isDestination, businessId, destinationId]);
 
   const ownerVideoDocs = useMemo(() => linkedVideos.map(cv => ({
     url: cv.url,
