@@ -182,15 +182,56 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
         .map((t) => t.content.trim())
         .filter(Boolean);
       const combinedQuery = [...previousUserTexts, text].join(" ");
+
+      // Proximity intent: "rooftop à côté de riad dar najat" → resolve target
+      // business, search within a radius around its coordinates.
+      const proximityRe = /\s*(?:à\s+côté\s+de|a\s+cote\s+de|à\s+coté\s+de|près\s+de|pres\s+de|proche\s+de|autour\s+de|aux\s+alentours\s+de|à\s+proximité\s+de|a\s+proximite\s+de|near|around|close\s+to|next\s+to)\s+(.+?)\s*$/i;
+      const proxMatch = text.match(proximityRe);
+      let proxLat: number | undefined;
+      let proxLng: number | undefined;
+      let proxRadiusKm: number | undefined;
+      let strippedQuery = combinedQuery;
+      if (proxMatch) {
+        const targetName = proxMatch[1].trim().replace(/[?.!,;:]+$/, "");
+        try {
+          const { data: targets } = await supabase
+            .from("businesses")
+            .select("id, name, latitude, longitude, city")
+            .ilike("name", `%${targetName}%`)
+            .not("latitude", "is", null)
+            .not("longitude", "is", null)
+            .limit(5);
+          const target = (targets || []).find((t: any) => !city || (t.city && t.city.toLowerCase() === city.toLowerCase())) || (targets || [])[0];
+          if (target?.latitude && target?.longitude) {
+            proxLat = Number(target.latitude);
+            proxLng = Number(target.longitude);
+            proxRadiusKm = 2;
+            strippedQuery = combinedQuery.replace(proximityRe, "").trim() || combinedQuery;
+            console.log(`[AI chat] Proximity → "${target.name}" (${proxLat}, ${proxLng}) within ${proxRadiusKm}km`);
+          } else {
+            console.warn(`[AI chat] Proximity target not found for: "${targetName}"`);
+          }
+        } catch (e) {
+          console.warn("[AI chat] Proximity lookup failed:", e);
+        }
+      }
+
       let refinedBusinesses = businesses;
       try {
         const { data: searchData } = await supabase.functions.invoke("business-search", {
-          body: { query: combinedQuery, city: city ?? undefined, page: 1, pageSize: 100 },
+          body: {
+            query: strippedQuery,
+            city: city ?? undefined,
+            page: 1,
+            pageSize: 100,
+            ...(proxLat !== undefined && proxLng !== undefined
+              ? { latitude: proxLat, longitude: proxLng, radiusKm: proxRadiusKm }
+              : {}),
+          },
         });
         const arr = (searchData as any)?.businesses;
         if (Array.isArray(arr) && arr.length > 0) {
           refinedBusinesses = arr as BusinessData[];
-          // Merge into pool so parseInline can resolve names from refined results
           setBusinesses((prev) => {
             const byId = new Map<string, BusinessData>();
             for (const b of prev) byId.set(b.id, b);
