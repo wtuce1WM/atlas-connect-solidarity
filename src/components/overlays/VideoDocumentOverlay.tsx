@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, Pause, Volume2, VolumeX, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { getVideoEmbed } from "@/lib/videoEmbed";
