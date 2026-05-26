@@ -396,6 +396,11 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
               {renderedContent}
             </div>
+            <CitedThumbnails
+              answer={answer}
+              businesses={businesses}
+              onClick={(b) => { if (onBusinessClick) { onBusinessClick(b); } onClose(); }}
+            />
 
             {chatTurns.map((turn, i) => (
               <div key={i} className={turn.role === "user" ? "flex justify-end" : ""}>
@@ -404,12 +409,20 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
                     {turn.content}
                   </div>
                 ) : (
-                  <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
-                    {parseInline(turn.content, businesses, (b) => { if (onBusinessClick) { onBusinessClick(b); } onClose(); }, `panel-ai-chat-${i}`)}
-                  </div>
+                  <>
+                    <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
+                      {parseInline(turn.content, businesses, (b) => { if (onBusinessClick) { onBusinessClick(b); } onClose(); }, `panel-ai-chat-${i}`)}
+                    </div>
+                    <CitedThumbnails
+                      answer={turn.content}
+                      businesses={businesses}
+                      onClick={(b) => { if (onBusinessClick) { onBusinessClick(b); } onClose(); }}
+                    />
+                  </>
                 )}
               </div>
             ))}
+
 
             {chatLoading && (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
