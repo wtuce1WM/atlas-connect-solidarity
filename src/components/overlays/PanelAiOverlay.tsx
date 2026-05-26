@@ -138,10 +138,23 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     setChatTurns((prev) => [...prev, { role: "user", content: text }]);
     setChatLoading(true);
     try {
+      // Re-run business-search with the refined query so the LLM sees only
+      // actually-relevant businesses, not the entire cached pool.
+      let refinedBusinesses = businesses;
+      try {
+        const { data: searchData } = await supabase.functions.invoke("business-search", {
+          body: { query: text, city: city ?? undefined, page: 1, pageSize: 100 },
+        });
+        const arr = (searchData as any)?.businesses;
+        if (Array.isArray(arr) && arr.length > 0) refinedBusinesses = arr as BusinessData[];
+      } catch (e) {
+        console.warn("Refinement search failed, falling back to cached pool:", e);
+      }
+
       const { data, error } = await supabase.functions.invoke("ai-search-answer", {
         body: {
           query: text,
-          businesses,
+          businesses: refinedBusinesses,
           language,
           history,
         },
