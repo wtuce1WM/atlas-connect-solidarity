@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Map, X } from "lucide-react";
 import DestinationSection, { type DestinationItem } from "@/components/DestinationSection";
-import DestinationBusinessesPanel from "@/components/DestinationBusinessesPanel";
+import PoiSlidePanel from "@/components/PoiSlidePanel";
 import PoiGoogleMap from "@/components/PoiGoogleMap";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
