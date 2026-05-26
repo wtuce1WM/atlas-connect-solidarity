@@ -225,6 +225,18 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
             )}
           </div>
 
+          {/* CTA Itinéraire */}
+          {destination.latitude && destination.longitude && (
+            <button
+              onClick={() => setShowDirections(true)}
+              className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors mb-4"
+              style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
+            >
+              <Navigation className="h-4 w-4" />
+              <span className="truncate">{language === "en" ? "Directions" : language === "ar" ? "الاتجاهات" : "Itinéraire"}</span>
+            </button>
+          )}
+
           {/* Description */}
           {destination.description && (
             <div className="text-sm text-muted-foreground leading-relaxed mb-6">
