@@ -1280,6 +1280,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           onNavigate={(v) => setActiveVideoOverlay(v)}
           onAnimationEnd={() => { setActiveVideoOverlay(null); setVideoOverlayClosing(false); }}
           onOwnerClick={(ownerId) => { setVideoOverlayClosing(true); setTimeout(() => setActiveBusinessId(ownerId), 300); }}
+          onControlsApi={setOverlayControlsApi}
         />
       )}
 
