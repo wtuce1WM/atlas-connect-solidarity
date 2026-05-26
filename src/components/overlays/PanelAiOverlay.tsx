@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { X, Sparkles, Loader2, Volume2, VolumeX, Loader, Heart } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { X, Sparkles, Loader2, Volume2, VolumeX, Loader, Heart, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
