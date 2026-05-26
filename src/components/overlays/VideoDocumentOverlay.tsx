@@ -1,10 +1,18 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, Pause, Volume2, VolumeX, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import type { VideoDoc } from "@/hooks/useBookOnlineData";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+export interface VideoOverlayControlsApi {
+  isPlaying: boolean;
+  isMuted: boolean;
+  isFile: boolean;
+  togglePlay: () => void;
+  toggleMute: () => void;
+}
 
 interface VideoDocumentOverlayProps {
   activeVideo: { url: string; name: string | null; description: string | null };
@@ -17,6 +25,7 @@ interface VideoDocumentOverlayProps {
   onNavigate: (video: { url: string; name: string | null; description: string | null }) => void;
   onAnimationEnd: () => void;
   onOwnerClick?: (ownerId: string) => void;
+  onControlsApi?: (api: VideoOverlayControlsApi | null) => void;
 }
 
 const VideoDocumentOverlay = ({
@@ -30,6 +39,7 @@ const VideoDocumentOverlay = ({
   onNavigate,
   onAnimationEnd,
   onOwnerClick,
+  onControlsApi,
 }: VideoDocumentOverlayProps) => {
   // User's persisted sound preference takes precedence over the per-business default.
   const { soundOn, setSoundOn } = useVideoSoundPreference();
@@ -93,6 +103,15 @@ const VideoDocumentOverlay = ({
         : overlayVid.embedUrl;
   const isVerticalHint = overlayVid.isVertical;
   const isFile = overlayVid.type === "file";
+
+  // Expose controls API to parent so it can render the buttons inline (e.g. in the search bar row).
+  useEffect(() => {
+    if (!onControlsApi) return;
+    onControlsApi({ isPlaying, isMuted, isFile, togglePlay, toggleMute });
+    return () => onControlsApi(null);
+  }, [onControlsApi, isPlaying, isMuted, isFile, togglePlay, toggleMute]);
+
+
 
   // Vertical swipe nav (mobile) — same behavior as SlidePanelHome
   const isMobile = useIsMobile();
@@ -250,8 +269,9 @@ const VideoDocumentOverlay = ({
         );
       })()}
 
-      {/* Custom Play/Pause + Mute controls — only for native file videos */}
-      {isFile && (
+      {/* Custom Play/Pause + Mute controls — only for native file videos.
+          Hidden when the parent renders them inline via onControlsApi. */}
+      {isFile && !onControlsApi && (
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-6 md:gap-10 z-20">
           <button
             onClick={togglePlay}

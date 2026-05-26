@@ -3,7 +3,7 @@ import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/component
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Building2, Compass } from "lucide-react";
+import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass } from "lucide-react";
 import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
 import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
@@ -175,6 +175,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
    const [descOverlayContent, setDescOverlayContent] = useState<{ html: string; title: string; priceDetails?: string | null; avgPriceRange?: unknown } | null>(null);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
+  const [overlayControlsApi, setOverlayControlsApi] = useState<import("@/components/overlays/VideoDocumentOverlay").VideoOverlayControlsApi | null>(null);
   const consumedInitialVideoRef = useRef<string | null>(null);
   useEffect(() => {
     if (!initialVideoUrl) return;
@@ -1279,6 +1280,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           onNavigate={(v) => setActiveVideoOverlay(v)}
           onAnimationEnd={() => { setActiveVideoOverlay(null); setVideoOverlayClosing(false); }}
           onOwnerClick={(ownerId) => { setVideoOverlayClosing(true); setTimeout(() => setActiveBusinessId(ownerId), 300); }}
+          onControlsApi={setOverlayControlsApi}
         />
       )}
 
@@ -1986,7 +1988,32 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           compact
           onSeeResults={onClose}
           leadingControls={
-            activeVideoOverlay ? undefined :
+            activeVideoOverlay ? (
+              overlayControlsApi && overlayControlsApi.isFile ? (
+                <div className="flex items-center gap-3 md:gap-10">
+                  <button
+                    type="button"
+                    onClick={overlayControlsApi.togglePlay}
+                    className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    aria-label={overlayControlsApi.isPlaying ? "Pause" : "Play"}
+                  >
+                    {overlayControlsApi.isPlaying
+                      ? <Pause className="h-5 w-5 md:h-6 md:w-6" />
+                      : <Play className="h-5 w-5 md:h-6 md:w-6" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={overlayControlsApi.toggleMute}
+                    className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    aria-label={overlayControlsApi.isMuted ? "Unmute" : "Mute"}
+                  >
+                    {overlayControlsApi.isMuted
+                      ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" />
+                      : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                  </button>
+                </div>
+              ) : undefined
+            ) :
             effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? (
               <VideoControls
                 type="file"
