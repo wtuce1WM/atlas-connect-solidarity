@@ -188,7 +188,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         docIds.length
           ? supabase
               .from("business_documents")
-              .select("id, url, name, description, thumbnail_url, business_id, business_is_active, type")
+              .select("id, url, name, description, thumbnail_url, business_id, business_is_active, type, sort_order")
               .in("id", docIds)
               .eq("business_is_active", true)
               .in("type", ["instagram_video", "tiktok_video", "youtube_video", "video"])
