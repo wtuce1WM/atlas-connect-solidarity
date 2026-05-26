@@ -296,7 +296,9 @@ const SearchPage = () => {
     try {
       sessionStorage.setItem("ai_suggestion_text", answer);
       // Also store businesses for parseInline rendering
-      const bizData = (allBusinesses || []).slice(0, 20).map((b) => ({
+      // Keep the full result pool so chat refinements can search across all results,
+      // not only the 10 used for the initial AI suggestion.
+      const bizData = (allBusinesses || []).slice(0, 100).map((b) => ({
         id: b.id, name: b.name, city: b.city, main_category: b.main_category,
         categories: b.categories, hook_fr: b.hook_fr, rating: b.rating,
         wtuce_status: b.wtuce_status, images: b.images, logo_url: b.logo_url,
