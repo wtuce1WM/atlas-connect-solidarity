@@ -3863,6 +3863,8 @@ const SearchPage = () => {
                 noToolbarOffset
                 iconVariant="black"
                 solidBackground
+                aiAnswerText={aiAnswerText}
+                aiBusinesses={allBusinesses as any}
                 onSeeResults={() => {
                   setShowMobileMap(false);
                   setActiveTab("suggestions");
