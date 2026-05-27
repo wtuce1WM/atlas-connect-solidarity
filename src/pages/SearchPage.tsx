@@ -3226,6 +3226,9 @@ const SearchPage = () => {
                     "ai-popup",
                     isTTSActive
                       ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
+                      : undefined,
+                    activeTab !== "poi" && activeTab !== "destinations"
+                      ? (b) => setHoveredResultId(b ? b.id : null)
                       : undefined
                   );
                 })()}
@@ -3256,7 +3259,9 @@ const SearchPage = () => {
                                     setOverlaySelectedBusiness(null);
                                     openCompactPanel(b);
                                   },
-                                  `ai-chat-${idx}`
+                                  `ai-chat-${idx}`,
+                                  undefined,
+                                  (b) => setHoveredResultId(b ? b.id : null)
                                 )}
                               </div>
                             )}
