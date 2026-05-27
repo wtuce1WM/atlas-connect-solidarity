@@ -53,16 +53,48 @@ serve(async (req) => {
     const hasResults = topBusinesses.length > 0;
 
 
-    // Fetch relevant knowledge entries to enrich AI context
-    const queryTerms = query.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
-    let knowledgeContext = "";
-    
     // Collect business IDs from results for direct linking
     const businessIds = topBusinesses.map((b: any) => b.id).filter(Boolean);
-    
-    // Fetch knowledge entries matching by text OR linked by business_id
+
+
+
+    // Enrich businesses with services, engagements, badges and video badges (server-side)
+    // so the model can filter on real criteria (services, RSE, certifications, video tags…).
+    const enrichment: Record<string, { services?: string[]; engagements?: string[]; badges?: string[]; video_badges?: string[] }> = {};
+    if (businessIds.length > 0) {
+      const [bizRows, badgeLinks, videoRows] = await Promise.all([
+        sb.from("businesses").select("id, services, engagements").in("id", businessIds),
+        sb.from("business_badges").select("business_id, badges(name_fr)").in("business_id", businessIds),
+        sb.from("business_youtube_videos")
+          .select("business_id, business_youtube_video_badges(badges(name_fr))")
+          .in("business_id", businessIds)
+          .eq("is_visible", true),
+      ]);
+      (bizRows.data || []).forEach((r: any) => {
+        enrichment[r.id] = enrichment[r.id] || {};
+        enrichment[r.id].services = Array.isArray(r.services) ? r.services.filter(Boolean) : [];
+        enrichment[r.id].engagements = Array.isArray(r.engagements) ? r.engagements.filter(Boolean) : [];
+      });
+      (badgeLinks.data || []).forEach((r: any) => {
+        const name = r.badges?.name_fr;
+        if (!name) return;
+        enrichment[r.business_id] = enrichment[r.business_id] || {};
+        (enrichment[r.business_id].badges = enrichment[r.business_id].badges || []).push(name);
+      });
+      (videoRows.data || []).forEach((r: any) => {
+        const names = (r.business_youtube_video_badges || []).map((x: any) => x.badges?.name_fr).filter(Boolean);
+        if (names.length === 0) return;
+        enrichment[r.business_id] = enrichment[r.business_id] || {};
+        const arr = (enrichment[r.business_id].video_badges = enrichment[r.business_id].video_badges || []);
+        names.forEach((n: string) => { if (!arr.includes(n)) arr.push(n); });
+      });
+    }
+
+    // Fetch knowledge entries to enrich AI context
+    const queryTerms = query.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
+    let knowledgeContext = "";
     const knowledgeEntries: any[] = [];
-    
+
     // 1. Fetch by business_id link
     if (businessIds.length > 0) {
       const { data: linkedRows } = await sb
@@ -73,7 +105,7 @@ serve(async (req) => {
         .limit(10);
       if (linkedRows) knowledgeEntries.push(...linkedRows);
     }
-    
+
     // 2. Fetch by text matching (existing logic)
     if (queryTerms.length > 0) {
       const aiCategories = ["general", "tourisme", "culture", "gastronomie"];
@@ -86,14 +118,13 @@ serve(async (req) => {
         .or(orFilters)
         .limit(5);
       if (knowledgeRows) {
-        // Deduplicate by title
         const existingTitles = new Set(knowledgeEntries.map((k: any) => k.title));
         for (const row of knowledgeRows) {
           if (!existingTitles.has((row as any).title)) knowledgeEntries.push(row);
         }
       }
     }
-    
+
     if (knowledgeEntries.length > 0) {
       knowledgeContext = knowledgeEntries
         .map((k: any) => {
@@ -103,7 +134,7 @@ serve(async (req) => {
         .join("\n");
       console.log(`Found ${knowledgeEntries.length} knowledge entries for query "${query}" (${businessIds.length} by business link)`);
     }
-    
+
     const businessContext = hasResults
       ? topBusinesses.map((b: any, i: number) => {
           const parts = [`${i + 1}. ${b.name}`];
@@ -111,8 +142,12 @@ serve(async (req) => {
           if (b.city) parts.push(`(${b.city})`);
           if (b.main_category) parts.push(`— ${b.main_category}`);
           if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
-          // rating intentionally excluded — never expose scores in AI text
           if (b.categories?.length) parts.push(`— Sous-catégories: ${b.categories.join(", ")}`);
+          const enr = b.id ? enrichment[b.id] : undefined;
+          if (enr?.services?.length) parts.push(`— Services: ${enr.services.slice(0, 30).join(", ")}`);
+          if (enr?.engagements?.length) parts.push(`— Engagements: ${enr.engagements.slice(0, 20).join(", ")}`);
+          if (enr?.badges?.length) parts.push(`— Badges: ${enr.badges.slice(0, 15).join(", ")}`);
+          if (enr?.video_badges?.length) parts.push(`— Badges vidéos: ${enr.video_badges.slice(0, 15).join(", ")}`);
           return parts.join(" ");
         }).join("\n")
       : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)";
@@ -152,7 +187,7 @@ RÈGLES :
 - FORMATAGE : Utilise du markdown riche pour structurer ta réponse. Gras (**texte**), italique (*texte*), listes à puces (- item), listes numérotées (1. item), et sauts de paragraphe. Pas de titres (#). Structure bien ta réponse avec des paragraphes et des listes quand c'est pertinent.
 - Commence par une phrase d'accroche engageante liée à la recherche, puis laisse DEUX lignes vides avant de continuer avec les recommandations.
 - ${tone}
-- Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}${vary ? `\n- IMPORTANT : L'utilisateur demande une suggestion DIFFÉRENTE (tentative #${vary}). Change l'angle d'approche, l'ordre de présentation, le style d'accroche et mets en avant des établissements différents ou des aspects différents. Sois créatif et surprenant.` : ''}${isRefinement ? `\n- AFFINEMENT : L'utilisateur précise sa recherche initiale avec un nouveau critère. Filtre STRICTEMENT la liste fournie pour ne citer QUE les établissements qui correspondent réellement à ce critère (analyse le nom, les sous-catégories et le hook de chaque établissement). N'hésite PAS à re-citer un établissement déjà mentionné précédemment s'il correspond au nouveau critère — la pertinence prime sur la nouveauté. Si AUCUN établissement de la liste ne correspond clairement au critère, dis-le honnêtement plutôt que d'en citer qui ne correspondent pas. Ne cite jamais un établissement uniquement parce qu'il n'a pas encore été mentionné.` : ''}
+- Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}${vary ? `\n- IMPORTANT : L'utilisateur demande une suggestion DIFFÉRENTE (tentative #${vary}). Change l'angle d'approche, l'ordre de présentation, le style d'accroche et mets en avant des établissements différents ou des aspects différents. Sois créatif et surprenant.` : ''}${isRefinement ? `\n- AFFINEMENT : L'utilisateur précise sa recherche initiale avec un nouveau critère. Filtre STRICTEMENT la liste fournie pour ne citer QUE les établissements qui correspondent réellement à ce critère. Analyse TOUS les champs disponibles pour chaque établissement : nom, sous-catégories, hook, Services, Engagements (RSE/certifications), Badges (badges de l'établissement) et Badges vidéos (thématiques des vidéos liées). N'hésite PAS à re-citer un établissement déjà mentionné précédemment s'il correspond au nouveau critère — la pertinence prime sur la nouveauté. Si AUCUN établissement de la liste ne correspond clairement au critère, dis-le honnêtement plutôt que d'en citer qui ne correspondent pas. Ne cite jamais un établissement uniquement parce qu'il n'a pas encore été mentionné.` : ''}
 
 ${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS" : "ÉTABLISSEMENTS TROUVÉS"} :
 ${businessContext}${knowledgeContext ? `
