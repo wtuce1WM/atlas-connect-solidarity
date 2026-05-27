@@ -2628,23 +2628,31 @@ const SearchPage = () => {
         }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {[
             { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
+            { key: "ai", icon: <Bot className="h-4 w-4" />, label: language === "en" ? "AI Suggestion" : language === "ar" ? "اقتراح الذكاء" : "Suggestion IA" },
             ...(badgeIdParam && badgeLabelParam ? [{ key: "hashtag", label: badgeLabelParam, count: hashtagCount }] : []),
             { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },
             { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
-          ].map((tab) => (
+          ].map((tab) => {
+            const isAiTab = tab.key === "ai";
+            const isActive = isAiTab ? showAiPopup : activeTab === tab.key;
+            return (
             <button
               key={tab.key}
-              data-active-tab={activeTab === tab.key ? "true" : undefined}
+              data-active-tab={isActive ? "true" : undefined}
               onClick={(e) => {
-                resetPanelStates();
-                setCompactPanelBusiness(null);
-                setIsCompactPanelExpanded(false);
-                setOverlaySelectedBusiness(null);
-                setIsOverlayPanelExpanded(false);
-                setActiveTab(tab.key as any);
-                setHideResultsMap(false);
-                setHidePoiMap(false);
-                setHideDestMap(false);
+                if (isAiTab) {
+                  setShowAiPopup(true);
+                } else {
+                  resetPanelStates();
+                  setCompactPanelBusiness(null);
+                  setIsCompactPanelExpanded(false);
+                  setOverlaySelectedBusiness(null);
+                  setIsOverlayPanelExpanded(false);
+                  setActiveTab(tab.key as any);
+                  setHideResultsMap(false);
+                  setHidePoiMap(false);
+                  setHideDestMap(false);
+                }
                 const btn = e.currentTarget;
                 const container = btn.parentElement;
                 if (container) {
@@ -2653,11 +2661,12 @@ const SearchPage = () => {
                 }
               }}
               className={`flex items-center gap-2 px-3 py-2 text-xs font-bold transition-colors border-b-2 whitespace-nowrap ${
-                activeTab === tab.key
-                  ? "border-primary text-primary"
+                isActive
+                  ? (isAiTab ? "border-gold text-gold" : "border-primary text-primary")
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
+
               {tab.icon}
               {tab.label}
               {tab.count !== undefined && tab.count > 0 && (
