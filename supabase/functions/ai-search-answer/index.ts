@@ -53,12 +53,10 @@ serve(async (req) => {
     const hasResults = topBusinesses.length > 0;
 
 
-    // Fetch relevant knowledge entries to enrich AI context
-    const queryTerms = query.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
-    let knowledgeContext = "";
-    
     // Collect business IDs from results for direct linking
     const businessIds = topBusinesses.map((b: any) => b.id).filter(Boolean);
+
+
 
     // Enrich businesses with services, engagements, badges and video badges (server-side)
     // so the model can filter on real criteria (services, RSE, certifications, video tags…).
