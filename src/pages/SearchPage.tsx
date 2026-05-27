@@ -3161,7 +3161,104 @@ const SearchPage = () => {
                 })()}
               </div>
 
+              {/* Refinement chat — multi-turn "Affinez votre demande" */}
+              {activeTab !== "poi" && activeTab !== "destinations" && aiAnswerText && !isAiRegenerating && (() => {
+                const userTurns = aiChat.filter((m) => m.role === "user").length;
+                const reachedCap = userTurns >= AI_CHAT_MAX_TURNS;
+                return (
+                  <div className="mt-8 pt-6 border-t border-border/60">
+                    {/* Chat history */}
+                    {aiChat.length > 0 && (
+                      <div className="flex flex-col gap-4 mb-4">
+                        {aiChat.map((m, idx) => (
+                          <div key={idx} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
+                            {m.role === "user" ? (
+                              <div className="max-w-[80%] rounded-2xl bg-primary text-primary-foreground px-4 py-2 text-sm">
+                                {m.content}
+                              </div>
+                            ) : (
+                              <div className="max-w-[90%] text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
+                                {parseInline(
+                                  m.content,
+                                  allBusinesses as unknown as AIBusinessData[],
+                                  (b: AIBusinessData) => {
+                                    setShowAiPopup(false);
+                                    setOverlaySelectedBusiness(null);
+                                    openCompactPanel(b);
+                                  },
+                                  `ai-chat-${idx}`
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {aiChatLoading && (
+                          <div className="flex justify-start">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground italic">
+                              <Loader2 className="h-4 w-4 animate-spin text-gold" />
+                              {language === "en" ? "Thinking…" : language === "ar" ? "جارٍ التفكير…" : "Réflexion…"}
+                            </div>
+                          </div>
+                        )}
+                        {aiChatError && (
+                          <p className="text-xs text-destructive text-center">{aiChatError}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Composer */}
+                    {!reachedCap ? (
+                      <form
+                        onSubmit={(e) => { e.preventDefault(); submitAiRefinement(); }}
+                        className="flex items-end gap-2"
+                      >
+                        <textarea
+                          value={aiChatInput}
+                          onChange={(e) => setAiChatInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              submitAiRefinement();
+                            }
+                          }}
+                          rows={1}
+                          placeholder={
+                            language === "en"
+                              ? "Refine your request (e.g. with a sea view, under 300 MAD…)"
+                              : language === "ar"
+                              ? "حسّن طلبك…"
+                              : "Affinez votre demande (ex : avec vue mer, moins de 300 MAD…)"
+                          }
+                          disabled={aiChatLoading}
+                          className="flex-1 min-h-[44px] max-h-32 resize-none rounded-2xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-50"
+                        />
+                        <button
+                          type="submit"
+                          disabled={aiChatLoading || !aiChatInput.trim()}
+                          className="shrink-0 w-11 h-11 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                          aria-label={language === "en" ? "Send" : "Envoyer"}
+                        >
+                          {aiChatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        </button>
+                      </form>
+                    ) : (
+                      <p className="text-xs text-center text-muted-foreground italic">
+                        {language === "en"
+                          ? `Refinement limit reached (${AI_CHAT_MAX_TURNS} turns). Start a new search to continue.`
+                          : `Limite d'affinement atteinte (${AI_CHAT_MAX_TURNS} échanges). Lancez une nouvelle recherche pour continuer.`}
+                      </p>
+                    )}
+                    <p className="mt-2 text-[10px] text-center text-muted-foreground">
+                      {language === "en"
+                        ? `${userTurns}/${AI_CHAT_MAX_TURNS} refinements used`
+                        : `${userTurns}/${AI_CHAT_MAX_TURNS} affinements utilisés`}
+                    </p>
+                  </div>
+                );
+              })()}
+
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
+
               <div className="flex flex-col items-center gap-4 pt-14 pb-24">
                 <button
                   onClick={closeToResults}
