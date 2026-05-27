@@ -203,7 +203,7 @@ const AppContent = () => {
               <Route path="*" element={renderLazyRoute(<NotFound />)} />
             </Routes>
           </RouteTransition>
-          <GlobalFloatingSearchBar />
+          
           <FloatingButtonsGuard activePanel={activePanel} setActivePanel={setActivePanel} />
         </BrowserRouter>
         </TooltipProvider>
