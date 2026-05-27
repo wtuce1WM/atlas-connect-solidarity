@@ -126,7 +126,14 @@ export default function SearchResultCard({ business, index, labelLogos, distance
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
       <div className="absolute top-2 right-2 z-[20]" onClick={(e) => e.stopPropagation()}>
-        <BookmarkButton businessId={business.id} />
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("open-club-panel"))}
+          className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+          aria-label="Le Club OWM"
+          title="Le Club OWM"
+        >
+          <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+        </button>
       </div>
 
       {/* Top-left badges */}
