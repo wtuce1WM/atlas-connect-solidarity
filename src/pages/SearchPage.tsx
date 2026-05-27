@@ -3011,7 +3011,7 @@ const SearchPage = () => {
             })()}
 
             {/* Subcategory disambiguation — only for Results tab */}
-            {activeTab === "suggestions" && !selectedSubcategoryFilter && !detectedSubcategory && (selectedCategoryFilter || detectedCategory) && (() => {
+            {(activeTab === "suggestions" || activeTab === "ai") && !selectedSubcategoryFilter && !detectedSubcategory && (selectedCategoryFilter || detectedCategory) && (() => {
               const effectiveCat = selectedCategoryFilter || detectedCategory;
               const subCounts: Record<string, number> = {};
               for (const b of allBusinesses) {
