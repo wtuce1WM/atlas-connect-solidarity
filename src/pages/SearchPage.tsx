@@ -3866,7 +3866,7 @@ const SearchPage = () => {
             openCompactPanel={openCompactPanel}
             getDistanceKm={getDistanceKm}
             setShowMobileMap={setShowMobileMap}
-            setShowAiPopup={setShowAiPopup}
+            setShowAiPopup={(v) => { if (v) { setShowAiPopup(false); setActiveTab("ai"); } else { setShowAiPopup(false); } }}
             t={t}
             effectiveCity={effectiveCityForMap}
             onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
