@@ -1735,6 +1735,7 @@ const SearchPage = () => {
     // Use allCityMapBusinesses when available, fall back to filteredBusinesses
     const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
     const matching = pool.filter(b =>
+      (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
       b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
     );
     matching.sort((a, b) => {
@@ -1755,7 +1756,10 @@ const SearchPage = () => {
   const fsMatchingCount = useMemo(() => {
     if (!fsFilterSubcategories) return 0;
     const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
-    return pool.filter(b => b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))).length;
+    return pool.filter(b =>
+      (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
+      b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
+    ).length;
   }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses]);
 
   // Desktop map items
@@ -3798,9 +3802,12 @@ const SearchPage = () => {
                            type="button"
                            onClick={() => {
                              const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0) ? allCityMapBusinesses : filteredBusinesses;
-                             const ids = pool
-                               .filter(b => b.categories?.some((cat: string) => activeFsTab.subcategoryNames.has(cat)))
-                               .map(b => b.id);
+                              const ids = pool
+                                .filter(b =>
+                                  (b.main_category && activeFsTab.subcategoryNames.has(b.main_category)) ||
+                                  b.categories?.some((cat: string) => activeFsTab.subcategoryNames.has(cat))
+                                )
+                                .map(b => b.id);
                              if (ids.length === 0) return;
                              const q = `${activeFsTab.name}${effectiveCityForMap ? ` à ${effectiveCityForMap}` : ''}`;
                              setShowMobileMap(false);
