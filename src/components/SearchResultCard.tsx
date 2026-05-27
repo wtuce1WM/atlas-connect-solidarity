@@ -127,7 +127,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
 
       <div className="absolute top-2 right-2 z-[20]" onClick={(e) => e.stopPropagation()}>
         <button
-          onClick={() => window.dispatchEvent(new CustomEvent("open-club-panel"))}
+          onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
           className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
           aria-label="Le Club OWM"
           title="Le Club OWM"
