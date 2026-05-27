@@ -1619,6 +1619,36 @@ serve(async (req) => {
         if (intentCategories.length > 0) break;
       }
     }
+    // Fallback: if no intent word matched, check whether the query directly names a main category
+    // (e.g. "restauration", "hôtellerie", "tourisme", "santé"…)
+    let queryIsMainCategory = false;
+    if (intentCategories.length === 0) {
+      const { data: mainCats } = await supabase
+        .from("categories")
+        .select("name_fr, name_en, name_ar");
+      if (mainCats && mainCats.length > 0) {
+        const queriesToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
+        const catLookup: { norm: string; name: string }[] = [];
+        for (const c of mainCats) {
+          for (const n of [c.name_fr, c.name_en, c.name_ar].filter(Boolean) as string[]) {
+            catLookup.push({ norm: stripAccentsGlobal(n.toLowerCase().trim()), name: c.name_fr });
+          }
+        }
+        outer: for (const q of queriesToCheck) {
+          const qNorm = stripAccentsGlobal(q.toLowerCase().trim());
+          const qWords = new Set(qNorm.split(/\s+/).filter(Boolean));
+          for (const { norm, name } of catLookup) {
+            if (qNorm === norm || qWords.has(norm)) {
+              intentCategories = [name];
+              intentMergeOnConflict = true;
+              queryIsMainCategory = true;
+              console.log(`Main-category match "${norm}" → category "${name}"`);
+              break outer;
+            }
+          }
+        }
+      }
+    }
     // Backward compat: single intentCategory for conflict detection and response
     const intentCategory: string | null = intentCategories.length > 0 ? intentCategories[0] : null;
     // Build effective categories array for filtering
@@ -4309,14 +4339,16 @@ serve(async (req) => {
     // fall back to showing all businesses of that category in the detected city.
     // Example: "dormir face au coucher de soleil à essaouira" → FTS matches random businesses,
     // but none are in Essaouira → fetch all "Hôtellerie" businesses in Essaouira instead.
-    if (businesses.length > 0 && effectiveCity && intentCategory && !detectedSubcategory) {
+    if (businesses.length >= 0 && effectiveCity && intentCategory && !detectedSubcategory) {
       const cityLower = effectiveCity.toLowerCase();
       const hasAnyInCity = businesses.some((b: any) => {
         if ((b.city || "").toLowerCase() === cityLower) return true;
         if (effectiveCityId && b.zone_city_ids?.includes(effectiveCityId) && b.is_visible_locale) return true;
         return false;
       });
-      if (!hasAnyInCity) {
+      // Trigger fallback when no in-city results OR when the query is just a main category name
+      // (in which case FTS results are too narrow — we want the whole category in the city)
+      if (!hasAnyInCity || queryIsMainCategory) {
         console.log(`Intent+city fallback: FTS returned ${businesses.length} results but NONE in "${effectiveCity}" — fetching by category "${intentCategory}"`);
         let catCityBuilder = supabase.from("businesses").select("*").eq("is_active", true);
         catCityBuilder = applyCityFilter(catCityBuilder);
@@ -4986,7 +5018,7 @@ serve(async (req) => {
     const hasExactNameMatch = businesses.some(b => stripAccentsGlobal(b.name.toLowerCase()) === queryNorm);
     let disambiguationType: "needs_category" | "needs_city" | null = null;
     if (!hasExactNameMatch && businesses.length > 5) {
-      if (hasCity && !hasSubcategory && businesses.length > 10) {
+      if (hasCity && !hasSubcategory && !hasCategory && businesses.length > 10) {
         disambiguationType = "needs_category";
       } else if ((hasSubcategory || hasCategory) && !hasCity) {
         disambiguationType = "needs_city";
