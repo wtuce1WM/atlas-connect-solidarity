@@ -297,10 +297,12 @@ const SearchPage = () => {
   // Multi-turn refinement chat — extends the initial aiAnswerText with follow-up Q/A.
   // Cap at 4 user turns to keep token cost bounded.
   const AI_CHAT_MAX_TURNS = 4;
+  const aiRefinementSpokenText = searchParams.get("spoken") || "";
   const [aiChat, setAiChat] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [aiChatInput, setAiChatInput] = useState("");
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
+  const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
@@ -334,7 +336,15 @@ const SearchPage = () => {
     setAiChat([]);
     setAiChatInput("");
     setAiChatError(null);
+    setAiRefinementBusinessPool([]);
   }, [aiAnswerText]);
+
+  const aiInlineBusinessPool = useMemo(() => {
+    const byId = new globalThis.Map<string, Business>();
+    for (const b of allBusinesses || []) byId.set(b.id, b);
+    for (const b of aiRefinementBusinessPool) byId.set(b.id, b);
+    return Array.from(byId.values()) as unknown as AIBusinessData[];
+  }, [allBusinesses, aiRefinementBusinessPool]);
 
   // Submit a refinement turn — calls ai-search-answer with history of past turns
   const submitAiRefinement = useCallback(async (explicitText?: string) => {
@@ -351,7 +361,50 @@ const SearchPage = () => {
     setAiChat((prev) => [...prev, { role: "user", content: q }]);
     if (explicitText === undefined) setAiChatInput("");
     try {
-      const businesses = (allBusinesses || []).slice(0, 60).map((b) => ({
+      let refinementPool: Business[] = allBusinesses || [];
+      const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
+      if (!pinIdsParam && totalCount && totalCount > refinementPool.length) {
+        try {
+          const { data: fullData, error: fullError } = await supabase.functions.invoke<SearchResult>("business-search", {
+            body: {
+              query: useSubcatBypass ? undefined : (searchQuery.trim() || categoryFromUrl || undefined),
+              spoken: useSubcatBypass ? undefined : (aiRefinementSpokenText || undefined),
+              language,
+              pageSize: Math.min(totalCount, 250),
+              offset: 0,
+              compact: "card",
+              ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : (cityFromUrl ? { city: cityFromUrl } : {})),
+            }
+          });
+          if (!fullError && fullData?.businesses?.length) {
+            refinementPool = fullData.businesses;
+            setAiRefinementBusinessPool(fullData.businesses);
+          }
+        } catch (poolError) {
+          console.warn("AI refinement full pool fetch failed:", poolError);
+        }
+      }
+
+      const qNorm = normalizeText(q);
+      const isPoolQuery = /\b(piscine|pool|beach\s*club)\b/.test(qNorm);
+      const dedupedPool = Array.from(new globalThis.Map<string, Business>(refinementPool.map((b) => [b.id, b])).values());
+      const orderedPool = isPoolQuery
+        ? [
+            ...dedupedPool.filter((b) => {
+              const tags = [
+                b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
+                ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
+              ].filter(Boolean).map((v) => normalizeText(String(v)));
+              return tags.some((tag) => tag.includes("piscine") || tag.includes("pool") || tag.includes("beach club"));
+            }),
+            ...dedupedPool.filter((b) => {
+              const tags = [b.name, b.main_category, ...(b.categories || []), ...(b.services || [])]
+                .filter(Boolean).map((v) => normalizeText(String(v)));
+              return !tags.some((tag) => tag.includes("piscine") || tag.includes("pool") || tag.includes("beach club"));
+            }),
+          ]
+        : dedupedPool;
+      const businesses = orderedPool.slice(0, 200).map((b) => ({
         id: b.id, name: b.name, city: b.city, main_category: b.main_category,
         categories: b.categories, hook_fr: b.hook_fr, wtuce_status: b.wtuce_status,
       }));
@@ -371,7 +424,7 @@ const SearchPage = () => {
     } finally {
       setAiChatLoading(false);
     }
-  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language]);
+  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, aiRefinementSpokenText]);
 
 
 
@@ -3171,7 +3224,7 @@ const SearchPage = () => {
                           <div className="opacity-60">
                             {parseInline(
                               fallbackPrev,
-                              allBusinesses as unknown as AIBusinessData[],
+                              aiInlineBusinessPool,
                               () => {},
                               "ai-popup-prev"
                             )}
@@ -3202,7 +3255,7 @@ const SearchPage = () => {
                     ? allPois.map(p => ({ id: p.id, name: p.name, city: p.city || "", main_category: null, categories: null, hook_fr: null, rating: p.rating ?? null, wtuce_status: null, images: p.images ?? null, neighborhood: p.neighborhood ?? null }))
                     : activeTab === "destinations"
                     ? allDestItems.map(d => ({ id: d.id, name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: "", main_category: null, categories: null, hook_fr: d.hook, rating: null, wtuce_status: null, images: d.images ?? (d.image_url ? [d.image_url] : null) }))
-                    : allBusinesses as unknown as AIBusinessData[];
+                    : aiInlineBusinessPool;
                   return parseInline(
                     currentAiText,
                     linkDataSource,
@@ -3238,13 +3291,13 @@ const SearchPage = () => {
               {activeTab !== "poi" && activeTab !== "destinations" && (() => {
                 const currentAiText = aiAnswerText;
                 if (!currentAiText) return null;
-                const cited = extractCitedBusinesses(currentAiText, allBusinesses as unknown as AIBusinessData[]);
+                const cited = extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
                 return (
                   <div className="mt-6 -mx-4 sm:mx-0">
                     <div className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
                       {cited.map((b, idx) => {
-                        const full = allBusinesses.find(x => x.id === b.id);
+                        const full = (aiInlineBusinessPool as unknown as Business[]).find(x => x.id === b.id);
                         if (!full) return null;
                         return (
                           <div key={b.id} className="shrink-0 w-64 sm:w-72">
@@ -3289,7 +3342,7 @@ const SearchPage = () => {
                               <div className="max-w-[90%] text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
                                 {parseInline(
                                   m.content,
-                                  allBusinesses as unknown as AIBusinessData[],
+                                  aiInlineBusinessPool,
                                   (b: AIBusinessData) => {
                                     setShowAiPopup(false);
                                     setOverlaySelectedBusiness(null);
