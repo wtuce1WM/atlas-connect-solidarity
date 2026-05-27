@@ -284,6 +284,12 @@ const SearchPage = () => {
   
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
+  // Previous AI text kept visible while a new one regenerates (subcategory/city change)
+  const [prevAiAnswerText, setPrevAiAnswerText] = useState<string>("");
+  const regenerateAiAnswer = useCallback(() => {
+    setPrevAiAnswerText((prev) => (aiAnswerText ? aiAnswerText : prev));
+    setAiAnswerText("");
+  }, [aiAnswerText]);
   const [poiAiText, setPoiAiText] = useState<string>("");
   const [destAiText, setDestAiText] = useState<string>("");
   const [isPoiAiLoading, setIsPoiAiLoading] = useState(false);
@@ -299,6 +305,7 @@ const SearchPage = () => {
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
     setAiAnswerText(answer);
+    setPrevAiAnswerText("");
     // Persist for reuse in slide-panel AI overlay
     try {
       sessionStorage.setItem("ai_suggestion_text", answer);
@@ -2998,6 +3005,7 @@ const SearchPage = () => {
                                 setSelectedCategoryFilter(singleCat);
                                 setSelectedSubcategoryFilter(sub.name);
                                 setOverlaySelectedBusiness(null);
+                                setPrevAiAnswerText(aiAnswerText);
                                 setAiAnswerText("");
                                 setAiRegenerateKey(k => k + 1);
                               }}
@@ -3028,7 +3036,8 @@ const SearchPage = () => {
                             onClick={() => {
                               setSelectedCategoryFilter(cat);
                               setOverlaySelectedBusiness(null);
-                              setAiAnswerText("");
+                              setPrevAiAnswerText(aiAnswerText);
+                                setAiAnswerText("");
                               setAiRegenerateKey(k => k + 1);
                             }}
                             className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
@@ -3066,7 +3075,8 @@ const SearchPage = () => {
                             if (!selectedCategoryFilter && effectiveCat) setSelectedCategoryFilter(effectiveCat);
                             setSelectedSubcategoryFilter(sub.name);
                             setOverlaySelectedBusiness(null);
-                            setAiAnswerText("");
+                            setPrevAiAnswerText(aiAnswerText);
+                                setAiAnswerText("");
                             setAiRegenerateKey(k => k + 1);
                           }}
                           className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
@@ -3096,7 +3106,8 @@ const SearchPage = () => {
                           setIsGeoCityAutoSelected(false);
                           setOverlaySelectedBusiness(null);
                           // Regenerate AI text with the new city filter
-                          setAiAnswerText("");
+                          setPrevAiAnswerText(aiAnswerText);
+                                setAiAnswerText("");
                           setAiRegenerateKey(k => k + 1);
                         }}
                         className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
@@ -3129,7 +3140,8 @@ const SearchPage = () => {
                           onClick={() => {
                             setSelectedServiceFilter(isActive ? null : sf.name);
                             setOverlaySelectedBusiness(null);
-                            setAiAnswerText("");
+                            setPrevAiAnswerText(aiAnswerText);
+                                setAiAnswerText("");
                             setAiRegenerateKey(k => k + 1);
                           }}
                           className={`shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap ${
@@ -3153,13 +3165,26 @@ const SearchPage = () => {
                   const currentAiText = activeTab === "poi" ? poiAiText : activeTab === "destinations" ? destAiText : aiAnswerText;
                   const isCurrentLoading = activeTab === "poi" ? isPoiAiLoading : activeTab === "destinations" ? isDestAiLoading : (!aiAnswerText || isAiRegenerating);
                   if (isCurrentLoading) {
+                    const fallbackPrev = (activeTab !== "poi" && activeTab !== "destinations") ? prevAiAnswerText : "";
                     return (
-                      <div className="flex items-center gap-3 py-8 justify-center">
-                        <Loader2 className="h-6 w-6 animate-spin text-gold" />
-                        <span className="text-sm italic text-muted-foreground">
-                          {language === "en" ? "Generating suggestion…" : language === "ar" ? "جاري إنشاء الاقتراح…" : "Génération de la suggestion…"}
-                        </span>
-                      </div>
+                      <>
+                        {fallbackPrev && (
+                          <div className="opacity-60">
+                            {parseInline(
+                              fallbackPrev,
+                              allBusinesses as unknown as AIBusinessData[],
+                              () => {},
+                              "ai-popup-prev"
+                            )}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-3 py-8 justify-center">
+                          <Loader2 className="h-6 w-6 animate-spin text-gold" />
+                          <span className="text-sm italic text-muted-foreground">
+                            {language === "en" ? "Generating suggestion…" : language === "ar" ? "جاري إنشاء الاقتراح…" : "Génération de la suggestion…"}
+                          </span>
+                        </div>
+                      </>
                     );
                   }
                   if (!currentAiText) {
