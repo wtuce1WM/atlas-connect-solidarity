@@ -3299,8 +3299,7 @@ const SearchPage = () => {
 
               {/* Horizontal scroll of cited businesses */}
               {activeTab !== "poi" && activeTab !== "destinations" && (() => {
-                const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant")?.content;
-                const currentAiText = lastAssistant || aiAnswerText;
+                const currentAiText = aiAnswerText;
                 if (!currentAiText) return null;
                 const cited = extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
@@ -3350,19 +3349,52 @@ const SearchPage = () => {
                                 {m.content}
                               </div>
                             ) : (
-                              <div className="max-w-[90%] text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
-                                {parseInline(
-                                  m.content,
-                                  aiInlineBusinessPool,
-                                  (b: AIBusinessData) => {
-                                    setShowAiPopup(false);
-                                    setOverlaySelectedBusiness(null);
-                                    openCompactPanel(b);
-                                  },
-                                  `ai-chat-${idx}`,
-                                  undefined,
-                                  (b) => setHoveredResultId(b ? b.id : null)
-                                )}
+                              <div className="max-w-[90%] flex flex-col gap-4">
+                                <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
+                                  {parseInline(
+                                    m.content,
+                                    aiInlineBusinessPool,
+                                    (b: AIBusinessData) => {
+                                      setShowAiPopup(false);
+                                      setOverlaySelectedBusiness(null);
+                                      openCompactPanel(b);
+                                    },
+                                    `ai-chat-${idx}`,
+                                    undefined,
+                                    (b) => setHoveredResultId(b ? b.id : null)
+                                  )}
+                                </div>
+                                {(() => {
+                                  const cited = extractCitedBusinesses(m.content, aiInlineBusinessPool);
+                                  if (cited.length === 0) return null;
+                                  return (
+                                    <div className="-mx-4 sm:mx-0">
+                                      <div className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
+                                        {cited.map((b, i) => {
+                                          const full = (aiInlineBusinessPool as unknown as Business[]).find(x => x.id === b.id);
+                                          if (!full) return null;
+                                          return (
+                                            <div key={`${idx}-${b.id}`} className="shrink-0 w-64 sm:w-72">
+                                              <SearchResultCard
+                                                business={{ ...(full as any), engagements: [] }}
+                                                index={i}
+                                                labelLogos={businessLabelLogos[b.id] || []}
+                                                distanceKm={getDistanceKm(full)}
+                                                onClick={() => {
+                                                  setShowAiPopup(false);
+                                                  setOverlaySelectedBusiness(null);
+                                                  openCompactPanel(full as any);
+                                                }}
+                                                onMouseEnter={() => setHoveredResultId(b.id)}
+                                                onMouseLeave={() => setHoveredResultId(null)}
+                                              />
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
                               </div>
                             )}
                           </div>
