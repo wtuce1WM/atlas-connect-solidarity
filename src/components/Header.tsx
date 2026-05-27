@@ -165,7 +165,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
     </div>
   );
 
-  const defaultLeft = isSearchPage ? (
+  const defaultLeft = (
     <Link
       to="/"
       className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors"
@@ -173,16 +173,6 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
     >
       <Home className="h-5 w-5 text-foreground" />
     </Link>
-  ) : (
-    <button
-      type="button"
-      onClick={() => setMenuOpen((v) => !v)}
-      className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors"
-      aria-label="Menu OW"
-      aria-expanded={menuOpen}
-    >
-      <Menu className="h-5 w-5 text-foreground" />
-    </button>
   );
 
   return (
