@@ -2675,7 +2675,9 @@ const SearchPage = () => {
                 </span>
               )}
             </button>
-          ))}
+            );
+          })}
+
         </div>
       } />
 
