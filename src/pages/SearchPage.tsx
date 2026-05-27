@@ -408,7 +408,7 @@ const SearchPage = () => {
     })();
     return () => { cancelled = true; };
   }, [aiAnswerText, totalCount, allBusinesses?.length, searchQuery, searchParams, language, categoryFromUrl]);
-   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations" | "hashtag">(
+   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai">(
      searchParams.get("badgeId") ? "hashtag" : "suggestions"
    );
     useEffect(() => {
@@ -2634,25 +2634,22 @@ const SearchPage = () => {
             { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
           ].map((tab) => {
             const isAiTab = tab.key === "ai";
-            const isActive = isAiTab ? showAiPopup : activeTab === tab.key;
+            const isActive = isAiTab ? (activeTab === "ai" || showAiPopup) : activeTab === tab.key;
             return (
             <button
               key={tab.key}
               data-active-tab={isActive ? "true" : undefined}
               onClick={(e) => {
-                if (isAiTab) {
-                  setShowAiPopup(true);
-                } else {
-                  resetPanelStates();
-                  setCompactPanelBusiness(null);
-                  setIsCompactPanelExpanded(false);
-                  setOverlaySelectedBusiness(null);
-                  setIsOverlayPanelExpanded(false);
-                  setActiveTab(tab.key as any);
-                  setHideResultsMap(false);
-                  setHidePoiMap(false);
-                  setHideDestMap(false);
-                }
+                resetPanelStates();
+                setCompactPanelBusiness(null);
+                setIsCompactPanelExpanded(false);
+                setOverlaySelectedBusiness(null);
+                setIsOverlayPanelExpanded(false);
+                setShowAiPopup(false);
+                setActiveTab(tab.key as any);
+                setHideResultsMap(false);
+                setHidePoiMap(false);
+                setHideDestMap(false);
                 const btn = e.currentTarget;
                 const container = btn.parentElement;
                 if (container) {
@@ -2766,8 +2763,17 @@ const SearchPage = () => {
         />
       )}
 
-      {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
-      {showAiPopup && (() => {
+      {/* AI Suggestion Overlay — fullscreen when triggered from ✨ button, inline when in the "Suggestion IA" tab */}
+      {(showAiPopup || activeTab === "ai") && (() => {
+        const isInline = activeTab === "ai" && !showAiPopup;
+        const closeAi = () => {
+          if (isInline) {
+            setActiveTab("suggestions");
+          } else {
+            setShowAiPopup(false);
+          }
+          setOverlaySelectedBusiness(null);
+        };
         const closeToResults = () => {
           setShowAiPopup(false);
           setOverlaySelectedBusiness(null);
@@ -2780,7 +2786,8 @@ const SearchPage = () => {
           }, 50);
         };
         return (
-        <div className="fixed inset-0 z-[9990] flex bg-white animate-in fade-in duration-200">
+        <div className={isInline ? "relative w-full bg-white flex" : "fixed inset-0 z-[9990] flex bg-white animate-in fade-in duration-200"}>
+
 
           {/* Left panel: AI suggestion */}
           <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
@@ -2820,7 +2827,7 @@ const SearchPage = () => {
             </button>
             {/* Close right */}
             <button
-              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+              onClick={closeAi}
               className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
             >
               <X className="h-5 w-5 text-white" />
@@ -2828,11 +2835,23 @@ const SearchPage = () => {
           </div>
           {/* Desktop close button */}
           <button
-            onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+            onClick={closeAi}
             className="absolute top-6 right-6 p-2 rounded-full bg-black hover:bg-black/80 transition-colors z-10 hidden sm:block"
           >
             <X className="h-6 w-6 text-white" />
           </button>
+          {/* Inline → fullscreen expand button (desktop) */}
+          {isInline && (
+            <button
+              onClick={() => setShowAiPopup(true)}
+              className="absolute top-6 right-20 p-2 rounded-full bg-black hover:bg-black/80 transition-colors z-10 hidden sm:block"
+              title={language === "en" ? "Expand" : language === "ar" ? "تكبير" : "Agrandir"}
+              aria-label={language === "en" ? "Expand" : "Agrandir"}
+            >
+              <Maximize2 className="h-5 w-5 text-white" />
+            </button>
+          )}
+
 
           {/* AI text — scrollable center, wider */}
           <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-4">
