@@ -5018,7 +5018,7 @@ serve(async (req) => {
     const hasExactNameMatch = businesses.some(b => stripAccentsGlobal(b.name.toLowerCase()) === queryNorm);
     let disambiguationType: "needs_category" | "needs_city" | null = null;
     if (!hasExactNameMatch && businesses.length > 5) {
-      if (hasCity && !hasSubcategory && businesses.length > 10) {
+      if (hasCity && !hasSubcategory && !hasCategory && businesses.length > 10) {
         disambiguationType = "needs_category";
       } else if ((hasSubcategory || hasCategory) && !hasCity) {
         disambiguationType = "needs_city";
