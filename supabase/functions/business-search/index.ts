@@ -1619,6 +1619,34 @@ serve(async (req) => {
         if (intentCategories.length > 0) break;
       }
     }
+    // Fallback: if no intent word matched, check whether the query directly names a main category
+    // (e.g. "restauration", "hôtellerie", "tourisme", "santé"…)
+    if (intentCategories.length === 0) {
+      const { data: mainCats } = await supabase
+        .from("categories")
+        .select("name_fr, name_en, name_ar");
+      if (mainCats && mainCats.length > 0) {
+        const queriesToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
+        const catLookup: { norm: string; name: string }[] = [];
+        for (const c of mainCats) {
+          for (const n of [c.name_fr, c.name_en, c.name_ar].filter(Boolean) as string[]) {
+            catLookup.push({ norm: stripAccentsGlobal(n.toLowerCase().trim()), name: c.name_fr });
+          }
+        }
+        outer: for (const q of queriesToCheck) {
+          const qNorm = stripAccentsGlobal(q.toLowerCase().trim());
+          const qWords = new Set(qNorm.split(/\s+/).filter(Boolean));
+          for (const { norm, name } of catLookup) {
+            if (qNorm === norm || qWords.has(norm)) {
+              intentCategories = [name];
+              intentMergeOnConflict = true;
+              console.log(`Main-category match "${norm}" → category "${name}"`);
+              break outer;
+            }
+          }
+        }
+      }
+    }
     // Backward compat: single intentCategory for conflict detection and response
     const intentCategory: string | null = intentCategories.length > 0 ? intentCategories[0] : null;
     // Build effective categories array for filtering
