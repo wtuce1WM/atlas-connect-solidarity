@@ -322,6 +322,52 @@ const SearchPage = () => {
     // even when the user never clicked the speaker. Audio is now generated on demand.
   }, [language, searchQuery, allBusinesses, totalCount]);
 
+  // Reset refinement chat whenever the seed AI text changes (= new search/regeneration)
+  useEffect(() => {
+    setAiChat([]);
+    setAiChatInput("");
+    setAiChatError(null);
+  }, [aiAnswerText]);
+
+  // Submit a refinement turn — calls ai-search-answer with history of past turns
+  const submitAiRefinement = useCallback(async () => {
+    const q = aiChatInput.trim();
+    if (!q || aiChatLoading) return;
+    const userTurns = aiChat.filter((m) => m.role === "user").length;
+    if (userTurns >= AI_CHAT_MAX_TURNS) return;
+    setAiChatError(null);
+    setAiChatLoading(true);
+    const nextHistory = [
+      { role: "assistant" as const, content: aiAnswerText },
+      ...aiChat,
+    ];
+    setAiChat((prev) => [...prev, { role: "user", content: q }]);
+    setAiChatInput("");
+    try {
+      const businesses = (allBusinesses || []).slice(0, 60).map((b) => ({
+        id: b.id, name: b.name, city: b.city, main_category: b.main_category,
+        categories: b.categories, hook_fr: b.hook_fr, wtuce_status: b.wtuce_status,
+      }));
+      const { data, error } = await supabase.functions.invoke("ai-search-answer", {
+        body: { query: q, businesses, language, history: nextHistory },
+      });
+      if (error) throw error;
+      const answer = (data as any)?.answer || "";
+      if (!answer) {
+        setAiChatError(language === "en" ? "No answer received." : "Aucune réponse reçue.");
+      } else {
+        setAiChat((prev) => [...prev, { role: "assistant", content: answer }]);
+      }
+    } catch (e: any) {
+      console.error("AI refinement error:", e);
+      setAiChatError(language === "en" ? "Refinement failed. Try again." : "Échec de l'affinement. Réessayez.");
+    } finally {
+      setAiChatLoading(false);
+    }
+  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language]);
+
+
+
   // When server-side pagination hides part of the results, fetch the full pool once
   // and rewrite sessionStorage so the AI overlay can refine across ALL results (up to 100),
   // not only the visible page (~24).
