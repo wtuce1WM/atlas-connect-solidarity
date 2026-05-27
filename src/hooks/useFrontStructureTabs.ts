@@ -79,11 +79,16 @@ export function useFrontStructureTabs(city: string | null) {
 
         if (matchCount === 0) continue;
 
+        // Include the FS name itself so downstream filters that test against
+        // either main_category or categories[] include both sets of businesses.
+        const filterSet = new Set(subNames);
+        filterSet.add(fs.name);
+
         result.push({
           id: fs.id,
           name: fs.name,
           count: matchCount,
-          subcategoryNames: subNames,
+          subcategoryNames: filterSet,
         });
       }
 
