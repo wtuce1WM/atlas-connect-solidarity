@@ -4377,6 +4377,40 @@ serve(async (req) => {
       }
     }
 
+    // ── Main-category without city fallback ──
+    // When the query is a bare main-category name (e.g. "restauration") and no city is set,
+    // FTS is too narrow (it matches only businesses literally tagged with that word in services).
+    // Fetch the entire category pool so the front-end overlay "Précision requise" can offer
+    // all available cities for that category.
+    if (queryIsMainCategory && !effectiveCity && intentCategory) {
+      console.log(`Main-category no-city fallback: fetching all "${intentCategory}" businesses for overlay city suggestions`);
+      let catBuilder = supabase.from("businesses").select("*").eq("is_active", true);
+      if (effectiveCategories.length > 1) {
+        const catOrClauses = effectiveCategories.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
+        catBuilder = catBuilder.or(catOrClauses);
+      } else {
+        catBuilder = catBuilder.or(`main_category.eq.${intentCategory},categories.cs.{"${intentCategory}"}`);
+      }
+      catBuilder = catBuilder
+        .order("wtuce_status", { ascending: true })
+        .order("priority_score", { ascending: false })
+        .limit(1000);
+      const { data: catData, error: catErr } = await catBuilder;
+      if (!catErr && catData && catData.length > 0) {
+        businesses = catData.map((b: any) => ({
+          ...b,
+          distance_km: latitude && longitude && b.latitude && b.longitude
+            ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+        }));
+        searchLevel = "exact";
+        // Clear any false-positive service detection so downstream doesn't refilter
+        detectedService = null;
+        detectedServices = [];
+        allCandidateServiceNames = [];
+        console.log(`Main-category no-city fallback: ${businesses.length} results for "${intentCategory}"`);
+      }
+    }
+
     // Also handle when FTS returned 0 results with intent category + city
     if (businesses.length === 0 && effectiveCity && intentCategory) {
       console.log(`Intent+city fallback (0 results): fetching by category "${intentCategory}" in "${effectiveCity}"`);
@@ -5026,7 +5060,8 @@ serve(async (req) => {
     }
 
     // ── Post-search city inference: if no city was detected but all results share the same city, infer it ──
-    if (!effectiveCity && businesses.length > 0 && businesses.length <= 50) {
+    // Skip when the query is a bare main-category name — we want the "needs_city" overlay to trigger.
+    if (!effectiveCity && !queryIsMainCategory && businesses.length > 0 && businesses.length <= 50) {
       const citiesInResults = new Set(businesses.map(b => b.city).filter(Boolean));
       if (citiesInResults.size === 1) {
         const inferredCity = [...citiesInResults][0]!;
