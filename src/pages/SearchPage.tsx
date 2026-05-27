@@ -305,6 +305,7 @@ const SearchPage = () => {
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
     setAiAnswerText(answer);
+    setPrevAiAnswerText("");
     // Persist for reuse in slide-panel AI overlay
     try {
       sessionStorage.setItem("ai_suggestion_text", answer);
