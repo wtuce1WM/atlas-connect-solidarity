@@ -1489,7 +1489,7 @@ const SearchPage = () => {
       filtered = [...allBusinesses];
     }
 
-    if (selectedCity && selectedCity !== "all") {
+    if (!isServerPaginatedResults && selectedCity && selectedCity !== "all") {
       const normalizedQuery = normalizeText(searchQuery || "");
       filtered = filtered.filter(b => {
         if (b.city === selectedCity) return true;
@@ -1700,13 +1700,14 @@ const SearchPage = () => {
           pageSize: totalCount,
           offset: 0,
           compact: "card",
+          ...(cityFromUrl ? { city: cityFromUrl } : {}),
         }
       });
       if (cancelled || error || !data) return;
       setAllSearchMapBusinesses((data.businesses || []) as Business[]);
     })();
     return () => { cancelled = true; };
-  }, [showAllSearchMarkers, totalCount, filteredBusinesses.length, allSearchMapBusinesses.length, searchQuery, spokenText, language, categoryFromUrl]);
+  }, [showAllSearchMarkers, totalCount, filteredBusinesses.length, allSearchMapBusinesses.length, searchQuery, spokenText, language, categoryFromUrl, cityFromUrl]);
 
   // Pool used for "Voir tous": full results when fetched, otherwise current page
   const searchMapPool = useMemo(() => {
@@ -2135,7 +2136,7 @@ const SearchPage = () => {
             pageSize: SERVER_PAGE_SIZE,
             offset: 0,
             compact: "card",
-            ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : {}),
+            ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : (cityFromUrl ? { city: cityFromUrl } : {})),
           }
         });
 
@@ -2558,7 +2559,7 @@ const SearchPage = () => {
           pageSize: SERVER_PAGE_SIZE,
           offset,
           compact: "card",
-          ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : {}),
+          ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : (cityFromUrl ? { city: cityFromUrl } : {})),
         }
       });
       if (error) throw error;
@@ -2746,6 +2747,11 @@ const SearchPage = () => {
           onSelectCity={(city) => {
             setSelectedCity(city);
             setIsGeoCityAutoSelected(false);
+            setCurrentPage(1);
+            // Update URL so the search refetches with server-side city filter
+            const next = new URLSearchParams(searchParams);
+            next.set("city", city);
+            setSearchParams(next, { replace: true });
             // If category is already known, dismiss overlay immediately to avoid
             // it reappearing when the new search resets detectedSubcategory
             if (selectedCategoryFilter || detectedSubcategory || detectedCategory) {
