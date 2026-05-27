@@ -5060,7 +5060,8 @@ serve(async (req) => {
     }
 
     // ── Post-search city inference: if no city was detected but all results share the same city, infer it ──
-    if (!effectiveCity && businesses.length > 0 && businesses.length <= 50) {
+    // Skip when the query is a bare main-category name — we want the "needs_city" overlay to trigger.
+    if (!effectiveCity && !queryIsMainCategory && businesses.length > 0 && businesses.length <= 50) {
       const citiesInResults = new Set(businesses.map(b => b.city).filter(Boolean));
       if (citiesInResults.size === 1) {
         const inferredCity = [...citiesInResults][0]!;
