@@ -411,13 +411,17 @@ const SearchPage = () => {
         }
       }
 
-      const qNorm = normalizeText(q);
+      // Accumulate criteria: combine all previous user turns with the new query
+      // so refinements add to (not replace) earlier filters.
+      const previousUserQs = aiChat.filter((m) => m.role === "user").map((m) => m.content);
+      const combinedQ = [...previousUserQs, q].join(" ");
+      const qNorm = normalizeText(combinedQ);
       const STOPWORDS = new Set([
         "avec","sans","pour","dans","des","les","une","un","la","le","de","du","et","ou","au","aux",
         "with","without","for","the","and","or","of","a","an","in","on","to",
         "qui","que","est","sont","plus","moins","tres","tout","tous","toute","toutes",
       ]);
-      const tokens = qNorm.split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !STOPWORDS.has(t));
+      const tokens = Array.from(new Set(qNorm.split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !STOPWORDS.has(t))));
       const dedupedPool = Array.from(new globalThis.Map<string, Business>(refinementPool.map((b) => [b.id, b])).values());
       const scoreBusiness = (b: Business): number => {
         if (tokens.length === 0) return 0;
