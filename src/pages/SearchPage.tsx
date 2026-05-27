@@ -351,7 +351,49 @@ const SearchPage = () => {
     setAiChat((prev) => [...prev, { role: "user", content: q }]);
     if (explicitText === undefined) setAiChatInput("");
     try {
-      const businesses = (allBusinesses || []).slice(0, 60).map((b) => ({
+      let refinementPool: Business[] = allBusinesses || [];
+      const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
+      if (!pinIdsParam && totalCount && totalCount > refinementPool.length) {
+        try {
+          const { data: fullData, error: fullError } = await supabase.functions.invoke<SearchResult>("business-search", {
+            body: {
+              query: useSubcatBypass ? undefined : (searchQuery.trim() || categoryFromUrl || undefined),
+              spoken: useSubcatBypass ? undefined : (spokenText || undefined),
+              language,
+              pageSize: Math.min(totalCount, 250),
+              offset: 0,
+              compact: "card",
+              ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : (cityFromUrl ? { city: cityFromUrl } : {})),
+            }
+          });
+          if (!fullError && fullData?.businesses?.length) {
+            refinementPool = fullData.businesses;
+          }
+        } catch (poolError) {
+          console.warn("AI refinement full pool fetch failed:", poolError);
+        }
+      }
+
+      const qNorm = normalizeText(q);
+      const isPoolQuery = /\b(piscine|pool|beach\s*club)\b/.test(qNorm);
+      const dedupedPool = Array.from(new Map(refinementPool.map((b) => [b.id, b])).values());
+      const orderedPool = isPoolQuery
+        ? [
+            ...dedupedPool.filter((b) => {
+              const tags = [
+                b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
+                ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
+              ].filter(Boolean).map((v) => normalizeText(String(v)));
+              return tags.some((tag) => tag.includes("piscine") || tag.includes("pool") || tag.includes("beach club"));
+            }),
+            ...dedupedPool.filter((b) => {
+              const tags = [b.name, b.main_category, ...(b.categories || []), ...(b.services || [])]
+                .filter(Boolean).map((v) => normalizeText(String(v)));
+              return !tags.some((tag) => tag.includes("piscine") || tag.includes("pool") || tag.includes("beach club"));
+            }),
+          ]
+        : dedupedPool;
+      const businesses = orderedPool.slice(0, 200).map((b) => ({
         id: b.id, name: b.name, city: b.city, main_category: b.main_category,
         categories: b.categories, hook_fr: b.hook_fr, wtuce_status: b.wtuce_status,
       }));
@@ -371,7 +413,7 @@ const SearchPage = () => {
     } finally {
       setAiChatLoading(false);
     }
-  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language]);
+  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, spokenText]);
 
 
 
