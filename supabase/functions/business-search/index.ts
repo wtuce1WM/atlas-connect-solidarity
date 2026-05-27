@@ -4981,7 +4981,7 @@ serve(async (req) => {
     // Also skip when a business name exactly matches the query (name-pinning)
     const hasCity = !!effectiveCity;
     const hasSubcategory = !!detectedSubcategory;
-    const hasCategory = !!intentCategory;
+    const hasCategory = !!intentCategory || !!detectedService || (Array.isArray(detectedServices) && detectedServices.length > 0);
     const queryNorm = stripAccentsGlobal((query || "").trim().toLowerCase());
     const hasExactNameMatch = businesses.some(b => stripAccentsGlobal(b.name.toLowerCase()) === queryNorm);
     let disambiguationType: "needs_category" | "needs_city" | null = null;
