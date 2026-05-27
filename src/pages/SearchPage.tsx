@@ -3053,8 +3053,42 @@ const SearchPage = () => {
               )}
             </div>
 
+            {/* URL-driven subcategory chips (e.g. "Marrakech Restauration") —
+                always visible in the IA/Suggestions tabs when the URL lists
+                several subcategories, so the user can narrow the search. */}
+            {(activeTab === "suggestions" || activeTab === "ai")
+              && subcategoryNamesFromUrl.length > 1
+              && !selectedSubcategoryFilter && (
+              <div className="pb-4">
+                <div className="max-w-3xl mx-auto text-center">
+                  <p className="text-sm font-medium text-foreground mb-3">
+                    {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
+                  </p>
+                  <div className="flex overflow-x-auto gap-2 scrollbar-hide">
+                    {subcategoryNamesFromUrl.map((name) => {
+                      const count = allBusinesses.filter(b => b.categories?.includes(name)).length;
+                      return (
+                        <button
+                          key={name}
+                          onClick={() => {
+                            setSelectedSubcategoryFilter(name);
+                            setOverlaySelectedBusiness(null);
+                            submitAiRefinement(name);
+                          }}
+                          className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
+                        >
+                          {name}
+                          {count > 0 && <span className="ml-1.5 text-xs text-muted-foreground">{count}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Disambiguation prompts — only for Results tab */}
-            {(activeTab === "suggestions" || activeTab === "ai") && !selectedCategoryFilter && !detectedCategory && !selectedSubcategoryFilter && !detectedSubcategory && (() => {
+            {(activeTab === "suggestions" || activeTab === "ai") && !selectedCategoryFilter && !detectedCategory && !selectedSubcategoryFilter && !detectedSubcategory && subcategoryNamesFromUrl.length <= 1 && (() => {
               const cats = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
               // If only 1 category, show subcategories directly
               if (cats.length === 1) {
