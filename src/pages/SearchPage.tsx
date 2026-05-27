@@ -2389,6 +2389,39 @@ const SearchPage = () => {
     })();
   }, [allBusinesses]);
 
+  // Accurate subcategory counts for "Quel type précisément ?" disambiguation
+  // (allBusinesses only contains the current page; we need totals across the full result set)
+  const [disambigSubcatCounts, setDisambigSubcatCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const effectiveCat = selectedCategoryFilter || detectedCategory;
+    const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
+    if (!effectiveCat) {
+      setDisambigSubcatCounts({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      let q = supabase
+        .from("businesses")
+        .select("categories")
+        .eq("is_active", true)
+        .eq("main_category", effectiveCat);
+      if (effectiveCity) q = q.ilike("city", effectiveCity);
+      const { data } = await q;
+      if (cancelled || !data) return;
+      const counts: Record<string, number> = {};
+      for (const b of data) {
+        if (b.categories) {
+          for (const c of b.categories) counts[c] = (counts[c] || 0) + 1;
+        }
+      }
+      setDisambigSubcatCounts(counts);
+    })();
+    return () => { cancelled = true; };
+  }, [selectedCategoryFilter, detectedCategory, selectedCity, detectedCity]);
+
+
+
 
 
 
@@ -3013,17 +3046,10 @@ const SearchPage = () => {
             {/* Subcategory disambiguation — only for Results tab */}
             {(activeTab === "suggestions" || activeTab === "ai") && !selectedSubcategoryFilter && !detectedSubcategory && (selectedCategoryFilter || detectedCategory) && (() => {
               const effectiveCat = selectedCategoryFilter || detectedCategory;
-              const subCounts: Record<string, number> = {};
-              for (const b of allBusinesses) {
-                if (b.main_category === effectiveCat && b.categories) {
-                  for (const c of b.categories) {
-                    subCounts[c] = (subCounts[c] || 0) + 1;
-                  }
-                }
-              }
-              const subcatList = Object.entries(subCounts)
+              const subcatList = Object.entries(disambigSubcatCounts)
                 .sort((a, b) => b[1] - a[1])
                 .map(([name, count]) => ({ name, count }));
+
               if (subcatList.length <= 1) return null;
               return (
                 <div className="pb-4">
