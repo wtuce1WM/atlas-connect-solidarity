@@ -34,8 +34,8 @@ All colors MUST be HSL.
     --gold: 43 75% 55%;
     --gold-foreground: 0 0% 5%;
 
-    --map-surface: 0 0% 6%;
-    --map-surface-foreground: 0 0% 100%;
+    --map-surface: 0 0% 98%;
+    --map-surface-foreground: 0 0% 20%;
     --searchbar-surface: 0 0% 100%;
 
     /* WTUCE Blue */
@@ -98,8 +98,8 @@ All colors MUST be HSL.
     --gold: 43 75% 60%;
     --gold-foreground: 0 0% 5%;
 
-    --map-surface: 0 0% 6%;
-    --map-surface-foreground: 0 0% 100%;
+    --map-surface: 0 0% 98%;
+    --map-surface-foreground: 0 0% 20%;
     --searchbar-surface: 0 0% 100%;
 
 
