@@ -139,7 +139,8 @@ serve(async (req) => {
       ? topBusinesses.map((b: any, i: number) => {
           const parts = [`${i + 1}. ${b.name}`];
           if (b.wtuce_status === "verified") parts.push(`[CONFIANCE]`);
-          if (b.city) parts.push(`(${b.city})`);
+          if (b.city) parts.push(`(${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""})`);
+          if (b.address) parts.push(`— Adresse: ${b.address}`);
           if (b.main_category) parts.push(`— ${b.main_category}`);
           if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
           if (b.categories?.length) parts.push(`— Sous-catégories: ${b.categories.join(", ")}`);
