@@ -3226,6 +3226,9 @@ const SearchPage = () => {
                     "ai-popup",
                     isTTSActive
                       ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
+                      : undefined,
+                    activeTab !== "poi" && activeTab !== "destinations"
+                      ? (b) => setHoveredResultId(b ? b.id : null)
                       : undefined
                   );
                 })()}
