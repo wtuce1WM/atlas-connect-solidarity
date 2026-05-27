@@ -2857,13 +2857,15 @@ const SearchPage = () => {
           <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-4">
             {/* Top section: query + count + top "Voir les résultats" */}
             <div className="pt-2 sm:pt-14 pb-3 text-center">
-              {/* Desktop CTA */}
-              <button
-                onClick={closeToResults}
-                className="hidden sm:inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors mb-4"
-              >
-                {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
-              </button>
+              {/* Desktop CTA — hidden in inline AI tab */}
+              {!isInline && (
+                <button
+                  onClick={closeToResults}
+                  className="hidden sm:inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors mb-4"
+                >
+                  {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
+                </button>
+              )}
               {activeTab === "poi" ? (
                 <>
                   <p className="text-muted-foreground text-sm">
