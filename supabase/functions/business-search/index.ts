@@ -4339,14 +4339,16 @@ serve(async (req) => {
     // fall back to showing all businesses of that category in the detected city.
     // Example: "dormir face au coucher de soleil à essaouira" → FTS matches random businesses,
     // but none are in Essaouira → fetch all "Hôtellerie" businesses in Essaouira instead.
-    if (businesses.length > 0 && effectiveCity && intentCategory && !detectedSubcategory) {
+    if (businesses.length >= 0 && effectiveCity && intentCategory && !detectedSubcategory) {
       const cityLower = effectiveCity.toLowerCase();
       const hasAnyInCity = businesses.some((b: any) => {
         if ((b.city || "").toLowerCase() === cityLower) return true;
         if (effectiveCityId && b.zone_city_ids?.includes(effectiveCityId) && b.is_visible_locale) return true;
         return false;
       });
-      if (!hasAnyInCity) {
+      // Trigger fallback when no in-city results OR when the query is just a main category name
+      // (in which case FTS results are too narrow — we want the whole category in the city)
+      if (!hasAnyInCity || queryIsMainCategory) {
         console.log(`Intent+city fallback: FTS returned ${businesses.length} results but NONE in "${effectiveCity}" — fetching by category "${intentCategory}"`);
         let catCityBuilder = supabase.from("businesses").select("*").eq("is_active", true);
         catCityBuilder = applyCityFilter(catCityBuilder);
