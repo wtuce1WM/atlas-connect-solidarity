@@ -1621,6 +1621,7 @@ serve(async (req) => {
     }
     // Fallback: if no intent word matched, check whether the query directly names a main category
     // (e.g. "restauration", "hôtellerie", "tourisme", "santé"…)
+    let queryIsMainCategory = false;
     if (intentCategories.length === 0) {
       const { data: mainCats } = await supabase
         .from("categories")
@@ -1640,6 +1641,7 @@ serve(async (req) => {
             if (qNorm === norm || qWords.has(norm)) {
               intentCategories = [name];
               intentMergeOnConflict = true;
+              queryIsMainCategory = true;
               console.log(`Main-category match "${norm}" → category "${name}"`);
               break outer;
             }
