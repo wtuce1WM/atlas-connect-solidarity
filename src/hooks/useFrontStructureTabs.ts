@@ -54,7 +54,7 @@ export function useFrontStructureTabs(city: string | null) {
       // 2. Get businesses in this city
       const { data: bizData } = await supabase
         .from("businesses")
-        .select("id, categories")
+        .select("id, main_category, categories")
         .eq("is_active", true)
         .ilike("city", city);
 
@@ -62,13 +62,18 @@ export function useFrontStructureTabs(city: string | null) {
 
       const businesses = bizData || [];
 
-      // 3. For each front_structure, count matching businesses
+      // 3. For each front_structure, count matching businesses.
+      // A business matches the FS if its main_category equals the FS name
+      // OR any of its categories is one of the FS-linked subcategories.
+      // This keeps the chip count aligned with the search results returned
+      // for a bare main-category query (e.g. "Restauration").
       const result: FrontStructureTab[] = [];
       for (const fs of fsEntries) {
         const subNames = fsSubNames.get(fs.id);
         if (!subNames || subNames.size === 0) continue;
 
         const matchCount = businesses.filter(biz =>
+          biz.main_category === fs.name ||
           biz.categories?.some((cat: string) => subNames.has(cat))
         ).length;
 
