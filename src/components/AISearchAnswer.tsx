@@ -97,7 +97,7 @@ const getImage = (b: BusinessData): string | null => {
   return null;
 };
 
-const BusinessHoverCard = ({ business, onClickBusiness }: { name: string; business: BusinessData; onClickBusiness: (b: BusinessData) => void }) => {
+const BusinessHoverCard = ({ business, onClickBusiness, onHoverBusiness }: { name: string; business: BusinessData; onClickBusiness: (b: BusinessData) => void; onHoverBusiness?: (b: BusinessData | null) => void }) => {
   const img = getImage(business);
   const sources = collectRatingSources(business as any);
   const avgOn20 = business.rating ?? computeWeightedRatingOn20(sources);
@@ -109,6 +109,10 @@ const BusinessHoverCard = ({ business, onClickBusiness }: { name: string; busine
         <button
           type="button"
           onClick={() => onClickBusiness(business)}
+          onMouseEnter={() => onHoverBusiness?.(business)}
+          onMouseLeave={() => onHoverBusiness?.(null)}
+          onFocus={() => onHoverBusiness?.(business)}
+          onBlur={() => onHoverBusiness?.(null)}
           className="text-sm sm:text-base font-semibold text-foreground underline decoration-gold/40 underline-offset-2 hover:decoration-gold transition-colors cursor-pointer !normal-case !tracking-normal"
           style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}
         >
