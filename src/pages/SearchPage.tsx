@@ -3467,19 +3467,6 @@ const SearchPage = () => {
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
 
               <div className="flex flex-col items-center gap-4 pt-14 pb-24">
-                <button
-                  onClick={closeToResults}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
-                >
-                  {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                {/* Adresse géolocalisée */}
-                {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
-                  <p className="text-sm text-muted-foreground font-medium">
-                    📍 {geo.confirmedAddress || geo.detectedCity}
-                  </p>
-                )}
                 <div className="flex items-center justify-center gap-16">
                   {/* Listen */}
                   <div className="relative flex items-center justify-center">
@@ -3496,7 +3483,9 @@ const SearchPage = () => {
                     ) : (
                       <button
                         onClick={() => {
-                          const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                          const lastAssistant = [...aiChat].reverse().find(m => m.role === "assistant")?.content;
+                          const sourceText = lastAssistant || aiAnswerText;
+                          const cleanText = sourceText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
                           const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
                           ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
                           voiceLoopRef.current = true;
@@ -3510,7 +3499,14 @@ const SearchPage = () => {
                     )}
                   </div>
                 </div>
+                {/* Adresse géolocalisée sous le speaker */}
+                {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
+                  <p className="text-sm text-muted-foreground font-medium">
+                    📍 {geo.confirmedAddress || geo.detectedCity}
+                  </p>
+                )}
               </div>
+
             </div>
           </div>
           </div>
