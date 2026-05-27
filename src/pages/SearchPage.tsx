@@ -36,7 +36,7 @@ import PoiSection from "@/components/PoiSection";
 import DestinationSection, { type DestinationItem } from "@/components/DestinationSection";
 
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
-import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
+import AISearchAnswer, { parseInline, extractCitedBusinesses, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import SearchResultCard from "@/components/SearchResultCard";
 import AISuggestionCard from "@/components/AISuggestionCard";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
@@ -3233,6 +3233,42 @@ const SearchPage = () => {
                   );
                 })()}
               </div>
+
+              {/* Horizontal scroll of cited businesses */}
+              {activeTab !== "poi" && activeTab !== "destinations" && (() => {
+                const currentAiText = aiAnswerText;
+                if (!currentAiText) return null;
+                const cited = extractCitedBusinesses(currentAiText, allBusinesses as unknown as AIBusinessData[]);
+                if (cited.length === 0) return null;
+                return (
+                  <div className="mt-6 -mx-4 sm:mx-0">
+                    <div className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
+                      {cited.map((b, idx) => {
+                        const full = allBusinesses.find(x => x.id === b.id);
+                        if (!full) return null;
+                        return (
+                          <div key={b.id} className="shrink-0 w-64 sm:w-72">
+                            <SearchResultCard
+                              business={full as any}
+                              index={idx}
+                              labelLogos={businessLabelLogos[b.id] || []}
+                              distanceKm={getDistanceKm(full)}
+                              onClick={() => {
+                                setShowAiPopup(false);
+                                setOverlaySelectedBusiness(null);
+                                openCompactPanel(full as any);
+                              }}
+                              onMouseEnter={() => setHoveredResultId(b.id)}
+                              onMouseLeave={() => setHoveredResultId(null)}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
 
               {/* Refinement chat — multi-turn "Affinez votre demande" */}
               {activeTab !== "poi" && activeTab !== "destinations" && aiAnswerText && !isAiRegenerating && (() => {
