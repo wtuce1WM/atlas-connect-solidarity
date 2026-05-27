@@ -386,27 +386,34 @@ const SearchPage = () => {
       }
 
       const qNorm = normalizeText(q);
-      const isPoolQuery = /\b(piscine|pool|beach\s*club)\b/.test(qNorm);
+      const STOPWORDS = new Set([
+        "avec","sans","pour","dans","des","les","une","un","la","le","de","du","et","ou","au","aux",
+        "with","without","for","the","and","or","of","a","an","in","on","to",
+        "qui","que","est","sont","plus","moins","tres","tout","tous","toute","toutes",
+      ]);
+      const tokens = qNorm.split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !STOPWORDS.has(t));
       const dedupedPool = Array.from(new globalThis.Map<string, Business>(refinementPool.map((b) => [b.id, b])).values());
-      const orderedPool = isPoolQuery
-        ? [
-            ...dedupedPool.filter((b) => {
-              const tags = [
-                b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
-                ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
-              ].filter(Boolean).map((v) => normalizeText(String(v)));
-              return tags.some((tag) => tag.includes("piscine") || tag.includes("pool") || tag.includes("beach club"));
-            }),
-            ...dedupedPool.filter((b) => {
-              const tags = [b.name, b.main_category, ...(b.categories || []), ...(b.services || [])]
-                .filter(Boolean).map((v) => normalizeText(String(v)));
-              return !tags.some((tag) => tag.includes("piscine") || tag.includes("pool") || tag.includes("beach club"));
-            }),
-          ]
+      const scoreBusiness = (b: Business): number => {
+        if (tokens.length === 0) return 0;
+        const blob = normalizeText([
+          b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
+          ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
+          ...((b as any).badges || []), ...((b as any).video_badges || []),
+        ].filter(Boolean).map((v) => String(v)).join(" | "));
+        let score = 0;
+        for (const t of tokens) if (blob.includes(t)) score += 1;
+        return score;
+      };
+      const orderedPool = tokens.length > 0
+        ? [...dedupedPool]
+            .map((b) => ({ b, s: scoreBusiness(b) }))
+            .sort((a, z) => z.s - a.s)
+            .map((x) => x.b)
         : dedupedPool;
       const businesses = orderedPool.slice(0, 200).map((b) => ({
         id: b.id, name: b.name, city: b.city, main_category: b.main_category,
-        categories: b.categories, hook_fr: b.hook_fr, wtuce_status: b.wtuce_status,
+        categories: b.categories, services: b.services, engagements: b.engagements,
+        hook_fr: b.hook_fr, hook_en: b.hook_en, wtuce_status: b.wtuce_status,
       }));
       const { data, error } = await supabase.functions.invoke("ai-search-answer", {
         body: { query: q, businesses, language, history: nextHistory },
