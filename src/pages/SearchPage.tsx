@@ -284,6 +284,12 @@ const SearchPage = () => {
   
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
+  // Previous AI text kept visible while a new one regenerates (subcategory/city change)
+  const [prevAiAnswerText, setPrevAiAnswerText] = useState<string>("");
+  const regenerateAiAnswer = useCallback(() => {
+    setPrevAiAnswerText((prev) => (aiAnswerText ? aiAnswerText : prev));
+    setAiAnswerText("");
+  }, [aiAnswerText]);
   const [poiAiText, setPoiAiText] = useState<string>("");
   const [destAiText, setDestAiText] = useState<string>("");
   const [isPoiAiLoading, setIsPoiAiLoading] = useState(false);
