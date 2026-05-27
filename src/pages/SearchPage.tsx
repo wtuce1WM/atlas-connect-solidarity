@@ -3327,6 +3327,33 @@ const SearchPage = () => {
           </div>
           </div>
 
+          {/* Right panel: Sticky Google Map (inline AI tab only, mirrors Results tab) */}
+          {isInline && hasKnownLocation && !overlaySelectedBusiness && !hideResultsMap && (
+            <div className="w-1/2 sticky top-0 h-screen z-[50] overflow-hidden">
+              <div className="relative h-full min-h-0">
+                <PoiGoogleMap
+                  pois={mapPoiItems}
+                  selectedPoiId={hoveredResultId || fsTopBusinessId || null}
+                  onPoiClick={(poiId) => {
+                    const biz = filteredBusinesses.find(b => b.id === poiId) || allCityMapBusinesses?.find(b => b.id === poiId);
+                    if (biz) openCompactPanel({ id: biz.id, name: biz.name } as any);
+                  }}
+                  center={mapCenterForResults}
+                  fitToMarkers
+                />
+                <button
+                  type="button"
+                  onClick={() => setHideResultsMap(true)}
+                  className="absolute top-3 left-3 z-[80] flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg"
+                  aria-label={language === "en" ? "Hide map" : "Masquer la carte"}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+
           {/* Right panel: Business detail */}
           {overlaySelectedBusiness && (
             <div className={`h-full flex flex-col bg-background animate-in slide-in-from-right duration-300 transition-[width] ease-out relative ${isOverlayPanelExpanded ? "w-full" : "w-1/2"}`}>
