@@ -399,7 +399,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
             </div>
           </div>`;
           infoWindowRef.current?.setContent(html);
-          infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -30) });
+          infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -70) });
           infoWindowRef.current?.setPosition(position);
           infoWindowRef.current?.open(map);
           // Make infowindow clickable + hoverable
