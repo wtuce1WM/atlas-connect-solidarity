@@ -3299,8 +3299,7 @@ const SearchPage = () => {
 
               {/* Horizontal scroll of cited businesses */}
               {activeTab !== "poi" && activeTab !== "destinations" && (() => {
-                const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant")?.content;
-                const currentAiText = lastAssistant || aiAnswerText;
+                const currentAiText = aiAnswerText;
                 if (!currentAiText) return null;
                 const cited = extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
