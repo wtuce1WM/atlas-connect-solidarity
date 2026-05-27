@@ -1489,7 +1489,7 @@ const SearchPage = () => {
       filtered = [...allBusinesses];
     }
 
-    if (selectedCity && selectedCity !== "all") {
+    if (!isServerPaginatedResults && selectedCity && selectedCity !== "all") {
       const normalizedQuery = normalizeText(searchQuery || "");
       filtered = filtered.filter(b => {
         if (b.city === selectedCity) return true;
