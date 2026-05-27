@@ -3802,9 +3802,12 @@ const SearchPage = () => {
                            type="button"
                            onClick={() => {
                              const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0) ? allCityMapBusinesses : filteredBusinesses;
-                             const ids = pool
-                               .filter(b => b.categories?.some((cat: string) => activeFsTab.subcategoryNames.has(cat)))
-                               .map(b => b.id);
+                              const ids = pool
+                                .filter(b =>
+                                  (b.main_category && activeFsTab.subcategoryNames.has(b.main_category)) ||
+                                  b.categories?.some((cat: string) => activeFsTab.subcategoryNames.has(cat))
+                                )
+                                .map(b => b.id);
                              if (ids.length === 0) return;
                              const q = `${activeFsTab.name}${effectiveCityForMap ? ` à ${effectiveCityForMap}` : ''}`;
                              setShowMobileMap(false);
