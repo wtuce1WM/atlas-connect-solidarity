@@ -2389,6 +2389,39 @@ const SearchPage = () => {
     })();
   }, [allBusinesses]);
 
+  // Accurate subcategory counts for "Quel type précisément ?" disambiguation
+  // (allBusinesses only contains the current page; we need totals across the full result set)
+  const [disambigSubcatCounts, setDisambigSubcatCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const effectiveCat = selectedCategoryFilter || detectedCategory;
+    const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
+    if (!effectiveCat) {
+      setDisambigSubcatCounts({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      let q = supabase
+        .from("businesses")
+        .select("categories")
+        .eq("is_active", true)
+        .eq("main_category", effectiveCat);
+      if (effectiveCity) q = q.ilike("city", effectiveCity);
+      const { data } = await q;
+      if (cancelled || !data) return;
+      const counts: Record<string, number> = {};
+      for (const b of data) {
+        if (b.categories) {
+          for (const c of b.categories) counts[c] = (counts[c] || 0) + 1;
+        }
+      }
+      setDisambigSubcatCounts(counts);
+    })();
+    return () => { cancelled = true; };
+  }, [selectedCategoryFilter, detectedCategory, selectedCity, detectedCity]);
+
+
+
 
 
 
