@@ -2933,7 +2933,7 @@ const SearchPage = () => {
             </div>
 
             {/* Disambiguation prompts — only for Results tab */}
-            {activeTab === "suggestions" && !selectedCategoryFilter && !detectedCategory && !selectedSubcategoryFilter && !detectedSubcategory && (() => {
+            {(activeTab === "suggestions" || activeTab === "ai") && !selectedCategoryFilter && !detectedCategory && !selectedSubcategoryFilter && !detectedSubcategory && (() => {
               const cats = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
               // If only 1 category, show subcategories directly
               if (cats.length === 1) {
