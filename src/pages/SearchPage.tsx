@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash, Heart } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash, Heart, Bot, Send } from "lucide-react";
 import ShareButton from "@/components/ShareButton";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
@@ -288,6 +288,13 @@ const SearchPage = () => {
   const [destAiText, setDestAiText] = useState<string>("");
   const [isPoiAiLoading, setIsPoiAiLoading] = useState(false);
   const [isDestAiLoading, setIsDestAiLoading] = useState(false);
+  // Multi-turn refinement chat — extends the initial aiAnswerText with follow-up Q/A.
+  // Cap at 4 user turns to keep token cost bounded.
+  const AI_CHAT_MAX_TURNS = 4;
+  const [aiChat, setAiChat] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [aiChatInput, setAiChatInput] = useState("");
+  const [aiChatLoading, setAiChatLoading] = useState(false);
+  const [aiChatError, setAiChatError] = useState<string | null>(null);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
@@ -314,6 +321,52 @@ const SearchPage = () => {
     // NOTE: TTS preloading removed — it consumed ElevenLabs credits on every search
     // even when the user never clicked the speaker. Audio is now generated on demand.
   }, [language, searchQuery, allBusinesses, totalCount]);
+
+  // Reset refinement chat whenever the seed AI text changes (= new search/regeneration)
+  useEffect(() => {
+    setAiChat([]);
+    setAiChatInput("");
+    setAiChatError(null);
+  }, [aiAnswerText]);
+
+  // Submit a refinement turn — calls ai-search-answer with history of past turns
+  const submitAiRefinement = useCallback(async () => {
+    const q = aiChatInput.trim();
+    if (!q || aiChatLoading) return;
+    const userTurns = aiChat.filter((m) => m.role === "user").length;
+    if (userTurns >= AI_CHAT_MAX_TURNS) return;
+    setAiChatError(null);
+    setAiChatLoading(true);
+    const nextHistory = [
+      { role: "assistant" as const, content: aiAnswerText },
+      ...aiChat,
+    ];
+    setAiChat((prev) => [...prev, { role: "user", content: q }]);
+    setAiChatInput("");
+    try {
+      const businesses = (allBusinesses || []).slice(0, 60).map((b) => ({
+        id: b.id, name: b.name, city: b.city, main_category: b.main_category,
+        categories: b.categories, hook_fr: b.hook_fr, wtuce_status: b.wtuce_status,
+      }));
+      const { data, error } = await supabase.functions.invoke("ai-search-answer", {
+        body: { query: q, businesses, language, history: nextHistory },
+      });
+      if (error) throw error;
+      const answer = (data as any)?.answer || "";
+      if (!answer) {
+        setAiChatError(language === "en" ? "No answer received." : "Aucune réponse reçue.");
+      } else {
+        setAiChat((prev) => [...prev, { role: "assistant", content: answer }]);
+      }
+    } catch (e: any) {
+      console.error("AI refinement error:", e);
+      setAiChatError(language === "en" ? "Refinement failed. Try again." : "Échec de l'affinement. Réessayez.");
+    } finally {
+      setAiChatLoading(false);
+    }
+  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language]);
+
+
 
   // When server-side pagination hides part of the results, fetch the full pool once
   // and rewrite sessionStorage so the AI overlay can refine across ALL results (up to 100),
@@ -2575,23 +2628,31 @@ const SearchPage = () => {
         }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {[
             { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
+            { key: "ai", icon: <Bot className="h-4 w-4" />, label: language === "en" ? "AI Suggestion" : language === "ar" ? "اقتراح الذكاء" : "Suggestion IA" },
             ...(badgeIdParam && badgeLabelParam ? [{ key: "hashtag", label: badgeLabelParam, count: hashtagCount }] : []),
             { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },
             { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
-          ].map((tab) => (
+          ].map((tab) => {
+            const isAiTab = tab.key === "ai";
+            const isActive = isAiTab ? showAiPopup : activeTab === tab.key;
+            return (
             <button
               key={tab.key}
-              data-active-tab={activeTab === tab.key ? "true" : undefined}
+              data-active-tab={isActive ? "true" : undefined}
               onClick={(e) => {
-                resetPanelStates();
-                setCompactPanelBusiness(null);
-                setIsCompactPanelExpanded(false);
-                setOverlaySelectedBusiness(null);
-                setIsOverlayPanelExpanded(false);
-                setActiveTab(tab.key as any);
-                setHideResultsMap(false);
-                setHidePoiMap(false);
-                setHideDestMap(false);
+                if (isAiTab) {
+                  setShowAiPopup(true);
+                } else {
+                  resetPanelStates();
+                  setCompactPanelBusiness(null);
+                  setIsCompactPanelExpanded(false);
+                  setOverlaySelectedBusiness(null);
+                  setIsOverlayPanelExpanded(false);
+                  setActiveTab(tab.key as any);
+                  setHideResultsMap(false);
+                  setHidePoiMap(false);
+                  setHideDestMap(false);
+                }
                 const btn = e.currentTarget;
                 const container = btn.parentElement;
                 if (container) {
@@ -2600,11 +2661,12 @@ const SearchPage = () => {
                 }
               }}
               className={`flex items-center gap-2 px-3 py-2 text-xs font-bold transition-colors border-b-2 whitespace-nowrap ${
-                activeTab === tab.key
-                  ? "border-primary text-primary"
+                isActive
+                  ? (isAiTab ? "border-gold text-gold" : "border-primary text-primary")
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
+
               {tab.icon}
               {tab.label}
               {tab.count !== undefined && tab.count > 0 && (
@@ -2613,7 +2675,9 @@ const SearchPage = () => {
                 </span>
               )}
             </button>
-          ))}
+            );
+          })}
+
         </div>
       } />
 
@@ -3097,7 +3161,104 @@ const SearchPage = () => {
                 })()}
               </div>
 
+              {/* Refinement chat — multi-turn "Affinez votre demande" */}
+              {activeTab !== "poi" && activeTab !== "destinations" && aiAnswerText && !isAiRegenerating && (() => {
+                const userTurns = aiChat.filter((m) => m.role === "user").length;
+                const reachedCap = userTurns >= AI_CHAT_MAX_TURNS;
+                return (
+                  <div className="mt-8 pt-6 border-t border-border/60">
+                    {/* Chat history */}
+                    {aiChat.length > 0 && (
+                      <div className="flex flex-col gap-4 mb-4">
+                        {aiChat.map((m, idx) => (
+                          <div key={idx} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
+                            {m.role === "user" ? (
+                              <div className="max-w-[80%] rounded-2xl bg-primary text-primary-foreground px-4 py-2 text-sm">
+                                {m.content}
+                              </div>
+                            ) : (
+                              <div className="max-w-[90%] text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
+                                {parseInline(
+                                  m.content,
+                                  allBusinesses as unknown as AIBusinessData[],
+                                  (b: AIBusinessData) => {
+                                    setShowAiPopup(false);
+                                    setOverlaySelectedBusiness(null);
+                                    openCompactPanel(b);
+                                  },
+                                  `ai-chat-${idx}`
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {aiChatLoading && (
+                          <div className="flex justify-start">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground italic">
+                              <Loader2 className="h-4 w-4 animate-spin text-gold" />
+                              {language === "en" ? "Thinking…" : language === "ar" ? "جارٍ التفكير…" : "Réflexion…"}
+                            </div>
+                          </div>
+                        )}
+                        {aiChatError && (
+                          <p className="text-xs text-destructive text-center">{aiChatError}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Composer */}
+                    {!reachedCap ? (
+                      <form
+                        onSubmit={(e) => { e.preventDefault(); submitAiRefinement(); }}
+                        className="flex items-end gap-2"
+                      >
+                        <textarea
+                          value={aiChatInput}
+                          onChange={(e) => setAiChatInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              submitAiRefinement();
+                            }
+                          }}
+                          rows={1}
+                          placeholder={
+                            language === "en"
+                              ? "Refine your request (e.g. with a sea view, under 300 MAD…)"
+                              : language === "ar"
+                              ? "حسّن طلبك…"
+                              : "Affinez votre demande (ex : avec vue mer, moins de 300 MAD…)"
+                          }
+                          disabled={aiChatLoading}
+                          className="flex-1 min-h-[44px] max-h-32 resize-none rounded-2xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-50"
+                        />
+                        <button
+                          type="submit"
+                          disabled={aiChatLoading || !aiChatInput.trim()}
+                          className="shrink-0 w-11 h-11 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                          aria-label={language === "en" ? "Send" : "Envoyer"}
+                        >
+                          {aiChatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        </button>
+                      </form>
+                    ) : (
+                      <p className="text-xs text-center text-muted-foreground italic">
+                        {language === "en"
+                          ? `Refinement limit reached (${AI_CHAT_MAX_TURNS} turns). Start a new search to continue.`
+                          : `Limite d'affinement atteinte (${AI_CHAT_MAX_TURNS} échanges). Lancez une nouvelle recherche pour continuer.`}
+                      </p>
+                    )}
+                    <p className="mt-2 text-[10px] text-center text-muted-foreground">
+                      {language === "en"
+                        ? `${userTurns}/${AI_CHAT_MAX_TURNS} refinements used`
+                        : `${userTurns}/${AI_CHAT_MAX_TURNS} affinements utilisés`}
+                    </p>
+                  </div>
+                );
+              })()}
+
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
+
               <div className="flex flex-col items-center gap-4 pt-14 pb-24">
                 <button
                   onClick={closeToResults}
