@@ -1,5 +1,4 @@
-import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award } from "lucide-react";
-import BookmarkButton from "@/components/BookmarkButton";
+import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award, Heart } from "lucide-react";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 
