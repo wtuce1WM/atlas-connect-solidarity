@@ -3249,7 +3249,7 @@ const SearchPage = () => {
                         return (
                           <div key={b.id} className="shrink-0 w-64 sm:w-72">
                             <SearchResultCard
-                              business={full as any}
+                              business={{ ...(full as any), engagements: [] }}
                               index={idx}
                               labelLogos={businessLabelLogos[b.id] || []}
                               distanceKm={getDistanceKm(full)}
