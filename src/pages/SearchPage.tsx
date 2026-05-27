@@ -2135,7 +2135,7 @@ const SearchPage = () => {
             pageSize: SERVER_PAGE_SIZE,
             offset: 0,
             compact: "card",
-            ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : {}),
+            ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : (cityFromUrl ? { city: cityFromUrl } : {})),
           }
         });
 
