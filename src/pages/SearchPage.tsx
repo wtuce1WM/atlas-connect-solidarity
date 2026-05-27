@@ -337,8 +337,8 @@ const SearchPage = () => {
   }, [aiAnswerText]);
 
   // Submit a refinement turn — calls ai-search-answer with history of past turns
-  const submitAiRefinement = useCallback(async () => {
-    const q = aiChatInput.trim();
+  const submitAiRefinement = useCallback(async (explicitText?: string) => {
+    const q = (explicitText ?? aiChatInput).trim();
     if (!q || aiChatLoading) return;
     const userTurns = aiChat.filter((m) => m.role === "user").length;
     if (userTurns >= AI_CHAT_MAX_TURNS) return;
@@ -349,7 +349,7 @@ const SearchPage = () => {
       ...aiChat,
     ];
     setAiChat((prev) => [...prev, { role: "user", content: q }]);
-    setAiChatInput("");
+    if (explicitText === undefined) setAiChatInput("");
     try {
       const businesses = (allBusinesses || []).slice(0, 60).map((b) => ({
         id: b.id, name: b.name, city: b.city, main_category: b.main_category,
@@ -372,6 +372,7 @@ const SearchPage = () => {
       setAiChatLoading(false);
     }
   }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language]);
+
 
 
 
@@ -3005,10 +3006,9 @@ const SearchPage = () => {
                                 setSelectedCategoryFilter(singleCat);
                                 setSelectedSubcategoryFilter(sub.name);
                                 setOverlaySelectedBusiness(null);
-                                setPrevAiAnswerText(aiAnswerText);
-                                setAiAnswerText("");
-                                setAiRegenerateKey(k => k + 1);
+                                submitAiRefinement(sub.name);
                               }}
+
                               className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                             >
                               {sub.name}
@@ -3075,10 +3075,9 @@ const SearchPage = () => {
                             if (!selectedCategoryFilter && effectiveCat) setSelectedCategoryFilter(effectiveCat);
                             setSelectedSubcategoryFilter(sub.name);
                             setOverlaySelectedBusiness(null);
-                            setPrevAiAnswerText(aiAnswerText);
-                                setAiAnswerText("");
-                            setAiRegenerateKey(k => k + 1);
+                            submitAiRefinement(sub.name);
                           }}
+
                           className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                         >
                           {sub.name}
