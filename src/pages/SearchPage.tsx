@@ -3091,7 +3091,7 @@ const SearchPage = () => {
                   </p>
                   <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                     {subcategoryNamesFromUrl.map((name) => {
-                      const count = allBusinesses.filter(b => b.categories?.includes(name)).length;
+                      const count = subcatUrlCounts[name] ?? 0;
                       return (
                         <button
                           key={name}
