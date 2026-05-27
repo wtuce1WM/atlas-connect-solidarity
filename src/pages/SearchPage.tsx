@@ -325,6 +325,7 @@ const SearchPage = () => {
   const aiRefinementSpokenText = searchParams.get("spoken") || "";
   const [aiChat, setAiChat] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [aiChatInput, setAiChatInput] = useState("");
+  const aiRefinementRef = useRef<HTMLDivElement | null>(null);
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
   const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
@@ -3099,6 +3100,9 @@ const SearchPage = () => {
                             setSelectedSubcategoryFilter(name);
                             setOverlaySelectedBusiness(null);
                             submitAiRefinement(name);
+                            setTimeout(() => {
+                              aiRefinementRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                            }, 100);
                           }}
                           className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                         >
@@ -3425,7 +3429,7 @@ const SearchPage = () => {
                 const userTurns = aiChat.filter((m) => m.role === "user").length;
                 const reachedCap = userTurns >= AI_CHAT_MAX_TURNS;
                 return (
-                  <div className="mt-8 pt-6 border-t border-border/60">
+                  <div ref={aiRefinementRef} className="mt-8 pt-6 border-t border-border/60">
                     {/* Chat history */}
                     {aiChat.length > 0 && (
                       <div className="flex flex-col gap-4 mb-4">
