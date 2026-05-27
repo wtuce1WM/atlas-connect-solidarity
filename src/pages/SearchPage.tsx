@@ -288,6 +288,13 @@ const SearchPage = () => {
   const [destAiText, setDestAiText] = useState<string>("");
   const [isPoiAiLoading, setIsPoiAiLoading] = useState(false);
   const [isDestAiLoading, setIsDestAiLoading] = useState(false);
+  // Multi-turn refinement chat — extends the initial aiAnswerText with follow-up Q/A.
+  // Cap at 4 user turns to keep token cost bounded.
+  const AI_CHAT_MAX_TURNS = 4;
+  const [aiChat, setAiChat] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [aiChatInput, setAiChatInput] = useState("");
+  const [aiChatLoading, setAiChatLoading] = useState(false);
+  const [aiChatError, setAiChatError] = useState<string | null>(null);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
