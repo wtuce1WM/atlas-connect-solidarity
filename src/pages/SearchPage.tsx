@@ -411,7 +411,23 @@ const SearchPage = () => {
             .sort((a, z) => z.s - a.s)
             .map((x) => x.b)
         : dedupedPool;
-      const businesses = orderedPool.slice(0, 200).map((b) => ({
+
+      // Time-aware filtering: if the refinement query contains a temporal keyword
+      // (e.g. "ce soir", "demain midi"), only keep businesses open during that slot.
+      const timeMatch = extractTimeSlot(q);
+      const filteredPool = timeMatch
+        ? orderedPool.filter((b) => {
+            const vac = ((b as any).vacation_dates as Array<{ start_date: string; end_date: string }> | null | undefined) || null;
+            return isOpenDuringSlot(
+              (b as any).opening_hours || null,
+              !!(b as any).is_open_24h,
+              timeMatch.timeSlot,
+              vac,
+            );
+          })
+        : orderedPool;
+      const poolForAi = filteredPool.length > 0 ? filteredPool : orderedPool;
+      const businesses = poolForAi.slice(0, 200).map((b) => ({
         id: b.id, name: b.name, city: b.city,
         neighborhood: (b as any).neighborhood, address: (b as any).address,
         main_category: b.main_category,
