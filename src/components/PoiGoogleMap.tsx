@@ -179,9 +179,9 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     private applyStyle() {
       if (!this.div) return;
       const hlc = this.highlightColor;
-      const bg = this.customColor ? this.customColor.bg : (this.highlighted && hlc ? hlc.bg : (this.highlighted ? "#D4AF37" : "#ffffff"));
-      const fg = this.customColor ? this.customColor.fg : (this.highlighted && hlc ? hlc.fg : (this.highlighted ? "#1a1a1a" : "#1a1a1a"));
-      const border = this.customColor ? this.customColor.border : (this.highlighted && hlc ? hlc.border : (this.highlighted ? "#D4AF37" : "#d1d5db"));
+      const bg = this.customColor ? this.customColor.bg : (this.highlighted && hlc ? hlc.bg : (this.highlighted ? "#000000" : "#ffffff"));
+      const fg = this.customColor ? this.customColor.fg : (this.highlighted && hlc ? hlc.fg : (this.highlighted ? "#ffffff" : "#1a1a1a"));
+      const border = this.customColor ? this.customColor.border : (this.highlighted && hlc ? hlc.border : (this.highlighted ? "#000000" : "#d1d5db"));
       const shadow = this.highlighted
         ? "0 2px 8px rgba(0,0,0,0.4)"
         : "0 1px 4px rgba(0,0,0,0.15)";
