@@ -260,8 +260,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     if (!hasSubOverlay) {
       if (location.pathname === "/search") return;
       const currentPath = window.location.pathname;
-      const prefix = currentPath.startsWith("/fiche/") ? "/fiche/" : "/business/";
-      window.history.replaceState(null, "", `${prefix}${business.slug}`);
+      // Only rewrite for /fiche/ canonical paths. For vanity URLs (or any other
+      // path), keep the current URL intact — do NOT force /business/<slug>.
+      if (currentPath.startsWith("/fiche/")) {
+        window.history.replaceState(null, "", `/fiche/${business.slug}` + window.location.search);
+      }
     }
   }, [business?.slug, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, location.pathname]);
 
