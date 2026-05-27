@@ -36,7 +36,7 @@ import PoiSection from "@/components/PoiSection";
 import DestinationSection, { type DestinationItem } from "@/components/DestinationSection";
 
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
-import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
+import AISearchAnswer, { parseInline, extractCitedBusinesses, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import SearchResultCard from "@/components/SearchResultCard";
 import AISuggestionCard from "@/components/AISuggestionCard";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
