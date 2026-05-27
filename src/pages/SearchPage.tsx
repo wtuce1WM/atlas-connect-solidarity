@@ -325,6 +325,7 @@ const SearchPage = () => {
   const aiRefinementSpokenText = searchParams.get("spoken") || "";
   const [aiChat, setAiChat] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [aiChatInput, setAiChatInput] = useState("");
+  const aiRefinementRef = useRef<HTMLDivElement | null>(null);
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
   const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
