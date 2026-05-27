@@ -302,6 +302,7 @@ const SearchPage = () => {
   const [aiChatInput, setAiChatInput] = useState("");
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
+  const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
@@ -335,7 +336,15 @@ const SearchPage = () => {
     setAiChat([]);
     setAiChatInput("");
     setAiChatError(null);
+    setAiRefinementBusinessPool([]);
   }, [aiAnswerText]);
+
+  const aiInlineBusinessPool = useMemo(() => {
+    const byId = new globalThis.Map<string, Business>();
+    for (const b of allBusinesses || []) byId.set(b.id, b);
+    for (const b of aiRefinementBusinessPool) byId.set(b.id, b);
+    return Array.from(byId.values()) as unknown as AIBusinessData[];
+  }, [allBusinesses, aiRefinementBusinessPool]);
 
   // Submit a refinement turn — calls ai-search-answer with history of past turns
   const submitAiRefinement = useCallback(async (explicitText?: string) => {
@@ -369,6 +378,7 @@ const SearchPage = () => {
           });
           if (!fullError && fullData?.businesses?.length) {
             refinementPool = fullData.businesses;
+            setAiRefinementBusinessPool(fullData.businesses);
           }
         } catch (poolError) {
           console.warn("AI refinement full pool fetch failed:", poolError);
