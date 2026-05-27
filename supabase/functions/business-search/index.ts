@@ -4981,13 +4981,14 @@ serve(async (req) => {
     // Also skip when a business name exactly matches the query (name-pinning)
     const hasCity = !!effectiveCity;
     const hasSubcategory = !!detectedSubcategory;
+    const hasCategory = !!intentCategory;
     const queryNorm = stripAccentsGlobal((query || "").trim().toLowerCase());
     const hasExactNameMatch = businesses.some(b => stripAccentsGlobal(b.name.toLowerCase()) === queryNorm);
     let disambiguationType: "needs_category" | "needs_city" | null = null;
     if (!hasExactNameMatch && businesses.length > 5) {
       if (hasCity && !hasSubcategory && businesses.length > 10) {
         disambiguationType = "needs_category";
-      } else if (hasSubcategory && !hasCity) {
+      } else if ((hasSubcategory || hasCategory) && !hasCity) {
         disambiguationType = "needs_city";
       }
     }
