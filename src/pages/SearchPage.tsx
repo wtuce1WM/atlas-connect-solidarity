@@ -411,36 +411,41 @@ const SearchPage = () => {
         }
       }
 
-      // Accumulate criteria: combine all previous user turns with the new query
-      // so refinements add to (not replace) earlier filters.
-      const previousUserQs = aiChat.filter((m) => m.role === "user").map((m) => m.content);
-      const combinedQ = [...previousUserQs, q].join(" ");
-      const qNorm = normalizeText(combinedQ);
+      // Accumulate criteria with AND semantics: each refinement turn (previous + current)
+      // must match the business. A business is kept only if every turn has at least one
+      // matching token in its blob.
       const STOPWORDS = new Set([
         "avec","sans","pour","dans","des","les","une","un","la","le","de","du","et","ou","au","aux",
         "with","without","for","the","and","or","of","a","an","in","on","to",
         "qui","que","est","sont","plus","moins","tres","tout","tous","toute","toutes",
       ]);
-      const tokens = Array.from(new Set(qNorm.split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !STOPWORDS.has(t))));
+      const tokenize = (text: string) => Array.from(new Set(
+        normalizeText(text).split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !STOPWORDS.has(t))
+      ));
+      const previousUserQs = aiChat.filter((m) => m.role === "user").map((m) => m.content);
+      const turnsTokens = [...previousUserQs, q].map(tokenize).filter((arr) => arr.length > 0);
+      const allTokens = Array.from(new Set(turnsTokens.flat()));
       const dedupedPool = Array.from(new globalThis.Map<string, Business>(refinementPool.map((b) => [b.id, b])).values());
-      const scoreBusiness = (b: Business): number => {
-        if (tokens.length === 0) return 0;
-        const blob = normalizeText([
-          b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
-          b.city, (b as any).neighborhood, (b as any).address,
-          ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
-          ...((b as any).badges || []), ...((b as any).video_badges || []),
-        ].filter(Boolean).map((v) => String(v)).join(" | "));
+      const buildBlob = (b: Business) => normalizeText([
+        b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
+        b.city, (b as any).neighborhood, (b as any).address,
+        ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
+        ...((b as any).badges || []), ...((b as any).video_badges || []),
+      ].filter(Boolean).map((v) => String(v)).join(" | "));
+      const matchesAllTurns = (blob: string) =>
+        turnsTokens.every((turnToks) => turnToks.some((t) => blob.includes(t)));
+      const scoreBusiness = (blob: string): number => {
         let score = 0;
-        for (const t of tokens) if (blob.includes(t)) score += 1;
+        for (const t of allTokens) if (blob.includes(t)) score += 1;
         return score;
       };
-      const orderedPool = tokens.length > 0
-        ? [...dedupedPool]
-            .map((b) => ({ b, s: scoreBusiness(b) }))
-            .sort((a, z) => z.s - a.s)
-            .map((x) => x.b)
-        : dedupedPool;
+      const scored = dedupedPool.map((b) => {
+        const blob = buildBlob(b);
+        return { b, blob, s: scoreBusiness(blob), ok: matchesAllTurns(blob) };
+      });
+      const strictlyMatching = scored.filter((x) => x.ok).sort((a, z) => z.s - a.s).map((x) => x.b);
+      const fallbackRanked = scored.sort((a, z) => z.s - a.s).map((x) => x.b);
+      const orderedPool = strictlyMatching.length > 0 ? strictlyMatching : fallbackRanked;
 
       // Time-aware filtering: if the refinement query contains a temporal keyword
       // (e.g. "ce soir", "demain midi"), only keep businesses open during that slot.
