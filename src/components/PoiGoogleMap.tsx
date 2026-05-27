@@ -148,8 +148,8 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
         e.stopPropagation();
         this._onClick?.();
       });
-      this.div.addEventListener("mouseenter", () => this._onMouseOver?.());
-      this.div.addEventListener("mouseleave", () => this._onMouseOut?.());
+      this.div.addEventListener("mouseenter", () => { this.setHighlighted(true); this._onMouseOver?.(); });
+      this.div.addEventListener("mouseleave", () => { this.setHighlighted(false); this._onMouseOut?.(); });
       const panes = this.getPanes();
       panes?.overlayMouseTarget.appendChild(this.div);
     }
