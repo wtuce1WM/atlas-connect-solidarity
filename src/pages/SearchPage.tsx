@@ -3165,13 +3165,26 @@ const SearchPage = () => {
                   const currentAiText = activeTab === "poi" ? poiAiText : activeTab === "destinations" ? destAiText : aiAnswerText;
                   const isCurrentLoading = activeTab === "poi" ? isPoiAiLoading : activeTab === "destinations" ? isDestAiLoading : (!aiAnswerText || isAiRegenerating);
                   if (isCurrentLoading) {
+                    const fallbackPrev = (activeTab !== "poi" && activeTab !== "destinations") ? prevAiAnswerText : "";
                     return (
-                      <div className="flex items-center gap-3 py-8 justify-center">
-                        <Loader2 className="h-6 w-6 animate-spin text-gold" />
-                        <span className="text-sm italic text-muted-foreground">
-                          {language === "en" ? "Generating suggestion…" : language === "ar" ? "جاري إنشاء الاقتراح…" : "Génération de la suggestion…"}
-                        </span>
-                      </div>
+                      <>
+                        {fallbackPrev && (
+                          <div className="opacity-60">
+                            {parseInline(
+                              fallbackPrev,
+                              allBusinesses as unknown as AIBusinessData[],
+                              () => {},
+                              "ai-popup-prev"
+                            )}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-3 py-8 justify-center">
+                          <Loader2 className="h-6 w-6 animate-spin text-gold" />
+                          <span className="text-sm italic text-muted-foreground">
+                            {language === "en" ? "Generating suggestion…" : language === "ar" ? "جاري إنشاء الاقتراح…" : "Génération de la suggestion…"}
+                          </span>
+                        </div>
+                      </>
                     );
                   }
                   if (!currentAiText) {
