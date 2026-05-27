@@ -297,6 +297,7 @@ const SearchPage = () => {
   // Multi-turn refinement chat — extends the initial aiAnswerText with follow-up Q/A.
   // Cap at 4 user turns to keep token cost bounded.
   const AI_CHAT_MAX_TURNS = 4;
+  const aiRefinementSpokenText = searchParams.get("spoken") || "";
   const [aiChat, setAiChat] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [aiChatInput, setAiChatInput] = useState("");
   const [aiChatLoading, setAiChatLoading] = useState(false);
@@ -358,7 +359,7 @@ const SearchPage = () => {
           const { data: fullData, error: fullError } = await supabase.functions.invoke<SearchResult>("business-search", {
             body: {
               query: useSubcatBypass ? undefined : (searchQuery.trim() || categoryFromUrl || undefined),
-              spoken: useSubcatBypass ? undefined : (spokenText || undefined),
+              spoken: useSubcatBypass ? undefined : (aiRefinementSpokenText || undefined),
               language,
               pageSize: Math.min(totalCount, 250),
               offset: 0,
@@ -376,7 +377,7 @@ const SearchPage = () => {
 
       const qNorm = normalizeText(q);
       const isPoolQuery = /\b(piscine|pool|beach\s*club)\b/.test(qNorm);
-      const dedupedPool = Array.from(new Map(refinementPool.map((b) => [b.id, b])).values());
+      const dedupedPool = Array.from(new globalThis.Map<string, Business>(refinementPool.map((b) => [b.id, b])).values());
       const orderedPool = isPoolQuery
         ? [
             ...dedupedPool.filter((b) => {
@@ -413,7 +414,7 @@ const SearchPage = () => {
     } finally {
       setAiChatLoading(false);
     }
-  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, spokenText]);
+  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, aiRefinementSpokenText]);
 
 
 
