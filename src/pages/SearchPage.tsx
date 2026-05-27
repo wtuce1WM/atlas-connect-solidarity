@@ -1472,9 +1472,7 @@ const SearchPage = () => {
     // slice and ordering for the current page. Keep that slice intact so the grid,
     // map and pagination counter stay synchronized.
     let filtered: Business[];
-    if (isServerPaginatedResults) {
-      filtered = [...allBusinesses];
-    } else if (selectedServiceFilter && serviceFilterBusinesses.length > 0) {
+    if (selectedServiceFilter && serviceFilterBusinesses.length > 0) {
       filtered = [...serviceFilterBusinesses];
     } else if (selectedSubcategoryFilter && subcategoryFilterBusinesses.length > 0) {
       const hasDestinationEnrichment = allBusinesses.some(b => b.destination_enriched);
@@ -1485,9 +1483,12 @@ const SearchPage = () => {
       } else {
         filtered = [...subcategoryFilterBusinesses];
       }
+    } else if (isServerPaginatedResults) {
+      filtered = [...allBusinesses];
     } else {
       filtered = [...allBusinesses];
     }
+
 
     if (!isServerPaginatedResults && selectedCity && selectedCity !== "all") {
       const normalizedQuery = normalizeText(searchQuery || "");
