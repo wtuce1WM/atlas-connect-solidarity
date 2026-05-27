@@ -2746,6 +2746,11 @@ const SearchPage = () => {
           onSelectCity={(city) => {
             setSelectedCity(city);
             setIsGeoCityAutoSelected(false);
+            setCurrentPage(1);
+            // Update URL so the search refetches with server-side city filter
+            const next = new URLSearchParams(searchParams);
+            next.set("city", city);
+            setSearchParams(next, { replace: true });
             // If category is already known, dismiss overlay immediately to avoid
             // it reappearing when the new search resets detectedSubcategory
             if (selectedCategoryFilter || detectedSubcategory || detectedCategory) {
