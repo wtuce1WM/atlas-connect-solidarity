@@ -3425,7 +3425,7 @@ const SearchPage = () => {
                 const userTurns = aiChat.filter((m) => m.role === "user").length;
                 const reachedCap = userTurns >= AI_CHAT_MAX_TURNS;
                 return (
-                  <div className="mt-8 pt-6 border-t border-border/60">
+                  <div ref={aiRefinementRef} className="mt-8 pt-6 border-t border-border/60">
                     {/* Chat history */}
                     {aiChat.length > 0 && (
                       <div className="flex flex-col gap-4 mb-4">
