@@ -3259,7 +3259,9 @@ const SearchPage = () => {
                                     setOverlaySelectedBusiness(null);
                                     openCompactPanel(b);
                                   },
-                                  `ai-chat-${idx}`
+                                  `ai-chat-${idx}`,
+                                  undefined,
+                                  (b) => setHoveredResultId(b ? b.id : null)
                                 )}
                               </div>
                             )}
