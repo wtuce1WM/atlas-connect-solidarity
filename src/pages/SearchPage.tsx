@@ -2827,7 +2827,7 @@ const SearchPage = () => {
             </button>
             {/* Close right */}
             <button
-              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+              onClick={closeAi}
               className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
             >
               <X className="h-5 w-5 text-white" />
@@ -2835,11 +2835,23 @@ const SearchPage = () => {
           </div>
           {/* Desktop close button */}
           <button
-            onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+            onClick={closeAi}
             className="absolute top-6 right-6 p-2 rounded-full bg-black hover:bg-black/80 transition-colors z-10 hidden sm:block"
           >
             <X className="h-6 w-6 text-white" />
           </button>
+          {/* Inline → fullscreen expand button (desktop) */}
+          {isInline && (
+            <button
+              onClick={() => setShowAiPopup(true)}
+              className="absolute top-6 right-20 p-2 rounded-full bg-black hover:bg-black/80 transition-colors z-10 hidden sm:block"
+              title={language === "en" ? "Expand" : language === "ar" ? "تكبير" : "Agrandir"}
+              aria-label={language === "en" ? "Expand" : "Agrandir"}
+            >
+              <Maximize2 className="h-5 w-5 text-white" />
+            </button>
+          )}
+
 
           {/* AI text — scrollable center, wider */}
           <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-4">
