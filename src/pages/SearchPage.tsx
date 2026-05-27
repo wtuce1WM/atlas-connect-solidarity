@@ -3067,9 +3067,21 @@ const SearchPage = () => {
                     }
                   }
                 }
-                const subcatList = Object.entries(subCounts)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([name, count]) => ({ name, count }));
+                // When the URL constrains the search to a set of subcategories
+                // (e.g. "Marrakech Restauration"), surface exactly those chips so
+                // the user can narrow down — even if the current page sample
+                // doesn't include all of them.
+                let subcatList: { name: string; count: number }[];
+                if (subcategoryNamesFromUrl.length > 1) {
+                  subcatList = subcategoryNamesFromUrl.map((name) => ({
+                    name,
+                    count: subCounts[name] || 0,
+                  }));
+                } else {
+                  subcatList = Object.entries(subCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([name, count]) => ({ name, count }));
+                }
                 if (subcatList.length > 1) {
                   return (
                     <div className="pb-4">
