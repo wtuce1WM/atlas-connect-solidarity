@@ -3224,7 +3224,7 @@ const SearchPage = () => {
                           <div className="opacity-60">
                             {parseInline(
                               fallbackPrev,
-                              allBusinesses as unknown as AIBusinessData[],
+                              aiInlineBusinessPool,
                               () => {},
                               "ai-popup-prev"
                             )}
@@ -3255,7 +3255,7 @@ const SearchPage = () => {
                     ? allPois.map(p => ({ id: p.id, name: p.name, city: p.city || "", main_category: null, categories: null, hook_fr: null, rating: p.rating ?? null, wtuce_status: null, images: p.images ?? null, neighborhood: p.neighborhood ?? null }))
                     : activeTab === "destinations"
                     ? allDestItems.map(d => ({ id: d.id, name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: "", main_category: null, categories: null, hook_fr: d.hook, rating: null, wtuce_status: null, images: d.images ?? (d.image_url ? [d.image_url] : null) }))
-                    : allBusinesses as unknown as AIBusinessData[];
+                    : aiInlineBusinessPool;
                   return parseInline(
                     currentAiText,
                     linkDataSource,
@@ -3291,13 +3291,13 @@ const SearchPage = () => {
               {activeTab !== "poi" && activeTab !== "destinations" && (() => {
                 const currentAiText = aiAnswerText;
                 if (!currentAiText) return null;
-                const cited = extractCitedBusinesses(currentAiText, allBusinesses as unknown as AIBusinessData[]);
+                const cited = extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
                 return (
                   <div className="mt-6 -mx-4 sm:mx-0">
                     <div className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
                       {cited.map((b, idx) => {
-                        const full = allBusinesses.find(x => x.id === b.id);
+                        const full = (aiInlineBusinessPool as unknown as Business[]).find(x => x.id === b.id);
                         if (!full) return null;
                         return (
                           <div key={b.id} className="shrink-0 w-64 sm:w-72">
@@ -3342,7 +3342,7 @@ const SearchPage = () => {
                               <div className="max-w-[90%] text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
                                 {parseInline(
                                   m.content,
-                                  allBusinesses as unknown as AIBusinessData[],
+                                  aiInlineBusinessPool,
                                   (b: AIBusinessData) => {
                                     setShowAiPopup(false);
                                     setOverlaySelectedBusiness(null);
