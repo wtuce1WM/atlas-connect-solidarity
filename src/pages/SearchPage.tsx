@@ -3005,6 +3005,7 @@ const SearchPage = () => {
                                 setSelectedCategoryFilter(singleCat);
                                 setSelectedSubcategoryFilter(sub.name);
                                 setOverlaySelectedBusiness(null);
+                                setPrevAiAnswerText(aiAnswerText);
                                 setAiAnswerText("");
                                 setAiRegenerateKey(k => k + 1);
                               }}
@@ -3035,7 +3036,8 @@ const SearchPage = () => {
                             onClick={() => {
                               setSelectedCategoryFilter(cat);
                               setOverlaySelectedBusiness(null);
-                              setAiAnswerText("");
+                              setPrevAiAnswerText(aiAnswerText);
+                                setAiAnswerText("");
                               setAiRegenerateKey(k => k + 1);
                             }}
                             className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
@@ -3073,7 +3075,8 @@ const SearchPage = () => {
                             if (!selectedCategoryFilter && effectiveCat) setSelectedCategoryFilter(effectiveCat);
                             setSelectedSubcategoryFilter(sub.name);
                             setOverlaySelectedBusiness(null);
-                            setAiAnswerText("");
+                            setPrevAiAnswerText(aiAnswerText);
+                                setAiAnswerText("");
                             setAiRegenerateKey(k => k + 1);
                           }}
                           className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
@@ -3103,7 +3106,8 @@ const SearchPage = () => {
                           setIsGeoCityAutoSelected(false);
                           setOverlaySelectedBusiness(null);
                           // Regenerate AI text with the new city filter
-                          setAiAnswerText("");
+                          setPrevAiAnswerText(aiAnswerText);
+                                setAiAnswerText("");
                           setAiRegenerateKey(k => k + 1);
                         }}
                         className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
@@ -3136,7 +3140,8 @@ const SearchPage = () => {
                           onClick={() => {
                             setSelectedServiceFilter(isActive ? null : sf.name);
                             setOverlaySelectedBusiness(null);
-                            setAiAnswerText("");
+                            setPrevAiAnswerText(aiAnswerText);
+                                setAiAnswerText("");
                             setAiRegenerateKey(k => k + 1);
                           }}
                           className={`shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap ${
