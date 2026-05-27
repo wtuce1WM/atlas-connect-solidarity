@@ -3046,17 +3046,10 @@ const SearchPage = () => {
             {/* Subcategory disambiguation — only for Results tab */}
             {(activeTab === "suggestions" || activeTab === "ai") && !selectedSubcategoryFilter && !detectedSubcategory && (selectedCategoryFilter || detectedCategory) && (() => {
               const effectiveCat = selectedCategoryFilter || detectedCategory;
-              const subCounts: Record<string, number> = {};
-              for (const b of allBusinesses) {
-                if (b.main_category === effectiveCat && b.categories) {
-                  for (const c of b.categories) {
-                    subCounts[c] = (subCounts[c] || 0) + 1;
-                  }
-                }
-              }
-              const subcatList = Object.entries(subCounts)
+              const subcatList = Object.entries(disambigSubcatCounts)
                 .sort((a, b) => b[1] - a[1])
                 .map(([name, count]) => ({ name, count }));
+
               if (subcatList.length <= 1) return null;
               return (
                 <div className="pb-4">
