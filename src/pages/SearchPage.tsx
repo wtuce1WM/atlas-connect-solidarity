@@ -2790,7 +2790,7 @@ const SearchPage = () => {
 
 
           {/* Left panel: AI suggestion */}
-          <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
+          <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : (isInline && hasKnownLocation && !hideResultsMap ? "w-1/2" : "w-full")}`}>
           {/* Mobile sticky top bar: speaker + CTA + close */}
           <div className="sticky top-0 left-0 right-0 sm:hidden flex items-center justify-between px-4 py-3 bg-white z-10">
             {/* Speaker left */}
@@ -3326,6 +3326,33 @@ const SearchPage = () => {
             </div>
           </div>
           </div>
+
+          {/* Right panel: Sticky Google Map (inline AI tab only, mirrors Results tab) */}
+          {isInline && hasKnownLocation && !overlaySelectedBusiness && !hideResultsMap && (
+            <div className="w-1/2 sticky top-0 h-screen z-[50] overflow-hidden">
+              <div className="relative h-full min-h-0">
+                <PoiGoogleMap
+                  pois={mapPoiItems}
+                  selectedPoiId={hoveredResultId || fsTopBusinessId || null}
+                  onPoiClick={(poiId) => {
+                    const biz = filteredBusinesses.find(b => b.id === poiId) || allCityMapBusinesses?.find(b => b.id === poiId);
+                    if (biz) openCompactPanel({ id: biz.id, name: biz.name } as any);
+                  }}
+                  center={mapCenterForResults}
+                  fitToMarkers
+                />
+                <button
+                  type="button"
+                  onClick={() => setHideResultsMap(true)}
+                  className="absolute top-3 left-3 z-[80] flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg"
+                  aria-label={language === "en" ? "Hide map" : "Masquer la carte"}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
 
           {/* Right panel: Business detail */}
           {overlaySelectedBusiness && (
