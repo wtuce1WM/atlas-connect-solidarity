@@ -195,7 +195,8 @@ const parseInline = (
   businesses: BusinessData[],
   onClickBusiness: (b: BusinessData) => void,
   keyPrefix: string,
-  hl?: HighlightState
+  hl?: HighlightState,
+  onHoverBusiness?: (b: BusinessData | null) => void
 ): ReactNode[] => {
   const boldParts = text.split(/\*\*(.+?)\*\*/g);
   const nodes: ReactNode[] = [];
@@ -210,7 +211,7 @@ const parseInline = (
 
       const match = findBusiness(part, businesses);
       if (match) {
-        const card = <BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
+        const card = <BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} onHoverBusiness={onHoverBusiness} />;
         if (hl) {
           if (isKaraoke) {
             const isSpoken = startWordIdx <= hl.target;
