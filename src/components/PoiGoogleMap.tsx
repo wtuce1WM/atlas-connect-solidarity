@@ -285,6 +285,38 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       fullscreenControl: false,
       zoomControl: false,
       gestureHandling: "greedy",
+      clickableIcons: false,
+      styles: [
+        // Hide all native POIs, transit, business labels — keep map ultra clean
+        { featureType: "poi", stylers: [{ visibility: "off" }] },
+        { featureType: "poi.park", elementType: "geometry", stylers: [{ visibility: "on" }, { color: "#e8f0e3" }] },
+        { featureType: "poi.park", elementType: "labels", stylers: [{ visibility: "off" }] },
+        { featureType: "transit", stylers: [{ visibility: "off" }] },
+        { featureType: "transit.station", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+        // Base geometry — near-white background
+        { elementType: "geometry", stylers: [{ color: "#fafafa" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#ffffff" }] },
+        // Landscape
+        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#f5f5f3" }] },
+        { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#f0f0ee" }] },
+        // Roads — very light gray, thin
+        { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+        { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#ececec" }] },
+        { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+        { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#e4e4e4" }] },
+        { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+        { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#fbfbfb" }] },
+        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#b5b5b5" }] },
+        { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+        // Water — pale blue
+        { featureType: "water", elementType: "geometry", stylers: [{ color: "#d9e8f0" }] },
+        { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#a8c0cc" }] },
+        // Administrative — soft labels
+        { featureType: "administrative", elementType: "geometry", stylers: [{ visibility: "off" }] },
+        { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+        { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#bcbcbc" }] },
+      ],
     });
     infoWindowRef.current = new gmaps.InfoWindow();
   }, [ready, center]);
