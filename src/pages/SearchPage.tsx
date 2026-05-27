@@ -3006,10 +3006,9 @@ const SearchPage = () => {
                                 setSelectedCategoryFilter(singleCat);
                                 setSelectedSubcategoryFilter(sub.name);
                                 setOverlaySelectedBusiness(null);
-                                setPrevAiAnswerText(aiAnswerText);
-                                setAiAnswerText("");
-                                setAiRegenerateKey(k => k + 1);
+                                submitAiRefinement(sub.name);
                               }}
+
                               className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                             >
                               {sub.name}
