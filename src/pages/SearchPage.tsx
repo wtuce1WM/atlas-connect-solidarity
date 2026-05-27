@@ -203,6 +203,31 @@ const SearchPage = () => {
   }, [pinIdsParam, resolvePinContextBadgeId, cityFromUrlForThumbs]);
   const [hashtagCount, setHashtagCount] = useState<number | undefined>(undefined);
   useEffect(() => { setHashtagCount(undefined); }, [badgeIdParam, searchParams.get("city")]);
+
+  // Real DB counts for URL-driven subcategory chips, scoped to the city.
+  const [subcatUrlCounts, setSubcatUrlCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    if (subcategoryNamesFromUrl.length === 0) {
+      setSubcatUrlCounts({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const counts: Record<string, number> = {};
+      await Promise.all(subcategoryNamesFromUrl.map(async (name) => {
+        let q = supabase
+          .from("businesses")
+          .select("id", { count: "exact", head: true })
+          .eq("is_active", true)
+          .contains("categories", [name]);
+        if (cityFromUrlForThumbs) q = q.ilike("city", cityFromUrlForThumbs);
+        const { count } = await q;
+        counts[name] = count || 0;
+      }));
+      if (!cancelled) setSubcatUrlCounts(counts);
+    })();
+    return () => { cancelled = true; };
+  }, [subcatsParam, cityFromUrlForThumbs]);
   useEffect(() => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
