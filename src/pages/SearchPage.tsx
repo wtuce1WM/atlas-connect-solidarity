@@ -2634,25 +2634,22 @@ const SearchPage = () => {
             { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
           ].map((tab) => {
             const isAiTab = tab.key === "ai";
-            const isActive = isAiTab ? showAiPopup : activeTab === tab.key;
+            const isActive = isAiTab ? (activeTab === "ai" || showAiPopup) : activeTab === tab.key;
             return (
             <button
               key={tab.key}
               data-active-tab={isActive ? "true" : undefined}
               onClick={(e) => {
-                if (isAiTab) {
-                  setShowAiPopup(true);
-                } else {
-                  resetPanelStates();
-                  setCompactPanelBusiness(null);
-                  setIsCompactPanelExpanded(false);
-                  setOverlaySelectedBusiness(null);
-                  setIsOverlayPanelExpanded(false);
-                  setActiveTab(tab.key as any);
-                  setHideResultsMap(false);
-                  setHidePoiMap(false);
-                  setHideDestMap(false);
-                }
+                resetPanelStates();
+                setCompactPanelBusiness(null);
+                setIsCompactPanelExpanded(false);
+                setOverlaySelectedBusiness(null);
+                setIsOverlayPanelExpanded(false);
+                setShowAiPopup(false);
+                setActiveTab(tab.key as any);
+                setHideResultsMap(false);
+                setHidePoiMap(false);
+                setHideDestMap(false);
                 const btn = e.currentTarget;
                 const container = btn.parentElement;
                 if (container) {
