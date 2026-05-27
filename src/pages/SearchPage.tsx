@@ -1659,7 +1659,7 @@ const SearchPage = () => {
     }
     let cancelled = false;
     const fetchAll = async () => {
-      const selectFields = "id, name, city, categories, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count, wtuce_status";
+      const selectFields = "id, name, city, main_category, categories, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count, wtuce_status";
       const all: Business[] = [];
       let offset = 0;
       const PAGE = 1000;
