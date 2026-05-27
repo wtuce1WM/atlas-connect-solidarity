@@ -2902,7 +2902,7 @@ const SearchPage = () => {
                 </>
               ) : (
                 <>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-muted-foreground text-sm mt-6">
                     {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
                   </p>
                   <p className="text-lg md:text-xl font-bold text-foreground mt-1">
