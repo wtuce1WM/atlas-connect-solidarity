@@ -1700,13 +1700,14 @@ const SearchPage = () => {
           pageSize: totalCount,
           offset: 0,
           compact: "card",
+          ...(cityFromUrl ? { city: cityFromUrl } : {}),
         }
       });
       if (cancelled || error || !data) return;
       setAllSearchMapBusinesses((data.businesses || []) as Business[]);
     })();
     return () => { cancelled = true; };
-  }, [showAllSearchMarkers, totalCount, filteredBusinesses.length, allSearchMapBusinesses.length, searchQuery, spokenText, language, categoryFromUrl]);
+  }, [showAllSearchMarkers, totalCount, filteredBusinesses.length, allSearchMapBusinesses.length, searchQuery, spokenText, language, categoryFromUrl, cityFromUrl]);
 
   // Pool used for "Voir tous": full results when fetched, otherwise current page
   const searchMapPool = useMemo(() => {
