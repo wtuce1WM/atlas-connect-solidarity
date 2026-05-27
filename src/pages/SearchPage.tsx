@@ -1756,7 +1756,10 @@ const SearchPage = () => {
   const fsMatchingCount = useMemo(() => {
     if (!fsFilterSubcategories) return 0;
     const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
-    return pool.filter(b => b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))).length;
+    return pool.filter(b =>
+      (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
+      b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
+    ).length;
   }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses]);
 
   // Desktop map items
