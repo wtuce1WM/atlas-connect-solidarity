@@ -397,6 +397,7 @@ const SearchPage = () => {
         if (tokens.length === 0) return 0;
         const blob = normalizeText([
           b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
+          b.city, (b as any).neighborhood, (b as any).address,
           ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
           ...((b as any).badges || []), ...((b as any).video_badges || []),
         ].filter(Boolean).map((v) => String(v)).join(" | "));
@@ -411,7 +412,9 @@ const SearchPage = () => {
             .map((x) => x.b)
         : dedupedPool;
       const businesses = orderedPool.slice(0, 200).map((b) => ({
-        id: b.id, name: b.name, city: b.city, main_category: b.main_category,
+        id: b.id, name: b.name, city: b.city,
+        neighborhood: (b as any).neighborhood, address: (b as any).address,
+        main_category: b.main_category,
         categories: b.categories, services: b.services, engagements: b.engagements,
         hook_fr: b.hook_fr, hook_en: b.hook_en, wtuce_status: b.wtuce_status,
       }));
