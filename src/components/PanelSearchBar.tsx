@@ -40,6 +40,8 @@ interface PanelSearchBarProps {
   compact?: boolean;
   /** Called when the user clicks "Voir les résultats" inside the AI suggestion overlay */
   onSeeResults?: () => void;
+  /** Called when user clicks the "Carte" button inside the AI suggestion overlay (mobile/tablet) */
+  onOpenMap?: () => void;
   /** Extra controls (e.g. video play/mute) rendered before the 4 default round buttons */
   leadingControls?: ReactNode;
   /** Pre-generated AI text from /search Sticky 4 — forwarded to PanelAiOverlay to keep both views in sync */
