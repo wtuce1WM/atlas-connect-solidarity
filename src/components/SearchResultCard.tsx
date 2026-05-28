@@ -125,6 +125,12 @@ export default function SearchResultCard({ business, index, labelLogos, distance
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
+      {distanceKm != null && (
+        <span className="absolute bottom-2 right-2 z-[16] px-1.5 py-0.5 rounded text-[10px] font-semibold text-gold bg-black/60 backdrop-blur-sm whitespace-nowrap">
+          {distanceKm < 1 ? `${Math.round(distanceKm * 1000)} m` : `${distanceKm.toFixed(1)} km`}
+        </span>
+      )}
+
       <div className="absolute top-2 right-2 z-[20]" onClick={(e) => e.stopPropagation()}>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
