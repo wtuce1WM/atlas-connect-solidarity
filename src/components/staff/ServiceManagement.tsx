@@ -62,7 +62,9 @@ const ServiceManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"az" | "za" | "count-asc" | "count-desc">("az");
 
-  // Business counts per service name
+  // Raw active businesses (services + categorization) to recompute counts under filters
+  const [rawBusinesses, setRawBusinesses] = useState<{ services: string[] | null; main_category: string | null; categories: string[] | null }[]>([]);
+  // Business counts per service id (filter-aware)
   const [businessCountBySvc, setBusinessCountBySvc] = useState<Record<string, number>>({});
 
   // City filters per service: { serviceId: Set<cityId> }
