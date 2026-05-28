@@ -39,9 +39,10 @@ interface PoiSectionProps {
   onMapClick?: (business: PoiBusiness) => void;
   onPoisLoaded?: (pois: PoiBusiness[]) => void;
   onHover?: (businessId: string | null) => void;
+  userCoords?: { lat: number; lng: number } | null;
 }
 
-const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded, onHover }: PoiSectionProps) => {
+const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded, onHover, userCoords }: PoiSectionProps) => {
   const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
