@@ -691,6 +691,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   // Video info via extracted hook
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
+  const setYoutubeOverlayOpen = useCallback((open: boolean) => {
+    if (open) {
+      if (videoRef.current) {
+        videoRef.current.muted = true;
+        setVideoMuted(true);
+      }
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "mute", args: [] }),
+        "*"
+      );
+      setYtBgMuted(true);
+      setGlobalSoundOn(false);
+    }
+    setShowYoutubeOverlay(open);
+  }, [setGlobalSoundOn]);
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
   const availabilityConfirmationShown = cardsHidden && !hotelSearchLoading && !!fallbackPanelData && !!fallbackPanelData.hotels.find((h: any) => h.isCurrentHotel);
 
