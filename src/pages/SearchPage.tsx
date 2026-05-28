@@ -3640,6 +3640,7 @@ const SearchPage = () => {
                   }}
                   center={mapCenterForResults}
                   fitToMarkers
+                  userLocation={geo.isEnabled && geo.coords ? geo.coords : null}
                 />
                 <button
                   type="button"
