@@ -428,7 +428,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
               </div>`
             : "";
           const distKm = userLocation && poi.latitude && poi.longitude
-            ? Math.sqrt(0) || (() => {
+            ? (() => {
                 const R = 6371;
                 const dLat = ((poi.latitude! - userLocation.lat) * Math.PI) / 180;
                 const dLon = ((poi.longitude! - userLocation.lng) * Math.PI) / 180;
