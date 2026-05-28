@@ -4026,6 +4026,7 @@ const SearchPage = () => {
             searchResultsTotal={totalCount ?? filteredBusinesses.length}
             fsMatchingCount={fsMatchingCount}
             labelFromUrl={labelFromUrl}
+            userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
           />
         </>
       )}
