@@ -495,13 +495,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
     const v = videoRef.current;
     const iframe = iframeRef.current;
-    const ytPost = (func: string) => {
-      iframe?.contentWindow?.postMessage(JSON.stringify({ event: "command", func }), "*");
+    const ytPost = (func: string, args: any[] = []) => {
+      iframe?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func, args }),
+        "*"
+      );
     };
 
     if (overlayOpen) {
       if (v) { v.pause(); v.muted = true; }
-      if (iframe) { ytPost("mute"); ytPost("pauseVideo"); }
+      if (iframe) {
+        ytPost("mute");
+        ytPost("setVolume", [0]);
+        ytPost("pauseVideo");
+      }
       return;
     }
 
@@ -509,7 +516,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       v.muted = true;
       v.play().catch(() => {});
     }
-    if (iframe) { ytPost("mute"); ytPost("playVideo"); }
+    if (iframe) {
+      ytPost("mute");
+      ytPost("setVolume", [0]);
+      ytPost("playVideo");
+    }
+
   }, [
     forceMuted, showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId,
     docOverlay, showBookingOverlay, showYoutubeOverlay, showExternalVideosOverlay, showMosaic, externalOverlayActive,
