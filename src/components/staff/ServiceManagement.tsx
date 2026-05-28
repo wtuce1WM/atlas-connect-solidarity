@@ -83,11 +83,30 @@ const ServiceManagement = () => {
 
   const fetchData = async () => {
     setLoading(true);
+    const fetchAllActiveBusinessServices = async () => {
+      const all: { services: string[] | null }[] = [];
+      const PAGE = 1000;
+      let from = 0;
+      while (true) {
+        const { data, error } = await supabase
+          .from("businesses")
+          .select("services")
+          .eq("is_active", true)
+          .order("id")
+          .range(from, from + PAGE - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        all.push(...(data as any));
+        if (data.length < PAGE) break;
+        from += PAGE;
+      }
+      return { data: all };
+    };
     const [catRes, subRes, svcRes, bizRes, citiesRes, filtersRes] = await Promise.all([
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       supabase.from("subcategories").select("id, category_id, name_fr").order("name_fr"),
       fetchAllRows("services", "id, subcategory_id, name_fr, name_en, name_ar, icon, keywords, is_active, is_filtered", "name_fr"),
-      supabase.from("businesses").select("services").eq("is_active", true),
+      fetchAllActiveBusinessServices(),
       supabase.from("cities").select("id, name_fr").order("name_fr"),
       supabase.from("service_city_filters" as any).select("service_id, city_id"),
     ]);
