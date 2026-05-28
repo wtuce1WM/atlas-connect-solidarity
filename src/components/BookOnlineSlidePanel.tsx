@@ -1983,6 +1983,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       {/* Search bar */}
       {showSearchBar && (
         <PanelSearchBar
+          onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
           iconVariant="black"
           onSearch={onSearch}
           onBusinessSelect={onSearchBusinessSelect}
