@@ -407,10 +407,10 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
               rows={1}
               placeholder={
                 language === "fr"
-                  ? "Affinez votre demande (ex : avec piscine, plus calme, moins cher…)"
+                  ? "Affinez votre demande"
                   : language === "ar"
-                  ? "حسّن طلبك…"
-                  : "Refine your request (e.g. with pool, quieter, cheaper…)"
+                  ? "حسّن طلبك"
+                  : "Refine your request"
               }
               className="flex-1 resize-none rounded-2xl border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 max-h-32"
             />
