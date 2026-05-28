@@ -4150,6 +4150,7 @@ const SearchPage = () => {
             />
 
             <PanelSearchBar
+              onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
               onSearch={(params) => {
                 setCompactPanelBusiness(null);
                 setIsCompactPanelExpanded(false);
