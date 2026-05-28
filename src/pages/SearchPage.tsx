@@ -39,6 +39,7 @@ import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type Subca
 import AISearchAnswer, { parseInline, extractCitedBusinesses, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import SearchResultCard from "@/components/SearchResultCard";
 import AISuggestionCard from "@/components/AISuggestionCard";
+import SearchAIVideosCarousel from "@/components/SearchAIVideosCarousel";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
@@ -3428,8 +3429,18 @@ const SearchPage = () => {
                 );
               })()}
 
+              {/* Videos carousel — only in AI tab. One vignette per business
+                  matching the current context (city + subcats). Clicking opens
+                  exactly that video on the /videos page. */}
+              {activeTab === "ai" && (() => {
+                const ids = (aiInlineBusinessPool || []).map((b: any) => b.id).filter(Boolean);
+                if (ids.length === 0) return null;
+                const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
+                return <SearchAIVideosCarousel businessIds={ids} city={effCity} />;
+              })()}
 
               {/* Refinement chat — multi-turn "Affinez votre demande" */}
+
               {activeTab !== "poi" && activeTab !== "destinations" && aiAnswerText && !isAiRegenerating && (() => {
                 const userTurns = aiChat.filter((m) => m.role === "user").length;
                 const reachedCap = userTurns >= AI_CHAT_MAX_TURNS;
