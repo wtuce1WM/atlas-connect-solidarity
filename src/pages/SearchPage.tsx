@@ -4316,17 +4316,24 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Bottom floating search bar — hidden when the right-side Google Map is visible (it has its own search bar) */}
+      {/* Bottom floating search bar — anchored to the right map when open, centered otherwise */}
       {(() => {
         const rightMapVisible = hasKnownLocation && !compactPanelBusiness && (
           (activeTab === "suggestions" && !hideResultsMap) ||
           (activeTab === "poi" && !hidePoiMap) ||
           (activeTab === "destinations" && !hideDestMap)
         );
-        return !compactPanelBusiness && !rightMapVisible;
-      })() && (
+        return !compactPanelBusiness && { rightMapVisible };
+      })() && (() => {
+        const rightMapVisible = hasKnownLocation && !compactPanelBusiness && (
+          (activeTab === "suggestions" && !hideResultsMap) ||
+          (activeTab === "poi" && !hidePoiMap) ||
+          (activeTab === "destinations" && !hideDestMap)
+        );
+        const overlayOpen = bottomSearchOverlayOpen || bottomAiOverlayOpen || bottomHashtagsOverlayOpen;
+        return (
         <>
-          {(bottomSearchOverlayOpen || bottomAiOverlayOpen || bottomHashtagsOverlayOpen) && (
+          {overlayOpen && (
             <div
               className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
               onClick={() => setBottomSearchCloseTrigger((n) => n + 1)}
@@ -4334,11 +4341,14 @@ const SearchPage = () => {
           )}
           <div
             className={`fixed pointer-events-none ${
-              (bottomSearchOverlayOpen || bottomAiOverlayOpen || bottomHashtagsOverlayOpen)
+              overlayOpen
                 ? "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2 z-[201]"
-                : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]"
+                : rightMapVisible
+                  ? "bottom-0 right-0 w-full lg:w-1/2 z-[85]"
+                  : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]"
             }`}
           >
+
             <div className="relative w-full h-full pointer-events-auto">
               <PanelSearchBar
                 onSearch={(params) => {
