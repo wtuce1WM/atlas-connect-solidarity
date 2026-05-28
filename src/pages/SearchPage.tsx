@@ -3095,7 +3095,7 @@ const SearchPage = () => {
               && subcategoryNamesFromUrl.length > 1
               && !selectedSubcategoryFilter && (
               <div className="pb-4">
-                <div className="max-w-3xl mx-auto text-center">
+                <div className={`${isInline && hasKnownLocation && !hideResultsMap ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
                   <p className="text-sm font-medium text-foreground mb-3">
                     {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                   </p>
@@ -3157,7 +3157,7 @@ const SearchPage = () => {
                 if (subcatList.length > 1) {
                   return (
                     <div className="pb-4">
-                      <div className="max-w-3xl mx-auto text-center">
+                      <div className={`${isInline && hasKnownLocation && !hideResultsMap ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
                         <p className="text-sm font-medium text-foreground mb-3">
                           {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                         </p>
@@ -3188,7 +3188,7 @@ const SearchPage = () => {
               if (cats.length > 1) {
                 return (
                   <div className="pb-4">
-                    <div className="max-w-3xl mx-auto text-center">
+                    <div className={`${isInline && hasKnownLocation && !hideResultsMap ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
                       <p className="text-sm font-medium text-foreground mb-3">
                         {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                       </p>
@@ -3226,7 +3226,7 @@ const SearchPage = () => {
               if (subcatList.length <= 1) return null;
               return (
                 <div className="pb-4">
-                  <div className="max-w-3xl mx-auto text-center">
+                  <div className={`${isInline && hasKnownLocation && !hideResultsMap ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
                     <p className="text-sm font-medium text-foreground mb-3">
                       {language === "en" ? "What type exactly?" : language === "ar" ? "أي نوع بالتحديد؟" : "Quel type précisément ?"}
                     </p>
@@ -3255,7 +3255,7 @@ const SearchPage = () => {
 
             {activeTab === "suggestions" && (!selectedCity || selectedCity === "all") && !detectedCity && (
               <div className="pb-4">
-                <div className="max-w-3xl mx-auto text-center">
+                <div className={`${isInline && hasKnownLocation && !hideResultsMap ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
                   <p className="text-sm font-medium text-foreground mb-3">
                     {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                   </p>
