@@ -177,11 +177,6 @@ export default function SearchResultCard({ business, index, labelLogos, distance
           <div className="flex items-center gap-1 text-xs text-white/60">
             <MapPin className="h-3 w-3" />
             <span className="truncate">{business.neighborhood ? `${business.city}, ${business.neighborhood}` : business.city}</span>
-            {distanceKm != null && (
-              <span className="ml-auto text-[10px] font-medium text-gold whitespace-nowrap">
-                {distanceKm < 1 ? `${Math.round(distanceKm * 1000)} m` : `${distanceKm.toFixed(1)} km`}
-              </span>
-            )}
           </div>
         )}
         {hasEngagements && (
