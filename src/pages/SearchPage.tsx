@@ -4358,7 +4358,6 @@ const SearchPage = () => {
                 onHashtagsOverlayChange={setBottomHashtagsOverlayOpen}
                 closeTrigger={bottomSearchCloseTrigger}
                 noToolbarOffset
-                iconVariant="black"
                 solidBackground
                 aiAnswerText={aiAnswerText}
                 aiBusinesses={allBusinesses as any}
