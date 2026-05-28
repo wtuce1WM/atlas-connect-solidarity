@@ -3101,7 +3101,7 @@ const SearchPage = () => {
                   <p className="text-sm font-medium text-foreground mb-3">
                     {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                   </p>
-                  <div className="flex overflow-x-auto gap-2 scrollbar-hide justify-center">
+                  <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                     {subcategoryNamesFromUrl.map((name) => {
                       const count = subcatUrlCounts[name] ?? 0;
                       return (
@@ -3163,7 +3163,7 @@ const SearchPage = () => {
                         <p className="text-sm font-medium text-foreground mb-3">
                           {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                         </p>
-                        <div className="flex overflow-x-auto gap-2 scrollbar-hide justify-center">
+                        <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                           {subcatList.map(sub => (
                             <button
                               key={sub.name}
@@ -3194,7 +3194,7 @@ const SearchPage = () => {
                       <p className="text-sm font-medium text-foreground mb-3">
                         {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                       </p>
-                      <div className="flex overflow-x-auto gap-2 scrollbar-hide justify-center">
+                      <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                         {cats.slice(0, 8).map(cat => (
                           <button
                             key={cat}
@@ -3232,7 +3232,7 @@ const SearchPage = () => {
                     <p className="text-sm font-medium text-foreground mb-3">
                       {language === "en" ? "What type exactly?" : language === "ar" ? "أي نوع بالتحديد؟" : "Quel type précisément ?"}
                     </p>
-                    <div className="flex overflow-x-auto gap-2 scrollbar-hide justify-center">
+                    <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                       {subcatList.map(sub => (
                         <button
                           key={sub.name}
