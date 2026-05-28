@@ -261,6 +261,7 @@ const PoiTabContent = ({
                     google_maps_url: null,
                   });
               }}
+              userLocation={userCoords ?? null}
             />
           </div>
         </div>
