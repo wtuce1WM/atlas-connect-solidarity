@@ -119,7 +119,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
         </button>
         <button
           type="button"
-          onClick={() => setAiOverlayOpen(true)}
+          onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
           aria-label="Suggestion IA"
           className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
         >
