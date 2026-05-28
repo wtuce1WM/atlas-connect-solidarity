@@ -489,7 +489,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   useEffect(() => {
     const overlayOpen =
       showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
-      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
+      !!docOverlay || showBookingOverlay || showExternalVideosOverlay || showMosaic ||
       !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
       showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
 
@@ -691,6 +691,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   // Video info via extracted hook
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
+  const setYoutubeOverlayOpen = useCallback((open: boolean) => {
+    if (open) {
+      if (videoRef.current) {
+        videoRef.current.muted = true;
+        setVideoMuted(true);
+      }
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "mute", args: [] }),
+        "*"
+      );
+      setYtBgMuted(true);
+    }
+    setShowYoutubeOverlay(open);
+  }, []);
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
   const availabilityConfirmationShown = cardsHidden && !hotelSearchLoading && !!fallbackPanelData && !!fallbackPanelData.hotels.find((h: any) => h.isCurrentHotel);
 
@@ -804,7 +818,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         youtubeVideoCount={youtubeVideoCount}
         allYoutubeVideos={allYoutubeVideos}
         setActiveYoutubeVideo={setActiveYoutubeVideo}
-        setShowYoutubeOverlay={setShowYoutubeOverlay}
+        setShowYoutubeOverlay={setYoutubeOverlayOpen}
         setYoutubeIsPlaying={setYoutubeIsPlaying}
         serpApiOverlayCtxRef={serpApiOverlayCtxRef}
         activeBusinessId={activeBusinessId}
@@ -949,7 +963,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               if (hasYoutubeChannel) {
                 const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
                 if (firstShort) setActiveYoutubeVideo(firstShort);
-                setShowYoutubeOverlay(true);
+                setYoutubeOverlayOpen(true);
                 setYoutubeIsPlaying(true);
               } else {
                 setShowExternalVideosOverlay(true);
@@ -1280,7 +1294,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           activeVideo={activeYoutubeVideo}
           onSelectVideo={setActiveYoutubeVideo}
           onPlayingChange={setYoutubeIsPlaying}
-          onClose={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
+          onClose={() => { setYoutubeOverlayOpen(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
         />
       )}
 
