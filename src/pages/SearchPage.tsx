@@ -4317,15 +4317,8 @@ const SearchPage = () => {
       )}
 
       {/* Bottom floating search bar — anchored to the right map when open, centered otherwise */}
-      {(() => {
-        const rightMapVisible = hasKnownLocation && !compactPanelBusiness && (
-          (activeTab === "suggestions" && !hideResultsMap) ||
-          (activeTab === "poi" && !hidePoiMap) ||
-          (activeTab === "destinations" && !hideDestMap)
-        );
-        return !compactPanelBusiness && { rightMapVisible };
-      })() && (() => {
-        const rightMapVisible = hasKnownLocation && !compactPanelBusiness && (
+      {!compactPanelBusiness && (() => {
+        const rightMapVisible = hasKnownLocation && (
           (activeTab === "suggestions" && !hideResultsMap) ||
           (activeTab === "poi" && !hidePoiMap) ||
           (activeTab === "destinations" && !hideDestMap)
@@ -4348,7 +4341,6 @@ const SearchPage = () => {
                   : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]"
             }`}
           >
-
             <div className="relative w-full h-full pointer-events-auto">
               <PanelSearchBar
                 onSearch={(params) => {
@@ -4382,7 +4374,9 @@ const SearchPage = () => {
             </div>
           </div>
         </>
-      )}
+        );
+      })()}
+
 
       {/* Split view: Left AI text panel + Right business panel */}
       {compactPanelBusiness && (
