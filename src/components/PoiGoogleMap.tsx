@@ -221,6 +221,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       ">${iconHtml}<span>${shortName}</span></div>`;
 
       this.div.innerHTML = `${pinHtml}${labelHtml}`;
+      this.draw();
     }
   };
 
