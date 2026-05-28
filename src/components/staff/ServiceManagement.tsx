@@ -144,6 +144,41 @@ const ServiceManagement = () => {
     setSubcategoryFilter("all");
   }, [categoryFilter]);
 
+  // Recompute business counts whenever data or category/subcategory filters change.
+  // Count businesses per service NAME (then map back to every service sharing
+  // that name — multiple services can share the same label).
+  useEffect(() => {
+    if (!services.length) return;
+    const selCatName = categoryFilter !== "all"
+      ? categories.find(c => c.id === categoryFilter)?.name_fr
+      : null;
+    const selSubName = subcategoryFilter !== "all"
+      ? subcategories.find(s => s.id === subcategoryFilter)?.name_fr
+      : null;
+
+    const countsByName: Record<string, number> = {};
+    for (const biz of rawBusinesses) {
+      if (selCatName && biz.main_category !== selCatName) continue;
+      if (selSubName && !(biz.categories || []).includes(selSubName)) continue;
+      const svcs = biz.services || [];
+      const counted = new Set<string>();
+      for (const s of svcs) {
+        if (!s || counted.has(s)) continue;
+        counted.add(s);
+        countsByName[s] = (countsByName[s] || 0) + 1;
+      }
+    }
+    const counts: Record<string, number> = {};
+    for (const s of services) {
+      counts[s.id] = Math.max(
+        countsByName[s.name_fr] || 0,
+        s.name_en ? (countsByName[s.name_en] || 0) : 0,
+        s.name_ar ? (countsByName[s.name_ar] || 0) : 0,
+      );
+    }
+    setBusinessCountBySvc(counts);
+  }, [rawBusinesses, services, categoryFilter, subcategoryFilter, categories, subcategories]);
+
   // Filtered services
   const filteredServices = useMemo(() => {
     let result = services;
