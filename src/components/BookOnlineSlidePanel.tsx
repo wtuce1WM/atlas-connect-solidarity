@@ -296,7 +296,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         if (showHoursOverlay) { setShowHoursOverlay(false); return true; }
         if (showAvailabilitySearch) { setShowAvailabilitySearch(false); return true; }
         if (showMosaic) { setShowMosaic(false); return true; }
-        if (showYoutubeOverlay) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); return true; }
+        if (showYoutubeOverlay) { setYoutubeOverlayOpen(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); return true; }
         if (showExternalVideosOverlay) { setShowExternalVideosOverlay(false); return true; }
         if (showBookingOverlay) { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); setBookingOverlayHideContact(false); return true; }
         if (docOverlay) { setDocOverlay(null); setDocOverlayLoaded(false); return true; }
@@ -404,7 +404,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setYoutubeVideoCount(null);
     setActiveYoutubeVideo(null);
     setYoutubeIsPlaying(false);
-    setShowYoutubeOverlay(false);
+    setYoutubeOverlayOpen(false);
     setShowExternalVideosOverlay(false);
     setKpGroupTitle(null);
     setActiveVideoOverlay(null);
