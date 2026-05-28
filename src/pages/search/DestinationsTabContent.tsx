@@ -55,6 +55,7 @@ const DestinationsTabContent = ({
   setHoveredDestId,
   onSearchNavigate,
   onBusinessSelect,
+  userCoords,
 }: DestinationsTabContentProps) => {
   const destCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
