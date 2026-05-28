@@ -398,6 +398,7 @@ export default function ResultsTabContent({
                 onSearch={onSearchNavigate}
                 onHotelSearch={onHotelSearch}
                 onBusinessSelect={onBusinessSelect}
+                onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
                 closeTrigger={mapPanelCloseTrigger}
                 noToolbarOffset
                 solidBackground
