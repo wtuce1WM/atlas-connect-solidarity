@@ -489,7 +489,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   useEffect(() => {
     const overlayOpen =
       showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
-      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
+      !!docOverlay || showBookingOverlay || showExternalVideosOverlay || showMosaic ||
       !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
       showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
 
