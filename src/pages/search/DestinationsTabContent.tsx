@@ -30,6 +30,7 @@ interface DestinationsTabContentProps {
   setHoveredDestId: (id: string | null) => void;
   onSearchNavigate: (params: Record<string, string>) => void;
   onBusinessSelect: (bizId: string) => void;
+  userCoords?: { lat: number; lng: number } | null;
 }
 
 const DestinationsTabContent = ({
@@ -54,6 +55,7 @@ const DestinationsTabContent = ({
   setHoveredDestId,
   onSearchNavigate,
   onBusinessSelect,
+  userCoords,
 }: DestinationsTabContentProps) => {
   const destCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
@@ -160,6 +162,7 @@ const DestinationsTabContent = ({
             }}
             center={mapCenterForResults}
             fitToMarkers
+            userLocation={userCoords ?? null}
           />
           <PanelSearchBar
             onSearch={onSearchNavigate}
@@ -243,6 +246,7 @@ const DestinationsTabContent = ({
                   );
                 }
               }}
+              userLocation={userCoords ?? null}
             />
           </div>
         </div>

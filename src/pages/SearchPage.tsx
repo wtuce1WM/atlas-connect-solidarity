@@ -3943,6 +3943,7 @@ const SearchPage = () => {
             setCompactPanelBusiness({ id: bizId, name: "" } as any);
             setIsCompactPanelExpanded(false);
           }}
+          userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
         />
       )}
 
@@ -4025,6 +4026,7 @@ const SearchPage = () => {
             searchResultsTotal={totalCount ?? filteredBusinesses.length}
             fsMatchingCount={fsMatchingCount}
             labelFromUrl={labelFromUrl}
+            userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
           />
         </>
       )}
@@ -4164,6 +4166,7 @@ const SearchPage = () => {
               center={mapCenterForResults}
               fitToMarkers
               subcategoryIconMap={undefined}
+              userLocation={geo.isEnabled && geo.coords ? geo.coords : null}
             />
 
             <PanelSearchBar
