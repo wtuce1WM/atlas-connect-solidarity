@@ -128,31 +128,8 @@ const ServiceManagement = () => {
       setServiceCityFilters(map);
     }
 
-    // Count businesses per service NAME (not id), then map back to every
-    // service sharing that name — multiple services can share the same label
-    // across different subcategories.
-    if (bizRes.data && svcRes) {
-      const countsByName: Record<string, number> = {};
-      for (const biz of bizRes.data) {
-        const svcs = (biz.services as string[]) || [];
-        const counted = new Set<string>();
-        for (const s of svcs) {
-          if (!s || counted.has(s)) continue;
-          counted.add(s);
-          countsByName[s] = (countsByName[s] || 0) + 1;
-        }
-      }
-      const counts: Record<string, number> = {};
-      for (const s of svcRes as unknown as Service[]) {
-        const total = Math.max(
-          countsByName[s.name_fr] || 0,
-          s.name_en ? (countsByName[s.name_en] || 0) : 0,
-          s.name_ar ? (countsByName[s.name_ar] || 0) : 0,
-        );
-        counts[s.id] = total;
-      }
-      setBusinessCountBySvc(counts);
-    }
+    // Store raw business list; counts are recomputed in a memo (filter-aware).
+    if (bizRes.data) setRawBusinesses(bizRes.data as any);
     setLoading(false);
   };
 
