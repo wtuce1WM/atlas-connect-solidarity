@@ -4354,6 +4354,7 @@ const SearchPage = () => {
           >
             <div className="relative w-full h-full pointer-events-auto">
               <PanelSearchBar
+                onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
                   navigate(`/search?${sp.toString()}`);
