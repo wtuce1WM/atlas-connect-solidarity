@@ -29,6 +29,8 @@ interface PoiGoogleMapProps {
   fitToMarkers?: boolean;
   /** Custom highlight color for the selected marker (default: dark) */
   highlightColor?: { bg: string; fg: string; border: string };
+  /** When provided, draws a terracotta dot at the user's geolocation. */
+  userLocation?: { lat: number; lng: number } | null;
 }
 
 /* ── Google Maps loader (reuses shared singleton) ── */
