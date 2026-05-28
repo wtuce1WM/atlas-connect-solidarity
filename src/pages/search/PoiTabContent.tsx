@@ -50,6 +50,7 @@ const PoiTabContent = ({
   setHoveredPoiId,
   onSearchNavigate,
   onBusinessSelect,
+  userCoords,
 }: PoiTabContentProps) => {
   const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
