@@ -229,6 +229,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
   const mapRef = useRef<google.maps.Map | null>(null);
   const overlaysRef = useRef<Map<string, LabelMarkerOverlay>>(new Map());
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const userMarkerRef = useRef<google.maps.Marker | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
   const [iconCache, setIconCache] = useState<Map<string, string>>(new Map());
