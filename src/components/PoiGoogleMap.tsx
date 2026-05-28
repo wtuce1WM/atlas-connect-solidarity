@@ -29,6 +29,8 @@ interface PoiGoogleMapProps {
   fitToMarkers?: boolean;
   /** Custom highlight color for the selected marker (default: dark) */
   highlightColor?: { bg: string; fg: string; border: string };
+  /** When provided, draws a terracotta dot at the user's geolocation. */
+  userLocation?: { lat: number; lng: number } | null;
 }
 
 /* ── Google Maps loader (reuses shared singleton) ── */
@@ -221,12 +223,13 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const overlaysRef = useRef<Map<string, LabelMarkerOverlay>>(new Map());
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const userMarkerRef = useRef<google.maps.Marker | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
   const [iconCache, setIconCache] = useState<Map<string, string>>(new Map());
@@ -511,6 +514,39 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     if (!mapRef.current || !center || fitToMarkers) return;
     mapRef.current.setCenter(center);
   }, [center, fitToMarkers]);
+
+  // User geolocation marker (terracotta dot)
+  useEffect(() => {
+    const map = mapRef.current;
+    const gmaps = window.google?.maps;
+    if (!map || !gmaps) return;
+    if (!userLocation) {
+      userMarkerRef.current?.setMap(null);
+      userMarkerRef.current = null;
+      return;
+    }
+    const position = { lat: userLocation.lat, lng: userLocation.lng };
+    if (!userMarkerRef.current) {
+      userMarkerRef.current = new gmaps.Marker({
+        position,
+        map,
+        zIndex: 9999,
+        clickable: false,
+        title: "Votre position",
+        icon: {
+          path: gmaps.SymbolPath.CIRCLE,
+          scale: 9,
+          fillColor: "#C04F17",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 3,
+        },
+      });
+    } else {
+      userMarkerRef.current.setPosition(position);
+      userMarkerRef.current.setMap(map);
+    }
+  }, [userLocation, ready]);
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
   useEffect(() => {
