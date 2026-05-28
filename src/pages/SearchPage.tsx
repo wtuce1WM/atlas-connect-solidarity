@@ -3136,7 +3136,7 @@ const SearchPage = () => {
             )}
 
             {/* Disambiguation prompts — only for Results tab */}
-            {(activeTab === "suggestions" || activeTab === "ai") && !selectedCategoryFilter && !detectedCategory && !selectedSubcategoryFilter && !detectedSubcategory && subcategoryNamesFromUrl.length <= 1 && (() => {
+            {(activeTab === "suggestions" || activeTab === "ai") && (activeTab === "ai" || (!selectedCategoryFilter && !detectedCategory && !selectedSubcategoryFilter && !detectedSubcategory)) && subcategoryNamesFromUrl.length <= 1 && (() => {
               const cats = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
               // If only 1 category, show subcategories directly
               if (cats.length === 1) {
