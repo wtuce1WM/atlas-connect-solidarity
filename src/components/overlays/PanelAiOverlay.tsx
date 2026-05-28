@@ -29,7 +29,7 @@ interface PanelAiOverlayProps {
   onBusinessClick?: (business: BusinessData) => void;
 }
 
-const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, presetAnswer, presetBusinesses, onBusinessClick }: PanelAiOverlayProps) => {
+const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, onOpenMap, presetAnswer, presetBusinesses, onBusinessClick }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
