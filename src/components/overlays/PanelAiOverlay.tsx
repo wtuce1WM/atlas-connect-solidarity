@@ -307,13 +307,24 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             {language === "fr" ? "Suggestion IA" : language === "ar" ? "اقتراح الذكاء" : "AI Suggestion"}
           </span>
         </div>
+        {/* Carte button — mobile/tablet only, same as Results tab */}
+        {onOpenMap && (
+          <button
+            type="button"
+            onClick={() => { onOpenMap(); handleClose(); }}
+            className="lg:hidden ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+          >
+            <MapIcon className="h-4 w-4" />
+            {language === "fr" ? "Carte" : language === "ar" ? "خريطة" : "Map"}
+          </button>
+        )}
         {/* Save to Club OWM */}
         {businesses.length > 0 && (
           <button
             type="button"
             onClick={handleSaveToClub}
             disabled={saving}
-            className="ml-auto w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-50"
+            className={`${onOpenMap ? "" : "ml-auto"} w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-50`}
             title={language === "fr" ? "Sauvegarder dans Club OWM" : language === "ar" ? "حفظ في نادي OWM" : "Save to Club OWM"}
             aria-label={language === "fr" ? "Sauvegarder dans Club OWM" : "Save to Club OWM"}
           >
