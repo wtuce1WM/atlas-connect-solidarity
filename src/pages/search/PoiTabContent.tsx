@@ -138,6 +138,7 @@ const PoiTabContent = ({
               )
             }
             onHover={setHoveredPoiId}
+            userCoords={userCoords}
           />
           {allPois.length > 0 && <div className="mb-0" />}
         </div>
