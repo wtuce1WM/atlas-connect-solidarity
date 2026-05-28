@@ -129,7 +129,14 @@ const SearchPage = () => {
   const badgeIdParam = searchParams.get("badgeId") || "";
   const badgeLabelParam = searchParams.get("badgeLabel") || "";
   const subcatsParam = searchParams.get("subcats") || "";
-  const subcategoryNamesFromUrl = subcatsParam ? subcatsParam.split("|").filter(Boolean) : [];
+  const subcategoryNamesFromUrlRaw = subcatsParam ? subcatsParam.split("|").filter(Boolean) : [];
+  const subcategoryNamesFromUrl = useMemo(() => {
+    if (subcategoryNamesFromUrlRaw.length === 0) return subcategoryNamesFromUrlRaw;
+    const orderMap = new Map(subcategories.map((s: any) => [s.name_fr, s.sort_order ?? 999]));
+    return [...subcategoryNamesFromUrlRaw].sort(
+      (a, b) => (orderMap.get(a) ?? 999) - (orderMap.get(b) ?? 999)
+    );
+  }, [subcatsParam, subcategories]);
   const labelFromUrl = searchParams.get("label") || "";
   const pinBadgeParam = searchParams.get("pinBadge") || "";
   const cityFromUrlForThumbs = searchParams.get("city") || "";
