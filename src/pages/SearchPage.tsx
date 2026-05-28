@@ -4202,6 +4202,10 @@ const SearchPage = () => {
                   setTimeout(() => ensureResultsVisibleBelowSticky("smooth"), 350);
                 }, 50);
               }}
+              onOpenMap={() => {
+                setActiveTab("suggestions");
+                setShowMobileMap(true);
+              }}
             />
           </div>
         </div>
