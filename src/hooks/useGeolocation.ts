@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface GeoCity {
@@ -45,6 +45,45 @@ interface GeolocationState {
 const STORAGE_KEY = "geo_preference";
 const MANUAL_COORDS_KEY = "geo_manual_coords";
 const MANUAL_ADDRESS_KEY = "geo_manual_address";
+
+interface InitialGeolocationSnapshot {
+  isEnabled: boolean;
+  showBanner: boolean;
+  coords: { lat: number; lng: number } | null;
+  confirmedAddress: string | null;
+  isManual: boolean;
+}
+
+function readInitialGeolocationSnapshot(): InitialGeolocationSnapshot {
+  if (typeof window === "undefined") {
+    return { isEnabled: false, showBanner: false, coords: null, confirmedAddress: null, isManual: false };
+  }
+
+  const stored = localStorage.getItem(STORAGE_KEY);
+  const manualCoordsStr = localStorage.getItem(MANUAL_COORDS_KEY);
+  const manualAddr = localStorage.getItem(MANUAL_ADDRESS_KEY);
+  let manualCoords: { lat: number; lng: number } | null = null;
+
+  if (manualCoordsStr) {
+    try {
+      manualCoords = JSON.parse(manualCoordsStr);
+    } catch {
+      manualCoords = null;
+    }
+  }
+
+  if (manualAddr) {
+    return { isEnabled: true, showBanner: false, coords: manualCoords, confirmedAddress: manualAddr, isManual: true };
+  }
+
+  return {
+    isEnabled: stored === "enabled",
+    showBanner: stored === null,
+    coords: null,
+    confirmedAddress: null,
+    isManual: false,
+  };
+}
 
 function haversineDistance(
   lat1: number, lon1: number,
@@ -96,16 +135,20 @@ function findNearestCity(lat: number, lng: number, cities: GeoCity[]): string | 
 }
 
 export function useGeolocation(): GeolocationState {
+  const initialRef = useRef<InitialGeolocationSnapshot | null>(null);
+  if (initialRef.current === null) initialRef.current = readInitialGeolocationSnapshot();
+  const initial = initialRef.current;
+
   const [detectedCity, setDetectedCity] = useState<string | null>(null);
   const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [showBanner, setShowBanner] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(initial.isEnabled);
+  const [showBanner, setShowBanner] = useState(initial.showBanner);
   const [isDetecting, setIsDetecting] = useState(false);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [confirmedAddress, setConfirmedAddress] = useState<string | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(initial.coords);
+  const [confirmedAddress, setConfirmedAddress] = useState<string | null>(initial.confirmedAddress);
   const [cities, setCities] = useState<GeoCity[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<GeoNeighborhood[]>([]);
-  const [isManual, setIsManual] = useState(false);
+  const [isManual, setIsManual] = useState(initial.isManual);
 
   // Load cities and neighborhoods with coordinates on mount
   useEffect(() => {
