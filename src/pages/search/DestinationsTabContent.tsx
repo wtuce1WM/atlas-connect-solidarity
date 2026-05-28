@@ -167,6 +167,7 @@ const DestinationsTabContent = ({
           <PanelSearchBar
             onSearch={onSearchNavigate}
             onBusinessSelect={onBusinessSelect}
+            onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
             closeTrigger={mapPanelCloseTrigger}
             noToolbarOffset
             solidBackground
