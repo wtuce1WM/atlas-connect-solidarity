@@ -299,13 +299,6 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     <div className={`absolute inset-0 z-[80] bg-background flex flex-col ${closing ? "animate-out slide-out-to-bottom duration-200" : "animate-in slide-in-from-bottom duration-200"}`}>
       {/* Header */}
       <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border">
-        <button
-          type="button"
-          onClick={handleClose}
-          className="w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity"
-        >
-          <X className="h-4 w-4" />
-        </button>
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-gold" />
           <span className="font-semibold text-sm">
@@ -340,42 +333,6 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             )}
             {cachedQuery && (
               <p className="text-sm text-foreground/80 italic mb-3 line-clamp-3">« {cachedQuery} »</p>
-            )}
-            {(cachedQuery || cachedCount !== null) && (
-              <button
-                type="button"
-                onClick={() => {
-                  ttsStop();
-                  if (onSeeResults) {
-                    handleClose();
-                    setTimeout(() => onSeeResults(), 210);
-                  } else {
-                    handleClose();
-                  }
-                }}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase"
-              >
-                {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
-              </button>
-            )}
-            {answer && !loading && (
-              <div className="mt-3 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (ttsStatus === "playing" || ttsStatus === "loading") {
-                      ttsStop();
-                    } else {
-                      const cleanText = answer.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                      ttsSpeak(cleanText);
-                    }
-                  }}
-                  className="w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity"
-                  title={language === "fr" ? "Écouter" : language === "ar" ? "استمع" : "Listen"}
-                >
-                  {ttsStatus === "loading" ? <Loader className="h-4 w-4 animate-spin" /> : ttsStatus === "playing" ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                </button>
-              </div>
             )}
           </div>
         </div>
