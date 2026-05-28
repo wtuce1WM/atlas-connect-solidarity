@@ -446,6 +446,35 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  useEffect(() => {
+    if (!showYoutubeOverlay) return;
+
+    const muteBackground = () => {
+      if (videoRef.current) {
+        videoRef.current.muted = true;
+        videoRef.current.volume = 0;
+        setVideoMuted(true);
+      }
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "mute", args: [] }),
+        "*"
+      );
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "setVolume", args: [0] }),
+        "*"
+      );
+      setYtBgMuted(true);
+    };
+
+    muteBackground();
+    const id = window.setInterval(muteBackground, 150);
+    const stop = window.setTimeout(() => window.clearInterval(id), 2500);
+    return () => {
+      window.clearInterval(id);
+      window.clearTimeout(stop);
+    };
+  }, [showYoutubeOverlay]);
+
   // Sync video state — use MutationObserver-like approach via interval to catch key-based remounts
   useEffect(() => {
     let lastEl: HTMLVideoElement | null = null;
