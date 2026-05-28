@@ -290,15 +290,24 @@ const ServiceManagement = () => {
     });
   };
 
-  // Open businesses popup for a service
+  // Open businesses popup for a service (respects Category/Subcategory filters)
   const openBusinessesPopup = async (svcName: string) => {
     setPopup({ title: svcName, businesses: [], loading: true });
     setPopupCityFilter("all");
-    const { data } = await supabase
+    let query = supabase
       .from("businesses")
       .select("id, name, city, is_active")
-      .filter("services", "cs", `{"${svcName}"}`)
-      .order("name");
+      .eq("is_active", true)
+      .filter("services", "cs", `{"${svcName}"}`);
+    if (categoryFilter !== "all") {
+      const selCatName = categories.find(c => c.id === categoryFilter)?.name_fr;
+      if (selCatName) query = query.eq("main_category", selCatName);
+    }
+    if (subcategoryFilter !== "all") {
+      const selSubName = subcategories.find(s => s.id === subcategoryFilter)?.name_fr;
+      if (selSubName) query = query.contains("categories", [selSubName]);
+    }
+    const { data } = await query.order("name");
     setPopup({ title: svcName, businesses: data || [], loading: false });
   };
 
