@@ -510,7 +510,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         setVideoMuted(true);
         setYtBgMuted(true);
         setYtBgPlaying(false);
-        setGlobalSoundOn(false);
         ytPost("mute");
         ytPost("setVolume", [0]);
         ytPost("pauseVideo");
@@ -695,8 +694,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
   const setYoutubeOverlayOpen = useCallback((open: boolean) => {
+    if (open) setGlobalSoundOn(true);
     setShowYoutubeOverlay(open);
-  }, []);
+  }, [setGlobalSoundOn]);
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
   const availabilityConfirmationShown = cardsHidden && !hotelSearchLoading && !!fallbackPanelData && !!fallbackPanelData.hotels.find((h: any) => h.isCurrentHotel);
 
