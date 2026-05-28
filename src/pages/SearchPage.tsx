@@ -2967,46 +2967,17 @@ const SearchPage = () => {
 
           {/* Left panel: AI suggestion */}
           <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${hasRightSidePanel ? "w-1/2 border-r border-border" : (isInline && hasKnownLocation && !hideResultsMap ? "w-1/2" : "w-full")}`}>
-          {/* Mobile sticky top bar: speaker + CTA + close */}
-          <div className="sticky top-0 left-0 right-0 sm:hidden flex items-center justify-between px-4 py-3 bg-white z-10">
-            {/* Speaker left */}
-            <div>
-              {(ttsStatus === "playing" || ttsStatus === "loading") ? (
-                <button
-                  onClick={ttsStop}
-                  className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
-                >
-                  {ttsStatus === "loading" ? <Loader className="h-5 w-5 text-white animate-spin" /> : <VolumeX className="h-5 w-5 text-white" />}
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                    const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                    ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                    voiceLoopRef.current = true;
-                    ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                  }}
-                  className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
-                  title={language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
-                >
-                  <Volume2 className="h-5 w-5 text-white" />
-                </button>
-              )}
-            </div>
-            {/* CTA center */}
+          {/* Mobile/tablet sticky top bar: Carte button only */}
+          <div className="sticky top-0 left-0 right-0 lg:hidden flex items-center justify-center px-4 py-3 bg-white z-10">
             <button
-              onClick={closeToResults}
-              className="inline-flex items-center px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase whitespace-nowrap"
+              onClick={() => {
+                setActiveTab("suggestions");
+                setShowMobileMap(true);
+              }}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
             >
-              {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
-            </button>
-            {/* Close right */}
-            <button
-              onClick={closeAi}
-              className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
-            >
-              <X className="h-5 w-5 text-white" />
+              <Map className="h-4 w-4" />
+              {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
             </button>
           </div>
           {/* Desktop close button */}
