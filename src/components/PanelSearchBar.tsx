@@ -119,14 +119,16 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
         >
           <Search className="h-5 w-5 md:h-6 md:w-6" />
         </button>
-        <button
-          type="button"
-          onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
-          aria-label="Suggestion IA"
-          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-        >
-          <Sparkles className="h-5 w-5 md:h-6 md:w-6" />
-        </button>
+        {!hideAiButton && (
+          <button
+            type="button"
+            onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
+            aria-label="Suggestion IA"
+            className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
+          >
+            <Sparkles className="h-5 w-5 md:h-6 md:w-6" />
+          </button>
+        )}
         <button
           type="button"
           onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
