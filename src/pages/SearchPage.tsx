@@ -39,6 +39,7 @@ import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type Subca
 import AISearchAnswer, { parseInline, extractCitedBusinesses, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import SearchResultCard from "@/components/SearchResultCard";
 import AISuggestionCard from "@/components/AISuggestionCard";
+import SearchAIVideosCarousel from "@/components/SearchAIVideosCarousel";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
