@@ -427,6 +427,18 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
                 ${poi.totalReviews ? `<span style="color:rgba(255,255,255,0.7);">· ${poi.totalReviews} avis</span>` : ""}
               </div>`
             : "";
+          const distKm = userLocation && poi.latitude && poi.longitude
+            ? (() => {
+                const R = 6371;
+                const dLat = ((poi.latitude! - userLocation.lat) * Math.PI) / 180;
+                const dLon = ((poi.longitude! - userLocation.lng) * Math.PI) / 180;
+                const a = Math.sin(dLat / 2) ** 2 + Math.cos((userLocation.lat * Math.PI) / 180) * Math.cos((poi.latitude! * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+              })()
+            : null;
+          const distHtml = distKm != null
+            ? `<div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.6);color:#D4AF37;font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;backdrop-filter:blur(4px);white-space:nowrap;">${distKm < 1 ? `${Math.round(distKm * 1000)} m` : `${distKm.toFixed(1)} km`}</div>`
+            : "";
           const html = `<div data-poi-id="${poi.id}" style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;cursor:pointer;">
             ${img ? `<img src="${img}" style="width:100%;height:180px;display:block;object-fit:cover;" />` : ""}
             <div style="background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:10px;">
@@ -434,6 +446,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
               <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:3px;">${loc}</div>
               ${ratingHtml ? `<div style="margin-top:3px;color:white;">${ratingHtml}</div>` : ""}
             </div>
+            ${distHtml}
           </div>`;
           infoWindowRef.current?.setContent(html);
           infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -50) });

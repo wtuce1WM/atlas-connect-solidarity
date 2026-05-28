@@ -27,6 +27,7 @@ interface PoiTabContentProps {
   setHoveredPoiId: (id: string | null) => void;
   onSearchNavigate: (params: Record<string, string>) => void;
   onBusinessSelect: (bizId: string) => void;
+  userCoords?: { lat: number; lng: number } | null;
 }
 
 const PoiTabContent = ({
@@ -49,6 +50,7 @@ const PoiTabContent = ({
   setHoveredPoiId,
   onSearchNavigate,
   onBusinessSelect,
+  userCoords,
 }: PoiTabContentProps) => {
   const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
@@ -136,6 +138,7 @@ const PoiTabContent = ({
               )
             }
             onHover={setHoveredPoiId}
+            userCoords={userCoords}
           />
           {allPois.length > 0 && <div className="mb-0" />}
         </div>
@@ -159,6 +162,7 @@ const PoiTabContent = ({
             }}
             center={mapCenterForResults}
             fitToMarkers
+            userLocation={userCoords ?? null}
           />
           <PanelSearchBar
             onSearch={onSearchNavigate}
@@ -257,6 +261,7 @@ const PoiTabContent = ({
                     google_maps_url: null,
                   });
               }}
+              userLocation={userCoords ?? null}
             />
           </div>
         </div>

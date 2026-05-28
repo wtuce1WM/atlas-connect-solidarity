@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+import { haversineKm } from "@/lib/haversine";
 
 interface PoiBusiness {
   id: string;
@@ -38,9 +39,10 @@ interface PoiSectionProps {
   onMapClick?: (business: PoiBusiness) => void;
   onPoisLoaded?: (pois: PoiBusiness[]) => void;
   onHover?: (businessId: string | null) => void;
+  userCoords?: { lat: number; lng: number } | null;
 }
 
-const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded, onHover }: PoiSectionProps) => {
+const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded, onHover, userCoords }: PoiSectionProps) => {
   const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -98,6 +100,11 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
           const sources = collectRatingSources(biz);
           const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
           const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+          const distanceKm = userCoords && biz.latitude && biz.longitude
+            ? haversineKm(userCoords.lat, userCoords.lng, biz.latitude, biz.longitude)
+            : null;
+
+
 
           return (
             <Link
@@ -135,6 +142,12 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
                 </button>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+              {distanceKm != null && (
+                <span className="absolute bottom-2 right-2 z-10 px-1.5 py-0.5 rounded text-[10px] font-semibold text-gold bg-black/60 backdrop-blur-sm whitespace-nowrap">
+                  {distanceKm < 1 ? `${Math.round(distanceKm * 1000)} m` : `${distanceKm.toFixed(1)} km`}
+                </span>
+              )}
 
               <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
                 <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{biz.name}</p>
