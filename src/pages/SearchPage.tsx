@@ -3230,7 +3230,7 @@ const SearchPage = () => {
             })()}
 
             {/* Subcategory disambiguation — only for Results tab */}
-            {(activeTab === "suggestions" || activeTab === "ai") && !selectedSubcategoryFilter && !detectedSubcategory && (selectedCategoryFilter || detectedCategory) && (() => {
+            {(activeTab === "suggestions" || activeTab === "ai") && (activeTab === "ai" || (!selectedSubcategoryFilter && !detectedSubcategory)) && (selectedCategoryFilter || detectedCategory) && (() => {
               const effectiveCat = selectedCategoryFilter || detectedCategory;
               const subcatList = Object.entries(disambigSubcatCounts)
                 .sort((a, b) => b[1] - a[1])
