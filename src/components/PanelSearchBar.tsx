@@ -46,13 +46,15 @@ interface PanelSearchBarProps {
   onAiClick?: () => void;
   /** Extra controls (e.g. video play/mute) rendered before the 4 default round buttons */
   leadingControls?: ReactNode;
+  /** When true, hides the Sparkles (Suggestion IA) button from the floating bar */
+  hideAiButton?: boolean;
   /** Pre-generated AI text from /search Sticky 4 — forwarded to PanelAiOverlay to keep both views in sync */
   aiAnswerText?: string | null;
   /** Businesses pool matching aiAnswerText (for thumbnail resolution) */
   aiBusinesses?: any[] | null;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -117,14 +119,16 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
         >
           <Search className="h-5 w-5 md:h-6 md:w-6" />
         </button>
-        <button
-          type="button"
-          onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
-          aria-label="Suggestion IA"
-          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-        >
-          <Sparkles className="h-5 w-5 md:h-6 md:w-6" />
-        </button>
+        {!hideAiButton && (
+          <button
+            type="button"
+            onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
+            aria-label="Suggestion IA"
+            className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
+          >
+            <Sparkles className="h-5 w-5 md:h-6 md:w-6" />
+          </button>
+        )}
         <button
           type="button"
           onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
