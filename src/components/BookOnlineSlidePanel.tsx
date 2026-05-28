@@ -482,10 +482,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     };
   }, [businessId, currentMediaIndex]);
 
-  // Pause/mute background media when an overlay is open — WITHOUT reloading iframes
-  // (reloading caused the YouTube background to "jump" to its default top-anchored layout).
-  // We pause/mute via postMessage for YouTube and via the <video> element for files,
-  // so the iframe DOM stays mounted and never re-layouts.
+  // Pause/mute background media when an overlay is open — same mute gate as the Search overlay.
+  // The refs are read inside the retry loop because YouTube iframes can mount after the state flip.
   useEffect(() => {
     const overlayOpen =
       showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
@@ -493,9 +491,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
       showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
 
-    const v = videoRef.current;
-    const iframe = iframeRef.current;
     const ytPost = (func: string, args: any[] = []) => {
+      const iframe = iframeRef.current;
       iframe?.contentWindow?.postMessage(
         JSON.stringify({ event: "command", func, args }),
         "*"
@@ -503,34 +500,40 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     };
 
     if (overlayOpen) {
-      if (v) { v.pause(); v.muted = true; }
-      if (iframe) {
-        // Retry: the YT iframe may not have finished loading / registered the JS API.
-        // Spamming the command for ~2s reliably mutes once the player is ready.
-        const start = Date.now();
-        const id = window.setInterval(() => {
-          ytPost("mute");
-          ytPost("setVolume", [0]);
-          ytPost("pauseVideo");
-          if (Date.now() - start > 2000) window.clearInterval(id);
-        }, 150);
+      const muteBackground = () => {
+        const v = videoRef.current;
+        if (v) {
+          v.muted = true;
+          v.volume = 0;
+          v.pause();
+        }
+        setVideoMuted(true);
+        setYtBgMuted(true);
+        setYtBgPlaying(false);
+        setGlobalSoundOn(false);
         ytPost("mute");
         ytPost("setVolume", [0]);
         ytPost("pauseVideo");
-        return () => window.clearInterval(id);
+      };
+
+      muteBackground();
+      const id = window.setInterval(muteBackground, 150);
+      const stop = window.setTimeout(() => window.clearInterval(id), 3000);
+      return () => {
+        window.clearInterval(id);
+        window.clearTimeout(stop);
       }
-      return;
+;
     }
 
+    const v = videoRef.current;
     if (v && v.paused) {
       v.muted = true;
       v.play().catch(() => {});
     }
-    if (iframe) {
-      ytPost("mute");
-      ytPost("setVolume", [0]);
-      ytPost("playVideo");
-    }
+    ytPost("mute");
+    ytPost("setVolume", [0]);
+    ytPost("playVideo");
 
   }, [
     forceMuted, showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId,
