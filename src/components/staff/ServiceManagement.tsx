@@ -86,13 +86,13 @@ const ServiceManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     const fetchAllActiveBusinessServices = async () => {
-      const all: { services: string[] | null }[] = [];
+      const all: { services: string[] | null; main_category: string | null; categories: string[] | null }[] = [];
       const PAGE = 1000;
       let from = 0;
       while (true) {
         const { data, error } = await supabase
           .from("businesses")
-          .select("services")
+          .select("services, main_category, categories")
           .eq("is_active", true)
           .order("id")
           .range(from, from + PAGE - 1);
