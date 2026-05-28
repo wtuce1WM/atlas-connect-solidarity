@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface GeoCity {
@@ -46,6 +46,45 @@ const STORAGE_KEY = "geo_preference";
 const MANUAL_COORDS_KEY = "geo_manual_coords";
 const MANUAL_ADDRESS_KEY = "geo_manual_address";
 
+interface InitialGeolocationSnapshot {
+  isEnabled: boolean;
+  showBanner: boolean;
+  coords: { lat: number; lng: number } | null;
+  confirmedAddress: string | null;
+  isManual: boolean;
+}
+
+function readInitialGeolocationSnapshot(): InitialGeolocationSnapshot {
+  if (typeof window === "undefined") {
+    return { isEnabled: false, showBanner: false, coords: null, confirmedAddress: null, isManual: false };
+  }
+
+  const stored = localStorage.getItem(STORAGE_KEY);
+  const manualCoordsStr = localStorage.getItem(MANUAL_COORDS_KEY);
+  const manualAddr = localStorage.getItem(MANUAL_ADDRESS_KEY);
+  let manualCoords: { lat: number; lng: number } | null = null;
+
+  if (manualCoordsStr) {
+    try {
+      manualCoords = JSON.parse(manualCoordsStr);
+    } catch {
+      manualCoords = null;
+    }
+  }
+
+  if (manualAddr) {
+    return { isEnabled: true, showBanner: false, coords: manualCoords, confirmedAddress: manualAddr, isManual: true };
+  }
+
+  return {
+    isEnabled: stored === "enabled",
+    showBanner: stored === null,
+    coords: null,
+    confirmedAddress: null,
+    isManual: false,
+  };
+}
+
 function haversineDistance(
   lat1: number, lon1: number,
   lat2: number, lon2: number
@@ -79,17 +118,37 @@ function findNearestNeighborhood(
   return minDist <= 2 ? nearest : null;
 }
 
+function findNearestCity(lat: number, lng: number, cities: GeoCity[]): string | null {
+  let nearest: string | null = null;
+  let minDist = Infinity;
+
+  for (const city of cities) {
+    if (city.latitude == null || city.longitude == null) continue;
+    const dist = haversineDistance(lat, lng, city.latitude, city.longitude);
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = city.name_fr;
+    }
+  }
+
+  return minDist <= 100 ? nearest : null;
+}
+
 export function useGeolocation(): GeolocationState {
+  const initialRef = useRef<InitialGeolocationSnapshot | null>(null);
+  if (initialRef.current === null) initialRef.current = readInitialGeolocationSnapshot();
+  const initial = initialRef.current;
+
   const [detectedCity, setDetectedCity] = useState<string | null>(null);
   const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [showBanner, setShowBanner] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(initial.isEnabled);
+  const [showBanner, setShowBanner] = useState(initial.showBanner);
   const [isDetecting, setIsDetecting] = useState(false);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [confirmedAddress, setConfirmedAddress] = useState<string | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(initial.coords);
+  const [confirmedAddress, setConfirmedAddress] = useState<string | null>(initial.confirmedAddress);
   const [cities, setCities] = useState<GeoCity[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<GeoNeighborhood[]>([]);
-  const [isManual, setIsManual] = useState(false);
+  const [isManual, setIsManual] = useState(initial.isManual);
 
   // Load cities and neighborhoods with coordinates on mount
   useEffect(() => {
@@ -129,9 +188,9 @@ export function useGeolocation(): GeolocationState {
       setShowBanner(false);
     }
 
-    if (manualCoordsStr && manualAddr) {
+    if (manualAddr) {
       try {
-        const parsed = JSON.parse(manualCoordsStr);
+        const parsed = manualCoordsStr ? JSON.parse(manualCoordsStr) : null;
         setCoords(parsed);
         setConfirmedAddress(manualAddr);
         setIsManual(true);
@@ -167,6 +226,24 @@ export function useGeolocation(): GeolocationState {
     setDetectedNeighborhood(findNearestNeighborhood(coords.lat, coords.lng, neighborhoods));
   }, [coords, neighborhoods]);
 
+  // Restore the city for manually confirmed locations after navigation/reload.
+  useEffect(() => {
+    if (!isManual || cities.length === 0) return;
+
+    const exactCity = confirmedAddress
+      ? cities.find((city) => city.name_fr.trim().toLowerCase() === confirmedAddress.trim().toLowerCase())
+      : null;
+
+    if (exactCity) {
+      setDetectedCity(exactCity.name_fr);
+      return;
+    }
+
+    if (coords) {
+      setDetectedCity(findNearestCity(coords.lat, coords.lng, cities));
+    }
+  }, [isManual, confirmedAddress, coords, cities]);
+
   // Detect position when enabled (only if not manual)
   useEffect(() => {
     if (!isEnabled || cities.length === 0 || isManual) {
@@ -186,21 +263,7 @@ export function useGeolocation(): GeolocationState {
         const { latitude, longitude } = position.coords;
         setCoords({ lat: latitude, lng: longitude });
 
-        // Find nearest city
-        let nearest: string | null = null;
-        let minDist = Infinity;
-
-        for (const city of cities) {
-          if (city.latitude == null || city.longitude == null) continue;
-          const dist = haversineDistance(latitude, longitude, city.latitude, city.longitude);
-          if (dist < minDist) {
-            minDist = dist;
-            nearest = city.name_fr;
-          }
-        }
-
-        // Only set city if within 100km of a known city
-        setDetectedCity(minDist <= 100 ? nearest : null);
+        setDetectedCity(findNearestCity(latitude, longitude, cities));
         setIsDetecting(false);
       },
       () => {

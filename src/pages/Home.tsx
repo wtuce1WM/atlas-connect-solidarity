@@ -274,13 +274,22 @@ const Home = () => {
     }
 
     // Still detecting position: keep loader on.
-    if (geo.isDetecting || !geo.coords) return;
+    if (geo.isDetecting) return;
+
+    if (!geo.coords) {
+      if (geo.detectedCity && CITIES.includes(geo.detectedCity as City)) {
+        setCity(geo.detectedCity as City);
+        cityResolvedRef.current = true;
+        setResolvingCity(false);
+      }
+      return;
+    }
 
     const resolved = resolveHomepageCity(geo.coords);
     setCity(resolved);
     cityResolvedRef.current = true;
     setResolvingCity(false);
-  }, [geo.isEnabled, geo.isDetecting, geo.coords]);
+  }, [geo.isEnabled, geo.isDetecting, geo.coords, geo.detectedCity]);
 
   // Persist last viewed homepage city (manual switches or auto-resolution).
   useEffect(() => {
@@ -2453,6 +2462,7 @@ const Home = () => {
               <PanelSearchBar
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
+                  if (geo.isEnabled && !sp.has("city")) sp.set("city", geo.detectedCity || city);
                   navigate(`/search?${sp.toString()}`);
                 }}
                 onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
