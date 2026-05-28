@@ -4166,6 +4166,7 @@ const SearchPage = () => {
               center={mapCenterForResults}
               fitToMarkers
               subcategoryIconMap={undefined}
+              userLocation={geo.isEnabled && geo.coords ? geo.coords : null}
             />
 
             <PanelSearchBar
