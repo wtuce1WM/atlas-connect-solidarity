@@ -3232,7 +3232,7 @@ const SearchPage = () => {
                     <p className="text-sm font-medium text-foreground mb-3">
                       {language === "en" ? "What type exactly?" : language === "ar" ? "أي نوع بالتحديد؟" : "Quel type précisément ?"}
                     </p>
-                    <div className="flex overflow-x-auto gap-2 scrollbar-hide justify-center">
+                    <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                       {subcatList.map(sub => (
                         <button
                           key={sub.name}
