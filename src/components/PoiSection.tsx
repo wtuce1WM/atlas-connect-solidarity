@@ -100,6 +100,11 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
           const sources = collectRatingSources(biz);
           const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
           const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+          const distanceKm = userCoords && biz.latitude && biz.longitude
+            ? haversineKm(userCoords.lat, userCoords.lng, biz.latitude, biz.longitude)
+            : null;
+
+
 
           return (
             <Link
