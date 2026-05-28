@@ -4322,14 +4322,18 @@ const SearchPage = () => {
         <>
           {overlayOpen && (
             <div
-              className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
+              className={`fixed z-[200] bg-black/70 backdrop-blur-md animate-in fade-in duration-200 ${
+                rightMapVisible ? "inset-y-0 right-0 w-full lg:w-1/2" : "inset-0"
+              }`}
               onClick={() => setBottomSearchCloseTrigger((n) => n + 1)}
             />
           )}
           <div
             className={`fixed pointer-events-none ${
               overlayOpen
-                ? "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2 z-[201]"
+                ? rightMapVisible
+                  ? "inset-y-0 right-0 w-full lg:w-1/2 z-[201]"
+                  : "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2 z-[201]"
                 : rightMapVisible
                   ? "bottom-0 right-0 w-full lg:w-1/2 z-[85]"
                   : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]"
