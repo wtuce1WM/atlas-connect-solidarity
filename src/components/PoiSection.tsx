@@ -143,6 +143,12 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
+              {distanceKm != null && (
+                <span className="absolute bottom-2 right-2 z-10 px-1.5 py-0.5 rounded text-[10px] font-semibold text-gold bg-black/60 backdrop-blur-sm whitespace-nowrap">
+                  {distanceKm < 1 ? `${Math.round(distanceKm * 1000)} m` : `${distanceKm.toFixed(1)} km`}
+                </span>
+              )}
+
               <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
                 <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{biz.name}</p>
                 {avgOn20 && (
