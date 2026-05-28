@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+import { haversineKm } from "@/lib/haversine";
 
 interface PoiBusiness {
   id: string;
