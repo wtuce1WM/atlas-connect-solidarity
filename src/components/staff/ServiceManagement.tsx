@@ -62,7 +62,9 @@ const ServiceManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"az" | "za" | "count-asc" | "count-desc">("az");
 
-  // Business counts per service name
+  // Raw active businesses (services + categorization) to recompute counts under filters
+  const [rawBusinesses, setRawBusinesses] = useState<{ services: string[] | null; main_category: string | null; categories: string[] | null }[]>([]);
+  // Business counts per service id (filter-aware)
   const [businessCountBySvc, setBusinessCountBySvc] = useState<Record<string, number>>({});
 
   // City filters per service: { serviceId: Set<cityId> }
@@ -84,13 +86,13 @@ const ServiceManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     const fetchAllActiveBusinessServices = async () => {
-      const all: { services: string[] | null }[] = [];
+      const all: { services: string[] | null; main_category: string | null; categories: string[] | null }[] = [];
       const PAGE = 1000;
       let from = 0;
       while (true) {
         const { data, error } = await supabase
           .from("businesses")
-          .select("services")
+          .select("services, main_category, categories")
           .eq("is_active", true)
           .order("id")
           .range(from, from + PAGE - 1);
@@ -126,31 +128,8 @@ const ServiceManagement = () => {
       setServiceCityFilters(map);
     }
 
-    // Count businesses per service NAME (not id), then map back to every
-    // service sharing that name — multiple services can share the same label
-    // across different subcategories.
-    if (bizRes.data && svcRes) {
-      const countsByName: Record<string, number> = {};
-      for (const biz of bizRes.data) {
-        const svcs = (biz.services as string[]) || [];
-        const counted = new Set<string>();
-        for (const s of svcs) {
-          if (!s || counted.has(s)) continue;
-          counted.add(s);
-          countsByName[s] = (countsByName[s] || 0) + 1;
-        }
-      }
-      const counts: Record<string, number> = {};
-      for (const s of svcRes as unknown as Service[]) {
-        const total = Math.max(
-          countsByName[s.name_fr] || 0,
-          s.name_en ? (countsByName[s.name_en] || 0) : 0,
-          s.name_ar ? (countsByName[s.name_ar] || 0) : 0,
-        );
-        counts[s.id] = total;
-      }
-      setBusinessCountBySvc(counts);
-    }
+    // Store raw business list; counts are recomputed in a memo (filter-aware).
+    if (bizRes.data) setRawBusinesses(bizRes.data as any);
     setLoading(false);
   };
 
@@ -164,6 +143,41 @@ const ServiceManagement = () => {
   useEffect(() => {
     setSubcategoryFilter("all");
   }, [categoryFilter]);
+
+  // Recompute business counts whenever data or category/subcategory filters change.
+  // Count businesses per service NAME (then map back to every service sharing
+  // that name — multiple services can share the same label).
+  useEffect(() => {
+    if (!services.length) return;
+    const selCatName = categoryFilter !== "all"
+      ? categories.find(c => c.id === categoryFilter)?.name_fr
+      : null;
+    const selSubName = subcategoryFilter !== "all"
+      ? subcategories.find(s => s.id === subcategoryFilter)?.name_fr
+      : null;
+
+    const countsByName: Record<string, number> = {};
+    for (const biz of rawBusinesses) {
+      if (selCatName && biz.main_category !== selCatName) continue;
+      if (selSubName && !(biz.categories || []).includes(selSubName)) continue;
+      const svcs = biz.services || [];
+      const counted = new Set<string>();
+      for (const s of svcs) {
+        if (!s || counted.has(s)) continue;
+        counted.add(s);
+        countsByName[s] = (countsByName[s] || 0) + 1;
+      }
+    }
+    const counts: Record<string, number> = {};
+    for (const s of services) {
+      counts[s.id] = Math.max(
+        countsByName[s.name_fr] || 0,
+        s.name_en ? (countsByName[s.name_en] || 0) : 0,
+        s.name_ar ? (countsByName[s.name_ar] || 0) : 0,
+      );
+    }
+    setBusinessCountBySvc(counts);
+  }, [rawBusinesses, services, categoryFilter, subcategoryFilter, categories, subcategories]);
 
   // Filtered services
   const filteredServices = useMemo(() => {
@@ -276,15 +290,24 @@ const ServiceManagement = () => {
     });
   };
 
-  // Open businesses popup for a service
+  // Open businesses popup for a service (respects Category/Subcategory filters)
   const openBusinessesPopup = async (svcName: string) => {
     setPopup({ title: svcName, businesses: [], loading: true });
     setPopupCityFilter("all");
-    const { data } = await supabase
+    let query = supabase
       .from("businesses")
       .select("id, name, city, is_active")
-      .filter("services", "cs", `{"${svcName}"}`)
-      .order("name");
+      .eq("is_active", true)
+      .filter("services", "cs", `{"${svcName}"}`);
+    if (categoryFilter !== "all") {
+      const selCatName = categories.find(c => c.id === categoryFilter)?.name_fr;
+      if (selCatName) query = query.eq("main_category", selCatName);
+    }
+    if (subcategoryFilter !== "all") {
+      const selSubName = subcategories.find(s => s.id === subcategoryFilter)?.name_fr;
+      if (selSubName) query = query.contains("categories", [selSubName]);
+    }
+    const { data } = await query.order("name");
     setPopup({ title: svcName, businesses: data || [], loading: false });
   };
 
