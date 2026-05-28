@@ -71,6 +71,7 @@ export interface ResultsTabContentProps {
   searchResultsTotal?: number;
   fsMatchingCount?: number;
   labelFromUrl?: string;
+  userCoords?: { lat: number; lng: number } | null;
 }
 
 export default function ResultsTabContent({
