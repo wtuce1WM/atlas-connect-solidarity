@@ -42,6 +42,8 @@ interface PanelSearchBarProps {
   onSeeResults?: () => void;
   /** Called when user clicks the "Carte" button inside the AI suggestion overlay (mobile/tablet) */
   onOpenMap?: () => void;
+  /** When provided, the Sparkles button calls this instead of opening the AI overlay (used on /search to switch to the IA tab) */
+  onAiClick?: () => void;
   /** Extra controls (e.g. video play/mute) rendered before the 4 default round buttons */
   leadingControls?: ReactNode;
   /** Pre-generated AI text from /search Sticky 4 — forwarded to PanelAiOverlay to keep both views in sync */
@@ -50,7 +52,7 @@ interface PanelSearchBarProps {
   aiBusinesses?: any[] | null;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, leadingControls, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -117,7 +119,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCit
         </button>
         <button
           type="button"
-          onClick={() => setAiOverlayOpen(true)}
+          onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
           aria-label="Suggestion IA"
           className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
         >
