@@ -2967,19 +2967,6 @@ const SearchPage = () => {
 
           {/* Left panel: AI suggestion */}
           <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${hasRightSidePanel ? "w-1/2 border-r border-border" : (isInline && hasKnownLocation && !hideResultsMap ? "w-1/2" : "w-full")}`}>
-          {/* Mobile/tablet sticky top bar: Carte button only */}
-          <div className="sticky top-0 left-0 right-0 lg:hidden flex items-center justify-center px-4 py-3 bg-white z-10">
-            <button
-              onClick={() => {
-                setActiveTab("suggestions");
-                setShowMobileMap(true);
-              }}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
-            >
-              <Map className="h-4 w-4" />
-              {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-            </button>
-          </div>
           {/* Desktop close button */}
           <button
             onClick={closeAi}
@@ -3065,6 +3052,16 @@ const SearchPage = () => {
                   <p className="text-primary font-semibold mt-2">
                     {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
                   </p>
+                  <button
+                    onClick={() => {
+                      setActiveTab("suggestions");
+                      setShowMobileMap(true);
+                    }}
+                    className="lg:hidden mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+                  >
+                    <Map className="h-4 w-4" />
+                    {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+                  </button>
                 </>
               )}
             </div>
