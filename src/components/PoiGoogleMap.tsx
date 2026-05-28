@@ -515,37 +515,31 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     mapRef.current.setCenter(center);
   }, [center, fitToMarkers]);
 
-  // User geolocation marker (terracotta dot)
+  // User geolocation marker — same label style as POI markers, terracotta color
   useEffect(() => {
     const map = mapRef.current;
     const gmaps = window.google?.maps;
     if (!map || !gmaps) return;
-    if (!userLocation) {
-      userMarkerRef.current?.setMap(null);
+    // Remove previous marker (we re-create to update position simply)
+    if (userMarkerRef.current) {
+      userMarkerRef.current.setMap(null);
       userMarkerRef.current = null;
-      return;
     }
-    const position = { lat: userLocation.lat, lng: userLocation.lng };
-    if (!userMarkerRef.current) {
-      userMarkerRef.current = new gmaps.Marker({
-        position,
-        map,
-        zIndex: 9999,
-        clickable: false,
-        title: "Votre position",
-        icon: {
-          path: gmaps.SymbolPath.CIRCLE,
-          scale: 9,
-          fillColor: "#C04F17",
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 3,
-        },
-      });
-    } else {
-      userMarkerRef.current.setPosition(position);
-      userMarkerRef.current.setMap(map);
-    }
+    if (!userLocation) return;
+    const LabelMarker = createLabelMarkerClass(gmaps);
+    const navIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="#ffffff"/></svg>`;
+    userMarkerRef.current = new LabelMarker(
+      { lat: userLocation.lat, lng: userLocation.lng },
+      map,
+      "Vous êtes ici",
+      navIcon,
+      false,
+      undefined,
+      undefined,
+      undefined,
+      { bg: "#C04F17", fg: "#ffffff", border: "#C04F17" },
+      undefined,
+    );
   }, [userLocation, ready]);
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
