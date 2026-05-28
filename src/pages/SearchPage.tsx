@@ -3429,15 +3429,8 @@ const SearchPage = () => {
                 );
               })()}
 
-              {/* Videos carousel — only in AI tab. One vignette per business
-                  matching the current context (city + subcats). Clicking opens
-                  exactly that video on the /videos page. */}
-              {activeTab === "ai" && (() => {
-                const ids = (aiInlineBusinessPool || []).map((b: any) => b.id).filter(Boolean);
-                if (ids.length === 0) return null;
-                const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
-                return <SearchAIVideosCarousel businessIds={ids} city={effCity} />;
-              })()}
+              {/* Videos carousel moved below the refinement chat — see after "Affinez votre demande". */}
+
 
               {/* Refinement chat — multi-turn "Affinez votre demande" */}
 
@@ -3570,6 +3563,22 @@ const SearchPage = () => {
                   </div>
                 );
               })()}
+
+              {/* Videos carousel — AI tab only, AFTER the "Affinez votre demande" block.
+                  Mirrors the /videos page filter (city + selected subcategories),
+                  1 vignette per business. Clicking opens that exact video on /videos. */}
+              {activeTab === "ai" && (() => {
+                const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
+                if (!effCity || subcategoryNamesFromUrl.length === 0) return null;
+                return (
+                  <SearchAIVideosCarousel
+                    subcategoryNames={subcategoryNamesFromUrl}
+                    city={effCity}
+                    entryLabel={labelFromUrl}
+                  />
+                );
+              })()}
+
 
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
 

@@ -10,60 +10,123 @@ interface VideoDoc {
   thumbnail_url: string | null;
   url: string | null;
   name: string | null;
-  description: string | null;
   sort_order: number | null;
   businessName?: string | null;
 }
 
 interface Props {
-  /** Business IDs from the current AI/Results pool — drives 1 vignette per business. */
-  businessIds: string[];
-  /** Effective city (e.g. "Marrakech"). Passed to /videos so context restores. */
+  /** Selected subcategory names from the AI search URL (subcats=A|B|...). */
+  subcategoryNames: string[];
+  /** Effective city (e.g. "Marrakech"). */
   city: string | null;
+  /** Front-structure entry label (e.g. "Hébergement"). */
+  entryLabel?: string | null;
   /** Optional title override. */
   title?: string;
 }
 
 /**
- * Carousel of videos matching the current AI search context (city + businesses
- * present in results). One vignette = one business = exactly one video.
- * Clicking navigates to /videos?city=…&openVideo=<docId> which opens that
- * exact video in the SlidePanelHome.
+ * Carousel mirroring the /videos page filter for the current AI search context:
+ *   subcategory_id ∈ resolved(subcategoryNames)
+ *   AND business_document_cities matching the current city (+ aliases)
+ *
+ * Rule "1 entité = 1 vignette" → group by business_id, keep the first video
+ * (lowest sort_order). Clicking a vignette opens that exact video on /videos
+ * within the same context (city + entry + sub).
  */
-const SearchAIVideosCarousel = ({ businessIds, city, title }: Props) => {
+const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, title }: Props) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const [docs, setDocs] = useState<VideoDoc[]>([]);
   const [loading, setLoading] = useState(false);
+  const [entryId, setEntryId] = useState<string | null>(null);
+  const [subIds, setSubIds] = useState<string[]>([]);
 
-  const key = useMemo(() => [...new Set(businessIds)].sort().join(","), [businessIds]);
+  const subKey = useMemo(
+    () => [...new Set(subcategoryNames)].sort().join("|"),
+    [subcategoryNames]
+  );
 
   useEffect(() => {
     let cancelled = false;
-    const ids = [...new Set(businessIds)].filter(Boolean);
-    if (ids.length === 0) {
+    const names = [...new Set(subcategoryNames)].filter(Boolean);
+    if (names.length === 0 || !city) {
       setDocs([]);
+      setEntryId(null);
+      setSubIds([]);
       return;
     }
     setLoading(true);
     (async () => {
+      // 1. Resolve subcategory IDs
+      const { data: subs } = await supabase
+        .from("subcategories")
+        .select("id, name_fr")
+        .in("name_fr", names);
+      const resolvedSubIds = (subs || []).map((s: any) => s.id);
+      if (resolvedSubIds.length === 0) {
+        if (!cancelled) { setDocs([]); setLoading(false); }
+        return;
+      }
+
+      // 2. Resolve current city IDs (Marrakech aliases Agafay)
+      const aliasNames = city === "Marrakech" ? ["Marrakech", "Agafay"] : [city];
+      const { data: cityRows } = await supabase
+        .from("cities")
+        .select("id, name_fr")
+        .in("name_fr", aliasNames);
+      const cityIds = (cityRows || []).map((c: any) => c.id);
+      if (cityIds.length === 0) {
+        if (!cancelled) { setDocs([]); setLoading(false); }
+        return;
+      }
+
+      // 3. Resolve front_structure entry id from label (for nav back to /videos)
+      let resolvedEntryId: string | null = null;
+      if (entryLabel) {
+        const { data: ent } = await supabase
+          .from("front_structure" as any)
+          .select("id, name")
+          .ilike("name", entryLabel)
+          .limit(1);
+        if (ent && (ent as any[]).length > 0) resolvedEntryId = (ent as any[])[0].id;
+      }
+
+      // 4. Doc IDs linked to current city
+      const cityDocIds: string[] = [];
+      const CHUNK = 300;
+      for (let i = 0; i < cityIds.length; i += CHUNK) {
+        const { data } = await supabase
+          .from("business_document_cities" as any)
+          .select("document_id")
+          .in("city_id", cityIds.slice(i, i + CHUNK));
+        (data as any[] || []).forEach((r) => cityDocIds.push(r.document_id));
+      }
+      const uniqueCityDocIds = [...new Set(cityDocIds)];
+      if (uniqueCityDocIds.length === 0) {
+        if (!cancelled) { setDocs([]); setLoading(false); }
+        return;
+      }
+
+      // 5. Fetch matching video docs (filtered to those doc ids)
       const all: any[] = [];
-      const CHUNK = 200;
-      for (let i = 0; i < ids.length; i += CHUNK) {
-        const chunk = ids.slice(i, i + CHUNK);
+      for (let i = 0; i < uniqueCityDocIds.length; i += CHUNK) {
+        const chunk = uniqueCityDocIds.slice(i, i + CHUNK);
         const { data } = await supabase
           .from("business_documents")
-          .select("id, url, thumbnail_url, business_id, name, description, sort_order")
+          .select("id, url, thumbnail_url, business_id, name, sort_order, subcategory_id")
           .eq("type", "video")
           .eq("business_is_active", true)
-          .eq("show_on_front", true)
-          .in("business_id", chunk)
+          .in("subcategory_id", resolvedSubIds)
+          .in("id", chunk)
           .not("thumbnail_url", "is", null)
           .not("url", "is", null)
           .order("sort_order", { ascending: true });
         if (data) all.push(...data);
       }
+
       // Group by business_id, keep first (lowest sort_order) per business
+      all.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       const perBiz = new Map<string, any>();
       for (const d of all) {
         if (!d.business_id) continue;
@@ -71,7 +134,7 @@ const SearchAIVideosCarousel = ({ businessIds, city, title }: Props) => {
       }
       const grouped = Array.from(perBiz.values());
 
-      // Fetch business names for label
+      // Fetch business names
       const bizIds = grouped.map((d) => d.business_id).filter(Boolean) as string[];
       const nameMap = new Map<string, string>();
       if (bizIds.length > 0) {
@@ -82,18 +145,25 @@ const SearchAIVideosCarousel = ({ businessIds, city, title }: Props) => {
         (biz || []).forEach((b: any) => nameMap.set(b.id, b.name));
       }
       if (cancelled) return;
+      setEntryId(resolvedEntryId);
+      setSubIds(resolvedSubIds);
       setDocs(
         grouped.map((d) => ({
-          ...d,
+          id: d.id,
+          url: d.url,
+          thumbnail_url: d.thumbnail_url,
+          business_id: d.business_id,
+          name: d.name,
+          sort_order: d.sort_order,
           businessName: nameMap.get(d.business_id) || null,
-        })),
+        }))
       );
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [key]);
+  }, [subKey, city, entryLabel]);
 
   if (loading) {
     return (
@@ -107,6 +177,8 @@ const SearchAIVideosCarousel = ({ businessIds, city, title }: Props) => {
   const handleClick = (doc: VideoDoc) => {
     const params = new URLSearchParams();
     if (city) params.set("city", city);
+    if (entryId) params.set("entry", entryId);
+    if (subIds.length === 1) params.set("sub", subIds[0]);
     params.set("openVideo", doc.id);
     navigate(`/videos?${params.toString()}`);
   };
