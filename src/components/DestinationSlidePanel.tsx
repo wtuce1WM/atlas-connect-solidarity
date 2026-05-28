@@ -662,6 +662,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       </div>
 
       <PanelSearchBar
+        onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
         iconVariant="black"
         darkBackground
         compact
