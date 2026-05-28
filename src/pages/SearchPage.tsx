@@ -3244,22 +3244,25 @@ const SearchPage = () => {
                       {language === "en" ? "What type exactly?" : language === "ar" ? "أي نوع بالتحديد؟" : "Quel type précisément ?"}
                     </p>
                     <div className="flex overflow-x-auto gap-2 scrollbar-hide">
-                      {subcatList.map(sub => (
+                      {subcatList.map(sub => {
+                        const isActive = selectedSubcategoryFilter === sub.name || detectedSubcategory === sub.name;
+                        return (
                         <button
                           key={sub.name}
                           onClick={() => {
                             if (!selectedCategoryFilter && effectiveCat) setSelectedCategoryFilter(effectiveCat);
-                            setSelectedSubcategoryFilter(sub.name);
+                            setSelectedSubcategoryFilter(isActive ? null : sub.name);
                             setOverlaySelectedBusiness(null);
-                            submitAiRefinement(sub.name);
+                            if (!isActive) submitAiRefinement(sub.name);
                           }}
 
-                          className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
+                          className={`shrink-0 px-4 py-2 rounded-full border text-sm transition-colors whitespace-nowrap ${isActive ? "border-gold bg-gold/20 text-foreground" : "border-border bg-card text-foreground hover:border-gold/50 hover:bg-gold/10"}`}
                         >
                           {sub.name}
                           <span className="ml-1.5 text-xs text-muted-foreground">{sub.count}</span>
                         </button>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
