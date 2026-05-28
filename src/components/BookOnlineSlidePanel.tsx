@@ -505,9 +505,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     if (overlayOpen) {
       if (v) { v.pause(); v.muted = true; }
       if (iframe) {
+        // Retry: the YT iframe may not have finished loading / registered the JS API.
+        // Spamming the command for ~2s reliably mutes once the player is ready.
+        const start = Date.now();
+        const id = window.setInterval(() => {
+          ytPost("mute");
+          ytPost("setVolume", [0]);
+          ytPost("pauseVideo");
+          if (Date.now() - start > 2000) window.clearInterval(id);
+        }, 150);
         ytPost("mute");
         ytPost("setVolume", [0]);
         ytPost("pauseVideo");
+        return () => window.clearInterval(id);
       }
       return;
     }
@@ -527,6 +537,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     docOverlay, showBookingOverlay, showYoutubeOverlay, showExternalVideosOverlay, showMosaic, externalOverlayActive,
     showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay,
   ]);
+
 
   const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
 
