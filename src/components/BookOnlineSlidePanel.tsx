@@ -819,7 +819,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         youtubeVideoCount={youtubeVideoCount}
         allYoutubeVideos={allYoutubeVideos}
         setActiveYoutubeVideo={setActiveYoutubeVideo}
-        setShowYoutubeOverlay={setShowYoutubeOverlay}
+        setShowYoutubeOverlay={setYoutubeOverlayOpen}
         setYoutubeIsPlaying={setYoutubeIsPlaying}
         serpApiOverlayCtxRef={serpApiOverlayCtxRef}
         activeBusinessId={activeBusinessId}
@@ -964,7 +964,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               if (hasYoutubeChannel) {
                 const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
                 if (firstShort) setActiveYoutubeVideo(firstShort);
-                setShowYoutubeOverlay(true);
+                setYoutubeOverlayOpen(true);
                 setYoutubeIsPlaying(true);
               } else {
                 setShowExternalVideosOverlay(true);
