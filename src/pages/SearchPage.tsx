@@ -3321,7 +3321,7 @@ const SearchPage = () => {
               );
             })()} */}
 
-            <div className="max-w-3xl mx-auto">
+            <div className={`${isInline && hasKnownLocation && !hideResultsMap ? "max-w-3xl" : "max-w-none"} mx-auto`}>
               <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
                 {(() => {
                   const currentAiText = activeTab === "poi" ? poiAiText : activeTab === "destinations" ? destAiText : aiAnswerText;
