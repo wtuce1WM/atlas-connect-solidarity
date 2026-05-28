@@ -123,6 +123,7 @@ export default function ResultsTabContent({
   searchResultsTotal,
   fsMatchingCount,
   labelFromUrl,
+  userCoords,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
