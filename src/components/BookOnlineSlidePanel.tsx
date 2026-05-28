@@ -1295,7 +1295,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           activeVideo={activeYoutubeVideo}
           onSelectVideo={setActiveYoutubeVideo}
           onPlayingChange={setYoutubeIsPlaying}
-          onClose={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
+          onClose={() => { setYoutubeOverlayOpen(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
         />
       )}
 
