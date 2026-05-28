@@ -162,6 +162,7 @@ const DestinationsTabContent = ({
             }}
             center={mapCenterForResults}
             fitToMarkers
+            userLocation={userCoords ?? null}
           />
           <PanelSearchBar
             onSearch={onSearchNavigate}
