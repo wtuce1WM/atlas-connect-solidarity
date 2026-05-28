@@ -19,6 +19,8 @@ interface PanelAiOverlayProps {
   onAskAssistant?: () => void;
   /** Called when user clicks the "See results" CTA — should return to the search list+map view */
   onSeeResults?: () => void;
+  /** Called when user clicks the "Carte" button — opens the mobile map view */
+  onOpenMap?: () => void;
   /** Pre-generated AI text (from Sticky 4 on /search) — when provided, the panel reuses it instead of regenerating */
   presetAnswer?: string | null;
   /** Businesses pool matching presetAnswer (for parseInline thumbnails) */
