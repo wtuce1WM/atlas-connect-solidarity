@@ -949,11 +949,23 @@ const SearchPage = () => {
      // Child tab components manage their own panel state now
    };
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
-   useEffect(() => {
-     const h = () => setLocationDialogOpen(true);
-     window.addEventListener("open-location-picker", h);
-     return () => window.removeEventListener("open-location-picker", h);
-   }, []);
+    useEffect(() => {
+      const h = () => setLocationDialogOpen(true);
+      window.addEventListener("open-location-picker", h);
+      return () => window.removeEventListener("open-location-picker", h);
+    }, []);
+    useEffect(() => {
+      const h = () => {
+        setShowAiPopup(false);
+        setActiveTab("ai");
+        setCompactPanelBusiness(null);
+        setIsCompactPanelExpanded(false);
+        setShowMobileMap(false);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+      window.addEventListener("open-ai-tab", h);
+      return () => window.removeEventListener("open-ai-tab", h);
+    }, []);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
     // showAiPopup moved earlier (before ensureResultsVisibleBelowSticky)
