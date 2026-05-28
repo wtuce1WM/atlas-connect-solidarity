@@ -132,9 +132,10 @@ const SearchPage = () => {
   const subcategoryNamesFromUrlRaw = subcatsParam ? subcatsParam.split("|").filter(Boolean) : [];
   const subcategoryNamesFromUrl = useMemo(() => {
     if (subcategoryNamesFromUrlRaw.length === 0) return subcategoryNamesFromUrlRaw;
-    const orderMap = new Map(subcategories.map((s: any) => [s.name_fr, s.sort_order ?? 999]));
+    const orderMap: Record<string, number> = {};
+    for (const s of subcategories as any[]) orderMap[s.name_fr] = s.sort_order ?? 999;
     return [...subcategoryNamesFromUrlRaw].sort(
-      (a, b) => (orderMap.get(a) ?? 999) - (orderMap.get(b) ?? 999)
+      (a, b) => (orderMap[a] ?? 999) - (orderMap[b] ?? 999)
     );
   }, [subcatsParam, subcategories]);
   const labelFromUrl = searchParams.get("label") || "";
