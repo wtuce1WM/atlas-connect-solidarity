@@ -2453,6 +2453,7 @@ const Home = () => {
               <PanelSearchBar
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
+                  if (geo.isEnabled && !sp.has("city")) sp.set("city", geo.detectedCity || city);
                   navigate(`/search?${sp.toString()}`);
                 }}
                 onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
