@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { X, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
@@ -19,12 +19,30 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
 
-  const postCmd = useCallback((func: string) => {
+  const postCmd = useCallback((func: string, args: unknown[] = []) => {
     iframeRef.current?.contentWindow?.postMessage(
-      JSON.stringify({ event: "command", func }),
+      JSON.stringify({ event: "command", func, args }),
       "*"
     );
   }, []);
+
+  useEffect(() => {
+    if (!activeVideo) return;
+    setIsPlaying(true);
+    setIsMuted(false);
+    const unmute = () => {
+      postCmd("unMute");
+      postCmd("setVolume", [100]);
+      postCmd("playVideo");
+    };
+    unmute();
+    const id = window.setInterval(unmute, 150);
+    const stop = window.setTimeout(() => window.clearInterval(id), 2000);
+    return () => {
+      window.clearInterval(id);
+      window.clearTimeout(stop);
+    };
+  }, [activeVideo?.videoId, postCmd]);
 
   const togglePlay = useCallback(() => {
     if (isPlaying) {
