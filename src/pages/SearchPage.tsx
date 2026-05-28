@@ -2932,6 +2932,8 @@ const SearchPage = () => {
       {/* AI Suggestion Overlay — fullscreen when triggered from ✨ button, inline when in the "Suggestion IA" tab */}
       {(showAiPopup || activeTab === "ai") && (() => {
         const isInline = activeTab === "ai" && !showAiPopup;
+        const hasRightSidePanel = !!overlaySelectedBusiness || !!compactPanelBusiness;
+        const shouldConstrainAiContent = hasRightSidePanel || (isInline && hasKnownLocation && !hideResultsMap);
         const closeAi = () => {
           if (isInline) {
             setActiveTab("suggestions");
@@ -2956,7 +2958,7 @@ const SearchPage = () => {
 
 
           {/* Left panel: AI suggestion */}
-          <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : (isInline && hasKnownLocation && !hideResultsMap ? "w-1/2" : "w-full")}`}>
+          <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${hasRightSidePanel ? "w-1/2 border-r border-border" : (isInline && hasKnownLocation && !hideResultsMap ? "w-1/2" : "w-full")}`}>
           {/* Mobile sticky top bar: speaker + CTA + close */}
           <div className="sticky top-0 left-0 right-0 sm:hidden flex items-center justify-between px-4 py-3 bg-white z-10">
             {/* Speaker left */}
@@ -3095,7 +3097,7 @@ const SearchPage = () => {
               && subcategoryNamesFromUrl.length > 1
               && !selectedSubcategoryFilter && (
               <div className="pb-4">
-                <div className={`${(overlaySelectedBusiness || (isInline && hasKnownLocation && !hideResultsMap)) ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
+                <div className={`${shouldConstrainAiContent ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
                   <p className="text-sm font-medium text-foreground mb-3">
                     {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                   </p>
@@ -3157,7 +3159,7 @@ const SearchPage = () => {
                 if (subcatList.length > 1) {
                   return (
                     <div className="pb-4">
-                      <div className={`${(overlaySelectedBusiness || (isInline && hasKnownLocation && !hideResultsMap)) ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
+                      <div className={`${shouldConstrainAiContent ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
                         <p className="text-sm font-medium text-foreground mb-3">
                           {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                         </p>
