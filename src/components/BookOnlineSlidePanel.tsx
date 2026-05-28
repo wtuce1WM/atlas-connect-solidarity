@@ -446,35 +446,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  useEffect(() => {
-    if (!showYoutubeOverlay) return;
-
-    const muteBackground = () => {
-      if (videoRef.current) {
-        videoRef.current.muted = true;
-        videoRef.current.volume = 0;
-        setVideoMuted(true);
-      }
-      iframeRef.current?.contentWindow?.postMessage(
-        JSON.stringify({ event: "command", func: "mute", args: [] }),
-        "*"
-      );
-      iframeRef.current?.contentWindow?.postMessage(
-        JSON.stringify({ event: "command", func: "setVolume", args: [0] }),
-        "*"
-      );
-      setYtBgMuted(true);
-    };
-
-    muteBackground();
-    const id = window.setInterval(muteBackground, 150);
-    const stop = window.setTimeout(() => window.clearInterval(id), 2500);
-    return () => {
-      window.clearInterval(id);
-      window.clearTimeout(stop);
-    };
-  }, [showYoutubeOverlay]);
-
   // Sync video state — use MutationObserver-like approach via interval to catch key-based remounts
   useEffect(() => {
     let lastEl: HTMLVideoElement | null = null;
@@ -518,7 +489,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   useEffect(() => {
     const overlayOpen =
       showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
-      !!docOverlay || showBookingOverlay || showExternalVideosOverlay || showMosaic ||
+      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
       !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
       showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
 
@@ -721,17 +692,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
   const setYoutubeOverlayOpen = useCallback((open: boolean) => {
-    if (open) {
-      if (videoRef.current) {
-        videoRef.current.muted = true;
-        setVideoMuted(true);
-      }
-      iframeRef.current?.contentWindow?.postMessage(
-        JSON.stringify({ event: "command", func: "mute", args: [] }),
-        "*"
-      );
-      setYtBgMuted(true);
-    }
     setShowYoutubeOverlay(open);
   }, []);
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
