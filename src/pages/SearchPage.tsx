@@ -4329,7 +4329,9 @@ const SearchPage = () => {
           <div
             className={`fixed pointer-events-none ${
               overlayOpen
-                ? "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2 z-[201]"
+                ? rightMapVisible
+                  ? "inset-y-0 right-0 w-full lg:w-1/2 z-[201]"
+                  : "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2 z-[201]"
                 : rightMapVisible
                   ? "bottom-0 right-0 w-full lg:w-1/2 z-[85]"
                   : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]"
