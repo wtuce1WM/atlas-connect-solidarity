@@ -246,6 +246,7 @@ const DestinationsTabContent = ({
                   );
                 }
               }}
+              userLocation={userCoords ?? null}
             />
           </div>
         </div>
