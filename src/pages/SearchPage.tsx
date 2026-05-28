@@ -4320,6 +4320,7 @@ const SearchPage = () => {
       {!compactPanelBusiness && (() => {
         const rightMapVisible = hasKnownLocation && (
           (activeTab === "suggestions" && !hideResultsMap) ||
+          (activeTab === "ai" && !hideResultsMap) ||
           (activeTab === "poi" && !hidePoiMap) ||
           (activeTab === "destinations" && !hideDestMap)
         );
