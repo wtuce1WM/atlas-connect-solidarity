@@ -702,10 +702,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         "*"
       );
       setYtBgMuted(true);
-      setGlobalSoundOn(false);
     }
     setShowYoutubeOverlay(open);
-  }, [setGlobalSoundOn]);
+  }, []);
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
   const availabilityConfirmationShown = cardsHidden && !hotelSearchLoading && !!fallbackPanelData && !!fallbackPanelData.hotels.find((h: any) => h.isCurrentHotel);
 
