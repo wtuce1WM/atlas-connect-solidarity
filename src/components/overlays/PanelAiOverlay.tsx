@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { X, Sparkles, Loader2, Volume2, VolumeX, Loader, Heart, Send } from "lucide-react";
+import { X, Sparkles, Loader2, Volume2, VolumeX, Loader, Heart, Send, Map as MapIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -19,6 +19,8 @@ interface PanelAiOverlayProps {
   onAskAssistant?: () => void;
   /** Called when user clicks the "See results" CTA — should return to the search list+map view */
   onSeeResults?: () => void;
+  /** Called when user clicks the "Carte" button — opens the mobile map view */
+  onOpenMap?: () => void;
   /** Pre-generated AI text (from Sticky 4 on /search) — when provided, the panel reuses it instead of regenerating */
   presetAnswer?: string | null;
   /** Businesses pool matching presetAnswer (for parseInline thumbnails) */
@@ -27,7 +29,7 @@ interface PanelAiOverlayProps {
   onBusinessClick?: (business: BusinessData) => void;
 }
 
-const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, presetAnswer, presetBusinesses, onBusinessClick }: PanelAiOverlayProps) => {
+const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, onOpenMap, presetAnswer, presetBusinesses, onBusinessClick }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
@@ -305,13 +307,24 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             {language === "fr" ? "Suggestion IA" : language === "ar" ? "اقتراح الذكاء" : "AI Suggestion"}
           </span>
         </div>
+        {/* Carte button — mobile/tablet only, same as Results tab */}
+        {onOpenMap && (
+          <button
+            type="button"
+            onClick={() => { onOpenMap(); handleClose(); }}
+            className="lg:hidden ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+          >
+            <MapIcon className="h-4 w-4" />
+            {language === "fr" ? "Carte" : language === "ar" ? "خريطة" : "Map"}
+          </button>
+        )}
         {/* Save to Club OWM */}
         {businesses.length > 0 && (
           <button
             type="button"
             onClick={handleSaveToClub}
             disabled={saving}
-            className="ml-auto w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-50"
+            className={`${onOpenMap ? "" : "ml-auto"} w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-50`}
             title={language === "fr" ? "Sauvegarder dans Club OWM" : language === "ar" ? "حفظ في نادي OWM" : "Save to Club OWM"}
             aria-label={language === "fr" ? "Sauvegarder dans Club OWM" : "Save to Club OWM"}
           >
