@@ -56,6 +56,7 @@ import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import FrontStructureNavBar from "@/components/FrontStructureNavBar";
+import FrontStructureSubNavBar from "@/components/FrontStructureSubNavBar";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
@@ -300,6 +301,7 @@ const SearchPage = () => {
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
   const [mobileFsTabId, setMobileFsTabId] = useState<string | null>(null);
+  const [mobileFsSubId, setMobileFsSubId] = useState<string | null>(null);
   const [showAllSearchMarkers, setShowAllSearchMarkers] = useState(false);
 
   // Reset front structure filter when search query changes
@@ -4130,6 +4132,7 @@ const SearchPage = () => {
                   activeTabId={mobileFsTabId}
                   onTabClick={(tabId) => {
                     setMobileFsTabId(tabId);
+                    setMobileFsSubId(null);
                     if (!tabId) {
                       setFsFilterSubcategories(null);
                     } else {
@@ -4142,6 +4145,25 @@ const SearchPage = () => {
                   }}
                 />
               )}
+              {(() => {
+                const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
+                if (!activeFsTab || activeFsTab.subcategories.length <= 1) return null;
+                return (
+                  <FrontStructureSubNavBar
+                    subcategories={activeFsTab.subcategories}
+                    activeSubId={mobileFsSubId}
+                    onSubClick={(subId) => {
+                      setMobileFsSubId(subId);
+                      if (!subId) {
+                        setFsFilterSubcategories(new Set(activeFsTab.subcategoryNames));
+                      } else {
+                        const sub = activeFsTab.subcategories.find(s => s.id === subId);
+                        setFsFilterSubcategories(new Set(sub?.names || activeFsTab.subcategoryNames));
+                      }
+                    }}
+                  />
+                );
+              })()}
               {(() => {
                 const mobileTotal = mobileFsTabId === null ? (totalCount ?? filteredBusinesses.length) : fsMatchingCount;
                 const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
