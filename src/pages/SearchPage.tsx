@@ -300,14 +300,19 @@ const SearchPage = () => {
 
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
+  const [fsFilterServices, setFsFilterServices] = useState<Set<string> | null>(null);
   const [mobileFsTabId, setMobileFsTabId] = useState<string | null>(null);
   const [mobileFsSubId, setMobileFsSubId] = useState<string | null>(null);
+  const [mobileFsServices, setMobileFsServices] = useState<string[]>([]);
   const [showAllSearchMarkers, setShowAllSearchMarkers] = useState(false);
 
   // Reset front structure filter when search query changes
   useEffect(() => {
     setFsFilterSubcategories(null);
+    setFsFilterServices(null);
     setMobileFsTabId(null);
+    setMobileFsSubId(null);
+    setMobileFsServices([]);
     setShowAllSearchMarkers(false);
   }, [searchQuery]);
 
@@ -315,6 +320,14 @@ const SearchPage = () => {
   useEffect(() => {
     setShowAllSearchMarkers(false);
   }, [fsFilterSubcategories]);
+
+  // Helper: a business matches the service filter when at least one of its
+  // services intersects the active service filter set (OR semantics).
+  const businessMatchesFsServices = (b: any): boolean => {
+    if (!fsFilterServices || fsFilterServices.size === 0) return true;
+    const list: string[] = Array.isArray(b.services) ? b.services : [];
+    return list.some((s) => fsFilterServices.has(s));
+  };
 
   const categoryFromUrl = searchParams.get("category") || "";
   
