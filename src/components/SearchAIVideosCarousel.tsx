@@ -488,10 +488,3 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
 };
 
 export default SearchAIVideosCarousel;
-
-      </div>
-    </div>
-  );
-};
-
-export default SearchAIVideosCarousel;
