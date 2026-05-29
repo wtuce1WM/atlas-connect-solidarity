@@ -252,6 +252,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         _id: `doc:${d.id}`,
         _kind: "doc",
         _isInternal: d.type === "video",
+        url: d.url,
 
         name: d.name || bizMap[d.business_id]?.hook_fr || null,
         description: d.description || null,
