@@ -3565,25 +3565,26 @@ const SearchPage = () => {
               })()}
 
               {/* Videos carousel — AI tab only, AFTER the "Affinez votre demande" block.
-                  Mirrors the /videos page filter (city + selected subcategories),
+                  Mirrors the /videos page filter (city + selected subcategory + service),
                   1 vignette per business. Clicking opens that exact video on /videos. */}
               {activeTab === "ai" && (() => {
                 const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
-                // Effective single subcategory: either narrowed via UI (chip click /
-                // detection) OR exactly one in the URL.
                 const effSub =
                   selectedSubcategoryFilter ||
                   detectedSubcategory ||
                   (subcategoryNamesFromUrl.length === 1 ? subcategoryNamesFromUrl[0] : null);
-                if (!effCity || !effSub) return null;
+                const effService = selectedServiceFilter || null;
+                if (!effCity || (!effSub && !effService)) return null;
                 return (
                   <SearchAIVideosCarousel
-                    subcategoryNames={[effSub]}
+                    subcategoryNames={effSub ? [effSub] : []}
+                    serviceName={effService}
                     city={effCity}
                     entryLabel={labelFromUrl}
                   />
                 );
               })()}
+
 
 
 
@@ -3970,6 +3971,24 @@ const SearchPage = () => {
 
       {activeTab === "suggestions" && (
         <>
+          {(() => {
+            // Videos carousel for Results tab — only after the user refined with a subcategory or service.
+            const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
+            const effSub = selectedSubcategoryFilter || detectedSubcategory || null;
+            const effService = selectedServiceFilter || null;
+            if (!effCity || (!effSub && !effService)) return null;
+            return (
+              <div className="max-w-7xl mx-auto px-4 pt-4">
+                <SearchAIVideosCarousel
+                  subcategoryNames={effSub ? [effSub] : []}
+                  serviceName={effService}
+                  city={effCity}
+                  entryLabel={labelFromUrl}
+                />
+              </div>
+            );
+          })()}
+
           <ResultsTabContent
             resultsRef={resultsRef}
             resultsBarRef={resultsBarRef}

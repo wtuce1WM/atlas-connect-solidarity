@@ -15,26 +15,33 @@ interface VideoDoc {
 }
 
 interface Props {
-  /** Selected subcategory names from the AI search URL (subcats=A|B|...). */
+  /** Selected subcategory names (subcats=A|B|...). */
   subcategoryNames: string[];
   /** Effective city (e.g. "Marrakech"). */
   city: string | null;
   /** Front-structure entry label (e.g. "Hébergement"). */
   entryLabel?: string | null;
+  /** Optional service name filter (matches business_documents.service_id). */
+  serviceName?: string | null;
+  /** Optional badge IDs (intersect with business_document_badges). */
+  badgeIds?: string[];
   /** Optional title override. */
   title?: string;
 }
 
 /**
- * Carousel mirroring the /videos page filter for the current AI search context:
- *   subcategory_id ∈ resolved(subcategoryNames)
+ * Carousel mirroring the /videos page filter for the current search context:
+ *   subcategory_id ∈ resolved(subcategoryNames)  (when provided)
+ *   AND service_id = resolved(serviceName)        (when provided)
+ *   AND id ∈ business_document_badges.document_id (when badgeIds provided)
  *   AND business_document_cities matching the current city (+ aliases)
  *
  * Rule "1 entité = 1 vignette" → group by business_id, keep the first video
  * (lowest sort_order). Clicking a vignette opens that exact video on /videos
  * within the same context (city + entry + sub).
  */
-const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, title }: Props) => {
+const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceName, badgeIds, title }: Props) => {
+
   const { language } = useLanguage();
   const navigate = useNavigate();
   const [docs, setDocs] = useState<VideoDoc[]>([]);
@@ -46,11 +53,18 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, title }: P
     () => [...new Set(subcategoryNames)].sort().join("|"),
     [subcategoryNames]
   );
+  const badgeKey = useMemo(
+    () => [...new Set(badgeIds || [])].sort().join("|"),
+    [badgeIds]
+  );
 
   useEffect(() => {
     let cancelled = false;
     const names = [...new Set(subcategoryNames)].filter(Boolean);
-    if (names.length === 0 || !city) {
+    const hasSub = names.length > 0;
+    const hasService = !!serviceName;
+    const hasBadges = (badgeIds || []).length > 0;
+    if ((!hasSub && !hasService && !hasBadges) || !city) {
       setDocs([]);
       setEntryId(null);
       setSubIds([]);
@@ -58,15 +72,33 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, title }: P
     }
     setLoading(true);
     (async () => {
-      // 1. Resolve subcategory IDs
-      const { data: subs } = await supabase
-        .from("subcategories")
-        .select("id, name_fr")
-        .in("name_fr", names);
-      const resolvedSubIds = (subs || []).map((s: any) => s.id);
-      if (resolvedSubIds.length === 0) {
-        if (!cancelled) { setDocs([]); setLoading(false); }
-        return;
+      // 1. Resolve subcategory IDs (if any)
+      let resolvedSubIds: string[] = [];
+      if (hasSub) {
+        const { data: subs } = await supabase
+          .from("subcategories")
+          .select("id, name_fr")
+          .in("name_fr", names);
+        resolvedSubIds = (subs || []).map((s: any) => s.id);
+        if (resolvedSubIds.length === 0) {
+          if (!cancelled) { setDocs([]); setLoading(false); }
+          return;
+        }
+      }
+
+      // 1b. Resolve service ID (if any)
+      let resolvedServiceId: string | null = null;
+      if (hasService) {
+        const { data: svcs } = await supabase
+          .from("services")
+          .select("id, name_fr")
+          .eq("name_fr", serviceName)
+          .limit(1);
+        if (svcs && svcs.length > 0) resolvedServiceId = (svcs[0] as any).id;
+        if (!resolvedServiceId) {
+          if (!cancelled) { setDocs([]); setLoading(false); }
+          return;
+        }
       }
 
       // 2. Resolve current city IDs (Marrakech aliases Agafay)
@@ -102,28 +134,48 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, title }: P
           .in("city_id", cityIds.slice(i, i + CHUNK));
         (data as any[] || []).forEach((r) => cityDocIds.push(r.document_id));
       }
-      const uniqueCityDocIds = [...new Set(cityDocIds)];
-      if (uniqueCityDocIds.length === 0) {
+      let candidateDocIds = [...new Set(cityDocIds)];
+      if (candidateDocIds.length === 0) {
         if (!cancelled) { setDocs([]); setLoading(false); }
         return;
       }
 
+      // 4b. Intersect with badge-linked doc IDs (if any)
+      if (hasBadges) {
+        const badgeDocIds: string[] = [];
+        const { data } = await supabase
+          .from("business_document_badges" as any)
+          .select("document_id")
+          .in("badge_id", badgeIds!);
+        (data as any[] || []).forEach((r) => badgeDocIds.push(r.document_id));
+        const badgeSet = new Set(badgeDocIds);
+        candidateDocIds = candidateDocIds.filter((id) => badgeSet.has(id));
+        if (candidateDocIds.length === 0) {
+          if (!cancelled) { setDocs([]); setLoading(false); }
+          return;
+        }
+      }
+
       // 5. Fetch matching video docs (filtered to those doc ids)
       const all: any[] = [];
-      for (let i = 0; i < uniqueCityDocIds.length; i += CHUNK) {
-        const chunk = uniqueCityDocIds.slice(i, i + CHUNK);
-        const { data } = await supabase
+      for (let i = 0; i < candidateDocIds.length; i += CHUNK) {
+        const chunk = candidateDocIds.slice(i, i + CHUNK);
+        let q = supabase
           .from("business_documents")
-          .select("id, url, thumbnail_url, business_id, name, sort_order, subcategory_id")
+          .select("id, url, thumbnail_url, business_id, name, sort_order, subcategory_id, service_id")
           .eq("type", "video")
           .eq("business_is_active", true)
-          .in("subcategory_id", resolvedSubIds)
           .in("id", chunk)
           .not("thumbnail_url", "is", null)
           .not("url", "is", null)
           .order("sort_order", { ascending: true });
+        if (resolvedSubIds.length > 0) q = q.in("subcategory_id", resolvedSubIds);
+        if (resolvedServiceId) q = q.eq("service_id", resolvedServiceId);
+        const { data } = await q;
         if (data) all.push(...data);
       }
+
+
 
       // Group by business_id, keep first (lowest sort_order) per business
       all.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
@@ -163,7 +215,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, title }: P
     return () => {
       cancelled = true;
     };
-  }, [subKey, city, entryLabel]);
+  }, [subKey, city, entryLabel, serviceName, badgeKey]);
+
 
   if (loading) {
     return (
