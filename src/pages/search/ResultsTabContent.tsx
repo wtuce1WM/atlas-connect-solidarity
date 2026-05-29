@@ -238,6 +238,8 @@ export default function ResultsTabContent({
                 })}
               </div>
 
+              {belowCardsSlot}
+
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="mb-20 flex flex-col items-center gap-1">
