@@ -2785,6 +2785,23 @@ const SearchPage = () => {
     ? Math.min(startResult + (currentPage === 1 ? PIN_PAGE1_SIZE : ITEMS_PER_PAGE) - 1, serverTotalCount)
     : Math.min(startResult + ITEMS_PER_PAGE - 1, serverTotalCount);
   const displayedResultsCount = serverTotalCount;
+
+  // Front Structure filter: when a subcategory chip is active, restrict the
+  // Results tab list to matching businesses (single page, no server pagination).
+  const fsFilteredList = useMemo(() => {
+    if (!fsFilterSubcategories) return null;
+    const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
+    return pool.filter(b =>
+      (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
+      b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
+    );
+  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses]);
+  const resultsFilteredBusinesses = fsFilteredList ?? filteredBusinesses;
+  const resultsPaginatedBusinesses = fsFilteredList ?? paginatedBusinesses;
+  const resultsTotalPages = fsFilteredList ? 1 : totalPages;
+  const resultsStartResult = fsFilteredList ? (fsFilteredList.length > 0 ? 1 : 0) : startResult;
+  const resultsEndResult = fsFilteredList ? fsFilteredList.length : endResult;
+  const resultsDisplayedCount = fsFilteredList ? fsFilteredList.length : displayedResultsCount;
   const stickyAiText = useMemo(
     () => aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " "),
     [aiAnswerText]
