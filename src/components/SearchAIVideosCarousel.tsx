@@ -249,6 +249,9 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                 business_id: genericBizByGv.get(v.id) || null,
                 name: v.title || v.name || null,
                 sort_order: v.sort_order ?? null,
+                price_type: null,
+                subcategory_id: null,
+                service_id: null,
               });
             });
           }
