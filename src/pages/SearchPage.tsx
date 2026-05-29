@@ -3998,25 +3998,23 @@ const SearchPage = () => {
 
       {activeTab === "suggestions" && (
         <>
-          {(() => {
-            // Videos carousel for Results tab — only after the user refined with a subcategory or service.
-            const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
-            const effSub = selectedSubcategoryFilter || detectedSubcategory || null;
-            const effService = selectedServiceFilter || null;
-            if (!effCity || (!effSub && !effService)) return null;
-            return (
-              <div className="max-w-7xl mx-auto px-4 pt-4">
-                <SearchAIVideosCarousel
-                  subcategoryNames={effSub ? [effSub] : []}
-                  serviceName={effService}
-                  city={effCity}
-                  entryLabel={labelFromUrl}
-                />
-              </div>
-            );
-          })()}
-
           <ResultsTabContent
+            belowCardsSlot={(() => {
+              const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
+              const effSub = selectedSubcategoryFilter || detectedSubcategory || null;
+              const effService = selectedServiceFilter || null;
+              if (!effCity || (!effSub && !effService)) return null;
+              return (
+                <div className="mt-6 mb-8">
+                  <SearchAIVideosCarousel
+                    subcategoryNames={effSub ? [effSub] : []}
+                    serviceName={effService}
+                    city={effCity}
+                    entryLabel={labelFromUrl}
+                  />
+                </div>
+              );
+            })()}
             resultsRef={resultsRef}
             resultsBarRef={resultsBarRef}
             compactPanelBusiness={compactPanelBusiness}

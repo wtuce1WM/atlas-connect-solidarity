@@ -72,6 +72,7 @@ export interface ResultsTabContentProps {
   fsMatchingCount?: number;
   labelFromUrl?: string;
   userCoords?: { lat: number; lng: number } | null;
+  belowCardsSlot?: React.ReactNode;
 }
 
 export default function ResultsTabContent({
@@ -124,6 +125,7 @@ export default function ResultsTabContent({
   fsMatchingCount,
   labelFromUrl,
   userCoords,
+  belowCardsSlot,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
@@ -235,6 +237,8 @@ export default function ResultsTabContent({
                   return card;
                 })}
               </div>
+
+              {belowCardsSlot}
 
               {/* Pagination */}
               {totalPages > 1 && (
