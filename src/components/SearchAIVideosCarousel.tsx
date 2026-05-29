@@ -16,18 +16,21 @@ interface VideoDoc {
 
 interface Props {
   /** Selected subcategory names from the AI search URL (subcats=A|B|...). */
+interface Props {
+  /** Selected subcategory names from the AI search URL (subcats=A|B|...). */
   subcategoryNames: string[];
   /** Effective city (e.g. "Marrakech"). */
   city: string | null;
   /** Front-structure entry label (e.g. "Hébergement"). */
   entryLabel?: string | null;
+  /** Optional service name filter (matches business_documents.service_id). */
+  serviceName?: string | null;
+  /** Optional badge IDs (intersect with business_document_badges). */
+  badgeIds?: string[];
   /** Optional title override. */
   title?: string;
 }
 
-/**
- * Carousel mirroring the /videos page filter for the current AI search context:
- *   subcategory_id ∈ resolved(subcategoryNames)
  *   AND business_document_cities matching the current city (+ aliases)
  *
  * Rule "1 entité = 1 vignette" → group by business_id, keep the first video
