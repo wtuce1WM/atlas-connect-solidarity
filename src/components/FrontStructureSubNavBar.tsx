@@ -14,7 +14,7 @@ interface Props {
   onServicesChange?: (services: string[]) => void;
 }
 
-interface ServiceRow {
+interface ServiceItem {
   id: string;
   name_fr: string;
 }
