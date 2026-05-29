@@ -492,18 +492,27 @@ const SlidePanelHome = ({
           if (swipeHandled.current || swipeStartY.current === null || swipeStartX.current === null) return;
           const dy = e.touches[0].clientY - swipeStartY.current;
           const dx = e.touches[0].clientX - swipeStartX.current;
-          if (Math.abs(dy) > 160 && Math.abs(dy) > Math.abs(dx) * 1.5) {
-            if (dy < 0 && hasPrev) {
-              e.preventDefault();
-              swipeHandled.current = true;
-              onPrev?.();
-            } else if (dy > 0 && hasNext) {
-              e.preventDefault();
-              swipeHandled.current = true;
-              onNext?.();
-            }
+          // Prevent native scroll once the gesture is clearly vertical
+          if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx) * 1.5) {
+            e.preventDefault();
           }
         } : undefined}
+        onTouchEnd={swipeNavigationEnabled ? (e) => {
+          if (swipeStartY.current !== null && swipeStartX.current !== null) {
+            const t = e.changedTouches[0];
+            const dy = t.clientY - swipeStartY.current;
+            const dx = t.clientX - swipeStartX.current;
+            const absX = Math.abs(dx);
+            const absY = Math.abs(dy);
+            // Aligné sur BookOnlineSlidePanel : seuil 60px, ratio 1.5, swipe up = next
+            if (absY > 60 && absY > absX * 1.5) {
+              if (dy < 0 && hasNext) onNext?.();
+              else if (dy > 0 && hasPrev) onPrev?.();
+            }
+          }
+          resetSwipe();
+        } : undefined}
+
         onTouchEnd={swipeNavigationEnabled ? resetSwipe : undefined}
         onTouchCancel={swipeNavigationEnabled ? resetSwipe : undefined}
       >
