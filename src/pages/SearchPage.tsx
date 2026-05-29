@@ -3565,25 +3565,26 @@ const SearchPage = () => {
               })()}
 
               {/* Videos carousel — AI tab only, AFTER the "Affinez votre demande" block.
-                  Mirrors the /videos page filter (city + selected subcategories),
+                  Mirrors the /videos page filter (city + selected subcategory + service),
                   1 vignette per business. Clicking opens that exact video on /videos. */}
               {activeTab === "ai" && (() => {
                 const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
-                // Effective single subcategory: either narrowed via UI (chip click /
-                // detection) OR exactly one in the URL.
                 const effSub =
                   selectedSubcategoryFilter ||
                   detectedSubcategory ||
                   (subcategoryNamesFromUrl.length === 1 ? subcategoryNamesFromUrl[0] : null);
-                if (!effCity || !effSub) return null;
+                const effService = selectedServiceFilter || null;
+                if (!effCity || (!effSub && !effService)) return null;
                 return (
                   <SearchAIVideosCarousel
-                    subcategoryNames={[effSub]}
+                    subcategoryNames={effSub ? [effSub] : []}
+                    serviceName={effService}
                     city={effCity}
                     entryLabel={labelFromUrl}
                   />
                 );
               })()}
+
 
 
 
