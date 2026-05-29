@@ -3569,15 +3569,22 @@ const SearchPage = () => {
                   1 vignette per business. Clicking opens that exact video on /videos. */}
               {activeTab === "ai" && (() => {
                 const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
-                if (!effCity || subcategoryNamesFromUrl.length !== 1) return null;
+                // Effective single subcategory: either narrowed via UI (chip click /
+                // detection) OR exactly one in the URL.
+                const effSub =
+                  selectedSubcategoryFilter ||
+                  detectedSubcategory ||
+                  (subcategoryNamesFromUrl.length === 1 ? subcategoryNamesFromUrl[0] : null);
+                if (!effCity || !effSub) return null;
                 return (
                   <SearchAIVideosCarousel
-                    subcategoryNames={subcategoryNamesFromUrl}
+                    subcategoryNames={[effSub]}
                     city={effCity}
                     entryLabel={labelFromUrl}
                   />
                 );
               })()}
+
 
 
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
