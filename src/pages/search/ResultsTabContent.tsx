@@ -117,6 +117,7 @@ export default function ResultsTabContent({
   t,
   effectiveCity,
   onFrontStructureFilter,
+  onFrontStructureServicesFilter,
   fsTopBusinessId,
   allCityMapBusinesses,
   hideAiSuggestion,
