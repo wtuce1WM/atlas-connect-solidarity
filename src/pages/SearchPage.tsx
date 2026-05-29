@@ -1041,12 +1041,8 @@ const SearchPage = () => {
       return () => { document.documentElement.classList.remove('hide-scrollbar-panel-open'); };
     }, [compactPanelBusiness]);
 
-    // Close BookOnlineSlidePanel when switching to the AI tab
-    useEffect(() => {
-      if (activeTab === "ai" && compactPanelBusiness) {
-        closeCompactPanel();
-      }
-    }, [activeTab, compactPanelBusiness, closeCompactPanel]);
+    // Note: BookOnlineSlidePanel is allowed to stay open over the AI tab so
+    // clicking an AI thumbnail opens the business detail panel on top.
 
 
     // Always hide native scrollbar on Search page (aligned with Home behaviour)
