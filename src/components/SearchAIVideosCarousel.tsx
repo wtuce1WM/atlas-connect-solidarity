@@ -156,7 +156,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
         }
       }
 
-      // 5. Fetch matching video docs (filtered to those doc ids)
+      // 5. Fetch matching video docs from business_documents
       const all: any[] = [];
       for (let i = 0; i < candidateDocIds.length; i += CHUNK) {
         const chunk = candidateDocIds.slice(i, i + CHUNK);
@@ -175,19 +175,124 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
         if (data) all.push(...data);
       }
 
-
-
-      // Group by business_id, keep first (lowest sort_order) per business
+      // Group business_documents by business_id (1 entité = 1 vignette)
       all.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       const perBiz = new Map<string, any>();
       for (const d of all) {
         if (!d.business_id) continue;
         if (!perBiz.has(d.business_id)) perBiz.set(d.business_id, d);
       }
-      const grouped = Array.from(perBiz.values());
+      const docItems = Array.from(perBiz.values()).map((d) => ({
+        id: d.id as string,
+        url: d.url as string,
+        thumbnail_url: d.thumbnail_url as string,
+        business_id: d.business_id as string | null,
+        name: d.name as string | null,
+        sort_order: d.sort_order as number | null,
+      }));
 
-      // Fetch business names
-      const bizIds = grouped.map((d) => d.business_id).filter(Boolean) as string[];
+      // 6. Add generic_videos linked to selected subcategories + current city
+      const genericItems: typeof docItems = [];
+      const seenUrls = new Set<string>(docItems.map((d) => d.url).filter(Boolean));
+      const genericBizByGv = new Map<string, string>();
+      if (resolvedSubIds.length > 0) {
+        const { data: gvSubLinks } = await supabase
+          .from("generic_video_subcategories" as any)
+          .select("generic_video_id")
+          .in("subcategory_id", resolvedSubIds);
+        const gvIds = [...new Set(((gvSubLinks as any[]) || []).map((l: any) => l.generic_video_id))];
+        if (gvIds.length > 0) {
+          const gvCityIds = new Set<string>();
+          for (let i = 0; i < gvIds.length; i += CHUNK) {
+            const { data } = await supabase
+              .from("generic_video_cities" as any)
+              .select("generic_video_id")
+              .in("city_id", cityIds)
+              .in("generic_video_id", gvIds.slice(i, i + CHUNK));
+            (data as any[] || []).forEach((r) => gvCityIds.add(r.generic_video_id));
+          }
+          if (gvCityIds.size > 0) {
+            const gvIdsArr = Array.from(gvCityIds);
+            const { data: gvs } = await supabase
+              .from("generic_videos" as any)
+              .select("id, url, name, title, thumbnail_url, sort_order")
+              .in("id", gvIdsArr)
+              .not("thumbnail_url", "is", null)
+              .not("url", "is", null)
+              .order("sort_order", { ascending: true });
+            const { data: gvBiz } = await supabase
+              .from("generic_video_businesses" as any)
+              .select("generic_video_id, business_id")
+              .in("generic_video_id", gvIdsArr);
+            ((gvBiz as any[]) || []).forEach((l: any) => {
+              if (!genericBizByGv.has(l.generic_video_id)) genericBizByGv.set(l.generic_video_id, l.business_id);
+            });
+            ((gvs as any[]) || []).forEach((v: any) => {
+              if (!v.url || seenUrls.has(v.url)) return;
+              seenUrls.add(v.url);
+              genericItems.push({
+                id: v.id,
+                url: v.url,
+                thumbnail_url: v.thumbnail_url,
+                business_id: genericBizByGv.get(v.id) || null,
+                name: v.title || v.name || null,
+                sort_order: v.sort_order ?? null,
+              });
+            });
+          }
+        }
+      }
+
+      // 7. Add business_youtube_videos linked to selected subcategories + current city
+      const ytItems: typeof docItems = [];
+      if (resolvedSubIds.length > 0) {
+        const { data: ytSubLinks } = await supabase
+          .from("business_youtube_video_subcategories" as any)
+          .select("youtube_video_id")
+          .in("subcategory_id", resolvedSubIds);
+        const ytIds = [...new Set(((ytSubLinks as any[]) || []).map((l: any) => l.youtube_video_id))];
+        if (ytIds.length > 0) {
+          const ytCityIds = new Set<string>();
+          for (let i = 0; i < ytIds.length; i += CHUNK) {
+            const { data } = await supabase
+              .from("business_youtube_video_cities" as any)
+              .select("youtube_video_id")
+              .in("city_id", cityIds)
+              .in("youtube_video_id", ytIds.slice(i, i + CHUNK));
+            (data as any[] || []).forEach((r) => ytCityIds.add(r.youtube_video_id));
+          }
+          if (ytCityIds.size > 0) {
+            const { data: yts } = await supabase
+              .from("business_youtube_videos")
+              .select("id, video_id, title, thumbnail, custom_thumbnail_url, is_short, is_visible, sort_order, business_id")
+              .eq("is_visible", true)
+              .eq("business_is_active", true)
+              .in("id", Array.from(ytCityIds))
+              .order("sort_order", { ascending: true });
+            ((yts as any[]) || []).forEach((y: any) => {
+              const url = y.is_short
+                ? `https://www.youtube.com/shorts/${y.video_id}`
+                : `https://www.youtube.com/watch?v=${y.video_id}`;
+              if (seenUrls.has(url)) return;
+              const thumb = y.custom_thumbnail_url || y.thumbnail || `https://img.youtube.com/vi/${y.video_id}/hqdefault.jpg`;
+              if (!thumb) return;
+              seenUrls.add(url);
+              ytItems.push({
+                id: y.id,
+                url,
+                thumbnail_url: thumb,
+                business_id: y.business_id,
+                name: y.title || null,
+                sort_order: y.sort_order ?? null,
+              });
+            });
+          }
+        }
+      }
+
+      // 8. Fetch business names for all items
+      const merged = [...docItems, ...genericItems, ...ytItems];
+      const bizIds = [...new Set(merged.map((d) => d.business_id).filter(Boolean))] as string[];
       const nameMap = new Map<string, string>();
       if (bizIds.length > 0) {
         const { data: biz } = await supabase
@@ -200,17 +305,18 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
       setEntryId(resolvedEntryId);
       setSubIds(resolvedSubIds);
       setDocs(
-        grouped.map((d) => ({
+        merged.map((d) => ({
           id: d.id,
           url: d.url,
           thumbnail_url: d.thumbnail_url,
           business_id: d.business_id,
           name: d.name,
           sort_order: d.sort_order,
-          businessName: nameMap.get(d.business_id) || null,
+          businessName: (d.business_id && nameMap.get(d.business_id)) || d.name || null,
         }))
       );
       setLoading(false);
+
     })();
     return () => {
       cancelled = true;
