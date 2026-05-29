@@ -3569,7 +3569,7 @@ const SearchPage = () => {
                   1 vignette per business. Clicking opens that exact video on /videos. */}
               {activeTab === "ai" && (() => {
                 const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
-                if (!effCity || subcategoryNamesFromUrl.length === 0) return null;
+                if (!effCity || subcategoryNamesFromUrl.length !== 1) return null;
                 return (
                   <SearchAIVideosCarousel
                     subcategoryNames={subcategoryNamesFromUrl}
