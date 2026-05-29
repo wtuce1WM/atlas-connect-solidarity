@@ -3429,7 +3429,37 @@ const SearchPage = () => {
                 );
               })()}
 
-              {/* Videos carousel moved below the refinement chat — see after "Affinez votre demande". */}
+              {/* Videos carousel — AI tab only, juste après les vignettes des établissements cités.
+                  Précédé d'un badge Gold "sous-catégorie + ville". */}
+              {activeTab === "ai" && (() => {
+                const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
+                const effSub =
+                  selectedSubcategoryFilter ||
+                  detectedSubcategory ||
+                  (subcategoryNamesFromUrl.length === 1 ? subcategoryNamesFromUrl[0] : null);
+                const effService = selectedServiceFilter || null;
+                if (!effCity || (!effSub && !effService)) return null;
+                const badgeLabel = [effSub || effService, effCity].filter(Boolean).join(" · ");
+                return (
+                  <div className="mt-6">
+                    <div className="px-1 mb-2">
+                      <span
+                        className="inline-flex items-center rounded-full bg-gold text-black px-3 py-1 text-xs font-semibold"
+                        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                      >
+                        {badgeLabel}
+                      </span>
+                    </div>
+                    <SearchAIVideosCarousel
+                      subcategoryNames={effSub ? [effSub] : []}
+                      serviceName={effService}
+                      city={effCity}
+                      entryLabel={labelFromUrl}
+                    />
+                  </div>
+                );
+              })()}
+
 
 
               {/* Refinement chat — multi-turn "Affinez votre demande" */}
@@ -3564,26 +3594,6 @@ const SearchPage = () => {
                 );
               })()}
 
-              {/* Videos carousel — AI tab only, AFTER the "Affinez votre demande" block.
-                  Mirrors the /videos page filter (city + selected subcategory + service),
-                  1 vignette per business. Clicking opens that exact video on /videos. */}
-              {activeTab === "ai" && (() => {
-                const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
-                const effSub =
-                  selectedSubcategoryFilter ||
-                  detectedSubcategory ||
-                  (subcategoryNamesFromUrl.length === 1 ? subcategoryNamesFromUrl[0] : null);
-                const effService = selectedServiceFilter || null;
-                if (!effCity || (!effSub && !effService)) return null;
-                return (
-                  <SearchAIVideosCarousel
-                    subcategoryNames={effSub ? [effSub] : []}
-                    serviceName={effService}
-                    city={effCity}
-                    entryLabel={labelFromUrl}
-                  />
-                );
-              })()}
 
 
 
