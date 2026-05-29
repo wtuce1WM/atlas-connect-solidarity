@@ -63,6 +63,7 @@ export interface ResultsTabContentProps {
   };
   effectiveCity?: string | null;
   onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
+  onFrontStructureServicesFilter?: (services: Set<string> | null) => void;
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
   hideAiSuggestion?: boolean;
