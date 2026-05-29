@@ -4118,7 +4118,8 @@ const SearchPage = () => {
             }}
             t={t}
             effectiveCity={effectiveCityForMap}
-            onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
+            onFrontStructureFilter={(subNames) => { setFsFilterSubcategories(subNames); setFsFilterServices(null); }}
+            onFrontStructureServicesFilter={(svcs) => setFsFilterServices(svcs)}
             fsTopBusinessId={fsTopBusinessId}
             hideAiSuggestion={false}
             allCityMapBusinesses={allCityMapBusinesses}
