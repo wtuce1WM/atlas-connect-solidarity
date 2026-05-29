@@ -429,13 +429,30 @@ export default function ResultsTabContent({
                     </div>
                   );
                 })()}
-                {activeFsTab && activeFsTab.subcategories.length > 1 && (
-                  <FrontStructureSubNavBar
-                    subcategories={activeFsTab.subcategories}
-                    activeSubId={activeFsSubId}
-                    onSubClick={handleFsSubClick}
-                  />
-                )}
+                {activeFsTab && activeFsTab.subcategories.length > 1 && (() => {
+                  const activeSub = activeFsSubId
+                    ? activeFsTab.subcategories.find(s => s.id === activeFsSubId)
+                    : null;
+                  const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0)
+                    ? allCityMapBusinesses
+                    : filteredBusinesses;
+                  const subPool = activeSub
+                    ? pool.filter((b: any) =>
+                        (b.main_category && activeSub.names.has(b.main_category)) ||
+                        b.categories?.some((c: string) => activeSub.names.has(c))
+                      )
+                    : [];
+                  return (
+                    <FrontStructureSubNavBar
+                      subcategories={activeFsTab.subcategories}
+                      activeSubId={activeFsSubId}
+                      onSubClick={handleFsSubClick}
+                      subPool={subPool}
+                      selectedServices={activeFsServices}
+                      onServicesChange={handleFsServicesChange}
+                    />
+                  );
+                })()}
               </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}
