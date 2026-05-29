@@ -4163,25 +4163,6 @@ const SearchPage = () => {
                 />
               )}
               {(() => {
-                const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
-                if (!activeFsTab || activeFsTab.subcategories.length <= 1) return null;
-                return (
-                  <FrontStructureSubNavBar
-                    subcategories={activeFsTab.subcategories}
-                    activeSubId={mobileFsSubId}
-                    onSubClick={(subId) => {
-                      setMobileFsSubId(subId);
-                      if (!subId) {
-                        setFsFilterSubcategories(new Set(activeFsTab.subcategoryNames));
-                      } else {
-                        const sub = activeFsTab.subcategories.find(s => s.id === subId);
-                        setFsFilterSubcategories(new Set(sub?.names || activeFsTab.subcategoryNames));
-                      }
-                    }}
-                  />
-                );
-              })()}
-              {(() => {
                 const mobileTotal = mobileFsTabId === null ? (totalCount ?? filteredBusinesses.length) : fsMatchingCount;
                 const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
                 const showToggle = mobileTotal > 20;
@@ -4240,6 +4221,25 @@ const SearchPage = () => {
                      </div>
                    </div>
                  );
+              })()}
+              {(() => {
+                const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
+                if (!activeFsTab || activeFsTab.subcategories.length <= 1) return null;
+                return (
+                  <FrontStructureSubNavBar
+                    subcategories={activeFsTab.subcategories}
+                    activeSubId={mobileFsSubId}
+                    onSubClick={(subId) => {
+                      setMobileFsSubId(subId);
+                      if (!subId) {
+                        setFsFilterSubcategories(new Set(activeFsTab.subcategoryNames));
+                      } else {
+                        const sub = activeFsTab.subcategories.find(s => s.id === subId);
+                        setFsFilterSubcategories(new Set(sub?.names || activeFsTab.subcategoryNames));
+                      }
+                    }}
+                  />
+                );
               })()}
             </div>
           ) : (
