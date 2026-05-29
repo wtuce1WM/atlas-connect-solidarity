@@ -3429,41 +3429,6 @@ const SearchPage = () => {
                 );
               })()}
 
-              {/* Videos carousel — AI tab only, juste après les vignettes des établissements cités.
-                  Précédé d'un badge Gold "sous-catégorie + ville". */}
-              {activeTab === "ai" && (() => {
-                const hasRefined = aiChat.some((m) => m.role === "user");
-                const hasSelection = !!(selectedSubcategoryFilter || selectedServiceFilter);
-                if (!hasSelection && !hasRefined) return null;
-                const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
-                const effSub =
-                  selectedSubcategoryFilter ||
-                  detectedSubcategory ||
-                  (subcategoryNamesFromUrl.length === 1 ? subcategoryNamesFromUrl[0] : null);
-                const effService = selectedServiceFilter || null;
-                if (!effCity || (!effSub && !effService)) return null;
-                const badgeLabel = [effSub || effService, effCity].filter(Boolean).join(" · ");
-
-                return (
-                  <div className="mt-6">
-                    <div className="px-1 mb-2">
-                      <span
-                        className="inline-flex items-center rounded-full bg-gold text-black px-3 py-1 text-xs font-semibold"
-                        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                      >
-                        {badgeLabel}
-                      </span>
-                    </div>
-                    <SearchAIVideosCarousel
-                      subcategoryNames={effSub ? [effSub] : []}
-                      serviceName={effService}
-                      city={effCity}
-                      entryLabel={labelFromUrl}
-                    />
-                  </div>
-                );
-              })()}
-
 
 
               {/* Refinement chat — multi-turn "Affinez votre demande" */}
@@ -3598,8 +3563,38 @@ const SearchPage = () => {
                 );
               })()}
 
-
-
+              {/* Videos carousel — après le texte IA et le carousel de miniatures issu d'une sélection de sous-catégorie OU d'un affinement. */}
+              {activeTab === "ai" && (() => {
+                const hasRefined = aiChat.some((m) => m.role === "user");
+                const hasSelection = !!(selectedSubcategoryFilter || selectedServiceFilter);
+                if (!hasSelection && !hasRefined) return null;
+                const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
+                const effSub =
+                  selectedSubcategoryFilter ||
+                  detectedSubcategory ||
+                  (subcategoryNamesFromUrl.length === 1 ? subcategoryNamesFromUrl[0] : null);
+                const effService = selectedServiceFilter || null;
+                if (!effCity || (!effSub && !effService)) return null;
+                const badgeLabel = [effSub || effService, effCity].filter(Boolean).join(" · ");
+                return (
+                  <div className="mt-6">
+                    <div className="px-1 mb-2">
+                      <span
+                        className="inline-flex items-center rounded-full bg-gold text-black px-3 py-1 text-xs font-semibold"
+                        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                      >
+                        {badgeLabel}
+                      </span>
+                    </div>
+                    <SearchAIVideosCarousel
+                      subcategoryNames={effSub ? [effSub] : []}
+                      serviceName={effService}
+                      city={effCity}
+                      entryLabel={labelFromUrl}
+                    />
+                  </div>
+                );
+              })()}
 
 
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
