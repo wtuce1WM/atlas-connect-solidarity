@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Play, Loader2 } from "lucide-react";
+import { Play, Loader2, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,8 +11,16 @@ interface VideoDoc {
   url: string | null;
   name: string | null;
   sort_order: number | null;
+  price_type?: string | null;
+  subcategory_id?: string | null;
+  service_id?: string | null;
   businessName?: string | null;
+  subcategoryLabel?: string | null;
+  rating?: number | null;
+  reviewCount?: number | null;
+  logoUrl?: string | null;
 }
+
 
 interface Props {
   /** Selected subcategory names (subcats=A|B|...). */
