@@ -3432,6 +3432,9 @@ const SearchPage = () => {
               {/* Videos carousel — AI tab only, juste après les vignettes des établissements cités.
                   Précédé d'un badge Gold "sous-catégorie + ville". */}
               {activeTab === "ai" && (() => {
+                const hasRefined = aiChat.some((m) => m.role === "user");
+                const hasSelection = !!(selectedSubcategoryFilter || selectedServiceFilter);
+                if (!hasSelection && !hasRefined) return null;
                 const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
                 const effSub =
                   selectedSubcategoryFilter ||
@@ -3440,6 +3443,7 @@ const SearchPage = () => {
                 const effService = selectedServiceFilter || null;
                 if (!effCity || (!effSub && !effService)) return null;
                 const badgeLabel = [effSub || effService, effCity].filter(Boolean).join(" · ");
+
                 return (
                   <div className="mt-6">
                     <div className="px-1 mb-2">
