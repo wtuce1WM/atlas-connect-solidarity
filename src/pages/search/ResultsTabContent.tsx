@@ -177,6 +177,7 @@ export default function ResultsTabContent({
   const handleFsServicesChange = (svcs: string[]) => {
     setActiveFsServices(svcs);
     onFrontStructureServicesFilter?.(svcs.length > 0 ? new Set(svcs) : null);
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
 
   // Reset active tab when city or search query changes
