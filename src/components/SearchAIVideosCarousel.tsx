@@ -15,9 +15,7 @@ interface VideoDoc {
 }
 
 interface Props {
-  /** Selected subcategory names from the AI search URL (subcats=A|B|...). */
-interface Props {
-  /** Selected subcategory names from the AI search URL (subcats=A|B|...). */
+  /** Selected subcategory names (subcats=A|B|...). */
   subcategoryNames: string[];
   /** Effective city (e.g. "Marrakech"). */
   city: string | null;
@@ -31,13 +29,19 @@ interface Props {
   title?: string;
 }
 
+/**
+ * Carousel mirroring the /videos page filter for the current search context:
+ *   subcategory_id ∈ resolved(subcategoryNames)  (when provided)
+ *   AND service_id = resolved(serviceName)        (when provided)
+ *   AND id ∈ business_document_badges.document_id (when badgeIds provided)
  *   AND business_document_cities matching the current city (+ aliases)
  *
  * Rule "1 entité = 1 vignette" → group by business_id, keep the first video
  * (lowest sort_order). Clicking a vignette opens that exact video on /videos
  * within the same context (city + entry + sub).
  */
-const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, title }: Props) => {
+const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceName, badgeIds, title }: Props) => {
+
   const { language } = useLanguage();
   const navigate = useNavigate();
   const [docs, setDocs] = useState<VideoDoc[]>([]);
