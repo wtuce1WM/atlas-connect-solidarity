@@ -19,6 +19,7 @@ interface EventInfo {
 interface VideoItem {
   _id: string;
   _kind: "doc" | "youtube" | "generic" | "event";
+  _isInternal: boolean;
   url: string;
   name: string | null;
   description: string | null;
@@ -39,11 +40,13 @@ interface Props {
   badgeLabel: string;
   city?: string | null;
   onCountChange?: (count: number) => void;
+  onOpenBusiness?: (business: { id: string; name: string }) => void;
 }
+
 
 const ytThumb = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
-export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountChange }: Props) {
+export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountChange, onOpenBusiness }: Props) {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VideoItem[]>([]);
   const [activeItem, setActiveItem] = useState<VideoItem | null>(null);
@@ -118,6 +121,8 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
           return {
             _id: `event:${ev.id}`,
             _kind: "event",
+            _isInternal: false,
+
             url: firstVideo,
             name: ev.name || null,
             description: null,
@@ -246,7 +251,9 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
       const docItems: VideoItem[] = (docsRes.data || []).map((d: any) => ({
         _id: `doc:${d.id}`,
         _kind: "doc",
+        _isInternal: d.type === "video",
         url: d.url,
+
         name: d.name || bizMap[d.business_id]?.hook_fr || null,
         description: d.description || null,
         thumbnail_url: d.thumbnail_url || null,
@@ -261,6 +268,8 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
       const ytItems: VideoItem[] = (ytRes.data || []).map((y: any) => ({
         _id: `yt:${y.id}`,
         _kind: "youtube",
+        _isInternal: false,
+
         url: `https://www.youtube.com/watch?v=${y.video_id}`,
         name: y.title || bizMap[y.business_id]?.hook_fr || null,
         description: null,
@@ -289,6 +298,8 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         return {
           _id: `generic:${g.id}`,
           _kind: "generic" as const,
+          _isInternal: false,
+
           url: g.url,
           name: g.title || g.name || (ownerId ? bizMap[ownerId]?.hook_fr || null : null) || (account ? `@${account}` : null),
           description: g.description || null,
@@ -393,9 +404,14 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
             <button
               key={item._id}
               onClick={() => {
+                if (item._isInternal && item.owner_business_id && onOpenBusiness) {
+                  onOpenBusiness({ id: item.owner_business_id, name: item.owner_name || "" });
+                  return;
+                }
                 setCurrentTime(0);
                 setActiveItem(item);
               }}
+
               className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {item.thumbnail_url ? (

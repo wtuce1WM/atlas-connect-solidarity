@@ -3988,6 +3988,8 @@ const SearchPage = () => {
           badgeLabel={badgeLabelParam || "#"}
           city={effectiveCityForMap || searchParams.get("city") || null}
           onCountChange={setHashtagCount}
+          onOpenBusiness={(b) => openCompactPanel(b as any)}
+
         />
       )}
 
