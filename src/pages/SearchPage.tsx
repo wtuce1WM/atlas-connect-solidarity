@@ -1938,10 +1938,11 @@ const SearchPage = () => {
     if (!fsFilterSubcategories) return 0;
     const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
     return pool.filter(b =>
-      (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
-      b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
+      ((b.main_category && fsFilterSubcategories.has(b.main_category)) ||
+       b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
+      businessMatchesFsServices(b)
     ).length;
-  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses]);
+  }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses]);
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
