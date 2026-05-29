@@ -59,8 +59,11 @@ export default function FrontStructureSubNavBar({
     return m;
   }, [subPool]);
 
-  // Show every active service of the subcategory; counts shown only when > 0
-  const visibleServices = services;
+  // Only services with at least 1 active business in the current city pool
+  const visibleServices = useMemo(
+    () => services.filter((s) => (serviceCounts.get(s.name_fr) || 0) > 0),
+    [services, serviceCounts]
+  );
 
   if (subcategories.length === 0) return null;
 
