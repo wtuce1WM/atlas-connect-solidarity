@@ -383,14 +383,39 @@ interface Props {
   }
   if (docs.length === 0) return null;
 
-  const handleClick = (doc: VideoDoc) => {
-    const params = new URLSearchParams();
-    if (city) params.set("city", city);
-    if (entryId) params.set("entry", entryId);
-    if (subIds.length === 1) params.set("sub", subIds[0]);
-    params.set("openVideo", doc.id);
-    navigate(`/videos?${params.toString()}`);
+  const handleClick = async (doc: VideoDoc) => {
+    if (!doc.url) return;
+    // Try business_documents first (covers most cases)
+    const { data: bizDoc } = await supabase
+      .from("business_documents")
+      .select("id, url, business_id, name, description")
+      .eq("id", doc.id)
+      .maybeSingle();
+    const isGeneric = !bizDoc;
+    let description: string | null = (bizDoc as any)?.description ?? null;
+    // Resolve owner business (for logo + name)
+    let owner: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null = null;
+    const ownerId = doc.business_id;
+    if (ownerId) {
+      const { data: b } = await supabase
+        .from("businesses")
+        .select("id, name, logo_url, logo_bg")
+        .eq("id", ownerId)
+        .maybeSingle();
+      if (b) owner = { id: (b as any).id, name: (b as any).name, logo_url: (b as any).logo_url ?? null, logo_bg: (b as any).logo_bg ?? null };
+    }
+    setCurrentTime(0);
+    setPanelVideo({
+      videoUrl: doc.url,
+      videoId: doc.id,
+      videoName: doc.name,
+      businessName: doc.businessName || owner?.name || "—",
+      isGeneric,
+      description,
+      owner,
+    });
   };
+
 
   return (
     <div className="mt-6 space-y-2">
