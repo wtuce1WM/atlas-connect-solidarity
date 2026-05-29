@@ -120,9 +120,11 @@ export default function FrontStructureSubNavBar({
       >
         {label}
       </span>
-      <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">
-        {count}
-      </span>
+      {count > 0 && (
+        <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">
+          {count}
+        </span>
+      )}
     </button>
   );
 
