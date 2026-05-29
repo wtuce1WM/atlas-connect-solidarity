@@ -19,6 +19,7 @@ interface EventInfo {
 interface VideoItem {
   _id: string;
   _kind: "doc" | "youtube" | "generic" | "event";
+  _isInternal: boolean;
   url: string;
   name: string | null;
   description: string | null;
@@ -39,7 +40,9 @@ interface Props {
   badgeLabel: string;
   city?: string | null;
   onCountChange?: (count: number) => void;
+  onOpenBusiness?: (business: { id: string; name: string }) => void;
 }
+
 
 const ytThumb = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
