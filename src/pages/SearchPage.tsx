@@ -1915,8 +1915,9 @@ const SearchPage = () => {
     // Use allCityMapBusinesses when available, fall back to filteredBusinesses
     const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
     const matching = pool.filter(b =>
-      (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
-      b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
+      ((b.main_category && fsFilterSubcategories.has(b.main_category)) ||
+       b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
+      businessMatchesFsServices(b)
     );
     matching.sort((a, b) => {
       const aVerified = a.wtuce_status === 'verified' ? 0 : 1;
