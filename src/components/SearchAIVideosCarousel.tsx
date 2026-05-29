@@ -67,7 +67,7 @@ interface Props {
   } | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
 
-  const [subIds, setSubIds] = useState<string[]>([]);
+
 
   const subKey = useMemo(
     () => [...new Set(subcategoryNames)].sort().join("|"),
