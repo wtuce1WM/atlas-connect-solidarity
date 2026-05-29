@@ -50,13 +50,23 @@ interface Props {
  * (lowest sort_order). Clicking a vignette opens that exact video on /videos
  * within the same context (city + entry + sub).
  */
-const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceName, badgeIds, title }: Props) => {
-
   const { language } = useLanguage();
   const navigate = useNavigate();
   const [docs, setDocs] = useState<VideoDoc[]>([]);
   const [loading, setLoading] = useState(false);
   const [entryId, setEntryId] = useState<string | null>(null);
+  const [subIds, setSubIds] = useState<string[]>([]);
+  const [panelVideo, setPanelVideo] = useState<{
+    videoUrl: string;
+    videoId: string;
+    videoName: string | null;
+    businessName: string;
+    isGeneric: boolean;
+    description: string | null;
+    owner: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null;
+  } | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+
   const [subIds, setSubIds] = useState<string[]>([]);
 
   const subKey = useMemo(
