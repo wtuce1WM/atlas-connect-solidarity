@@ -3494,7 +3494,7 @@ const SearchPage = () => {
                         {aiChat.map((m, idx) => (
                           <div key={idx} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
                             {m.role === "user" ? (
-                              <div className="max-w-[80%] rounded-2xl bg-primary text-primary-foreground px-4 py-2 text-sm">
+                              <div data-ai-user-bubble className="max-w-[80%] rounded-2xl bg-primary text-primary-foreground px-4 py-2 text-sm">
                                 {m.content}
                               </div>
                             ) : (
