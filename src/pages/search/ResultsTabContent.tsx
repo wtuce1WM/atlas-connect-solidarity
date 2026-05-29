@@ -72,6 +72,7 @@ export interface ResultsTabContentProps {
   fsMatchingCount?: number;
   labelFromUrl?: string;
   userCoords?: { lat: number; lng: number } | null;
+  belowCardsSlot?: React.ReactNode;
 }
 
 export default function ResultsTabContent({
