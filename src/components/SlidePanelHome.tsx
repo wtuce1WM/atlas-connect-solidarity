@@ -512,9 +512,8 @@ const SlidePanelHome = ({
           }
           resetSwipe();
         } : undefined}
-
-        onTouchEnd={swipeNavigationEnabled ? resetSwipe : undefined}
         onTouchCancel={swipeNavigationEnabled ? resetSwipe : undefined}
+
       >
         {/* Top toolbar : SlidePanelHeader (même base que SlidePanel de Search) */}
         {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && (
