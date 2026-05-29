@@ -1032,6 +1032,14 @@ const SearchPage = () => {
       return () => { document.documentElement.classList.remove('hide-scrollbar-panel-open'); };
     }, [compactPanelBusiness]);
 
+    // Close BookOnlineSlidePanel when switching to the AI tab
+    useEffect(() => {
+      if (activeTab === "ai" && compactPanelBusiness) {
+        closeCompactPanel();
+      }
+    }, [activeTab, compactPanelBusiness, closeCompactPanel]);
+
+
     // Always hide native scrollbar on Search page (aligned with Home behaviour)
     useEffect(() => {
       document.documentElement.classList.add('hide-scrollbar-search');
