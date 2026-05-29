@@ -63,6 +63,7 @@ export interface ResultsTabContentProps {
   };
   effectiveCity?: string | null;
   onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
+  onFrontStructureServicesFilter?: (services: Set<string> | null) => void;
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
   hideAiSuggestion?: boolean;
@@ -116,6 +117,7 @@ export default function ResultsTabContent({
   t,
   effectiveCity,
   onFrontStructureFilter,
+  onFrontStructureServicesFilter,
   fsTopBusinessId,
   allCityMapBusinesses,
   hideAiSuggestion,
@@ -131,6 +133,7 @@ export default function ResultsTabContent({
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
+  const [activeFsServices, setActiveFsServices] = useState<string[]>([]);
   const resolvedHotelSearchInfo = hotelSearchInfo || (() => {
     if (typeof window === "undefined") return null;
     const params = new URLSearchParams(window.location.search);
@@ -146,6 +149,8 @@ export default function ResultsTabContent({
   const handleFsTabClick = (tabId: string | null) => {
     setActiveFsTabId(tabId);
     setActiveFsSubId(null);
+    setActiveFsServices([]);
+    onFrontStructureServicesFilter?.(null);
     if (!tabId) {
       onFrontStructureFilter?.(null);
     } else {
@@ -156,6 +161,8 @@ export default function ResultsTabContent({
 
   const handleFsSubClick = (subId: string | null) => {
     setActiveFsSubId(subId);
+    setActiveFsServices([]);
+    onFrontStructureServicesFilter?.(null);
     const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
     if (!tab) return;
     if (!subId) {
@@ -166,10 +173,17 @@ export default function ResultsTabContent({
     }
   };
 
+  const handleFsServicesChange = (svcs: string[]) => {
+    setActiveFsServices(svcs);
+    onFrontStructureServicesFilter?.(svcs.length > 0 ? new Set(svcs) : null);
+  };
+
   // Reset active tab when city or search query changes
   useEffect(() => {
     setActiveFsTabId(null);
     setActiveFsSubId(null);
+    setActiveFsServices([]);
+    onFrontStructureServicesFilter?.(null);
   }, [effectiveCity, searchQuery]);
 
   const activeFsTab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
@@ -415,13 +429,30 @@ export default function ResultsTabContent({
                     </div>
                   );
                 })()}
-                {activeFsTab && activeFsTab.subcategories.length > 1 && (
-                  <FrontStructureSubNavBar
-                    subcategories={activeFsTab.subcategories}
-                    activeSubId={activeFsSubId}
-                    onSubClick={handleFsSubClick}
-                  />
-                )}
+                {activeFsTab && activeFsTab.subcategories.length > 1 && (() => {
+                  const activeSub = activeFsSubId
+                    ? activeFsTab.subcategories.find(s => s.id === activeFsSubId)
+                    : null;
+                  const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0)
+                    ? allCityMapBusinesses
+                    : filteredBusinesses;
+                  const subPool = activeSub
+                    ? pool.filter((b: any) =>
+                        (b.main_category && activeSub.names.has(b.main_category)) ||
+                        b.categories?.some((c: string) => activeSub.names.has(c))
+                      )
+                    : [];
+                  return (
+                    <FrontStructureSubNavBar
+                      subcategories={activeFsTab.subcategories}
+                      activeSubId={activeFsSubId}
+                      onSubClick={handleFsSubClick}
+                      subPool={subPool}
+                      selectedServices={activeFsServices}
+                      onServicesChange={handleFsServicesChange}
+                    />
+                  );
+                })()}
               </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}

@@ -300,14 +300,19 @@ const SearchPage = () => {
 
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
+  const [fsFilterServices, setFsFilterServices] = useState<Set<string> | null>(null);
   const [mobileFsTabId, setMobileFsTabId] = useState<string | null>(null);
   const [mobileFsSubId, setMobileFsSubId] = useState<string | null>(null);
+  const [mobileFsServices, setMobileFsServices] = useState<string[]>([]);
   const [showAllSearchMarkers, setShowAllSearchMarkers] = useState(false);
 
   // Reset front structure filter when search query changes
   useEffect(() => {
     setFsFilterSubcategories(null);
+    setFsFilterServices(null);
     setMobileFsTabId(null);
+    setMobileFsSubId(null);
+    setMobileFsServices([]);
     setShowAllSearchMarkers(false);
   }, [searchQuery]);
 
@@ -315,6 +320,14 @@ const SearchPage = () => {
   useEffect(() => {
     setShowAllSearchMarkers(false);
   }, [fsFilterSubcategories]);
+
+  // Helper: a business matches the service filter when at least one of its
+  // services intersects the active service filter set (OR semantics).
+  const businessMatchesFsServices = (b: any): boolean => {
+    if (!fsFilterServices || fsFilterServices.size === 0) return true;
+    const list: string[] = Array.isArray(b.services) ? b.services : [];
+    return list.some((s) => fsFilterServices.has(s));
+  };
 
   const categoryFromUrl = searchParams.get("category") || "";
   
@@ -1902,8 +1915,9 @@ const SearchPage = () => {
     // Use allCityMapBusinesses when available, fall back to filteredBusinesses
     const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
     const matching = pool.filter(b =>
-      (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
-      b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
+      ((b.main_category && fsFilterSubcategories.has(b.main_category)) ||
+       b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
+      businessMatchesFsServices(b)
     );
     matching.sort((a, b) => {
       const aVerified = a.wtuce_status === 'verified' ? 0 : 1;
@@ -1917,17 +1931,18 @@ const SearchPage = () => {
     });
     const sliced = showAllSearchMarkers ? matching : matching.slice(0, 20);
     return buildMapPoiItems(sliced, guardDesktop);
-  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses, buildMapPoiItems, showAllSearchMarkers]);
+  }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses, buildMapPoiItems, showAllSearchMarkers]);
 
   // Total matching count for the active FS category tab (full pool, before slicing)
   const fsMatchingCount = useMemo(() => {
     if (!fsFilterSubcategories) return 0;
     const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
     return pool.filter(b =>
-      (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
-      b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
+      ((b.main_category && fsFilterSubcategories.has(b.main_category)) ||
+       b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
+      businessMatchesFsServices(b)
     ).length;
-  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses]);
+  }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses]);
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
@@ -2789,13 +2804,15 @@ const SearchPage = () => {
   // Front Structure filter: when a subcategory chip is active, restrict the
   // Results tab list to matching businesses (single page, no server pagination).
   const fsFilteredList = useMemo(() => {
-    if (!fsFilterSubcategories) return null;
+    if (!fsFilterSubcategories && (!fsFilterServices || fsFilterServices.size === 0)) return null;
     const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
     return pool.filter(b =>
-      (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
-      b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
+      (!fsFilterSubcategories ||
+        (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
+        b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
+      businessMatchesFsServices(b)
     );
-  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses]);
+  }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses]);
   const resultsFilteredBusinesses = fsFilteredList ?? filteredBusinesses;
   const resultsPaginatedBusinesses = fsFilteredList ?? paginatedBusinesses;
   const resultsTotalPages = fsFilteredList ? 1 : totalPages;
@@ -4101,7 +4118,8 @@ const SearchPage = () => {
             }}
             t={t}
             effectiveCity={effectiveCityForMap}
-            onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
+            onFrontStructureFilter={(subNames) => { setFsFilterSubcategories(subNames); setFsFilterServices(null); }}
+            onFrontStructureServicesFilter={(svcs) => setFsFilterServices(svcs)}
             fsTopBusinessId={fsTopBusinessId}
             hideAiSuggestion={false}
             allCityMapBusinesses={allCityMapBusinesses}
@@ -4150,6 +4168,8 @@ const SearchPage = () => {
                   onTabClick={(tabId) => {
                     setMobileFsTabId(tabId);
                     setMobileFsSubId(null);
+                    setMobileFsServices([]);
+                    setFsFilterServices(null);
                     if (!tabId) {
                       setFsFilterSubcategories(null);
                     } else {
@@ -4225,18 +4245,34 @@ const SearchPage = () => {
               {(() => {
                 const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
                 if (!activeFsTab || activeFsTab.subcategories.length <= 1) return null;
+                const activeSub = mobileFsSubId ? activeFsTab.subcategories.find(s => s.id === mobileFsSubId) : null;
+                const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
+                const subPool = activeSub
+                  ? pool.filter((b: any) =>
+                      (b.main_category && activeSub.names.has(b.main_category)) ||
+                      b.categories?.some((c: string) => activeSub.names.has(c))
+                    )
+                  : [];
                 return (
                   <FrontStructureSubNavBar
                     subcategories={activeFsTab.subcategories}
                     activeSubId={mobileFsSubId}
                     onSubClick={(subId) => {
                       setMobileFsSubId(subId);
+                      setMobileFsServices([]);
+                      setFsFilterServices(null);
                       if (!subId) {
                         setFsFilterSubcategories(new Set(activeFsTab.subcategoryNames));
                       } else {
                         const sub = activeFsTab.subcategories.find(s => s.id === subId);
                         setFsFilterSubcategories(new Set(sub?.names || activeFsTab.subcategoryNames));
                       }
+                    }}
+                    subPool={subPool}
+                    selectedServices={mobileFsServices}
+                    onServicesChange={(svcs) => {
+                      setMobileFsServices(svcs);
+                      setFsFilterServices(svcs.length > 0 ? new Set(svcs) : null);
                     }}
                   />
                 );
