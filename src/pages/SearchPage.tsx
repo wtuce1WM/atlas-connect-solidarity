@@ -3196,7 +3196,8 @@ const SearchPage = () => {
                 }
               }
               // Multiple categories or no subcats: show categories
-              if (cats.length > 1) {
+              // Hidden in AI tab per user request
+              if (cats.length > 1 && activeTab !== "ai") {
                 return (
                   <div className="pb-4">
                     <div className={`${shouldConstrainAiContent ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
