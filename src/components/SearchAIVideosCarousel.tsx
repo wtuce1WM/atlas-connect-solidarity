@@ -344,13 +344,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
 
   return (
     <div className="mt-6 space-y-2">
-      <h3
-        className="text-sm font-semibold text-foreground tracking-wide px-1"
-        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-      >
-        {title || (language === "en" ? "Videos" : language === "ar" ? "فيديوهات" : "Vidéos")}
-        <span className="ml-2 text-xs font-normal text-muted-foreground">{docs.length}</span>
-      </h3>
+
       <div className="-mx-4 sm:mx-0">
         <div className="flex gap-3 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
           {docs.map((doc) => (
