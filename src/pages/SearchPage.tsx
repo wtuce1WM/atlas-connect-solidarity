@@ -56,6 +56,7 @@ import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import FrontStructureNavBar from "@/components/FrontStructureNavBar";
+import FrontStructureSubNavBar from "@/components/FrontStructureSubNavBar";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
