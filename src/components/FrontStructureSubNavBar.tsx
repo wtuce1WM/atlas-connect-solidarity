@@ -59,11 +59,8 @@ export default function FrontStructureSubNavBar({
     return m;
   }, [subPool]);
 
-  // Services with at least 1 matching business
-  const visibleServices = useMemo(
-    () => services.filter((s) => (serviceCounts.get(s.name_fr) || 0) > 0),
-    [services, serviceCounts]
-  );
+  // Show every active service of the subcategory; counts shown only when > 0
+  const visibleServices = services;
 
   if (subcategories.length === 0) return null;
 
@@ -123,9 +120,11 @@ export default function FrontStructureSubNavBar({
       >
         {label}
       </span>
-      <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">
-        {count}
-      </span>
+      {count > 0 && (
+        <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">
+          {count}
+        </span>
+      )}
     </button>
   );
 
