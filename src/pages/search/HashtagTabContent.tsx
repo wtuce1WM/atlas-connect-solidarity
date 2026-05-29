@@ -46,7 +46,7 @@ interface Props {
 
 const ytThumb = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
-export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountChange }: Props) {
+export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountChange, onOpenBusiness }: Props) {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VideoItem[]>([]);
   const [activeItem, setActiveItem] = useState<VideoItem | null>(null);
