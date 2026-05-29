@@ -367,13 +367,6 @@ export default function ResultsTabContent({
                   activeTabId={activeFsTabId}
                   onTabClick={handleFsTabClick}
                 />
-                {activeFsTab && activeFsTab.subcategories.length > 1 && (
-                  <FrontStructureSubNavBar
-                    subcategories={activeFsTab.subcategories}
-                    activeSubId={activeFsSubId}
-                    onSubClick={handleFsSubClick}
-                  />
-                )}
                 {(() => {
                   const total = activeFsTabId === null ? (searchResultsTotal ?? 0) : (fsMatchingCount ?? 0);
                   const activeFsTab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
@@ -422,6 +415,13 @@ export default function ResultsTabContent({
                     </div>
                   );
                 })()}
+                {activeFsTab && activeFsTab.subcategories.length > 1 && (
+                  <FrontStructureSubNavBar
+                    subcategories={activeFsTab.subcategories}
+                    activeSubId={activeFsSubId}
+                    onSubClick={handleFsSubClick}
+                  />
+                )}
               </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}
