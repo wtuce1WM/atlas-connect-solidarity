@@ -8,6 +8,7 @@ import PoiGoogleMap from "@/components/PoiGoogleMap";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import FrontStructureNavBar from "@/components/FrontStructureNavBar";
+import FrontStructureSubNavBar from "@/components/FrontStructureSubNavBar";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import type { Business } from "@/pages/search/types";
@@ -129,6 +130,7 @@ export default function ResultsTabContent({
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
+  const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
   const resolvedHotelSearchInfo = hotelSearchInfo || (() => {
     if (typeof window === "undefined") return null;
     const params = new URLSearchParams(window.location.search);
@@ -143,6 +145,7 @@ export default function ResultsTabContent({
 
   const handleFsTabClick = (tabId: string | null) => {
     setActiveFsTabId(tabId);
+    setActiveFsSubId(null);
     if (!tabId) {
       onFrontStructureFilter?.(null);
     } else {
@@ -151,10 +154,25 @@ export default function ResultsTabContent({
     }
   };
 
+  const handleFsSubClick = (subId: string | null) => {
+    setActiveFsSubId(subId);
+    const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
+    if (!tab) return;
+    if (!subId) {
+      onFrontStructureFilter?.(tab.subcategoryNames);
+    } else {
+      const sub = tab.subcategories.find(s => s.id === subId);
+      onFrontStructureFilter?.(sub?.names || tab.subcategoryNames);
+    }
+  };
+
   // Reset active tab when city or search query changes
   useEffect(() => {
     setActiveFsTabId(null);
+    setActiveFsSubId(null);
   }, [effectiveCity, searchQuery]);
+
+  const activeFsTab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
 
   return (
     <section
@@ -349,6 +367,13 @@ export default function ResultsTabContent({
                   activeTabId={activeFsTabId}
                   onTabClick={handleFsTabClick}
                 />
+                {activeFsTab && activeFsTab.subcategories.length > 1 && (
+                  <FrontStructureSubNavBar
+                    subcategories={activeFsTab.subcategories}
+                    activeSubId={activeFsSubId}
+                    onSubClick={handleFsSubClick}
+                  />
+                )}
                 {(() => {
                   const total = activeFsTabId === null ? (searchResultsTotal ?? 0) : (fsMatchingCount ?? 0);
                   const activeFsTab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;

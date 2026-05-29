@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface FrontStructureSubTab {
+  id: string;
+  name: string;
+  count: number;
+  names: Set<string>; // FR/EN/AR variants for this single subcategory
+}
+
 export interface FrontStructureTab {
   id: string;
   name: string;
   count: number;
   subcategoryNames: Set<string>;
+  subcategories: FrontStructureSubTab[];
 }
 
 /**
@@ -51,18 +59,26 @@ export function useFrontStructureTabs(city: string | null) {
       const subMap = new Map((subsRes.data || []).map((s: any) => [s.id, s]));
       const businesses = bizRes.data || [];
 
-      // Build subcategory-name set per front_structure entry
+      // Build per-front_structure: union of names + per-subcategory details
       const fsSubNames = new Map<string, Set<string>>();
+      const fsSubs = new Map<string, { id: string; name: string; names: Set<string> }[]>();
       for (const link of fssLinks as any[]) {
         const sub: any = subMap.get(link.subcategory_id);
         if (!sub) continue;
         if (!fsSubNames.has(link.front_structure_id)) {
           fsSubNames.set(link.front_structure_id, new Set());
+          fsSubs.set(link.front_structure_id, []);
         }
         const s = fsSubNames.get(link.front_structure_id)!;
-        if (sub.name_fr) s.add(sub.name_fr);
-        if (sub.name_en) s.add(sub.name_en);
-        if (sub.name_ar) s.add(sub.name_ar);
+        const names = new Set<string>();
+        if (sub.name_fr) { s.add(sub.name_fr); names.add(sub.name_fr); }
+        if (sub.name_en) { s.add(sub.name_en); names.add(sub.name_en); }
+        if (sub.name_ar) { s.add(sub.name_ar); names.add(sub.name_ar); }
+        fsSubs.get(link.front_structure_id)!.push({
+          id: sub.id,
+          name: sub.name_fr || sub.name_en || sub.name_ar || "—",
+          names,
+        });
       }
 
       const result: FrontStructureTab[] = [];
@@ -76,11 +92,27 @@ export function useFrontStructureTabs(city: string | null) {
           if (inMain || inCats) count++;
         }
         if (count === 0) continue;
+
+        // Build per-subcategory counts, keep only those with ≥1 business
+        const subDetails = (fsSubs.get(fs.id) || [])
+          .map((sd) => {
+            let c = 0;
+            for (const b of businesses as any[]) {
+              const inMain = b.main_category && sd.names.has(b.main_category);
+              const inCats = Array.isArray(b.categories) && b.categories.some((cat: string) => sd.names.has(cat));
+              if (inMain || inCats) c++;
+            }
+            return { id: sd.id, name: sd.name, names: sd.names, count: c };
+          })
+          .filter((sd) => sd.count > 0)
+          .sort((a, b) => b.count - a.count);
+
         result.push({
           id: fs.id,
           name: fs.name,
           count,
           subcategoryNames: subNames,
+          subcategories: subDetails,
         });
       }
 
