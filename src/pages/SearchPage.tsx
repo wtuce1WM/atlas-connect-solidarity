@@ -4243,18 +4243,34 @@ const SearchPage = () => {
               {(() => {
                 const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
                 if (!activeFsTab || activeFsTab.subcategories.length <= 1) return null;
+                const activeSub = mobileFsSubId ? activeFsTab.subcategories.find(s => s.id === mobileFsSubId) : null;
+                const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
+                const subPool = activeSub
+                  ? pool.filter((b: any) =>
+                      (b.main_category && activeSub.names.has(b.main_category)) ||
+                      b.categories?.some((c: string) => activeSub.names.has(c))
+                    )
+                  : [];
                 return (
                   <FrontStructureSubNavBar
                     subcategories={activeFsTab.subcategories}
                     activeSubId={mobileFsSubId}
                     onSubClick={(subId) => {
                       setMobileFsSubId(subId);
+                      setMobileFsServices([]);
+                      setFsFilterServices(null);
                       if (!subId) {
                         setFsFilterSubcategories(new Set(activeFsTab.subcategoryNames));
                       } else {
                         const sub = activeFsTab.subcategories.find(s => s.id === subId);
                         setFsFilterSubcategories(new Set(sub?.names || activeFsTab.subcategoryNames));
                       }
+                    }}
+                    subPool={subPool}
+                    selectedServices={mobileFsServices}
+                    onServicesChange={(svcs) => {
+                      setMobileFsServices(svcs);
+                      setFsFilterServices(svcs.length > 0 ? new Set(svcs) : null);
                     }}
                   />
                 );
