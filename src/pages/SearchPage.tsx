@@ -3594,26 +3594,6 @@ const SearchPage = () => {
                 );
               })()}
 
-              {/* Videos carousel — AI tab only, AFTER the "Affinez votre demande" block.
-                  Mirrors the /videos page filter (city + selected subcategory + service),
-                  1 vignette per business. Clicking opens that exact video on /videos. */}
-              {activeTab === "ai" && (() => {
-                const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
-                const effSub =
-                  selectedSubcategoryFilter ||
-                  detectedSubcategory ||
-                  (subcategoryNamesFromUrl.length === 1 ? subcategoryNamesFromUrl[0] : null);
-                const effService = selectedServiceFilter || null;
-                if (!effCity || (!effSub && !effService)) return null;
-                return (
-                  <SearchAIVideosCarousel
-                    subcategoryNames={effSub ? [effSub] : []}
-                    serviceName={effService}
-                    city={effCity}
-                    entryLabel={labelFromUrl}
-                  />
-                );
-              })()}
 
 
 
