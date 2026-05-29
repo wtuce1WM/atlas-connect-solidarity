@@ -308,32 +308,52 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
         }
       }
 
-      // 8. Fetch business names for all items
+      // 8. Fetch business names, ratings, logos + subcategory labels
       const merged = [...docItems, ...genericItems, ...ytItems];
       const bizIds = [...new Set(merged.map((d) => d.business_id).filter(Boolean))] as string[];
-      const nameMap = new Map<string, string>();
+      const bizMap = new Map<string, any>();
       if (bizIds.length > 0) {
         const { data: biz } = await supabase
           .from("businesses")
-          .select("id, name")
+          .select("id, name, computed_rating, rating, total_review_count, logo_url")
           .in("id", bizIds);
-        (biz || []).forEach((b: any) => nameMap.set(b.id, b.name));
+        (biz || []).forEach((b: any) => bizMap.set(b.id, b));
+      }
+      const subIdsForLabels = [...new Set(merged.map((d) => d.subcategory_id).filter(Boolean))] as string[];
+      const subLabelMap = new Map<string, string>();
+      if (subIdsForLabels.length > 0) {
+        const { data: subs } = await supabase
+          .from("subcategories")
+          .select("id, name_fr")
+          .in("id", subIdsForLabels);
+        (subs || []).forEach((s: any) => subLabelMap.set(s.id, s.name_fr));
       }
       if (cancelled) return;
       setEntryId(resolvedEntryId);
       setSubIds(resolvedSubIds);
       setDocs(
-        merged.map((d) => ({
-          id: d.id,
-          url: d.url,
-          thumbnail_url: d.thumbnail_url,
-          business_id: d.business_id,
-          name: d.name,
-          sort_order: d.sort_order,
-          businessName: (d.business_id && nameMap.get(d.business_id)) || d.name || null,
-        }))
+        merged.map((d) => {
+          const b = d.business_id ? bizMap.get(d.business_id) : null;
+          return {
+            id: d.id,
+            url: d.url,
+            thumbnail_url: d.thumbnail_url,
+            business_id: d.business_id,
+            name: d.name,
+            sort_order: d.sort_order,
+            price_type: d.price_type ?? null,
+            subcategory_id: d.subcategory_id ?? null,
+            service_id: d.service_id ?? null,
+            businessName: (b?.name) || d.name || null,
+            subcategoryLabel: d.subcategory_id ? subLabelMap.get(d.subcategory_id) || null : null,
+            rating: b ? (b.computed_rating ?? b.rating ?? null) : null,
+            reviewCount: b?.total_review_count ?? null,
+            logoUrl: b?.logo_url ?? null,
+          };
+        })
       );
       setLoading(false);
+
 
     })();
     return () => {
