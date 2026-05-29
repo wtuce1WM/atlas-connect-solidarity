@@ -215,7 +215,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
     return () => {
       cancelled = true;
     };
-  }, [subKey, city, entryLabel]);
+  }, [subKey, city, entryLabel, serviceName, badgeKey]);
+
 
   if (loading) {
     return (
