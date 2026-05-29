@@ -874,7 +874,7 @@ const SearchPage = () => {
             navigate(returnBlogPath!, { replace: true });
           }, 0);
         }
-      }, [navigate]);
+      }, [navigate, activeTab]);
 
       // Listen for external requests to close the slide panel (e.g. from the
       // hashtags overlay inside the panel itself).
