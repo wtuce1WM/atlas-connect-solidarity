@@ -73,9 +73,9 @@ export default function FrontStructureSubNavBar({
   const toggleService = (name: string) => {
     if (!onServicesChange) return;
     if (selectedServices.includes(name)) {
-      onServicesChange(selectedServices.filter((s) => s !== name));
+      onServicesChange([]);
     } else {
-      onServicesChange([...selectedServices, name]);
+      onServicesChange([name]);
     }
   };
 
