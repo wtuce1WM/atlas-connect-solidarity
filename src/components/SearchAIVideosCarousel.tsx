@@ -378,40 +378,117 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
     if (subIds.length === 1) params.set("sub", subIds[0]);
     params.set("openVideo", doc.id);
     navigate(`/videos?${params.toString()}`);
-  };
-
-  return (
     <div className="mt-6 space-y-2">
-
       <div className="-mx-4 sm:mx-0">
-        <div className="flex gap-3 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
-          {docs.map((doc) => (
-            <button
-              key={doc.id}
-              onClick={() => handleClick(doc)}
-              className="group relative flex-shrink-0 w-40 rounded-xl overflow-hidden bg-muted ring-1 ring-border hover:ring-gold transition"
-              style={{ aspectRatio: "6 / 9" }}
-              title={doc.businessName || doc.name || ""}
-            >
-              <img
-                src={doc.thumbnail_url!}
-                alt={doc.businessName || doc.name || ""}
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
-                  <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+        <div className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
+          {docs.map((doc) => {
+            const priceTypeLabel = doc.price_type
+              ? (doc.price_type.toLowerCase() === "location"
+                  ? "Location"
+                  : doc.price_type.toLowerCase() === "vente"
+                    ? "Vente"
+                    : doc.price_type)
+              : null;
+            const textShadow = "drop-shadow(0 1px 2px hsla(0,0%,0%,0.95)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.7))";
+            return (
+              <button
+                key={doc.id}
+                onClick={() => handleClick(doc)}
+                className="group relative flex-shrink-0 w-72 rounded-xl overflow-hidden bg-muted ring-1 ring-border hover:ring-gold transition"
+                style={{ aspectRatio: "6 / 9" }}
+                title={doc.businessName || doc.name || ""}
+              >
+                <img
+                  src={doc.thumbnail_url!}
+                  alt={doc.businessName || doc.name || ""}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/15 group-hover:bg-black/30 transition-colors" />
+
+                {/* Top-left: business name + subcategory label */}
+                {(doc.businessName || doc.subcategoryLabel) && (
+                  <div className="absolute top-0 left-0 right-0 p-2.5 space-y-0.5 z-[5] text-left pointer-events-none">
+                    {doc.businessName && (
+                      <p
+                        className="text-[13px] font-semibold uppercase text-white line-clamp-1 tracking-wide"
+                        style={{ fontFamily: "'Josefin Sans', sans-serif", filter: textShadow }}
+                      >
+                        {doc.businessName}
+                      </p>
+                    )}
+                    {doc.subcategoryLabel && (
+                      <p
+                        className="text-[11px] font-bold uppercase tracking-wide text-gold line-clamp-1"
+                        style={{ filter: textShadow }}
+                      >
+                        {doc.subcategoryLabel}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Video title (centered, top third) */}
+                {doc.name && (
+                  <div className="absolute inset-x-0 top-[14%] z-[6] flex justify-center px-3 pointer-events-none">
+                    <p
+                      className="text-[13px] font-bold text-white text-center line-clamp-2"
+                      style={{ fontFamily: "'Roboto', sans-serif", filter: textShadow }}
+                    >
+                      {doc.name}
+                    </p>
+                  </div>
+                )}
+
+                {/* Gold price-type badge (Location/Vente) */}
+                {priceTypeLabel && (
+                  <div className="absolute inset-x-0 top-[34%] z-[7] flex justify-center pointer-events-none">
+                    <span className="px-3 py-1 rounded-md bg-gold text-black text-[11px] font-bold uppercase tracking-wide shadow-lg border-2 border-black">
+                      {priceTypeLabel}
+                    </span>
+                  </div>
+                )}
+
+                {/* Play button center */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-12 h-12 rounded-full bg-black/55 flex items-center justify-center shadow-lg">
+                    <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+                  </div>
                 </div>
-              </div>
-              {doc.businessName && (
-                <p className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[11px] leading-tight text-white font-medium bg-gradient-to-t from-black/85 to-transparent line-clamp-2 text-left">
-                  {doc.businessName}
-                </p>
-              )}
-            </button>
-          ))}
+
+                {/* Logo (bottom center) */}
+                {doc.logoUrl && (
+                  <div className="absolute inset-x-0 bottom-[14%] z-[5] flex justify-center px-3 pointer-events-none">
+                    <img
+                      src={doc.logoUrl}
+                      alt=""
+                      className="max-h-[60px] max-w-[90px] object-contain"
+                      style={{ filter: "drop-shadow(0 0 2px hsla(0,0%,0%,0.8)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
+                    />
+                  </div>
+                )}
+
+                {/* Rating bottom-left */}
+                {doc.rating != null && (
+                  <div className="absolute bottom-2 left-2 z-[5] inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-black/65 backdrop-blur-sm">
+                    <Star className="h-3 w-3 text-gold fill-gold" />
+                    <span className="font-medium text-white">{doc.rating}/20</span>
+                    {(doc.reviewCount ?? 0) > 0 && (
+                      <span className="text-white/80">· {doc.reviewCount} avis</span>
+                    )}
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
+      </div>
+    </div>
+  );
+};
+
+export default SearchAIVideosCarousel;
+
       </div>
     </div>
   );
