@@ -54,7 +54,7 @@ export default function FrontStructureSubNavBar({ subcategories, activeSubId, on
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
-            className={`shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full bg-white text-black shadow-lg transition-colors ${
+            className={`shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full bg-white text-black shadow-lg transition-colors ${
               active ? "ring-2 ring-gold" : "hover:bg-neutral-50"
             }`}
             aria-label="Filtrer par sous-catégorie"
