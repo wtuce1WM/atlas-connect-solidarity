@@ -829,16 +829,24 @@ const SearchPage = () => {
         let returnContext: string | null = null;
         let returnBlogPath: string | null = null;
         let returnBlogEntryId: string | null = null;
+        // Neutralisation onglet IA : ne pas renvoyer vers /test depuis l'onglet IA.
+        const skipReturnToTest = activeTab === "ai";
         try {
-          returnVideoId = sessionStorage.getItem("returnToTestVideoId");
-          returnContext = sessionStorage.getItem("returnToTestContext");
-          if (returnVideoId) sessionStorage.removeItem("returnToTestVideoId");
-          if (returnContext) sessionStorage.removeItem("returnToTestContext");
+          returnVideoId = skipReturnToTest ? null : sessionStorage.getItem("returnToTestVideoId");
+          returnContext = skipReturnToTest ? null : sessionStorage.getItem("returnToTestContext");
+          if (skipReturnToTest) {
+            sessionStorage.removeItem("returnToTestVideoId");
+            sessionStorage.removeItem("returnToTestContext");
+          } else {
+            if (returnVideoId) sessionStorage.removeItem("returnToTestVideoId");
+            if (returnContext) sessionStorage.removeItem("returnToTestContext");
+          }
           returnBlogPath = sessionStorage.getItem("returnToBlogPath");
           returnBlogEntryId = sessionStorage.getItem("returnToBlogEntryId");
           if (returnBlogPath) sessionStorage.removeItem("returnToBlogPath");
           if (returnBlogEntryId) sessionStorage.removeItem("returnToBlogEntryId");
         } catch { /* sessionStorage unavailable */ }
+
         setCompactPanelBusiness(null);
         setCompactPanelInitialVideoUrl(null);
         setIsCompactPanelExpanded(false);
