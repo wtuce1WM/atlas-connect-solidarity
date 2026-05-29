@@ -65,7 +65,7 @@ export default function FrontStructureSubNavBar({ subcategories, activeSubId, on
         <PopoverContent
           align="end"
           sideOffset={6}
-          className="w-64 p-2 bg-white border-0 shadow-xl rounded-xl z-[90]"
+          className="w-64 p-2 bg-white border-0 shadow-xl rounded-xl z-[250]"
         >
           <Row
             selected={activeSubId === null}
