@@ -2804,13 +2804,15 @@ const SearchPage = () => {
   // Front Structure filter: when a subcategory chip is active, restrict the
   // Results tab list to matching businesses (single page, no server pagination).
   const fsFilteredList = useMemo(() => {
-    if (!fsFilterSubcategories) return null;
+    if (!fsFilterSubcategories && (!fsFilterServices || fsFilterServices.size === 0)) return null;
     const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
     return pool.filter(b =>
-      (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
-      b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
+      (!fsFilterSubcategories ||
+        (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
+        b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
+      businessMatchesFsServices(b)
     );
-  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses]);
+  }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses]);
   const resultsFilteredBusinesses = fsFilteredList ?? filteredBusinesses;
   const resultsPaginatedBusinesses = fsFilteredList ?? paginatedBusinesses;
   const resultsTotalPages = fsFilteredList ? 1 : totalPages;
