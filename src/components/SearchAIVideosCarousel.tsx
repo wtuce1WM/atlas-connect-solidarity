@@ -527,7 +527,24 @@ interface Props {
         </div>
       </div>
     </div>
+    {panelVideo && (
+      <SlidePanelHome
+        open={!!panelVideo}
+        onClose={() => setPanelVideo(null)}
+        videoUrl={panelVideo.videoUrl}
+        videoId={panelVideo.videoId}
+        videoName={panelVideo.videoName}
+        businessName={panelVideo.businessName}
+        isGeneric={panelVideo.isGeneric}
+        currentTime={currentTime}
+        onTimeUpdate={setCurrentTime}
+        owner={panelVideo.owner}
+        description={panelVideo.description}
+      />
+    )}
+    </>
   );
+
 };
 
 export default SearchAIVideosCarousel;
