@@ -28,7 +28,7 @@ export default function FrontStructureSubNavBar({
   onServicesChange,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const [services, setServices] = useState<ServiceRow[]>([]);
+  const [services, setServices] = useState<ServiceItem[]>([]);
 
   // Fetch active services for the active subcategory
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function FrontStructureSubNavBar({
         .eq("subcategory_id", activeSubId)
         .eq("is_active", true)
         .order("sort_order", { ascending: true, nullsFirst: false });
-      if (!cancelled && data) setServices(data as ServiceRow[]);
+      if (!cancelled && data) setServices(data as ServiceItem[]);
     })();
     return () => { cancelled = true; };
   }, [activeSubId]);
