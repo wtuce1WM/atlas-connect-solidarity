@@ -170,7 +170,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
         const chunk = candidateDocIds.slice(i, i + CHUNK);
         let q = supabase
           .from("business_documents")
-          .select("id, url, thumbnail_url, business_id, name, sort_order, subcategory_id, service_id")
+          .select("id, url, thumbnail_url, business_id, name, sort_order, subcategory_id, service_id, price_type")
           .eq("type", "video")
           .eq("business_is_active", true)
           .in("id", chunk)
@@ -197,7 +197,11 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
         business_id: d.business_id as string | null,
         name: d.name as string | null,
         sort_order: d.sort_order as number | null,
+        price_type: (d.price_type as string | null) ?? null,
+        subcategory_id: (d.subcategory_id as string | null) ?? null,
+        service_id: (d.service_id as string | null) ?? null,
       }));
+
 
       // 6. Add generic_videos linked to selected subcategories + current city
       const genericItems: typeof docItems = [];
