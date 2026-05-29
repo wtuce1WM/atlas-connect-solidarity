@@ -487,6 +487,15 @@ const SearchPage = () => {
         setAiChatError(language === "en" ? "No answer received." : "Aucune réponse reçue.");
       } else {
         setAiChat((prev) => [...prev, { role: "assistant", content: answer }]);
+        // Scroll the latest user "terracotta" bubble to the top of the viewport
+        setTimeout(() => {
+          const bubbles = document.querySelectorAll<HTMLElement>("[data-ai-user-bubble]");
+          const last = bubbles[bubbles.length - 1];
+          if (last) {
+            const top = last.getBoundingClientRect().top + window.scrollY - 16;
+            window.scrollTo({ top, behavior: "smooth" });
+          }
+        }, 50);
       }
     } catch (e: any) {
       console.error("AI refinement error:", e);
@@ -3485,7 +3494,7 @@ const SearchPage = () => {
                         {aiChat.map((m, idx) => (
                           <div key={idx} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
                             {m.role === "user" ? (
-                              <div className="max-w-[80%] rounded-2xl bg-primary text-primary-foreground px-4 py-2 text-sm">
+                              <div data-ai-user-bubble className="max-w-[80%] rounded-2xl bg-primary text-primary-foreground px-4 py-2 text-sm">
                                 {m.content}
                               </div>
                             ) : (
