@@ -3,6 +3,8 @@ import { Play, Loader2, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import SlidePanelHome from "@/components/SlidePanelHome";
+
 
 interface VideoDoc {
   id: string;
