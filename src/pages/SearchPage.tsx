@@ -1931,7 +1931,7 @@ const SearchPage = () => {
     });
     const sliced = showAllSearchMarkers ? matching : matching.slice(0, 20);
     return buildMapPoiItems(sliced, guardDesktop);
-  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses, buildMapPoiItems, showAllSearchMarkers]);
+  }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses, buildMapPoiItems, showAllSearchMarkers]);
 
   // Total matching count for the active FS category tab (full pool, before slicing)
   const fsMatchingCount = useMemo(() => {
