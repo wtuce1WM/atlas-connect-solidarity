@@ -202,7 +202,10 @@ export default function FrontStructureSubNavBar({
                     selected={selectedServices.includes(s.name_fr)}
                     label={s.name_fr}
                     count={serviceCounts.get(s.name_fr) || 0}
-                    onClick={() => toggleService(s.name_fr)}
+                    onClick={() => {
+                      toggleService(s.name_fr);
+                      setOpen(false);
+                    }}
                   />
                 ))}
               </div>
