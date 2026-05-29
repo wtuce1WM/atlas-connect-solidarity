@@ -54,21 +54,12 @@ export default function FrontStructureSubNavBar({ subcategories, activeSubId, on
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
-            className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider transition-colors whitespace-nowrap backdrop-blur-sm ${
-              active ? "bg-white text-black" : "bg-black/40 text-white hover:bg-black/60"
+            className={`shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full bg-white text-black shadow-lg transition-colors ${
+              active ? "ring-2 ring-gold" : "hover:bg-neutral-50"
             }`}
-            style={{ fontFamily: "'Josefin Sans', sans-serif" }}
             aria-label="Filtrer par sous-catégorie"
           >
-            <SlidersHorizontal className="h-3.5 w-3.5" />
-            {active ? (
-              <>
-                <span>{active.name}</span>
-                <span className="opacity-70">{active.count}</span>
-              </>
-            ) : (
-              <span>Sous-catégories</span>
-            )}
+            <SlidersHorizontal className="h-4 w-4" />
           </button>
         </PopoverTrigger>
         <PopoverContent
