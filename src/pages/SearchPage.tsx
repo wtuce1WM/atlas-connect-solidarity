@@ -4168,6 +4168,8 @@ const SearchPage = () => {
                   onTabClick={(tabId) => {
                     setMobileFsTabId(tabId);
                     setMobileFsSubId(null);
+                    setMobileFsServices([]);
+                    setFsFilterServices(null);
                     if (!tabId) {
                       setFsFilterSubcategories(null);
                     } else {
