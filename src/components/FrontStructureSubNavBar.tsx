@@ -43,7 +43,7 @@ export default function FrontStructureSubNavBar({
         .select("id, name_fr")
         .eq("subcategory_id", activeSubId)
         .eq("is_active", true)
-        .order("sort_order", { ascending: true, nullsFirst: false });
+        .order("name_fr", { ascending: true });
       if (!cancelled && data) setServices(data as ServiceItem[]);
     })();
     return () => { cancelled = true; };
