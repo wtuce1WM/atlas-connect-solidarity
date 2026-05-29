@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { SlidersHorizontal, Circle, CheckCircle2, Square, CheckSquare } from "lucide-react";
+import { SlidersHorizontal, Circle, CheckCircle2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import type { FrontStructureSubTab } from "@/hooks/useFrontStructureTabs";
@@ -73,9 +73,9 @@ export default function FrontStructureSubNavBar({
   const toggleService = (name: string) => {
     if (!onServicesChange) return;
     if (selectedServices.includes(name)) {
-      onServicesChange(selectedServices.filter((s) => s !== name));
+      onServicesChange([]);
     } else {
-      onServicesChange([...selectedServices, name]);
+      onServicesChange([name]);
     }
   };
 
@@ -113,9 +113,9 @@ export default function FrontStructureSubNavBar({
       className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
     >
       {selected ? (
-        <CheckSquare className="h-5 w-5 text-black shrink-0" strokeWidth={2} />
+        <CheckCircle2 className="h-5 w-5 text-black shrink-0" strokeWidth={2} />
       ) : (
-        <Square className="h-5 w-5 text-black/40 shrink-0" strokeWidth={1.5} />
+        <Circle className="h-5 w-5 text-black/40 shrink-0" strokeWidth={1.5} />
       )}
       <span
         className={`flex-1 text-sm ${selected ? "font-semibold text-black" : "text-black/70"}`}
