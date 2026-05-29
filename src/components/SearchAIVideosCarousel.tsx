@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Play, Loader2 } from "lucide-react";
+import { Play, Loader2, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,8 +11,16 @@ interface VideoDoc {
   url: string | null;
   name: string | null;
   sort_order: number | null;
+  price_type?: string | null;
+  subcategory_id?: string | null;
+  service_id?: string | null;
   businessName?: string | null;
+  subcategoryLabel?: string | null;
+  rating?: number | null;
+  reviewCount?: number | null;
+  logoUrl?: string | null;
 }
+
 
 interface Props {
   /** Selected subcategory names (subcats=A|B|...). */
@@ -162,7 +170,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
         const chunk = candidateDocIds.slice(i, i + CHUNK);
         let q = supabase
           .from("business_documents")
-          .select("id, url, thumbnail_url, business_id, name, sort_order, subcategory_id, service_id")
+          .select("id, url, thumbnail_url, business_id, name, sort_order, subcategory_id, service_id, price_type")
           .eq("type", "video")
           .eq("business_is_active", true)
           .in("id", chunk)
@@ -189,7 +197,11 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
         business_id: d.business_id as string | null,
         name: d.name as string | null,
         sort_order: d.sort_order as number | null,
+        price_type: (d.price_type as string | null) ?? null,
+        subcategory_id: (d.subcategory_id as string | null) ?? null,
+        service_id: (d.service_id as string | null) ?? null,
       }));
+
 
       // 6. Add generic_videos linked to selected subcategories + current city
       const genericItems: typeof docItems = [];
@@ -237,6 +249,9 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                 business_id: genericBizByGv.get(v.id) || null,
                 name: v.title || v.name || null,
                 sort_order: v.sort_order ?? null,
+                price_type: null,
+                subcategory_id: null,
+                service_id: null,
               });
             });
           }
@@ -284,38 +299,61 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                 business_id: y.business_id,
                 name: y.title || null,
                 sort_order: y.sort_order ?? null,
+                price_type: null,
+                subcategory_id: null,
+                service_id: null,
               });
             });
           }
         }
       }
 
-      // 8. Fetch business names for all items
+      // 8. Fetch business names, ratings, logos + subcategory labels
       const merged = [...docItems, ...genericItems, ...ytItems];
       const bizIds = [...new Set(merged.map((d) => d.business_id).filter(Boolean))] as string[];
-      const nameMap = new Map<string, string>();
+      const bizMap = new Map<string, any>();
       if (bizIds.length > 0) {
         const { data: biz } = await supabase
           .from("businesses")
-          .select("id, name")
+          .select("id, name, computed_rating, rating, total_review_count, logo_url")
           .in("id", bizIds);
-        (biz || []).forEach((b: any) => nameMap.set(b.id, b.name));
+        (biz || []).forEach((b: any) => bizMap.set(b.id, b));
+      }
+      const subIdsForLabels = [...new Set(merged.map((d) => d.subcategory_id).filter(Boolean))] as string[];
+      const subLabelMap = new Map<string, string>();
+      if (subIdsForLabels.length > 0) {
+        const { data: subs } = await supabase
+          .from("subcategories")
+          .select("id, name_fr")
+          .in("id", subIdsForLabels);
+        (subs || []).forEach((s: any) => subLabelMap.set(s.id, s.name_fr));
       }
       if (cancelled) return;
       setEntryId(resolvedEntryId);
       setSubIds(resolvedSubIds);
       setDocs(
-        merged.map((d) => ({
-          id: d.id,
-          url: d.url,
-          thumbnail_url: d.thumbnail_url,
-          business_id: d.business_id,
-          name: d.name,
-          sort_order: d.sort_order,
-          businessName: (d.business_id && nameMap.get(d.business_id)) || d.name || null,
-        }))
+        merged.map((d) => {
+          const b = d.business_id ? bizMap.get(d.business_id) : null;
+          return {
+            id: d.id,
+            url: d.url,
+            thumbnail_url: d.thumbnail_url,
+            business_id: d.business_id,
+            name: d.name,
+            sort_order: d.sort_order,
+            price_type: d.price_type ?? null,
+            subcategory_id: d.subcategory_id ?? null,
+            service_id: d.service_id ?? null,
+            businessName: (b?.name) || d.name || null,
+            subcategoryLabel: d.subcategory_id ? subLabelMap.get(d.subcategory_id) || null : null,
+            rating: b ? (b.computed_rating ?? b.rating ?? null) : null,
+            reviewCount: b?.total_review_count ?? null,
+            logoUrl: b?.logo_url ?? null,
+          };
+        })
       );
       setLoading(false);
+
 
     })();
     return () => {
@@ -346,33 +384,107 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
     <div className="mt-6 space-y-2">
 
       <div className="-mx-4 sm:mx-0">
-        <div className="flex gap-3 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
-          {docs.map((doc) => (
-            <button
-              key={doc.id}
-              onClick={() => handleClick(doc)}
-              className="group relative flex-shrink-0 w-40 rounded-xl overflow-hidden bg-muted ring-1 ring-border hover:ring-gold transition"
-              style={{ aspectRatio: "6 / 9" }}
-              title={doc.businessName || doc.name || ""}
-            >
-              <img
-                src={doc.thumbnail_url!}
-                alt={doc.businessName || doc.name || ""}
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
-                  <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+        <div className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
+          {docs.map((doc) => {
+            const priceTypeLabel = doc.price_type
+              ? (doc.price_type.toLowerCase() === "location"
+                  ? "Location"
+                  : doc.price_type.toLowerCase() === "vente"
+                    ? "Vente"
+                    : doc.price_type)
+              : null;
+            const textShadow = "drop-shadow(0 1px 2px hsla(0,0%,0%,0.95)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.7))";
+            return (
+              <button
+                key={doc.id}
+                onClick={() => handleClick(doc)}
+                className="group relative flex-shrink-0 w-72 rounded-xl overflow-hidden bg-muted ring-1 ring-border hover:ring-gold transition"
+                style={{ aspectRatio: "6 / 9" }}
+                title={doc.businessName || doc.name || ""}
+              >
+                <img
+                  src={doc.thumbnail_url!}
+                  alt={doc.businessName || doc.name || ""}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/15 group-hover:bg-black/30 transition-colors" />
+
+                {/* Top-left: business name + subcategory label */}
+                {(doc.businessName || doc.subcategoryLabel) && (
+                  <div className="absolute top-0 left-0 right-0 p-2.5 space-y-0.5 z-[5] text-left pointer-events-none">
+                    {doc.businessName && (
+                      <p
+                        className="text-[13px] font-semibold uppercase text-white line-clamp-1 tracking-wide"
+                        style={{ fontFamily: "'Josefin Sans', sans-serif", filter: textShadow }}
+                      >
+                        {doc.businessName}
+                      </p>
+                    )}
+                    {doc.subcategoryLabel && (
+                      <p
+                        className="text-[11px] font-bold uppercase tracking-wide text-gold line-clamp-1"
+                        style={{ filter: textShadow }}
+                      >
+                        {doc.subcategoryLabel}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Video title (centered, top third) */}
+                {doc.name && (
+                  <div className="absolute inset-x-0 top-[14%] z-[6] flex justify-center px-3 pointer-events-none">
+                    <p
+                      className="text-[13px] font-bold text-white text-center line-clamp-2"
+                      style={{ fontFamily: "'Roboto', sans-serif", filter: textShadow }}
+                    >
+                      {doc.name}
+                    </p>
+                  </div>
+                )}
+
+                {/* Gold price-type badge (Location/Vente) */}
+                {priceTypeLabel && (
+                  <div className="absolute inset-x-0 top-[34%] z-[7] flex justify-center pointer-events-none">
+                    <span className="px-3 py-1 rounded-md bg-gold text-black text-[11px] font-bold uppercase tracking-wide shadow-lg border-2 border-black">
+                      {priceTypeLabel}
+                    </span>
+                  </div>
+                )}
+
+                {/* Play button center */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-12 h-12 rounded-full bg-black/55 flex items-center justify-center shadow-lg">
+                    <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+                  </div>
                 </div>
-              </div>
-              {doc.businessName && (
-                <p className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[11px] leading-tight text-white font-medium bg-gradient-to-t from-black/85 to-transparent line-clamp-2 text-left">
-                  {doc.businessName}
-                </p>
-              )}
-            </button>
-          ))}
+
+                {/* Logo (bottom center) */}
+                {doc.logoUrl && (
+                  <div className="absolute inset-x-0 bottom-[14%] z-[5] flex justify-center px-3 pointer-events-none">
+                    <img
+                      src={doc.logoUrl}
+                      alt=""
+                      className="max-h-[60px] max-w-[90px] object-contain"
+                      style={{ filter: "drop-shadow(0 0 2px hsla(0,0%,0%,0.8)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
+                    />
+                  </div>
+                )}
+
+                {/* Rating bottom-left */}
+                {doc.rating != null && (
+                  <div className="absolute bottom-2 left-2 z-[5] inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-black/65 backdrop-blur-sm">
+                    <Star className="h-3 w-3 text-gold fill-gold" />
+                    <span className="font-medium text-white">{doc.rating}/20</span>
+                    {(doc.reviewCount ?? 0) > 0 && (
+                      <span className="text-white/80">· {doc.reviewCount} avis</span>
+                    )}
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
