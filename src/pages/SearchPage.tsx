@@ -305,6 +305,7 @@ const SearchPage = () => {
   const [mobileFsSubId, setMobileFsSubId] = useState<string | null>(null);
   const [mobileFsServices, setMobileFsServices] = useState<string[]>([]);
   const [showAllSearchMarkers, setShowAllSearchMarkers] = useState(false);
+  const autoMobileFsLabelKeyRef = useRef<string | null>(null);
 
   // Reset front structure filter when search query changes
   useEffect(() => {
@@ -1963,6 +1964,22 @@ const SearchPage = () => {
   }, [mapPoiItems, mobileMapPoiItemsFinal]);
 
   const { tabs: mobileFrontTabs } = useFrontStructureTabs(effectiveCityForMap || null);
+
+  useEffect(() => {
+    const label = (labelFromUrl || "").replace(/^#+/, "").trim().toLowerCase();
+    const key = `${effectiveCityForMap || ""}|${label}`;
+    if (!label || autoMobileFsLabelKeyRef.current === key || mobileFrontTabs.length === 0) return;
+
+    const tab = mobileFrontTabs.find((t) => t.name.trim().toLowerCase() === label);
+    if (!tab) return;
+
+    autoMobileFsLabelKeyRef.current = key;
+    setMobileFsTabId(tab.id);
+    setMobileFsSubId(null);
+    setMobileFsServices([]);
+    setFsFilterSubcategories(new Set(tab.subcategoryNames));
+    setFsFilterServices(null);
+  }, [labelFromUrl, effectiveCityForMap, mobileFrontTabs]);
 
 
 

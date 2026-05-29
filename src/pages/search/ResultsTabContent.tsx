@@ -134,6 +134,7 @@ export default function ResultsTabContent({
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
   const [activeFsServices, setActiveFsServices] = useState<string[]>([]);
+  const autoFsLabelKeyRef = useRef<string | null>(null);
   const resolvedHotelSearchInfo = hotelSearchInfo || (() => {
     if (typeof window === "undefined") return null;
     const params = new URLSearchParams(window.location.search);
@@ -185,6 +186,24 @@ export default function ResultsTabContent({
     setActiveFsServices([]);
     onFrontStructureServicesFilter?.(null);
   }, [effectiveCity, searchQuery]);
+
+  // When landing on a front-structure URL (e.g. label=Hébergement), select that tab
+  // so the subcategory/services filter is visible immediately.
+  useEffect(() => {
+    const label = (labelFromUrl || "").replace(/^#+/, "").trim().toLowerCase();
+    const key = `${effectiveCity || ""}|${label}`;
+    if (!label || autoFsLabelKeyRef.current === key || frontTabs.length === 0) return;
+
+    const tab = frontTabs.find((t) => t.name.trim().toLowerCase() === label);
+    if (!tab) return;
+
+    autoFsLabelKeyRef.current = key;
+    setActiveFsTabId(tab.id);
+    setActiveFsSubId(null);
+    setActiveFsServices([]);
+    onFrontStructureFilter?.(tab.subcategoryNames);
+    onFrontStructureServicesFilter?.(null);
+  }, [labelFromUrl, effectiveCity, frontTabs]);
 
   const activeFsTab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
 
