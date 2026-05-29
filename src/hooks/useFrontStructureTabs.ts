@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface FrontStructureSubTab {
+  id: string;
+  name: string;
+  count: number;
+  names: Set<string>; // FR/EN/AR variants for this single subcategory
+}
+
 export interface FrontStructureTab {
   id: string;
   name: string;
   count: number;
   subcategoryNames: Set<string>;
+  subcategories: FrontStructureSubTab[];
 }
 
 /**
