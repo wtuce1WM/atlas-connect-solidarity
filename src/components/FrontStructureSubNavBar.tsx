@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { SlidersHorizontal, Circle, CheckCircle2, Square, CheckSquare } from "lucide-react";
+import { SlidersHorizontal, Circle, CheckCircle2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import type { FrontStructureSubTab } from "@/hooks/useFrontStructureTabs";
