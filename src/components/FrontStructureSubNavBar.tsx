@@ -113,9 +113,9 @@ export default function FrontStructureSubNavBar({
       className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
     >
       {selected ? (
-        <CheckSquare className="h-5 w-5 text-black shrink-0" strokeWidth={2} />
+        <CheckCircle2 className="h-5 w-5 text-black shrink-0" strokeWidth={2} />
       ) : (
-        <Square className="h-5 w-5 text-black/40 shrink-0" strokeWidth={1.5} />
+        <Circle className="h-5 w-5 text-black/40 shrink-0" strokeWidth={1.5} />
       )}
       <span
         className={`flex-1 text-sm ${selected ? "font-semibold text-black" : "text-black/70"}`}
