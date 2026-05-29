@@ -3,6 +3,8 @@ import { Play, Loader2, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import SlidePanelHome from "@/components/SlidePanelHome";
+
 
 interface VideoDoc {
   id: string;
@@ -49,13 +51,25 @@ interface Props {
  * within the same context (city + entry + sub).
  */
 const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceName, badgeIds, title }: Props) => {
-
   const { language } = useLanguage();
+
   const navigate = useNavigate();
   const [docs, setDocs] = useState<VideoDoc[]>([]);
   const [loading, setLoading] = useState(false);
   const [entryId, setEntryId] = useState<string | null>(null);
   const [subIds, setSubIds] = useState<string[]>([]);
+  const [panelVideo, setPanelVideo] = useState<{
+    videoUrl: string;
+    videoId: string;
+    videoName: string | null;
+    businessName: string;
+    isGeneric: boolean;
+    description: string | null;
+    owner: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null;
+  } | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+
+
 
   const subKey = useMemo(
     () => [...new Set(subcategoryNames)].sort().join("|"),
@@ -371,17 +385,44 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
   }
   if (docs.length === 0) return null;
 
-  const handleClick = (doc: VideoDoc) => {
-    const params = new URLSearchParams();
-    if (city) params.set("city", city);
-    if (entryId) params.set("entry", entryId);
-    if (subIds.length === 1) params.set("sub", subIds[0]);
-    params.set("openVideo", doc.id);
-    navigate(`/videos?${params.toString()}`);
+  const handleClick = async (doc: VideoDoc) => {
+    if (!doc.url) return;
+    // Try business_documents first (covers most cases)
+    const { data: bizDoc } = await supabase
+      .from("business_documents")
+      .select("id, url, business_id, name, description")
+      .eq("id", doc.id)
+      .maybeSingle();
+    const isGeneric = !bizDoc;
+    let description: string | null = (bizDoc as any)?.description ?? null;
+    // Resolve owner business (for logo + name)
+    let owner: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null = null;
+    const ownerId = doc.business_id;
+    if (ownerId) {
+      const { data: b } = await supabase
+        .from("businesses")
+        .select("id, name, logo_url, logo_bg")
+        .eq("id", ownerId)
+        .maybeSingle();
+      if (b) owner = { id: (b as any).id, name: (b as any).name, logo_url: (b as any).logo_url ?? null, logo_bg: (b as any).logo_bg ?? null };
+    }
+    setCurrentTime(0);
+    setPanelVideo({
+      videoUrl: doc.url,
+      videoId: doc.id,
+      videoName: doc.name,
+      businessName: doc.businessName || owner?.name || "—",
+      isGeneric,
+      description,
+      owner,
+    });
   };
 
+
   return (
+    <>
     <div className="mt-6 space-y-2">
+
 
       <div className="-mx-4 sm:mx-0">
         <div className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
@@ -488,7 +529,24 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
         </div>
       </div>
     </div>
+    {panelVideo && (
+      <SlidePanelHome
+        open={!!panelVideo}
+        onClose={() => setPanelVideo(null)}
+        videoUrl={panelVideo.videoUrl}
+        videoId={panelVideo.videoId}
+        videoName={panelVideo.videoName}
+        businessName={panelVideo.businessName}
+        isGeneric={panelVideo.isGeneric}
+        currentTime={currentTime}
+        onTimeUpdate={setCurrentTime}
+        owner={panelVideo.owner}
+        description={panelVideo.description}
+      />
+    )}
+    </>
   );
+
 };
 
 export default SearchAIVideosCarousel;
