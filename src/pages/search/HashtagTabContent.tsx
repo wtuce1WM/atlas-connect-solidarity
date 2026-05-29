@@ -404,9 +404,14 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
             <button
               key={item._id}
               onClick={() => {
+                if (item._isInternal && item.owner_business_id && onOpenBusiness) {
+                  onOpenBusiness({ id: item.owner_business_id, name: item.owner_name || "" });
+                  return;
+                }
                 setCurrentTime(0);
                 setActiveItem(item);
               }}
+
               className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {item.thumbnail_url ? (
