@@ -133,6 +133,7 @@ export default function ResultsTabContent({
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
+  const [activeFsServices, setActiveFsServices] = useState<string[]>([]);
   const resolvedHotelSearchInfo = hotelSearchInfo || (() => {
     if (typeof window === "undefined") return null;
     const params = new URLSearchParams(window.location.search);
@@ -148,6 +149,8 @@ export default function ResultsTabContent({
   const handleFsTabClick = (tabId: string | null) => {
     setActiveFsTabId(tabId);
     setActiveFsSubId(null);
+    setActiveFsServices([]);
+    onFrontStructureServicesFilter?.(null);
     if (!tabId) {
       onFrontStructureFilter?.(null);
     } else {
@@ -158,6 +161,8 @@ export default function ResultsTabContent({
 
   const handleFsSubClick = (subId: string | null) => {
     setActiveFsSubId(subId);
+    setActiveFsServices([]);
+    onFrontStructureServicesFilter?.(null);
     const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
     if (!tab) return;
     if (!subId) {
@@ -168,10 +173,17 @@ export default function ResultsTabContent({
     }
   };
 
+  const handleFsServicesChange = (svcs: string[]) => {
+    setActiveFsServices(svcs);
+    onFrontStructureServicesFilter?.(svcs.length > 0 ? new Set(svcs) : null);
+  };
+
   // Reset active tab when city or search query changes
   useEffect(() => {
     setActiveFsTabId(null);
     setActiveFsSubId(null);
+    setActiveFsServices([]);
+    onFrontStructureServicesFilter?.(null);
   }, [effectiveCity, searchQuery]);
 
   const activeFsTab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
