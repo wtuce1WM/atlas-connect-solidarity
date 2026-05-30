@@ -880,7 +880,7 @@ const GenericVideosPanel = () => {
               isDirty={panelIsDirty}
               onEditSocial={setSocialVideo}
               onEditDescription={setDescVideo}
-              onRemoveItem={handlePanelRemoveItem}
+              onToggleEnabled={handlePanelToggleEnabled}
             />
           )}
         </div>
