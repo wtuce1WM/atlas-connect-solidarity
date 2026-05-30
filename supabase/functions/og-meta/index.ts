@@ -147,13 +147,14 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
     }
   }
 
-  // ---------- Recherche / Test (avec city, entry, sub, badgeId) ----------
+  // ---------- Recherche / Test (avec city, entry, sub, badgeId, q) ----------
   if (path === "/search" || path === "/test" || path === "/") {
     const city = params.get("city");
     const entryId = params.get("entry"); // catégorie principale (UUID)
     const subId = params.get("sub");     // sous-catégorie (UUID)
     const badgeId = params.get("badgeId"); // badge (UUID)
     const badgeLabelParam = params.get("badgeLabel");
+    const qParam = params.get("q");      // recherche texte libre
 
     let cityImage: string | null = null;
     let cityName: string | null = null;
@@ -205,7 +206,37 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
       badgeName = badgeLabelParam;
     }
 
-    // Construction du titre/description
+    // Recherche texte libre (?q=...) : essayer de matcher un établissement par nom
+    let qBizImage: string | null = null;
+    let qBizName: string | null = null;
+    let qBizCity: string | null = null;
+    let qBizHook: string | null = null;
+    if (qParam && qParam.trim()) {
+      const { data: bizMatch } = await supabase
+        .from("businesses")
+        .select("name, city, images, hook_fr")
+        .eq("is_active", true)
+        .ilike("name", qParam.trim())
+        .limit(1)
+        .maybeSingle();
+      if (bizMatch) {
+        qBizName = bizMatch.name;
+        qBizCity = bizMatch.city || null;
+        qBizImage = bizMatch.images?.[0] || null;
+        qBizHook = bizMatch.hook_fr || null;
+      }
+    }
+
+    // Si match exact d'un établissement par ?q= → OG type fiche
+    if (qBizName) {
+      return {
+        title: `${qBizName}${qBizCity ? ` – ${qBizCity}` : ""} | ${SITE_NAME}`,
+        description: qBizHook || `Découvrez ${qBizName} sur ${SITE_NAME}.`,
+        image: qBizImage || DEFAULT_OG_IMAGE,
+      };
+    }
+
+    // Construction du titre/description (filtres taxonomie)
     const segments = [badgeName, subName, entryName, cityName].filter(Boolean);
     if (segments.length > 0) {
       const title = `${segments.join(" · ")} | ${SITE_NAME}`;
@@ -213,7 +244,6 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
       const description = cityName
         ? `Découvrez ${focus} à ${cityName} sur ${SITE_NAME}.`
         : `Découvrez ${focus} sur ${SITE_NAME}.`;
-      // Priorité image: badge > sous-catégorie > catégorie > ville > défaut
       const image = badgeImage || subImage || entryImage || cityImage || DEFAULT_OG_IMAGE;
       return { title, description, image };
     }
@@ -223,6 +253,15 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
         title: `${cityName} | ${SITE_NAME}`,
         description: `Découvrez les meilleures adresses à ${cityName} sur ${SITE_NAME}.`,
         image: cityImage || DEFAULT_OG_IMAGE,
+      };
+    }
+
+    // Recherche texte sans match établissement → titre générique
+    if (qParam && qParam.trim()) {
+      return {
+        title: `« ${qParam.trim()} » | ${SITE_NAME}`,
+        description: `Résultats pour « ${qParam.trim()} » sur ${SITE_NAME}.`,
+        image: DEFAULT_OG_IMAGE,
       };
     }
   }
