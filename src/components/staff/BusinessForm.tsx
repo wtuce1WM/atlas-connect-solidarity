@@ -4722,19 +4722,50 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               />
               <div className="relative shrink-0 group">
                 {doc.icon ? (
-                  <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
+                  <>
+                    <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 bg-background" />
+                    <button
+                      type="button"
+                      title="Supprimer l'image"
+                      onClick={async () => {
+                        if (doc.icon && doc.icon.includes('/business-images/')) {
+                          try {
+                            const parts = doc.icon.split('/business-images/');
+                            if (parts.length > 1) await supabase.storage.from('business-images').remove([parts[1]]);
+                          } catch {}
+                        }
+                        setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, icon: "" } : d));
+                      }}
+                      className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center text-[10px] leading-none opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      ×
+                    </button>
+                  </>
                 ) : (
-                  <div className="h-9 w-9 rounded border border-dashed border-input flex items-center justify-center text-muted-foreground text-xs cursor-pointer">⊘</div>
+                  <label className="h-9 w-9 rounded border border-dashed border-input flex items-center justify-center text-muted-foreground cursor-pointer hover:border-primary hover:text-primary transition-colors" title="Uploader une image">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (!file.type.startsWith('image/')) { toast({ variant: 'destructive', title: 'Image requise' }); return; }
+                        if (file.size > 2 * 1024 * 1024) { toast({ variant: 'destructive', title: 'Max 2MB' }); return; }
+                        const ext = file.name.split('.').pop() || 'png';
+                        const filePath = `businesses/flipbook-icons/${business?.id || 'new'}-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                        const { error } = await supabase.storage.from('business-images').upload(filePath, file);
+                        if (error) { toast({ variant: 'destructive', title: "Erreur d'upload" }); return; }
+                        const { data } = supabase.storage.from('business-images').getPublicUrl(filePath);
+                        if (data?.publicUrl) {
+                          setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, icon: data.publicUrl } : d));
+                        }
+                        e.target.value = '';
+                      }}
+                    />
+                    <Upload className="h-4 w-4" />
+                  </label>
                 )}
-                <select
-                  value={doc.icon || ""}
-                  onChange={(e) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, icon: e.target.value } : d))}
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                >
-                  {DOC_ICON_OPTIONS.map(({ key, label }) => (
-                    <option key={key} value={key}>{label}</option>
-                  ))}
-                </select>
               </div>
               <div className="flex-1 flex items-center gap-1">
                 <Input
