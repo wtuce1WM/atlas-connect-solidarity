@@ -305,7 +305,7 @@ export function useBookOnlineData(businessId: string) {
           .order("sort_order"),
         supabase
           .from("business_documents")
-          .select("id, name, url, language, icon")
+          .select("id, name, url, language, icon, type")
           .eq("business_id", businessId)
           .in("type", ["menu", "flipbook"])
           .order("sort_order"),
