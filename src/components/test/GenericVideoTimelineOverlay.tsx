@@ -119,12 +119,14 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
       const [{ data: poiLinks }, { data: bizLinks }] = await Promise.all([
         supabase
           .from("generic_video_pois" as any)
-          .select("poi_id, sort_order, start_time, end_time")
-          .eq("generic_video_id", genericVideoId) as any,
+          .select("poi_id, sort_order, start_time, end_time, timeframe_enabled")
+          .eq("generic_video_id", genericVideoId)
+          .eq("timeframe_enabled", true) as any,
         supabase
           .from("generic_video_businesses" as any)
-          .select("business_id, sort_order, start_time, end_time")
-          .eq("generic_video_id", genericVideoId) as any,
+          .select("business_id, sort_order, start_time, end_time, timeframe_enabled")
+          .eq("generic_video_id", genericVideoId)
+          .eq("timeframe_enabled", true) as any,
       ]);
 
       const ids = [
