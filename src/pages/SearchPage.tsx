@@ -421,18 +421,26 @@ const SearchPage = () => {
       let proxLng: number | undefined;
       if (proxMatch) {
         const targetName = proxMatch[1].trim().replace(/[?.!,;:]+$/, "");
-        const { data: targets } = await supabase
-          .from("businesses")
-          .select("id, name, latitude, longitude, city")
-          .ilike("name", `%${targetName}%`)
-          .not("latitude", "is", null)
-          .not("longitude", "is", null)
-          .limit(5);
+        refinedQuery = q.replace(proximityRe, "").trim() || q;
+        const targetVariants = [...new Set([
+          targetName,
+          targetName.replace(/^(riad|hôtel|hotel|appartement|villa|maison\s+d['’ ]?hôtes?)\s+/i, "").trim(),
+        ].filter(Boolean))];
+        let targets: any[] = [];
+        for (const variant of targetVariants) {
+          const { data } = await supabase
+            .from("businesses")
+            .select("id, name, latitude, longitude, city")
+            .ilike("name", `%${variant}%`)
+            .not("latitude", "is", null)
+            .not("longitude", "is", null)
+            .limit(5);
+          if (data?.length) { targets = data as any[]; break; }
+        }
         const target = (targets || []).find((t: any) => !cityFromUrl || (t.city && t.city.toLowerCase() === cityFromUrl.toLowerCase())) || (targets || [])[0];
         if (target?.latitude && target?.longitude) {
           proxLat = Number(target.latitude);
           proxLng = Number(target.longitude);
-          refinedQuery = q.replace(proximityRe, "").trim() || q;
         }
       }
       refinedQuery = refinedQuery
