@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { X, Loader2 } from "lucide-react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 
@@ -12,15 +12,7 @@ interface DocumentOverlayProps {
 }
 
 const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverlayProps) => {
-  const [showFlipbook, setShowFlipbook] = useState(type !== "flipbook");
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-
-  useEffect(() => {
-    if (type !== "flipbook") return;
-    setShowFlipbook(false);
-    const timer = window.setTimeout(() => setShowFlipbook(true), 1200);
-    return () => window.clearTimeout(timer);
-  }, [type, url]);
 
   return (
     <div className="absolute inset-0 z-[85] bg-white flex flex-col overflow-hidden" style={type === "flipbook" ? undefined : { animation: "slide-up-from-bottom 0.4s ease-out both" }}>
@@ -38,20 +30,15 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
       </div>
       <div className="flex-1 relative bg-background overflow-hidden">
         {type === "flipbook" ? (
-            <>
-              <iframe
-                ref={iframeRef}
-                src={getFlipbookEmbedUrl(url)}
-                className={`border-0 absolute left-0 right-0 w-full ${showFlipbook ? "opacity-100" : "opacity-0"}`}
-                style={{ top: "-92px", height: "calc(100% + 92px)" }}
-                allow="clipboard-write; fullscreen"
-                tabIndex={-1}
-                title={name}
-                onLoad={() => iframeRef.current?.blur()}
-              />
-              {!showFlipbook && <div className="absolute inset-0 bg-background z-20" />}
-              <div className="absolute left-0 right-0 bottom-0 h-[92px] bg-background pointer-events-none z-30" />
-            </>
+          <iframe
+            ref={iframeRef}
+            src={getFlipbookEmbedUrl(url)}
+            className="absolute inset-0 h-full w-full border-0"
+            allow="clipboard-write; fullscreen"
+            tabIndex={-1}
+            title={name}
+            onLoad={() => iframeRef.current?.blur()}
+          />
         ) : (
           <>
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-0">
