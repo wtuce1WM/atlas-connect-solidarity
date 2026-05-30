@@ -266,7 +266,7 @@ const RightDetailPanel = ({
   isDirty,
   onEditSocial,
   onEditDescription,
-  onRemoveItem,
+  onToggleEnabled,
 }: {
   video: GenericVideo;
   onClose: () => void;
