@@ -33,7 +33,24 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
                 className="border-0 absolute inset-0 w-full h-full"
                 allow="clipboard-write; fullscreen"
                 title={name}
-                onLoad={onLoad}
+                onLoad={(e) => {
+                  // Empêche le flipbook de scroller la page parent au chargement (focus auto sur l'iframe)
+                  const scrollers: (HTMLElement | Window)[] = [window];
+                  let el: HTMLElement | null = e.currentTarget.parentElement;
+                  while (el) { scrollers.push(el); el = el.parentElement; }
+                  const positions = scrollers.map((s) =>
+                    s instanceof Window ? { x: s.scrollX, y: s.scrollY } : { x: s.scrollLeft, y: s.scrollTop }
+                  );
+                  const restore = () => scrollers.forEach((s, i) => {
+                    if (s instanceof Window) s.scrollTo(positions[i].x, positions[i].y);
+                    else { s.scrollLeft = positions[i].x; s.scrollTop = positions[i].y; }
+                  });
+                  restore();
+                  requestAnimationFrame(restore);
+                  setTimeout(restore, 100);
+                  setTimeout(restore, 300);
+                  onLoad?.();
+                }}
               />
               {/* Masque la bannière promo FlipHTML5 en bas, y compris sa croix de fermeture */}
               <div className="absolute left-0 right-0 bottom-0 h-[92px] bg-background pointer-events-none z-30" />
