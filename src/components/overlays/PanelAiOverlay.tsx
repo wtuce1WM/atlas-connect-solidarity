@@ -185,15 +185,15 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
 
       // Distance refinement: "à moins de 500m / 500 mètres / 1 km / 1.5km".
       // If detected, override the radius and reuse the last proximity target.
-      const distanceRe = /(?:à\s+)?moins\s+de\s+(\d+(?:[.,]\d+)?)\s*(m|m[èe]tres?|km|kilom[èe]tres?)\b/i;
-      const altDistanceRe = /\b(?:dans\s+un\s+rayon\s+de|rayon\s+de|within)\s+(\d+(?:[.,]\d+)?)\s*(m|m[èe]tres?|km|kilom[èe]tres?)\b/i;
+      const distanceRe = /(?:à\s+)?moins\s+de\s+(\d+(?:[.,]\d+)?)\s*(kilom[èe]tres?|m[èe]tres?|km|m)\b/i;
+      const altDistanceRe = /\b(?:dans\s+un\s+rayon\s+de|rayon\s+de|within)\s+(\d+(?:[.,]\d+)?)\s*(kilom[èe]tres?|m[èe]tres?|km|m)\b/i;
       const distMatch = currentQuery.match(distanceRe) || currentQuery.match(altDistanceRe);
       let overrideRadiusKm: number | undefined;
       let strippedQuery = currentQuery;
       if (distMatch) {
         const value = parseFloat(distMatch[1].replace(",", "."));
         const unit = distMatch[2].toLowerCase();
-        overrideRadiusKm = /^km|kilom/i.test(unit) ? value : value / 1000;
+        overrideRadiusKm = /^k/i.test(unit) ? value : value / 1000;
         strippedQuery = currentQuery.replace(distMatch[0], "").trim();
       }
 
@@ -237,14 +237,16 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
           console.warn("[AI chat] Proximity lookup failed:", e);
         }
       } else if (lastProximityRef.current) {
-        // No new "near X" mentioned — reuse last proximity context (carries the
-        // user's previous target). If a new distance was given, override radius.
+        // No new "near X" mentioned — reuse last proximity context (target + previous query).
+        // Pure distance refinement ("moins de 500 m de Riad X") → reuse previous query intent (e.g. "artisans").
         proxLat = lastProximityRef.current.lat;
         proxLng = lastProximityRef.current.lng;
         proxRadiusKm = overrideRadiusKm ?? lastProximityRef.current.radiusKm;
-        strippedQuery = strippedQuery || lastProximityRef.current.query;
+        strippedQuery = distMatch
+          ? lastProximityRef.current.query
+          : (strippedQuery || lastProximityRef.current.query);
         lastProximityRef.current = { ...lastProximityRef.current, radiusKm: proxRadiusKm, query: strippedQuery };
-        console.log(`[AI chat] Reusing proximity → "${lastProximityRef.current.targetName}" (${proxLat}, ${proxLng}) within ${proxRadiusKm}km`);
+        console.log(`[AI chat] Reusing proximity → "${lastProximityRef.current.targetName}" (${proxLat}, ${proxLng}) within ${proxRadiusKm}km — query: "${strippedQuery}"`);
       }
 
       // Strip conversational filler ("quels sont les", "?", articles…) so the
