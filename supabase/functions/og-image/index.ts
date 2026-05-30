@@ -95,8 +95,6 @@ function renderOgHtml(meta: { title: string; description: string; image: string;
 </head>
 <body>
   <script>window.location.replace(${JSON.stringify(meta.url)});</script>
-</head>
-<body>
   <h1>${escaped.title}</h1>
   <p>${escaped.description}</p>
   <img src="${escaped.image}" alt="${escaped.title}">
