@@ -3825,14 +3825,26 @@ const SearchPage = () => {
                   fitToMarkers
                   userLocation={geo.isEnabled && geo.coords ? geo.coords : null}
                 />
-                <button
-                  type="button"
-                  onClick={() => setHideResultsMap(true)}
-                  className="absolute top-3 left-3 z-[80] flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg"
-                  aria-label={language === "en" ? "Hide map" : "Masquer la carte"}
-                >
-                  <X className="h-4 w-4" />
-                </button>
+                <div className="absolute top-3 left-3 z-[80] flex items-center gap-2 max-w-[calc(100%-1.5rem)]">
+                  <button
+                    type="button"
+                    onClick={() => setHideResultsMap(true)}
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
+                    aria-label={language === "en" ? "Hide map" : "Masquer la carte"}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                  {(() => {
+                    const lastUserTurn = [...aiChat].reverse().find(m => m.role === "user")?.content;
+                    const label = (lastUserTurn || searchQuery || "").trim();
+                    if (!label) return null;
+                    return (
+                      <div className="px-3 h-8 flex items-center rounded-full bg-white/95 text-black shadow-lg text-xs font-medium truncate">
+                        {label}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           )}
