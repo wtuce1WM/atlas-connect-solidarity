@@ -416,15 +416,15 @@ const SearchPage = () => {
     try {
       let refinementPool: Business[] = allBusinesses || [];
       let dedicatedRefinementSearchSucceeded = false;
-        const distanceRe = /(?:à\s+)?moins\s+de\s+(\d+(?:[.,]\d+)?)\s*(m|m[èe]tres?|km|kilom[èe]tres?)\b/i;
-        const altDistanceRe = /\b(?:dans\s+un\s+rayon\s+de|rayon\s+de|within)\s+(\d+(?:[.,]\d+)?)\s*(m|m[èe]tres?|km|kilom[èe]tres?)\b/i;
+        const distanceRe = /(?:à\s+)?moins\s+de\s+(\d+(?:[.,]\d+)?)\s*(kilom[èe]tres?|m[èe]tres?|km|m)\b/i;
+        const altDistanceRe = /\b(?:dans\s+un\s+rayon\s+de|rayon\s+de|within)\s+(\d+(?:[.,]\d+)?)\s*(kilom[èe]tres?|m[èe]tres?|km|m)\b/i;
         const distMatch = q.match(distanceRe) || q.match(altDistanceRe);
         let overrideRadiusKm: number | undefined;
         let queryWithoutDistance = q;
         if (distMatch) {
           const value = parseFloat(distMatch[1].replace(",", "."));
           const unit = distMatch[2].toLowerCase();
-          overrideRadiusKm = /^km|kilom/i.test(unit) ? value : value / 1000;
+          overrideRadiusKm = /^k/i.test(unit) ? value : value / 1000;
           queryWithoutDistance = q.replace(distMatch[0], "").trim();
         }
       const proximityRe = /\s*(?:à\s+côté\s+de|a\s+cote\s+de|à\s+coté\s+de|près\s+de|pres\s+de|proche\s+de|autour\s+de|aux\s+alentours\s+de|à\s+proximité\s+de|a\s+proximite\s+de|near|around|close\s+to|next\s+to)\s+(.+?)\s*$/i;
@@ -462,7 +462,11 @@ const SearchPage = () => {
         proxLat = lastAiProximityRef.current.lat;
         proxLng = lastAiProximityRef.current.lng;
         proxRadiusKm = overrideRadiusKm ?? lastAiProximityRef.current.radiusKm;
-        refinedQuery = queryWithoutDistance || lastAiProximityRef.current.query;
+        // Pure distance refinement (e.g. "moins de 500 m de Riad X") → reuse the previous query intent (e.g. "artisans").
+        // Otherwise, if the user typed a brand-new query without a proximity keyword, use it but keep the previous target.
+        refinedQuery = distMatch
+          ? lastAiProximityRef.current.query
+          : (queryWithoutDistance || lastAiProximityRef.current.query);
         lastAiProximityRef.current = { ...lastAiProximityRef.current, radiusKm: proxRadiusKm, query: refinedQuery };
       }
       refinedQuery = refinedQuery
