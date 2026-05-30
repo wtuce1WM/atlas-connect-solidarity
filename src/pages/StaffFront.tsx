@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical, Youtube } from "lucide-react";
+import { ArrowLeft, ArrowUp, ArrowDown, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical, Youtube } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
 import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
@@ -330,6 +330,21 @@ import TestNoteViewer from "@/components/staff/TestNoteViewer";
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+  const [showTopArrow, setShowTopArrow] = useState(false);
+  const [showBottomArrow, setShowBottomArrow] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const st = window.scrollY;
+      const docH = document.documentElement.scrollHeight;
+      const winH = window.innerHeight;
+      setShowTopArrow(st > 120);
+      setShowBottomArrow(st + winH < docH - 120);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -634,6 +649,26 @@ const StaffFront = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Floating scroll arrows */}
+      {showTopArrow && (
+        <button
+          onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })}
+          className="fixed top-4 right-4 z-[55] p-2.5 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
+          aria-label="Descendre en bas"
+        >
+          <ArrowDown className="h-5 w-5" />
+        </button>
+      )}
+      {showBottomArrow && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-4 z-[55] p-2.5 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
+          aria-label="Remonter en haut"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
+      )}
     </div>
   );
 };
