@@ -712,6 +712,22 @@ const GenericVideosPanel = () => {
     setPanelItems(prev => prev.map(item => item.id === id ? { ...item, [field]: val } : item));
   }, []);
 
+  const handlePanelRemoveItem = useCallback(async (item: LinkedItemWithTime) => {
+    if (!selectedVideo) return;
+    if (!confirm(`Retirer « ${item.name} » de cette vidéo ? L'entité ne sera pas supprimée.`)) return;
+    const table = item.type === "poi" ? "generic_video_pois" : item.type === "business" ? "generic_video_businesses" : "generic_video_destinations";
+    const col = item.type === "poi" ? "poi_id" : item.type === "business" ? "business_id" : "destination_id";
+    const { error } = await (supabase as any).from(table).delete().eq("generic_video_id", selectedVideo.id).eq(col, item.id);
+    if (error) { toast.error(error.message); return; }
+    setPanelItems(prev => {
+      const next = prev.filter(i => !(i.id === item.id && i.type === item.type));
+      setPanelItemsInitial(JSON.stringify(next));
+      return next;
+    });
+    loadCounts();
+    toast.success("Liaison retirée");
+  }, [selectedVideo, loadCounts]);
+
   const panelIsDirty = JSON.stringify(panelItems) !== panelItemsInitial;
 
   const handlePanelSave = useCallback(async () => {
