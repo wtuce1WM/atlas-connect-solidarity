@@ -183,17 +183,30 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
       // by previous turns. Conversational history is still sent to the AI below.
       const currentQuery = text;
 
+      // Distance refinement: "à moins de 500m / 500 mètres / 1 km / 1.5km".
+      // If detected, override the radius and reuse the last proximity target.
+      const distanceRe = /(?:à\s+)?moins\s+de\s+(\d+(?:[.,]\d+)?)\s*(m|m[èe]tres?|km|kilom[èe]tres?)\b/i;
+      const altDistanceRe = /\b(?:dans\s+un\s+rayon\s+de|rayon\s+de|within)\s+(\d+(?:[.,]\d+)?)\s*(m|m[èe]tres?|km|kilom[èe]tres?)\b/i;
+      const distMatch = currentQuery.match(distanceRe) || currentQuery.match(altDistanceRe);
+      let overrideRadiusKm: number | undefined;
+      let strippedQuery = currentQuery;
+      if (distMatch) {
+        const value = parseFloat(distMatch[1].replace(",", "."));
+        const unit = distMatch[2].toLowerCase();
+        overrideRadiusKm = /^km|kilom/i.test(unit) ? value : value / 1000;
+        strippedQuery = currentQuery.replace(distMatch[0], "").trim() || currentQuery;
+      }
+
       // Proximity intent: "rooftop à côté de riad dar najat" → resolve target
       // business, search within a radius around its coordinates.
       const proximityRe = /\s*(?:à\s+côté\s+de|a\s+cote\s+de|à\s+coté\s+de|près\s+de|pres\s+de|proche\s+de|autour\s+de|aux\s+alentours\s+de|à\s+proximité\s+de|a\s+proximite\s+de|near|around|close\s+to|next\s+to)\s+(.+?)\s*$/i;
-      const proxMatch = currentQuery.match(proximityRe);
+      const proxMatch = strippedQuery.match(proximityRe);
       let proxLat: number | undefined;
       let proxLng: number | undefined;
       let proxRadiusKm: number | undefined;
-      let strippedQuery = currentQuery;
       if (proxMatch) {
         const targetName = proxMatch[1].trim().replace(/[?.!,;:]+$/, "");
-        strippedQuery = currentQuery.replace(proximityRe, "").trim() || currentQuery;
+        strippedQuery = strippedQuery.replace(proximityRe, "").trim() || strippedQuery;
         const targetVariants = [...new Set([
           targetName,
           targetName.replace(/^(riad|hôtel|hotel|appartement|villa|maison\s+d['’ ]?hôtes?)\s+/i, "").trim(),
@@ -214,7 +227,8 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
           if (target?.latitude && target?.longitude) {
             proxLat = Number(target.latitude);
             proxLng = Number(target.longitude);
-            proxRadiusKm = 2;
+            proxRadiusKm = overrideRadiusKm ?? 2;
+            lastProximityRef.current = { lat: proxLat, lng: proxLng, radiusKm: proxRadiusKm, targetName: target.name };
             console.log(`[AI chat] Proximity → "${target.name}" (${proxLat}, ${proxLng}) within ${proxRadiusKm}km`);
           } else {
             console.warn(`[AI chat] Proximity target not found for: "${targetName}"`);
@@ -222,6 +236,14 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
         } catch (e) {
           console.warn("[AI chat] Proximity lookup failed:", e);
         }
+      } else if (lastProximityRef.current) {
+        // No new "near X" mentioned — reuse last proximity context (carries the
+        // user's previous target). If a new distance was given, override radius.
+        proxLat = lastProximityRef.current.lat;
+        proxLng = lastProximityRef.current.lng;
+        proxRadiusKm = overrideRadiusKm ?? lastProximityRef.current.radiusKm;
+        lastProximityRef.current = { ...lastProximityRef.current, radiusKm: proxRadiusKm };
+        console.log(`[AI chat] Reusing proximity → "${lastProximityRef.current.targetName}" (${proxLat}, ${proxLng}) within ${proxRadiusKm}km`);
       }
 
       // Strip conversational filler ("quels sont les", "?", articles…) so the
