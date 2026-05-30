@@ -1574,6 +1574,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   ];
   const getDocIconSrc = (icon: string | null) => {
     if (!icon) return "";
+    if (/^https?:\/\//i.test(icon)) return icon;
     const found = DOC_ICON_OPTIONS.find(o => o.key === icon);
     return `/images/doc-icons/${found?.file || "icon_menu.png"}`;
   };
