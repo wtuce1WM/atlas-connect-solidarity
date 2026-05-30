@@ -2009,15 +2009,17 @@ const SearchPage = () => {
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
+    if (aiRefinementBusinessPool.length > 0) return mapPoiItemsSearch;
     if (!fsFilterSubcategories) return mapPoiItemsSearch;
     return buildFsCategoryItems(true);
-  }, [mapPoiItemsSearch, fsFilterSubcategories, buildFsCategoryItems]);
+  }, [aiRefinementBusinessPool.length, mapPoiItemsSearch, fsFilterSubcategories, buildFsCategoryItems]);
 
   // Mobile/tablet map items
   const mobileMapPoiItemsFinal: PoiMapItem[] = useMemo(() => {
+    if (aiRefinementBusinessPool.length > 0) return mobileMapPoiItems;
     if (!fsFilterSubcategories) return mobileMapPoiItems;
     return buildFsCategoryItems(false);
-  }, [mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
+  }, [aiRefinementBusinessPool.length, mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
 
   // The top-ranked business ID for Gold marker (always highlight #1)
   const fsTopBusinessId: string | null = useMemo(() => {
