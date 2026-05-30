@@ -330,8 +330,21 @@ import TestNoteViewer from "@/components/staff/TestNoteViewer";
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+  const [showTopArrow, setShowTopArrow] = useState(false);
+  const [showBottomArrow, setShowBottomArrow] = useState(false);
 
   useEffect(() => {
+    const onScroll = () => {
+      const st = window.scrollY;
+      const docH = document.documentElement.scrollHeight;
+      const winH = window.innerHeight;
+      setShowTopArrow(st > 120);
+      setShowBottomArrow(st + winH < docH - 120);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/staff/login"); return; }
