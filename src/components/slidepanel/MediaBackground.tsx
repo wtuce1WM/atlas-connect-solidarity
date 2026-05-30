@@ -60,7 +60,7 @@ const MediaBackground = React.memo(function MediaBackground({
           ref={videoRef}
           key={effectiveMedia.url}
           src={effectiveMedia.url}
-          className="w-full h-full bg-black object-contain"
+          className="w-full h-full bg-black object-cover md:object-contain"
           loop
           playsInline
           autoPlay
