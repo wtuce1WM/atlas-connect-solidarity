@@ -188,7 +188,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
         ? "0 2px 8px rgba(0,0,0,0.4)"
         : "0 1px 4px rgba(0,0,0,0.15)";
       const scale = this.highlighted ? "scale(1.08)" : "scale(1)";
-      const z = this.customColor ? "999" : (this.highlighted ? "1000" : "1");
+      const z = this.name === "Vous êtes ici" ? "2000" : (this.customColor ? "999" : (this.highlighted ? "1000" : "1"));
 
       this.div.style.cssText = `
       position:absolute;
@@ -336,8 +336,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
   const poisKey = useMemo(() => {
     const ids = pois.map(p => p.id).sort().join(",");
     const c = center ? `${center.lat},${center.lng}` : "";
-    return `${ids}|${c}`;
-  }, [pois, center]);
+    const u = userLocation ? `${userLocation.lat},${userLocation.lng}` : "";
+    return `${ids}|${c}|${u}`;
+  }, [pois, center, userLocation]);
 
   // Track whether we need to re-fit bounds (only when pois/center change, not iconCache)
   const needsFitRef = useRef(true);
@@ -491,6 +492,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     });
 
     if (center) bounds.extend(center);
+    if (userLocation) bounds.extend(userLocation);
 
     // Only fitBounds when pois/center actually changed, not on iconCache updates
     if ((hasPoints || center) && needsFitRef.current) {
@@ -509,7 +511,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
         hasFittedRef.current = true;
       });
     }
-  }, [pois, ready, center, iconCache]);
+  }, [pois, ready, center, iconCache, userLocation]);
 
   // Update overlay highlighting when selectedPoiId changes
   const prevSelectedRef = useRef<string | null>(null);
