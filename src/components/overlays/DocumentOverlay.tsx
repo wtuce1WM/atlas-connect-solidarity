@@ -35,8 +35,9 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
               title={name}
               onLoad={onLoad}
             />
-            {/* Masque le badge "Made with FLIPHTML5" en haut à gauche */}
+            {/* Masque le badge FLIPHTML5 (haut gauche) et la bande promo (bas) */}
             <div className="absolute top-0 left-0 w-[200px] h-[60px] bg-background pointer-events-none z-10" />
+            <div className="absolute left-0 right-0 bottom-0 h-[70px] bg-background pointer-events-none z-10" />
           </>
         ) : (
           <>
