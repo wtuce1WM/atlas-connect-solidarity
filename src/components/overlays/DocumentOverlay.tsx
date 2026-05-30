@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { X, Loader2 } from "lucide-react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 
@@ -12,61 +12,7 @@ interface DocumentOverlayProps {
 }
 
 const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverlayProps) => {
-  const [flipbookReady, setFlipbookReady] = useState(type !== "flipbook");
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const scrollSnapshotRef = useRef<{ target: HTMLElement | Window; x: number; y: number }[]>([]);
-
-  useEffect(() => {
-    setFlipbookReady(type !== "flipbook");
-  }, [type, url]);
-
-  const captureScrollSnapshot = useCallback(() => {
-    const targets: (HTMLElement | Window)[] = [window];
-    let el: HTMLElement | null = iframeRef.current?.parentElement ?? null;
-    while (el) {
-      targets.push(el);
-      el = el.parentElement;
-    }
-    scrollSnapshotRef.current = targets.map((target) =>
-      target instanceof Window
-        ? { target, x: target.scrollX, y: target.scrollY }
-        : { target, x: target.scrollLeft, y: target.scrollTop }
-    );
-  }, []);
-
-  const restoreScrollSnapshot = useCallback(() => {
-    scrollSnapshotRef.current.forEach(({ target, x, y }) => {
-      if (target instanceof Window) target.scrollTo(x, y);
-      else {
-        target.scrollLeft = x;
-        target.scrollTop = y;
-      }
-    });
-  }, []);
-
-  useLayoutEffect(() => {
-    if (type !== "flipbook") return;
-    captureScrollSnapshot();
-
-    let locked = true;
-    const restore = () => {
-      if (!locked) return;
-      restoreScrollSnapshot();
-      requestAnimationFrame(restoreScrollSnapshot);
-    };
-
-    const targets = scrollSnapshotRef.current.map(({ target }) => target);
-    targets.forEach((target) => target.addEventListener("scroll", restore, { passive: true }));
-    document.addEventListener("focusin", restore, true);
-    const timeout = window.setTimeout(() => { locked = false; }, 2500);
-
-    return () => {
-      locked = false;
-      window.clearTimeout(timeout);
-      targets.forEach((target) => target.removeEventListener("scroll", restore));
-      document.removeEventListener("focusin", restore, true);
-    };
-  }, [captureScrollSnapshot, restoreScrollSnapshot, type, url]);
 
   return (
     <div className="absolute inset-0 z-[85] bg-white flex flex-col overflow-hidden" style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}>
