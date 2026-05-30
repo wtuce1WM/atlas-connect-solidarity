@@ -413,6 +413,7 @@ const SearchPage = () => {
     if (explicitText === undefined) setAiChatInput("");
     try {
       let refinementPool: Business[] = allBusinesses || [];
+      let dedicatedRefinementSearchSucceeded = false;
       const proximityRe = /\s*(?:à\s+côté\s+de|a\s+cote\s+de|à\s+coté\s+de|près\s+de|pres\s+de|proche\s+de|autour\s+de|aux\s+alentours\s+de|à\s+proximité\s+de|a\s+proximite\s+de|near|around|close\s+to|next\s+to)\s+(.+?)\s*$/i;
       const proxMatch = q.match(proximityRe);
       let refinedQuery = q;
@@ -456,12 +457,13 @@ const SearchPage = () => {
         if (!refinedError && refinedData?.businesses?.length) {
           refinementPool = refinedData.businesses;
           setAiRefinementBusinessPool(refinedData.businesses);
+          dedicatedRefinementSearchSucceeded = true;
         }
       } catch (refinedSearchError) {
         console.warn("AI refinement dedicated search failed:", refinedSearchError);
       }
       const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
-      if (!pinIdsParam && totalCount && totalCount > refinementPool.length) {
+      if (!dedicatedRefinementSearchSucceeded && !pinIdsParam && totalCount && totalCount > refinementPool.length) {
         try {
           const { data: fullData, error: fullError } = await supabase.functions.invoke<SearchResult>("business-search", {
             body: {
