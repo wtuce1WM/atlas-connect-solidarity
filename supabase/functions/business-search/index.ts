@@ -1891,8 +1891,18 @@ serve(async (req) => {
         : true; // no detected subcategory → let paired filters run normally
 
       if (detectedSubcategory && !pairedFilterCoversDetected) {
-        console.log(`🔀 Detected subcategory "${detectedSubcategory}" NOT in synonym paired filters — skipping synonym shortcut, falling through to subcategory search`);
-        // Don't run paired filters — let the engine proceed to FTS/subcategory logic below
+        const onlyServiceSynonymFilters = matchedSynonymFilters.every(f => !f.subcategory_name && !!f.required_service);
+        if (onlyServiceSynonymFilters) {
+          console.log(`🔓 Service-only synonym filters override detected place subcategory "${detectedSubcategory}"`);
+          detectedSubcategory = null;
+          detectedSubNorm = null;
+        } else {
+          console.log(`🔀 Detected subcategory "${detectedSubcategory}" NOT in synonym paired filters — skipping synonym shortcut, falling through to subcategory search`);
+          // Don't run paired filters — let the engine proceed to FTS/subcategory logic below
+        }
+      }
+
+      if (!detectedSubcategory || pairedFilterCoversDetected) {
       } else {
       if (detectedSubcategory) {
         console.log(`🔓 Synonym filters present (${matchedSynonymFilters.length}) — covers detected subcategory "${detectedSubcategory}"`);
