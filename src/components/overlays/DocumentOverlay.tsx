@@ -28,6 +28,9 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
       <div className="flex-1 relative bg-background overflow-hidden">
         {type === "flipbook" ? (
           <>
+            {/* Fond derrière les chevrons de navigation gauche/droite */}
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[44px] h-[80px] bg-primary/70 rounded-r-full pointer-events-none z-10" />
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[44px] h-[80px] bg-primary/70 rounded-l-full pointer-events-none z-10" />
             <iframe
               src={getFlipbookEmbedUrl(url)}
               className="border-0 absolute left-0 right-0 w-full"
