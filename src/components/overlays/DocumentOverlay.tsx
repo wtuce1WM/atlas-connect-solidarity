@@ -38,8 +38,8 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
               title={name}
               onLoad={onLoad}
             />
-            {/* Masque la bannière promo FlipHTML5 en bas */}
-            <div className="absolute left-0 right-0 bottom-0 h-[60px] bg-background pointer-events-none z-20" />
+            {/* Masque la bannière promo FlipHTML5 en bas, y compris sa croix de fermeture */}
+            <div className="absolute left-0 right-0 bottom-0 h-[92px] bg-background pointer-events-none z-30" />
           </>
         ) : (
           <>
