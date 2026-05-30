@@ -268,6 +268,7 @@ const RightDetailPanel = ({
   isDirty,
   onEditSocial,
   onEditDescription,
+  onRemoveItem,
 }: {
   video: GenericVideo;
   onClose: () => void;
@@ -279,6 +280,7 @@ const RightDetailPanel = ({
   isDirty: boolean;
   onEditSocial: (v: GenericVideo) => void;
   onEditDescription: (v: GenericVideo) => void;
+  onRemoveItem: (item: LinkedItemWithTime) => void;
 }) => {
   const allItems = useMemo(() => [...items].sort((a, b) => a.sort_order - b.sort_order), [items]);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
