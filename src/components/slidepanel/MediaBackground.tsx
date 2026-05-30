@@ -83,7 +83,7 @@ const MediaBackground = React.memo(function MediaBackground({
             videoInfo?.type === "youtube"
               ? isVerticalVideo
                 ? `w-full h-full ${cardsHidden ? "" : "pointer-events-none"}`
-                : `w-full h-full ${externalVideoInteractiveMode ? "" : "pointer-events-none"}`
+                : `w-full h-full pointer-events-none`
               : `w-full h-full ${cardsHidden ? "" : "pointer-events-none"}`
           }
           allow="autoplay; encrypted-media"
