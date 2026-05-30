@@ -1134,51 +1134,81 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 </div>
               </div>
             )}
-            {avgOn20 != null && totalReviewCount > 0 && (
-              <>
-                {(() => {
-                  const defaultReview = reviewTexts.find((r) => {
-                    const displayText = ((language === "en" ? r.text_en : r.text_fr) || r.text || "").trim();
-                    return r.is_default && displayText.length > 0;
-                  });
-                  if (!defaultReview) return null;
-                  const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
-                  return (
-                    <div
-                      className="text-center max-w-[95%] md:max-w-xl pl-8 pr-0 md:px-0 cursor-pointer slidepanel-review-short"
-                      onClick={handleOpenReviews}
-                      style={{
-                        fontFamily: "'Josefin Sans', sans-serif",
-                        filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
-                      }}
-                    >
-                      <p className="text-base md:text-lg text-white/90 italic leading-relaxed line-clamp-4">
-                        "{displayText}"
-                      </p>
-                      {defaultReview.author_name && (
-                        <p className="text-sm md:text-base text-white mt-1.5 capitalize">— {defaultReview.author_name.toLowerCase()}</p>
-                      )}
-                    </div>
-                  );
-                })()}
-                <div
-                  key={`rating-${business?.id}`}
-                  className="flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border-2 border-gold cursor-pointer flex-wrap slidepanel-rating-short backdrop-blur-sm bg-white/5"
-                  onClick={handleOpenReviews}
-                  style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
-                >
-                  <div className="flex items-center gap-1.5 md:gap-2.5">
-                    <Star className="h-5 w-5 md:h-7 md:w-7 text-gold fill-gold" />
-                    <span className="text-2xl md:text-4xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      {avgOn20}<span className="text-sm md:text-xl font-semibold text-white/60">/20</span>
-                    </span>
+            {(() => {
+              const flipbookImages = (menuDocs || []).filter(
+                (d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)
+              );
+              if (flipbookImages.length > 0) {
+                return (
+                  <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+                    {flipbookImages.map((d: any) => (
+                      <button
+                        key={d.id}
+                        onClick={() => openDocOrBooking(d.url, d.name || 'Document')}
+                        className="block rounded-xl overflow-hidden border-2 border-white/30 hover:border-gold transition-colors shadow-2xl"
+                        style={{ filter: "drop-shadow(0 4px 20px hsla(0,0%,0%,0.5))" }}
+                        aria-label={d.name || 'Flipbook'}
+                      >
+                        <img
+                          src={d.icon}
+                          alt={d.name || 'Flipbook'}
+                          className="block w-28 h-36 md:w-36 md:h-48 object-cover"
+                          loading="lazy"
+                        />
+                      </button>
+                    ))}
                   </div>
-                  <span className="text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                    · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
-                  </span>
-                </div>
-              </>
-            )}
+                );
+              }
+              if (avgOn20 != null && totalReviewCount > 0) {
+                return (
+                  <>
+                    {(() => {
+                      const defaultReview = reviewTexts.find((r) => {
+                        const displayText = ((language === "en" ? r.text_en : r.text_fr) || r.text || "").trim();
+                        return r.is_default && displayText.length > 0;
+                      });
+                      if (!defaultReview) return null;
+                      const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
+                      return (
+                        <div
+                          className="text-center max-w-[95%] md:max-w-xl pl-8 pr-0 md:px-0 cursor-pointer slidepanel-review-short"
+                          onClick={handleOpenReviews}
+                          style={{
+                            fontFamily: "'Josefin Sans', sans-serif",
+                            filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
+                          }}
+                        >
+                          <p className="text-base md:text-lg text-white/90 italic leading-relaxed line-clamp-4">
+                            "{displayText}"
+                          </p>
+                          {defaultReview.author_name && (
+                            <p className="text-sm md:text-base text-white mt-1.5 capitalize">— {defaultReview.author_name.toLowerCase()}</p>
+                          )}
+                        </div>
+                      );
+                    })()}
+                    <div
+                      key={`rating-${business?.id}`}
+                      className="flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border-2 border-gold cursor-pointer flex-wrap slidepanel-rating-short backdrop-blur-sm bg-white/5"
+                      onClick={handleOpenReviews}
+                      style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
+                    >
+                      <div className="flex items-center gap-1.5 md:gap-2.5">
+                        <Star className="h-5 w-5 md:h-7 md:w-7 text-gold fill-gold" />
+                        <span className="text-2xl md:text-4xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                          {avgOn20}<span className="text-sm md:text-xl font-semibold text-white/60">/20</span>
+                        </span>
+                      </div>
+                      <span className="text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
+                      </span>
+                    </div>
+                  </>
+                );
+              }
+              return null;
+            })()}
           </div>
         ) : null}
 
