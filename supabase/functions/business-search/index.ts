@@ -1384,9 +1384,14 @@ serve(async (req) => {
           const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
           matched = allTerms.some(term => {
             const termStripped = stripAccentsGlobal(term);
-            return term.includes(" ")
-              ? (qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped))
-              : (qWords.includes(term) || qWordsStripped.includes(termStripped));
+            if (term.includes(" ")) {
+              return qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped);
+            }
+            const eq = (a: string, b: string) =>
+              a === b ||
+              (a.endsWith("s") && a.slice(0, -1) === b) ||
+              (b.endsWith("s") && b.slice(0, -1) === a);
+            return qWords.some(w => eq(w, term)) || qWordsStripped.some(w => eq(w, termStripped));
           });
           if (matched) break;
         }
@@ -1452,9 +1457,14 @@ serve(async (req) => {
             // Normalize hyphens in synonym terms too so "restaurant-spectacle" matches "restaurant spectacle"
             const termNorm = term.replace(/-/g, " ").replace(/\s+/g, " ").trim();
             const termStripped = stripAccentsGlobal(termNorm);
-            return termNorm.includes(" ")
-              ? (qLower.includes(termNorm) || stripAccentsGlobal(qLower).includes(termStripped))
-              : (qWords.includes(termNorm) || qWordsStripped.includes(termStripped));
+            if (termNorm.includes(" ")) {
+              return qLower.includes(termNorm) || stripAccentsGlobal(qLower).includes(termStripped);
+            }
+            const eq = (a: string, b: string) =>
+              a === b ||
+              (a.endsWith("s") && a.slice(0, -1) === b) ||
+              (b.endsWith("s") && b.slice(0, -1) === a);
+            return qWords.some(w => eq(w, termNorm)) || qWordsStripped.some(w => eq(w, termStripped));
           });
           if (matched) break;
         }
