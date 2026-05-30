@@ -762,7 +762,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const openDocOrBooking = useCallback((url: string, title?: string, hideContact?: boolean) => {
     const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
-    const isFlipbook = /issuu\.com|calameo\.com/i.test(url || '');
+    const isFlipbook = /issuu\.com|calameo\.com|fliphtml5\.com/i.test(url || '');
     if (isPdf || isFlipbook) {
       setDocOverlayLoaded(false);
       setDocOverlay({ url, name: title || 'Document', type: isPdf ? 'pdf' : 'flipbook', ts: Date.now() });
@@ -2040,7 +2040,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </OverlayShell>
       )}
       {/* Search bar */}
-      {showSearchBar && (
+      {showSearchBar && !docOverlay && (
         <PanelSearchBar
           onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
           iconVariant="black"
