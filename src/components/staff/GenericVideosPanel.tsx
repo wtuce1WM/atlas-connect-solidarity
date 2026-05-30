@@ -204,16 +204,17 @@ const InlineBadgeSubcatCityAssignment = (props: { video: GenericVideo; onClose: 
   <SharedInlineBadgeSubcatCityAssignment source="generic" {...props} />;
 
 /* ─── Right panel: linked items with DnD + timeframes ─── */
-interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business" | "destination"; start_time: number | null; end_time: number | null; sort_order: number; }
+interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business" | "destination"; start_time: number | null; end_time: number | null; sort_order: number; timeframe_enabled: boolean; }
 
-const SortableTimeItem = ({ item, onChange, onRemove }: { item: LinkedItemWithTime; onChange: (id: string, field: "start_time" | "end_time", val: number | null) => void; onRemove: (item: LinkedItemWithTime) => void }) => {
+const SortableTimeItem = ({ item, onChange, onToggleEnabled }: { item: LinkedItemWithTime; onChange: (id: string, field: "start_time" | "end_time", val: number | null) => void; onToggleEnabled: (item: LinkedItemWithTime) => void }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
   const parseNum = (v: string) => { const n = parseFloat(v); return isNaN(n) ? null : n; };
+  const disabled = !item.timeframe_enabled;
 
   return (
-    <div ref={setNodeRef} style={style} className={cn("flex items-center gap-2 p-2 rounded-md border bg-card", isDragging && "opacity-50 shadow-lg z-50")}>
+    <div ref={setNodeRef} style={style} className={cn("flex items-center gap-2 p-2 rounded-md border bg-card", isDragging && "opacity-50 shadow-lg z-50", disabled && "opacity-50")}>
       <span {...attributes} {...listeners} className="cursor-grab text-muted-foreground hover:text-foreground shrink-0">
         <GripVertical className="h-4 w-4" />
       </span>
@@ -221,7 +222,10 @@ const SortableTimeItem = ({ item, onChange, onRemove }: { item: LinkedItemWithTi
         item.type === "poi" ? "bg-primary/10 text-primary" : item.type === "destination" ? "bg-rose-500/10 text-rose-600" : "bg-accent text-accent-foreground")}>
         {item.type === "poi" ? <MapPin className="h-3 w-3" /> : item.type === "destination" ? <Globe className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
       </div>
-      <span className="text-xs font-medium truncate flex-1 min-w-0">{item.name}</span>
+      <label className="flex items-center gap-1.5 cursor-pointer shrink-0" title={disabled ? "Activer dans le timeframe" : "Désactiver dans le timeframe"}>
+        <Checkbox checked={item.timeframe_enabled} onCheckedChange={() => onToggleEnabled(item)} className="h-3.5 w-3.5" />
+      </label>
+      <span className={cn("text-xs font-medium truncate flex-1 min-w-0", disabled && "line-through")}>{item.name}</span>
       <div className="flex items-center gap-1 shrink-0">
         <Clock className="h-3 w-3 text-muted-foreground" />
         <Input
@@ -231,6 +235,7 @@ const SortableTimeItem = ({ item, onChange, onRemove }: { item: LinkedItemWithTi
           placeholder="0"
           value={item.start_time ?? ""}
           onChange={e => onChange(item.id, "start_time", parseNum(e.target.value))}
+          disabled={disabled}
           className="w-16 h-7 text-xs px-1.5 text-center"
         />
         <span className="text-[10px] text-muted-foreground">→</span>
@@ -241,17 +246,10 @@ const SortableTimeItem = ({ item, onChange, onRemove }: { item: LinkedItemWithTi
           placeholder="∞"
           value={item.end_time ?? ""}
           onChange={e => onChange(item.id, "end_time", parseNum(e.target.value))}
+          disabled={disabled}
           className="w-16 h-7 text-xs px-1.5 text-center"
         />
         <span className="text-[10px] text-muted-foreground">s</span>
-        <button
-          type="button"
-          onClick={() => onRemove(item)}
-          title="Retirer cette liaison"
-          className="ml-1 text-muted-foreground hover:text-destructive transition-colors"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
       </div>
     </div>
   );
