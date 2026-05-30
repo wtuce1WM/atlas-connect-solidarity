@@ -5024,6 +5024,19 @@ serve(async (req) => {
       }
     }
 
+    // ── Explicit proximity constraint: when caller provides lat/lng + radiusKm,
+    // keep only businesses inside that radius before final ranking/pagination.
+    if (latitude && longitude && radiusKm && businesses.length > 0) {
+      const beforeRadius = businesses.length;
+      businesses = businesses
+        .map((b: any) => ({
+          ...b,
+          distance_km: b.distance_km ?? (b.latitude && b.longitude ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null),
+        }))
+        .filter((b: any) => b.distance_km !== null && b.distance_km <= radiusKm);
+      console.log(`📍 Radius constraint: ${beforeRadius} → ${businesses.length} within ${radiusKm}km`);
+    }
+
     // ── Final sort: align with global ranking policy before pagination ──
     // 1. Verified first, sorted by priority_score DESC
     // 2. Non-verified: priority_score DESC, then computed_rating DESC (ignore rating if < 10 reviews)
