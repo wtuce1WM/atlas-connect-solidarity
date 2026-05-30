@@ -1,4 +1,4 @@
-import { X, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 
 interface DocumentOverlayProps {
