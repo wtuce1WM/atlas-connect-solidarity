@@ -1140,23 +1140,25 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               );
               if (flipbookImages.length > 0) {
                 return (
-                  <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-                    {flipbookImages.map((d: any) => (
-                      <button
-                        key={d.id}
-                        onClick={() => openDocOrBooking(d.url, d.name || 'Document')}
-                        className="block rounded-xl overflow-hidden border-2 border-white/30 hover:border-gold transition-colors shadow-2xl"
-                        style={{ filter: "drop-shadow(0 4px 20px hsla(0,0%,0%,0.5))" }}
-                        aria-label={d.name || 'Flipbook'}
-                      >
-                        <img
-                          src={d.icon}
-                          alt={d.name || 'Flipbook'}
-                          className="block w-28 h-36 md:w-36 md:h-48 object-cover"
-                          loading="lazy"
-                        />
-                      </button>
-                    ))}
+                  <div className="flex-1 flex items-center justify-center w-full">
+                    <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+                      {flipbookImages.map((d: any) => (
+                        <button
+                          key={d.id}
+                          onClick={() => openDocOrBooking(d.url, d.name || 'Document')}
+                          className="block rounded-xl overflow-hidden border-2 border-white/30 hover:border-gold transition-colors shadow-2xl"
+                          style={{ filter: "drop-shadow(0 4px 20px hsla(0,0%,0%,0.5))" }}
+                          aria-label={d.name || 'Flipbook'}
+                        >
+                          <img
+                            src={d.icon}
+                            alt={d.name || 'Flipbook'}
+                            className="block w-28 h-36 md:w-36 md:h-48 object-cover"
+                            loading="lazy"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 );
               }
