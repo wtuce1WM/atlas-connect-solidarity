@@ -148,6 +148,9 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  // Persist last proximity context across turns so refinements like
+  // "à moins de 500 mètres" reuse the previously resolved target coordinates.
+  const lastProximityRef = useRef<{ lat: number; lng: number; radiusKm: number; targetName: string } | null>(null);
 
   useEffect(() => {
     if (!open) { setChatTurns([]); setChatInput(""); setChatLoading(false); }
