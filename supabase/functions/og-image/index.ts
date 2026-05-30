@@ -92,7 +92,9 @@ function renderOgHtml(meta: { title: string; description: string; image: string;
   <meta name="twitter:description" content="${escaped.description}">
   <meta name="twitter:image" content="${escaped.image}">
   <link rel="canonical" href="${escaped.url}">
-  <meta http-equiv="refresh" content="0;url=${escaped.url}">
+</head>
+<body>
+  <script>window.location.replace(${JSON.stringify(meta.url)});</script>
 </head>
 <body>
   <h1>${escaped.title}</h1>
