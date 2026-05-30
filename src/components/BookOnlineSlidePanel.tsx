@@ -1116,7 +1116,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         >
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
-        {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
+        {(avgOn20 != null && totalReviewCount > 0) || woDescription || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
           <div className="slidepanel-center-short flex flex-col items-center justify-center pointer-events-auto gap-4 md:gap-10 flex-1 -mt-[3rem]">
             {hookText && <TypewriterHook text={hookText} key={businessId + '-hook'} />}
             {woDescription && (
