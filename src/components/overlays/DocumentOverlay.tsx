@@ -1,4 +1,4 @@
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 
 interface DocumentOverlayProps {
@@ -29,8 +29,12 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
         {type === "flipbook" ? (
           <>
             {/* Fond derrière les chevrons de navigation gauche/droite */}
-            <div className="absolute left-0 w-[44px] h-[80px] bg-primary/70 rounded-r-full pointer-events-none z-10" style={{ top: "calc((100% - 92px) / 2 - 20px)" }} />
-            <div className="absolute right-0 w-[44px] h-[80px] bg-primary/70 rounded-l-full pointer-events-none z-10" style={{ top: "calc((100% - 92px) / 2 - 20px)" }} />
+            <div className="absolute left-0 w-[44px] h-[80px] bg-primary/70 rounded-r-full pointer-events-none z-10 flex items-center justify-center" style={{ top: "calc((100% - 92px) / 2 - 20px)" }}>
+              <ChevronLeft className="h-6 w-6 text-white" />
+            </div>
+            <div className="absolute right-0 w-[44px] h-[80px] bg-primary/70 rounded-l-full pointer-events-none z-10 flex items-center justify-center" style={{ top: "calc((100% - 92px) / 2 - 20px)" }}>
+              <ChevronRight className="h-6 w-6 text-white" />
+            </div>
             <iframe
               src={getFlipbookEmbedUrl(url)}
               className="border-0 absolute inset-0 w-full h-full"
