@@ -389,7 +389,7 @@ const RightDetailPanel = ({
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={allItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
               <div className="space-y-1.5">
-                {allItems.map(item => <SortableTimeItem key={item.id} item={item} onChange={onTimeChange} onRemove={onRemoveItem} />)}
+                {allItems.map(item => <SortableTimeItem key={item.id} item={item} onChange={onTimeChange} onToggleEnabled={onToggleEnabled} />)}
               </div>
             </SortableContext>
           </DndContext>
