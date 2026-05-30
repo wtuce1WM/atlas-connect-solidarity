@@ -206,7 +206,7 @@ const InlineBadgeSubcatCityAssignment = (props: { video: GenericVideo; onClose: 
 /* ─── Right panel: linked items with DnD + timeframes ─── */
 interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business" | "destination"; start_time: number | null; end_time: number | null; sort_order: number; }
 
-const SortableTimeItem = ({ item, onChange }: { item: LinkedItemWithTime; onChange: (id: string, field: "start_time" | "end_time", val: number | null) => void }) => {
+const SortableTimeItem = ({ item, onChange, onRemove }: { item: LinkedItemWithTime; onChange: (id: string, field: "start_time" | "end_time", val: number | null) => void; onRemove: (item: LinkedItemWithTime) => void }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -244,6 +244,14 @@ const SortableTimeItem = ({ item, onChange }: { item: LinkedItemWithTime; onChan
           className="w-16 h-7 text-xs px-1.5 text-center"
         />
         <span className="text-[10px] text-muted-foreground">s</span>
+        <button
+          type="button"
+          onClick={() => onRemove(item)}
+          title="Retirer cette liaison"
+          className="ml-1 text-muted-foreground hover:text-destructive transition-colors"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </div>
     </div>
   );
@@ -260,6 +268,7 @@ const RightDetailPanel = ({
   isDirty,
   onEditSocial,
   onEditDescription,
+  onRemoveItem,
 }: {
   video: GenericVideo;
   onClose: () => void;
@@ -271,6 +280,7 @@ const RightDetailPanel = ({
   isDirty: boolean;
   onEditSocial: (v: GenericVideo) => void;
   onEditDescription: (v: GenericVideo) => void;
+  onRemoveItem: (item: LinkedItemWithTime) => void;
 }) => {
   const allItems = useMemo(() => [...items].sort((a, b) => a.sort_order - b.sort_order), [items]);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
@@ -381,7 +391,7 @@ const RightDetailPanel = ({
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={allItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
               <div className="space-y-1.5">
-                {allItems.map(item => <SortableTimeItem key={item.id} item={item} onChange={onTimeChange} />)}
+                {allItems.map(item => <SortableTimeItem key={item.id} item={item} onChange={onTimeChange} onRemove={onRemoveItem} />)}
               </div>
             </SortableContext>
           </DndContext>
@@ -702,6 +712,22 @@ const GenericVideosPanel = () => {
     setPanelItems(prev => prev.map(item => item.id === id ? { ...item, [field]: val } : item));
   }, []);
 
+  const handlePanelRemoveItem = useCallback(async (item: LinkedItemWithTime) => {
+    if (!selectedVideo) return;
+    if (!confirm(`Retirer « ${item.name} » de cette vidéo ? L'entité ne sera pas supprimée.`)) return;
+    const table = item.type === "poi" ? "generic_video_pois" : item.type === "business" ? "generic_video_businesses" : "generic_video_destinations";
+    const col = item.type === "poi" ? "poi_id" : item.type === "business" ? "business_id" : "destination_id";
+    const { error } = await (supabase as any).from(table).delete().eq("generic_video_id", selectedVideo.id).eq(col, item.id);
+    if (error) { toast.error(error.message); return; }
+    setPanelItems(prev => {
+      const next = prev.filter(i => !(i.id === item.id && i.type === item.type));
+      setPanelItemsInitial(JSON.stringify(next));
+      return next;
+    });
+    loadCounts();
+    toast.success("Liaison retirée");
+  }, [selectedVideo, loadCounts]);
+
   const panelIsDirty = JSON.stringify(panelItems) !== panelItemsInitial;
 
   const handlePanelSave = useCallback(async () => {
@@ -867,6 +893,7 @@ const GenericVideosPanel = () => {
               isDirty={panelIsDirty}
               onEditSocial={setSocialVideo}
               onEditDescription={setDescVideo}
+              onRemoveItem={handlePanelRemoveItem}
             />
           )}
         </div>
