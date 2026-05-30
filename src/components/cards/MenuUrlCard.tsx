@@ -18,6 +18,7 @@ interface MenuDoc {
   url: string;
   language: string | null;
   icon: string | null;
+  type?: string | null;
 }
 
 interface MenuUrlCardProps {
