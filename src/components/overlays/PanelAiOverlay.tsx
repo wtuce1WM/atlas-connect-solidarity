@@ -190,20 +190,28 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
       let strippedQuery = currentQuery;
       if (proxMatch) {
         const targetName = proxMatch[1].trim().replace(/[?.!,;:]+$/, "");
+        strippedQuery = currentQuery.replace(proximityRe, "").trim() || currentQuery;
+        const targetVariants = [...new Set([
+          targetName,
+          targetName.replace(/^(riad|hôtel|hotel|appartement|villa|maison\s+d['’ ]?hôtes?)\s+/i, "").trim(),
+        ].filter(Boolean))];
         try {
-          const { data: targets } = await supabase
-            .from("businesses")
-            .select("id, name, latitude, longitude, city")
-            .ilike("name", `%${targetName}%`)
-            .not("latitude", "is", null)
-            .not("longitude", "is", null)
-            .limit(5);
+          let targets: any[] = [];
+          for (const variant of targetVariants) {
+            const { data } = await supabase
+              .from("businesses")
+              .select("id, name, latitude, longitude, city")
+              .ilike("name", `%${variant}%`)
+              .not("latitude", "is", null)
+              .not("longitude", "is", null)
+              .limit(5);
+            if (data?.length) { targets = data as any[]; break; }
+          }
           const target = (targets || []).find((t: any) => !city || (t.city && t.city.toLowerCase() === city.toLowerCase())) || (targets || [])[0];
           if (target?.latitude && target?.longitude) {
             proxLat = Number(target.latitude);
             proxLng = Number(target.longitude);
             proxRadiusKm = 2;
-            strippedQuery = currentQuery.replace(proximityRe, "").trim() || currentQuery;
             console.log(`[AI chat] Proximity → "${target.name}" (${proxLat}, ${proxLng}) within ${proxRadiusKm}km`);
           } else {
             console.warn(`[AI chat] Proximity target not found for: "${targetName}"`);
