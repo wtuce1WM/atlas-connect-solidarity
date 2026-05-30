@@ -1947,13 +1947,18 @@ const SearchPage = () => {
     return () => { cancelled = true; };
   }, [showAllSearchMarkers, totalCount, filteredBusinesses.length, allSearchMapBusinesses.length, searchQuery, spokenText, language, categoryFromUrl, cityFromUrl]);
 
-  // Pool used for "Voir tous": full results when fetched, otherwise current page
+  // Pool used for "Voir tous": full results when fetched, otherwise current page.
+  // When the AI panel produced a refined dedicated search (e.g. "artisans à proximité"),
+  // mirror that refined set on the map so markers match the visible AI results.
   const searchMapPool = useMemo(() => {
+    if (aiRefinementBusinessPool.length > 0) {
+      return aiRefinementBusinessPool;
+    }
     if (showAllSearchMarkers && allSearchMapBusinesses.length > filteredBusinesses.length) {
       return allSearchMapBusinesses;
     }
     return filteredBusinesses;
-  }, [showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
+  }, [aiRefinementBusinessPool, showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
 
   // "Tous" tab: show search results only (desktop) — capped to 20 unless "Voir tous" is toggled
   const mapPoiItemsSearch: PoiMapItem[] = useMemo(() => {
