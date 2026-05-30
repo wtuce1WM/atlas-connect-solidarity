@@ -206,7 +206,7 @@ const InlineBadgeSubcatCityAssignment = (props: { video: GenericVideo; onClose: 
 /* ─── Right panel: linked items with DnD + timeframes ─── */
 interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business" | "destination"; start_time: number | null; end_time: number | null; sort_order: number; }
 
-const SortableTimeItem = ({ item, onChange }: { item: LinkedItemWithTime; onChange: (id: string, field: "start_time" | "end_time", val: number | null) => void }) => {
+const SortableTimeItem = ({ item, onChange, onRemove }: { item: LinkedItemWithTime; onChange: (id: string, field: "start_time" | "end_time", val: number | null) => void; onRemove: (item: LinkedItemWithTime) => void }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -244,6 +244,14 @@ const SortableTimeItem = ({ item, onChange }: { item: LinkedItemWithTime; onChan
           className="w-16 h-7 text-xs px-1.5 text-center"
         />
         <span className="text-[10px] text-muted-foreground">s</span>
+        <button
+          type="button"
+          onClick={() => onRemove(item)}
+          title="Retirer cette liaison"
+          className="ml-1 text-muted-foreground hover:text-destructive transition-colors"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </div>
     </div>
   );
