@@ -82,8 +82,8 @@ function renderOgHtml(meta: { title: string; description: string; image: string;
   <meta property="og:title" content="${escaped.title}">
   <meta property="og:description" content="${escaped.description}">
   <meta property="og:image" content="${escaped.image}">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
+  <meta property="og:image:secure_url" content="${escaped.image}">
+  <meta property="og:image:alt" content="${escaped.title}">
   <meta property="og:url" content="${escaped.url}">
   <meta property="og:site_name" content="${SITE_NAME}">
   <meta property="og:locale" content="fr_FR">
@@ -92,9 +92,9 @@ function renderOgHtml(meta: { title: string; description: string; image: string;
   <meta name="twitter:description" content="${escaped.description}">
   <meta name="twitter:image" content="${escaped.image}">
   <link rel="canonical" href="${escaped.url}">
-  <meta http-equiv="refresh" content="0;url=${escaped.url}">
 </head>
 <body>
+  <script>window.location.replace(${JSON.stringify(meta.url)});</script>
   <h1>${escaped.title}</h1>
   <p>${escaped.description}</p>
   <img src="${escaped.image}" alt="${escaped.title}">
