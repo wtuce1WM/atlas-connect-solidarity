@@ -3275,6 +3275,7 @@ export type Database = {
           id: string
           sort_order: number
           start_time: number | null
+          timeframe_enabled: boolean
         }
         Insert: {
           business_id: string
@@ -3284,6 +3285,7 @@ export type Database = {
           id?: string
           sort_order?: number
           start_time?: number | null
+          timeframe_enabled?: boolean
         }
         Update: {
           business_id?: string
@@ -3293,6 +3295,7 @@ export type Database = {
           id?: string
           sort_order?: number
           start_time?: number | null
+          timeframe_enabled?: boolean
         }
         Relationships: [
           {
@@ -3363,6 +3366,7 @@ export type Database = {
           id: string
           sort_order: number
           start_time: number | null
+          timeframe_enabled: boolean
         }
         Insert: {
           created_at?: string
@@ -3372,6 +3376,7 @@ export type Database = {
           id?: string
           sort_order?: number
           start_time?: number | null
+          timeframe_enabled?: boolean
         }
         Update: {
           created_at?: string
@@ -3381,6 +3386,7 @@ export type Database = {
           id?: string
           sort_order?: number
           start_time?: number | null
+          timeframe_enabled?: boolean
         }
         Relationships: [
           {
@@ -3408,6 +3414,7 @@ export type Database = {
           poi_id: string
           sort_order: number
           start_time: number | null
+          timeframe_enabled: boolean
         }
         Insert: {
           created_at?: string
@@ -3417,6 +3424,7 @@ export type Database = {
           poi_id: string
           sort_order?: number
           start_time?: number | null
+          timeframe_enabled?: boolean
         }
         Update: {
           created_at?: string
@@ -3426,6 +3434,7 @@ export type Database = {
           poi_id?: string
           sort_order?: number
           start_time?: number | null
+          timeframe_enabled?: boolean
         }
         Relationships: [
           {
