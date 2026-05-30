@@ -175,24 +175,19 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     setChatTurns((prev) => [...prev, { role: "user", content: text }]);
     setChatLoading(true);
     try {
-      // Re-run business-search with the refined query so the LLM sees only
-      // actually-relevant businesses, not the entire cached pool.
-      // Accumulate previous user refinements so successive filters compound
-      // (e.g. "tapis berbère marrakech" + "dans la medina").
-      const previousUserTexts = chatTurns
-        .filter((t) => t.role === "user")
-        .map((t) => t.content.trim())
-        .filter(Boolean);
-      const combinedQuery = [...previousUserTexts, text].join(" ");
+      // For the server-side search, use ONLY the current turn's text so a new
+      // intent (e.g. switching from "hébergement" to "artisans") isn't polluted
+      // by previous turns. Conversational history is still sent to the AI below.
+      const currentQuery = text;
 
       // Proximity intent: "rooftop à côté de riad dar najat" → resolve target
       // business, search within a radius around its coordinates.
       const proximityRe = /\s*(?:à\s+côté\s+de|a\s+cote\s+de|à\s+coté\s+de|près\s+de|pres\s+de|proche\s+de|autour\s+de|aux\s+alentours\s+de|à\s+proximité\s+de|a\s+proximite\s+de|near|around|close\s+to|next\s+to)\s+(.+?)\s*$/i;
-      const proxMatch = text.match(proximityRe);
+      const proxMatch = currentQuery.match(proximityRe);
       let proxLat: number | undefined;
       let proxLng: number | undefined;
       let proxRadiusKm: number | undefined;
-      let strippedQuery = combinedQuery;
+      let strippedQuery = currentQuery;
       if (proxMatch) {
         const targetName = proxMatch[1].trim().replace(/[?.!,;:]+$/, "");
         try {
@@ -208,7 +203,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             proxLat = Number(target.latitude);
             proxLng = Number(target.longitude);
             proxRadiusKm = 2;
-            strippedQuery = combinedQuery.replace(proximityRe, "").trim() || combinedQuery;
+            strippedQuery = currentQuery.replace(proximityRe, "").trim() || currentQuery;
             console.log(`[AI chat] Proximity → "${target.name}" (${proxLat}, ${proxLng}) within ${proxRadiusKm}km`);
           } else {
             console.warn(`[AI chat] Proximity target not found for: "${targetName}"`);
@@ -217,6 +212,15 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
           console.warn("[AI chat] Proximity lookup failed:", e);
         }
       }
+
+      // Strip conversational filler ("quels sont les", "?", articles…) so the
+      // search engine sees actual keywords ("artisans") instead of a sentence.
+      strippedQuery = strippedQuery
+        .replace(/\?+\s*$/g, "")
+        .replace(/^\s*(quels?|quelles?|qui|que|quoi|où|ou|comment|combien|liste(?:-moi|moi)?|donne(?:-moi|moi)?|montre(?:-moi|moi)?|trouve(?:-moi|moi)?|cherche(?:-moi|moi)?|peux-tu|peut-on|y\s+a-t-il)\b[\s,]*/i, "")
+        .replace(/\b(sont|est|sont-ils|sont-elles|il\s+y\s+a|stp|svp)\b/gi, " ")
+        .replace(/\s{2,}/g, " ")
+        .trim() || currentQuery;
 
       let refinedBusinesses = businesses;
       try {
@@ -247,7 +251,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
 
       const { data, error } = await supabase.functions.invoke("ai-search-answer", {
         body: {
-          query: combinedQuery,
+          query: text,
           businesses: refinedBusinesses,
           language,
           history,
