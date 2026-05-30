@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 
@@ -12,8 +12,13 @@ interface DocumentOverlayProps {
 }
 
 const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverlayProps) => {
+  const [flipbookReady, setFlipbookReady] = useState(type !== "flipbook");
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const scrollSnapshotRef = useRef<{ target: HTMLElement | Window; x: number; y: number }[]>([]);
+
+  useEffect(() => {
+    setFlipbookReady(type !== "flipbook");
+  }, [type, url]);
 
   const captureScrollSnapshot = useCallback(() => {
     const targets: (HTMLElement | Window)[] = [window];
@@ -83,7 +88,7 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
               <iframe
                 ref={iframeRef}
                 src={getFlipbookEmbedUrl(url)}
-                className="border-0 absolute inset-0 w-full h-full"
+                className={`border-0 absolute inset-0 w-full h-full transition-opacity duration-150 ${flipbookReady ? "opacity-100" : "opacity-0"}`}
                 allow="clipboard-write; fullscreen"
                 tabIndex={-1}
                 title={name}
@@ -94,9 +99,16 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
                   setTimeout(restoreScrollSnapshot, 100);
                   setTimeout(restoreScrollSnapshot, 300);
                   setTimeout(restoreScrollSnapshot, 700);
+                  setTimeout(() => setFlipbookReady(true), 700);
                   onLoad?.();
                 }}
               />
+              {!flipbookReady && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background z-20">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Chargement du document…</span>
+                </div>
+              )}
               {/* Masque la bannière promo FlipHTML5 en bas, y compris sa croix de fermeture */}
               <div className="absolute left-0 right-0 bottom-0 h-[92px] bg-background pointer-events-none z-30" />
             </>
