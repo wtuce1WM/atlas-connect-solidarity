@@ -42,7 +42,8 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
               <iframe
                 ref={iframeRef}
                 src={getFlipbookEmbedUrl(url)}
-                className={`border-0 absolute inset-0 w-full h-full ${showFlipbook ? "opacity-100" : "opacity-0"}`}
+                className={`border-0 absolute left-0 right-0 w-full ${showFlipbook ? "opacity-100" : "opacity-0"}`}
+                style={{ top: 0, height: "calc(100% + 92px)" }}
                 allow="clipboard-write; fullscreen"
                 tabIndex={-1}
                 title={name}
