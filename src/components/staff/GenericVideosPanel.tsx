@@ -710,21 +710,9 @@ const GenericVideosPanel = () => {
     setPanelItems(prev => prev.map(item => item.id === id ? { ...item, [field]: val } : item));
   }, []);
 
-  const handlePanelRemoveItem = useCallback(async (item: LinkedItemWithTime) => {
-    if (!selectedVideo) return;
-    if (!confirm(`Retirer « ${item.name} » de cette vidéo ? L'entité ne sera pas supprimée.`)) return;
-    const table = item.type === "poi" ? "generic_video_pois" : item.type === "business" ? "generic_video_businesses" : "generic_video_destinations";
-    const col = item.type === "poi" ? "poi_id" : item.type === "business" ? "business_id" : "destination_id";
-    const { error } = await (supabase as any).from(table).delete().eq("generic_video_id", selectedVideo.id).eq(col, item.id);
-    if (error) { toast.error(error.message); return; }
-    setPanelItems(prev => {
-      const next = prev.filter(i => !(i.id === item.id && i.type === item.type));
-      setPanelItemsInitial(JSON.stringify(next));
-      return next;
-    });
-    loadCounts();
-    toast.success("Liaison retirée");
-  }, [selectedVideo, loadCounts]);
+  const handlePanelToggleEnabled = useCallback((item: LinkedItemWithTime) => {
+    setPanelItems(prev => prev.map(i => (i.id === item.id && i.type === item.type) ? { ...i, timeframe_enabled: !i.timeframe_enabled } : i));
+  }, []);
 
   const panelIsDirty = JSON.stringify(panelItems) !== panelItemsInitial;
 
@@ -737,16 +725,17 @@ const GenericVideosPanel = () => {
     const destItems = panelItems.filter(i => i.type === "destination");
 
     await Promise.all([
-      ...poiItems.map((item, i) =>
-        supabase.from("generic_video_pois" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time } as any).eq("generic_video_id", selectedVideo.id).eq("poi_id", item.id)
+      ...poiItems.map((item) =>
+        supabase.from("generic_video_pois" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time, timeframe_enabled: item.timeframe_enabled } as any).eq("generic_video_id", selectedVideo.id).eq("poi_id", item.id)
       ),
-      ...bizItems.map((item, i) =>
-        supabase.from("generic_video_businesses" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time } as any).eq("generic_video_id", selectedVideo.id).eq("business_id", item.id)
+      ...bizItems.map((item) =>
+        supabase.from("generic_video_businesses" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time, timeframe_enabled: item.timeframe_enabled } as any).eq("generic_video_id", selectedVideo.id).eq("business_id", item.id)
       ),
-      ...destItems.map((item, i) =>
-        supabase.from("generic_video_destinations" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time } as any).eq("generic_video_id", selectedVideo.id).eq("destination_id", item.id)
+      ...destItems.map((item) =>
+        supabase.from("generic_video_destinations" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time, timeframe_enabled: item.timeframe_enabled } as any).eq("generic_video_id", selectedVideo.id).eq("destination_id", item.id)
       ),
     ]);
+
 
     toast.success("Ordre et time frames enregistrés");
     setPanelItemsInitial(JSON.stringify(panelItems));
