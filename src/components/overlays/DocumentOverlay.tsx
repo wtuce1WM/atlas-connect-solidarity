@@ -15,7 +15,7 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   return (
-    <div className="absolute inset-0 z-[85] bg-white flex flex-col overflow-hidden" style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}>
+    <div className="absolute inset-0 z-[85] bg-white flex flex-col overflow-hidden" style={type === "flipbook" ? undefined : { animation: "slide-up-from-bottom 0.4s ease-out both" }}>
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
         <div className="flex items-center gap-3">
           <button
