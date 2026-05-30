@@ -33,12 +33,13 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[44px] h-[80px] bg-primary/70 rounded-l-full pointer-events-none z-10" />
             <iframe
               src={getFlipbookEmbedUrl(url)}
-              className="border-0 absolute left-0 right-0 w-full"
-              style={{ top: "-90px", height: "calc(100% + 180px)" }}
+              className="border-0 absolute inset-0 w-full h-full"
               allow="clipboard-write; fullscreen"
               title={name}
               onLoad={onLoad}
             />
+            {/* Masque la bannière promo FlipHTML5 en bas */}
+            <div className="absolute left-0 right-0 bottom-0 h-[60px] bg-background pointer-events-none z-20" />
           </>
         ) : (
           <>
