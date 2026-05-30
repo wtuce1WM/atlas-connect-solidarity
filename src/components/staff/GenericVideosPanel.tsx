@@ -859,8 +859,7 @@ const GenericVideosPanel = () => {
             <RightDetailPanel
               video={selectedVideo}
               onClose={() => setSelectedVideo(null)}
-              poiItems={panelItems.filter(i => i.type === "poi")}
-              businessItems={panelItems.filter(i => i.type === "business")}
+              items={panelItems}
               onReorder={handlePanelReorder}
               onTimeChange={handlePanelTimeChange}
               onSave={handlePanelSave}
