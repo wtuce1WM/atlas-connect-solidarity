@@ -18,11 +18,19 @@ const ShareButton = ({ title, shareUrl, variant = "gold", className = "" }: Shar
   const menuRef = useRef<HTMLDivElement>(null);
 
   const rawUrl = shareUrl || (typeof window !== "undefined" ? window.location.href : "");
-  // Strip internal cache-buster _t from shared URLs
+  // Strip internal cache-buster _t from shared URLs ; route /search via og-meta proxy
+  // so social bots (WhatsApp, Facebook, etc.) get a dynamic OG preview.
   const cleanUrl = (() => {
     try {
       const url = new URL(rawUrl);
       url.searchParams.delete("_t");
+      if (!shareUrl && url.pathname === "/search") {
+        const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+        const proxy = new URL(`https://${projectId}.supabase.co/functions/v1/og-meta`);
+        proxy.searchParams.set("path", url.pathname);
+        proxy.searchParams.set("search", url.searchParams.toString());
+        return proxy.toString();
+      }
       return url.toString();
     } catch {
       return rawUrl;
