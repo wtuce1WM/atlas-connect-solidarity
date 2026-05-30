@@ -153,7 +153,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
   const lastProximityRef = useRef<{ lat: number; lng: number; radiusKm: number; targetName: string } | null>(null);
 
   useEffect(() => {
-    if (!open) { setChatTurns([]); setChatInput(""); setChatLoading(false); }
+    if (!open) { setChatTurns([]); setChatInput(""); setChatLoading(false); lastProximityRef.current = null; }
   }, [open]);
 
   useEffect(() => {
