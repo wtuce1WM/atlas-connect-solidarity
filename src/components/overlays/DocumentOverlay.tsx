@@ -29,8 +29,8 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
         {type === "flipbook" ? (
           <>
             {/* Fond derrière les chevrons de navigation gauche/droite */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[44px] h-[80px] bg-primary/70 rounded-r-full pointer-events-none z-10" />
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[44px] h-[80px] bg-primary/70 rounded-l-full pointer-events-none z-10" />
+            <div className="absolute left-0 w-[44px] h-[80px] bg-primary/70 rounded-r-full pointer-events-none z-10" style={{ top: "calc((100% - 92px) / 2 - 40px)" }} />
+            <div className="absolute right-0 w-[44px] h-[80px] bg-primary/70 rounded-l-full pointer-events-none z-10" style={{ top: "calc((100% - 92px) / 2 - 40px)" }} />
             <iframe
               src={getFlipbookEmbedUrl(url)}
               className="border-0 absolute inset-0 w-full h-full"
