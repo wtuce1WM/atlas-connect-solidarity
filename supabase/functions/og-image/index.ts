@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
       business.hook_fr ||
       (business.description ? business.description.substring(0, 160) : `Découvrez ${business.name} sur ${SITE_NAME}.`);
     const image = business.images?.[0] || DEFAULT_OG_IMAGE;
-    const pageUrl = `${BASE_URL}/fiche/${business.slug}`;
+    const pageUrl = `${BASE_URL}/${business.slug}`;
 
     return renderOgHtml({ title, description, image, url: pageUrl });
   } catch (err) {
