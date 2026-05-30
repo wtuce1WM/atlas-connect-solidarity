@@ -1140,7 +1140,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               );
               if (flipbookImages.length > 0) {
                 return (
-                  <div className="flex-1 flex items-center justify-center w-full">
+                  <div className="mt-auto flex items-center justify-center w-full">
                     <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
                       {flipbookImages.map((d: any) => (
                         <button
