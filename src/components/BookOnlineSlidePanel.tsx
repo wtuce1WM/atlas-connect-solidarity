@@ -2059,6 +2059,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 paused={videoPaused}
                 muted={videoMuted}
               />
+            ) :
+            effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? (
+              <VideoControls
+                type="youtube"
+                iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
+                playing={!videoPaused}
+                muted={videoMuted}
+                onPlayingChange={(p) => setVideoPaused(!p)}
+                onMutedChange={(m) => setVideoMuted(m)}
+              />
             ) : undefined
           }
         />
