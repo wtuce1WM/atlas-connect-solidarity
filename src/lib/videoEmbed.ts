@@ -35,9 +35,20 @@ export function getVideoEmbed(url: string, origin: string, opts?: { background?:
     const isShort = /\/shorts\//.test(url);
     const muteVal = bg ? (defaultSoundOn ? 0 : 1) : 1;
     const startParam = startSec > 0 ? `&start=${startSec}` : "";
+    // In background mode, route through our local yt-player.html which uses the
+    // YT IFrame API with controls:0 — guarantees no native YouTube chrome ever shows.
+    // It also relays postMessage commands so external play/pause/mute controls keep working.
+    if (bg) {
+      const tParam = startSec > 0 ? `&t=${startSec}` : "";
+      return {
+        type: "youtube",
+        embedUrl: `/yt-player.html?id=${ytMatch[1]}&autoplay=${ap}&mute=${muteVal}${tParam}`,
+        isVertical: isShort,
+      };
+    }
     return {
       type: "youtube",
-      embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=${ap}&mute=${muteVal}&loop=0&rel=0&controls=${bg ? 0 : 1}&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=${bg ? 1 : 0}&fs=0&showinfo=0&autohide=1&enablejsapi=1&origin=${encodeURIComponent(origin)}${startParam}`,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=${ap}&mute=${muteVal}&loop=0&rel=0&controls=1&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=0&fs=0&showinfo=0&autohide=1&enablejsapi=1&origin=${encodeURIComponent(origin)}${startParam}`,
       isVertical: isShort,
     };
   }

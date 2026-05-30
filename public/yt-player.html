@@ -14,25 +14,52 @@
   var params = new URLSearchParams(location.search);
   var videoId = (params.get('id') || '').replace(/[^\w-]/g, '').slice(0, 11);
   var startAt = Math.max(0, Math.floor(Number(params.get('t') || '0')));
+  var autoplay = params.get('autoplay') !== '0';
+  var startMuted = params.get('mute') !== '0';
   if (!videoId || videoId.length !== 11) {
     document.body.innerHTML = '<div style="color:#fff;font-family:sans-serif;padding:20px">Invalid id</div>';
   } else {
     var tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
+    var ytPlayer = null;
+    var pendingCommands = [];
+    function exec(cmd) {
+      if (!ytPlayer) return;
+      try {
+        if (cmd.func === 'playVideo') ytPlayer.playVideo();
+        else if (cmd.func === 'pauseVideo') ytPlayer.pauseVideo();
+        else if (cmd.func === 'mute') ytPlayer.mute();
+        else if (cmd.func === 'unMute') ytPlayer.unMute();
+        else if (cmd.func === 'setVolume' && cmd.args && cmd.args.length) ytPlayer.setVolume(cmd.args[0]);
+        else if (cmd.func === 'seekTo' && cmd.args && cmd.args.length) ytPlayer.seekTo(cmd.args[0], true);
+      } catch (_) {}
+    }
+    window.addEventListener('message', function(evt) {
+      var data = evt.data;
+      if (typeof data === 'string') {
+        try { data = JSON.parse(data); } catch (_) { return; }
+      }
+      if (!data || data.event !== 'command') return;
+      if (!ytPlayer) pendingCommands.push(data);
+      else exec(data);
+    });
     window.onYouTubeIframeAPIReady = function() {
-      new YT.Player('player', {
+      ytPlayer = new YT.Player('player', {
         videoId: videoId,
         playerVars: {
-          autoplay: 1, mute: 1, controls: 0, rel: 0,
+          autoplay: autoplay ? 1 : 0,
+          mute: startMuted ? 1 : 0,
+          controls: 0, rel: 0,
           modestbranding: 1, playsinline: 1, start: startAt,
           iv_load_policy: 3, fs: 0, disablekb: 1
         },
         events: {
           onReady: function(e) {
-            try { e.target.mute(); } catch(_) {}
+            try { if (startMuted) e.target.mute(); else { e.target.unMute(); e.target.setVolume(100); } } catch(_) {}
             try { e.target.seekTo(startAt, true); } catch(_) {}
-            try { e.target.playVideo(); } catch(_) {}
+            try { if (autoplay) e.target.playVideo(); } catch(_) {}
+            pendingCommands.splice(0).forEach(exec);
           }
         }
       });
