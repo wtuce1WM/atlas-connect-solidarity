@@ -27,14 +27,18 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
       </div>
       <div className="flex-1 relative bg-background overflow-hidden">
         {type === "flipbook" ? (
-          <iframe
-            src={getFlipbookEmbedUrl(url)}
-            className="border-0 absolute left-0 right-0 top-0"
-            style={{ height: "calc(100% + 70px)", bottom: "-70px" }}
-            allow="clipboard-write; fullscreen"
-            title={name}
-            onLoad={onLoad}
-          />
+          <>
+            <iframe
+              src={getFlipbookEmbedUrl(url)}
+              className="border-0 absolute left-0 right-0 top-0"
+              style={{ height: "calc(100% + 160px)", bottom: "-160px" }}
+              allow="clipboard-write; fullscreen"
+              title={name}
+              onLoad={onLoad}
+            />
+            {/* Masque la bande publicitaire en bas de l'embed Issuu/Calaméo */}
+            <div className="absolute left-0 right-0 bottom-0 h-[90px] bg-background pointer-events-none z-10" />
+          </>
         ) : (
           <>
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-0">
