@@ -252,8 +252,7 @@ const SortableTimeItem = ({ item, onChange }: { item: LinkedItemWithTime; onChan
 const RightDetailPanel = ({
   video,
   onClose,
-  poiItems,
-  businessItems,
+  items,
   onReorder,
   onTimeChange,
   onSave,
@@ -264,8 +263,7 @@ const RightDetailPanel = ({
 }: {
   video: GenericVideo;
   onClose: () => void;
-  poiItems: LinkedItemWithTime[];
-  businessItems: LinkedItemWithTime[];
+  items: LinkedItemWithTime[];
   onReorder: (items: LinkedItemWithTime[]) => void;
   onTimeChange: (id: string, field: "start_time" | "end_time", val: number | null) => void;
   onSave: () => void;
@@ -274,7 +272,7 @@ const RightDetailPanel = ({
   onEditSocial: (v: GenericVideo) => void;
   onEditDescription: (v: GenericVideo) => void;
 }) => {
-  const allItems = useMemo(() => [...poiItems, ...businessItems].sort((a, b) => a.sort_order - b.sort_order), [poiItems, businessItems]);
+  const allItems = useMemo(() => [...items].sort((a, b) => a.sort_order - b.sort_order), [items]);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
   const isStorageVideo = video.url.includes("supabase.co/storage");
   const [currentTime, setCurrentTime] = useState(0);
@@ -861,8 +859,7 @@ const GenericVideosPanel = () => {
             <RightDetailPanel
               video={selectedVideo}
               onClose={() => setSelectedVideo(null)}
-              poiItems={panelItems.filter(i => i.type === "poi")}
-              businessItems={panelItems.filter(i => i.type === "business")}
+              items={panelItems}
               onReorder={handlePanelReorder}
               onTimeChange={handlePanelTimeChange}
               onSave={handlePanelSave}
