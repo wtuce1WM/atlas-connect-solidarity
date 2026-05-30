@@ -38,10 +38,7 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
                 allow="clipboard-write; fullscreen"
                 tabIndex={-1}
                 title={name}
-                onLoad={() => {
-                  iframeRef.current?.blur();
-                  onLoad?.();
-                }}
+                onLoad={() => iframeRef.current?.blur()}
               />
               <div className="absolute left-0 right-0 bottom-0 h-[92px] bg-background pointer-events-none z-30" />
             </>
