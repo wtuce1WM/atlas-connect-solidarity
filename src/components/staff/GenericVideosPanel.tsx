@@ -289,6 +289,7 @@ const RightDetailPanel = ({
 
   const activeItem = useMemo(() => {
     return allItems.find(item => {
+      if (!item.timeframe_enabled) return false;
       const start = item.start_time ?? 0;
       const end = item.end_time ?? Infinity;
       return currentTime >= start && currentTime < end;
