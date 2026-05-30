@@ -354,6 +354,7 @@ const SearchPage = () => {
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
   const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
+  const lastAiProximityRef = useRef<{ lat: number; lng: number; radiusKm: number; targetName: string; query: string } | null>(null);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
@@ -388,6 +389,7 @@ const SearchPage = () => {
     setAiChatInput("");
     setAiChatError(null);
     setAiRefinementBusinessPool([]);
+    lastAiProximityRef.current = null;
   }, [aiAnswerText]);
 
   const aiInlineBusinessPool = useMemo(() => {
@@ -414,14 +416,26 @@ const SearchPage = () => {
     try {
       let refinementPool: Business[] = allBusinesses || [];
       let dedicatedRefinementSearchSucceeded = false;
+        const distanceRe = /(?:à\s+)?moins\s+de\s+(\d+(?:[.,]\d+)?)\s*(m|m[èe]tres?|km|kilom[èe]tres?)\b/i;
+        const altDistanceRe = /\b(?:dans\s+un\s+rayon\s+de|rayon\s+de|within)\s+(\d+(?:[.,]\d+)?)\s*(m|m[èe]tres?|km|kilom[èe]tres?)\b/i;
+        const distMatch = q.match(distanceRe) || q.match(altDistanceRe);
+        let overrideRadiusKm: number | undefined;
+        let queryWithoutDistance = q;
+        if (distMatch) {
+          const value = parseFloat(distMatch[1].replace(",", "."));
+          const unit = distMatch[2].toLowerCase();
+          overrideRadiusKm = /^km|kilom/i.test(unit) ? value : value / 1000;
+          queryWithoutDistance = q.replace(distMatch[0], "").trim();
+        }
       const proximityRe = /\s*(?:à\s+côté\s+de|a\s+cote\s+de|à\s+coté\s+de|près\s+de|pres\s+de|proche\s+de|autour\s+de|aux\s+alentours\s+de|à\s+proximité\s+de|a\s+proximite\s+de|near|around|close\s+to|next\s+to)\s+(.+?)\s*$/i;
-      const proxMatch = q.match(proximityRe);
-      let refinedQuery = q;
+      const proxMatch = queryWithoutDistance.match(proximityRe);
+      let refinedQuery = queryWithoutDistance || lastAiProximityRef.current?.query || q;
       let proxLat: number | undefined;
       let proxLng: number | undefined;
+      let proxRadiusKm: number | undefined;
       if (proxMatch) {
         const targetName = proxMatch[1].trim().replace(/[?.!,;:]+$/, "");
-        refinedQuery = q.replace(proximityRe, "").trim() || q;
+        refinedQuery = queryWithoutDistance.replace(proximityRe, "").trim() || lastAiProximityRef.current?.query || queryWithoutDistance || q;
         const targetVariants = [...new Set([
           targetName,
           targetName.replace(/^(riad|hôtel|hotel|appartement|villa|maison\s+d['’ ]?hôtes?)\s+/i, "").trim(),
@@ -441,7 +455,15 @@ const SearchPage = () => {
         if (target?.latitude && target?.longitude) {
           proxLat = Number(target.latitude);
           proxLng = Number(target.longitude);
+          proxRadiusKm = overrideRadiusKm ?? 2;
+          lastAiProximityRef.current = { lat: proxLat, lng: proxLng, radiusKm: proxRadiusKm, targetName: target.name, query: refinedQuery };
         }
+      } else if (lastAiProximityRef.current) {
+        proxLat = lastAiProximityRef.current.lat;
+        proxLng = lastAiProximityRef.current.lng;
+        proxRadiusKm = overrideRadiusKm ?? lastAiProximityRef.current.radiusKm;
+        refinedQuery = queryWithoutDistance || lastAiProximityRef.current.query;
+        lastAiProximityRef.current = { ...lastAiProximityRef.current, radiusKm: proxRadiusKm, query: refinedQuery };
       }
       refinedQuery = refinedQuery
         .replace(/\?+\s*$/g, "")
@@ -459,7 +481,7 @@ const SearchPage = () => {
             offset: 0,
             compact: "card",
             ...(cityFromUrl ? { city: cityFromUrl } : {}),
-            ...(proxLat !== undefined && proxLng !== undefined ? { latitude: proxLat, longitude: proxLng, radiusKm: 2 } : {}),
+            ...(proxLat !== undefined && proxLng !== undefined ? { latitude: proxLat, longitude: proxLng, radiusKm: proxRadiusKm ?? 2 } : {}),
           }
         });
         if (!refinedError && refinedData?.businesses?.length) {
