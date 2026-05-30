@@ -30,14 +30,14 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
           <>
             <iframe
               src={getFlipbookEmbedUrl(url)}
-              className="border-0 absolute left-0 right-0 top-0"
-              style={{ height: "calc(100% + 160px)", bottom: "-160px" }}
+              className="border-0 absolute inset-0 w-full h-full"
               allow="clipboard-write; fullscreen"
               title={name}
               onLoad={onLoad}
             />
-            {/* Masque la bande publicitaire en bas de l'embed Issuu/Calaméo */}
-            <div className="absolute left-0 right-0 bottom-0 h-[90px] bg-background pointer-events-none z-10" />
+            {/* Masque le badge "Made with FLIPHTML5" en haut à gauche */}
+            <div className="absolute top-0 left-0 w-[200px] h-[60px] bg-background pointer-events-none z-10" />
+          </>
           </>
         ) : (
           <>
