@@ -2052,6 +2052,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 </div>
               ) : undefined
             ) :
+            (showPoiMapOverlay || showDirections) ? undefined :
             effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? (
               <VideoControls
                 type="file"
