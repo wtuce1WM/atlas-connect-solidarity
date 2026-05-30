@@ -17,7 +17,19 @@ const ShareButton = ({ title, shareUrl, variant = "gold", className = "" }: Shar
   const [copied, setCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const currentUrl = shareUrl || (typeof window !== "undefined" ? window.location.href : "");
+  const rawUrl = shareUrl || (typeof window !== "undefined" ? window.location.href : "");
+  // Strip internal cache-buster _t from shared URLs
+  const cleanUrl = (() => {
+    try {
+      const url = new URL(rawUrl);
+      url.searchParams.delete("_t");
+      return url.toString();
+    } catch {
+      return rawUrl;
+    }
+  })();
+
+  const currentUrl = cleanUrl;
   const shareTitle = title || (typeof document !== "undefined" ? document.title : "");
 
   useEffect(() => {
