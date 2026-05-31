@@ -211,6 +211,60 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!businessId) return;
+    let cancelled = false;
+
+    const loadYoutubeVideos = async () => {
+      const directPromise = supabase
+        .from("business_youtube_videos")
+        .select("*")
+        .eq("business_id", businessId)
+        .eq("is_visible", true)
+        .eq("business_is_active", true);
+
+      const poiPromise = supabase
+        .from("business_youtube_video_pois")
+        .select("business_youtube_videos!inner(*)")
+        .eq("point_of_interest_id", businessId)
+        .eq("business_youtube_videos.is_visible", true)
+        .eq("business_youtube_videos.business_is_active", true);
+
+      const [{ data: directVideos }, { data: poiLinks }] = await Promise.all([directPromise, poiPromise]);
+      if (cancelled) return;
+
+      const merged = new Map<string, any>();
+      (directVideos || []).forEach((v: any) => merged.set(v.video_id, v));
+      (poiLinks || []).forEach((row: any) => {
+        const v = row.business_youtube_videos;
+        if (v && !merged.has(v.video_id)) merged.set(v.video_id, v);
+      });
+
+      const items: YouTubeVideo[] = Array.from(merged.values())
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+        .map((v: any) => ({
+          videoId: v.video_id,
+          title: v.title,
+          thumbnail: v.thumbnail,
+          publishedAt: v.published_at || "",
+          isShort: v.is_short,
+          durationSeconds: v.duration_seconds,
+        }));
+
+      setAllYoutubeVideos(items);
+      setYoutubeVideoCount(items.length);
+    };
+
+    loadYoutubeVideos().catch(() => {
+      if (!cancelled) {
+        setAllYoutubeVideos([]);
+        setYoutubeVideoCount(0);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [businessId]);
+
   const [availabilityOverlayCtx, setAvailabilityOverlayCtx] = useState<{
     liteApiHotelId: string;
     businessName: string;
@@ -583,7 +637,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     [videoDocs]
   );
   const hasVideosCarousel = nonExternalVideoDocs.length > 0;
-  const hasYoutubeChannel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
+  const hasYoutubeChannel = !!(business?.youtube_url && business?.show_youtube_tab);
   // External (YouTube/Vimeo/etc.) videos attached to this business or POI — used when the business has no YouTube channel
   const externalVideoDocs = useMemo(
     () => (videoDocs || []).filter((d: any) => isExternalVideoUrl(d.url)),
@@ -591,8 +645,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   );
   const hasExternalVideos = externalVideoDocs.length > 0;
   // Single YouTube button: opens channel overlay if channel exists, else external videos overlay
-  const hasYoutubeBottomCarousel = hasYoutubeChannel || hasExternalVideos;
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
+  const hasYoutubeBottomCarousel = hasYoutubeReady || hasYoutubeChannel || hasExternalVideos;
   const hasKpCarousel = kpRelated.length > 0;
   const hasKpSubcatCarousel = kpSubcategoryItems.length > 0;
   const hasDestCarousel = destinations.length > 1;
@@ -949,7 +1003,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           )}
           {hasYoutubeBottomCarousel && (
             <div onClick={() => {
-              if (hasYoutubeChannel) {
+              if (hasYoutubeReady || hasYoutubeChannel) {
                 const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
                 if (firstShort) setActiveYoutubeVideo(firstShort);
                 setYoutubeOverlayOpen(true);
