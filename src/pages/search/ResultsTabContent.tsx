@@ -474,15 +474,7 @@ export default function ResultsTabContent({
                   );
                 })()}
               </div>
-              <PanelSearchBar
-                onSearch={onSearchNavigate}
-                onHotelSearch={onHotelSearch}
-                onBusinessSelect={onBusinessSelect}
-                onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
-                closeTrigger={mapPanelCloseTrigger}
-                noToolbarOffset
-                solidBackground
-              />
+              {/* Bottom floating PanelSearchBar is rendered by SearchPage (single source) to avoid duplicate FAB buttons over the map. */}
             </div>
           </div>
         )}
