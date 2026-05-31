@@ -22,7 +22,7 @@ type VideoControlsProps = (FileVideoControlsProps | YouTubeVideoControlsProps) &
 };
 
 const btnClass =
-  "shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors";
+  "shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors";
 const iconClass = "h-5 w-5 md:h-6 md:w-6";
 
 const VideoControls = (props: VideoControlsProps) => {
