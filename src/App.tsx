@@ -116,7 +116,7 @@ const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "c
   if (hideClub && hideWhatsapp) return null;
   return (
     <Suspense fallback={null}>
-      
+      {!hideClub && <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />}
       {!hideWhatsapp && <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />}
     </Suspense>
   );
