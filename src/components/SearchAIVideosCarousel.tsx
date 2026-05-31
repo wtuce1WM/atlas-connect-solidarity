@@ -44,7 +44,7 @@ interface Props {
   /** Optional title override. */
   title?: string;
   /** When provided, internal videos (business_documents) open the business panel instead of SlidePanelHome. */
-  onOpenBusiness?: (b: { id: string; name: string }) => void;
+  onOpenBusiness?: (b: { id: string; name: string; videoUrl?: string }) => void;
 }
 
 /**
