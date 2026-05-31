@@ -144,7 +144,7 @@ const SearchPage = () => {
   const labelFromUrl = searchParams.get("label") || "";
   const pinBadgeParam = searchParams.get("pinBadge") || "";
   const cityFromUrlForThumbs = searchParams.get("city") || "";
-  const [pinThumbMap, setPinThumbMap] = useState<Record<string, string>>({});
+  const [pinThumbMap, setPinThumbMap] = useState<Record<string, { thumb: string; videoUrl: string | null }>>({});
 
   const resolvePinContextBadgeId = useCallback(async () => {
     const directBadgeId = pinBadgeParam || badgeIdParam;
