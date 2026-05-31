@@ -183,19 +183,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [overlayControlsApi, setOverlayControlsApi] = useState<import("@/components/overlays/VideoDocumentOverlay").VideoOverlayControlsApi | null>(null);
-  const consumedInitialVideoRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (!initialVideoUrl) return;
-    if (consumedInitialVideoRef.current === initialVideoUrl) return;
-    if (!videoDocs || videoDocs.length === 0) return;
-    const match = videoDocs.find(v => v.url === initialVideoUrl);
-    consumedInitialVideoRef.current = initialVideoUrl;
-    setActiveVideoOverlay({
-      url: initialVideoUrl,
-      name: match?.name ?? null,
-      description: match?.description ?? null,
-    });
-  }, [initialVideoUrl, videoDocs]);
+   // initialVideoUrl is consumed by the videoDocs reorder (above) so that the
+   // forced video plays in the background. Do NOT auto-open a video overlay on
+   // top of the panel — the user only wants the background to reflect the choice.
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [showExtLinksOverlay, setShowExtLinksOverlay] = useState(false);
   const [extLinksOrigin, setExtLinksOrigin] = useState<'carousel' | 'description'>('carousel');
