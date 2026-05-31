@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Loader2 } from "lucide-react";
+import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { haversineKm } from "@/lib/haversine";
@@ -42,9 +42,16 @@ interface PoiSectionProps {
   userCoords?: { lat: number; lng: number } | null;
 }
 
+const ITEMS_PER_PAGE = 20;
+
 const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded, onHover, userCoords }: PoiSectionProps) => {
   const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [city]);
 
   useEffect(() => {
     const fetchPois = async () => {
@@ -54,8 +61,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
         .select("id, name, city, neighborhood, images, rating, categories, poi_hook, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, latitude, longitude, address, google_maps_url")
         .eq("is_active", true)
         .eq("is_poi", true)
-        .order("priority_score", { ascending: false })
-        .limit(50);
+        .order("priority_score", { ascending: false });
 
       if (city) {
         query = query.eq("city", city);
@@ -92,10 +98,16 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
     );
   }
 
+  const totalPages = Math.ceil(pois.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedPois = pois.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const pageLabel = language === "en" ? "Page" : language === "ar" ? "الصفحة" : "Page";
+
   return (
     <>
-      <div className={`grid gap-4 pt-10 sm:pt-12 lg:pt-14 pb-28 [overflow-anchor:none] ${columns === 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
-        {pois.map((biz) => {
+      <div className={`grid gap-4 pt-10 sm:pt-12 lg:pt-14 pb-6 [overflow-anchor:none] ${columns === 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+        {paginatedPois.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
           const sources = collectRatingSources(biz);
           const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
@@ -171,6 +183,30 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
           );
         })}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 pb-28 pt-2">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="h-9 w-9 flex items-center justify-center rounded-full border border-gold/30 bg-black/40 text-gold hover:bg-gold hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Previous page"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <span className="text-sm text-muted-foreground px-2">
+            {pageLabel} {currentPage} / {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="h-9 w-9 flex items-center justify-center rounded-full border border-gold/30 bg-black/40 text-gold hover:bg-gold hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Next page"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </>
   );
 };
