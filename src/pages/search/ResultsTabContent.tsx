@@ -401,7 +401,18 @@ export default function ResultsTabContent({
                     <X className="h-4 w-4" />
                   </button>
                   <span className="flex-1 text-sm font-medium text-black truncate">
-                    {mapPoiItems.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{spokenText || searchQuery || (activeFsTabId ? `${frontTabs.find(t => t.id === activeFsTabId)?.name || ''}${effectiveCity ? ` à ${effectiveCity}` : ''}`.trim() : (labelFromUrl ? `${labelFromUrl}${effectiveCity ? ` à ${effectiveCity}` : ''}`.trim() : ''))}"
+                    {(() => {
+                      const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
+                      const sub = activeFsSubId && tab ? tab.subcategories.find(s => s.id === activeFsSubId) : null;
+                      const label = sub
+                        ? sub.name
+                        : tab
+                          ? tab.name
+                          : (labelFromUrl || spokenText || searchQuery || "");
+                      const citySuffix = effectiveCity ? ` à ${effectiveCity}` : "";
+                      const fullLabel = `${label}${citySuffix}`;
+                      return `${mapPoiItems.length} ${language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "${fullLabel}"`;
+                    })()}
                   </span>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
