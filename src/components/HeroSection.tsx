@@ -303,6 +303,35 @@ const HeroSection = () => {
         onClose={() => toggleRecording()}
         onFinish={() => finishRecording()}
       />
+
+      {/* Full-screen search overlay (same as BookOnlineSlidePanel) */}
+      <MobileSearchOverlay
+        open={mobileSearchOpen}
+        onClose={() => setMobileSearchOpen(false)}
+        onSearch={(params) => {
+          setMobileSearchOpen(false);
+          const qs = new URLSearchParams(params).toString();
+          if (qs) navigateWithSlide(`/search?${qs}`);
+        }}
+        onBusinessSelect={(businessId) => {
+          setMobileSearchOpen(false);
+          navigateWithSlide(`/search?openBusiness=${businessId}`);
+        }}
+        onVoiceStart={() => {
+          setMobileSearchOpen(false);
+          toggleRecording();
+        }}
+        geoState={{
+          isEnabled: geo.isEnabled,
+          isDetecting: geo.isDetecting,
+          detectedCity: geo.detectedCity,
+          detectedNeighborhood: geo.detectedNeighborhood,
+          confirmedAddress: geo.confirmedAddress,
+          accept: geo.accept,
+          toggle: geo.toggle,
+          setManualCity: geo.setManualCity,
+        }}
+      />
     </section>
   );
 };
