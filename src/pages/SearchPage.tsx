@@ -1720,10 +1720,12 @@ const SearchPage = () => {
 
   const filteredBusinesses = useMemo(() => {
     const applyPinThumb = (b: Business): Business => {
-      const t = pinThumbMap[b.id];
-      if (!t) return b;
-      const rest = (b.images || []).filter(u => u !== t);
-      return { ...b, images: [t, ...rest] };
+      const entry = pinThumbMap[b.id];
+      if (!entry) return b;
+      const rest = (b.images || []).filter(u => u !== entry.thumb);
+      // Attach `videoUrl` so click handlers calling openCompactPanel(b) auto-pass it
+      // through to BookOnlineSlidePanel.initialVideoUrl (see openCompactPanel L913).
+      return { ...b, images: [entry.thumb, ...rest], videoUrl: entry.videoUrl ?? undefined } as Business;
     };
     if (pinIdsParam && pinnedBusinesses.length > 0) {
       const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
