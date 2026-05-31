@@ -43,6 +43,8 @@ interface Props {
   badgeIds?: string[];
   /** Optional title override. */
   title?: string;
+  /** When provided, internal videos (business_documents) open the business panel instead of SlidePanelHome. */
+  onOpenBusiness?: (b: { id: string; name: string }) => void;
 }
 
 /**
@@ -56,7 +58,7 @@ interface Props {
  * (lowest sort_order). Clicking a vignette opens that exact video on /videos
  * within the same context (city + entry + sub).
  */
-const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceName, badgeIds, title }: Props) => {
+const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceName, badgeIds, title, onOpenBusiness }: Props) => {
   const { language } = useLanguage();
 
   const navigate = useNavigate();
@@ -411,6 +413,14 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
       .eq("id", doc.id)
       .maybeSingle();
     const isGeneric = !bizDoc;
+    // Internal video (business_documents) with a business → open BookOnlineSlidePanel
+    if (!isGeneric && onOpenBusiness) {
+      const ownerId = (bizDoc as any)?.business_id || doc.business_id;
+      if (ownerId) {
+        onOpenBusiness({ id: ownerId, name: doc.businessName || "" });
+        return;
+      }
+    }
     let description: string | null = (bizDoc as any)?.description ?? null;
     // Resolve owner business (for logo + name)
     let owner: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null = null;
