@@ -212,18 +212,20 @@ export default function ResultsTabContent({
   useEffect(() => {
     if (activeFsTabId) return;
     if (!frontTabs.length || !filteredBusinesses?.length) return;
-    const counts = new Map<string, number>() as Map<string, number>;
+    const counts: Record<string, number> = {};
     for (const b of filteredBusinesses as any[]) {
       const cats: string[] = [b.main_category, ...(Array.isArray(b.categories) ? b.categories : [])].filter(Boolean);
       for (const tab of frontTabs) {
         if (cats.some((c) => tab.subcategoryNames.has(c))) {
-          counts.set(tab.id, (counts.get(tab.id) || 0) + 1);
+          counts[tab.id] = (counts[tab.id] || 0) + 1;
         }
       }
     }
-    if (counts.size === 0) return;
-    const [bestId] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+    const entries = Object.entries(counts);
+    if (entries.length === 0) return;
+    const [bestId] = entries.sort((a, b) => b[1] - a[1])[0];
     setActiveFsTabId(bestId);
+
   }, [frontTabs, filteredBusinesses, activeFsTabId]);
 
   const activeFsTab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
