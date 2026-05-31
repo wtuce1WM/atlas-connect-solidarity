@@ -417,7 +417,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
     if (!isGeneric && onOpenBusiness) {
       const ownerId = (bizDoc as any)?.business_id || doc.business_id;
       if (ownerId) {
-        onOpenBusiness({ id: ownerId, name: doc.businessName || "" });
+        onOpenBusiness({ id: ownerId, name: doc.businessName || "", videoUrl: doc.url });
         return;
       }
     }
