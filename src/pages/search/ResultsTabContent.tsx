@@ -312,7 +312,7 @@ export default function ResultsTabContent({
                       index={index}
                       labelLogos={businessLabelLogos[business.id] || []}
                       distanceKm={getDistanceKm(business)}
-                      onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData)}
+                      onClick={() => openCompactPanel({ id: business.id, name: business.name, videoUrl: (business as any).videoUrl } as unknown as AIBusinessData)}
                       onMouseEnter={() => setHoveredResultId(business.id)}
                       onMouseLeave={() => setHoveredResultId(null)}
                     />
