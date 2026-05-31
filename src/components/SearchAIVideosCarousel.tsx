@@ -557,6 +557,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
         onTimeUpdate={setCurrentTime}
         owner={panelVideo.owner}
         description={panelVideo.description}
+        social={panelVideo.social}
+        showSocialBadge={!!panelVideo.social}
       />
     )}
     </>
