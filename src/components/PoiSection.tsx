@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Loader2 } from "lucide-react";
+import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { haversineKm } from "@/lib/haversine";
@@ -42,9 +42,12 @@ interface PoiSectionProps {
   userCoords?: { lat: number; lng: number } | null;
 }
 
+const ITEMS_PER_PAGE = 20;
+
 const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded, onHover, userCoords }: PoiSectionProps) => {
   const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchPois = async () => {
