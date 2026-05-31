@@ -361,6 +361,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
       setDocs(
         merged.map((d) => {
           const b = d.business_id ? bizMap.get(d.business_id) : null;
+          const social = socialByGv.get(d.id) || null;
+          const isGeneric = socialByGv.has(d.id) || (!b && genericBizByGv.has(d.id) === false && !d.subcategory_id && !d.service_id && !d.price_type && genericItems.some((g) => g.id === d.id));
           return {
             id: d.id,
             url: d.url,
@@ -376,6 +378,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
             rating: b ? (b.computed_rating ?? b.rating ?? null) : null,
             reviewCount: b?.total_review_count ?? null,
             logoUrl: b?.logo_url ?? null,
+            social,
+            isGeneric: genericItems.some((g) => g.id === d.id),
           };
         })
       );
