@@ -48,6 +48,7 @@ import FlightSearchOverlay, { type FlightSearchInitial } from "@/components/over
 import WebSearchOverlay from "@/components/overlays/WebSearchOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { resolveProximityQuery } from "@/lib/proximityQuery";
 import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
