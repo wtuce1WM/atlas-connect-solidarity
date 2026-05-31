@@ -164,8 +164,8 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
     </OverlayShell>
   );
 };
-    </OverlayShell>
-  );
-};
+
+export default YouTubeOverlay;
+
 
 export default YouTubeOverlay;
