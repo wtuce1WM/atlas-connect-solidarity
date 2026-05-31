@@ -4411,16 +4411,24 @@ const SearchPage = () => {
                     subcategories={activeFsTab.subcategories}
                     activeSubId={mobileFsSubId}
                     onSubClick={(subId) => {
-                      setMobileFsSubId(subId);
-                      setMobileFsServices([]);
-                      setFsFilterServices(null);
-                      if (!subId) {
-                        setFsFilterSubcategories(new Set(activeFsTab.subcategoryNames));
-                      } else {
-                        const sub = activeFsTab.subcategories.find(s => s.id === subId);
-                        setFsFilterSubcategories(new Set(sub?.names || activeFsTab.subcategoryNames));
-                      }
-                    }}
+                       setMobileFsSubId(subId);
+                       setMobileFsServices([]);
+                       setFsFilterServices(null);
+                       if (!subId) {
+                         setFsFilterSubcategories(new Set(activeFsTab.subcategoryNames));
+                       } else {
+                         const sub = activeFsTab.subcategories.find(s => s.id === subId);
+                         setFsFilterSubcategories(new Set(sub?.names || activeFsTab.subcategoryNames));
+                       }
+                       // Mobile: bascule vers le haut de l'onglet résultats
+                       setActiveTab("suggestions");
+                       setCurrentPage(1);
+                       setShowMobileMap(false);
+                       setTimeout(() => {
+                         window.scrollTo({ top: 0, behavior: "smooth" });
+                         setTimeout(() => ensureResultsVisibleBelowSticky?.("smooth"), 350);
+                       }, 50);
+                     }}
                     subPool={subPool}
                     selectedServices={mobileFsServices}
                     onServicesChange={(svcs) => {
