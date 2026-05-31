@@ -548,7 +548,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                 {doc.social && !doc.logoUrl && doc.social.account && (
                   <div className="absolute inset-x-0 bottom-[12%] z-[6] flex items-center justify-center px-2 pointer-events-none">
                     <div className="flex items-center rounded-full bg-black border border-white/15 px-3 py-1.5">
-                      <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      <span className="text-xs font-medium text-white normal-case" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                         Follow @{doc.social.account}
                       </span>
                     </div>
