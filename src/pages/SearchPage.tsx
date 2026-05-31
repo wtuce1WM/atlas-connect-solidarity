@@ -906,10 +906,12 @@ const SearchPage = () => {
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
     const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
-      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
+      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string; videoUrl?: string }, opts?: { initialVideoUrl?: string }) => {
         hasInteractedWithCompactPanelRef.current = true;
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
+        const initVideo = opts?.initialVideoUrl ?? (bizOrData as any)?.videoUrl ?? null;
+        setCompactPanelInitialVideoUrl(initVideo);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
         // Ensure the bottom search overlay backdrop (with backdrop-blur) is closed
