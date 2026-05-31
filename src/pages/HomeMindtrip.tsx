@@ -139,6 +139,7 @@ const HomeMindtrip = () => {
     <div className="min-h-screen bg-background">
       {/* TOP BAR — sticky */}
       <HomeMindtripHeader />
+      <AppUpdateBanner />
 
 
 
