@@ -194,7 +194,6 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
       {/* Shorts row */}
       {shorts.length > 0 && (
         <div className="space-y-1.5">
-          {!hideLabel && <p className="text-xs font-medium text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Shorts</p>}
           <VideoRow
             videos={shorts}
             scrollRef={scrollRef}
@@ -210,9 +209,6 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
       {/* Regular videos row */}
       {regular.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-            {language === "en" ? "Videos" : "Vidéos"}
-          </p>
           <VideoRow
             videos={regular}
             scrollRef={shorts.length > 0 ? undefined : scrollRef}
