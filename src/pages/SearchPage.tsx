@@ -144,7 +144,7 @@ const SearchPage = () => {
   const labelFromUrl = searchParams.get("label") || "";
   const pinBadgeParam = searchParams.get("pinBadge") || "";
   const cityFromUrlForThumbs = searchParams.get("city") || "";
-  const [pinThumbMap, setPinThumbMap] = useState<Record<string, string>>({});
+  const [pinThumbMap, setPinThumbMap] = useState<Record<string, { thumb: string; videoUrl: string | null }>>({});
 
   const resolvePinContextBadgeId = useCallback(async () => {
     const directBadgeId = pinBadgeParam || badgeIdParam;
@@ -196,16 +196,16 @@ const SearchPage = () => {
       if (!cityDocIds.length) { if (!cancelled) setPinThumbMap({}); return; }
       const { data: docs } = await supabase
         .from("business_documents")
-        .select("business_id, thumbnail_url, thumbnail_locked")
+        .select("business_id, thumbnail_url, thumbnail_locked, url")
         .in("id", cityDocIds)
         .in("business_id", ids)
         .eq("business_is_active", true)
         .eq("thumbnail_locked", true)
         .not("thumbnail_url", "is", null);
-      const map: Record<string, string> = {};
+      const map: Record<string, { thumb: string; videoUrl: string | null }> = {};
       for (const d of (docs || []) as any[]) {
         if (d.business_id && d.thumbnail_url && !map[d.business_id]) {
-          map[d.business_id] = d.thumbnail_url;
+          map[d.business_id] = { thumb: d.thumbnail_url, videoUrl: d.url ?? null };
         }
       }
       if (!cancelled) setPinThumbMap(map);
@@ -1720,10 +1720,12 @@ const SearchPage = () => {
 
   const filteredBusinesses = useMemo(() => {
     const applyPinThumb = (b: Business): Business => {
-      const t = pinThumbMap[b.id];
-      if (!t) return b;
-      const rest = (b.images || []).filter(u => u !== t);
-      return { ...b, images: [t, ...rest] };
+      const entry = pinThumbMap[b.id];
+      if (!entry) return b;
+      const rest = (b.images || []).filter(u => u !== entry.thumb);
+      // Attach `videoUrl` so click handlers calling openCompactPanel(b) auto-pass it
+      // through to BookOnlineSlidePanel.initialVideoUrl (see openCompactPanel L913).
+      return { ...b, images: [entry.thumb, ...rest], videoUrl: entry.videoUrl ?? undefined } as Business;
     };
     if (pinIdsParam && pinnedBusinesses.length > 0) {
       const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
