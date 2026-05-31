@@ -2421,13 +2421,16 @@ const SearchPage = () => {
       setSearchMode(null);
       try {
         const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
+        // Effective city = URL param, else geo-detected city (when geolocation is enabled).
+        // This keeps results scoped to the user's current city even when no ?city= param is set.
+        const effectiveCity = cityFromUrl || (geo.isEnabled && geo.detectedCity ? geo.detectedCity : "");
 
         // Natural-language proximity detection: "… à proximité de Riad X",
         // "… près de la Mamounia", etc. Strip the phrase, geo-anchor on the target.
         let prox: Awaited<ReturnType<typeof resolveProximityQuery>> = null;
         if (!useSubcatBypass) {
           try {
-            prox = await resolveProximityQuery(searchQuery.trim(), { cityHint: cityFromUrl });
+            prox = await resolveProximityQuery(searchQuery.trim(), { cityHint: effectiveCity });
           } catch (e) {
             console.warn("proximity resolution failed:", e);
           }
@@ -2444,7 +2447,7 @@ const SearchPage = () => {
             pageSize: SERVER_PAGE_SIZE,
             offset: 0,
             compact: "card",
-            ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : (cityFromUrl ? { city: cityFromUrl } : {})),
+            ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : (effectiveCity ? { city: effectiveCity } : {})),
             ...(prox ? { latitude: prox.latitude, longitude: prox.longitude, radiusKm: prox.radiusKm } : {}),
           }
         });
