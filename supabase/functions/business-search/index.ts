@@ -2681,6 +2681,9 @@ serve(async (req) => {
             // Two services are synonyms when one's name appears in the other's keywords (normalized).
             // e.g. "Glaces" and "Glacier" (Glacier.keywords includes "glaces") → keep only one in detectedServices.
             // allCandidateServiceNames keeps both so OR matching still works.
+            // Capture pre-collapse list so OR-matching keeps every synonym variant as a candidate.
+            const preCollapseDetected = [...detectedServices];
+
             if (detectedServices.length > 1) {
               const norm = (s: string) => normalizeWordKw(stripPlural(s.toLowerCase().trim()));
               const svcMeta = detectedServices.map(name => {
@@ -2715,9 +2718,9 @@ serve(async (req) => {
               }
             }
 
-            // Narrow candidates to all originally detected services (pre-synonym-collapse),
-            // so OR-matching still accepts any synonym variant.
-            allCandidateServiceNames = Array.from(new Set([...detectedServices, ...allCandidateServiceNames]));
+            // Keep every original detected variant as OR candidate so a business carrying any synonym still matches.
+            allCandidateServiceNames = preCollapseDetected;
+
 
 
           } else {
