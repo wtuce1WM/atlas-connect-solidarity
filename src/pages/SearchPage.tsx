@@ -909,6 +909,7 @@ const SearchPage = () => {
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
+    const [poiPanelOpen, setPoiPanelOpen] = useState(false);
     const [compactPanelInitialVideoUrl, setCompactPanelInitialVideoUrl] = useState<string | null>(null);
    const [bottomSearchOverlayOpen, setBottomSearchOverlayOpen] = useState(false);
    const [bottomAiOverlayOpen, setBottomAiOverlayOpen] = useState(false);
@@ -4130,6 +4131,7 @@ const SearchPage = () => {
             setCompactPanelBusiness({ id: bizId, name: "" } as any);
             setIsCompactPanelExpanded(false);
           }}
+          onPanelOpenChange={setPoiPanelOpen}
           userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
         />
       )}
@@ -4646,7 +4648,7 @@ const SearchPage = () => {
       )}
 
       {/* Bottom floating search bar — anchored to the right map when open, centered otherwise */}
-      {!compactPanelBusiness && (() => {
+      {!compactPanelBusiness && !poiPanelOpen && (() => {
         const rightMapVisible = hasKnownLocation && (
           (activeTab === "suggestions" && !hideResultsMap) ||
           (activeTab === "ai" && !hideResultsMap) ||

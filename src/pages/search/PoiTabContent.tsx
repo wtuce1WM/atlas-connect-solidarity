@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Map, X } from "lucide-react";
 import PoiSection from "@/components/PoiSection";
 import PoiGoogleMap from "@/components/PoiGoogleMap";
@@ -27,6 +27,7 @@ interface PoiTabContentProps {
   setHoveredPoiId: (id: string | null) => void;
   onSearchNavigate: (params: Record<string, string>) => void;
   onBusinessSelect: (bizId: string) => void;
+  onPanelOpenChange?: (open: boolean) => void;
   userCoords?: { lat: number; lng: number } | null;
 }
 
@@ -50,11 +51,13 @@ const PoiTabContent = ({
   setHoveredPoiId,
   onSearchNavigate,
   onBusinessSelect,
+  onPanelOpenChange,
   userCoords,
 }: PoiTabContentProps) => {
   const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
   const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
+  useEffect(() => { onPanelOpenChange?.(!!poiSelectedBusinessId); }, [poiSelectedBusinessId, onPanelOpenChange]);
   const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
   const [poiMapBusiness, setPoiMapBusiness] = useState<{
     name: string;
