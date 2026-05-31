@@ -32,8 +32,32 @@ if (typeof window !== "undefined") {
 
   if ("serviceWorker" in navigator && !isInIframe && !isPreviewHost && window.location.protocol === "https:") {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch((error) => {
+      navigator.serviceWorker.register("/sw.js").then((registration) => {
+        const notifyIfWaiting = (worker: ServiceWorker | null) => {
+          if (!worker) return;
+          if (worker.state === "installed" && navigator.serviceWorker.controller) {
+            (window as any).__owmWaitingWorker = worker;
+            window.dispatchEvent(new Event("owm-app-update-ready"));
+          }
+        };
+        // Already waiting on load
+        notifyIfWaiting(registration.waiting);
+        // New worker found later
+        registration.addEventListener("updatefound", () => {
+          const installing = registration.installing;
+          installing?.addEventListener("statechange", () => notifyIfWaiting(installing));
+        });
+        // Periodic check for updates
+        setInterval(() => registration.update().catch(() => {}), 60 * 60 * 1000);
+      }).catch((error) => {
         console.warn("[PWA] Service worker registration failed", error);
+      });
+      // Reload once the new SW takes control
+      let reloading = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (reloading) return;
+        reloading = true;
+        window.location.reload();
       });
     });
   } else if ("serviceWorker" in navigator && (isInIframe || isPreviewHost)) {
