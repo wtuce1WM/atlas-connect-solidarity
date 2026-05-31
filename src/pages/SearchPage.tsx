@@ -3643,6 +3643,7 @@ const SearchPage = () => {
                       serviceName={effService}
                       city={effCity}
                       entryLabel={labelFromUrl}
+                      onOpenBusiness={(b) => openCompactPanel(b as any)}
                     />
                   </div>
                 );
