@@ -1671,16 +1671,11 @@ const SearchPage = () => {
     return haversineKm(geo.coords.lat, geo.coords.lng, b.latitude, b.longitude);
   }, [geo.isEnabled, geo.coords, subcategories]);
 
-  // Sort: WTUCE verified first (by priority_score desc), then non-verified (by rating desc, ignoring <10 reviews)
+  // Sort: WTUCE verified > priority_score desc > rating desc (ignore <10 reviews)
   const sortWtuceAndRating = (a: Business, b: Business) => {
     const aVerified = a.wtuce_status === "verified" ? 0 : 1;
     const bVerified = b.wtuce_status === "verified" ? 0 : 1;
     if (aVerified !== bVerified) return aVerified - bVerified;
-    // Verified: sort by priority_score descending
-    if (aVerified === 0) {
-      return (b.priority_score || 0) - (a.priority_score || 0);
-    }
-    // Non-verified: priority_score first, then rating desc (ignore <10 reviews)
     const aPrio = a.priority_score || 0;
     const bPrio = b.priority_score || 0;
     if (aPrio !== bPrio) return bPrio - aPrio;
