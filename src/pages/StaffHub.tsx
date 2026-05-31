@@ -455,6 +455,7 @@ const StaffHub = () => {
           </div>
         </div>
       </main>
+      <ScrollToTopButton />
     </div>
   );
 };
