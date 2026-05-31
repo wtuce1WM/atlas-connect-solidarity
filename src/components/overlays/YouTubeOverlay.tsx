@@ -144,25 +144,23 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
       </div>
 
       {/* Carousel — pinned to bottom */}
-      {business.youtube_url && business.show_youtube_tab && (
-        <div className="shrink-0 overflow-hidden px-3 pb-16 pt-2 border-t border-white/10">
-          <YouTubeShortsCarousel
-            youtubeUrl={business.youtube_url}
-            businessId={business.id}
-            onVideoCount={() => {}}
-            onPlayingChange={onPlayingChange}
-            onSelectVideo={handleSelectVideo}
-            onVideosLoaded={(vids) => {
-              if (!activeVideo && vids.length > 0) {
-                handleSelectVideo(vids[0]);
-              }
-            }}
-            activeVideoId={activeVideo?.videoId ?? null}
-            hideHeader
-            size="match-tabs"
-          />
-        </div>
-      )}
+      <div className="shrink-0 overflow-hidden px-3 pb-16 pt-2 border-t border-white/10">
+        <YouTubeShortsCarousel
+          youtubeUrl={business.youtube_url ?? ""}
+          businessId={business.id}
+          onVideoCount={() => {}}
+          onPlayingChange={onPlayingChange}
+          onSelectVideo={handleSelectVideo}
+          onVideosLoaded={(vids) => {
+            if (!activeVideo && vids.length > 0) {
+              handleSelectVideo(vids[0]);
+            }
+          }}
+          activeVideoId={activeVideo?.videoId ?? null}
+          hideHeader
+          size="match-tabs"
+        />
+      </div>
     </OverlayShell>
   );
 };

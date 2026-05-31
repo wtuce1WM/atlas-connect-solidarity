@@ -41,7 +41,9 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
   }, [activeVideoId, onSelectVideo, onPlayingChange]);
 
   useEffect(() => {
-    if (!youtubeUrl) return;
+    if (!youtubeUrl && !businessId) return;
+
+
 
     const fetchVideos = async () => {
       setIsLoading(true);
@@ -49,22 +51,42 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
       try {
         // Try DB first if businessId is provided
         if (businessId) {
-          const { data: dbVideos } = await supabase
+          // 1) Videos owned directly by this business
+          const directPromise = supabase
             .from("business_youtube_videos")
             .select("*")
             .eq("business_id", businessId)
             .eq("is_visible", true)
-            .order("sort_order", { ascending: true });
+            .eq("business_is_active", true);
 
-          if (dbVideos && dbVideos.length > 0) {
-            const items: YouTubeVideo[] = dbVideos.map((v: any) => ({
-              videoId: v.video_id,
-              title: v.title,
-              thumbnail: v.thumbnail,
-              publishedAt: v.published_at || "",
-              isShort: v.is_short,
-              durationSeconds: v.duration_seconds,
-            }));
+          // 2) Videos linked to this business as a POI (from any other business)
+          const poiPromise = supabase
+            .from("business_youtube_video_pois")
+            .select("business_youtube_videos!inner(*)")
+            .eq("point_of_interest_id", businessId)
+            .eq("business_youtube_videos.is_visible", true)
+            .eq("business_youtube_videos.business_is_active", true);
+
+          const [{ data: directVideos }, { data: poiLinks }] = await Promise.all([directPromise, poiPromise]);
+
+          const merged = new Map<string, any>();
+          (directVideos || []).forEach((v: any) => merged.set(v.video_id, v));
+          (poiLinks || []).forEach((row: any) => {
+            const v = row.business_youtube_videos;
+            if (v && !merged.has(v.video_id)) merged.set(v.video_id, v);
+          });
+
+          if (merged.size > 0) {
+            const items: YouTubeVideo[] = Array.from(merged.values())
+              .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+              .map((v: any) => ({
+                videoId: v.video_id,
+                title: v.title,
+                thumbnail: v.thumbnail,
+                publishedAt: v.published_at || "",
+                isShort: v.is_short,
+                durationSeconds: v.duration_seconds,
+              }));
             setVideos(items);
             onVideoCount?.(items.length);
             onVideosLoaded?.(items);
