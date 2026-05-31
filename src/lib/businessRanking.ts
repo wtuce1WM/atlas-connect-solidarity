@@ -20,12 +20,7 @@ export const sortWtuceAndRating = (a: any, b: any): number => {
   const bVerified = b?.wtuce_status === "verified" ? 0 : 1;
   if (aVerified !== bVerified) return aVerified - bVerified;
 
-  // Verified bucket: priority_score desc only
-  if (aVerified === 0) {
-    return ((b?.priority_score) || 0) - ((a?.priority_score) || 0);
-  }
-
-  // Non-verified bucket: priority_score, then rating (≥10 reviews only)
+  // Verified > priority_score desc > rating desc (ignore <10 reviews)
   const aPrio = (a?.priority_score) || 0;
   const bPrio = (b?.priority_score) || 0;
   if (aPrio !== bPrio) return bPrio - aPrio;
