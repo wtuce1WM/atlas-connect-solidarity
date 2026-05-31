@@ -2059,7 +2059,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   <button
                     type="button"
                     onClick={overlayControlsApi.togglePlay}
-                    className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
                     aria-label={overlayControlsApi.isPlaying ? "Pause" : "Play"}
                   >
                     {overlayControlsApi.isPlaying
@@ -2069,7 +2069,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   <button
                     type="button"
                     onClick={overlayControlsApi.toggleMute}
-                    className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
                     aria-label={overlayControlsApi.isMuted ? "Unmute" : "Mute"}
                   >
                     {overlayControlsApi.isMuted
