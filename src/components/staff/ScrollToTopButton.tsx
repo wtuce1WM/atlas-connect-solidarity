@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowUp, ArrowDown, HelpCircle, X } from "lucide-react";
 
 export const helpContent = `
