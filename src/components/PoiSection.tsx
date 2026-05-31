@@ -98,10 +98,16 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
     );
   }
 
+  const totalPages = Math.ceil(pois.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedPois = pois.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const pageLabel = language === "en" ? "Page" : language === "ar" ? "الصفحة" : "Page";
+
   return (
     <>
-      <div className={`grid gap-4 pt-10 sm:pt-12 lg:pt-14 pb-28 [overflow-anchor:none] ${columns === 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
-        {pois.map((biz) => {
+      <div className={`grid gap-4 pt-10 sm:pt-12 lg:pt-14 pb-6 [overflow-anchor:none] ${columns === 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+        {paginatedPois.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
           const sources = collectRatingSources(biz);
           const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
@@ -177,6 +183,30 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
           );
         })}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 pb-28 pt-2">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="h-9 w-9 flex items-center justify-center rounded-full border border-gold/30 bg-black/40 text-gold hover:bg-gold hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Previous page"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <span className="text-sm text-muted-foreground px-2">
+            {pageLabel} {currentPage} / {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="h-9 w-9 flex items-center justify-center rounded-full border border-gold/30 bg-black/40 text-gold hover:bg-gold hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Next page"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </>
   );
 };
