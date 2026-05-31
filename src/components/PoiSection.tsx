@@ -145,11 +145,13 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    window.dispatchEvent(new CustomEvent("open-club-panel"));
                   }}
                   className="absolute top-1.5 right-1.5 z-10"
                 >
-                  <BookmarkButton businessId={biz.id} />
+                  <BookmarkButton
+                    businessId={biz.id}
+                    onLoginRequired={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                  />
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
