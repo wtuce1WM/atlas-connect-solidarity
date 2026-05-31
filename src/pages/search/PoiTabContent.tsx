@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Map, X } from "lucide-react";
 import PoiSection from "@/components/PoiSection";
 import PoiGoogleMap from "@/components/PoiGoogleMap";
