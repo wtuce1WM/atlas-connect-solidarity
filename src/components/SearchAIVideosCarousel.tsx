@@ -423,7 +423,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
     let description: string | null = (bizDoc as any)?.description ?? null;
     // Resolve owner business (for logo + name)
     let owner: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null = null;
-    const ownerId = doc.business_id;
+    // ownerId already declared above
     if (ownerId) {
       const { data: b } = await supabase
         .from("businesses")
