@@ -2658,7 +2658,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam, badgeIdParam, subcatsParam, cityFromUrl, resolvePinContextBadgeId]);
+  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam, badgeIdParam, subcatsParam, cityFromUrl, resolvePinContextBadgeId, geo.isEnabled, geo.detectedCity]);
 
   // Fetch label logos for search result businesses
   useEffect(() => {
