@@ -4131,6 +4131,7 @@ const SearchPage = () => {
             setCompactPanelBusiness({ id: bizId, name: "" } as any);
             setIsCompactPanelExpanded(false);
           }}
+          onPanelOpenChange={setPoiPanelOpen}
           userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
         />
       )}
