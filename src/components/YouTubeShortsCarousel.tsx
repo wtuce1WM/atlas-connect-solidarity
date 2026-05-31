@@ -67,13 +67,38 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
             .eq("business_youtube_videos.is_visible", true)
             .eq("business_youtube_videos.business_is_active", true);
 
-          const [{ data: directVideos }, { data: poiLinks }] = await Promise.all([directPromise, poiPromise]);
+          // 3) YouTube videos stored as documents on this business
+          const docsPromise = supabase
+            .from("business_documents")
+            .select("id, url, name, thumbnail_url, sort_order")
+            .eq("business_id", businessId)
+            .eq("type", "video")
+            .eq("business_is_active", true);
+
+          const [{ data: directVideos }, { data: poiLinks }, { data: docVideos }] = await Promise.all([directPromise, poiPromise, docsPromise]);
 
           const merged = new Map<string, any>();
           (directVideos || []).forEach((v: any) => merged.set(v.video_id, v));
           (poiLinks || []).forEach((row: any) => {
             const v = row.business_youtube_videos;
             if (v && !merged.has(v.video_id)) merged.set(v.video_id, v);
+          });
+          (docVideos || []).forEach((d: any) => {
+            const url: string = d.url || "";
+            const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+            if (!m) return;
+            const videoId = m[1];
+            if (merged.has(videoId)) return;
+            const isShort = /\/shorts\//.test(url);
+            merged.set(videoId, {
+              video_id: videoId,
+              title: d.name || "",
+              thumbnail: d.thumbnail_url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+              published_at: "",
+              is_short: isShort,
+              duration_seconds: 0,
+              sort_order: d.sort_order ?? 9999,
+            });
           });
 
           if (merged.size > 0) {

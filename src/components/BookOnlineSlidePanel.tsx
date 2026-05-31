@@ -230,7 +230,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         .eq("business_youtube_videos.is_visible", true)
         .eq("business_youtube_videos.business_is_active", true);
 
-      const [{ data: directVideos }, { data: poiLinks }] = await Promise.all([directPromise, poiPromise]);
+      const docsPromise = supabase
+        .from("business_documents")
+        .select("id, url, name, thumbnail_url, sort_order")
+        .eq("business_id", businessId)
+        .eq("type", "video")
+        .eq("business_is_active", true);
+
+      const [{ data: directVideos }, { data: poiLinks }, { data: docVideos }] = await Promise.all([directPromise, poiPromise, docsPromise]);
       if (cancelled) return;
 
       const merged = new Map<string, any>();
@@ -238,6 +245,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       (poiLinks || []).forEach((row: any) => {
         const v = row.business_youtube_videos;
         if (v && !merged.has(v.video_id)) merged.set(v.video_id, v);
+      });
+      (docVideos || []).forEach((d: any) => {
+        const url: string = d.url || "";
+        const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+        if (!m) return;
+        const videoId = m[1];
+        if (merged.has(videoId)) return;
+        merged.set(videoId, {
+          video_id: videoId,
+          title: d.name || "",
+          thumbnail: d.thumbnail_url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+          published_at: "",
+          is_short: /\/shorts\//.test(url),
+          duration_seconds: 0,
+          sort_order: d.sort_order ?? 9999,
+        });
       });
 
       const items: YouTubeVideo[] = Array.from(merged.values())
