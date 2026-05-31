@@ -282,13 +282,13 @@ export function CtaBar({
       )}
       {ctaItems.length > 0 && (
         ctaItems.length === 5 ? (
-          <div className="w-[95%] md:w-3/4 md:px-0 pointer-events-auto flex flex-col gap-2">
-            <div className="flex justify-center gap-2">
+          <div className="w-full px-2 md:w-3/4 md:px-0 pointer-events-auto flex flex-col gap-2">
+            <div className="flex justify-center gap-1.5 md:gap-2">
               {ctaItems.slice(0, 3).map((item, i) => (
                 <div key={i} className="flex-1">{item}</div>
               ))}
             </div>
-            <div className="flex justify-center gap-2">
+            <div className="flex justify-center gap-1.5 md:gap-2">
               {ctaItems.slice(3).map((item, i) => (
                 <div key={i + 3} className="flex-1">{item}</div>
               ))}
