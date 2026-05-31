@@ -15,7 +15,6 @@ import stepClubImage from "@/assets/home-mindtrip/step-club.jpg";
 import stepBookingImage from "@/assets/home-mindtrip/step-booking.jpg";
 import BookingFloatingScene from "@/components/home/BookingFloatingScene";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
-import AppUpdateBanner from "@/components/home/AppUpdateBanner";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -139,7 +138,6 @@ const HomeMindtrip = () => {
     <div className="min-h-screen bg-background">
       {/* TOP BAR — sticky */}
       <HomeMindtripHeader />
-      <AppUpdateBanner />
 
 
 
