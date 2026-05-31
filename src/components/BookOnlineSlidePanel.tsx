@@ -637,7 +637,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     [videoDocs]
   );
   const hasVideosCarousel = nonExternalVideoDocs.length > 0;
-  const hasYoutubeChannel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
+  const hasYoutubeChannel = !!(business?.youtube_url && business?.show_youtube_tab);
   // External (YouTube/Vimeo/etc.) videos attached to this business or POI — used when the business has no YouTube channel
   const externalVideoDocs = useMemo(
     () => (videoDocs || []).filter((d: any) => isExternalVideoUrl(d.url)),
@@ -646,7 +646,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const hasExternalVideos = externalVideoDocs.length > 0;
   // Single YouTube button: opens channel overlay if channel exists, else external videos overlay
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
-  const hasYoutubeBottomCarousel = hasYoutubeReady || hasExternalVideos;
+  const hasYoutubeBottomCarousel = hasYoutubeReady || hasYoutubeChannel || hasExternalVideos;
   const hasKpCarousel = kpRelated.length > 0;
   const hasKpSubcatCarousel = kpSubcategoryItems.length > 0;
   const hasDestCarousel = destinations.length > 1;
@@ -1003,7 +1003,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           )}
           {hasYoutubeBottomCarousel && (
             <div onClick={() => {
-              if (hasYoutubeReady) {
+              if (hasYoutubeReady || hasYoutubeChannel) {
                 const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
                 if (firstShort) setActiveYoutubeVideo(firstShort);
                 setYoutubeOverlayOpen(true);
