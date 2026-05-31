@@ -413,6 +413,14 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
       .eq("id", doc.id)
       .maybeSingle();
     const isGeneric = !bizDoc;
+    // Internal video (business_documents) with a business → open BookOnlineSlidePanel
+    if (!isGeneric && onOpenBusiness) {
+      const ownerId = (bizDoc as any)?.business_id || doc.business_id;
+      if (ownerId) {
+        onOpenBusiness({ id: ownerId, name: doc.businessName || "" });
+        return;
+      }
+    }
     let description: string | null = (bizDoc as any)?.description ?? null;
     // Resolve owner business (for logo + name)
     let owner: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null = null;
