@@ -260,8 +260,25 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           is_short: /\/shorts\//.test(url),
           duration_seconds: 0,
           sort_order: d.sort_order ?? 9999,
+          _needs_title: !d.name,
+          _url: url,
         });
       });
+
+      // Fetch missing titles via YouTube oEmbed (CORS-enabled, no API key)
+      const needTitles = Array.from(merged.values()).filter((v: any) => v._needs_title);
+      await Promise.all(
+        needTitles.map(async (v: any) => {
+          try {
+            const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(v._url)}&format=json`);
+            if (res.ok) {
+              const json = await res.json();
+              if (json?.title) v.title = json.title;
+            }
+          } catch {}
+        })
+      );
+      if (cancelled) return;
 
       const items: YouTubeVideo[] = Array.from(merged.values())
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
