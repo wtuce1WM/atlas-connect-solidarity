@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowUp, HelpCircle, X } from "lucide-react";
+import { ArrowUp, ArrowDown, HelpCircle, X } from "lucide-react";
 
 export const helpContent = `
 ## Polices du site
