@@ -195,22 +195,42 @@ export default function ResultsTabContent({
     const key = `${effectiveCity || ""}|${label}`;
     if (!label || autoFsLabelKeyRef.current === key || frontTabs.length === 0) return;
 
+    // 1) Try exact match on a front-structure tab name (e.g. "Hébergement")
     const tab = frontTabs.find((t) => t.name.trim().toLowerCase() === label);
-    if (!tab) return;
+    if (tab) {
+      autoFsLabelKeyRef.current = key;
+      setActiveFsTabId(tab.id);
+      setActiveFsSubId(null);
+      setActiveFsServices([]);
+      onFrontStructureFilter?.(tab.subcategoryNames);
+      onFrontStructureServicesFilter?.(null);
+      return;
+    }
 
-    autoFsLabelKeyRef.current = key;
-    setActiveFsTabId(tab.id);
-    setActiveFsSubId(null);
-    setActiveFsServices([]);
-    onFrontStructureFilter?.(tab.subcategoryNames);
-    onFrontStructureServicesFilter?.(null);
+    // 2) Try matching a subcategory inside any tab (e.g. label="Piscines")
+    for (const t of frontTabs) {
+      const sub = t.subcategories.find((s) => s.name.trim().toLowerCase() === label);
+      if (sub) {
+        autoFsLabelKeyRef.current = key;
+        setActiveFsTabId(t.id);
+        setActiveFsSubId(sub.id);
+        setActiveFsServices([]);
+        onFrontStructureFilter?.(sub.names);
+        onFrontStructureServicesFilter?.(null);
+        return;
+      }
+    }
   }, [labelFromUrl, effectiveCity, frontTabs]);
 
   // Auto-select the FS tab matching the dominant main_category of current
   // results, so the sub-category filter is directly visible on the map even
   // when the search did not detect a sub-category (e.g. "manger une glace dans la medina").
+  // Skip when the URL already provides an explicit label intent (e.g. manual card
+  // like "Piscines"): the dominant-category heuristic would otherwise mis-classify
+  // pin-based results (a pool in a restaurant would auto-select "Restauration").
   useEffect(() => {
     if (activeFsTabId) return;
+    if (labelFromUrl && labelFromUrl.trim()) return;
     if (!frontTabs.length || !filteredBusinesses?.length) return;
     const counts: Record<string, number> = {};
     for (const b of filteredBusinesses as any[]) {
@@ -226,7 +246,8 @@ export default function ResultsTabContent({
     const [bestId] = entries.sort((a, b) => b[1] - a[1])[0];
     setActiveFsTabId(bestId);
 
-  }, [frontTabs, filteredBusinesses, activeFsTabId]);
+  }, [frontTabs, filteredBusinesses, activeFsTabId, labelFromUrl]);
+
 
   const activeFsTab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
 
