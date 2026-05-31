@@ -196,16 +196,16 @@ const SearchPage = () => {
       if (!cityDocIds.length) { if (!cancelled) setPinThumbMap({}); return; }
       const { data: docs } = await supabase
         .from("business_documents")
-        .select("business_id, thumbnail_url, thumbnail_locked")
+        .select("business_id, thumbnail_url, thumbnail_locked, url")
         .in("id", cityDocIds)
         .in("business_id", ids)
         .eq("business_is_active", true)
         .eq("thumbnail_locked", true)
         .not("thumbnail_url", "is", null);
-      const map: Record<string, string> = {};
+      const map: Record<string, { thumb: string; videoUrl: string | null }> = {};
       for (const d of (docs || []) as any[]) {
         if (d.business_id && d.thumbnail_url && !map[d.business_id]) {
-          map[d.business_id] = d.thumbnail_url;
+          map[d.business_id] = { thumb: d.thumbnail_url, videoUrl: d.url ?? null };
         }
       }
       if (!cancelled) setPinThumbMap(map);
