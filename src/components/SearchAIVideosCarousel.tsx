@@ -546,7 +546,10 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
 
                 {/* Social badge (Instagram/TikTok/YouTube) for generic videos without logo */}
                 {doc.social && !doc.logoUrl && doc.social.account && (
-                  <div className="absolute inset-x-0 bottom-[12%] z-[6] flex items-center justify-center px-2 pointer-events-none">
+                  <div className="absolute inset-x-0 bottom-[12%] z-[6] flex flex-col items-center justify-center gap-2 px-2 pointer-events-none">
+                    {doc.social.platform === "instagram" && <InstagramIcon className="w-7 h-7 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                    {doc.social.platform === "tiktok" && <SiTiktok className="w-7 h-7 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                    {doc.social.platform === "youtube" && <Youtube className="w-7 h-7 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                     <div className="flex items-center rounded-full bg-black border border-white/15 px-3 py-1.5">
                       <span className="text-xs font-medium text-white normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: 0 }}>
                         Follow @{doc.social.account}
