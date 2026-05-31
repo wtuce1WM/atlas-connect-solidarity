@@ -35,8 +35,16 @@ self.addEventListener("install", (event) => {
         } catch {}
       }));
     } catch {}
-    await self.skipWaiting();
+    // NOTE: do NOT skipWaiting here. We want the new SW to stay in "waiting"
+    // so the homepage can prompt the user to install the update.
+    // The page sends { type: "SKIP_WAITING" } when the user accepts.
   })());
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", (event) => {
