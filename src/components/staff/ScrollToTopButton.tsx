@@ -154,22 +154,36 @@ const ScrollToTopButton = () => {
   return (
     <>
       {visible && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3">
-          <button
-            onClick={() => setHelpOpen(o => !o)}
-            className="p-3 rounded-full bg-muted text-muted-foreground shadow-lg hover:bg-muted/80 transition-all border border-border"
-            aria-label="Aide design system"
-          >
-            <HelpCircle className="h-5 w-5" />
-          </button>
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="p-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
-            aria-label="Remonter en haut"
-          >
-            <ArrowUp className="h-5 w-5" />
-          </button>
-        </div>
+        <>
+          {/* Scroll to bottom — fixed at top center */}
+          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
+            <button
+              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
+              className="p-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
+              aria-label="Descendre en bas"
+            >
+              <ArrowDown className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Scroll to top + help — fixed at bottom center */}
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3">
+            <button
+              onClick={() => setHelpOpen(o => !o)}
+              className="p-3 rounded-full bg-muted text-muted-foreground shadow-lg hover:bg-muted/80 transition-all border border-border"
+              aria-label="Aide design system"
+            >
+              <HelpCircle className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="p-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
+              aria-label="Remonter en haut"
+            >
+              <ArrowUp className="h-5 w-5" />
+            </button>
+          </div>
+        </>
       )}
 
       {helpOpen && (
