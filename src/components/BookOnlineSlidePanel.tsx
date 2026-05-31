@@ -1094,7 +1094,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   })}
                 </div>
               ) : undefined}
-              middleSlot={hookText ? (
+              middleSlot={(hookText || business?.carousel_badge) ? (
                 <p
                   className="md:hidden text-base text-white/90 font-bold text-center max-w-[95%] md:max-w-[85%] leading-relaxed pointer-events-none pl-8 pr-0 md:px-2"
                   style={{
@@ -1102,7 +1102,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
                   }}
                 >
-                  {hookText}
+                  {hookText || videoTabLabel}
                 </p>
               ) : undefined}
               rightSlot={undefined}
@@ -1118,7 +1118,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
           <div className="slidepanel-center-short flex flex-col items-center justify-center pointer-events-auto gap-4 md:gap-10 flex-1 -mt-[3rem]">
-            {hookText && <TypewriterHook text={hookText} key={businessId + '-hook'} />}
+            {(hookText || business?.carousel_badge) && <TypewriterHook text={hookText || videoTabLabel} key={businessId + '-hook'} />}
             {woDescription && (
               <div className="mt-8 md:mt-0 slidepanel-plus-short">
                 <div
