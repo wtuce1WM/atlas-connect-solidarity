@@ -5,6 +5,7 @@ import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { haversineKm } from "@/lib/haversine";
+import BookmarkButton from "@/components/BookmarkButton";
 
 interface PoiBusiness {
   id: string;
@@ -140,18 +141,15 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
                 </div>
               )}
               {onMapClick && (
-                <button
+                <div
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    onMapClick(biz);
                   }}
-                  className="absolute top-1.5 right-1.5 z-10 h-8 w-8 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-gold hover:text-black transition-colors shadow-lg"
-                  title={language === "en" ? "View on map" : "Voir sur la carte"}
-                  aria-label="Map"
+                  className="absolute top-1.5 right-1.5 z-10"
                 >
-                  <MapPin className="h-4 w-4" />
-                </button>
+                  <BookmarkButton businessId={biz.id} />
+                </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
