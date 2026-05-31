@@ -75,9 +75,9 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
       <div className="relative flex items-center justify-center px-4 py-3 flex-shrink-0">
         <button
           onClick={onClose}
-          className="absolute left-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+          className="absolute left-4 w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors shadow-sm"
         >
-          <X className="h-4 w-4 text-white" />
+          <X className="h-4 w-4 text-black" />
         </button>
         <div className="flex items-center gap-2 min-w-0 max-w-[70%]">
           <div className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
