@@ -519,7 +519,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                   <div className="absolute inset-x-0 top-[8%] z-[6] flex justify-center px-3 pointer-events-none">
                     <p
                       className="text-[13px] font-bold text-white text-center line-clamp-3"
-                      style={{ fontFamily: "'Roboto', sans-serif", filter: textShadow }}
+                      style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: "0.02em", filter: textShadow }}
                     >
                       {doc.name}
                     </p>
