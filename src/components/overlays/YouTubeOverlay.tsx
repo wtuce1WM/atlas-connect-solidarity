@@ -166,6 +166,3 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
 };
 
 export default YouTubeOverlay;
-
-
-export default YouTubeOverlay;
