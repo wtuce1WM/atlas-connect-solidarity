@@ -20,6 +20,7 @@ import LocationPickerDialog from "@/components/LocationPickerDialog";
 
 const HeroSection = () => {
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   
