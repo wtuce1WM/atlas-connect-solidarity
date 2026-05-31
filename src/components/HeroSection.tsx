@@ -10,6 +10,7 @@ import LogoCSSSpinner from "@/components/LogoCSSSpinner";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 import ResumeLastSearch from "@/components/ResumeLastSearch";
 import { toast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -19,6 +20,7 @@ import LocationPickerDialog from "@/components/LocationPickerDialog";
 
 const HeroSection = () => {
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   
@@ -175,40 +177,55 @@ const HeroSection = () => {
             })}
           </div>
 
-          <SearchInput
-            variant="hero"
-            suggestionMode="text"
-            placeholder={(() => {
-              const placeholders: Record<string, { fr: string; en: string; ar: string }> = {
-                all: { fr: "Que cherchez-vous ? Et où ?", en: "What are you looking for? And where?", ar: "ماذا تبحث عنه؟ وأين؟" },
-                "Hôtellerie": { fr: "Trouvez les meilleurs hôtels & riads", en: "Find the best hotels & riads", ar: "اعثر على أفضل الفنادق والرياضات" },
-                "Restauration": { fr: "Trouvez un bon restaurant", en: "Find a great restaurant", ar: "اعثر على مطعم جيد" },
-                "Tourisme": { fr: "Trouvez une activité inoubliable", en: "Find an unforgettable activity", ar: "اعثر على نشاط لا يُنسى" },
-                "Commerce": { fr: "Trouvez les meilleures boutiques", en: "Find the best shops", ar: "اعثر على أفضل المتاجر" },
-                "Bien-être": { fr: "Trouvez un spa ou hammam", en: "Find a spa or hammam", ar: "اعثر على سبا أو حمام" },
-              };
-              const p = placeholders[searchCategory] || placeholders.all;
-              return language === "ar" ? p.ar : language === "en" ? p.en : p.fr;
-            })()}
-            onSubmit={(query) => {
-              const params = new URLSearchParams();
-              const timeResult = extractTimeSlot(query);
-              const effectiveQuery = timeResult ? timeResult.cleanedQuery : query;
-              if (effectiveQuery) params.set("q", effectiveQuery);
-              if (searchCategory !== "all") params.set("category", searchCategory);
-              else if (timeResult?.timeSlot.suggestedCategory) params.set("category", timeResult.timeSlot.suggestedCategory);
-              if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
-              if (timeResult) {
-                params.set("timeStart", String(timeResult.timeSlot.startHour));
-                params.set("timeEnd", String(timeResult.timeSlot.endHour));
-                params.set("timeDayOffset", String(timeResult.timeSlot.dayOffset));
-                if (timeResult.timeSlot.dayOfWeek !== null) params.set("timeDayOfWeek", String(timeResult.timeSlot.dayOfWeek));
+          <div
+            className="relative"
+            onClickCapture={(e) => {
+              // Open full-screen MobileSearchOverlay when clicking the input area,
+              // but let inline buttons (mic, submit, suggestions) keep their own behavior.
+              const target = e.target as HTMLElement;
+              if (target.closest("button") || target.closest("a")) return;
+              if (target.tagName === "INPUT") {
+                e.preventDefault();
+                (target as HTMLInputElement).blur();
+                setMobileSearchOpen(true);
               }
-              if (params.toString()) navigateWithSlide(`/search?${params.toString()}`);
             }}
-            onNavigate={navigateWithSlide}
-            voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
-          />
+          >
+            <SearchInput
+              variant="hero"
+              suggestionMode="text"
+              placeholder={(() => {
+                const placeholders: Record<string, { fr: string; en: string; ar: string }> = {
+                  all: { fr: "Que cherchez-vous ? Et où ?", en: "What are you looking for? And where?", ar: "ماذا تبحث عنه؟ وأين؟" },
+                  "Hôtellerie": { fr: "Trouvez les meilleurs hôtels & riads", en: "Find the best hotels & riads", ar: "اعثر على أفضل الفنادق والرياضات" },
+                  "Restauration": { fr: "Trouvez un bon restaurant", en: "Find a great restaurant", ar: "اعثر على مطعم جيد" },
+                  "Tourisme": { fr: "Trouvez une activité inoubliable", en: "Find an unforgettable activity", ar: "اعثر على نشاط لا يُنسى" },
+                  "Commerce": { fr: "Trouvez les meilleures boutiques", en: "Find the best shops", ar: "اعثر على أفضل المتاجر" },
+                  "Bien-être": { fr: "Trouvez un spa ou hammam", en: "Find a spa or hammam", ar: "اعثر على سبا أو حمام" },
+                };
+                const p = placeholders[searchCategory] || placeholders.all;
+                return language === "ar" ? p.ar : language === "en" ? p.en : p.fr;
+              })()}
+              onSubmit={(query) => {
+                const params = new URLSearchParams();
+                const timeResult = extractTimeSlot(query);
+                const effectiveQuery = timeResult ? timeResult.cleanedQuery : query;
+                if (effectiveQuery) params.set("q", effectiveQuery);
+                if (searchCategory !== "all") params.set("category", searchCategory);
+                else if (timeResult?.timeSlot.suggestedCategory) params.set("category", timeResult.timeSlot.suggestedCategory);
+                if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
+                if (timeResult) {
+                  params.set("timeStart", String(timeResult.timeSlot.startHour));
+                  params.set("timeEnd", String(timeResult.timeSlot.endHour));
+                  params.set("timeDayOffset", String(timeResult.timeSlot.dayOffset));
+                  if (timeResult.timeSlot.dayOfWeek !== null) params.set("timeDayOfWeek", String(timeResult.timeSlot.dayOfWeek));
+                }
+                if (params.toString()) navigateWithSlide(`/search?${params.toString()}`);
+              }}
+              onNavigate={navigateWithSlide}
+              voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
+            />
+          </div>
 
           {/* Resume last search chip — disabled on homepage */}
         </div>
@@ -285,6 +302,35 @@ const HeroSection = () => {
         liveTranscript={liveTranscript}
         onClose={() => toggleRecording()}
         onFinish={() => finishRecording()}
+      />
+
+      {/* Full-screen search overlay (same as BookOnlineSlidePanel) */}
+      <MobileSearchOverlay
+        open={mobileSearchOpen}
+        onClose={() => setMobileSearchOpen(false)}
+        onSearch={(params) => {
+          setMobileSearchOpen(false);
+          const qs = new URLSearchParams(params).toString();
+          if (qs) navigateWithSlide(`/search?${qs}`);
+        }}
+        onBusinessSelect={(businessId) => {
+          setMobileSearchOpen(false);
+          navigateWithSlide(`/search?openBusiness=${businessId}`);
+        }}
+        onVoiceStart={() => {
+          setMobileSearchOpen(false);
+          toggleRecording();
+        }}
+        geoState={{
+          isEnabled: geo.isEnabled,
+          isDetecting: geo.isDetecting,
+          detectedCity: geo.detectedCity,
+          detectedNeighborhood: geo.detectedNeighborhood,
+          confirmedAddress: geo.confirmedAddress,
+          accept: geo.accept,
+          toggle: geo.toggle,
+          setManualCity: geo.setManualCity,
+        }}
       />
     </section>
   );
