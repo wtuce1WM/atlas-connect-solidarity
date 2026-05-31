@@ -2421,16 +2421,31 @@ const SearchPage = () => {
       setSearchMode(null);
       try {
         const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
+
+        // Natural-language proximity detection: "… à proximité de Riad X",
+        // "… près de la Mamounia", etc. Strip the phrase, geo-anchor on the target.
+        let prox: Awaited<ReturnType<typeof resolveProximityQuery>> = null;
+        if (!useSubcatBypass) {
+          try {
+            prox = await resolveProximityQuery(searchQuery.trim(), { cityHint: cityFromUrl });
+          } catch (e) {
+            console.warn("proximity resolution failed:", e);
+          }
+          if (fetchId !== latestFetchIdRef.current) return;
+        }
+
+        const baseQuery = useSubcatBypass ? undefined : (searchQuery.trim() || categoryFromUrl || undefined);
         // Use edge function for full-text search with server-side pagination
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
-          body: { 
-            query: useSubcatBypass ? undefined : (searchQuery.trim() || categoryFromUrl || undefined),
+          body: {
+            query: prox ? prox.query : baseQuery,
             spoken: useSubcatBypass ? undefined : (spokenText || undefined),
             language: language,
             pageSize: SERVER_PAGE_SIZE,
             offset: 0,
             compact: "card",
             ...(useSubcatBypass ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl } : (cityFromUrl ? { city: cityFromUrl } : {})),
+            ...(prox ? { latitude: prox.latitude, longitude: prox.longitude, radiusKm: prox.radiusKm } : {}),
           }
         });
 
