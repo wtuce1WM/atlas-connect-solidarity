@@ -101,23 +101,44 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
             });
           });
 
-          if (merged.size > 0) {
-            const items: YouTubeVideo[] = Array.from(merged.values())
-              .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-              .map((v: any) => ({
-                videoId: v.video_id,
-                title: v.title,
-                thumbnail: v.thumbnail,
-                publishedAt: v.published_at || "",
-                isShort: v.is_short,
-                durationSeconds: v.duration_seconds,
-              }));
-            setVideos(items);
-            onVideoCount?.(items.length);
-            onVideosLoaded?.(items);
-            setIsLoading(false);
-            return;
+          // Fetch missing titles via oEmbed for document-sourced videos
+          const itemsWithTitles: YouTubeVideo[] = Array.from(merged.values())
+            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+            .map((v: any) => ({
+              videoId: v.video_id,
+              title: v.title,
+              thumbnail: v.thumbnail,
+              publishedAt: v.published_at || "",
+              isShort: v.is_short,
+              durationSeconds: v.duration_seconds,
+            }));
+
+          // Populate missing titles via YouTube oEmbed
+          const titlesToFetch = itemsWithTitles.filter((v) => !v.title);
+          if (titlesToFetch.length > 0) {
+            await Promise.all(
+              titlesToFetch.map(async (v) => {
+                try {
+                  const res = await fetch(
+                    `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${v.videoId}&format=json`
+                  );
+                  const json = await res.json();
+                  if (json?.title) {
+                    const item = itemsWithTitles.find((x) => x.videoId === v.videoId);
+                    if (item) item.title = json.title;
+                  }
+                } catch {
+                  // ignore
+                }
+              })
+            );
           }
+
+          setVideos(itemsWithTitles);
+          onVideoCount?.(itemsWithTitles.length);
+          onVideosLoaded?.(itemsWithTitles);
+          setIsLoading(false);
+          return;
         }
 
         // Fallback: fetch from YouTube API
