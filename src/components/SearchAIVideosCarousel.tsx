@@ -228,6 +228,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
       const genericItems: typeof docItems = [];
       const seenUrls = new Set<string>(docItems.map((d) => d.url).filter(Boolean));
       const genericBizByGv = new Map<string, string>();
+      const socialByGv = new Map<string, SocialInfo>();
       if (resolvedSubIds.length > 0) {
         const { data: gvSubLinks } = await supabase
           .from("generic_video_subcategories" as any)
@@ -248,7 +249,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
             const gvIdsArr = Array.from(gvCityIds);
             const { data: gvs } = await supabase
               .from("generic_videos" as any)
-              .select("id, url, name, title, thumbnail_url, sort_order")
+              .select("id, url, name, title, thumbnail_url, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
               .in("id", gvIdsArr)
               .not("thumbnail_url", "is", null)
               .not("url", "is", null)
@@ -263,6 +264,11 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
             ((gvs as any[]) || []).forEach((v: any) => {
               if (!v.url || seenUrls.has(v.url)) return;
               seenUrls.add(v.url);
+              let social: SocialInfo | null = null;
+              if (v.instagram_account) social = { platform: "instagram", account: String(v.instagram_account).replace(/^@/, ""), url: v.instagram_url ?? null };
+              else if (v.tiktok_account) social = { platform: "tiktok", account: String(v.tiktok_account).replace(/^@/, ""), url: v.tiktok_url ?? null };
+              else if (v.youtube_account) social = { platform: "youtube", account: String(v.youtube_account).replace(/^@/, ""), url: v.youtube_url ?? null };
+              if (social) socialByGv.set(v.id, social);
               genericItems.push({
                 id: v.id,
                 url: v.url,
