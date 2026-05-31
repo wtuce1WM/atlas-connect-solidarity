@@ -145,6 +145,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    window.dispatchEvent(new CustomEvent("open-club-panel"));
                   }}
                   className="absolute top-1.5 right-1.5 z-10"
                 >
