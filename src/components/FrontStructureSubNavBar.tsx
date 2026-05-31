@@ -12,6 +12,8 @@ interface Props {
   subPool?: Array<{ services?: string[] | null }>;
   selectedServices?: string[];
   onServicesChange?: (services: string[]) => void;
+  /** If true, open the popover by default on mount. */
+  defaultOpen?: boolean;
 }
 
 interface ServiceItem {
@@ -26,8 +28,9 @@ export default function FrontStructureSubNavBar({
   subPool = [],
   selectedServices = [],
   onServicesChange,
+  defaultOpen = false,
 }: Props) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [services, setServices] = useState<ServiceItem[]>([]);
 
   // Fetch active services for the active subcategory
