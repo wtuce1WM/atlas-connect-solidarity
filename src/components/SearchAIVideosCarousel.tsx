@@ -480,8 +480,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
               <button
                 key={doc.id}
                 onClick={() => handleClick(doc)}
-                className="group relative flex-shrink-0 w-72 rounded-xl overflow-hidden bg-muted ring-1 ring-border hover:ring-gold transition"
-                style={{ aspectRatio: "6 / 9" }}
+                className="group relative flex-shrink-0 w-72 rounded-xl overflow-hidden bg-muted ring-1 ring-border hover:ring-gold transition normal-case tracking-normal"
+                style={{ aspectRatio: "6 / 9", textTransform: "none", letterSpacing: 0 }}
                 title={doc.businessName || doc.name || ""}
               >
                 <img
@@ -518,8 +518,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                 {doc.name && (
                   <div className="absolute inset-x-0 top-[8%] z-[6] flex justify-center px-3 pointer-events-none">
                     <p
-                      className="text-[13px] font-bold text-white text-center line-clamp-3"
-                      style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: "0.02em", filter: textShadow }}
+                      className="text-[13px] font-bold text-white text-center line-clamp-3 normal-case tracking-normal"
+                      style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: 0, textTransform: "none", filter: textShadow }}
                     >
                       {doc.name}
                     </p>
