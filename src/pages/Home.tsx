@@ -2172,59 +2172,11 @@ const Home = () => {
                               sp.set("badgeLabel", cleanLabel);
                               navigate(`/search?${sp.toString()}`);
                             } else {
-                              // Résultats tab: resolve businesses that have at least one
-                              // video (doc/yt) with this badge in this city, then pin them.
+                              // Résultats tab: même source de vérité que le back-office Vidéos.
                               (async () => {
-                                let cityId: string | null = null;
-                                if (city) {
-                                  const { data: cityRow } = await supabase
-                                    .from("cities")
-                                    .select("id")
-                                    .or(`name_fr.ilike.${city},name_en.ilike.${city},name_ar.ilike.${city}`)
-                                    .limit(1)
-                                    .maybeSingle();
-                                  cityId = (cityRow as any)?.id || null;
-                                }
-
-                                const [docBadgeRes, ytBadgeRes] = await Promise.all([
-                                  supabase.from("business_document_badges").select("document_id").eq("badge_id", badgeId),
-                                  supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", badgeId),
-                                ]);
-                                let docIds = (docBadgeRes.data || []).map((r: any) => r.document_id);
-                                let ytIds = (ytBadgeRes.data || []).map((r: any) => r.youtube_video_id);
-
-                                if (cityId) {
-                                  const [docCityRes, ytCityRes] = await Promise.all([
-                                    docIds.length
-                                      ? supabase.from("business_document_cities").select("document_id").eq("city_id", cityId).in("document_id", docIds)
-                                      : Promise.resolve({ data: [] as any[] }),
-                                    ytIds.length
-                                      ? supabase.from("business_youtube_video_cities").select("youtube_video_id").eq("city_id", cityId).in("youtube_video_id", ytIds)
-                                      : Promise.resolve({ data: [] as any[] }),
-                                  ]);
-                                  docIds = (docCityRes.data || []).map((r: any) => r.document_id);
-                                  ytIds = (ytCityRes.data || []).map((r: any) => r.youtube_video_id);
-                                }
-
-                                const bizIds = new Set<string>();
-                                if (docIds.length) {
-                                  const { data } = await supabase
-                                    .from("business_documents")
-                                    .select("business_id")
-                                    .in("id", docIds)
-                                    .eq("business_is_active", true);
-                                  (data || []).forEach((r: any) => r.business_id && bizIds.add(r.business_id));
-                                }
-                                if (ytIds.length) {
-                                  const { data } = await supabase
-                                    .from("business_youtube_videos")
-                                    .select("business_id")
-                                    .in("id", ytIds)
-                                    .eq("business_is_active", true);
-                                  (data || []).forEach((r: any) => r.business_id && bizIds.add(r.business_id));
-                                }
-
-                                if (bizIds.size > 0) sp.set("pinIds", Array.from(bizIds).join(","));
+                                const { getBusinessIdsFromBadgeAndCity } = await import("@/lib/getVideoPinIds");
+                                const ordered = await getBusinessIdsFromBadgeAndCity(badgeId, city);
+                                if (ordered.length > 0) sp.set("pinIds", ordered.join(","));
                                 sp.set("label", cleanLabel);
                                 sp.set("pinBadge", badgeId);
                                 navigate(`/search?${sp.toString()}`);
