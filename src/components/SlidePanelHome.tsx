@@ -958,7 +958,7 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
         >
           <X className="h-4 w-4" />
         </button>
-        <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{businessName}</h2>
+        <h2 className="text-sm font-bold font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{businessName}</h2>
       </div>
       <div className="relative z-10 flex-1 min-h-0 order-[-1] overflow-y-auto overscroll-contain">
         <div className="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-14 md:pr-16">
