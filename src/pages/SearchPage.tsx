@@ -173,6 +173,15 @@ const SearchPage = () => {
     (async () => {
       const badgeId = await resolvePinContextBadgeId();
       if (!badgeId) { if (!cancelled) setPinThumbMap({}); return; }
+      // Only apply thumbnail override when a manual homepage extra card exists for (city, badge).
+      const { data: extraCard } = await supabase
+        .from("front_structure_homepage_extra_cards")
+        .select("id")
+        .ilike("city", cityFromUrlForThumbs)
+        .eq("badge_id", badgeId)
+        .limit(1)
+        .maybeSingle();
+      if (!extraCard) { if (!cancelled) setPinThumbMap({}); return; }
       const { data: cityRow } = await supabase
         .from("cities")
         .select("id")
