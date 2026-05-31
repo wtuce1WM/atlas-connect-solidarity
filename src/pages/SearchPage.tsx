@@ -4393,6 +4393,7 @@ const SearchPage = () => {
                   : [];
                 return (
                   <FrontStructureSubNavBar
+                    defaultOpen
                     subcategories={activeFsTab.subcategories}
                     activeSubId={mobileFsSubId}
                     onSubClick={(subId) => {
