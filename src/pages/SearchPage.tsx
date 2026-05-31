@@ -2944,12 +2944,13 @@ const SearchPage = () => {
   const fsFilteredList = useMemo(() => {
     if (!fsFilterSubcategories && (!fsFilterServices || fsFilterServices.size === 0)) return null;
     const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
-    return pool.filter(b =>
+    const matches = pool.filter(b =>
       (!fsFilterSubcategories ||
         (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
         b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
       businessMatchesFsServices(b)
     );
+    return [...matches].sort(sortWtuceAndRating);
   }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses]);
   const resultsFilteredBusinesses = fsFilteredList ?? filteredBusinesses;
   const resultsPaginatedBusinesses = fsFilteredList ?? paginatedBusinesses;
