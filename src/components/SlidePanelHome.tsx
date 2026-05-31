@@ -958,40 +958,31 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = prev; };
   }, [open]);
+  if (!open) return null;
   return (
-    <>
-      {open && (
-        <div
-          className="absolute inset-0 z-[40] flex flex-col bg-black/60 backdrop-blur-sm animate-fade-in pointer-events-auto"
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
+    <OverlayShell zClass="z-[80]" animClass="animate-zoom-out-center" className="flex flex-col">
+      <div className="absolute inset-0 bg-background" />
+      <div className="absolute inset-0 bg-black/70" />
+      <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); e.preventDefault(); setOpen(false); }}
+          className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0"
+          aria-label="Fermer"
         >
-          <div className="relative z-10 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent border-b border-white/10">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                setOpen(false);
-              }}
-              className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0"
-              aria-label="Fermer"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            <h2 className="text-sm font-bold uppercase truncate text-white flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-              {businessName}
-            </h2>
-          </div>
-          <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-8 py-6">
-            <div
-              className="prose prose-invert max-w-3xl mx-auto text-base md:text-lg leading-relaxed select-text [&_*]:!text-white [&_a]:pointer-events-none [&_a]:no-underline [&_a]:!text-white"
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
-          </div>
+          <X className="h-4 w-4" />
+        </button>
+        <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{businessName}</h2>
+      </div>
+      <div className="relative z-10 flex-1 min-h-0 order-[-1] overflow-y-auto overscroll-contain">
+        <div className="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-14 md:pr-16">
+          <div
+            className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_img]:max-w-full [&_img]:rounded-md prose-strong:!text-white"
+            dangerouslySetInnerHTML={{ __html: groupImagesWithHeadings(html).replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:1.6em;line-height:1;vertical-align:middle">$1</span>') }}
+          />
         </div>
-      )}
-    </>
+      </div>
+    </OverlayShell>
   );
 };
 
