@@ -66,6 +66,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
     isGeneric: boolean;
     description: string | null;
     owner: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null;
+    social: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null;
   } | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
 
