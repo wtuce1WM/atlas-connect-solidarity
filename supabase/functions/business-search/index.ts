@@ -2715,8 +2715,10 @@ serve(async (req) => {
               }
             }
 
-            // Narrow candidates to only the detected services
-            allCandidateServiceNames = detectedServices;
+            // Narrow candidates to all originally detected services (pre-synonym-collapse),
+            // so OR-matching still accepts any synonym variant.
+            allCandidateServiceNames = Array.from(new Set([...detectedServices, ...allCandidateServiceNames]));
+
 
           } else {
             // Fallback: pick best single service by scoring
