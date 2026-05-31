@@ -295,7 +295,7 @@ export function CtaBar({
             </div>
           </div>
         ) : (
-          <div className={`${ctaItems.length === 1 ? 'w-1/2' : ctaItems.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-3/4 md:px-0 pointer-events-auto ${ctaItems.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
+          <div className={`${ctaItems.length === 1 ? 'w-1/2' : ctaItems.length === 2 || ctaItems.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-3/4 md:px-0 pointer-events-auto ${ctaItems.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
             {ctaItems.map((item, i) => (
               <div key={i} className={ctaItems.length === 4 ? '' : 'flex-1 md:flex-none md:w-1/3'}>{item}</div>
             ))}
