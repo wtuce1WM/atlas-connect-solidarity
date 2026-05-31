@@ -142,12 +142,35 @@ export const HelpContentPanel = () => (
 const ScrollToTopButton = () => {
   const [visible, setVisible] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const scrollerRef = useRef<HTMLElement | Window>(window);
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 120);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const getScrollInfo = (target: EventTarget | null) => {
+      if (target && target instanceof HTMLElement) {
+        return { el: target as HTMLElement, top: target.scrollTop };
+      }
+      const se = document.scrollingElement || document.documentElement;
+      return { el: window as unknown as HTMLElement, top: se.scrollTop };
+    };
+    const onScroll = (e: Event) => {
+      const { el, top } = getScrollInfo(e.target);
+      scrollerRef.current = el as any;
+      setVisible(top > 120);
+    };
+    // Capture phase catches scrolls on any nested scrollable container.
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    return () => document.removeEventListener("scroll", onScroll, { capture: true } as any);
   }, []);
+
+  const scrollTarget = (to: "top" | "bottom") => {
+    const s = scrollerRef.current as any;
+    if (s === window) {
+      const h = document.scrollingElement?.scrollHeight ?? document.body.scrollHeight;
+      window.scrollTo({ top: to === "top" ? 0 : h, behavior: "smooth" });
+    } else {
+      (s as HTMLElement).scrollTo({ top: to === "top" ? 0 : (s as HTMLElement).scrollHeight, behavior: "smooth" });
+    }
+  };
 
   if (!visible && !helpOpen) return null;
 
@@ -158,7 +181,7 @@ const ScrollToTopButton = () => {
           {/* Scroll to bottom — fixed at top center */}
           <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
             <button
-              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
+              onClick={() => scrollTarget("bottom")}
               className="p-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
               aria-label="Descendre en bas"
             >
@@ -176,7 +199,7 @@ const ScrollToTopButton = () => {
               <HelpCircle className="h-5 w-5" />
             </button>
             <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              onClick={() => scrollTarget("top")}
               className="p-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
               aria-label="Remonter en haut"
             >
