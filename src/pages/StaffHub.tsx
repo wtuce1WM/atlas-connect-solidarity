@@ -6,6 +6,7 @@ import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, 
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 import { toast } from "sonner";
+import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 
 interface CityCount { city: string; count: number }
 interface CatCount { main_category: string; count: number }
@@ -454,6 +455,7 @@ const StaffHub = () => {
           </div>
         </div>
       </main>
+      <ScrollToTopButton />
     </div>
   );
 };
