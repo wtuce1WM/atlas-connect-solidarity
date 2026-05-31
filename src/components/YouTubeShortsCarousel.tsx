@@ -41,7 +41,9 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
   }, [activeVideoId, onSelectVideo, onPlayingChange]);
 
   useEffect(() => {
-    if (!youtubeUrl) return;
+    if (!youtubeUrl && !businessId) return;
+
+
 
     const fetchVideos = async () => {
       setIsLoading(true);
