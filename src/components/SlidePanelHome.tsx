@@ -608,8 +608,14 @@ const SlidePanelHome = ({
           return (
             <div className="absolute top-40 md:top-40 lg:top-44 left-4 right-4 z-[60] pointer-events-none flex flex-col items-center gap-1 text-center">
               <p
-                className="text-sm md:text-base font-bold text-white line-clamp-3"
+                className="text-sm md:text-base font-bold text-white line-clamp-3 cursor-pointer pointer-events-auto"
                 style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: "0.02em", filter: shadow }}
+                onClick={() => {
+                  if (videoId) {
+                    navigator.clipboard.writeText(videoId).catch(() => {});
+                    toast.success("ID vidéo copié");
+                  }
+                }}
               >
                 {videoName}
               </p>
