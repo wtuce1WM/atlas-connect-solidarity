@@ -909,6 +909,7 @@ const SearchPage = () => {
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
+    const [poiPanelOpen, setPoiPanelOpen] = useState(false);
     const [compactPanelInitialVideoUrl, setCompactPanelInitialVideoUrl] = useState<string | null>(null);
    const [bottomSearchOverlayOpen, setBottomSearchOverlayOpen] = useState(false);
    const [bottomAiOverlayOpen, setBottomAiOverlayOpen] = useState(false);
