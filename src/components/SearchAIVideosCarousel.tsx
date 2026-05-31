@@ -407,6 +407,19 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
         .maybeSingle();
       if (b) owner = { id: (b as any).id, name: (b as any).name, logo_url: (b as any).logo_url ?? null, logo_bg: (b as any).logo_bg ?? null };
     }
+    // If generic video, fetch instagram/tiktok/youtube account info for social badge
+    let social: { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null } | null = null;
+    if (isGeneric) {
+      const { data: gv } = await supabase
+        .from("generic_videos" as any)
+        .select("instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
+        .eq("id", doc.id)
+        .maybeSingle();
+      const g: any = gv;
+      if (g?.instagram_account) social = { platform: "instagram", account: String(g.instagram_account).replace(/^@/, ""), url: g.instagram_url ?? null };
+      else if (g?.tiktok_account) social = { platform: "tiktok", account: String(g.tiktok_account).replace(/^@/, ""), url: g.tiktok_url ?? null };
+      else if (g?.youtube_account) social = { platform: "youtube", account: String(g.youtube_account).replace(/^@/, ""), url: g.youtube_url ?? null };
+    }
     setCurrentTime(0);
     setPanelVideo({
       videoUrl: doc.url,
@@ -416,6 +429,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
       isGeneric,
       description,
       owner,
+      social,
     });
   };
 
