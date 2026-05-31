@@ -961,7 +961,6 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
   if (!open) return null;
   return (
     <OverlayShell zClass="z-[80]" animClass="animate-zoom-out-center" className="flex flex-col">
-      <div className="absolute inset-0 bg-background" />
       <div className="absolute inset-0 bg-black/70" />
       <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
         <button
