@@ -482,8 +482,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                 />
                 <div className="absolute inset-0 bg-black/15 group-hover:bg-black/30 transition-colors" />
 
-                {/* Top-left: business name + subcategory label */}
-                {(doc.businessName || doc.subcategoryLabel) && (
+                {/* Top-left: business name + subcategory label (hidden for generic videos with social) */}
+                {!doc.social && (doc.businessName || doc.subcategoryLabel) && (
                   <div className="absolute top-0 left-0 right-0 p-2.5 space-y-0.5 z-[5] text-left pointer-events-none">
                     {doc.businessName && (
                       <p
@@ -504,11 +504,11 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                   </div>
                 )}
 
-                {/* Video title (centered, top third) */}
+                {/* Video title (centered, top) */}
                 {doc.name && (
-                  <div className="absolute inset-x-0 top-[14%] z-[6] flex justify-center px-3 pointer-events-none">
+                  <div className="absolute inset-x-0 top-[8%] z-[6] flex justify-center px-3 pointer-events-none">
                     <p
-                      className="text-[13px] font-bold text-white text-center line-clamp-2"
+                      className="text-[13px] font-bold text-white text-center line-clamp-3"
                       style={{ fontFamily: "'Roboto', sans-serif", filter: textShadow }}
                     >
                       {doc.name}
@@ -544,8 +544,29 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                   </div>
                 )}
 
-                {/* Rating bottom-left */}
-                {doc.rating != null && (
+                {/* Social badge (Instagram/TikTok/YouTube) for generic videos without logo */}
+                {doc.social && !doc.logoUrl && (
+                  <div className="absolute inset-x-0 bottom-[12%] z-[6] flex flex-col items-center justify-center gap-2 px-2 pointer-events-none text-white">
+                    <div
+                      className="flex items-center justify-center"
+                      style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
+                    >
+                      {doc.social.platform === "instagram" && <InstagramIcon className="h-10 w-10" />}
+                      {doc.social.platform === "youtube" && <Youtube className="h-10 w-10" />}
+                      {doc.social.platform === "tiktok" && <SiTiktok className="h-9 w-9" />}
+                    </div>
+                    {doc.social.account && (
+                      <div className="flex items-center gap-1 rounded-full bg-black/80 border border-white/15 px-2 py-0.5">
+                        <span className="text-[10px] font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                          Follow @{doc.social.account}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Rating bottom-left (hidden for generic videos with social) */}
+                {!doc.social && doc.rating != null && (
                   <div className="absolute bottom-2 left-2 z-[5] inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-black/65 backdrop-blur-sm">
                     <Star className="h-3 w-3 text-gold fill-gold" />
                     <span className="font-medium text-white">{doc.rating}/20</span>
