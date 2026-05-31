@@ -141,7 +141,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   } = useBookOnlineData(businessId);
 
   // --- Extracted hooks ---
-  const { images, videos, mediaItems, totalMedia, matterportIndex, matterportItem, lightboxItems } = useMediaItems(business, allVideoUrls, videoDocs);
+  // When opened from a pinned context (manual homepage card), force the matching
+  // video to be first so it plays in the slide-panel background instead of the
+  // default sort-order #1.
+  const orderedVideoUrls = useMemo(() => {
+    if (!initialVideoUrl || !allVideoUrls?.includes(initialVideoUrl)) return allVideoUrls;
+    return [initialVideoUrl, ...allVideoUrls.filter(u => u !== initialVideoUrl)];
+  }, [allVideoUrls, initialVideoUrl]);
+  const { images, videos, mediaItems, totalMedia, matterportIndex, matterportItem, lightboxItems } = useMediaItems(business, orderedVideoUrls, videoDocs);
   const ctaConfig = useCtaConfig(business, language);
 
   // --- Cosmetic URL rewriting ---
