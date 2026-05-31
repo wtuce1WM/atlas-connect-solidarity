@@ -44,7 +44,7 @@ interface Props {
   /** Optional title override. */
   title?: string;
   /** When provided, internal videos (business_documents) open the business panel instead of SlidePanelHome. */
-  onOpenBusiness?: (b: { id: string; name: string }) => void;
+  onOpenBusiness?: (b: { id: string; name: string; videoUrl?: string }) => void;
 }
 
 /**
@@ -417,7 +417,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
     if (!isGeneric && onOpenBusiness) {
       const ownerId = (bizDoc as any)?.business_id || doc.business_id;
       if (ownerId) {
-        onOpenBusiness({ id: ownerId, name: doc.businessName || "" });
+        onOpenBusiness({ id: ownerId, name: doc.businessName || "", videoUrl: doc.url });
         return;
       }
     }
