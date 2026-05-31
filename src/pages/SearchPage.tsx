@@ -1936,7 +1936,7 @@ const SearchPage = () => {
     }
     let cancelled = false;
     const fetchAll = async () => {
-      const selectFields = "id, name, city, main_category, categories, services, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count, wtuce_status";
+      const selectFields = "id, name, city, main_category, categories, services, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count, wtuce_status, priority_score";
       const all: Business[] = [];
       let offset = 0;
       const PAGE = 1000;
