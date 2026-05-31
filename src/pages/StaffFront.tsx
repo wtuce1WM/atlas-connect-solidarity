@@ -650,25 +650,7 @@ const StaffFront = () => {
         </Tabs>
       </main>
 
-      {/* Floating scroll arrows */}
-      {showTopArrow && (
-        <button
-          onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })}
-          className="fixed top-4 left-1/2 -translate-x-1/2 z-[55] p-2.5 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
-          aria-label="Descendre en bas"
-        >
-          <ArrowDown className="h-5 w-5" />
-        </button>
-      )}
-      {showBottomArrow && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[55] p-2.5 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
-          aria-label="Remonter en haut"
-        >
-          <ArrowUp className="h-5 w-5" />
-        </button>
-      )}
+      <ScrollToTopButton />
     </div>
   );
 };
