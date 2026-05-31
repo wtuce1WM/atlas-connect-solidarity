@@ -2677,8 +2677,52 @@ serve(async (req) => {
               }
             }
             
-            // Narrow candidates to only the detected services
-            allCandidateServiceNames = detectedServices;
+            // Collapse synonym services into a single representative for AND-filter purposes.
+            // Two services are synonyms when one's name appears in the other's keywords (normalized).
+            // e.g. "Glaces" and "Glacier" (Glacier.keywords includes "glaces") → keep only one in detectedServices.
+            // allCandidateServiceNames keeps both so OR matching still works.
+            // Capture pre-collapse list so OR-matching keeps every synonym variant as a candidate.
+            const preCollapseDetected = [...detectedServices];
+
+            if (detectedServices.length > 1) {
+              const norm = (s: string) => normalizeWordKw(stripPlural(s.toLowerCase().trim()));
+              const svcMeta = detectedServices.map(name => {
+                const data = matchingServices.find((s: any) => s.name_fr === name);
+                return {
+                  name,
+                  normName: norm(name),
+                  normKws: ((data?.keywords as string[]) || []).map(norm),
+                };
+              });
+              const parent: Record<string, string> = {};
+              const find = (x: string): string => parent[x] === x ? x : (parent[x] = find(parent[x]));
+              svcMeta.forEach(m => parent[m.name] = m.name);
+              for (let i = 0; i < svcMeta.length; i++) {
+                for (let j = i + 1; j < svcMeta.length; j++) {
+                  const a = svcMeta[i], b = svcMeta[j];
+                  if (a.normKws.includes(b.normName) || b.normKws.includes(a.normName)) {
+                    parent[find(a.name)] = find(b.name);
+                  }
+                }
+              }
+              const seenGroups = new Set<string>();
+              const collapsed: string[] = [];
+              for (const m of svcMeta) {
+                const g = find(m.name);
+                if (!seenGroups.has(g)) { seenGroups.add(g); collapsed.push(m.name); }
+              }
+              if (collapsed.length < detectedServices.length) {
+                console.log(`Collapsed synonym services [${detectedServices.join(", ")}] → [${collapsed.join(", ")}]`);
+                detectedServices = collapsed;
+                detectedService = collapsed[0];
+              }
+            }
+
+            // Keep every original detected variant as OR candidate so a business carrying any synonym still matches.
+            allCandidateServiceNames = preCollapseDetected;
+
+
+
           } else {
             // Fallback: pick best single service by scoring
             let bestMatch: string | null = null;
