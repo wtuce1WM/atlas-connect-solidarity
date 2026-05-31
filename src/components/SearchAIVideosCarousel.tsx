@@ -1,10 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
-import { Play, Loader2, Star } from "lucide-react";
+import { Play, Loader2, Star, Youtube } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SlidePanelHome from "@/components/SlidePanelHome";
+import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
+import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 
+
+type SocialInfo = { platform: "instagram" | "tiktok" | "youtube"; account: string; url: string | null };
 
 interface VideoDoc {
   id: string;
@@ -21,6 +25,8 @@ interface VideoDoc {
   rating?: number | null;
   reviewCount?: number | null;
   logoUrl?: string | null;
+  social?: SocialInfo | null;
+  isGeneric?: boolean;
 }
 
 
@@ -222,6 +228,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
       const genericItems: typeof docItems = [];
       const seenUrls = new Set<string>(docItems.map((d) => d.url).filter(Boolean));
       const genericBizByGv = new Map<string, string>();
+      const socialByGv = new Map<string, SocialInfo>();
       if (resolvedSubIds.length > 0) {
         const { data: gvSubLinks } = await supabase
           .from("generic_video_subcategories" as any)
@@ -242,7 +249,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
             const gvIdsArr = Array.from(gvCityIds);
             const { data: gvs } = await supabase
               .from("generic_videos" as any)
-              .select("id, url, name, title, thumbnail_url, sort_order")
+              .select("id, url, name, title, thumbnail_url, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
               .in("id", gvIdsArr)
               .not("thumbnail_url", "is", null)
               .not("url", "is", null)
@@ -257,6 +264,11 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
             ((gvs as any[]) || []).forEach((v: any) => {
               if (!v.url || seenUrls.has(v.url)) return;
               seenUrls.add(v.url);
+              let social: SocialInfo | null = null;
+              if (v.instagram_account) social = { platform: "instagram", account: String(v.instagram_account).replace(/^@/, ""), url: v.instagram_url ?? null };
+              else if (v.tiktok_account) social = { platform: "tiktok", account: String(v.tiktok_account).replace(/^@/, ""), url: v.tiktok_url ?? null };
+              else if (v.youtube_account) social = { platform: "youtube", account: String(v.youtube_account).replace(/^@/, ""), url: v.youtube_url ?? null };
+              if (social) socialByGv.set(v.id, social);
               genericItems.push({
                 id: v.id,
                 url: v.url,
@@ -349,6 +361,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
       setDocs(
         merged.map((d) => {
           const b = d.business_id ? bizMap.get(d.business_id) : null;
+          const social = socialByGv.get(d.id) || null;
+          const isGeneric = socialByGv.has(d.id) || (!b && genericBizByGv.has(d.id) === false && !d.subcategory_id && !d.service_id && !d.price_type && genericItems.some((g) => g.id === d.id));
           return {
             id: d.id,
             url: d.url,
@@ -364,6 +378,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
             rating: b ? (b.computed_rating ?? b.rating ?? null) : null,
             reviewCount: b?.total_review_count ?? null,
             logoUrl: b?.logo_url ?? null,
+            social,
+            isGeneric: genericItems.some((g) => g.id === d.id),
           };
         })
       );
@@ -466,8 +482,8 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                 />
                 <div className="absolute inset-0 bg-black/15 group-hover:bg-black/30 transition-colors" />
 
-                {/* Top-left: business name + subcategory label */}
-                {(doc.businessName || doc.subcategoryLabel) && (
+                {/* Top-left: business name + subcategory label (hidden for generic videos with social) */}
+                {!doc.social && (doc.businessName || doc.subcategoryLabel) && (
                   <div className="absolute top-0 left-0 right-0 p-2.5 space-y-0.5 z-[5] text-left pointer-events-none">
                     {doc.businessName && (
                       <p
@@ -488,11 +504,11 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                   </div>
                 )}
 
-                {/* Video title (centered, top third) */}
+                {/* Video title (centered, top) */}
                 {doc.name && (
-                  <div className="absolute inset-x-0 top-[14%] z-[6] flex justify-center px-3 pointer-events-none">
+                  <div className="absolute inset-x-0 top-[8%] z-[6] flex justify-center px-3 pointer-events-none">
                     <p
-                      className="text-[13px] font-bold text-white text-center line-clamp-2"
+                      className="text-[13px] font-bold text-white text-center line-clamp-3"
                       style={{ fontFamily: "'Roboto', sans-serif", filter: textShadow }}
                     >
                       {doc.name}
@@ -528,8 +544,29 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                   </div>
                 )}
 
-                {/* Rating bottom-left */}
-                {doc.rating != null && (
+                {/* Social badge (Instagram/TikTok/YouTube) for generic videos without logo */}
+                {doc.social && !doc.logoUrl && (
+                  <div className="absolute inset-x-0 bottom-[12%] z-[6] flex flex-col items-center justify-center gap-2 px-2 pointer-events-none text-white">
+                    <div
+                      className="flex items-center justify-center"
+                      style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
+                    >
+                      {doc.social.platform === "instagram" && <InstagramIcon className="h-10 w-10" />}
+                      {doc.social.platform === "youtube" && <Youtube className="h-10 w-10" />}
+                      {doc.social.platform === "tiktok" && <SiTiktok className="h-9 w-9" />}
+                    </div>
+                    {doc.social.account && (
+                      <div className="flex items-center gap-1 rounded-full bg-black/80 border border-white/15 px-2 py-0.5">
+                        <span className="text-[10px] font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                          Follow @{doc.social.account}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Rating bottom-left (hidden for generic videos with social) */}
+                {!doc.social && doc.rating != null && (
                   <div className="absolute bottom-2 left-2 z-[5] inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-black/65 backdrop-blur-sm">
                     <Star className="h-3 w-3 text-gold fill-gold" />
                     <span className="font-medium text-white">{doc.rating}/20</span>
