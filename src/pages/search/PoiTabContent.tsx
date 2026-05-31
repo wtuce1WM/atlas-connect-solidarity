@@ -51,11 +51,13 @@ const PoiTabContent = ({
   setHoveredPoiId,
   onSearchNavigate,
   onBusinessSelect,
+  onPanelOpenChange,
   userCoords,
 }: PoiTabContentProps) => {
   const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
   const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
+  useEffect(() => { onPanelOpenChange?.(!!poiSelectedBusinessId); }, [poiSelectedBusinessId, onPanelOpenChange]);
   const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
   const [poiMapBusiness, setPoiMapBusiness] = useState<{
     name: string;
