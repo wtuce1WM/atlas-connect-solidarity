@@ -1003,7 +1003,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           )}
           {hasYoutubeBottomCarousel && (
             <div onClick={() => {
-              if (hasYoutubeChannel) {
+              if (hasYoutubeReady) {
                 const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
                 if (firstShort) setActiveYoutubeVideo(firstShort);
                 setYoutubeOverlayOpen(true);
