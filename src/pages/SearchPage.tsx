@@ -196,23 +196,19 @@ const SearchPage = () => {
       if (!cityDocIds.length) { if (!cancelled) setPinThumbMap({}); return; }
       const { data: docs } = await supabase
         .from("business_documents")
-        .select("business_id, thumbnail_url, url, front_sort_order, sort_order")
+        .select("business_id, thumbnail_url, url, sort_order")
         .in("id", cityDocIds)
         .in("business_id", ids)
-        .eq("business_is_active", true)
-        .not("thumbnail_url", "is", null);
+        .eq("business_is_active", true);
       const sorted = [...((docs || []) as any[])].sort((a, b) => {
-        const fa = a.front_sort_order ?? Number.MAX_SAFE_INTEGER;
-        const fb = b.front_sort_order ?? Number.MAX_SAFE_INTEGER;
-        if (fa !== fb) return fa - fb;
         const sa = a.sort_order ?? Number.MAX_SAFE_INTEGER;
         const sb = b.sort_order ?? Number.MAX_SAFE_INTEGER;
         return sa - sb;
       });
       const map: Record<string, { thumb: string; videoUrl: string | null }> = {};
       for (const d of sorted) {
-        if (d.business_id && d.thumbnail_url && !map[d.business_id]) {
-          map[d.business_id] = { thumb: d.thumbnail_url, videoUrl: d.url ?? null };
+        if (d.business_id && !map[d.business_id]) {
+          map[d.business_id] = { thumb: d.thumbnail_url ?? "", videoUrl: d.url ?? null };
         }
       }
       if (!cancelled) setPinThumbMap(map);
