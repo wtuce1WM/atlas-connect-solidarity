@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, Suspense } from "react";
-import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
@@ -613,7 +613,6 @@ const SlidePanelHome = ({
                 onClick={() => {
                   if (videoId) {
                     navigator.clipboard.writeText(videoId).catch(() => {});
-                    toast.success("ID vidéo copié");
                   }
                 }}
               >
