@@ -691,6 +691,7 @@ const BlogPresentation = () => {
         />
       </div>
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 };
