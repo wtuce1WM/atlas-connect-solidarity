@@ -435,6 +435,7 @@ const BlogPresentationFR = () => {
         />
       </div>
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 };
