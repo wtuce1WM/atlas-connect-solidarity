@@ -50,6 +50,10 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [city]);
+
+  useEffect(() => {
     const fetchPois = async () => {
       setIsLoading(true);
       let query = supabase
@@ -57,8 +61,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
         .select("id, name, city, neighborhood, images, rating, categories, poi_hook, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, latitude, longitude, address, google_maps_url")
         .eq("is_active", true)
         .eq("is_poi", true)
-        .order("priority_score", { ascending: false })
-        .limit(50);
+        .order("priority_score", { ascending: false });
 
       if (city) {
         query = query.eq("city", city);
