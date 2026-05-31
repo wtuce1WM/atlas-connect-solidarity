@@ -497,7 +497,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                   <div className="absolute top-0 left-0 right-0 p-2.5 space-y-0.5 z-[5] text-left pointer-events-none">
                     {doc.businessName && (
                       <p
-                        className="text-[13px] font-semibold uppercase text-white line-clamp-1 tracking-wide"
+                        className="text-[13px] font-semibold text-white line-clamp-1 tracking-wide"
                         style={{ fontFamily: "'Josefin Sans', sans-serif", filter: textShadow }}
                       >
                         {doc.businessName}
@@ -505,7 +505,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                     )}
                     {doc.subcategoryLabel && (
                       <p
-                        className="text-[11px] font-bold uppercase tracking-wide text-gold line-clamp-1"
+                        className="text-[11px] font-bold tracking-wide text-gold line-clamp-1"
                         style={{ filter: textShadow }}
                       >
                         {doc.subcategoryLabel}
@@ -529,7 +529,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                 {/* Gold price-type badge (Location/Vente) */}
                 {priceTypeLabel && (
                   <div className="absolute inset-x-0 top-[34%] z-[7] flex justify-center pointer-events-none">
-                    <span className="px-3 py-1 rounded-md bg-gold text-black text-[11px] font-bold uppercase tracking-wide shadow-lg border-2 border-black">
+                    <span className="px-3 py-1 rounded-md bg-gold text-black text-[11px] font-bold tracking-wide shadow-lg border-2 border-black">
                       {priceTypeLabel}
                     </span>
                   </div>

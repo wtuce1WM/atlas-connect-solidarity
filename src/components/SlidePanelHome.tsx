@@ -958,12 +958,12 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
         >
           <X className="h-4 w-4" />
         </button>
-        <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{businessName}</h2>
+        <h2 className="text-sm font-bold font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{businessName}</h2>
       </div>
       <div className="relative z-10 flex-1 min-h-0 order-[-1] overflow-y-auto overscroll-contain">
         <div className="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-14 md:pr-16">
           <div
-            className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_img]:max-w-full [&_img]:rounded-md prose-strong:!text-white"
+            className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_img]:max-w-full [&_img]:rounded-md prose-strong:!text-white"
             dangerouslySetInnerHTML={{ __html: groupImagesWithHeadings(html).replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:1.6em;line-height:1;vertical-align:middle">$1</span>') }}
           />
         </div>
