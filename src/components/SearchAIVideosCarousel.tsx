@@ -413,18 +413,17 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
       .eq("id", doc.id)
       .maybeSingle();
     const isGeneric = !bizDoc;
-    // Internal video (business_documents) with a business → open BookOnlineSlidePanel
-    if (!isGeneric && onOpenBusiness) {
-      const ownerId = (bizDoc as any)?.business_id || doc.business_id;
-      if (ownerId) {
-        onOpenBusiness({ id: ownerId, name: doc.businessName || "", videoUrl: doc.url });
-        return;
-      }
+    // Whenever the video is linked to a business → open BookOnlineSlidePanel
+    // on that business, focused on the clicked video.
+    const ownerId = (bizDoc as any)?.business_id || doc.business_id;
+    if (ownerId && onOpenBusiness) {
+      onOpenBusiness({ id: ownerId, name: doc.businessName || "", videoUrl: doc.url });
+      return;
     }
     let description: string | null = (bizDoc as any)?.description ?? null;
     // Resolve owner business (for logo + name)
     let owner: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null = null;
-    const ownerId = doc.business_id;
+    // ownerId already declared above
     if (ownerId) {
       const { data: b } = await supabase
         .from("businesses")
