@@ -212,7 +212,7 @@ export default function ResultsTabContent({
   useEffect(() => {
     if (activeFsTabId) return;
     if (!frontTabs.length || !filteredBusinesses?.length) return;
-    const counts = new Map<string, number>();
+    const counts = new Map<string, number>() as Map<string, number>;
     for (const b of filteredBusinesses as any[]) {
       const cats: string[] = [b.main_category, ...(Array.isArray(b.categories) ? b.categories : [])].filter(Boolean);
       for (const tab of frontTabs) {
