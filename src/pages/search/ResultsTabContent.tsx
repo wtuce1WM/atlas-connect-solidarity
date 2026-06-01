@@ -160,6 +160,7 @@ export default function ResultsTabContent({
       const tab = frontTabs.find(t => t.id === tabId);
       onFrontStructureFilter?.(tab?.subcategoryNames || null);
     }
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
 
   const handleFsSubClick = (subId: string | null) => {
