@@ -22,6 +22,8 @@ import OverlayFlipCard from "@/components/overlays/OverlayFlipCard";
 import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { LazyFullscreenLightbox } from "@/components/overlays/LazyOverlays";
+import ExternalVideosOverlay from "@/components/overlays/ExternalVideosOverlay";
+import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 
 interface DestinationSlidePanelProps {
   destinationId: string;
