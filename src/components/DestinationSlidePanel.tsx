@@ -22,6 +22,8 @@ import OverlayFlipCard from "@/components/overlays/OverlayFlipCard";
 import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { LazyFullscreenLightbox } from "@/components/overlays/LazyOverlays";
+import ExternalVideosOverlay from "@/components/overlays/ExternalVideosOverlay";
+import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 
 interface DestinationSlidePanelProps {
   destinationId: string;
@@ -59,6 +61,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [showDirections, setShowDirections] = useState(false);
   const [showLocationMap, setShowLocationMap] = useState(false);
+  const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
@@ -398,9 +401,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
   // Pause & mute video when overlay opens
   useEffect(() => {
-    const overlayOpen = showDirections || showLocationMap || !!fullscreenVideo || !!activeBusinessId;
+    const overlayOpen = showDirections || showLocationMap || showYoutubeOverlay || !!fullscreenVideo || !!activeBusinessId;
     if (overlayOpen) pauseAndMute();
-  }, [showDirections, showLocationMap, fullscreenVideo, activeBusinessId]);
+  }, [showDirections, showLocationMap, showYoutubeOverlay, fullscreenVideo, activeBusinessId]);
 
   if (isLoading) {
     return (
@@ -536,6 +539,17 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </OverlayShell>
       )}
 
+      {/* YouTube videos overlay (same component as BookOnlineSlidePanel) */}
+      {showYoutubeOverlay && (
+        <ExternalVideosOverlay
+          videos={(destination.videos || [])
+            .filter((u) => /(?:youtube\.com|youtu\.be)/i.test(u))
+            .map((url) => ({ url, name: ytTitles[url] || null, thumbnail_url: null, description: null }))}
+          businessName={destName}
+          onClose={() => setShowYoutubeOverlay(false)}
+        />
+      )}
+
 
       {/* Fullscreen lightbox */}
       {lightboxIndex !== null && (
@@ -565,14 +579,28 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
         {/* Left sidebar CTAs */}
-        {!cardsHidden && destination.latitude && destination.longitude && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
-            <div onClick={() => setShowLocationMap(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Localisation</span>
-              <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+        {!cardsHidden && (() => {
+          const hasLoc = !!(destination.latitude && destination.longitude);
+          const youtubeUrls = (destination.videos || []).filter((u) => /(?:youtube\.com|youtu\.be)/i.test(u));
+          const hasYoutube = youtubeUrls.length > 0;
+          if (!hasLoc && !hasYoutube) return null;
+          return (
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
+              {hasLoc && (
+                <div onClick={() => setShowLocationMap(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+                  <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Localisation</span>
+                  <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+                </div>
+              )}
+              {hasYoutube && (
+                <div onClick={() => setShowYoutubeOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+                  <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">YouTube</span>
+                  <YouTubeIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300 text-red-600" />
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
 
         {/* Overlaid content */}
