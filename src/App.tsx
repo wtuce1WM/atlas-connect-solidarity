@@ -185,7 +185,7 @@ const AppContent = () => {
               <Route path="/club" element={renderLazyRoute(<Club />)} />
               <Route path="/staff/demo-effects" element={<StaffRouteGuard>{renderLazyRoute(<LogoEffectsDemo />)}</StaffRouteGuard>} />
               <Route path="/search-analytics" element={renderLazyRoute(<SearchAnalytics />)} />
-              <Route path="/destination/:destinationName" element={renderLazyRoute(<DestinationPage />)} />
+              <Route path="/destination/:destinationName" element={renderLazyRoute(<DestinationResolver />)} />
               <Route path="/conditions-generales" element={renderLazyRoute(<CGF />)} />
               <Route path="/staff/search-layouts" element={<StaffRouteGuard>{renderLazyRoute(<SearchLayoutDemo />)}</StaffRouteGuard>} />
               
