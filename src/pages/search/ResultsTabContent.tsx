@@ -535,7 +535,6 @@ export default function ResultsTabContent({
                     : [];
                   return (
                     <FrontStructureSubNavBar
-                      defaultOpen
                       subcategories={activeFsTab.subcategories}
                       activeSubId={activeFsSubId}
                       onSubClick={handleFsSubClick}
