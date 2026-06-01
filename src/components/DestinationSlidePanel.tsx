@@ -14,7 +14,7 @@ import wooshSfx from "@/assets/woosh.wav";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { PoiMapItem } from "@/components/PoiGoogleMap";
+import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import { GOLD, getVideoInfo, playWoosh } from "@/lib/overlayConstants";
@@ -57,6 +57,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [showDirections, setShowDirections] = useState(false);
+  const [showLocationMap, setShowLocationMap] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
@@ -394,9 +395,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
   // Pause & mute video when overlay opens
   useEffect(() => {
-    const overlayOpen = showDirections || !!fullscreenVideo || !!activeBusinessId;
+    const overlayOpen = showDirections || showLocationMap || !!fullscreenVideo || !!activeBusinessId;
     if (overlayOpen) pauseAndMute();
-  }, [showDirections, fullscreenVideo, activeBusinessId]);
+  }, [showDirections, showLocationMap, fullscreenVideo, activeBusinessId]);
 
   if (isLoading) {
     return (
@@ -411,7 +412,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   return (
     <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex flex-col" coverToolbar={false}>
       {/* Close button */}
-      {!fullscreenVideo && !showDirections && (
+      {!fullscreenVideo && !showDirections && !showLocationMap && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
           <button
             onClick={() => { if (activeBusinessId) { setActiveBusinessId(null); return; } onClose(); }}
