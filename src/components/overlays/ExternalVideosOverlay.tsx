@@ -152,38 +152,51 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
 
         const renderStrip = (items: Array<{ v: ExternalVideoItem; i: number }>, vertical: boolean) => (
           <div
-            className="flex gap-2 overflow-x-auto scrollbar-none snap-x snap-mandatory"
+            className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth pt-1 pb-1 pl-1 -mt-1"
             style={{ scrollbarWidth: "none" }}
           >
             {items.map(({ v, i }) => {
               const thumb = v.thumbnail_url || getYouTubeThumb(v.url);
               const isActive = i === activeIndex;
+              const sizeClass = vertical
+                ? "w-40 h-[7.5rem] md:h-[10rem] lg:h-[14rem]"
+                : "w-52 md:w-60 lg:w-64 h-[6rem] md:h-[8rem] lg:h-[9rem]";
               return (
                 <button
                   key={`thumb-${v.url}-${i}`}
                   data-thumb-idx={i}
                   onClick={() => goTo(i)}
-                  className={`relative ${vertical ? "h-20 aspect-[9/16]" : "w-32 md:w-40 aspect-video"} rounded-lg overflow-hidden flex-shrink-0 snap-start transition-all ${
-                    isActive ? "ring-2 ring-white scale-[1.02]" : "ring-1 ring-white/20 opacity-60 hover:opacity-100"
+                  className={`flex-shrink-0 rounded-xl overflow-hidden relative cursor-pointer group/card transition-all ${sizeClass} ${
+                    isActive ? "ring-2 ring-offset-1 ring-offset-black ring-red-500" : ""
                   }`}
                   aria-label={`${language === "en" ? "Go to video" : "Aller à la vidéo"} ${i + 1}`}
                 >
                   {thumb ? (
-                    <img src={thumb} alt={v.name || `video-${i}`} className="absolute inset-0 w-full h-full object-cover" />
+                    <img src={thumb} alt={v.name || `video-${i}`} className="absolute inset-0 w-full h-full object-cover scale-[1.35]" />
                   ) : (
-                    <div className="absolute inset-0 bg-white/10 flex items-center justify-center">
-                      <Play className="h-5 w-5 text-white" />
-                    </div>
+                    <div className="absolute inset-0 bg-white/10" />
                   )}
-                  <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded tabular-nums">
-                    {i + 1}
+                  <div className={`absolute inset-0 flex items-center justify-center transition-colors ${
+                    isActive ? "bg-black/50" : "bg-black/20 group-hover/card:bg-black/40"
+                  }`}>
+                    {isActive ? (
+                      <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                        <div className="flex gap-0.5">
+                          <span className="w-1 h-4 bg-white rounded-full animate-pulse" />
+                          <span className="w-1 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: "0.15s" }} />
+                          <span className="w-1 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: "0.3s" }} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+                        <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+                      </div>
+                    )}
                   </div>
                   {v.name && (
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-2 pt-4 pb-1">
-                      <p className="text-[10px] text-white truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                        {v.name}
-                      </p>
-                    </div>
+                    <p className="absolute bottom-0 left-0 right-0 px-2 py-1 text-[10px] leading-tight text-white font-medium bg-gradient-to-t from-black/80 to-transparent line-clamp-2">
+                      {v.name}
+                    </p>
                   )}
                 </button>
               );
