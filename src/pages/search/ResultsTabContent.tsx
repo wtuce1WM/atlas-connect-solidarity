@@ -1,4 +1,10 @@
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { Building2, ChevronLeft, ChevronRight, Map, Clock, MapPin, X, Heart, SlidersHorizontal } from "lucide-react";
 import ShareButton from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
