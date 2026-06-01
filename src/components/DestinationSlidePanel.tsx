@@ -641,7 +641,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         {!cardsHidden && (() => {
           const hasLoc = !!(destination.latitude && destination.longitude);
           const youtubeUrls = (destination.videos || []).filter((u) => /(?:youtube\.com|youtu\.be)/i.test(u));
-          const hasYoutube = youtubeUrls.length > 0;
+          const hasYoutube = youtubeUrls.length > 0 || destYoutubeVideos.length > 0;
           if (!hasLoc && !hasYoutube) return null;
           return (
             <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
