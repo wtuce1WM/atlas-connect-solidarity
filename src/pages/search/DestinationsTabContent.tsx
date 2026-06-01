@@ -188,18 +188,27 @@ const DestinationsTabContent = ({
       )}
 
       {/* Destination immersive panel */}
-      {selectedDestination && (
-        <div
-          className="fixed top-0 left-0 right-0 z-[220] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:left-auto lg:w-1/2 lg:border-l lg:border-border"
-          style={{ height: "100vh" }}
-        >
-          <DestinationSlidePanel
-            destinationId={selectedDestination.id}
-            onClose={() => setSelectedDestination(null)}
-            slideFrom="right"
-          />
-        </div>
-      )}
+      {selectedDestination && (() => {
+        const idx = allDestItems.findIndex((d) => d.id === selectedDestination.id);
+        const hasPrev = idx > 0;
+        const hasNext = idx >= 0 && idx < allDestItems.length - 1;
+        return (
+          <div
+            className="fixed top-0 left-0 right-0 z-[220] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:left-auto lg:w-1/2 lg:border-l lg:border-border"
+            style={{ height: "100vh" }}
+          >
+            <DestinationSlidePanel
+              destinationId={selectedDestination.id}
+              onClose={() => setSelectedDestination(null)}
+              slideFrom="right"
+              hasPrevDestination={hasPrev}
+              hasNextDestination={hasNext}
+              onPrevDestination={hasPrev ? () => setSelectedDestination(allDestItems[idx - 1]) : undefined}
+              onNextDestination={hasNext ? () => setSelectedDestination(allDestItems[idx + 1]) : undefined}
+            />
+          </div>
+        );
+      })()}
 
       {/* Backdrop for mobile */}
       {destSelectedBusinessId && isSubDesktop && (
