@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Map, X } from "lucide-react";
 import DestinationSection, { type DestinationItem } from "@/components/DestinationSection";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
@@ -31,6 +31,7 @@ interface DestinationsTabContentProps {
   onSearchNavigate: (params: Record<string, string>) => void;
   onBusinessSelect: (bizId: string) => void;
   userCoords?: { lat: number; lng: number } | null;
+  openDestinationId?: string | null;
 }
 
 const DestinationsTabContent = ({
@@ -56,6 +57,7 @@ const DestinationsTabContent = ({
   onSearchNavigate,
   onBusinessSelect,
   userCoords,
+  openDestinationId,
 }: DestinationsTabContentProps) => {
   const destCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
@@ -68,6 +70,16 @@ const DestinationsTabContent = ({
     latitude: number | null;
     longitude: number | null;
   } | null>(null);
+
+  // Auto-open destination panel when URL param ?openDestination=<id> is set
+  const lastOpenedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (openDestinationId && lastOpenedRef.current !== openDestinationId) {
+      lastOpenedRef.current = openDestinationId;
+      setSelectedDestination({ id: openDestinationId } as DestinationItem);
+      setDestMapItem(null);
+    }
+  }, [openDestinationId]);
 
   const hasRightPanel = !!destMapItem || !!selectedDestination;
 

@@ -54,7 +54,7 @@ const Corporate = lazy(() => import("./pages/Corporate"));
 const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
-const DestinationPage = lazy(() => import("./pages/DestinationPage"));
+
 const SearchLayoutDemo = lazy(() => import("./pages/SearchLayoutDemo"));
 
 const StrictModePage = lazy(() => import("./pages/StrictModePage"));
@@ -68,6 +68,7 @@ const Test = lazy(() => import("./pages/Home"));
 const HomeMindtrip = lazy(() => import("./pages/HomeMindtrip"));
 const Install = lazy(() => import("./pages/Install"));
 const VanityResolver = lazy(() => import("./pages/VanityResolver"));
+const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 
 const queryClient = new QueryClient();
 
@@ -184,7 +185,7 @@ const AppContent = () => {
               <Route path="/club" element={renderLazyRoute(<Club />)} />
               <Route path="/staff/demo-effects" element={<StaffRouteGuard>{renderLazyRoute(<LogoEffectsDemo />)}</StaffRouteGuard>} />
               <Route path="/search-analytics" element={renderLazyRoute(<SearchAnalytics />)} />
-              <Route path="/destination/:destinationName" element={renderLazyRoute(<DestinationPage />)} />
+              <Route path="/destination/:destinationName" element={renderLazyRoute(<DestinationResolver />)} />
               <Route path="/conditions-generales" element={renderLazyRoute(<CGF />)} />
               <Route path="/staff/search-layouts" element={<StaffRouteGuard>{renderLazyRoute(<SearchLayoutDemo />)}</StaffRouteGuard>} />
               
