@@ -557,7 +557,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                 selectedLat={destination.latitude}
                 selectedLng={destination.longitude}
                 backLabel={destination.region && destination.region.length > 0 ? destination.region.join(" · ") : (language === "en" ? "Region" : "Région")}
-                defaultReview={defaultReview}
+                defaultReview={null}
               />
             </div>
           )}
