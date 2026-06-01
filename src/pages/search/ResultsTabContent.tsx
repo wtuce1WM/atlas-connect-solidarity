@@ -539,7 +539,7 @@ export default function ResultsTabContent({
               </div>
               {/* Filters overlay (toggled by the "Filtres" badge above the grid) */}
               {showFiltersOverlay && activeFsTab && (
-                <div className="absolute top-0 right-0 bottom-0 w-1/2 z-[90] bg-white shadow-2xl flex flex-col">
+                <div className="absolute inset-0 z-[90] bg-white shadow-2xl flex flex-col">
                   <div className="flex items-center justify-between px-3 py-3 border-b border-black/10 shrink-0">
                     <span className="text-sm font-semibold text-black" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                       Filter
