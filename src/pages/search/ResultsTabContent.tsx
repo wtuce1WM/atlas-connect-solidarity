@@ -548,10 +548,7 @@ export default function ResultsTabContent({
               {/* Filters overlay (toggled by the "Filtres" badge above the grid) */}
               {showFiltersOverlay && (
                 <div className="absolute inset-0 z-[90] bg-white shadow-2xl flex flex-col">
-                  <div className="flex items-center justify-between px-3 py-3 border-b border-black/10 shrink-0">
-                    <span className="text-sm font-semibold text-black" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      Filtres
-                    </span>
+                  <div className="flex items-center gap-2 px-3 py-3 border-b border-black/10 shrink-0">
                     <button
                       type="button"
                       onClick={() => setShowFiltersOverlay(false)}
@@ -560,6 +557,9 @@ export default function ResultsTabContent({
                     >
                       <X className="h-4 w-4" />
                     </button>
+                    <span className="text-sm font-semibold text-black" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      Filtres
+                    </span>
                   </div>
                   <div className="flex-1 overflow-hidden flex">
                     {/* Left column: Structure du front */}
