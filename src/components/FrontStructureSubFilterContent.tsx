@@ -106,18 +106,6 @@ export default function FrontStructureSubFilterContent({
 
   return (
     <div className="p-2">
-      <div className="px-2 pt-1 pb-1 text-[10px] uppercase tracking-wider text-black/40 font-semibold">
-        Sous-catégorie
-      </div>
-      <Row
-        selected={activeSubId === null}
-        label="Toutes"
-        onClick={() => {
-          onSubClick(null);
-          onServicesChange?.([]);
-          onAfterPick?.();
-        }}
-      />
       <div>
         {subcategories.map((sub) => (
           <Row
