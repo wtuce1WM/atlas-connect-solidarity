@@ -94,13 +94,17 @@ export default function FiltersOverlayFlow({
 
   const title = step === 3 ? (activeSub?.name || "") : step === 2 ? (activeTab?.name || "") : "Filtres";
 
+  const badgeBase = "inline-flex items-center gap-2 rounded-full border backdrop-blur-sm px-4 py-2 text-sm md:px-6 md:py-3 md:text-lg font-semibold transition-colors";
+  const badgeIdle = "border-white/40 bg-white/30 text-black hover:bg-white/50";
+  const badgeSelected = "border-black bg-black text-white hover:bg-black/90";
+
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center gap-2 px-3 py-3 border-b border-black/10 shrink-0">
+      <div className="relative z-10 shrink-0 flex items-center gap-2 px-4 py-3 border-b border-border">
         <button
           type="button"
           onClick={handleBack}
-          className="flex items-center justify-center w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 text-black"
+          className="w-9 h-9 rounded-full bg-white hover:bg-white/90 flex items-center justify-center text-black"
           aria-label={step === 1 ? "Fermer les filtres" : "Retour"}
         >
           <X className="h-4 w-4" />
@@ -110,77 +114,54 @@ export default function FiltersOverlayFlow({
         </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2">
-        {step === 1 && frontTabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabClick(tab.id)}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
-          >
-            <span
-              className="flex-1 text-sm text-black"
+      <div className="relative z-10 flex-1 overflow-y-auto p-4">
+        <div className="flex flex-col items-center gap-4">
+          {step === 1 && frontTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabClick(tab.id)}
+              className={`${badgeBase} ${badgeIdle}`}
               style={{ fontFamily: "'Josefin Sans', sans-serif" }}
             >
-              {tab.name}
-            </span>
-            <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">
-              {tab.count}
-            </span>
-            <ChevronRight className="h-4 w-4 text-black/40 shrink-0" />
-          </button>
-        ))}
+              <span>{tab.name}</span>
+              <span className="text-xs font-normal opacity-70">({tab.count})</span>
+            </button>
+          ))}
 
-        {step === 2 && activeTab && activeTab.subcategories.map((sub) => (
-          <button
-            key={sub.id}
-            onClick={() => onSubClick(sub.id)}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
-          >
-            <span
-              className="flex-1 text-sm text-black"
+          {step === 2 && activeTab && activeTab.subcategories.map((sub) => (
+            <button
+              key={sub.id}
+              onClick={() => onSubClick(sub.id)}
+              className={`${badgeBase} ${badgeIdle}`}
               style={{ fontFamily: "'Josefin Sans', sans-serif" }}
             >
-              {sub.name}
-            </span>
-            <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">
-              {sub.count}
-            </span>
-            <ChevronRight className="h-4 w-4 text-black/40 shrink-0" />
-          </button>
-        ))}
+              <span>{sub.name}</span>
+              <span className="text-xs font-normal opacity-70">({sub.count})</span>
+            </button>
+          ))}
 
-        {step === 3 && (
-          <>
-            {visibleServices.length === 0 && (
-              <p className="px-3 py-2 text-xs text-black/50">Aucun service disponible.</p>
-            )}
-            {visibleServices.map((s) => {
-              const selected = activeFsServices.includes(s.name_fr);
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => onServicesChange(selected ? [] : [s.name_fr])}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
-                >
-                  {selected ? (
-                    <CheckCircle2 className="h-5 w-5 text-black shrink-0" strokeWidth={2} />
-                  ) : (
-                    <Circle className="h-5 w-5 text-black/40 shrink-0" strokeWidth={1.5} />
-                  )}
-                  <span
-                    className={`flex-1 text-sm text-black ${selected ? "font-semibold" : ""}`}
+          {step === 3 && (
+            <>
+              {visibleServices.length === 0 && (
+                <p className="text-xs text-black/70">Aucun service disponible.</p>
+              )}
+              {visibleServices.map((s) => {
+                const selected = activeFsServices.includes(s.name_fr);
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => onServicesChange(selected ? [] : [s.name_fr])}
+                    className={`${badgeBase} ${selected ? badgeSelected : badgeIdle}`}
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
-                    {s.name_fr}
-                  </span>
-                  <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">
-                    {serviceCounts.get(s.name_fr) || 0}
-                  </span>
-                </button>
-              );
-            })}
-          </>
-        )}
+                    <span>{s.name_fr}</span>
+                    <span className="text-xs font-normal opacity-70">({serviceCounts.get(s.name_fr) || 0})</span>
+                  </button>
+                );
+              })}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
