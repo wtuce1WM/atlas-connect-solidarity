@@ -310,7 +310,14 @@ export default function ResultsTabContent({
                   {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
                 </button>
                 <button
-                  onClick={() => setShowFiltersOverlay(v => !v)}
+                  onClick={() => setShowFiltersOverlay(v => {
+                    const next = !v;
+                    if (next) {
+                      setActiveFsTabId(null);
+                      setActiveFsSubId(null);
+                    }
+                    return next;
+                  })}
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
                 >
                   <SlidersHorizontal className="h-4 w-4" />
