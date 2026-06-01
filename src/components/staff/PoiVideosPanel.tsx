@@ -423,7 +423,7 @@ const PoiVideosPanel = () => {
             <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
           ) : (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={filteredVideos.map(v => v.id)} strategy={verticalListSortingStrategy}>
+              <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
                 <div className="flex flex-wrap gap-2">
                   {filteredVideos.map((v, i) => (
                     <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
