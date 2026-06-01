@@ -143,15 +143,19 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
         )}
       </div>
 
-      {/* Thumbnail carousel — pinned to bottom */}
-      {videos.length > 1 && (
-        <div className="shrink-0 overflow-hidden px-3 pb-16 pt-2 border-t border-white/10">
+      {/* Thumbnail carousel — pinned to bottom, grouped: Shorts then Vidéos */}
+      {videos.length > 1 && (() => {
+        const isShortUrl = (u: string) => /\/shorts\//.test(u);
+        const shorts: Array<{ v: ExternalVideoItem; i: number }> = [];
+        const longs: Array<{ v: ExternalVideoItem; i: number }> = [];
+        videos.forEach((v, i) => (isShortUrl(v.url) ? shorts : longs).push({ v, i }));
+
+        const renderStrip = (items: Array<{ v: ExternalVideoItem; i: number }>, vertical: boolean) => (
           <div
-            ref={stripRef}
             className="flex gap-2 overflow-x-auto scrollbar-none snap-x snap-mandatory"
             style={{ scrollbarWidth: "none" }}
           >
-            {videos.map((v, i) => {
+            {items.map(({ v, i }) => {
               const thumb = v.thumbnail_url || getYouTubeThumb(v.url);
               const isActive = i === activeIndex;
               return (
@@ -159,7 +163,7 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
                   key={`thumb-${v.url}-${i}`}
                   data-thumb-idx={i}
                   onClick={() => goTo(i)}
-                  className={`relative w-40 md:w-48 aspect-video rounded-lg overflow-hidden flex-shrink-0 snap-start transition-all ${
+                  className={`relative ${vertical ? "h-28 aspect-[9/16]" : "w-40 md:w-48 aspect-video"} rounded-lg overflow-hidden flex-shrink-0 snap-start transition-all ${
                     isActive ? "ring-2 ring-white scale-[1.02]" : "ring-1 ring-white/20 opacity-60 hover:opacity-100"
                   }`}
                   aria-label={`${language === "en" ? "Go to video" : "Aller à la vidéo"} ${i + 1}`}
@@ -185,8 +189,30 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
               );
             })}
           </div>
-        </div>
-      )}
+        );
+
+        return (
+          <div ref={stripRef} className="shrink-0 overflow-hidden px-3 pb-16 pt-2 border-t border-white/10 space-y-3">
+            {shorts.length > 0 && (
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-white/60 mb-1.5 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  {language === "en" ? "Shorts" : "Shorts"}
+                </p>
+                {renderStrip(shorts, true)}
+              </div>
+            )}
+            {longs.length > 0 && (
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-white/60 mb-1.5 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  {language === "en" ? "Videos" : "Vidéos"}
+                </p>
+                {renderStrip(longs, false)}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
     </OverlayShell>
   );
 };
