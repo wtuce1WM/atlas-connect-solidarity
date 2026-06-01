@@ -503,19 +503,41 @@ export default function ResultsTabContent({
                           </button>
                         </div>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveFsTabId(null);
-                          setActiveFsSubId(null);
-                          setShowFiltersOverlay(true);
-                        }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black text-white text-[11px] font-semibold uppercase tracking-wider hover:bg-black/90 transition-colors"
-                        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                      >
-                        <SlidersHorizontal className="h-3.5 w-3.5" />
-                        Filtres
-                      </button>
+                      {(() => {
+                        const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
+                        const subs = tab?.subcategories ?? [];
+                        if (subs.length === 0) return null;
+                        const activeSubName = activeFsSubId
+                          ? (subs.find(s => s.id === activeFsSubId)?.name ?? "Sous-catégorie")
+                          : "Sous-catégorie";
+                        return (
+                          <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${activeFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                                >
+                                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                                  {activeSubName}
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="z-[95] max-h-80 overflow-y-auto">
+                                {activeFsSubId && (
+                                  <DropdownMenuItem onSelect={() => handleFsSubClick(null)}>
+                                    Toutes les sous-catégories
+                                  </DropdownMenuItem>
+                                )}
+                                {subs.map((s) => (
+                                  <DropdownMenuItem key={s.id} onSelect={() => handleFsSubClick(s.id)}>
+                                    {s.name} <span className="ml-1 opacity-60">({s.count})</span>
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })()}
