@@ -436,6 +436,29 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
+  // Horizontal swipe on media → navigate between media; vertical swipe → prev/next destination
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const handleMediaTouchStart = useCallback((e: React.TouchEvent) => {
+    const t = e.touches[0];
+    swipeStartRef.current = { x: t.clientX, y: t.clientY };
+  }, []);
+  const handleMediaTouchEnd = useCallback((e: React.TouchEvent) => {
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    if (absX > 60 && absX > absY * 1.5) {
+      goMedia(dx < 0 ? 1 : -1);
+    } else if (absY > 60 && absY > absX * 1.5) {
+      if (dy < 0 && hasNextDestination) onNextDestination?.();
+      else if (dy > 0 && hasPrevDestination) onPrevDestination?.();
+    }
+  }, [goMedia, hasNextDestination, hasPrevDestination, onNextDestination, onPrevDestination]);
+
   // Shared video sync hook
   const { videoPaused, videoMuted, pauseAndMute } = useVideoSync(videoRef as React.RefObject<HTMLVideoElement>, currentMedia);
 
