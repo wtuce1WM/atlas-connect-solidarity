@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface DestinationItem {
