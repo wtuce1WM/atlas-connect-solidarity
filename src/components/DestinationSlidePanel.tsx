@@ -565,6 +565,26 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             />
           )}
 
+          {/* Centered "+" button to open full description overlay */}
+          {!cardsHidden && !flipped && description && (
+            <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => setShowDescriptionOverlay(true)}
+                className="pointer-events-auto group flex flex-col items-center gap-2"
+                aria-label={language === "en" ? "Read more" : "Lire la suite"}
+              >
+                <div
+                  className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+                  style={{ backgroundColor: '#25D366' }}
+                >
+                  <span className="text-2xl text-white font-light leading-none">+</span>
+                </div>
+              </button>
+            </div>
+          )}
+
+
           {/* Bottom tabs */}
           {!cardsHidden && !flipped && (() => {
             const hasCityVideosTab = cityVideos.length > 0;
