@@ -15,8 +15,8 @@ interface FlipCardProps {
   hook?: string | null;
   /** HTML description content — collapsible */
   description?: string | null;
-  descExpanded: boolean;
-  onToggleDesc: () => void;
+  descExpanded?: boolean;
+  onToggleDesc?: () => void;
   /** Map markers for the back face */
   mapMarkers: PoiMapItem[];
   /** The selected marker (gold) on the back face */
@@ -81,7 +81,7 @@ const OverlayFlipCard = ({
                     <MapIcon className="h-4 w-4" />
                   </button>
                 )}
-                {description && (
+                {description && onToggleDesc && (
                   <button
                     onClick={onToggleDesc}
                     className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
@@ -97,7 +97,7 @@ const OverlayFlipCard = ({
             )}
           </div>
 
-          {description && descExpanded && (
+          {description && descExpanded && onToggleDesc && (
             <div className="min-h-0 overflow-y-auto overscroll-contain pr-2" style={{ maxHeight: "min(35vh, 280px)" }}>
               <div
                 className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"

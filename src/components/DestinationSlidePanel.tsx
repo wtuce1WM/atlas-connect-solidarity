@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } fr
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronDown, ChevronUp, X, Navigation, Minimize2, Star } from "lucide-react";
+import { MapPin, ChevronUp, X, Navigation, Minimize2, Star } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
@@ -56,7 +56,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [destination, setDestination] = useState<DestinationFull | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-  const [descExpanded, setDescExpanded] = useState(true);
   const [showDirections, setShowDirections] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
@@ -116,7 +115,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   // Reset on destinationId change
   useEffect(() => {
     setCurrentMediaIndex(0);
-    setDescExpanded(true);
     setShowDirections(false);
     setFlipped(false);
     setRegionDestinations([]);
@@ -553,9 +551,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               onUnflip={() => { playWoosh(wooshSfx); setFlipped(false); }}
               name={destName}
               hook={destination.hook}
-              description={description}
-              descExpanded={descExpanded}
-              onToggleDesc={() => setDescExpanded((p) => !p)}
               mapMarkers={regionDestinations}
               selectedMarkerId={destination.id}
               selectedLat={destination.latitude}
