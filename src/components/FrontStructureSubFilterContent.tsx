@@ -91,7 +91,7 @@ export default function FrontStructureSubFilterContent({
         <Circle className="h-5 w-5 text-black/40 shrink-0" strokeWidth={1.5} />
       )}
       <span
-        className={`flex-1 text-sm ${selected ? "font-semibold text-black" : "text-black/70"}`}
+        className={`flex-1 text-sm text-black ${selected ? "font-semibold" : ""}`}
         style={{ fontFamily: "'Josefin Sans', sans-serif" }}
       >
         {label}
