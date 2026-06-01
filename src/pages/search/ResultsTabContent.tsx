@@ -544,7 +544,7 @@ export default function ResultsTabContent({
                 })()}
               </div>
               {/* Filters overlay (toggled by the "Filtres" badge above the grid) */}
-              {showFiltersOverlay && activeFsTab && (
+              {showFiltersOverlay && (
                 <div className="absolute inset-0 z-[90] bg-white shadow-2xl flex flex-col">
                   <div className="flex items-center justify-between px-3 py-3 border-b border-black/10 shrink-0">
                     <span className="text-sm font-semibold text-black" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
@@ -596,7 +596,7 @@ export default function ResultsTabContent({
                     </div>
                     {/* Right column: Sous-catégorie + Services */}
                     <div className="w-1/2 overflow-y-auto">
-                      {(() => {
+                      {activeFsTab && (() => {
                         const activeSub = activeFsSubId
                           ? activeFsTab.subcategories.find(s => s.id === activeFsSubId)
                           : null;
