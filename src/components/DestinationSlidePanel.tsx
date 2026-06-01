@@ -687,7 +687,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               {/* Bottom tabs */}
               {!flipped && (() => {
                 const hasCityVideosTab = cityVideos.length > 0;
-                const hasYoutubeTab = videos.length > 0;
+                const hasYoutubeTab = false;
                 const tabs: BottomTabConfig[] = [];
 
                 if (hasCityVideosTab) tabs.push({
