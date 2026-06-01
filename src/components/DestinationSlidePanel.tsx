@@ -545,7 +545,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
           {/* Flip card — shared component */}
           {!cardsHidden && (
-            <div className="flex-[2] min-h-0 flex flex-col overflow-hidden">
+            <div className="shrink-0 flex flex-col overflow-hidden">
               <OverlayFlipCard
                 flipped={flipped}
                 onFlip={() => { playWoosh(wooshSfx); setFlipped(true); }}
