@@ -474,20 +474,13 @@ export default function ResultsTabContent({
                     />
                   </div>
                 </div>
-                <FrontStructureNavBar
-                  tabs={frontTabs}
-                  activeTabId={activeFsTabId}
-                  onTabClick={handleFsTabClick}
-                />
                 {(() => {
                   const total = activeFsTabId === null ? (searchResultsTotal ?? 0) : (fsMatchingCount ?? 0);
-                  const activeFsTab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
                   const showToggle = total > 20;
-                  if (!showToggle && !activeFsTab) return null;
+                  if (!showToggle) return null;
                   return (
                     <div className="flex items-center px-3 pb-2">
                       <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                        {showToggle && (<>
                         <button
                           type="button"
                           onClick={() => { if (showAllSearchMarkers) onToggleShowAllSearchMarkers?.(); }}
@@ -502,53 +495,8 @@ export default function ResultsTabContent({
                         >
                           Tous <span className="ml-0.5 opacity-70">{total}</span>
                         </button>
-                        </>)}
-                        {activeFsTab && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0) ? allCityMapBusinesses : filteredBusinesses;
-                              const ids = pool
-                                .filter(b =>
-                                  (b.main_category && activeFsTab.subcategoryNames.has(b.main_category)) ||
-                                  b.categories?.some((cat: string) => activeFsTab.subcategoryNames.has(cat))
-                                )
-                                .map(b => b.id);
-                              if (ids.length === 0) return;
-                              const q = `${activeFsTab.name}${effectiveCity ? ` à ${effectiveCity}` : ''}`;
-                              onSearchNavigate({ q, pinIds: ids.join(",") });
-                            }}
-                            className="px-3 py-1 rounded-full transition-colors text-white/80 hover:text-white"
-                          >
-                            Voir liste
-                          </button>
-                        )}
                       </div>
                     </div>
-                  );
-                })()}
-                {activeFsTab && activeFsTab.subcategories.length > 1 && (() => {
-                  const activeSub = activeFsSubId
-                    ? activeFsTab.subcategories.find(s => s.id === activeFsSubId)
-                    : null;
-                  const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0)
-                    ? allCityMapBusinesses
-                    : filteredBusinesses;
-                  const subPool = activeSub
-                    ? pool.filter((b: any) =>
-                        (b.main_category && activeSub.names.has(b.main_category)) ||
-                        b.categories?.some((c: string) => activeSub.names.has(c))
-                      )
-                    : [];
-                  return (
-                    <FrontStructureSubNavBar
-                      subcategories={activeFsTab.subcategories}
-                      activeSubId={activeFsSubId}
-                      onSubClick={handleFsSubClick}
-                      subPool={subPool}
-                      selectedServices={activeFsServices}
-                      onServicesChange={handleFsServicesChange}
-                    />
                   );
                 })()}
               </div>
