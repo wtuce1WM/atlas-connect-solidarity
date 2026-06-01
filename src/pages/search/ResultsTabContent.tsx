@@ -551,17 +551,9 @@ export default function ResultsTabContent({
         )}
         {/* Filters overlay — single-column 3-step flow (Structure → Sous-catégorie → Service) */}
         {showFiltersOverlay && (() => {
-          const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
-          const sub = activeFsSubId && tab ? tab.subcategories.find(s => s.id === activeFsSubId) : null;
           const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0)
             ? allCityMapBusinesses
             : filteredBusinesses;
-          const subPool = sub
-            ? pool.filter((b: any) =>
-                (b.main_category && sub.names.has(b.main_category)) ||
-                b.categories?.some((c: string) => sub.names.has(c))
-              )
-            : [];
           return (
             <div
               className={`fixed inset-0 z-[90] shadow-2xl flex flex-col bg-no-repeat bg-cover bg-center ${hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "lg:left-1/2" : ""}`}
@@ -575,12 +567,13 @@ export default function ResultsTabContent({
                 onTabClick={handleFsTabClick}
                 onSubClick={handleFsSubClick}
                 onServicesChange={handleFsServicesChange}
-                subPool={subPool}
+                pool={pool}
                 onClose={() => setShowFiltersOverlay(false)}
               />
             </div>
           );
         })()}
+
 
       </div>
     </section>
