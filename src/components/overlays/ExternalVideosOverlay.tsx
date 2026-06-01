@@ -163,7 +163,7 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
                   key={`thumb-${v.url}-${i}`}
                   data-thumb-idx={i}
                   onClick={() => goTo(i)}
-                  className={`relative ${vertical ? "h-28 aspect-[9/16]" : "w-40 md:w-48 aspect-video"} rounded-lg overflow-hidden flex-shrink-0 snap-start transition-all ${
+                  className={`relative ${vertical ? "h-20 aspect-[9/16]" : "w-32 md:w-40 aspect-video"} rounded-lg overflow-hidden flex-shrink-0 snap-start transition-all ${
                     isActive ? "ring-2 ring-white scale-[1.02]" : "ring-1 ring-white/20 opacity-60 hover:opacity-100"
                   }`}
                   aria-label={`${language === "en" ? "Go to video" : "Aller à la vidéo"} ${i + 1}`}
@@ -192,24 +192,29 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
         );
 
         return (
-          <div ref={stripRef} className="shrink-0 overflow-hidden px-3 pb-16 pt-2 border-t border-white/10 space-y-3">
+          <div ref={stripRef} className="shrink-0 overflow-hidden px-3 pb-16 pt-2 border-t border-white/10 space-y-1.5">
             {shorts.length > 0 && (
               <div>
-                <p className="text-[11px] uppercase tracking-wide text-white/60 mb-1.5 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  {language === "en" ? "Shorts" : "Shorts"}
-                </p>
+                {longs.length > 0 && (
+                  <p className="text-[10px] uppercase tracking-wide text-white/50 mb-1 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                    Shorts
+                  </p>
+                )}
                 {renderStrip(shorts, true)}
               </div>
             )}
             {longs.length > 0 && (
               <div>
-                <p className="text-[11px] uppercase tracking-wide text-white/60 mb-1.5 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  {language === "en" ? "Videos" : "Vidéos"}
-                </p>
+                {shorts.length > 0 && (
+                  <p className="text-[10px] uppercase tracking-wide text-white/50 mb-1 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                    {language === "en" ? "Videos" : "Vidéos"}
+                  </p>
+                )}
                 {renderStrip(longs, false)}
               </div>
             )}
           </div>
+
         );
       })()}
 
