@@ -11,7 +11,7 @@ import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove, SortableContext, useSortable, verticalListSortingStrategy,
+  arrayMove, SortableContext, useSortable, rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -358,7 +358,7 @@ const PoiVideosPanel = () => {
         internalForPoi.map((v, i) =>
           supabase
             .from("business_documents")
-            .update({ front_sort_order: i } as any)
+            .update({ sort_order: i } as any)
             .eq("id", v.id)
         )
       );
@@ -423,7 +423,7 @@ const PoiVideosPanel = () => {
             <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
           ) : (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={filteredVideos.map(v => v.id)} strategy={verticalListSortingStrategy}>
+              <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
                 <div className="flex flex-wrap gap-2">
                   {filteredVideos.map((v, i) => (
                     <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
