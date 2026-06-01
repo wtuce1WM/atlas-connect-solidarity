@@ -372,29 +372,50 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     if (!destinationId) return;
     let cancelled = false;
     const fetchDestYoutube = async () => {
-      const { data: links } = await supabase
-        .from("business_youtube_video_destinations")
-        .select("sort_order, business_youtube_videos!inner(video_id, title, thumbnail, custom_thumbnail_url, is_short, is_visible, business_is_active)")
-        .eq("destination_id", destinationId)
-        .eq("business_youtube_videos.is_visible", true)
-        .eq("business_youtube_videos.business_is_active", true)
-        .order("sort_order", { ascending: true });
+      const [{ data: links }, { data: gvLinks }] = await Promise.all([
+        supabase
+          .from("business_youtube_video_destinations")
+          .select("sort_order, business_youtube_videos!inner(video_id, title, thumbnail, custom_thumbnail_url, is_short, is_visible, business_is_active)")
+          .eq("destination_id", destinationId)
+          .eq("business_youtube_videos.is_visible", true)
+          .eq("business_youtube_videos.business_is_active", true)
+          .order("sort_order", { ascending: true }),
+        supabase
+          .from("generic_video_destinations")
+          .select("sort_order, generic_videos!inner(id, title, name, url, thumbnail_url)")
+          .eq("destination_id", destinationId)
+          .order("sort_order", { ascending: true }),
+      ]);
       if (cancelled) return;
-      const items = (links || [])
-        .map((row: any) => {
-          const v = row.business_youtube_videos;
-          if (!v?.video_id) return null;
-          return {
-            url: v.is_short
-              ? `https://www.youtube.com/shorts/${v.video_id}`
-              : `https://www.youtube.com/watch?v=${v.video_id}`,
-            name: v.title || null,
-            thumbnail_url: v.custom_thumbnail_url || v.thumbnail || `https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`,
-            description: null as string | null,
-          };
-        })
-        .filter(Boolean) as { url: string; name: string | null; thumbnail_url: string | null; description: string | null }[];
-      setDestYoutubeVideos(items);
+      const byvItems = (links || []).map((row: any) => {
+        const v = row.business_youtube_videos;
+        if (!v?.video_id) return null;
+        return {
+          sortOrder: row.sort_order ?? 0,
+          url: v.is_short
+            ? `https://www.youtube.com/shorts/${v.video_id}`
+            : `https://www.youtube.com/watch?v=${v.video_id}`,
+          name: v.title || null,
+          thumbnail_url: v.custom_thumbnail_url || v.thumbnail || `https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`,
+          description: null as string | null,
+        };
+      }).filter(Boolean) as any[];
+      const gvItems = (gvLinks || []).map((row: any) => {
+        const g = row.generic_videos;
+        const url: string | null = g?.url || null;
+        if (!url || !/(?:youtube\.com|youtu\.be)/i.test(url)) return null;
+        return {
+          sortOrder: row.sort_order ?? 0,
+          url,
+          name: g.title || g.name || null,
+          thumbnail_url: g.thumbnail_url || null,
+          description: null as string | null,
+        };
+      }).filter(Boolean) as any[];
+      const merged = [...byvItems, ...gvItems]
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map(({ sortOrder, ...rest }) => rest);
+      setDestYoutubeVideos(merged);
     };
     fetchDestYoutube();
     return () => { cancelled = true; };
