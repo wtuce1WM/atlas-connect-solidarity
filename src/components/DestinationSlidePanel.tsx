@@ -564,33 +564,35 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
           {/* Centered hook + "+" button to open full description overlay */}
           {!cardsHidden && !flipped && (destination.hook || description) && (
-            <div className="pointer-events-none absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 md:gap-10 px-4">
-              {destination.hook && (
-                <p
-                  className="hidden md:block text-lg md:text-xl text-white/90 font-bold text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none"
-                  style={{
-                    fontFamily: "'Josefin Sans', sans-serif",
-                    filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
-                  }}
-                >
-                  {destination.hook}
-                </p>
-              )}
-              {description && (
-                <button
-                  type="button"
-                  onClick={() => setShowDescriptionOverlay(true)}
-                  className="pointer-events-auto group flex flex-col items-center gap-2"
-                  aria-label={language === "en" ? "Read more" : "Lire la suite"}
-                >
-                  <div
-                    className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
-                    style={{ backgroundColor: '#25D366' }}
+            <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-4">
+              <div className="relative flex items-center justify-center">
+                {destination.hook && (
+                  <p
+                    className="hidden md:block absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-[85vw] md:w-xl max-w-xl text-lg md:text-xl text-white/90 font-bold text-center leading-relaxed pointer-events-none"
+                    style={{
+                      fontFamily: "'Josefin Sans', sans-serif",
+                      filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
+                    }}
                   >
-                    <span className="text-2xl text-white font-light leading-none">+</span>
-                  </div>
-                </button>
-              )}
+                    {destination.hook}
+                  </p>
+                )}
+                {description && (
+                  <button
+                    type="button"
+                    onClick={() => setShowDescriptionOverlay(true)}
+                    className="pointer-events-auto group flex flex-col items-center gap-2"
+                    aria-label={language === "en" ? "Read more" : "Lire la suite"}
+                  >
+                    <div
+                      className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+                      style={{ backgroundColor: '#25D366' }}
+                    >
+                      <span className="text-2xl text-white font-light leading-none">+</span>
+                    </div>
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
