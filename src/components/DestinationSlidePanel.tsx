@@ -496,6 +496,40 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </OverlayShell>
       )}
 
+      {/* Location map overlay */}
+      {showLocationMap && destination.latitude && destination.longitude && (
+        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
+          <div className="sticky top-0 z-10 flex items-center px-4 py-2 gap-2 bg-black/30 backdrop-blur-sm">
+            <button
+              onClick={() => setShowLocationMap(false)}
+              className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity"
+              aria-label="Fermer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <span className="text-sm font-bold text-white truncate drop-shadow-md">{destName}</span>
+          </div>
+          <div className="flex-1 min-h-0 -mt-[3.25rem]">
+            <PoiGoogleMap
+              pois={[{
+                id: `self-${destination.id}`,
+                name: destName,
+                latitude: destination.latitude,
+                longitude: destination.longitude,
+                images: (destination.images && destination.images.length > 0) ? destination.images : (destination.image_url ? [destination.image_url] : null),
+                city: null,
+                neighborhood: null,
+                markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
+              } as PoiMapItem]}
+              selectedPoiId={null}
+              center={{ lat: destination.latitude, lng: destination.longitude }}
+              fitToMarkers
+            />
+          </div>
+        </OverlayShell>
+      )}
+
+
       {/* Fullscreen lightbox */}
       {lightboxIndex !== null && (
         <Suspense fallback={null}>
