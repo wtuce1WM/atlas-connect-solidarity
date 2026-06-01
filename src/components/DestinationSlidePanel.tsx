@@ -517,7 +517,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   return (
     <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex flex-col" coverToolbar={false}>
       {/* Close button */}
-      {!fullscreenVideo && !showDirections && !showLocationMap && (
+      {!fullscreenVideo && !showDirections && !showLocationMap && !showYoutubeOverlay && (
         <>
           <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
             <button
