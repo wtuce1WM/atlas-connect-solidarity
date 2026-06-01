@@ -164,7 +164,7 @@ export default function FiltersOverlayFlow({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="relative z-10 shrink-0 flex items-center gap-2 px-4 py-3 border-b border-border">
+      <div className="relative z-10 shrink-0 flex items-center px-4 py-3 border-b border-border">
         <button
           type="button"
           onClick={handleBack}
@@ -173,9 +173,10 @@ export default function FiltersOverlayFlow({
         >
           <X className="h-4 w-4" />
         </button>
-        <span className="text-sm font-semibold text-black truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+        <span className="flex-1 text-center text-sm font-semibold text-black truncate px-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
           {title}
         </span>
+        <span className="w-9 h-9 shrink-0" aria-hidden="true" />
       </div>
 
       <div className="relative z-10 flex-1 overflow-y-auto p-4">
