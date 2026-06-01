@@ -163,7 +163,7 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
                   key={`thumb-${v.url}-${i}`}
                   data-thumb-idx={i}
                   onClick={() => goTo(i)}
-                  className={`relative ${vertical ? "h-28 aspect-[9/16]" : "w-40 md:w-48 aspect-video"} rounded-lg overflow-hidden flex-shrink-0 snap-start transition-all ${
+                  className={`relative ${vertical ? "h-20 aspect-[9/16]" : "w-32 md:w-40 aspect-video"} rounded-lg overflow-hidden flex-shrink-0 snap-start transition-all ${
                     isActive ? "ring-2 ring-white scale-[1.02]" : "ring-1 ring-white/20 opacity-60 hover:opacity-100"
                   }`}
                   aria-label={`${language === "en" ? "Go to video" : "Aller à la vidéo"} ${i + 1}`}
