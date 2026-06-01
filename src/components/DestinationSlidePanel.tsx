@@ -587,16 +587,27 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </OverlayShell>
       )}
 
-      {/* YouTube videos overlay (same component as BookOnlineSlidePanel) */}
-      {showYoutubeOverlay && (
-        <ExternalVideosOverlay
-          videos={(destination.videos || [])
-            .filter((u) => /(?:youtube\.com|youtu\.be)/i.test(u))
-            .map((url) => ({ url, name: ytTitles[url] || null, thumbnail_url: null, description: null }))}
-          businessName={destName}
-          onClose={() => setShowYoutubeOverlay(false)}
-        />
-      )}
+      {/* YouTube videos overlay — merges destination.videos + videos liées via
+          business_youtube_video_destinations (shorts & longues), comme dans
+          BookOnlineSlidePanel pour l'onglet POI. */}
+      {showYoutubeOverlay && (() => {
+        const directItems = (destination.videos || [])
+          .filter((u) => /(?:youtube\.com|youtu\.be)/i.test(u))
+          .map((url) => ({ url, name: ytTitles[url] || null, thumbnail_url: null as string | null, description: null as string | null }));
+        const getId = (u: string) => {
+          const m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+          return m ? m[1] : u;
+        };
+        const seen = new Set(directItems.map((v) => getId(v.url)));
+        const linked = destYoutubeVideos.filter((v) => !seen.has(getId(v.url)));
+        return (
+          <ExternalVideosOverlay
+            videos={[...directItems, ...linked]}
+            businessName={destName}
+            onClose={() => setShowYoutubeOverlay(false)}
+          />
+        );
+      })()}
 
 
       {/* Fullscreen lightbox */}
