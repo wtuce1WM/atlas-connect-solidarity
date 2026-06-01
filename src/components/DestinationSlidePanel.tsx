@@ -530,6 +530,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               selectedPoiId={destination.id}
               center={{ lat: destination.latitude, lng: destination.longitude }}
               fitToMarkers
+              userLocation={userLocation}
             />
           </div>
         </OverlayShell>
