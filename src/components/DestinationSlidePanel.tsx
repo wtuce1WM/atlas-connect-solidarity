@@ -14,7 +14,7 @@ import wooshSfx from "@/assets/woosh.wav";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { PoiMapItem } from "@/components/PoiGoogleMap";
+import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import { GOLD, getVideoInfo, playWoosh } from "@/lib/overlayConstants";
@@ -57,6 +57,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [showDirections, setShowDirections] = useState(false);
+  const [showLocationMap, setShowLocationMap] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
@@ -394,9 +395,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
   // Pause & mute video when overlay opens
   useEffect(() => {
-    const overlayOpen = showDirections || !!fullscreenVideo || !!activeBusinessId;
+    const overlayOpen = showDirections || showLocationMap || !!fullscreenVideo || !!activeBusinessId;
     if (overlayOpen) pauseAndMute();
-  }, [showDirections, fullscreenVideo, activeBusinessId]);
+  }, [showDirections, showLocationMap, fullscreenVideo, activeBusinessId]);
 
   if (isLoading) {
     return (
@@ -411,7 +412,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   return (
     <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex flex-col" coverToolbar={false}>
       {/* Close button */}
-      {!fullscreenVideo && !showDirections && (
+      {!fullscreenVideo && !showDirections && !showLocationMap && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
           <button
             onClick={() => { if (activeBusinessId) { setActiveBusinessId(null); return; } onClose(); }}
@@ -495,6 +496,40 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </OverlayShell>
       )}
 
+      {/* Location map overlay */}
+      {showLocationMap && destination.latitude && destination.longitude && (
+        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
+          <div className="sticky top-0 z-10 flex items-center px-4 py-2 gap-2 bg-black/30 backdrop-blur-sm">
+            <button
+              onClick={() => setShowLocationMap(false)}
+              className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity"
+              aria-label="Fermer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <span className="text-sm font-bold text-white truncate drop-shadow-md">{destName}</span>
+          </div>
+          <div className="flex-1 min-h-0 -mt-[3.25rem]">
+            <PoiGoogleMap
+              pois={[{
+                id: `self-${destination.id}`,
+                name: destName,
+                latitude: destination.latitude,
+                longitude: destination.longitude,
+                images: (destination.images && destination.images.length > 0) ? destination.images : (destination.image_url ? [destination.image_url] : null),
+                city: null,
+                neighborhood: null,
+                markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
+              } as PoiMapItem]}
+              selectedPoiId={null}
+              center={{ lat: destination.latitude, lng: destination.longitude }}
+              fitToMarkers
+            />
+          </div>
+        </OverlayShell>
+      )}
+
+
       {/* Fullscreen lightbox */}
       {lightboxIndex !== null && (
         <Suspense fallback={null}>
@@ -521,6 +556,17 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </div>
 
         <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
+
+        {/* Left sidebar CTAs */}
+        {!cardsHidden && destination.latitude && destination.longitude && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
+            <div onClick={() => setShowLocationMap(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Localisation</span>
+              <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+            </div>
+          </div>
+        )}
+
 
         {/* Overlaid content */}
         <div
