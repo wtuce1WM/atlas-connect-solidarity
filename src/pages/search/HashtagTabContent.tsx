@@ -398,7 +398,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
       ) : items.length === 0 ? (
         <p className="text-sm text-muted-foreground">Aucune vidéo trouvée pour {badgeLabel}.</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {items.map((item) => (
             <button
               key={item._id}
