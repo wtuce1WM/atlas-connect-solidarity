@@ -553,32 +553,69 @@ export default function ResultsTabContent({
                       <X className="h-4 w-4" />
                     </button>
                   </div>
-                  <div className="flex-1 overflow-y-auto">
-                    {(() => {
-                      const activeSub = activeFsSubId
-                        ? activeFsTab.subcategories.find(s => s.id === activeFsSubId)
-                        : null;
-                      const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0)
-                        ? allCityMapBusinesses
-                        : filteredBusinesses;
-                      const subPool = activeSub
-                        ? pool.filter((b: any) =>
-                            (b.main_category && activeSub.names.has(b.main_category)) ||
-                            b.categories?.some((c: string) => activeSub.names.has(c))
-                          )
-                        : [];
-                      return (
-                        <FrontStructureSubFilterContent
-                          subcategories={activeFsTab.subcategories}
-                          activeSubId={activeFsSubId}
-                          onSubClick={handleFsSubClick}
-                          subPool={subPool}
-                          selectedServices={activeFsServices}
-                          onServicesChange={handleFsServicesChange}
-                          onAfterPick={() => setShowFiltersOverlay(false)}
-                        />
-                      );
-                    })()}
+                  <div className="flex-1 overflow-hidden flex">
+                    {/* Left column: Structure du front */}
+                    <div className="w-1/2 border-r border-black/10 overflow-y-auto p-2">
+                      <div className="px-2 pt-1 pb-1 text-[10px] uppercase tracking-wider text-black/40 font-semibold">
+                        Structure du front
+                      </div>
+                      <button
+                        onClick={() => handleFsTabClick(null)}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
+                      >
+                        <span
+                          className={`flex-1 text-sm ${activeFsTabId === null ? "font-semibold text-black" : "text-black/70"}`}
+                          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                        >
+                          Votre recherche
+                        </span>
+                      </button>
+                      {frontTabs.map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => handleFsTabClick(tab.id)}
+                          className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
+                        >
+                          <span
+                            className={`flex-1 text-sm ${activeFsTabId === tab.id ? "font-semibold text-black" : "text-black/70"}`}
+                            style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                          >
+                            {tab.name}
+                          </span>
+                          <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">
+                            {tab.count}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    {/* Right column: Sous-catégorie + Services */}
+                    <div className="w-1/2 overflow-y-auto">
+                      {(() => {
+                        const activeSub = activeFsSubId
+                          ? activeFsTab.subcategories.find(s => s.id === activeFsSubId)
+                          : null;
+                        const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0)
+                          ? allCityMapBusinesses
+                          : filteredBusinesses;
+                        const subPool = activeSub
+                          ? pool.filter((b: any) =>
+                              (b.main_category && activeSub.names.has(b.main_category)) ||
+                              b.categories?.some((c: string) => activeSub.names.has(c))
+                            )
+                          : [];
+                        return (
+                          <FrontStructureSubFilterContent
+                            subcategories={activeFsTab.subcategories}
+                            activeSubId={activeFsSubId}
+                            onSubClick={handleFsSubClick}
+                            subPool={subPool}
+                            selectedServices={activeFsServices}
+                            onServicesChange={handleFsServicesChange}
+                            onAfterPick={() => setShowFiltersOverlay(false)}
+                          />
+                        );
+                      })()}
+                    </div>
                   </div>
                 </div>
               )}
