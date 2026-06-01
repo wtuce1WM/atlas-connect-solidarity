@@ -61,6 +61,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [showDirections, setShowDirections] = useState(false);
   const [showLocationMap, setShowLocationMap] = useState(false);
+  const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
