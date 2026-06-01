@@ -596,30 +596,20 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             )}
           </div>
 
-          {/* Flip card — shared component */}
+          {/* Destination name — centered */}
           {!cardsHidden && (
-            <div className="shrink-0 flex flex-col overflow-hidden">
-              <OverlayFlipCard
-                flipped={flipped}
-                onFlip={() => { playWoosh(wooshSfx); setFlipped(true); }}
-                onUnflip={() => { playWoosh(wooshSfx); setFlipped(false); }}
-                name={destName}
-                hook={null}
-                mapMarkers={destination.latitude && destination.longitude ? [{
-                  id: destination.id,
-                  name: destName,
-                  latitude: destination.latitude,
-                  longitude: destination.longitude,
-                  city: null,
-                  neighborhood: null,
-                  images: (destination.images && destination.images.length > 0) ? destination.images : (destination.image_url ? [destination.image_url] : null),
-                }] : []}
-                selectedMarkerId={destination.id}
-                selectedLat={destination.latitude}
-                selectedLng={destination.longitude}
-                backLabel={destination.region && destination.region.length > 0 ? destination.region.join(" · ") : (language === "en" ? "Region" : "Région")}
-                defaultReview={null}
-              />
+            <div className="shrink-0 flex justify-center px-4 pt-2">
+              <h2
+                className="text-xl font-bold uppercase text-center text-white drop-shadow-lg"
+                style={{
+                  fontFamily: "'Josefin Sans', sans-serif",
+                  letterSpacing: '0.12em',
+                  WebkitTextStroke: '0.8px currentColor',
+                  textShadow: '0 0 0 currentColor',
+                }}
+              >
+                {destName}
+              </h2>
             </div>
           )}
 
