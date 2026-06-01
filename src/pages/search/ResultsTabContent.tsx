@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from "react";
-import { Building2, ChevronLeft, ChevronRight, Map, Clock, MapPin, X, Heart } from "lucide-react";
+import { Building2, ChevronLeft, ChevronRight, Map, Clock, MapPin, X, Heart, SlidersHorizontal } from "lucide-react";
 import ShareButton from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
 import SearchResultCard from "@/components/SearchResultCard";
