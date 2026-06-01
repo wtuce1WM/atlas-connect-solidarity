@@ -81,7 +81,7 @@ const OverlayFlipCard = ({
                     <MapIcon className="h-4 w-4" />
                   </button>
                 )}
-                {description && (
+                {description && onToggleDesc && (
                   <button
                     onClick={onToggleDesc}
                     className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
