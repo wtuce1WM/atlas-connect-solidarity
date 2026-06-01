@@ -539,6 +539,17 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </OverlayShell>
       )}
 
+      {/* YouTube videos overlay (same component as BookOnlineSlidePanel) */}
+      {showYoutubeOverlay && (
+        <ExternalVideosOverlay
+          videos={(destination.videos || [])
+            .filter((u) => /(?:youtube\.com|youtu\.be)/i.test(u))
+            .map((url) => ({ url, name: ytTitles[url] || null, thumbnail_url: null, description: null }))}
+          businessName={destName}
+          onClose={() => setShowYoutubeOverlay(false)}
+        />
+      )}
+
 
       {/* Fullscreen lightbox */}
       {lightboxIndex !== null && (
