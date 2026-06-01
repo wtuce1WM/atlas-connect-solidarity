@@ -150,7 +150,13 @@ export default function FiltersOverlayFlow({
                 return (
                   <button
                     key={s.id}
-                    onClick={() => onServicesChange(selected ? [] : [s.name_fr])}
+                    onClick={() => {
+                      onServicesChange(selected ? [] : [s.name_fr]);
+                      if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                        onClose();
+                        requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+                      }
+                    }}
                     className={`${badgeBase} ${selected ? badgeSelected : badgeIdle}`}
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
