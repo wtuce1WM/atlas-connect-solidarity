@@ -68,6 +68,7 @@ const Test = lazy(() => import("./pages/Home"));
 const HomeMindtrip = lazy(() => import("./pages/HomeMindtrip"));
 const Install = lazy(() => import("./pages/Install"));
 const VanityResolver = lazy(() => import("./pages/VanityResolver"));
+const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 
 const queryClient = new QueryClient();
 
