@@ -72,6 +72,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const bottomTabInitialRef = React.useRef(true);
   const [ytTitles, setYtTitles] = useState<Record<string, string>>({});
   const [defaultReview, setDefaultReview] = useState<{ author_name: string; text: string; rating: number; source: string } | null>(null);
+  const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
 
   // Expose close interceptor
   React.useEffect(() => {
