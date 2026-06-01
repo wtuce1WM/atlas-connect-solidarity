@@ -511,17 +511,20 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           </div>
           <div className="flex-1 min-h-0 -mt-[3.25rem]">
             <PoiGoogleMap
-              pois={[{
-                id: `self-${destination.id}`,
-                name: destName,
-                latitude: destination.latitude,
-                longitude: destination.longitude,
-                images: (destination.images && destination.images.length > 0) ? destination.images : (destination.image_url ? [destination.image_url] : null),
-                city: null,
-                neighborhood: null,
-                markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
-              } as PoiMapItem]}
-              selectedPoiId={null}
+              pois={[
+                {
+                  id: destination.id,
+                  name: destName,
+                  latitude: destination.latitude,
+                  longitude: destination.longitude,
+                  images: (destination.images && destination.images.length > 0) ? destination.images : (destination.image_url ? [destination.image_url] : null),
+                  city: null,
+                  neighborhood: null,
+                  markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
+                } as PoiMapItem,
+                ...regionDestinations.filter((d) => d.id !== destination.id),
+              ]}
+              selectedPoiId={destination.id}
               center={{ lat: destination.latitude, lng: destination.longitude }}
               fitToMarkers
             />
