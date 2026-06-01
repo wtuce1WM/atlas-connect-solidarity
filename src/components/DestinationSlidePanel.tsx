@@ -669,6 +669,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                   </div>
                 </div>
               )}
+              <div className="flex-1" />
 
 
               {/* Owner logo + badge */}
