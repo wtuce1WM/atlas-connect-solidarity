@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } fr
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronUp, X, Navigation, Minimize2, Star } from "lucide-react";
+import { MapPin, ChevronUp, X, Navigation, Minimize2, Star, Heart } from "lucide-react";
+import ShareButton from "@/components/ShareButton";
 import VideoControls from "@/components/VideoControls";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
@@ -419,15 +420,29 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex flex-col" coverToolbar={false}>
       {/* Close button */}
       {!fullscreenVideo && !showDirections && !showLocationMap && (
-        <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
-          <button
-            onClick={() => { if (activeBusinessId) { setActiveBusinessId(null); return; } onClose(); }}
-            className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg"
-            aria-label="Fermer"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+        <>
+          <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
+            <button
+              onClick={() => { if (activeBusinessId) { setActiveBusinessId(null); return; } onClose(); }}
+              className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="absolute top-3 right-3 z-[80] flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+              className="h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity shrink-0"
+              title="Le Club OWM"
+              aria-label="Le Club OWM"
+            >
+              <Heart className="h-4 w-4" />
+            </button>
+            <ShareButton title={destName} variant="dark" className="shrink-0" />
+          </div>
+        </>
       )}
 
       {/* Directions overlay */}
