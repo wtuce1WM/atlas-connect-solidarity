@@ -128,6 +128,7 @@ const SearchPage = () => {
   const urlQ = searchParams.get("q") || "";
   const urlT = searchParams.get("_t") || "";
   const openBusinessParam = searchParams.get("openBusiness") || "";
+  const openDestinationParam = searchParams.get("openDestination") || "";
   const pinIdsParam = searchParams.get("pinIds") || "";
   const badgeIdParam = searchParams.get("badgeId") || "";
   const badgeLabelParam = searchParams.get("badgeLabel") || "";
