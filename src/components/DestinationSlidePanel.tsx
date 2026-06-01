@@ -115,7 +115,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   // Reset on destinationId change
   useEffect(() => {
     setCurrentMediaIndex(0);
-    setDescExpanded(true);
     setShowDirections(false);
     setFlipped(false);
     setRegionDestinations([]);
