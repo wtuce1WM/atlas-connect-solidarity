@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } fr
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronUp, X, Navigation, Minimize2, Star, Heart } from "lucide-react";
+import { MapPin, ChevronUp, ChevronDown, X, Navigation, Minimize2, Star, Heart } from "lucide-react";
 import ShareButton from "@/components/ShareButton";
 import VideoControls from "@/components/VideoControls";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
@@ -34,6 +34,10 @@ interface DestinationSlidePanelProps {
   showSearchBar?: boolean;
   onSearch?: (params: Record<string, string>) => void;
   onSearchBusinessSelect?: (businessId: string) => void;
+  onPrevDestination?: () => void;
+  onNextDestination?: () => void;
+  hasPrevDestination?: boolean;
+  hasNextDestination?: boolean;
 }
 
 interface DestinationFull {
@@ -53,7 +57,7 @@ interface DestinationFull {
   city_ids: string[] | null;
 }
 
-const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect }: DestinationSlidePanelProps) => {
+const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onPrevDestination, onNextDestination, hasPrevDestination, hasNextDestination }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
@@ -432,6 +436,29 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
+  // Horizontal swipe on media → navigate between media; vertical swipe → prev/next destination
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const handleMediaTouchStart = useCallback((e: React.TouchEvent) => {
+    const t = e.touches[0];
+    swipeStartRef.current = { x: t.clientX, y: t.clientY };
+  }, []);
+  const handleMediaTouchEnd = useCallback((e: React.TouchEvent) => {
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    if (absX > 60 && absX > absY * 1.5) {
+      goMedia(dx < 0 ? 1 : -1);
+    } else if (absY > 60 && absY > absX * 1.5) {
+      if (dy < 0 && hasNextDestination) onNextDestination?.();
+      else if (dy > 0 && hasPrevDestination) onPrevDestination?.();
+    }
+  }, [goMedia, hasNextDestination, hasPrevDestination, onNextDestination, onPrevDestination]);
+
   // Shared video sync hook
   const { videoPaused, videoMuted, pauseAndMute } = useVideoSync(videoRef as React.RefObject<HTMLVideoElement>, currentMedia);
 
@@ -626,7 +653,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       <div className="relative w-full h-full">
         {/* Media background */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" onTouchStart={handleMediaTouchStart} onTouchEnd={handleMediaTouchEnd}>
           {currentMedia?.kind === "video" ? (
             <video ref={videoRef} key={currentMedia.url} src={currentMedia.url} className="w-full h-full object-cover" loop muted playsInline />
           ) : currentMedia?.kind === "image" ? (
@@ -638,6 +665,30 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </div>
 
         <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
+
+        {(onPrevDestination || onNextDestination) && (
+          <div className={`absolute top-1/2 -translate-y-1/2 right-3 z-30 ${cardsHidden ? 'flex' : 'hidden md:flex'} flex-col gap-2 pointer-events-none`}>
+            <button
+              type="button"
+              onClick={onPrevDestination}
+              disabled={!hasPrevDestination}
+              className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+              aria-label="Destination précédente"
+            >
+              <ChevronUp className="h-5 w-5" />
+            </button>
+            <div className="w-9 h-9" />
+            <button
+              type="button"
+              onClick={onNextDestination}
+              disabled={!hasNextDestination}
+              className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+              aria-label="Destination suivante"
+            >
+              <ChevronDown className="h-5 w-5" />
+            </button>
+          </div>
+        )}
 
         {/* Left sidebar CTAs */}
         {!cardsHidden && (() => {
