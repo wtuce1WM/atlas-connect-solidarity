@@ -20,6 +20,7 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 import { GOLD, getVideoInfo, playWoosh } from "@/lib/overlayConstants";
 import OverlayFlipCard from "@/components/overlays/OverlayFlipCard";
 import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { LazyFullscreenLightbox } from "@/components/overlays/LazyOverlays";
 
 interface DestinationSlidePanelProps {
