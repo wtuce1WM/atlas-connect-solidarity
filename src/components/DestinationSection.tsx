@@ -124,19 +124,22 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
                 </div>
               )}
               {onMapClick && (
-                <button
+                <span
+                  role="button"
+                  tabIndex={0}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     onMapClick(dest);
                   }}
-                  className="absolute top-1.5 right-1.5 z-10 h-8 w-8 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-gold hover:text-black transition-colors shadow-lg"
+                  className="absolute top-1.5 right-1.5 z-10 h-8 w-8 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-gold hover:text-black transition-colors shadow-lg cursor-pointer"
                   title={language === "en" ? "View on map" : "Voir sur la carte"}
                   aria-label="Map"
                 >
                   <MapPin className="h-4 w-4" />
-                </button>
+                </span>
               )}
+
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
                 <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{name}</p>
