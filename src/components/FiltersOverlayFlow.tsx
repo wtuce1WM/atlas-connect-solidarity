@@ -143,10 +143,10 @@ export default function FiltersOverlayFlow({
   const handleSubClick = (subId: string) => {
     onSubClick(subId);
     // If this sub has no available service, skip step 3 entirely:
-    // apply the filter, and on mobile/tablet close the overlay and scroll to top.
+    // apply the filter and close the overlay (mobile scrolls to top of results).
     if ((subAvailability.get(subId) || 0) === 0) {
+      onClose();
       if (typeof window !== "undefined" && window.innerWidth < 1024) {
-        onClose();
         requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
       }
     }
@@ -160,22 +160,7 @@ export default function FiltersOverlayFlow({
 
   // Step 3 fallback: if user reached step 3 but no services are visible
   // (e.g. tab service prefetch hasn't returned yet), we still render gracefully.
-  // Once `tabServices` is loaded, `subAvailability` will redirect future clicks.
   const showStep3 = step === 3 && (subAvailability.get(activeFsSubId!) ?? 1) > 0;
-
-  // If somehow user is in step 3 but the sub actually has 0 services (race condition
-  // or stale data), bail back to step 2.
-  useEffect(() => {
-    if (step !== 3 || !activeFsSubId) return;
-    if (tabServices.length === 0) return; // wait for fetch
-    if ((subAvailability.get(activeFsSubId) || 0) === 0) {
-      if (typeof window !== "undefined" && window.innerWidth < 1024) {
-        onClose();
-      } else {
-        onSubClick(null);
-      }
-    }
-  }, [step, activeFsSubId, tabServices.length, subAvailability, onClose, onSubClick]);
 
   return (
     <div className="h-full flex flex-col">
