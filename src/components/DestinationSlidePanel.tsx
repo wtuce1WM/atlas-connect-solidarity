@@ -598,7 +598,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                 onUnflip={() => { playWoosh(wooshSfx); setFlipped(false); }}
                 name={destName}
                 hook={null}
-                mapMarkers={regionDestinations}
+                mapMarkers={destination.latitude && destination.longitude ? [{
+                  id: destination.id,
+                  name: destName,
+                  latitude: destination.latitude,
+                  longitude: destination.longitude,
+                  city: null,
+                  neighborhood: null,
+                  images: (destination.images && destination.images.length > 0) ? destination.images : (destination.image_url ? [destination.image_url] : null),
+                }] : []}
                 selectedMarkerId={destination.id}
                 selectedLat={destination.latitude}
                 selectedLng={destination.longitude}
