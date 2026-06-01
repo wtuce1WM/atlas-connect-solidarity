@@ -326,6 +326,38 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     return () => { cancelled = true; };
   }, [destinationId]);
 
+  // Fetch YouTube videos/shorts linked to this destination
+  // (same logic as BookOnlineSlidePanel YouTube overlay for POI tab)
+  useEffect(() => {
+    if (!destinationId) return;
+    let cancelled = false;
+    const fetchDestYoutube = async () => {
+      const { data: links } = await supabase
+        .from("business_youtube_video_destinations")
+        .select("sort_order, business_youtube_videos!inner(video_id, title, thumbnail, custom_thumbnail_url, is_visible, business_is_active)")
+        .eq("destination_id", destinationId)
+        .eq("business_youtube_videos.is_visible", true)
+        .eq("business_youtube_videos.business_is_active", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled) return;
+      const items = (links || [])
+        .map((row: any) => {
+          const v = row.business_youtube_videos;
+          if (!v?.video_id) return null;
+          return {
+            url: `https://www.youtube.com/watch?v=${v.video_id}`,
+            name: v.title || null,
+            thumbnail_url: v.custom_thumbnail_url || v.thumbnail || `https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`,
+            description: null as string | null,
+          };
+        })
+        .filter(Boolean) as { url: string; name: string | null; thumbnail_url: string | null; description: string | null }[];
+      setDestYoutubeVideos(items);
+    };
+    fetchDestYoutube();
+    return () => { cancelled = true; };
+  }, [destinationId]);
+
   // Fetch YouTube titles
   const videos = destination?.videos?.filter(Boolean) || [];
   useEffect(() => {
