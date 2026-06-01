@@ -89,17 +89,17 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       : null;
   }, [activeBusinessId, interceptCloseRef]);
 
-  // Cosmetic URL rewriting
-  const savedDestUrlRef = useRef(window.location.pathname + window.location.search);
+  // Cosmetic URL rewriting (no cleanup on unmount: the parent owns the
+  // URL state via ?openDestination=... and restoring it here causes a
+  // bounce loop with /destination/:name → Resolver → /search).
   useEffect(() => {
     if (destination?.name_fr && !activeBusinessId) {
-      window.history.replaceState(null, "", `/destination/${encodeURIComponent(destination.name_fr)}`);
+      const target = `/destination/${encodeURIComponent(destination.name_fr)}`;
+      if (window.location.pathname !== target) {
+        window.history.replaceState(null, "", target);
+      }
     }
   }, [destination?.name_fr, activeBusinessId]);
-  useEffect(() => {
-    const saved = savedDestUrlRef.current;
-    return () => { window.history.replaceState(null, "", saved); };
-  }, []);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const {
