@@ -563,17 +563,6 @@ export default function ResultsTabContent({
                   <div className="flex-1 overflow-hidden flex">
                     {/* Left column: Structure du front */}
                     <div className="w-1/2 border-r border-black/10 overflow-y-auto p-2">
-                      <button
-                        onClick={() => handleFsTabClick(null)}
-                        className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
-                      >
-                        <span
-                          className="flex-1 text-sm font-bold text-black"
-                          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                        >
-                          Catégories
-                        </span>
-                      </button>
                       {frontTabs.map((tab) => (
                         <button
                           key={tab.id}
@@ -581,7 +570,7 @@ export default function ResultsTabContent({
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
                         >
                           <span
-                            className={`flex-1 text-sm ${activeFsTabId === tab.id ? "font-semibold text-black" : "text-black/70"}`}
+                            className={`flex-1 text-sm text-black ${activeFsTabId === tab.id ? "font-bold" : ""}`}
                             style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                           >
                             {tab.name}
