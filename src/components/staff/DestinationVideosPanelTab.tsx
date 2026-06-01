@@ -11,7 +11,7 @@ import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove, SortableContext, useSortable, verticalListSortingStrategy,
+  arrayMove, SortableContext, useSortable, rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -317,20 +317,31 @@ const DestinationVideosPanelTab = () => {
     setVideos(prev => {
       const oldIndex = prev.findIndex(v => v.id === active.id);
       const newIndex = prev.findIndex(v => v.id === over.id);
+      if (oldIndex < 0 || newIndex < 0) return prev;
       return arrayMove(prev, oldIndex, newIndex);
     });
   };
 
   const saveOrder = async () => {
+    if (selectedDest === ALL) {
+      toast.error("Sélectionne une destination pour sauvegarder l'ordre");
+      return;
+    }
     setSaving(true);
     try {
-      for (let i = 0; i < videos.length; i++) {
-        if (videos[i].source === "generic") continue;
-        await supabase
+      await Promise.all(filteredVideos.map((v, i) => {
+        if (v.source === "generic") {
+          return supabase
+            .from("generic_video_destinations" as any)
+            .update({ sort_order: i } as any)
+            .eq("generic_video_id", v.business_id)
+            .eq("destination_id", v.destination_id);
+        }
+        return supabase
           .from("business_documents")
-          .update({ front_sort_order: i } as any)
-          .eq("id", videos[i].id);
-      }
+          .update({ sort_order: i } as any)
+          .eq("id", v.id);
+      }));
       toast.success("Ordre sauvegardé");
     } catch {
       toast.error("Erreur lors de la sauvegarde");
@@ -392,7 +403,7 @@ const DestinationVideosPanelTab = () => {
             <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
           ) : (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={filteredVideos.map(v => v.id)} strategy={verticalListSortingStrategy}>
+              <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
                 <div className="flex flex-wrap gap-2">
                   {filteredVideos.map((v, i) => (
                     <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
