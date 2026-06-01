@@ -123,6 +123,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     setFrontTabs([]);
     setCityVideos([]);
     bottomTabInitialRef.current = true;
+    setShowDescriptionOverlay(false);
   }, [destinationId]);
 
   // Fetch destination data
