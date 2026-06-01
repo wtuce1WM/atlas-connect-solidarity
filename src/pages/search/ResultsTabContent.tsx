@@ -545,75 +545,75 @@ export default function ResultsTabContent({
                   );
                 })()}
               </div>
-              {/* Filters overlay (toggled by the "Filtres" badge above the grid) */}
-              {showFiltersOverlay && (
-                <div className="absolute inset-0 z-[90] bg-white shadow-2xl flex flex-col">
-                  <div className="flex items-center gap-2 px-3 py-3 border-b border-black/10 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setShowFiltersOverlay(false)}
-                      className="flex items-center justify-center w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 text-black"
-                      aria-label="Fermer les filtres"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                    <span className="text-sm font-semibold text-black" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      Filtres
-                    </span>
-                  </div>
-                  <div className="flex-1 overflow-hidden flex">
-                    {/* Left column: Structure du front */}
-                    <div className="w-1/2 border-r border-black/10 overflow-y-auto p-2">
-                      {frontTabs.map((tab) => (
-                        <button
-                          key={tab.id}
-                          onClick={() => handleFsTabClick(tab.id)}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
-                        >
-                          <span
-                            className={`flex-1 text-sm text-black ${activeFsTabId === tab.id ? "font-bold" : ""}`}
-                            style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                          >
-                            {tab.name}
-                          </span>
-                          <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">
-                            {tab.count}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                    {/* Right column: Sous-catégorie + Services */}
-                    <div className="w-1/2 overflow-y-auto">
-                      {activeFsTab && (() => {
-                        const activeSub = activeFsSubId
-                          ? activeFsTab.subcategories.find(s => s.id === activeFsSubId)
-                          : null;
-                        const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0)
-                          ? allCityMapBusinesses
-                          : filteredBusinesses;
-                        const subPool = activeSub
-                          ? pool.filter((b: any) =>
-                              (b.main_category && activeSub.names.has(b.main_category)) ||
-                              b.categories?.some((c: string) => activeSub.names.has(c))
-                            )
-                          : [];
-                        return (
-                          <FrontStructureSubFilterContent
-                            subcategories={activeFsTab.subcategories}
-                            activeSubId={activeFsSubId}
-                            onSubClick={handleFsSubClick}
-                            subPool={subPool}
-                            selectedServices={activeFsServices}
-                            onServicesChange={handleFsServicesChange}
-                            onAfterPick={() => setShowFiltersOverlay(false)}
-                          />
-                        );
-                      })()}
-                    </div>
-                  </div>
-                </div>
-              )}
               {/* Bottom floating PanelSearchBar is rendered by SearchPage (single source) to avoid duplicate FAB buttons over the map. */}
+            </div>
+          </div>
+        )}
+        {/* Filters overlay (toggled by the "Filtres" badge above the grid) — full screen on mobile/tablet, right half on desktop when map is open */}
+        {showFiltersOverlay && (
+          <div className={`fixed inset-0 z-[90] bg-white shadow-2xl flex flex-col ${hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "lg:left-1/2" : ""}`}>
+            <div className="flex items-center gap-2 px-3 py-3 border-b border-black/10 shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowFiltersOverlay(false)}
+                className="flex items-center justify-center w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 text-black"
+                aria-label="Fermer les filtres"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <span className="text-sm font-semibold text-black" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                Filtres
+              </span>
+            </div>
+            <div className="flex-1 overflow-hidden flex">
+              {/* Left column: Structure du front */}
+              <div className="w-1/2 border-r border-black/10 overflow-y-auto p-2">
+                {frontTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => handleFsTabClick(tab.id)}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
+                  >
+                    <span
+                      className={`flex-1 text-sm text-black ${activeFsTabId === tab.id ? "font-bold" : ""}`}
+                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    >
+                      {tab.name}
+                    </span>
+                    <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">
+                      {tab.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {/* Right column: Sous-catégorie + Services */}
+              <div className="w-1/2 overflow-y-auto">
+                {activeFsTab && (() => {
+                  const activeSub = activeFsSubId
+                    ? activeFsTab.subcategories.find(s => s.id === activeFsSubId)
+                    : null;
+                  const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0)
+                    ? allCityMapBusinesses
+                    : filteredBusinesses;
+                  const subPool = activeSub
+                    ? pool.filter((b: any) =>
+                        (b.main_category && activeSub.names.has(b.main_category)) ||
+                        b.categories?.some((c: string) => activeSub.names.has(c))
+                      )
+                    : [];
+                  return (
+                    <FrontStructureSubFilterContent
+                      subcategories={activeFsTab.subcategories}
+                      activeSubId={activeFsSubId}
+                      onSubClick={handleFsSubClick}
+                      subPool={subPool}
+                      selectedServices={activeFsServices}
+                      onServicesChange={handleFsServicesChange}
+                      onAfterPick={() => setShowFiltersOverlay(false)}
+                    />
+                  );
+                })()}
+              </div>
             </div>
           </div>
         )}
