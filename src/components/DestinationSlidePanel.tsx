@@ -653,7 +653,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       <div className="relative w-full h-full">
         {/* Media background */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" onTouchStart={handleMediaTouchStart} onTouchEnd={handleMediaTouchEnd}>
           {currentMedia?.kind === "video" ? (
             <video ref={videoRef} key={currentMedia.url} src={currentMedia.url} className="w-full h-full object-cover" loop muted playsInline />
           ) : currentMedia?.kind === "image" ? (
@@ -665,6 +665,30 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </div>
 
         <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
+
+        {(onPrevDestination || onNextDestination) && (
+          <div className={`absolute top-1/2 -translate-y-1/2 right-3 z-30 ${cardsHidden ? 'flex' : 'hidden md:flex'} flex-col gap-2 pointer-events-none`}>
+            <button
+              type="button"
+              onClick={onPrevDestination}
+              disabled={!hasPrevDestination}
+              className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+              aria-label="Destination précédente"
+            >
+              <ChevronUp className="h-5 w-5" />
+            </button>
+            <div className="w-9 h-9" />
+            <button
+              type="button"
+              onClick={onNextDestination}
+              disabled={!hasNextDestination}
+              className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+              aria-label="Destination suivante"
+            >
+              <ChevronDown className="h-5 w-5" />
+            </button>
+          </div>
+        )}
 
         {/* Left sidebar CTAs */}
         {!cardsHidden && (() => {
