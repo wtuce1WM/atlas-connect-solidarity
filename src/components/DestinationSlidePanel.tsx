@@ -334,7 +334,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     const fetchDestYoutube = async () => {
       const { data: links } = await supabase
         .from("business_youtube_video_destinations")
-        .select("sort_order, business_youtube_videos!inner(video_id, title, thumbnail, custom_thumbnail_url, is_visible, business_is_active)")
+        .select("sort_order, business_youtube_videos!inner(video_id, title, thumbnail, custom_thumbnail_url, is_short, is_visible, business_is_active)")
         .eq("destination_id", destinationId)
         .eq("business_youtube_videos.is_visible", true)
         .eq("business_youtube_videos.business_is_active", true)
@@ -345,7 +345,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           const v = row.business_youtube_videos;
           if (!v?.video_id) return null;
           return {
-            url: `https://www.youtube.com/watch?v=${v.video_id}`,
+            url: v.is_short
+              ? `https://www.youtube.com/shorts/${v.video_id}`
+              : `https://www.youtube.com/watch?v=${v.video_id}`,
             name: v.title || null,
             thumbnail_url: v.custom_thumbnail_url || v.thumbnail || `https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`,
             description: null as string | null,
