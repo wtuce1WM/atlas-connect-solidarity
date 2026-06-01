@@ -477,25 +477,39 @@ export default function ResultsTabContent({
                 {(() => {
                   const total = activeFsTabId === null ? (searchResultsTotal ?? 0) : (fsMatchingCount ?? 0);
                   const showToggle = total > 20;
-                  if (!showToggle) return null;
                   return (
-                    <div className="flex items-center justify-center px-3 pt-3 pb-2">
-                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                        <button
-                          type="button"
-                          onClick={() => { if (showAllSearchMarkers) onToggleShowAllSearchMarkers?.(); }}
-                          className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
-                        >
-                          Top 20
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { if (!showAllSearchMarkers) onToggleShowAllSearchMarkers?.(); }}
-                          className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
-                        >
-                          Tous <span className="ml-0.5 opacity-70">{total}</span>
-                        </button>
-                      </div>
+                    <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2">
+                      {showToggle && (
+                        <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                          <button
+                            type="button"
+                            onClick={() => { if (showAllSearchMarkers) onToggleShowAllSearchMarkers?.(); }}
+                            className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                          >
+                            Top 20
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { if (!showAllSearchMarkers) onToggleShowAllSearchMarkers?.(); }}
+                            className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                          >
+                            Tous <span className="ml-0.5 opacity-70">{total}</span>
+                          </button>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveFsTabId(null);
+                          setActiveFsSubId(null);
+                          setShowFiltersOverlay(true);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black text-white text-[11px] font-semibold uppercase tracking-wider hover:bg-black/90 transition-colors"
+                        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                      >
+                        <SlidersHorizontal className="h-3.5 w-3.5" />
+                        Filtres
+                      </button>
                     </div>
                   );
                 })()}
