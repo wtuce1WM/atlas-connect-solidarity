@@ -71,6 +71,16 @@ const DestinationsTabContent = ({
     longitude: number | null;
   } | null>(null);
 
+  // Auto-open destination panel when URL param ?openDestination=<id> is set
+  const lastOpenedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (openDestinationId && lastOpenedRef.current !== openDestinationId) {
+      lastOpenedRef.current = openDestinationId;
+      setSelectedDestination({ id: openDestinationId } as DestinationItem);
+      setDestMapItem(null);
+    }
+  }, [openDestinationId]);
+
   const hasRightPanel = !!destMapItem || !!selectedDestination;
 
   return (
