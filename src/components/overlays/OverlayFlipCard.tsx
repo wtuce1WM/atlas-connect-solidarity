@@ -15,8 +15,8 @@ interface FlipCardProps {
   hook?: string | null;
   /** HTML description content — collapsible */
   description?: string | null;
-  descExpanded: boolean;
-  onToggleDesc: () => void;
+  descExpanded?: boolean;
+  onToggleDesc?: () => void;
   /** Map markers for the back face */
   mapMarkers: PoiMapItem[];
   /** The selected marker (gold) on the back face */
