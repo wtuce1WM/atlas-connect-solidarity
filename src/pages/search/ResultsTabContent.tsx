@@ -9,6 +9,7 @@ import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import FrontStructureNavBar from "@/components/FrontStructureNavBar";
 import FrontStructureSubNavBar from "@/components/FrontStructureSubNavBar";
+import FrontStructureSubFilterContent from "@/components/FrontStructureSubFilterContent";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import type { Business } from "@/pages/search/types";
@@ -134,6 +135,7 @@ export default function ResultsTabContent({
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
   const [activeFsServices, setActiveFsServices] = useState<string[]>([]);
+  const [showFiltersOverlay, setShowFiltersOverlay] = useState(false);
   const autoFsLabelKeyRef = useRef<string | null>(null);
   const resolvedHotelSearchInfo = hotelSearchInfo || (() => {
     if (typeof window === "undefined") return null;
@@ -300,7 +302,7 @@ export default function ResultsTabContent({
                   {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
                 </button>
                 <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  onClick={() => setShowFiltersOverlay(v => !v)}
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
                 >
                   <SlidersHorizontal className="h-4 w-4" />
@@ -535,6 +537,51 @@ export default function ResultsTabContent({
                   );
                 })()}
               </div>
+              {/* Filters overlay (toggled by the "Filtres" badge above the grid) */}
+              {showFiltersOverlay && activeFsTab && (
+                <div className="absolute top-0 right-0 bottom-0 w-1/2 z-[90] bg-white shadow-2xl flex flex-col">
+                  <div className="flex items-center justify-between px-3 py-3 border-b border-black/10 shrink-0">
+                    <span className="text-sm font-semibold text-black" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      Filter
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowFiltersOverlay(false)}
+                      className="flex items-center justify-center w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 text-black"
+                      aria-label="Fermer les filtres"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto">
+                    {(() => {
+                      const activeSub = activeFsSubId
+                        ? activeFsTab.subcategories.find(s => s.id === activeFsSubId)
+                        : null;
+                      const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0)
+                        ? allCityMapBusinesses
+                        : filteredBusinesses;
+                      const subPool = activeSub
+                        ? pool.filter((b: any) =>
+                            (b.main_category && activeSub.names.has(b.main_category)) ||
+                            b.categories?.some((c: string) => activeSub.names.has(c))
+                          )
+                        : [];
+                      return (
+                        <FrontStructureSubFilterContent
+                          subcategories={activeFsTab.subcategories}
+                          activeSubId={activeFsSubId}
+                          onSubClick={handleFsSubClick}
+                          subPool={subPool}
+                          selectedServices={activeFsServices}
+                          onServicesChange={handleFsServicesChange}
+                          onAfterPick={() => setShowFiltersOverlay(false)}
+                        />
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
               {/* Bottom floating PanelSearchBar is rendered by SearchPage (single source) to avoid duplicate FAB buttons over the map. */}
             </div>
           </div>
