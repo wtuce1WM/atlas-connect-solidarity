@@ -584,7 +584,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           {/* Middle & bottom content: carousel, CTA, owner buttons */}
           {!cardsHidden && (
             <div className="flex-1 min-h-0 flex flex-col">
-              <div className="flex-1" />
+
 
               {/* Bottom tabs */}
               {!flipped && (() => {
@@ -669,6 +669,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                   </div>
                 </div>
               )}
+              <div className="flex-1" />
 
 
               {/* Owner logo + badge */}
