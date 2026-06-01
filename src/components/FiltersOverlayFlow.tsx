@@ -168,7 +168,7 @@ export default function FiltersOverlayFlow({
         <button
           type="button"
           onClick={handleBack}
-          className="w-9 h-9 rounded-full bg-white hover:bg-white/90 flex items-center justify-center text-black"
+          className="w-9 h-9 rounded-full bg-black hover:bg-black/90 flex items-center justify-center text-white"
           aria-label={step === 1 ? "Fermer les filtres" : "Retour"}
         >
           <X className="h-4 w-4" />
