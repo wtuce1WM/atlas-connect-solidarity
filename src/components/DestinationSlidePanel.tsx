@@ -551,9 +551,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               onUnflip={() => { playWoosh(wooshSfx); setFlipped(false); }}
               name={destName}
               hook={destination.hook}
-              description={description}
-              descExpanded={descExpanded}
-              onToggleDesc={() => setDescExpanded((p) => !p)}
               mapMarkers={regionDestinations}
               selectedMarkerId={destination.id}
               selectedLat={destination.latitude}
