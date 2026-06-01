@@ -78,6 +78,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null);
   const bottomTabInitialRef = React.useRef(true);
   const [ytTitles, setYtTitles] = useState<Record<string, string>>({});
+  const [destYoutubeVideos, setDestYoutubeVideos] = useState<{ url: string; name: string | null; thumbnail_url: string | null; description: string | null }[]>([]);
   const [defaultReview, setDefaultReview] = useState<{ author_name: string; text: string; rating: number; source: string } | null>(null);
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
 
@@ -325,6 +326,38 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     return () => { cancelled = true; };
   }, [destinationId]);
 
+  // Fetch YouTube videos/shorts linked to this destination
+  // (same logic as BookOnlineSlidePanel YouTube overlay for POI tab)
+  useEffect(() => {
+    if (!destinationId) return;
+    let cancelled = false;
+    const fetchDestYoutube = async () => {
+      const { data: links } = await supabase
+        .from("business_youtube_video_destinations")
+        .select("sort_order, business_youtube_videos!inner(video_id, title, thumbnail, custom_thumbnail_url, is_visible, business_is_active)")
+        .eq("destination_id", destinationId)
+        .eq("business_youtube_videos.is_visible", true)
+        .eq("business_youtube_videos.business_is_active", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled) return;
+      const items = (links || [])
+        .map((row: any) => {
+          const v = row.business_youtube_videos;
+          if (!v?.video_id) return null;
+          return {
+            url: `https://www.youtube.com/watch?v=${v.video_id}`,
+            name: v.title || null,
+            thumbnail_url: v.custom_thumbnail_url || v.thumbnail || `https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`,
+            description: null as string | null,
+          };
+        })
+        .filter(Boolean) as { url: string; name: string | null; thumbnail_url: string | null; description: string | null }[];
+      setDestYoutubeVideos(items);
+    };
+    fetchDestYoutube();
+    return () => { cancelled = true; };
+  }, [destinationId]);
+
   // Fetch YouTube titles
   const videos = destination?.videos?.filter(Boolean) || [];
   useEffect(() => {
@@ -554,16 +587,27 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </OverlayShell>
       )}
 
-      {/* YouTube videos overlay (same component as BookOnlineSlidePanel) */}
-      {showYoutubeOverlay && (
-        <ExternalVideosOverlay
-          videos={(destination.videos || [])
-            .filter((u) => /(?:youtube\.com|youtu\.be)/i.test(u))
-            .map((url) => ({ url, name: ytTitles[url] || null, thumbnail_url: null, description: null }))}
-          businessName={destName}
-          onClose={() => setShowYoutubeOverlay(false)}
-        />
-      )}
+      {/* YouTube videos overlay — merges destination.videos + videos liées via
+          business_youtube_video_destinations (shorts & longues), comme dans
+          BookOnlineSlidePanel pour l'onglet POI. */}
+      {showYoutubeOverlay && (() => {
+        const directItems = (destination.videos || [])
+          .filter((u) => /(?:youtube\.com|youtu\.be)/i.test(u))
+          .map((url) => ({ url, name: ytTitles[url] || null, thumbnail_url: null as string | null, description: null as string | null }));
+        const getId = (u: string) => {
+          const m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+          return m ? m[1] : u;
+        };
+        const seen = new Set(directItems.map((v) => getId(v.url)));
+        const linked = destYoutubeVideos.filter((v) => !seen.has(getId(v.url)));
+        return (
+          <ExternalVideosOverlay
+            videos={[...directItems, ...linked]}
+            businessName={destName}
+            onClose={() => setShowYoutubeOverlay(false)}
+          />
+        );
+      })()}
 
 
       {/* Fullscreen lightbox */}
@@ -597,7 +641,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         {!cardsHidden && (() => {
           const hasLoc = !!(destination.latitude && destination.longitude);
           const youtubeUrls = (destination.videos || []).filter((u) => /(?:youtube\.com|youtu\.be)/i.test(u));
-          const hasYoutube = youtubeUrls.length > 0;
+          const hasYoutube = youtubeUrls.length > 0 || destYoutubeVideos.length > 0;
           if (!hasLoc && !hasYoutube) return null;
           return (
             <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
