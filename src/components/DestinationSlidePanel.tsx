@@ -545,19 +545,21 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
           {/* Flip card — shared component */}
           {!cardsHidden && (
-            <OverlayFlipCard
-              flipped={flipped}
-              onFlip={() => { playWoosh(wooshSfx); setFlipped(true); }}
-              onUnflip={() => { playWoosh(wooshSfx); setFlipped(false); }}
-              name={destName}
-              hook={destination.hook}
-              mapMarkers={regionDestinations}
-              selectedMarkerId={destination.id}
-              selectedLat={destination.latitude}
-              selectedLng={destination.longitude}
-              backLabel={destination.region && destination.region.length > 0 ? destination.region.join(" · ") : (language === "en" ? "Region" : "Région")}
-              defaultReview={defaultReview}
-            />
+            <div className="flex-[2] min-h-0 flex flex-col overflow-hidden">
+              <OverlayFlipCard
+                flipped={flipped}
+                onFlip={() => { playWoosh(wooshSfx); setFlipped(true); }}
+                onUnflip={() => { playWoosh(wooshSfx); setFlipped(false); }}
+                name={destName}
+                hook={destination.hook}
+                mapMarkers={regionDestinations}
+                selectedMarkerId={destination.id}
+                selectedLat={destination.latitude}
+                selectedLng={destination.longitude}
+                backLabel={destination.region && destination.region.length > 0 ? destination.region.join(" · ") : (language === "en" ? "Region" : "Région")}
+                defaultReview={defaultReview}
+              />
+            </div>
           )}
 
           {/* Centered "+" button to open full description overlay */}
@@ -579,102 +581,111 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             </div>
           )}
 
+          {/* Middle & bottom content: carousel, CTA, owner buttons */}
+          {!cardsHidden && (
+            <div className="flex-1 min-h-0 flex flex-col">
+              <div className="flex-1" />
 
-          {/* Bottom tabs */}
-          {!cardsHidden && !flipped && (() => {
-            const hasCityVideosTab = cityVideos.length > 0;
-            const hasYoutubeTab = videos.length > 0;
-            const tabs: BottomTabConfig[] = [];
+              {/* Bottom tabs */}
+              {!flipped && (() => {
+                const hasCityVideosTab = cityVideos.length > 0;
+                const hasYoutubeTab = videos.length > 0;
+                const tabs: BottomTabConfig[] = [];
 
-            if (hasCityVideosTab) tabs.push({
-              id: "cityVideos",
-              label: language === "en" ? "Videos" : "Vidéos",
-              renderContent: (animate, animCls) => (
-                <TabScrollRail>
-                  {cityVideos.map((cv, index) => {
-                    const info = getVideoInfo(cv.url);
-                    return (
-                      <TabVideoCard key={index} thumbnailUrl={cv.thumbnailUrl} platformThumbnailUrl={info.thumbnail} label={cv.name || cv.ownerName || `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`} onClick={() => setFullscreenVideo(cv.url)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
-                    );
-                  })}
-                </TabScrollRail>
-              ),
-            });
+                if (hasCityVideosTab) tabs.push({
+                  id: "cityVideos",
+                  label: language === "en" ? "Videos" : "Vidéos",
+                  renderContent: (animate, animCls) => (
+                    <TabScrollRail>
+                      {cityVideos.map((cv, index) => {
+                        const info = getVideoInfo(cv.url);
+                        return (
+                          <TabVideoCard key={index} thumbnailUrl={cv.thumbnailUrl} platformThumbnailUrl={info.thumbnail} label={cv.name || cv.ownerName || `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`} onClick={() => setFullscreenVideo(cv.url)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
+                        );
+                      })}
+                    </TabScrollRail>
+                  ),
+                });
 
-            if (hasYoutubeTab) tabs.push({
-              id: "youtube",
-              label: "YouTube",
-              tabStyle: "youtube",
-              renderContent: (animate, animCls) => (
-                <TabScrollRail gap="gap-3">
-                  {videos.map((videoUrl, index) => {
-                    const info = getVideoInfo(videoUrl);
-                    const cardLabel = ytTitles[videoUrl] || (info.type === "youtube" ? `YouTube ${index + 1}` : info.type === "vimeo" ? `Vimeo ${index + 1}` : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`);
-                    return (
-                      <TabYouTubeCard key={index} thumbnailUrl={info.thumbnail} videoPreviewUrl={info.type === "file" ? videoUrl : undefined} label={cardLabel} onClick={() => setFullscreenVideo(videoUrl)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
-                    );
-                  })}
-                </TabScrollRail>
-              ),
-            });
+                if (hasYoutubeTab) tabs.push({
+                  id: "youtube",
+                  label: "YouTube",
+                  tabStyle: "youtube",
+                  renderContent: (animate, animCls) => (
+                    <TabScrollRail gap="gap-3">
+                      {videos.map((videoUrl, index) => {
+                        const info = getVideoInfo(videoUrl);
+                        const cardLabel = ytTitles[videoUrl] || (info.type === "youtube" ? `YouTube ${index + 1}` : info.type === "vimeo" ? `Vimeo ${index + 1}` : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`);
+                        return (
+                          <TabYouTubeCard key={index} thumbnailUrl={info.thumbnail} videoPreviewUrl={info.type === "file" ? videoUrl : undefined} label={cardLabel} onClick={() => setFullscreenVideo(videoUrl)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
+                        );
+                      })}
+                    </TabScrollRail>
+                  ),
+                });
 
-            for (const ft of frontTabs) {
-              tabs.push({
-                id: `fs-${ft.id}`,
-                label: ft.name,
-                renderContent: (animate, animCls) => (
-                  <TabScrollRail>
-                    {ft.businesses.map((biz, index) => {
-                      const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                      const ratingValue = biz.computed_rating ?? biz.rating ?? null;
-                      const ratingBadge = ratingValue ? (
-                        <span className="absolute top-1.5 right-1.5 bg-gold text-black text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-md leading-tight flex items-center gap-0.5">
-                          <Star className="h-2.5 w-2.5" style={{ color: "#C04F17" }} />
-                          {(Math.round(Number(ratingValue) * 10) / 10).toFixed(1)}
-                        </span>
-                      ) : null;
-                      return (
-                        <TabCard key={biz.id} imageUrl={bizImg} label={biz.name} onClick={() => setActiveBusinessId(biz.id)} animate={animate} animationClass={animCls} animationDelay={index * 120} imageOverlay={ratingBadge} />
-                      );
-                    })}
-                  </TabScrollRail>
-                ),
-              });
-            }
+                for (const ft of frontTabs) {
+                  tabs.push({
+                    id: `fs-${ft.id}`,
+                    label: ft.name,
+                    renderContent: (animate, animCls) => (
+                      <TabScrollRail>
+                        {ft.businesses.map((biz, index) => {
+                          const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+                          const ratingValue = biz.computed_rating ?? biz.rating ?? null;
+                          const ratingBadge = ratingValue ? (
+                            <span className="absolute top-1.5 right-1.5 bg-gold text-black text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-md leading-tight flex items-center gap-0.5">
+                              <Star className="h-2.5 w-2.5" style={{ color: "#C04F17" }} />
+                              {(Math.round(Number(ratingValue) * 10) / 10).toFixed(1)}
+                            </span>
+                          ) : null;
+                          return (
+                            <TabCard key={biz.id} imageUrl={bizImg} label={biz.name} onClick={() => setActiveBusinessId(biz.id)} animate={animate} animationClass={animCls} animationDelay={index * 120} imageOverlay={ratingBadge} />
+                          );
+                        })}
+                      </TabScrollRail>
+                    ),
+                  });
+                }
 
-            if (tabs.length === 0) return null;
-            return <BottomTabsCarousel tabs={tabs} activeTab={activeBottomTab} onTabChange={(id) => { bottomTabInitialRef.current = false; setActiveBottomTab(id); }} />;
-          })()}
+                if (tabs.length === 0) return null;
+                return <BottomTabsCarousel tabs={tabs} activeTab={activeBottomTab} onTabChange={(id) => { bottomTabInitialRef.current = false; setActiveBottomTab(id); }} />;
+              })()}
 
-          {/* CTA + owner logo + badge + video controls */}
-          <div className={`${showSearchBar ? 'absolute bottom-[88px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 pointer-events-auto`}>
-            {!cardsHidden && destination.latitude && destination.longitude && (
-              <div className="w-1/2 md:w-3/4 flex justify-center gap-2">
-                <div className="flex-1 md:flex-none md:w-1/3">
-                  <button
-                    onClick={() => setShowDirections(true)}
-                    className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-up-from-bottom"
-                    style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
-                  >
-                    <Navigation className="h-4 w-4 hidden md:block" />
-                    <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
-                  </button>
+              {/* CTA itinéraire */}
+              {destination.latitude && destination.longitude && (
+                <div className="shrink-0 flex justify-center py-1.5 pointer-events-auto">
+                  <div className="w-1/2 md:w-3/4 flex justify-center gap-2">
+                    <div className="flex-1 md:flex-none md:w-1/3">
+                      <button
+                        onClick={() => setShowDirections(true)}
+                        className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-up-from-bottom"
+                        style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
+                      >
+                        <Navigation className="h-4 w-4 hidden md:block" />
+                        <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
+              )}
+
+              <div className="flex-1" />
+
+              {/* Owner logo + badge */}
+              <div className={`${showSearchBar ? 'absolute bottom-[88px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 pointer-events-auto`}>
+                <OwnerLogoOverlay logoBigOverlay={logoBigOverlay} logoBigFadingOut={logoBigFadingOut} cardsHidden={cardsHidden} currentMediaUrl={currentMedia?.url} videoDocs={ownerVideoDocs} currentBusinessId={destinationId} />
+                <OwnerBadge
+                  cardsHidden={cardsHidden} currentMediaKind={currentMedia?.kind} currentMediaUrl={currentMedia?.url}
+                  videoDocs={ownerVideoDocs} currentBusinessId={destinationId}
+                  onNavigateToOwner={(ownerId) => {
+                    const cv = cityVideos.find(v => v.businessId === ownerId);
+                    if (cv?.ownerSlug) navigate(businessUrl({ id: cv.businessId, slug: cv.ownerSlug }));
+                  }}
+                />
               </div>
-            )}
-
-            {/* Owner logo + badge */}
-            <OwnerLogoOverlay logoBigOverlay={logoBigOverlay} logoBigFadingOut={logoBigFadingOut} cardsHidden={cardsHidden} currentMediaUrl={currentMedia?.url} videoDocs={ownerVideoDocs} currentBusinessId={destinationId} />
-            <OwnerBadge
-              cardsHidden={cardsHidden} currentMediaKind={currentMedia?.kind} currentMediaUrl={currentMedia?.url}
-              videoDocs={ownerVideoDocs} currentBusinessId={destinationId}
-              onNavigateToOwner={(ownerId) => {
-                const cv = cityVideos.find(v => v.businessId === ownerId);
-                if (cv?.ownerSlug) navigate(businessUrl({ id: cv.businessId, slug: cv.ownerSlug }));
-              }}
-            />
-
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
