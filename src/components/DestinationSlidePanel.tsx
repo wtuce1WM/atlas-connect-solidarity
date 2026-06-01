@@ -609,24 +609,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
           onTouchStart={onDragTouchStart} onTouchMove={onDragTouchMove} onTouchEnd={onDragTouchEnd}
         >
-          {/* Top bar */}
-          <div className="relative z-40 overflow-visible flex flex-col items-center pb-3 pointer-events-auto mt-1 md:mt-0">
-            {cardsHidden ? (
-              <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)}>
-                <button type="button" className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors" title="Afficher les cartes" aria-label="Afficher les cartes" onClick={(e) => { e.stopPropagation(); showCards(); }} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
-                  <ChevronUp className="h-3.5 w-3.5" />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
-                  <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
-                </button>
-              </MediaCounterBar>
-            ) : (
-              <CardsToggleButton cardsHidden={cardsHidden} showCards={showCards} hideCards={hideCards} onMouseDownDrag={onMouseDownDrag} />
-            )}
-          </div>
-
           {/* Destination name — dark rounded rectangle (like BookOnlineSlidePanel BusinessHeader) */}
           {!cardsHidden && (
-            <div className="shrink-0 flex justify-center px-4 pt-2">
+            <div className="shrink-0 flex justify-center px-4">
               <div className="rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 py-3 md:py-4 text-white pointer-events-auto animate-slide-in-right">
                 <h2
                   className="text-base md:text-xl font-bold uppercase text-center"
@@ -642,6 +627,22 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               </div>
             </div>
           )}
+
+          {/* Top bar: toggle — below name (like BookOnlineSlidePanel) */}
+          <div className="relative z-40 overflow-visible flex flex-col items-center pt-2 pb-3 pointer-events-auto">
+            {cardsHidden ? (
+              <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)}>
+                <button type="button" className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors" title="Afficher les cartes" aria-label="Afficher les cartes" onClick={(e) => { e.stopPropagation(); showCards(); }} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
+                  <ChevronUp className="h-3.5 w-3.5" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
+                  <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
+                </button>
+              </MediaCounterBar>
+            ) : (
+              <CardsToggleButton cardsHidden={cardsHidden} showCards={showCards} hideCards={hideCards} onMouseDownDrag={onMouseDownDrag} />
+            )}
+          </div>
+
 
           {/* Centered hook + "+" button to open full description overlay */}
           {!cardsHidden && !flipped && (destination.hook || description) && (
