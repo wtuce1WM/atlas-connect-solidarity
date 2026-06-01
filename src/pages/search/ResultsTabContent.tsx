@@ -291,16 +291,14 @@ export default function ResultsTabContent({
                 </div>
               )}
               {/* Bar: Results count + Carte — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className={`sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-2 md:py-2 md:min-h-[40px] lg:py-1.5 lg:min-h-0 lg:hidden ${resolvedHotelSearchInfo ? 'top-[101px] md:top-[91px]' : 'top-[53px] md:top-[60px]'}`}>
-                {isSubDesktop && (
-                  <button
-                    onClick={() => setShowMobileMap(true)}
-                    className="lg:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
-                  >
-                    <Map className="h-4 w-4" />
-                    {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-                  </button>
-                )}
+              <div ref={resultsBarRef} data-results-bar className={`sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-2 md:py-2 md:min-h-[40px] lg:py-1.5 lg:min-h-[40px] ${resolvedHotelSearchInfo ? 'top-[101px] md:top-[91px]' : 'top-[53px] md:top-[60px]'}`}>
+                <button
+                  onClick={() => setShowMobileMap(true)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+                >
+                  <Map className="h-4 w-4" />
+                  {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+                </button>
               </div>
               {/* Results grid */}
               <div className={`grid gap-4 ${resolvedHotelSearchInfo ? "pt-2 lg:pt-10" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
