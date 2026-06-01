@@ -687,40 +687,23 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               {/* Bottom tabs */}
               {!flipped && (() => {
                 const hasCityVideosTab = cityVideos.length > 0;
-                const hasYoutubeTab = false;
-                const tabs: BottomTabConfig[] = [];
+                 const tabs: BottomTabConfig[] = [];
 
-                if (hasCityVideosTab) tabs.push({
-                  id: "cityVideos",
-                  label: language === "en" ? "Videos" : "Vidéos",
-                  renderContent: (animate, animCls) => (
-                    <TabScrollRail>
-                      {cityVideos.map((cv, index) => {
-                        const info = getVideoInfo(cv.url);
-                        return (
-                          <TabVideoCard key={index} thumbnailUrl={cv.thumbnailUrl} platformThumbnailUrl={info.thumbnail} label={cv.name || cv.ownerName || `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`} onClick={() => setFullscreenVideo(cv.url)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
-                        );
-                      })}
-                    </TabScrollRail>
-                  ),
-                });
+                 if (hasCityVideosTab) tabs.push({
+                   id: "cityVideos",
+                   label: language === "en" ? "Videos" : "Vidéos",
+                   renderContent: (animate, animCls) => (
+                     <TabScrollRail>
+                       {cityVideos.map((cv, index) => {
+                         const info = getVideoInfo(cv.url);
+                         return (
+                           <TabVideoCard key={index} thumbnailUrl={cv.thumbnailUrl} platformThumbnailUrl={info.thumbnail} label={cv.name || cv.ownerName || `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`} onClick={() => setFullscreenVideo(cv.url)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
+                         );
+                       })}
+                     </TabScrollRail>
+                   ),
+                 });
 
-                if (hasYoutubeTab) tabs.push({
-                  id: "youtube",
-                  label: "YouTube",
-                  tabStyle: "youtube",
-                  renderContent: (animate, animCls) => (
-                    <TabScrollRail gap="gap-3">
-                      {videos.map((videoUrl, index) => {
-                        const info = getVideoInfo(videoUrl);
-                        const cardLabel = ytTitles[videoUrl] || (info.type === "youtube" ? `YouTube ${index + 1}` : info.type === "vimeo" ? `Vimeo ${index + 1}` : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`);
-                        return (
-                          <TabYouTubeCard key={index} thumbnailUrl={info.thumbnail} videoPreviewUrl={info.type === "file" ? videoUrl : undefined} label={cardLabel} onClick={() => setFullscreenVideo(videoUrl)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
-                        );
-                      })}
-                    </TabScrollRail>
-                  ),
-                });
 
                 for (const ft of frontTabs) {
                   tabs.push({
