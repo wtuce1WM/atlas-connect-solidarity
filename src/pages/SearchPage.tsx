@@ -4181,6 +4181,7 @@ const SearchPage = () => {
             setIsCompactPanelExpanded(false);
           }}
           userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
+          openDestinationId={openDestinationParam || null}
         />
       )}
 
