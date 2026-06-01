@@ -97,7 +97,7 @@ const OverlayFlipCard = ({
             )}
           </div>
 
-          {description && descExpanded && (
+          {description && descExpanded && onToggleDesc && (
             <div className="min-h-0 overflow-y-auto overscroll-contain pr-2" style={{ maxHeight: "min(35vh, 280px)" }}>
               <div
                 className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
