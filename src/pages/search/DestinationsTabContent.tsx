@@ -31,6 +31,7 @@ interface DestinationsTabContentProps {
   onSearchNavigate: (params: Record<string, string>) => void;
   onBusinessSelect: (bizId: string) => void;
   userCoords?: { lat: number; lng: number } | null;
+  openDestinationId?: string | null;
 }
 
 const DestinationsTabContent = ({
