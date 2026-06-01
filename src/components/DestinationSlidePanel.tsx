@@ -723,23 +723,21 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           onTouchStart={onDragTouchStart} onTouchMove={onDragTouchMove} onTouchEnd={onDragTouchEnd}
         >
           {/* Destination name — dark rounded rectangle (like BookOnlineSlidePanel BusinessHeader) */}
-          {!cardsHidden && (
-            <div className="shrink-0 flex justify-center px-4">
-              <div className="rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 py-3 md:py-4 text-white pointer-events-auto animate-slide-in-right">
-                <h2
-                  className="text-base md:text-xl font-bold uppercase text-center"
-                  style={{
-                    fontFamily: "'Josefin Sans', sans-serif",
-                    letterSpacing: '0.12em',
-                    WebkitTextStroke: '0.8px currentColor',
-                    textShadow: '0 0 0 currentColor',
-                  }}
-                >
-                  {destName}
-                </h2>
-              </div>
+          <div className={`shrink-0 flex justify-center px-4 ${cardsHidden ? 'invisible' : ''}`} aria-hidden={cardsHidden}>
+            <div className="rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 py-3 md:py-4 text-white pointer-events-auto animate-slide-in-right">
+              <h2
+                className="text-base md:text-xl font-bold uppercase text-center"
+                style={{
+                  fontFamily: "'Josefin Sans', sans-serif",
+                  letterSpacing: '0.12em',
+                  WebkitTextStroke: '0.8px currentColor',
+                  textShadow: '0 0 0 currentColor',
+                }}
+              >
+                {destName}
+              </h2>
             </div>
-          )}
+          </div>
 
           {/* Top bar: toggle — below name (like BookOnlineSlidePanel) */}
           <div className="relative z-40 overflow-visible flex flex-col items-center pt-2 pb-3 pointer-events-auto">
