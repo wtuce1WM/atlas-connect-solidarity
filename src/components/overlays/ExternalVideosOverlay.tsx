@@ -105,7 +105,7 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
       </div>
 
       {/* Player area */}
-      <div className="flex-1 min-h-0 flex items-center justify-center px-4 py-4 relative">
+      <div className="flex-1 min-h-0 flex items-center justify-center px-4 relative">
         <div className={`relative rounded-xl overflow-hidden bg-black shadow-2xl ${activeEmbed?.isVertical ? "h-full aspect-[9/16]" : "w-full max-w-5xl aspect-video"}`}>
           {activeEmbed && (
             <iframe
