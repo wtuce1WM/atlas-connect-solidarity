@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Map, X } from "lucide-react";
 import DestinationSection, { type DestinationItem } from "@/components/DestinationSection";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
