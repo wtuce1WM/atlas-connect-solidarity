@@ -293,38 +293,78 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     return () => { cancelled = true; };
   }, [destinationId, destination?.city_ids]);
 
-  // Fetch destination-linked videos (by destination_id)
+  // Fetch destination-linked videos (business_documents + generic_videos)
+  // Merged & ordered by sort_order ASC.
   useEffect(() => {
     if (!destinationId) return;
     let cancelled = false;
     const fetchDestVideos = async () => {
-      const { data: docs } = await supabase
-        .from("business_documents")
-        .select("url, name, thumbnail_url, business_id")
-        .eq("type", "video")
-        .eq("business_is_active", true)
-        .eq("destination_id", destinationId)
-        .order("sort_order", { ascending: true });
+      const [docsRes, gvLinksRes] = await Promise.all([
+        supabase
+          .from("business_documents")
+          .select("url, name, thumbnail_url, business_id, sort_order")
+          .eq("type", "video")
+          .eq("business_is_active", true)
+          .eq("destination_id", destinationId),
+        supabase
+          .from("generic_video_destinations" as any)
+          .select("generic_video_id, sort_order")
+          .eq("destination_id", destinationId) as any,
+      ]);
       if (cancelled) return;
-      if (!docs || docs.length === 0) { setCityVideos([]); return; }
-      const ownerIds = [...new Set(docs.map(d => d.business_id))];
-      const { data: owners } = await supabase
-        .from("businesses")
-        .select("id, name, logo_url, slug")
-        .in("id", ownerIds);
+
+      const docs = (docsRes.data || []) as any[];
+      const gvLinks = ((gvLinksRes.data || []) as any[]) as { generic_video_id: string; sort_order: number | null }[];
+
+      const ownerIds = [...new Set(docs.map((d: any) => d.business_id))];
+      const gvIds = [...new Set(gvLinks.map((l) => l.generic_video_id))];
+
+      const [ownersRes, gvsRes] = await Promise.all([
+        ownerIds.length
+          ? supabase.from("businesses").select("id, name, logo_url, slug").in("id", ownerIds)
+          : Promise.resolve({ data: [] as any[] } as any),
+        gvIds.length
+          ? (supabase.from("generic_videos" as any).select("id, url, name, thumbnail_url").in("id", gvIds) as any)
+          : Promise.resolve({ data: [] as any[] } as any),
+      ]);
       if (cancelled) return;
-      const ownerMap = new Map((owners || []).map(o => [o.id, o]));
-      setCityVideos(docs.map(d => {
-        const owner = ownerMap.get(d.business_id);
+
+      const ownerMap = new Map(((ownersRes.data as any[]) || []).map((o: any) => [o.id, o]));
+      const gvMap = new Map(((gvsRes.data as any[]) || []).map((g: any) => [g.id, g]));
+
+      const docItems = docs.map((d: any) => {
+        const owner = ownerMap.get(d.business_id) as any;
         return {
-          url: d.url, name: d.name,
+          url: d.url as string,
+          name: (d.name as string | null) ?? null,
           ownerName: owner?.name || "",
-          thumbnailUrl: d.thumbnail_url,
-          businessId: d.business_id,
+          thumbnailUrl: (d.thumbnail_url as string | null) ?? null,
+          businessId: d.business_id as string,
           ownerLogo: owner?.logo_url || null,
           ownerSlug: owner?.slug || null,
+          sortOrder: (d.sort_order as number | null) ?? 0,
         };
-      }));
+      });
+
+      const gvItems = gvLinks
+        .map((l) => {
+          const gv = gvMap.get(l.generic_video_id) as any;
+          if (!gv?.url) return null;
+          return {
+            url: gv.url as string,
+            name: (gv.name as string | null) ?? null,
+            ownerName: "",
+            thumbnailUrl: (gv.thumbnail_url as string | null) ?? null,
+            businessId: `gv-${l.generic_video_id}`,
+            ownerLogo: null,
+            ownerSlug: null,
+            sortOrder: l.sort_order ?? 0,
+          };
+        })
+        .filter(Boolean) as typeof docItems;
+
+      const merged = [...docItems, ...gvItems].sort((a, b) => a.sortOrder - b.sortOrder);
+      setCityVideos(merged.map(({ sortOrder, ...rest }) => rest));
     };
     fetchDestVideos();
     return () => { cancelled = true; };
