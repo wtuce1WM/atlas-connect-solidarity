@@ -9,6 +9,7 @@ import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import FrontStructureNavBar from "@/components/FrontStructureNavBar";
 import FrontStructureSubNavBar from "@/components/FrontStructureSubNavBar";
+import FrontStructureSubFilterContent from "@/components/FrontStructureSubFilterContent";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import type { Business } from "@/pages/search/types";
