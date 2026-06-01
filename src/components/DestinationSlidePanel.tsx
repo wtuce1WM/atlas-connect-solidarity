@@ -34,6 +34,10 @@ interface DestinationSlidePanelProps {
   showSearchBar?: boolean;
   onSearch?: (params: Record<string, string>) => void;
   onSearchBusinessSelect?: (businessId: string) => void;
+  onPrevDestination?: () => void;
+  onNextDestination?: () => void;
+  hasPrevDestination?: boolean;
+  hasNextDestination?: boolean;
 }
 
 interface DestinationFull {
