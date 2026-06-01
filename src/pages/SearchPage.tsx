@@ -1977,22 +1977,25 @@ const SearchPage = () => {
     if (allSearchMapBusinesses.length >= totalCount) return;
     let cancelled = false;
     (async () => {
+      const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
       const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
         body: {
-          query: searchQuery.trim() || categoryFromUrl || undefined,
-          spoken: spokenText || undefined,
+          query: useSubcatBypass ? undefined : (searchQuery.trim() || categoryFromUrl || undefined),
+          spoken: useSubcatBypass ? undefined : (spokenText || undefined),
           language: language,
           pageSize: totalCount,
           offset: 0,
           compact: "card",
-          ...(cityFromUrl ? { city: cityFromUrl } : {}),
+          ...(useSubcatBypass
+            ? { subcategoryNames: subcategoryNamesFromUrl, city: cityFromUrl }
+            : (cityFromUrl ? { city: cityFromUrl } : {})),
         }
       });
       if (cancelled || error || !data) return;
       setAllSearchMapBusinesses((data.businesses || []) as Business[]);
     })();
     return () => { cancelled = true; };
-  }, [showAllSearchMarkers, totalCount, filteredBusinesses.length, allSearchMapBusinesses.length, searchQuery, spokenText, language, categoryFromUrl, cityFromUrl]);
+  }, [showAllSearchMarkers, totalCount, filteredBusinesses.length, allSearchMapBusinesses.length, searchQuery, spokenText, language, categoryFromUrl, cityFromUrl, subcategoryNamesFromUrl]);
 
   // Pool used for "Voir tous": full results when fetched, otherwise current page.
   // When the AI panel produced a refined dedicated search (e.g. "artisans à proximité"),
