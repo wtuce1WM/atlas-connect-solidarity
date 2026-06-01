@@ -56,7 +56,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [destination, setDestination] = useState<DestinationFull | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-  const [descExpanded, setDescExpanded] = useState(true);
   const [showDirections, setShowDirections] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
