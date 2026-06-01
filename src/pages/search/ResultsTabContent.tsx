@@ -479,7 +479,7 @@ export default function ResultsTabContent({
                   const showToggle = total > 20;
                   if (!showToggle) return null;
                   return (
-                    <div className="flex items-center px-3 pb-2">
+                    <div className="flex items-center justify-center px-3 pt-3 pb-2">
                       <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                         <button
                           type="button"
