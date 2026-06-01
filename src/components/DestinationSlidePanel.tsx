@@ -94,17 +94,13 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       : null;
   }, [activeBusinessId, interceptCloseRef]);
 
-  // Cosmetic URL rewriting (no cleanup on unmount: the parent owns the
-  // URL state via ?openDestination=... and restoring it here causes a
-  // bounce loop with /destination/:name → Resolver → /search).
-  useEffect(() => {
-    if (destination?.name_fr && !activeBusinessId) {
-      const target = `/destination/${encodeURIComponent(destination.name_fr)}`;
-      if (window.location.pathname !== target) {
-        window.history.replaceState(null, "", target);
-      }
-    }
-  }, [destination?.name_fr, activeBusinessId]);
+  // NOTE: previously rewrote the URL to /destination/:name via replaceState
+  // for cosmetics. This created a bounce loop with React Router: any later
+  // setSearchParams call would navigate back to /search?openDestination=...
+  // (because router state still thought pathname was /search), which made
+  // the preview unstable. The panel is already shareable via
+  // /search?openDestination=<id>, so we keep that URL as-is.
+
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const {
