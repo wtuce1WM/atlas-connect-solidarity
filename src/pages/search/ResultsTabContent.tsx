@@ -549,7 +549,7 @@ export default function ResultsTabContent({
                 <div className="absolute inset-0 z-[90] bg-white shadow-2xl flex flex-col">
                   <div className="flex items-center justify-between px-3 py-3 border-b border-black/10 shrink-0">
                     <span className="text-sm font-semibold text-black" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      Filter
+                      Filtres
                     </span>
                     <button
                       type="button"
