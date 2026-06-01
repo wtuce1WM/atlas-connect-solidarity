@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } fr
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronUp, X, Navigation, Minimize2, Star } from "lucide-react";
+import { MapPin, ChevronUp, X, Navigation, Minimize2, Star, Heart } from "lucide-react";
+import ShareButton from "@/components/ShareButton";
 import VideoControls from "@/components/VideoControls";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
