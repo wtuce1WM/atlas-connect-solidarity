@@ -438,13 +438,14 @@ export default function ResultsTabContent({
                     {(() => {
                       const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
                       const sub = activeFsSubId && tab ? tab.subcategories.find(s => s.id === activeFsSubId) : null;
-                      const label = sub
+                      const baseLabel = sub
                         ? sub.name
                         : tab
                           ? tab.name
                           : (labelFromUrl || spokenText || searchQuery || "");
+                      const servicesSuffix = activeFsServices.length > 0 ? ` · ${activeFsServices.join(", ")}` : "";
                       const citySuffix = effectiveCity ? ` à ${effectiveCity}` : "";
-                      const fullLabel = `${label}${citySuffix}`;
+                      const fullLabel = `${baseLabel}${servicesSuffix}${citySuffix}`;
                       return `${mapPoiItems.length} ${language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "${fullLabel}"`;
                     })()}
                   </span>
