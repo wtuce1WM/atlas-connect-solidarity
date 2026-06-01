@@ -443,7 +443,7 @@ export default function ResultsTabContent({
                   >
                     <X className="h-4 w-4" />
                   </button>
-                  <span className="flex-1 text-sm font-medium text-black truncate">
+                  <span className="flex-1 text-center text-sm font-medium text-black truncate">
                     {(() => {
                       const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
                       const sub = activeFsSubId && tab ? tab.subcategories.find(s => s.id === activeFsSubId) : null;
