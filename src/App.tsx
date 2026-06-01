@@ -54,7 +54,7 @@ const Corporate = lazy(() => import("./pages/Corporate"));
 const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
-const DestinationPage = lazy(() => import("./pages/DestinationPage"));
+
 const SearchLayoutDemo = lazy(() => import("./pages/SearchLayoutDemo"));
 
 const StrictModePage = lazy(() => import("./pages/StrictModePage"));
