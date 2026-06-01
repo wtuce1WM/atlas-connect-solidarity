@@ -192,24 +192,29 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
         );
 
         return (
-          <div ref={stripRef} className="shrink-0 overflow-hidden px-3 pb-16 pt-2 border-t border-white/10 space-y-3">
+          <div ref={stripRef} className="shrink-0 overflow-hidden px-3 pb-16 pt-2 border-t border-white/10 space-y-1.5">
             {shorts.length > 0 && (
               <div>
-                <p className="text-[11px] uppercase tracking-wide text-white/60 mb-1.5 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  {language === "en" ? "Shorts" : "Shorts"}
-                </p>
+                {longs.length > 0 && (
+                  <p className="text-[10px] uppercase tracking-wide text-white/50 mb-1 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                    Shorts
+                  </p>
+                )}
                 {renderStrip(shorts, true)}
               </div>
             )}
             {longs.length > 0 && (
               <div>
-                <p className="text-[11px] uppercase tracking-wide text-white/60 mb-1.5 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  {language === "en" ? "Videos" : "Vidéos"}
-                </p>
+                {shorts.length > 0 && (
+                  <p className="text-[10px] uppercase tracking-wide text-white/50 mb-1 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                    {language === "en" ? "Videos" : "Vidéos"}
+                  </p>
+                )}
                 {renderStrip(longs, false)}
               </div>
             )}
           </div>
+
         );
       })()}
 
