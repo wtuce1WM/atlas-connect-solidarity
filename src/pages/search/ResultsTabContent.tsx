@@ -596,7 +596,7 @@ export default function ResultsTabContent({
                     </div>
                     {/* Right column: Sous-catégorie + Services */}
                     <div className="w-1/2 overflow-y-auto">
-                      {(() => {
+                      {activeFsTab && (() => {
                         const activeSub = activeFsSubId
                           ? activeFsTab.subcategories.find(s => s.id === activeFsSubId)
                           : null;
