@@ -72,6 +72,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const bottomTabInitialRef = React.useRef(true);
   const [ytTitles, setYtTitles] = useState<Record<string, string>>({});
   const [defaultReview, setDefaultReview] = useState<{ author_name: string; text: string; rating: number; source: string } | null>(null);
+  const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
 
   // Expose close interceptor
   React.useEffect(() => {
@@ -122,6 +123,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     setFrontTabs([]);
     setCityVideos([]);
     bottomTabInitialRef.current = true;
+    setShowDescriptionOverlay(false);
   }, [destinationId]);
 
   // Fetch destination data
@@ -563,6 +565,26 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             />
           )}
 
+          {/* Centered "+" button to open full description overlay */}
+          {!cardsHidden && !flipped && description && (
+            <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => setShowDescriptionOverlay(true)}
+                className="pointer-events-auto group flex flex-col items-center gap-2"
+                aria-label={language === "en" ? "Read more" : "Lire la suite"}
+              >
+                <div
+                  className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+                  style={{ backgroundColor: '#25D366' }}
+                >
+                  <span className="text-2xl text-white font-light leading-none">+</span>
+                </div>
+              </button>
+            </div>
+          )}
+
+
           {/* Bottom tabs */}
           {!cardsHidden && !flipped && (() => {
             const hasCityVideosTab = cityVideos.length > 0;
@@ -679,6 +701,42 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           ) : undefined
         }
       />
+
+      {/* Full Description Overlay */}
+      {showDescriptionOverlay && description && (
+        <OverlayShell zClass="z-[85]" animClass="animate-zoom-out-center" className="flex flex-col">
+          {allImages[0] ? (
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${allImages[0]})` }}
+            >
+              <div className="absolute inset-0 bg-black/70" />
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-background" />
+          )}
+          <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10">
+            <button
+              onClick={() => setShowDescriptionOverlay(false)}
+              className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0"
+              aria-label={language === "en" ? "Close" : "Fermer"}
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{destName}</h2>
+          </div>
+          <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain">
+            <div className="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-4 md:pr-6">
+              <div
+                className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_img]:max-w-full [&_img]:rounded-md [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic prose-strong:!text-white"
+                dangerouslySetInnerHTML={{ __html: description }}
+              />
+            </div>
+          </div>
+        </OverlayShell>
+      )}
+
+
 
       {/* Recursive business overlay */}
       {activeBusinessId && (
