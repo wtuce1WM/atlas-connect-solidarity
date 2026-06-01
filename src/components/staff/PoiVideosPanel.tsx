@@ -11,7 +11,7 @@ import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove, SortableContext, useSortable, verticalListSortingStrategy,
+  arrayMove, SortableContext, useSortable, rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
