@@ -87,6 +87,7 @@ interface AgendaEvent {
     neighborhood?: string | null;
     whatsapp?: string | null;
     logo_bg?: string | null;
+    youtube_url?: string | null;
   } | null;
 }
 
