@@ -152,7 +152,7 @@ const YouTubeChannelsTabContent = ({ city, onOpenBusiness }: Props) => {
                       </div>
                     </div>
                     <span
-                      className="text-[11px] text-center text-foreground line-clamp-2 leading-tight"
+                      className="text-[11px] text-center text-foreground leading-tight break-words"
                       style={{ fontFamily: "'Roboto', sans-serif" }}
                     >
                       {ch.name}
