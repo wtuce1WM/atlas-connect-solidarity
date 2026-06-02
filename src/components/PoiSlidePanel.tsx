@@ -636,6 +636,9 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
               selectedLat={poi.latitude}
               selectedLng={poi.longitude}
               backLabel={language === "en" ? "Nearby" : "À proximité"}
+              highlights={highlights}
+              highlightsSectionTitle={highlightsSection.title}
+              highlightsSectionIntro={highlightsSection.intro}
             />
           )}
 
