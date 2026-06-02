@@ -59,7 +59,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
 
       let query = supabase
         .from("businesses")
-        .select("id, name, logo_url, youtube_url, city")
+        .select("id, name, logo_url, youtube_channel_thumbnail_url, youtube_url, city")
         .in("id", businessIds)
         .eq("is_active", true)
         .not("youtube_url", "is", null);
