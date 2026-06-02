@@ -268,8 +268,8 @@ export default function ResultsTabContent({
       ref={resultsRef}
       className={`bg-white pb-6 lg:pb-4 [overflow-anchor:none] ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
     >
-        <div className={(hasKnownLocation && !compactPanelBusiness && !hideResultsMap) || (showFiltersOverlay && !compactPanelBusiness) ? "flex gap-0" : ""}>
-          <div className={`pt-4 ${(hasKnownLocation && !compactPanelBusiness && !hideResultsMap) || (showFiltersOverlay && !compactPanelBusiness) ? "w-1/2 overflow-visible" : "w-full"} mx-auto px-4 max-w-full`}>
+        <div className={hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "flex gap-0" : ""}>
+          <div className={`pt-4 ${hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "w-1/2 overflow-visible" : "w-full"} mx-auto px-4 max-w-full`}>
           {/* Filters: Time slot indicator */}
           <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''} ${!activeTimeSlot ? 'lg:mb-0 lg:hidden' : ''}`}>
             {activeTimeSlot && (
@@ -320,6 +320,7 @@ export default function ResultsTabContent({
                   onClick={() => setShowFiltersOverlay(v => {
                     const next = !v;
                     if (next) {
+                      if (hasKnownLocation && hideResultsMap) setHideResultsMap(false);
                       setActiveFsTabId(null);
                       setActiveFsSubId(null);
                     }
@@ -332,7 +333,7 @@ export default function ResultsTabContent({
                 </button>
               </div>
               {/* Results grid */}
-              <div className={`grid gap-4 ${resolvedHotelSearchInfo ? "pt-2 lg:pt-10" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : ((hasKnownLocation && !hideResultsMap) || showFiltersOverlay) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+              <div className={`grid gap-4 ${resolvedHotelSearchInfo ? "pt-2 lg:pt-10" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const card = (
                     <SearchResultCard
