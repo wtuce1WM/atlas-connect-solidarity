@@ -104,7 +104,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
       }
     })();
     return () => { cancelled = true; };
-  }, [city]);
+  }, []);
 
   const defaultOpen = useMemo(() => groups.map((g) => g.themeId), [groups]);
 
