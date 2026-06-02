@@ -92,7 +92,7 @@ const YouTubeBackofficePanel = () => {
       fetchAllRows<any>("business_youtube_video_badges", "youtube_video_id", "youtube_video_id"),
       fetchAllRows<any>("business_youtube_video_subcategories", "youtube_video_id", "youtube_video_id"),
       fetchAllRows<any>("business_youtube_video_cities", "youtube_video_id", "youtube_video_id"),
-      (supabase.from("youtube_themes" as any).select("id, name_fr").order("sort_order") as any),
+      (supabase.from("youtube_themes" as any).select("id, name_fr").order("name_fr") as any),
       (supabase.from("business_youtube_themes" as any).select("business_id, theme_id") as any),
     ]);
 
