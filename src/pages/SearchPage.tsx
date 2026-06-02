@@ -4214,7 +4214,6 @@ const SearchPage = () => {
 
       {activeTab === "youtube" && (
         <YouTubeChannelsTabContent
-          city={effectiveCityForMap || searchParams.get("city") || null}
           onOpenBusiness={(bizId) => {
             setCompactPanelBusiness({ id: bizId, name: "" } as any);
             setIsCompactPanelExpanded(false);
