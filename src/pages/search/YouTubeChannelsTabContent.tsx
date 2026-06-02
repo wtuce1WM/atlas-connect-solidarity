@@ -40,6 +40,25 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<ActiveVideo | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
+  const bgIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [bgPlaying, setBgPlaying] = useState(true);
+  const [bgMuted, setBgMuted] = useState(true);
+
+  const sendBgCmd = (func: string, args: any[] = []) => {
+    const w = bgIframeRef.current?.contentWindow;
+    if (!w) return;
+    w.postMessage(JSON.stringify({ event: "command", func, args }), "*");
+  };
+  const toggleBgPlay = () => {
+    sendBgCmd(bgPlaying ? "pauseVideo" : "playVideo");
+    setBgPlaying((p) => !p);
+  };
+  const toggleBgMute = () => {
+    if (bgMuted) { sendBgCmd("unMute"); sendBgCmd("setVolume", [100]); }
+    else { sendBgCmd("mute"); }
+    setBgMuted((m) => !m);
+  };
+
 
   useEffect(() => {
     let cancelled = false;
