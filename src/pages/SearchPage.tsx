@@ -3023,8 +3023,8 @@ const SearchPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-white" style={{ overflowX: 'clip' }}>
-      <Header compact rightContent={
+    <div className={`min-h-screen ${activeTab === "youtube" ? "bg-transparent" : "bg-white"}`} style={{ overflowX: 'clip' }}>
+      <Header compact variant={activeTab === "youtube" ? "city" : undefined} rightContent={
         <div data-tab-bar ref={(el) => {
           if (el) {
             const active = el.querySelector('[data-active-tab="true"]') as HTMLElement;
