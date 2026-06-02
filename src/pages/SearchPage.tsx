@@ -930,7 +930,13 @@ const SearchPage = () => {
    const [bottomSearchOverlayOpen, setBottomSearchOverlayOpen] = useState(false);
    const [bottomAiOverlayOpen, setBottomAiOverlayOpen] = useState(false);
    const [bottomHashtagsOverlayOpen, setBottomHashtagsOverlayOpen] = useState(false);
-   const [bottomSearchCloseTrigger, setBottomSearchCloseTrigger] = useState(0);
+  const [bottomSearchCloseTrigger, setBottomSearchCloseTrigger] = useState(0);
+  const [ytPanelOpen, setYtPanelOpen] = useState(false);
+  useEffect(() => {
+    const onPanel = (e: Event) => setYtPanelOpen(!!(e as CustomEvent).detail?.open);
+    window.addEventListener("ytbg:panel", onPanel);
+    return () => window.removeEventListener("ytbg:panel", onPanel);
+  }, []);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
     const [isNestedMosaicOpen, setIsNestedMosaicOpen] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
@@ -4650,6 +4656,8 @@ const SearchPage = () => {
           )}
           <div
             className={`fixed pointer-events-none ${
+              activeTab === "youtube" && ytPanelOpen ? "hidden " : ""
+            }${
               overlayOpen
                 ? rightMapVisible
                   ? "inset-y-0 right-0 w-full lg:w-1/2 z-[201]"
