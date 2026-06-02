@@ -3069,7 +3069,9 @@ const SearchPage = () => {
               className={`flex items-center gap-2 px-3 py-2 text-xs font-bold transition-colors border-b-2 whitespace-nowrap ${
                 isActive
                   ? (isAiTab ? "border-gold text-gold" : "border-primary text-primary")
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  : activeTab === "youtube" && tab.key !== "youtube"
+                    ? "border-transparent text-white hover:text-white/80"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
 
