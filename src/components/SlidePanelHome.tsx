@@ -934,6 +934,15 @@ const SlidePanelHome = ({
             />
           </div>
         )}
+        {showYoutubeOverlay && ctaBusiness?.youtube_url && (
+          <YouTubeOverlay
+            business={{ id: ctaBusiness.id, name: ctaBusiness.name, youtube_url: ctaBusiness.youtube_url } as unknown as BookOnlineBusiness}
+            activeVideo={activeYoutubeVideo}
+            onSelectVideo={setActiveYoutubeVideo}
+            onPlayingChange={() => {}}
+            onClose={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); }}
+          />
+        )}
       </div>
     </div>,
     document.body,
