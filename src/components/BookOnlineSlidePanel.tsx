@@ -1230,7 +1230,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         {(avgOn20 != null && totalReviewCount > 0) || woDescription || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
           <div className="slidepanel-center-short flex flex-col items-center justify-center pointer-events-auto gap-4 md:gap-10 flex-1 -mt-[3rem]">
             {(hookText || business?.carousel_badge) && <TypewriterHook text={hookText || videoTabLabel} key={businessId + '-hook'} />}
-            {woDescription && (
+            {woDescription ? (
               <div className="mt-8 md:mt-0 slidepanel-plus-short">
                 <div
                   className="cursor-pointer group flex flex-col items-center gap-2"
@@ -1243,6 +1243,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     <span className="text-2xl text-white font-light leading-none">+</span>
                   </div>
                 </div>
+              </div>
+            ) : (
+              <div className="mt-8 md:mt-0 slidepanel-plus-short invisible pointer-events-none" aria-hidden="true">
+                <div className="w-12 h-12" />
               </div>
             )}
             {(() => {
