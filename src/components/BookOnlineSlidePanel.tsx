@@ -56,6 +56,7 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 
 import { useHotelAvailability } from "@/hooks/useHotelAvailability";
 import { useOpenStatus } from "@/hooks/useOpenStatus";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { ToolbarPortals } from "@/components/slidepanel/ToolbarPortals";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { CtaBar, CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
@@ -231,6 +232,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
   const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
   const poiOpenedFromMapRef = useRef(false);
+  const { coords: userCoords } = useGeolocation();
   
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
@@ -2168,7 +2170,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 }
               }}
               fitToMarkers
+              userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />
+
           </div>
         </OverlayShell>
       )}
