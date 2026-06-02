@@ -159,7 +159,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   }
 
   return (
-    <div className={`relative px-4 pt-16 pb-4 transition-all duration-300 ${active ? "lg:max-w-[50vw] lg:mr-auto lg:ml-0" : "max-w-5xl mx-auto"}`}>
+    <div className={`relative px-4 pt-16 pb-32 transition-all duration-300 ${active ? "lg:max-w-[50vw] lg:mr-auto lg:ml-0" : "max-w-5xl mx-auto"}`}>
       {/* Background YouTube video */}
       {!active && (
         <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-black">
