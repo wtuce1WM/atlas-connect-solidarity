@@ -159,8 +159,21 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   }
 
   return (
-    <div className={`px-4 pt-16 pb-4 transition-all duration-300 ${active ? "lg:max-w-[50vw] lg:mr-auto lg:ml-0" : "max-w-5xl mx-auto"}`}>
+    <div className={`relative px-4 pt-16 pb-4 transition-all duration-300 ${active ? "lg:max-w-[50vw] lg:mr-auto lg:ml-0" : "max-w-5xl mx-auto"}`}>
+      {/* Background YouTube video */}
+      {!active && (
+        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-black">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/1l9IMkOcVZk?autoplay=1&mute=1&loop=1&playlist=1l9IMkOcVZk&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&showinfo=0"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full"
+            allow="autoplay; encrypted-media"
+            title="Background video"
+          />
+          <div className="absolute inset-0 bg-black/60" />
+        </div>
+      )}
       <Accordion type="multiple" defaultValue={defaultOpen} className="space-y-2">
+
         {groups.map((g) => (
           <AccordionItem key={g.themeId} value={g.themeId} className="border rounded-lg bg-card">
             <AccordionTrigger className="px-4 hover:no-underline">
