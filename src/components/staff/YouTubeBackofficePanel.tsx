@@ -103,12 +103,12 @@ const YouTubeBackofficePanel = () => {
       if (!c[id]) c[id] = { poi: 0, business: 0, destination: 0, tags: 0 };
       c[id][key]++;
     };
-    (poiRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
-    (bizLinkRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
-    (destRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
-    (badgeRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
-    (subcatRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
-    (cityRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (poiAll || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
+    (bizLinkAll || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
+    (destAll || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
+    (badgeAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (subcatAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (cityAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
     setCounts(c);
 
     setLoading(false);
