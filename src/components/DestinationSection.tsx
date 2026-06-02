@@ -184,6 +184,14 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
           );
         })}
       </div>
+      <SearchPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={destinations.length}
+        pageSize={ITEMS_PER_PAGE}
+        onPageChange={setCurrentPage}
+        language={language}
+      />
     </>
   );
 };
