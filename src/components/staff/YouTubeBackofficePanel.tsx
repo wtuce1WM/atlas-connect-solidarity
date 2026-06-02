@@ -454,8 +454,18 @@ const YouTubeBackofficePanel = () => {
                             </button>
 
                             <div className="flex-1 min-w-0 space-y-1.5">
-                              <p className="text-xs font-medium line-clamp-2">{v.title}</p>
-                              <p className="text-[10px] text-muted-foreground font-mono">{v.video_id}</p>
+                              <div className="flex items-start gap-2">
+                                <Switch
+                                  checked={v.is_visible}
+                                  onCheckedChange={() => toggleVideoVisibility(v)}
+                                  className="mt-0.5 shrink-0"
+                                  title={v.is_visible ? "Désactiver la vidéo" : "Activer la vidéo"}
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-xs font-medium line-clamp-2">{v.title}</p>
+                                  <p className="text-[10px] text-muted-foreground font-mono">{v.video_id}</p>
+                                </div>
+                              </div>
                               <div className="flex flex-wrap gap-1.5 pt-1">
                                 {(() => {
                                   const c = counts[v.id] || { poi: 0, business: 0, destination: 0, tags: 0 };
