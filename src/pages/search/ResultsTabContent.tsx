@@ -305,6 +305,7 @@ export default function ResultsTabContent({
               <div ref={resultsBarRef} data-results-bar className={`sticky z-[25] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-2 md:py-2 md:min-h-[40px] lg:py-1.5 lg:min-h-[40px] ${resolvedHotelSearchInfo ? 'top-[101px] md:top-[91px]' : 'top-[53px] md:top-[60px]'}`}>
                 <button
                   onClick={() => {
+                    setShowFiltersOverlay(false);
                     if (hasKnownLocation && hideResultsMap) {
                       setHideResultsMap(false);
                     } else {
