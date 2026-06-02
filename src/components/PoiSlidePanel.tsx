@@ -486,7 +486,12 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
 
   const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, ownerVideoDocs, entityId);
 
-  const displayDescription = poi?.poi_description || poi?.description || null;
+  const displayDescription = useMemo(() => {
+    const raw = poi?.poi_description || poi?.description || null;
+    if (!raw) return null;
+    const text = raw.replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").trim();
+    return text ? raw : null;
+  }, [poi?.poi_description, poi?.description]);
   const displayHook = useMemo(() => {
     const specificPoiHook = poi?.poi_hook?.trim();
     if (specificPoiHook) return specificPoiHook;
