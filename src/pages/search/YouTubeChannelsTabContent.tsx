@@ -49,15 +49,36 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
     if (!w) return;
     w.postMessage(JSON.stringify({ event: "command", func, args }), "*");
   };
-  const toggleBgPlay = () => {
-    sendBgCmd(bgPlaying ? "pauseVideo" : "playVideo");
-    setBgPlaying((p) => !p);
-  };
-  const toggleBgMute = () => {
-    if (bgMuted) { sendBgCmd("unMute"); sendBgCmd("setVolume", [100]); }
-    else { sendBgCmd("mute"); }
-    setBgMuted((m) => !m);
-  };
+
+  // Broadcast state + listen for external toggles (from PanelSearchBar leadingControls)
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("ytbg:state", { detail: { playing: bgPlaying, muted: bgMuted } }));
+  }, [bgPlaying, bgMuted]);
+
+  useEffect(() => {
+    const onTogglePlay = () => {
+      sendBgCmd(bgPlaying ? "pauseVideo" : "playVideo");
+      setBgPlaying((p) => !p);
+    };
+    const onToggleMute = () => {
+      if (bgMuted) { sendBgCmd("unMute"); sendBgCmd("setVolume", [100]); }
+      else { sendBgCmd("mute"); }
+      setBgMuted((m) => !m);
+    };
+    const onRequestState = () => {
+      window.dispatchEvent(new CustomEvent("ytbg:state", { detail: { playing: bgPlaying, muted: bgMuted } }));
+    };
+    window.addEventListener("ytbg:toggle-play", onTogglePlay);
+    window.addEventListener("ytbg:toggle-mute", onToggleMute);
+    window.addEventListener("ytbg:request-state", onRequestState);
+    return () => {
+      window.removeEventListener("ytbg:toggle-play", onTogglePlay);
+      window.removeEventListener("ytbg:toggle-mute", onToggleMute);
+      window.removeEventListener("ytbg:request-state", onRequestState);
+    };
+  }, [bgPlaying, bgMuted]);
+
+
 
 
   useEffect(() => {
