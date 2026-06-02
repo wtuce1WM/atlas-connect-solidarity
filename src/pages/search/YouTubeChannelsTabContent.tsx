@@ -90,9 +90,12 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
         .filter((g) => g.channels.length > 0)
         .map((g) => ({
           ...g,
-          channels: [...new Map(g.channels.map((c) => [c.id, c])).values()].sort((a, b) =>
-            a.name.localeCompare(b.name, "fr", { sensitivity: "base" })
-          ),
+          channels: [...new Map(g.channels.map((c) => [c.id, c])).values()].sort((a, b) => {
+            const fa = a.youtube_channel_featured ? 1 : 0;
+            const fb = b.youtube_channel_featured ? 1 : 0;
+            if (fa !== fb) return fb - fa;
+            return a.name.localeCompare(b.name, "fr", { sensitivity: "base" });
+          }),
         }))
         .sort((a, b) => a.themeName.localeCompare(b.themeName, "fr", { sensitivity: "base" }));
 
