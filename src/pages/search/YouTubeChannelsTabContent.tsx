@@ -203,34 +203,16 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
       {!active && (() => {
         const bgVideoId = (city || "").trim().toLowerCase() === "essaouira" ? "2RlIa-pCINg" : "1l9IMkOcVZk";
         return (
-          <>
-            <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-black">
-              <iframe
-                ref={bgIframeRef}
-                src={`https://www.youtube-nocookie.com/embed/${bgVideoId}?autoplay=1&mute=1&loop=1&playlist=${bgVideoId}&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&showinfo=0&enablejsapi=1`}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full"
-                allow="autoplay; encrypted-media"
-                title="Background video"
-              />
-              <div className="absolute inset-0 bg-black/50" />
-            </div>
-            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
-              <button
-                onClick={toggleBgPlay}
-                aria-label={bgPlaying ? "Pause" : "Play"}
-                className="w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm border border-white/20"
-              >
-                {bgPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-              </button>
-              <button
-                onClick={toggleBgMute}
-                aria-label={bgMuted ? "Unmute" : "Mute"}
-                className="w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm border border-white/20"
-              >
-                {bgMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-              </button>
-            </div>
-          </>
+          <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-black">
+            <iframe
+              ref={bgIframeRef}
+              src={`https://www.youtube-nocookie.com/embed/${bgVideoId}?autoplay=1&mute=1&loop=1&playlist=${bgVideoId}&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&showinfo=0&enablejsapi=1`}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full"
+              allow="autoplay; encrypted-media"
+              title="Background video"
+            />
+            <div className="absolute inset-0 bg-black/50" />
+          </div>
         );
       })()}
       <Accordion type="multiple" defaultValue={defaultOpen} className="space-y-2 relative z-10 mt-4">
