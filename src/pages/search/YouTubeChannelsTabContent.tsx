@@ -177,17 +177,18 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
         {groups.map((g) => (
           <AccordionItem key={g.themeId} value={g.themeId} className="border border-border/40 rounded-lg bg-card/20 backdrop-blur-sm">
 
-            <AccordionTrigger className="px-4 hover:no-underline">
+            <AccordionTrigger className="px-4 hover:no-underline text-white font-bold [&>svg]:text-white [&>svg]:stroke-[3]">
               <div className="flex items-center gap-2">
                 <YouTubeIcon className="h-4 w-4 text-red-600" />
-                <span className="font-semibold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <span className="font-bold text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                   {g.themeName}
                 </span>
-                <span className="text-[11px] text-muted-foreground font-normal">
+                <span className="text-[11px] text-white/80 font-normal">
                   ({g.channels.length})
                 </span>
               </div>
             </AccordionTrigger>
+
             <AccordionContent className="px-3 pb-3">
               <div className="flex gap-3 overflow-x-auto scrollbar-hide pt-1 pb-2 px-2" style={{ scrollbarWidth: "none" }}>
                 {g.channels.map((ch) => (
