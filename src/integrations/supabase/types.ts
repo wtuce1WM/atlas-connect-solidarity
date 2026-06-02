@@ -1672,6 +1672,7 @@ export type Database = {
           website_presentation_mode: string
           whatsapp: string | null
           wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
+          youtube_channel_thumbnail_url: string | null
           youtube_url: string | null
           zone_chalandise: string | null
           zone_city_ids: string[] | null
@@ -1844,6 +1845,7 @@ export type Database = {
           website_presentation_mode?: string
           whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
+          youtube_channel_thumbnail_url?: string | null
           youtube_url?: string | null
           zone_chalandise?: string | null
           zone_city_ids?: string[] | null
@@ -2016,6 +2018,7 @@ export type Database = {
           website_presentation_mode?: string
           whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
+          youtube_channel_thumbnail_url?: string | null
           youtube_url?: string | null
           zone_chalandise?: string | null
           zone_city_ids?: string[] | null
@@ -5977,6 +5980,7 @@ export type Database = {
               website_presentation_mode: string
               whatsapp: string | null
               wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
+              youtube_channel_thumbnail_url: string | null
               youtube_url: string | null
               zone_chalandise: string | null
               zone_city_ids: string[] | null
@@ -6165,6 +6169,7 @@ export type Database = {
               website_presentation_mode: string
               whatsapp: string | null
               wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
+              youtube_channel_thumbnail_url: string | null
               youtube_url: string | null
               zone_chalandise: string | null
               zone_city_ids: string[] | null
