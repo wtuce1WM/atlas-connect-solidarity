@@ -3552,7 +3552,7 @@ const SearchPage = () => {
               <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
                 {(() => {
                   const currentAiText = activeTab === "poi" ? poiAiText : activeTab === "destinations" ? destAiText : aiAnswerText;
-                  const isCurrentLoading = activeTab === "poi" ? isPoiAiLoading : activeTab === "destinations" ? isDestAiLoading : (!aiAnswerText || isAiRegenerating);
+                  const isCurrentLoading = activeTab === "poi" ? isPoiAiLoading : activeTab === "destinations" ? isDestAiLoading : (filteredBusinesses.length > 0 && (!aiAnswerText || isAiRegenerating));
                   if (isCurrentLoading) {
                     const fallbackPrev = (activeTab !== "poi" && activeTab !== "destinations") ? prevAiAnswerText : "";
                     return (
