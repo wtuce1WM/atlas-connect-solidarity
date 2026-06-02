@@ -3114,7 +3114,7 @@ const SearchPage = () => {
         const aiQuery = baseQuery && cityForAi && !baseQuery.toLowerCase().includes(cityForAi.toLowerCase())
           ? `${baseQuery} à ${cityForAi}`
           : baseQuery;
-        const shouldRender = !!aiQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText;
+        const shouldRender = !!aiQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && (activeTab === "ai" || showAiPopup);
         if (!shouldRender) return null;
         return (
           <div className="hidden">
