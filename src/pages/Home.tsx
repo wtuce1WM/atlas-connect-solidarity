@@ -2414,7 +2414,14 @@ const Home = () => {
               <PanelSearchBar
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
-                  if (geo.isEnabled && !sp.has("city")) sp.set("city", geo.detectedCity || city);
+                  // If the query text explicitly mentions a known city, prefer it over the geo-detected city.
+                  const q = (sp.get("q") || "").toLowerCase();
+                  const mentionedCity = CITIES.find((c) => new RegExp(`\\b${c.toLowerCase()}\\b`).test(q));
+                  if (mentionedCity) {
+                    sp.set("city", mentionedCity);
+                  } else if (geo.isEnabled && !sp.has("city")) {
+                    sp.set("city", geo.detectedCity || city);
+                  }
                   navigate(`/search?${sp.toString()}`);
                 }}
                 onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
