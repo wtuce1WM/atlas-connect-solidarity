@@ -188,6 +188,31 @@ const YouTubeBackofficePanel = () => {
     }
   };
 
+  const uploadChannelThumbnail = async (biz: Business, file: File) => {
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `youtube-channels/${biz.id}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("business-images").upload(path, file, {
+        upsert: true, contentType: file.type || undefined,
+      });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("business-images").getPublicUrl(path);
+      const url = pub.publicUrl;
+      const { error } = await supabase.from("businesses").update({ youtube_channel_thumbnail_url: url } as any).eq("id", biz.id);
+      if (error) throw error;
+      setBusinesses((prev) => prev.map((b) => (b.id === biz.id ? { ...b, youtube_channel_thumbnail_url: url } : b)));
+      toast.success("Miniature mise à jour");
+    } catch (err: any) {
+      toast.error(err.message || "Échec de l'upload");
+    }
+  };
+
+  const removeChannelThumbnail = async (biz: Business) => {
+    const { error } = await supabase.from("businesses").update({ youtube_channel_thumbnail_url: null } as any).eq("id", biz.id);
+    if (error) { toast.error(error.message); return; }
+    setBusinesses((prev) => prev.map((b) => (b.id === biz.id ? { ...b, youtube_channel_thumbnail_url: null } : b)));
+  };
+
   const toggleVideoVisibility = async (video: YouTubeVideo) => {
     const newVal = !video.is_visible;
     setVideosByBusiness((prev) => ({
