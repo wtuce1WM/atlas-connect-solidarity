@@ -122,6 +122,58 @@ const OverlayFlipCard = ({
                 className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
                 dangerouslySetInnerHTML={{ __html: description }}
               />
+
+              {visibleHighlights.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-white/10">
+                  {(highlightsSectionTitle || highlightsSectionIntro) && (
+                    <div className="mb-4">
+                      {highlightsSectionTitle && (
+                        <h3
+                          className="text-base font-bold uppercase tracking-[0.12em] text-white mb-2"
+                          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                        >
+                          {highlightsSectionTitle}
+                        </h3>
+                      )}
+                      {highlightsSectionIntro && (
+                        <p className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif]">
+                          {highlightsSectionIntro}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {visibleHighlights.map((h) => (
+                      <div
+                        key={h.id}
+                        className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-3 flex flex-col gap-2"
+                      >
+                        {h.image_url && (
+                          <div className="w-full h-24 rounded-lg overflow-hidden bg-white/5">
+                            <img src={h.image_url} alt={h.title} className="w-full h-full object-cover" loading="lazy" />
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <DynamicIcon name={h.icon} className="h-4 w-4 text-primary shrink-0" />
+                          {h.title && (
+                            <h4
+                              className="text-xs font-bold uppercase tracking-[0.1em] text-white"
+                              style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                            >
+                              {h.title}
+                            </h4>
+                          )}
+                        </div>
+                        {h.description && (
+                          <p className="text-xs text-white/80 leading-relaxed font-['Roboto',sans-serif]">
+                            {h.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
