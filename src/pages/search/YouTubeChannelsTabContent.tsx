@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 import SlidePanelHome from "@/components/SlidePanelHome";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+
 
 interface Channel {
   id: string;
