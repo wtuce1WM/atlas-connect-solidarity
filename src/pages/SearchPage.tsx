@@ -33,7 +33,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash, Heart, Bot, Send } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash, Heart, Bot, Send, Youtube } from "lucide-react";
 import ShareButton from "@/components/ShareButton";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
@@ -668,7 +668,7 @@ const SearchPage = () => {
     })();
     return () => { cancelled = true; };
   }, [aiAnswerText, totalCount, allBusinesses?.length, searchQuery, searchParams, language, categoryFromUrl]);
-   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai">(
+   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai" | "youtube">(
      searchParams.get("openDestination") ? "destinations" : (searchParams.get("badgeId") ? "hashtag" : "suggestions")
    );
     useEffect(() => {
@@ -3028,6 +3028,7 @@ const SearchPage = () => {
           {[
             { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
             { key: "ai", icon: <Sparkles className="h-4 w-4" />, label: "IA" },
+            { key: "youtube", icon: <Youtube className="h-4 w-4" />, label: "" },
             ...(badgeIdParam && badgeLabelParam ? [{ key: "hashtag", label: badgeLabelParam, count: hashtagCount }] : []),
             { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },
             { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
