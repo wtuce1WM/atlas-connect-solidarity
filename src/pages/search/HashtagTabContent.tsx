@@ -4,7 +4,10 @@ import { Play, Youtube } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 import SlidePanelHome from "@/components/SlidePanelHome";
+import SearchPagination from "@/components/SearchPagination";
 import { isAgendaLabel, formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
+
+const ITEMS_PER_PAGE = 20;
 
 
 interface EventInfo {
@@ -52,6 +55,8 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
   const [activeItem, setActiveItem] = useState<VideoItem | null>(null);
   useEffect(() => { setActiveItem(null); }, [badgeId]);
   const [currentTime, setCurrentTime] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => { setCurrentPage(1); }, [badgeId, city]);
 
   useEffect(() => {
     let cancelled = false;
@@ -398,8 +403,9 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
       ) : items.length === 0 ? (
         <p className="text-sm text-muted-foreground">Aucune vidéo trouvée pour {badgeLabel}.</p>
       ) : (
+        <>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {items.map((item) => (
+          {items.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((item) => (
             <button
               key={item._id}
               onClick={() => {
@@ -531,7 +537,17 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
             </button>
           ))}
         </div>
+        <SearchPagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(items.length / ITEMS_PER_PAGE)}
+          totalCount={items.length}
+          pageSize={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+        />
+        </>
       )}
+
+
 
       <SlidePanelHome
         open={!!activeItem}

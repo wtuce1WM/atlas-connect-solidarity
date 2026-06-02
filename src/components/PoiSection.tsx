@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Star, Loader2 } from "lucide-react";
+import SearchPagination from "@/components/SearchPagination";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { haversineKm } from "@/lib/haversine";
@@ -103,7 +104,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedPois = pois.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const pageLabel = language === "en" ? "Page" : language === "ar" ? "الصفحة" : "Page";
+
 
   return (
     <>
@@ -185,29 +186,14 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
         })}
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 pb-28 pt-2">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="h-9 w-9 flex items-center justify-center rounded-full border border-gold/30 bg-black/40 text-gold hover:bg-gold hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="text-sm text-muted-foreground px-2">
-            {pageLabel} {currentPage} / {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="h-9 w-9 flex items-center justify-center rounded-full border border-gold/30 bg-black/40 text-gold hover:bg-gold hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Next page"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+      <SearchPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={pois.length}
+        pageSize={ITEMS_PER_PAGE}
+        onPageChange={setCurrentPage}
+        language={language}
+      />
     </>
   );
 };
