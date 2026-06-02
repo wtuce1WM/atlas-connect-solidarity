@@ -325,6 +325,55 @@ const YouTubeBackofficePanel = () => {
                     <Badge variant="secondary" className="shrink-0">
                       {videos.length} vidéo{videos.length > 1 ? "s" : ""}
                     </Badge>
+                    {(() => {
+                      const selected = themesByBusiness[biz.id] || new Set<string>();
+                      return (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => e.stopPropagation()}
+                              className="shrink-0"
+                            >
+                              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                              Thématiques
+                              {selected.size > 0 && (
+                                <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded bg-primary text-primary-foreground text-[10px] font-semibold">
+                                  {selected.size}
+                                </span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-60 p-2"
+                            align="end"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="text-xs font-medium text-muted-foreground px-2 py-1.5">
+                              Thématiques de la chaîne
+                            </div>
+                            <div className="max-h-72 overflow-y-auto space-y-0.5">
+                              {themes.map((t) => {
+                                const checked = selected.has(t.id);
+                                return (
+                                  <label
+                                    key={t.id}
+                                    className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer text-sm"
+                                  >
+                                    <Checkbox
+                                      checked={checked}
+                                      onCheckedChange={(v) => toggleTheme(biz.id, t.id, !!v)}
+                                    />
+                                    <span>{t.name_fr}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      );
+                    })()}
                     <Button
                       size="sm"
                       variant="outline"
