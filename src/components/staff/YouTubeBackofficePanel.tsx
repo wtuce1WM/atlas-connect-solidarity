@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import {
   Loader2, Search, RefreshCw, ChevronRight, ChevronDown, Play,
@@ -181,6 +182,29 @@ const YouTubeBackofficePanel = () => {
     } catch (err: any) {
       toast.error(err.message || "Erreur d'enregistrement");
       setThemesByBusiness((prev) => ({ ...prev, [businessId]: current }));
+    }
+  };
+
+  const toggleVideoVisibility = async (video: YouTubeVideo) => {
+    const newVal = !video.is_visible;
+    setVideosByBusiness((prev) => ({
+      ...prev,
+      [video.business_id]: (prev[video.business_id] || []).map((v) =>
+        v.id === video.id ? { ...v, is_visible: newVal } : v
+      ),
+    }));
+    const { error } = await supabase
+      .from("business_youtube_videos")
+      .update({ is_visible: newVal })
+      .eq("id", video.id);
+    if (error) {
+      toast.error("Erreur lors de la mise à jour");
+      setVideosByBusiness((prev) => ({
+        ...prev,
+        [video.business_id]: (prev[video.business_id] || []).map((v) =>
+          v.id === video.id ? { ...v, is_visible: !newVal } : v
+        ),
+      }));
     }
   };
 
@@ -398,7 +422,10 @@ const YouTubeBackofficePanel = () => {
                         videos.map((v) => (
                           <div
                             key={v.id}
-                            className="flex items-start gap-3 p-2 bg-card border rounded-md"
+                            className={cn(
+                              "flex items-start gap-3 p-2 bg-card border rounded-md transition-opacity",
+                              !v.is_visible && "opacity-40"
+                            )}
                           >
                             <button
                               type="button"
@@ -427,8 +454,18 @@ const YouTubeBackofficePanel = () => {
                             </button>
 
                             <div className="flex-1 min-w-0 space-y-1.5">
-                              <p className="text-xs font-medium line-clamp-2">{v.title}</p>
-                              <p className="text-[10px] text-muted-foreground font-mono">{v.video_id}</p>
+                              <div className="flex items-start gap-2">
+                                <Switch
+                                  checked={v.is_visible}
+                                  onCheckedChange={() => toggleVideoVisibility(v)}
+                                  className="mt-0.5 shrink-0"
+                                  title={v.is_visible ? "Désactiver la vidéo" : "Activer la vidéo"}
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-xs font-medium line-clamp-2">{v.title}</p>
+                                  <p className="text-[10px] text-muted-foreground font-mono">{v.video_id}</p>
+                                </div>
+                              </div>
                               <div className="flex flex-wrap gap-1.5 pt-1">
                                 {(() => {
                                   const c = counts[v.id] || { poi: 0, business: 0, destination: 0, tags: 0 };
