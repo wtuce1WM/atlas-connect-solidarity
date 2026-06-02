@@ -210,6 +210,26 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [showExternalVideosOverlay, setShowExternalVideosOverlay] = useState(false);
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
+  const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null }[]>([]);
+  const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null }>({ title: null, intro: null });
+
+  useEffect(() => {
+    if (!businessId) { setHighlights([]); setHighlightsSection({ title: null, intro: null }); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("front_highlights")
+        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro")
+        .eq("business_id", businessId)
+        .order("sort_order");
+      if (cancelled || !data) return;
+      const rows = data as any[];
+      setHighlights(rows.map(r => ({ id: r.id, icon: r.icon, title: r.title || "", description: r.description || "", image_url: r.image_url })));
+      setHighlightsSection({ title: rows[0]?.section_title || null, intro: rows[0]?.section_intro || null });
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
 
   useEffect(() => {
     if (!businessId) return;
