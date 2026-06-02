@@ -153,7 +153,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   }
 
   return (
-    <div className="px-4 pt-16 pb-4 max-w-5xl mx-auto">
+    <div className={`px-4 pt-16 pb-4 transition-all duration-300 ${active ? "lg:max-w-[50vw] lg:mr-auto lg:ml-0" : "max-w-5xl mx-auto"}`}>
       <Accordion type="multiple" defaultValue={defaultOpen} className="space-y-2">
         {groups.map((g) => (
           <AccordionItem key={g.themeId} value={g.themeId} className="border rounded-lg bg-card">
