@@ -663,23 +663,18 @@ const SlidePanelHome = ({
                 playsInline
                 autoPlay
                 muted={!soundOn}
-                className="w-full h-full object-cover md:object-contain"
+                className="w-full h-full object-contain"
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
             ) : (
-              <>
-                {embed.type === "youtube" && !/\/shorts\//.test(videoUrl) && (
-                  <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
-                )}
-                <iframe
-                  ref={iframeRef}
-                  key={videoId || videoUrl}
-                  src={embedUrl}
-                  className="w-full h-full pointer-events-none"
-                  allow="autoplay; fullscreen; encrypted-media"
-                  allowFullScreen
-                />
-              </>
+              <iframe
+                ref={iframeRef}
+                key={videoId || videoUrl}
+                src={embedUrl}
+                className="w-full h-full pointer-events-none"
+                allow="autoplay; fullscreen; encrypted-media"
+                allowFullScreen
+              />
             )}
             {videoId && (
               <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} />
