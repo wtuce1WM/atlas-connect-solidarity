@@ -74,7 +74,7 @@ const YouTubeBackofficePanel = () => {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosAll, poiAll, bizLinkAll, destAll, badgeAll, subcatAll, cityAll] = await Promise.all([
+    const [bizRes, videosAll, poiAll, bizLinkAll, destAll, badgeAll, subcatAll, cityAll, themesRes, bizThemesRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
@@ -92,9 +92,18 @@ const YouTubeBackofficePanel = () => {
       fetchAllRows<any>("business_youtube_video_badges", "youtube_video_id", "youtube_video_id"),
       fetchAllRows<any>("business_youtube_video_subcategories", "youtube_video_id", "youtube_video_id"),
       fetchAllRows<any>("business_youtube_video_cities", "youtube_video_id", "youtube_video_id"),
+      (supabase.from("youtube_themes" as any).select("id, name_fr").order("sort_order") as any),
+      (supabase.from("business_youtube_themes" as any).select("business_id, theme_id") as any),
     ]);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
+    if (themesRes?.data) setThemes(themesRes.data as any);
+    const tMap: Record<string, Set<string>> = {};
+    (bizThemesRes?.data || []).forEach((r: any) => {
+      if (!tMap[r.business_id]) tMap[r.business_id] = new Set();
+      tMap[r.business_id].add(r.theme_id);
+    });
+    setThemesByBusiness(tMap);
     const grouped: Record<string, YouTubeVideo[]> = {};
     (videosAll || []).forEach((v: any) => {
       if (!grouped[v.business_id]) grouped[v.business_id] = [];
