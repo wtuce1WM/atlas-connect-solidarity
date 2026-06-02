@@ -398,7 +398,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         {badgeLabel} <span className="text-muted-foreground text-sm font-normal">— {items.length} {items.length > 1 ? "vidéos trouvées" : "vidéo trouvée"}</span>
       </h2>
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="aspect-[9/16] rounded-lg bg-muted animate-pulse" />
           ))}
@@ -407,7 +407,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         <p className="text-sm text-muted-foreground">Aucune vidéo trouvée pour {badgeLabel}.</p>
       ) : (
         <>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
           {items.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((item) => (
             <button
               key={item._id}
