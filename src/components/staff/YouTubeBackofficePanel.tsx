@@ -214,6 +214,15 @@ const YouTubeBackofficePanel = () => {
     setBusinesses((prev) => prev.map((b) => (b.id === biz.id ? { ...b, youtube_channel_thumbnail_url: null } : b)));
   };
 
+  const toggleFeatured = async (biz: Business, value: boolean) => {
+    setBusinesses((prev) => prev.map((b) => (b.id === biz.id ? { ...b, youtube_channel_featured: value } : b)));
+    const { error } = await supabase.from("businesses").update({ youtube_channel_featured: value } as any).eq("id", biz.id);
+    if (error) {
+      toast.error(error.message || "Erreur");
+      setBusinesses((prev) => prev.map((b) => (b.id === biz.id ? { ...b, youtube_channel_featured: !value } : b)));
+    }
+  };
+
   const toggleVideoVisibility = async (video: YouTubeVideo) => {
     const newVal = !video.is_visible;
     setVideosByBusiness((prev) => ({
