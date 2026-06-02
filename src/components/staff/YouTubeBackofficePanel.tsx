@@ -17,10 +17,12 @@ import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import {
   Loader2, Search, RefreshCw, ChevronRight, ChevronDown, Play,
-  MapPin, Building2, Globe, Tag, Image as ImageIcon, Youtube as YoutubeIcon,
+  MapPin, Building2, Globe, Tag, Image as ImageIcon, Youtube as YoutubeIcon, Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
