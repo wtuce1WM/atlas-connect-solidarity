@@ -55,6 +55,8 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
   const [activeItem, setActiveItem] = useState<VideoItem | null>(null);
   useEffect(() => { setActiveItem(null); }, [badgeId]);
   const [currentTime, setCurrentTime] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => { setCurrentPage(1); }, [badgeId, city]);
 
   useEffect(() => {
     let cancelled = false;
