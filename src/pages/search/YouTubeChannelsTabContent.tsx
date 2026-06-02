@@ -77,6 +77,14 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
       window.removeEventListener("ytbg:request-state", onRequestState);
     };
   }, [bgPlaying, bgMuted]);
+  // Notify parent (SearchPage) when the SlidePanelHome opens/closes so it can hide the bottom bar
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("ytbg:panel", { detail: { open: !!active } }));
+    return () => {
+      window.dispatchEvent(new CustomEvent("ytbg:panel", { detail: { open: false } }));
+    };
+  }, [active]);
+
   // When SlidePanelHome opens, force-mute the bg video; restore previous state on close
   const prevMutedRef = useRef<boolean | null>(null);
   useEffect(() => {
