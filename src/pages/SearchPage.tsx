@@ -70,6 +70,7 @@ import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
 import ResultsTabContent from "@/pages/search/ResultsTabContent";
 import HashtagTabContent from "@/pages/search/HashtagTabContent";
+import YouTubeChannelsTabContent from "@/pages/search/YouTubeChannelsTabContent";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE } from "@/pages/search/utils";
 
@@ -4208,6 +4209,16 @@ const SearchPage = () => {
           onCountChange={setHashtagCount}
           onOpenBusiness={(b) => openCompactPanel(b as any)}
 
+        />
+      )}
+
+      {activeTab === "youtube" && (
+        <YouTubeChannelsTabContent
+          city={effectiveCityForMap || searchParams.get("city") || null}
+          onOpenBusiness={(bizId) => {
+            setCompactPanelBusiness({ id: bizId, name: "" } as any);
+            setIsCompactPanelExpanded(false);
+          }}
         />
       )}
 
