@@ -9,17 +9,18 @@ const corsHeaders = {
 
 /** Extract channel identifier from various YouTube URL formats */
 function parseChannelUrl(url: string): { type: "handle" | "channel" | "user"; value: string } | null {
-  const handleMatch = url.match(/youtube\.com\/@([\w.-]+)/);
-  if (handleMatch) return { type: "handle", value: handleMatch[1] };
+  // Handles can contain unicode chars (accents, etc.). Stop at /, ?, # or end of string.
+  const handleMatch = url.match(/youtube\.com\/@([^/?#\s]+)/);
+  if (handleMatch) return { type: "handle", value: decodeURIComponent(handleMatch[1]) };
 
   const channelMatch = url.match(/youtube\.com\/channel\/(UC[\w-]+)/);
   if (channelMatch) return { type: "channel", value: channelMatch[1] };
 
-  const userMatch = url.match(/youtube\.com\/user\/([\w.-]+)/);
-  if (userMatch) return { type: "user", value: userMatch[1] };
+  const userMatch = url.match(/youtube\.com\/user\/([^/?#\s]+)/);
+  if (userMatch) return { type: "user", value: decodeURIComponent(userMatch[1]) };
 
-  const cMatch = url.match(/youtube\.com\/c\/([\w.-]+)/);
-  if (cMatch) return { type: "handle", value: cMatch[1] };
+  const cMatch = url.match(/youtube\.com\/c\/([^/?#\s]+)/);
+  if (cMatch) return { type: "handle", value: decodeURIComponent(cMatch[1]) };
 
   return null;
 }
@@ -60,12 +61,12 @@ serve(async (req) => {
     if (parsed.type === "channel") {
       channelId = parsed.value;
     } else if (parsed.type === "handle") {
-      const searchUrl = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${parsed.value}&key=${apiKey}`;
+      const searchUrl = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${encodeURIComponent(parsed.value)}&key=${apiKey}`;
       const res = await fetch(searchUrl);
       const data = await res.json();
       channelId = data.items?.[0]?.id || null;
     } else {
-      const searchUrl = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${parsed.value}&key=${apiKey}`;
+      const searchUrl = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${encodeURIComponent(parsed.value)}&key=${apiKey}`;
       const res = await fetch(searchUrl);
       const data = await res.json();
       channelId = data.items?.[0]?.id || null;
