@@ -66,6 +66,8 @@ const YouTubeBackofficePanel = () => {
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [themes, setThemes] = useState<{ id: string; name_fr: string }[]>([]);
+  const [themesByBusiness, setThemesByBusiness] = useState<Record<string, Set<string>>>({});
 
   /** Currently opened right-side assignment panel. */
   const [activePanel, setActivePanel] = useState<{ kind: PanelKind; video: AssignableVideo } | null>(null);
