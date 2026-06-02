@@ -118,25 +118,25 @@ const YouTubeBackofficePanel = () => {
 
   /** Light refresh: only re-fetch the link tables to update CTA counts. */
   const reloadCounts = useCallback(async () => {
-    const [poiRes, bizLinkRes, destRes, badgeRes, subcatRes, cityRes] = await Promise.all([
-      supabase.from("business_youtube_video_pois").select("youtube_video_id"),
-      supabase.from("business_youtube_video_businesses").select("youtube_video_id"),
-      supabase.from("business_youtube_video_destinations").select("youtube_video_id"),
-      supabase.from("business_youtube_video_badges").select("youtube_video_id"),
-      supabase.from("business_youtube_video_subcategories").select("youtube_video_id"),
-      supabase.from("business_youtube_video_cities").select("youtube_video_id"),
+    const [poiAll, bizLinkAll, destAll, badgeAll, subcatAll, cityAll] = await Promise.all([
+      fetchAllRows<any>("business_youtube_video_pois", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_businesses", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_destinations", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_badges", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_subcategories", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_cities", "youtube_video_id", "youtube_video_id"),
     ]);
     const c: Record<string, { poi: number; business: number; destination: number; tags: number }> = {};
     const bump = (id: string, key: "poi" | "business" | "destination" | "tags") => {
       if (!c[id]) c[id] = { poi: 0, business: 0, destination: 0, tags: 0 };
       c[id][key]++;
     };
-    (poiRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
-    (bizLinkRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
-    (destRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
-    (badgeRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
-    (subcatRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
-    (cityRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (poiAll || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
+    (bizLinkAll || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
+    (destAll || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
+    (badgeAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (subcatAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (cityAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
     setCounts(c);
   }, []);
 
