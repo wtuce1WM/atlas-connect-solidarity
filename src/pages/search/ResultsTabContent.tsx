@@ -332,7 +332,7 @@ export default function ResultsTabContent({
                 </button>
               </div>
               {/* Results grid */}
-              <div className={`grid gap-4 ${resolvedHotelSearchInfo ? "pt-2 lg:pt-10" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+              <div className={`grid gap-4 ${resolvedHotelSearchInfo ? "pt-2 lg:pt-10" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : ((hasKnownLocation && !hideResultsMap) || showFiltersOverlay) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const card = (
                     <SearchResultCard
