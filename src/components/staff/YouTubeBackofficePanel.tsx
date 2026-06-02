@@ -422,7 +422,10 @@ const YouTubeBackofficePanel = () => {
                         videos.map((v) => (
                           <div
                             key={v.id}
-                            className="flex items-start gap-3 p-2 bg-card border rounded-md"
+                            className={cn(
+                              "flex items-start gap-3 p-2 bg-card border rounded-md transition-opacity",
+                              !v.is_visible && "opacity-40"
+                            )}
                           >
                             <button
                               type="button"
