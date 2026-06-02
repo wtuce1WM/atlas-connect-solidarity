@@ -4337,132 +4337,79 @@ const SearchPage = () => {
                   <ShareButton title={searchQuery || "Recherche"} variant="dark" className="shrink-0" />
                 </div>
               </div>
-              {mobileFrontTabs.length > 0 && (
-                <FrontStructureNavBar
-                  tabs={mobileFrontTabs}
-                  activeTabId={mobileFsTabId}
-                  onTabClick={(tabId) => {
-                    setMobileFsTabId(tabId);
-                    setMobileFsSubId(null);
-                    setMobileFsServices([]);
-                    setFsFilterServices(null);
-                    if (!tabId) {
-                      setFsFilterSubcategories(null);
-                    } else {
-                      setShowAllSearchMarkers(false);
-                      const tab = mobileFrontTabs.find(t => t.id === tabId);
-                      if (tab) {
-                        setFsFilterSubcategories(new Set(tab.subcategoryNames));
-                      }
-                    }
-                  }}
-                />
-              )}
-              {(() => {
-                const mobileTotal = mobileFsTabId === null ? (totalCount ?? filteredBusinesses.length) : fsMatchingCount;
-                const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
-                const showToggle = mobileTotal > 20;
-                if (!showToggle && !activeFsTab) return null;
-                 return (
-                   <div className="flex items-center px-3 pb-2">
-                     <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                       {showToggle && (<>
-                       <button
-                         type="button"
-                         onClick={() => { if (showAllSearchMarkers) setShowAllSearchMarkers(false); }}
-                         className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
-                       >
-                         Top 20
-                       </button>
-                       <button
-                         type="button"
-                         onClick={() => { if (!showAllSearchMarkers) setShowAllSearchMarkers(true); }}
-                         className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
-                       >
-                         Tous <span className="ml-0.5 opacity-70">{mobileTotal}</span>
-                       </button>
-                       </>)}
-
-                       {activeFsTab && (
-                         <button
-                           type="button"
-                           onClick={() => {
-                             const pool = (allCityMapBusinesses && allCityMapBusinesses.length > 0) ? allCityMapBusinesses : filteredBusinesses;
-                              const ids = pool
-                                .filter(b =>
-                                  (b.main_category && activeFsTab.subcategoryNames.has(b.main_category)) ||
-                                  b.categories?.some((cat: string) => activeFsTab.subcategoryNames.has(cat))
-                                )
-                                .map(b => b.id);
-                             if (ids.length === 0) return;
-                             const q = `${activeFsTab.name}${effectiveCityForMap ? ` à ${effectiveCityForMap}` : ''}`;
-                             setShowMobileMap(false);
-                             setCompactPanelBusiness(null);
-                             setIsCompactPanelExpanded(false);
-                             setSelectedCategoryFilter(null);
-                             setSelectedSubcategoryFilter(null);
-                             setSelectedServiceFilter(null);
-                             setSearchQuery(q);
-                             setInputValue(q);
-                             setActiveTab("suggestions");
-                             setSelectedCity("all");
-                             setIsGeoCityAutoSelected(false);
-                             setSearchParams({ q, pinIds: ids.join(",") });
-                           }}
-                           className="px-3 py-1 rounded-full transition-colors text-white/80 hover:text-white"
-                         >
-                           Voir liste
-                         </button>
-                       )}
-                     </div>
-                   </div>
-                 );
-              })()}
               {(() => {
                 const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
-                if (!activeFsTab || activeFsTab.subcategories.length <= 1) return null;
-                const activeSub = mobileFsSubId ? activeFsTab.subcategories.find(s => s.id === mobileFsSubId) : null;
-                const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
-                const subPool = activeSub
-                  ? pool.filter((b: any) =>
-                      (b.main_category && activeSub.names.has(b.main_category)) ||
-                      b.categories?.some((c: string) => activeSub.names.has(c))
-                    )
-                  : [];
+                const total = mobileFsTabId === null ? (totalCount ?? filteredBusinesses.length) : fsMatchingCount;
+                const showToggle = total > 20 || !!mobileFsSubId;
+                const subs = activeFsTab?.subcategories ?? [];
+                const activeSubName = mobileFsSubId
+                  ? (subs.find(s => s.id === mobileFsSubId)?.name ?? "Sous-catégorie")
+                  : "Sous-catégorie";
+                const applySub = (subId: string | null) => {
+                  setMobileFsSubId(subId);
+                  setMobileFsServices([]);
+                  setFsFilterServices(null);
+                  if (!activeFsTab) return;
+                  if (!subId) {
+                    setFsFilterSubcategories(new Set(activeFsTab.subcategoryNames));
+                  } else {
+                    const sub = activeFsTab.subcategories.find(s => s.id === subId);
+                    setFsFilterSubcategories(new Set(sub?.names || activeFsTab.subcategoryNames));
+                  }
+                };
+                if (!showToggle && subs.length === 0) return null;
                 return (
-                  <FrontStructureSubNavBar
-                    defaultOpen
-                    subcategories={activeFsTab.subcategories}
-                    activeSubId={mobileFsSubId}
-                    onSubClick={(subId) => {
-                       setMobileFsSubId(subId);
-                       setMobileFsServices([]);
-                       setFsFilterServices(null);
-                       if (!subId) {
-                         setFsFilterSubcategories(new Set(activeFsTab.subcategoryNames));
-                       } else {
-                         const sub = activeFsTab.subcategories.find(s => s.id === subId);
-                         setFsFilterSubcategories(new Set(sub?.names || activeFsTab.subcategoryNames));
-                       }
-                       // Mobile: bascule vers le haut de l'onglet résultats
-                       setActiveTab("suggestions");
-                       setCurrentPage(1);
-                       setShowMobileMap(false);
-                       setTimeout(() => {
-                         window.scrollTo({ top: 0, behavior: "smooth" });
-                         setTimeout(() => ensureResultsVisibleBelowSticky?.("smooth"), 350);
-                       }, 50);
-                     }}
-                    subPool={subPool}
-                    selectedServices={mobileFsServices}
-                    onServicesChange={(svcs) => {
-                      setMobileFsServices(svcs);
-                      setFsFilterServices(svcs.length > 0 ? new Set(svcs) : null);
-                    }}
-                  />
+                  <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2">
+                    {showToggle && (
+                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <button
+                          type="button"
+                          onClick={() => { if (mobileFsSubId) applySub(null); if (showAllSearchMarkers) setShowAllSearchMarkers(false); }}
+                          className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers && !mobileFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                        >
+                          Top 20
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { if (mobileFsSubId) applySub(null); if (!showAllSearchMarkers) setShowAllSearchMarkers(true); }}
+                          className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers && !mobileFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                        >
+                          Tous <span className="ml-0.5 opacity-70">{total}</span>
+                        </button>
+                      </div>
+                    )}
+                    {subs.length > 0 && (
+                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${mobileFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                            >
+                              <SlidersHorizontal className="h-3.5 w-3.5" />
+                              {activeSubName}
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="z-[210] max-h-80 overflow-y-auto">
+                            {mobileFsSubId && (
+                              <DropdownMenuItem onSelect={() => applySub(null)}>
+                                Toutes les sous-catégories
+                              </DropdownMenuItem>
+                            )}
+                            {subs.map((s) => (
+                              <DropdownMenuItem key={s.id} onSelect={() => applySub(s.id)}>
+                                {s.name} <span className="ml-1 opacity-60">({s.count})</span>
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
+                  </div>
                 );
               })()}
             </div>
+
           ) : (
             <button
               onClick={() => setShowMobileMap(false)}
