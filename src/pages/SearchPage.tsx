@@ -2964,10 +2964,14 @@ const SearchPage = () => {
     return [...matches].sort(sortWtuceAndRating);
   }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses]);
   const resultsFilteredBusinesses = fsFilteredList ?? filteredBusinesses;
-  const resultsPaginatedBusinesses = fsFilteredList ?? paginatedBusinesses;
-  const resultsTotalPages = fsFilteredList ? 1 : totalPages;
-  const resultsStartResult = fsFilteredList ? (fsFilteredList.length > 0 ? 1 : 0) : startResult;
-  const resultsEndResult = fsFilteredList ? fsFilteredList.length : endResult;
+  const fsTotalPages = fsFilteredList ? Math.max(1, Math.ceil(fsFilteredList.length / ITEMS_PER_PAGE)) : 1;
+  const fsPageStart = fsFilteredList ? (currentPage - 1) * ITEMS_PER_PAGE : 0;
+  const resultsPaginatedBusinesses = fsFilteredList
+    ? fsFilteredList.slice(fsPageStart, fsPageStart + ITEMS_PER_PAGE)
+    : paginatedBusinesses;
+  const resultsTotalPages = fsFilteredList ? fsTotalPages : totalPages;
+  const resultsStartResult = fsFilteredList ? (fsFilteredList.length > 0 ? fsPageStart + 1 : 0) : startResult;
+  const resultsEndResult = fsFilteredList ? Math.min(fsPageStart + ITEMS_PER_PAGE, fsFilteredList.length) : endResult;
   const resultsDisplayedCount = fsFilteredList ? fsFilteredList.length : displayedResultsCount;
   const stickyAiText = useMemo(
     () => aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " "),
