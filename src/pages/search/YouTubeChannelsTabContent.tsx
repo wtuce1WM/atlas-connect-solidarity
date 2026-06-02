@@ -58,14 +58,12 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
         return;
       }
 
-      let query = supabase
+      const query = supabase
         .from("businesses")
         .select("id, name, logo_url, youtube_channel_thumbnail_url, youtube_url, city, youtube_channel_featured")
         .in("id", businessIds)
         .eq("is_active", true)
         .not("youtube_url", "is", null);
-
-      if (city) query = query.eq("city", city);
 
       const { data: businesses } = await query;
       const bMap = new Map<string, Channel>();
@@ -106,7 +104,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
       }
     })();
     return () => { cancelled = true; };
-  }, [city]);
+  }, []);
 
   const defaultOpen = useMemo(() => groups.map((g) => g.themeId), [groups]);
 
