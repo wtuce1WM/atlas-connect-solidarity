@@ -671,7 +671,7 @@ const SlidePanelHome = ({
                 ref={iframeRef}
                 key={videoId || videoUrl}
                 src={embedUrl}
-                className="w-full h-full pointer-events-none"
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full aspect-video max-w-none pointer-events-none md:static md:translate-x-0 md:translate-y-0 md:w-full md:h-full md:aspect-auto"
                 allow="autoplay; fullscreen; encrypted-media"
                 allowFullScreen
               />
