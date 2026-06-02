@@ -4660,6 +4660,7 @@ const SearchPage = () => {
           >
             <div className="relative w-full h-full pointer-events-auto">
               <PanelSearchBar
+                leadingControls={activeTab === "youtube" ? <YtBgLeadingControls /> : undefined}
                 hideAiButton={activeTab === "ai" && !rightMapVisible}
                 onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
                 onSearch={(params) => {
