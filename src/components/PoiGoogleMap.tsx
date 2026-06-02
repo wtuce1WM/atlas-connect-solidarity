@@ -557,15 +557,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       { bg: "#C04F17", fg: "#ffffff", border: "#C04F17" },
       undefined,
     );
-    // Center map on the user marker
-    const recenter = () => {
-      map.setCenter({ lat: userLocation.lat, lng: userLocation.lng });
-    };
-    if (hasFittedRef.current) {
-      recenter();
-    } else {
-      gmaps.event.addListenerOnce(map, "idle", recenter);
-    }
+    // Do not recenter on user marker: fitBounds already includes both
+    // the user location and POI markers so everything remains visible.
   }, [userLocation, ready]);
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
