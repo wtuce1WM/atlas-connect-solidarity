@@ -427,6 +427,17 @@ const YouTubeBackofficePanel = () => {
                     <Badge variant="secondary" className="shrink-0">
                       {videos.length} vidéo{videos.length > 1 ? "s" : ""}
                     </Badge>
+                    <label
+                      className="flex items-center gap-1.5 shrink-0 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                      title="Mise en avant dans l'onglet YouTube"
+                    >
+                      <span className="text-xs text-muted-foreground">Mise en avant</span>
+                      <Switch
+                        checked={!!biz.youtube_channel_featured}
+                        onCheckedChange={(v) => toggleFeatured(biz, !!v)}
+                      />
+                    </label>
                     {(() => {
                       const selected = themesByBusiness[biz.id] || new Set<string>();
                       return (
