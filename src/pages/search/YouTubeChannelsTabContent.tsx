@@ -77,8 +77,20 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
       window.removeEventListener("ytbg:request-state", onRequestState);
     };
   }, [bgPlaying, bgMuted]);
-
-
+  // When SlidePanelHome opens, force-mute the bg video; restore previous state on close
+  const prevMutedRef = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (active) {
+      prevMutedRef.current = bgMuted;
+      if (!bgMuted) { sendBgCmd("mute"); setBgMuted(true); }
+    } else if (prevMutedRef.current === false) {
+      sendBgCmd("unMute");
+      sendBgCmd("setVolume", [100]);
+      setBgMuted(false);
+      prevMutedRef.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
 
   useEffect(() => {
