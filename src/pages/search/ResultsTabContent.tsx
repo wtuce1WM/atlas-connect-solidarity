@@ -320,6 +320,7 @@ export default function ResultsTabContent({
                   onClick={() => setShowFiltersOverlay(v => {
                     const next = !v;
                     if (next) {
+                      if (hasKnownLocation && hideResultsMap) setHideResultsMap(false);
                       setActiveFsTabId(null);
                       setActiveFsSubId(null);
                     }
