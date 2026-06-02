@@ -537,7 +537,17 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
             </button>
           ))}
         </div>
+        <SearchPagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(items.length / ITEMS_PER_PAGE)}
+          totalCount={items.length}
+          pageSize={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+        />
+        </>
       )}
+
+
 
       <SlidePanelHome
         open={!!activeItem}
