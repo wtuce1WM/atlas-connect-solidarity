@@ -12,6 +12,7 @@ interface Channel {
   youtube_channel_thumbnail_url: string | null;
   youtube_url: string | null;
   city: string | null;
+  youtube_channel_featured: boolean;
 }
 
 interface ThemeGroup {
@@ -59,7 +60,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
 
       let query = supabase
         .from("businesses")
-        .select("id, name, logo_url, youtube_channel_thumbnail_url, youtube_url, city")
+        .select("id, name, logo_url, youtube_channel_thumbnail_url, youtube_url, city, youtube_channel_featured")
         .in("id", businessIds)
         .eq("is_active", true)
         .not("youtube_url", "is", null);
@@ -89,9 +90,12 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
         .filter((g) => g.channels.length > 0)
         .map((g) => ({
           ...g,
-          channels: [...new Map(g.channels.map((c) => [c.id, c])).values()].sort((a, b) =>
-            a.name.localeCompare(b.name, "fr", { sensitivity: "base" })
-          ),
+          channels: [...new Map(g.channels.map((c) => [c.id, c])).values()].sort((a, b) => {
+            const fa = a.youtube_channel_featured ? 1 : 0;
+            const fb = b.youtube_channel_featured ? 1 : 0;
+            if (fa !== fb) return fb - fa;
+            return a.name.localeCompare(b.name, "fr", { sensitivity: "base" });
+          }),
         }))
         .sort((a, b) => a.themeName.localeCompare(b.themeName, "fr", { sensitivity: "base" }));
 

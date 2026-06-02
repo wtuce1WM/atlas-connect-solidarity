@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS youtube_channel_featured boolean NOT NULL DEFAULT false;

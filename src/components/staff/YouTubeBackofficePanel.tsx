@@ -43,6 +43,7 @@ interface Business {
   youtube_url: string | null;
   logo_url: string | null;
   youtube_channel_thumbnail_url: string | null;
+  youtube_channel_featured: boolean;
 }
 
 interface YouTubeVideo {
@@ -81,7 +82,7 @@ const YouTubeBackofficePanel = () => {
     const [bizRes, videosAll, poiAll, bizLinkAll, destAll, badgeAll, subcatAll, cityAll, themesRes, bizThemesRes] = await Promise.all([
       supabase
         .from("businesses")
-        .select("id, name, city, youtube_url, logo_url, youtube_channel_thumbnail_url")
+        .select("id, name, city, youtube_url, logo_url, youtube_channel_thumbnail_url, youtube_channel_featured")
         .eq("show_youtube_tab", true)
         .not("youtube_url", "is", null)
         .order("name"),
@@ -211,6 +212,15 @@ const YouTubeBackofficePanel = () => {
     const { error } = await supabase.from("businesses").update({ youtube_channel_thumbnail_url: null } as any).eq("id", biz.id);
     if (error) { toast.error(error.message); return; }
     setBusinesses((prev) => prev.map((b) => (b.id === biz.id ? { ...b, youtube_channel_thumbnail_url: null } : b)));
+  };
+
+  const toggleFeatured = async (biz: Business, value: boolean) => {
+    setBusinesses((prev) => prev.map((b) => (b.id === biz.id ? { ...b, youtube_channel_featured: value } : b)));
+    const { error } = await supabase.from("businesses").update({ youtube_channel_featured: value } as any).eq("id", biz.id);
+    if (error) {
+      toast.error(error.message || "Erreur");
+      setBusinesses((prev) => prev.map((b) => (b.id === biz.id ? { ...b, youtube_channel_featured: !value } : b)));
+    }
   };
 
   const toggleVideoVisibility = async (video: YouTubeVideo) => {
@@ -417,6 +427,17 @@ const YouTubeBackofficePanel = () => {
                     <Badge variant="secondary" className="shrink-0">
                       {videos.length} vidéo{videos.length > 1 ? "s" : ""}
                     </Badge>
+                    <label
+                      className="flex items-center gap-1.5 shrink-0 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                      title="Mise en avant dans l'onglet YouTube"
+                    >
+                      <span className="text-xs text-muted-foreground">Mise en avant</span>
+                      <Switch
+                        checked={!!biz.youtube_channel_featured}
+                        onCheckedChange={(v) => toggleFeatured(biz, !!v)}
+                      />
+                    </label>
                     {(() => {
                       const selected = themesByBusiness[biz.id] || new Set<string>();
                       return (
