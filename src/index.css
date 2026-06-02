@@ -433,6 +433,9 @@ html.hide-scrollbar-search::-webkit-scrollbar {
 }
 .scrollbar-gold {
   scrollbar-color: hsl(var(--gold) / 0.8) transparent;
+}
+
+
 
 
 /* Full-width on mobile & tablet: remove max-w constraints below lg breakpoint */
