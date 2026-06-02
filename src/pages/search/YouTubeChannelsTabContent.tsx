@@ -175,7 +175,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
       <Accordion type="multiple" defaultValue={defaultOpen} className="space-y-2 relative z-10">
 
         {groups.map((g) => (
-          <AccordionItem key={g.themeId} value={g.themeId} className="border rounded-lg bg-card/80 backdrop-blur-sm">
+          <AccordionItem key={g.themeId} value={g.themeId} className="border border-border/40 rounded-lg bg-card/20 backdrop-blur-sm">
 
             <AccordionTrigger className="px-4 hover:no-underline">
               <div className="flex items-center gap-2">
