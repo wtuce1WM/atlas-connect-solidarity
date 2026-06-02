@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
+import SlidePanelHome from "@/components/SlidePanelHome";
 
 interface Channel {
   id: string;
@@ -20,24 +21,31 @@ interface ThemeGroup {
 
 interface Props {
   city?: string | null;
+  /** Kept for backward compat — no longer used (YouTube tab now opens SlidePanelHome internally). */
   onOpenBusiness?: (businessId: string) => void;
 }
 
-const YouTubeChannelsTabContent = ({ city, onOpenBusiness }: Props) => {
+interface ActiveVideo {
+  videoUrl: string;
+  videoName: string | null;
+  owner: { id: string; name: string; logo_url: string | null };
+}
+
+const YouTubeChannelsTabContent = ({ city }: Props) => {
   const { language } = useLanguage();
   const [groups, setGroups] = useState<ThemeGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState<ActiveVideo | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      // Fetch all themes
       const { data: themes } = await supabase
         .from("youtube_themes")
         .select("id, name_fr");
 
-      // Fetch links
       const { data: links } = await supabase
         .from("business_youtube_themes")
         .select("theme_id, business_id");
@@ -96,6 +104,38 @@ const YouTubeChannelsTabContent = ({ city, onOpenBusiness }: Props) => {
 
   const defaultOpen = useMemo(() => groups.map((g) => g.themeId), [groups]);
 
+  const handleChannelClick = async (ch: Channel) => {
+    // Pick the latest video for this business: prefer most-recent short,
+    // fallback to most-recent non-short.
+    const { data } = await supabase
+      .from("business_youtube_videos")
+      .select("video_id, title, published_at, is_short")
+      .eq("business_id", ch.id)
+      .eq("is_visible", true)
+      .eq("business_is_active", true)
+      .order("published_at", { ascending: false });
+
+    const rows = (data || []) as Array<{ video_id: string; title: string | null; published_at: string | null; is_short: boolean }>;
+    const pick = rows.find((r) => r.is_short) || rows[0];
+
+    if (!pick) {
+      // No video available → fallback: open the channel on YouTube
+      if (ch.youtube_url) window.open(ch.youtube_url, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    const url = pick.is_short
+      ? `https://www.youtube.com/shorts/${pick.video_id}`
+      : `https://www.youtube.com/watch?v=${pick.video_id}`;
+
+    setCurrentTime(0);
+    setActive({
+      videoUrl: url,
+      videoName: pick.title,
+      owner: { id: ch.id, name: ch.name, logo_url: ch.logo_url },
+    });
+  };
+
   if (loading) {
     return (
       <div className="px-4 py-8 text-center text-sm text-muted-foreground" style={{ fontFamily: "'Roboto', sans-serif" }}>
@@ -133,10 +173,7 @@ const YouTubeChannelsTabContent = ({ city, onOpenBusiness }: Props) => {
                 {g.channels.map((ch) => (
                   <button
                     key={ch.id}
-                    onClick={() => {
-                      if (onOpenBusiness) onOpenBusiness(ch.id);
-                      else if (ch.youtube_url) window.open(ch.youtube_url, "_blank", "noopener,noreferrer");
-                    }}
+                    onClick={() => handleChannelClick(ch)}
                     className="flex flex-col items-center gap-2 w-24 flex-shrink-0 group"
                   >
                     <div className="relative w-20 h-20 rounded-full overflow-hidden bg-muted border border-border group-hover:border-primary transition-colors">
@@ -164,6 +201,25 @@ const YouTubeChannelsTabContent = ({ city, onOpenBusiness }: Props) => {
           </AccordionItem>
         ))}
       </Accordion>
+
+      <SlidePanelHome
+        open={!!active}
+        onClose={() => setActive(null)}
+        videoUrl={active?.videoUrl || null}
+        videoId={null}
+        businessName={active?.owner.name || ""}
+        pageBusinessId={active?.owner.id || null}
+        isGeneric={false}
+        owner={active ? { ...active.owner } : null}
+        social={null}
+        showSocialBadge={false}
+        description={null}
+        videoName={active?.videoName || null}
+        eventId={null}
+        currentTime={currentTime}
+        onTimeUpdate={setCurrentTime}
+        returnContext={null}
+      />
     </div>
   );
 };
