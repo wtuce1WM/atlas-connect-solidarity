@@ -148,7 +148,7 @@ interface BusinessLabel {
 // Helper to convert video URL to embeddable format
 const getEmbedUrl = (url: string): { url: string; type: 'iframe' | 'video' | 'facebook' } | null => {
   const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  if (youtubeMatch) return { url: `https://www.youtube.com/embed/${youtubeMatch[1]}`, type: 'iframe' };
+  if (youtubeMatch) return { url: `https://www.youtube-nocookie.com/embed/${youtubeMatch[1]}`, type: 'iframe' };
   const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vimeoMatch) return { url: `https://player.vimeo.com/video/${vimeoMatch[1]}`, type: 'iframe' };
   if (url.includes('facebook.com') || url.includes('fb.watch')) {

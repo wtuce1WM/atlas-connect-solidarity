@@ -9,7 +9,7 @@ interface FullscreenVideoOverlayProps {
 const FullscreenVideoOverlay = ({ videoUrl, onClose }: FullscreenVideoOverlayProps) => {
   const info = getVideoInfo(videoUrl);
   let embedSrc = videoUrl;
-  if (info.type === "youtube") embedSrc = `https://www.youtube.com/embed/${info.id}?autoplay=1&rel=0&controls=1&modestbranding=1`;
+  if (info.type === "youtube") embedSrc = `https://www.youtube-nocookie.com/embed/${info.id}?autoplay=1&rel=0&controls=1&modestbranding=1`;
   else if (info.type === "vimeo") embedSrc = `https://player.vimeo.com/video/${info.id}?autoplay=1`;
 
   return (
