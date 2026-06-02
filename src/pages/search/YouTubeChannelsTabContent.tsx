@@ -210,11 +210,12 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
                       </div>
                     </div>
                     <span
-                      className="text-[11px] text-center text-foreground leading-tight break-words font-bold"
-                      style={{ fontFamily: "'Roboto', sans-serif" }}
+                      className="text-[11px] text-center text-white leading-tight break-words font-bold normal-case"
+                      style={{ fontFamily: "'Roboto', sans-serif", textTransform: "none" }}
                     >
                       {ch.name}
                     </span>
+
 
                   </button>
                 ))}
