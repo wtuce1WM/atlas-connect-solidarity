@@ -13,6 +13,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -69,28 +70,29 @@ const YouTubeBackofficePanel = () => {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes, poiRes, bizLinkRes, destRes, badgeRes, subcatRes, cityRes] = await Promise.all([
+    const [bizRes, videosAll, poiAll, bizLinkAll, destAll, badgeAll, subcatAll, cityAll] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
         .eq("show_youtube_tab", true)
         .not("youtube_url", "is", null)
         .order("name"),
-      supabase
-        .from("business_youtube_videos")
-        .select("id, business_id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible")
-        .order("sort_order"),
-      supabase.from("business_youtube_video_pois").select("youtube_video_id"),
-      supabase.from("business_youtube_video_businesses").select("youtube_video_id"),
-      supabase.from("business_youtube_video_destinations").select("youtube_video_id"),
-      supabase.from("business_youtube_video_badges").select("youtube_video_id"),
-      supabase.from("business_youtube_video_subcategories").select("youtube_video_id"),
-      supabase.from("business_youtube_video_cities").select("youtube_video_id"),
+      fetchAllRows<any>(
+        "business_youtube_videos",
+        "id, business_id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible",
+        "sort_order",
+      ),
+      fetchAllRows<any>("business_youtube_video_pois", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_businesses", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_destinations", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_badges", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_subcategories", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_cities", "youtube_video_id", "youtube_video_id"),
     ]);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
     const grouped: Record<string, YouTubeVideo[]> = {};
-    (videosRes.data || []).forEach((v: any) => {
+    (videosAll || []).forEach((v: any) => {
       if (!grouped[v.business_id]) grouped[v.business_id] = [];
       grouped[v.business_id].push(v);
     });
@@ -101,12 +103,12 @@ const YouTubeBackofficePanel = () => {
       if (!c[id]) c[id] = { poi: 0, business: 0, destination: 0, tags: 0 };
       c[id][key]++;
     };
-    (poiRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
-    (bizLinkRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
-    (destRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
-    (badgeRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
-    (subcatRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
-    (cityRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (poiAll || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
+    (bizLinkAll || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
+    (destAll || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
+    (badgeAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (subcatAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (cityAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
     setCounts(c);
 
     setLoading(false);
@@ -116,25 +118,25 @@ const YouTubeBackofficePanel = () => {
 
   /** Light refresh: only re-fetch the link tables to update CTA counts. */
   const reloadCounts = useCallback(async () => {
-    const [poiRes, bizLinkRes, destRes, badgeRes, subcatRes, cityRes] = await Promise.all([
-      supabase.from("business_youtube_video_pois").select("youtube_video_id"),
-      supabase.from("business_youtube_video_businesses").select("youtube_video_id"),
-      supabase.from("business_youtube_video_destinations").select("youtube_video_id"),
-      supabase.from("business_youtube_video_badges").select("youtube_video_id"),
-      supabase.from("business_youtube_video_subcategories").select("youtube_video_id"),
-      supabase.from("business_youtube_video_cities").select("youtube_video_id"),
+    const [poiAll, bizLinkAll, destAll, badgeAll, subcatAll, cityAll] = await Promise.all([
+      fetchAllRows<any>("business_youtube_video_pois", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_businesses", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_destinations", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_badges", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_subcategories", "youtube_video_id", "youtube_video_id"),
+      fetchAllRows<any>("business_youtube_video_cities", "youtube_video_id", "youtube_video_id"),
     ]);
     const c: Record<string, { poi: number; business: number; destination: number; tags: number }> = {};
     const bump = (id: string, key: "poi" | "business" | "destination" | "tags") => {
       if (!c[id]) c[id] = { poi: 0, business: 0, destination: 0, tags: 0 };
       c[id][key]++;
     };
-    (poiRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
-    (bizLinkRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
-    (destRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
-    (badgeRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
-    (subcatRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
-    (cityRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (poiAll || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
+    (bizLinkAll || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
+    (destAll || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
+    (badgeAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (subcatAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (cityAll || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
     setCounts(c);
   }, []);
 
