@@ -88,7 +88,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
 
       const final = Array.from(tMap.values())
         .filter((g) => g.channels.length > 0)
-        .filter((g) => g.themeName.trim().toLowerCase() !== "établissements")
+        .filter((g) => g.themeName.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") !== "etablissements")
         .map((g) => ({
           ...g,
           channels: [...new Map(g.channels.map((c) => [c.id, c])).values()].sort((a, b) => {
