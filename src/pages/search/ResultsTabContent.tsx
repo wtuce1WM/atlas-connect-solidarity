@@ -348,18 +348,6 @@ export default function ResultsTabContent({
                     />
                   );
 
-                  if (index === 2 && currentPage === 1 && !hideAiSuggestion) {
-                    return [
-                      card,
-                      <AISuggestionCard
-                        key="ai-suggestion-card"
-                        stickyAiText={stickyAiText}
-                        language={language}
-                        onOpen={() => setShowAiPopup(true)}
-                      />,
-                    ];
-                  }
-
                   return card;
                 })}
               </div>
