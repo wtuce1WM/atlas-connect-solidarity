@@ -33,6 +33,10 @@ interface DestinationSectionProps {
 const DestinationSection = ({ city, language, onDestinationClick, columns, onMapClick, onDestinationsLoaded, onHover }: DestinationSectionProps) => {
   const [destinations, setDestinations] = useState<DestinationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => { setCurrentPage(1); }, [city]);
+
 
   useEffect(() => {
     const fetchDestinations = async () => {
