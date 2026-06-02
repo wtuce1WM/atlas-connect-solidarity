@@ -21,6 +21,10 @@ export default function SearchPagination({
   className = "",
 }: SearchPaginationProps) {
   if (totalPages <= 1) return null;
+  const handlePageChange = (page: number) => {
+    onPageChange(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const startResult = (currentPage - 1) * pageSize + 1;
   const endResult = Math.min(startResult + pageSize - 1, totalCount);
 
