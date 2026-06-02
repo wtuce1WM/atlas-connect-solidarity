@@ -12,6 +12,7 @@ interface Channel {
   youtube_channel_thumbnail_url: string | null;
   youtube_url: string | null;
   city: string | null;
+  youtube_channel_featured: boolean;
 }
 
 interface ThemeGroup {
