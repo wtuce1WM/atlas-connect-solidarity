@@ -104,7 +104,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedPois = pois.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const pageLabel = language === "en" ? "Page" : language === "ar" ? "الصفحة" : "Page";
+
 
   return (
     <>
