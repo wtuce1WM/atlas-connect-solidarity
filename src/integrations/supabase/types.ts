@@ -1126,6 +1126,46 @@ export type Database = {
           },
         ]
       }
+      business_youtube_themes: {
+        Row: {
+          business_id: string
+          created_at: string
+          theme_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          theme_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          theme_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_youtube_themes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_themes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_themes_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "youtube_themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_youtube_video_badges: {
         Row: {
           badge_id: string
@@ -5281,6 +5321,30 @@ export type Database = {
           rule_text?: string
           sort_order?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      youtube_themes: {
+        Row: {
+          created_at: string
+          id: string
+          name_fr: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name_fr: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name_fr?: string
+          slug?: string
+          sort_order?: number
         }
         Relationships: []
       }

@@ -17,10 +17,12 @@ import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import {
   Loader2, Search, RefreshCw, ChevronRight, ChevronDown, Play,
-  MapPin, Building2, Globe, Tag, Image as ImageIcon, Youtube as YoutubeIcon,
+  MapPin, Building2, Globe, Tag, Image as ImageIcon, Youtube as YoutubeIcon, Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -64,13 +66,15 @@ const YouTubeBackofficePanel = () => {
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [themes, setThemes] = useState<{ id: string; name_fr: string }[]>([]);
+  const [themesByBusiness, setThemesByBusiness] = useState<Record<string, Set<string>>>({});
 
   /** Currently opened right-side assignment panel. */
   const [activePanel, setActivePanel] = useState<{ kind: PanelKind; video: AssignableVideo } | null>(null);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosAll, poiAll, bizLinkAll, destAll, badgeAll, subcatAll, cityAll] = await Promise.all([
+    const [bizRes, videosAll, poiAll, bizLinkAll, destAll, badgeAll, subcatAll, cityAll, themesRes, bizThemesRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
@@ -88,9 +92,18 @@ const YouTubeBackofficePanel = () => {
       fetchAllRows<any>("business_youtube_video_badges", "youtube_video_id", "youtube_video_id"),
       fetchAllRows<any>("business_youtube_video_subcategories", "youtube_video_id", "youtube_video_id"),
       fetchAllRows<any>("business_youtube_video_cities", "youtube_video_id", "youtube_video_id"),
+      (supabase.from("youtube_themes" as any).select("id, name_fr").order("sort_order") as any),
+      (supabase.from("business_youtube_themes" as any).select("business_id, theme_id") as any),
     ]);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
+    if (themesRes?.data) setThemes(themesRes.data as any);
+    const tMap: Record<string, Set<string>> = {};
+    (bizThemesRes?.data || []).forEach((r: any) => {
+      if (!tMap[r.business_id]) tMap[r.business_id] = new Set();
+      tMap[r.business_id].add(r.theme_id);
+    });
+    setThemesByBusiness(tMap);
     const grouped: Record<string, YouTubeVideo[]> = {};
     (videosAll || []).forEach((v: any) => {
       if (!grouped[v.business_id]) grouped[v.business_id] = [];
@@ -147,6 +160,30 @@ const YouTubeBackofficePanel = () => {
       return next;
     });
   };
+
+  const toggleTheme = async (businessId: string, themeId: string, checked: boolean) => {
+    const current = themesByBusiness[businessId] || new Set<string>();
+    const next = new Set(current);
+    checked ? next.add(themeId) : next.delete(themeId);
+    setThemesByBusiness((prev) => ({ ...prev, [businessId]: next }));
+    try {
+      if (checked) {
+        const { error } = await (supabase.from("business_youtube_themes" as any)
+          .insert({ business_id: businessId, theme_id: themeId }) as any);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase.from("business_youtube_themes" as any)
+          .delete()
+          .eq("business_id", businessId)
+          .eq("theme_id", themeId) as any);
+        if (error) throw error;
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Erreur d'enregistrement");
+      setThemesByBusiness((prev) => ({ ...prev, [businessId]: current }));
+    }
+  };
+
 
   const handleSync = async (business: Business, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -288,6 +325,55 @@ const YouTubeBackofficePanel = () => {
                     <Badge variant="secondary" className="shrink-0">
                       {videos.length} vidéo{videos.length > 1 ? "s" : ""}
                     </Badge>
+                    {(() => {
+                      const selected = themesByBusiness[biz.id] || new Set<string>();
+                      return (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => e.stopPropagation()}
+                              className="shrink-0"
+                            >
+                              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                              Thématiques
+                              {selected.size > 0 && (
+                                <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded bg-primary text-primary-foreground text-[10px] font-semibold">
+                                  {selected.size}
+                                </span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-60 p-2"
+                            align="end"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="text-xs font-medium text-muted-foreground px-2 py-1.5">
+                              Thématiques de la chaîne
+                            </div>
+                            <div className="max-h-72 overflow-y-auto space-y-0.5">
+                              {themes.map((t) => {
+                                const checked = selected.has(t.id);
+                                return (
+                                  <label
+                                    key={t.id}
+                                    className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer text-sm"
+                                  >
+                                    <Checkbox
+                                      checked={checked}
+                                      onCheckedChange={(v) => toggleTheme(biz.id, t.id, !!v)}
+                                    />
+                                    <span>{t.name_fr}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      );
+                    })()}
                     <Button
                       size="sm"
                       variant="outline"
