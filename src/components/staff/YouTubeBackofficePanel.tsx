@@ -53,6 +53,7 @@ interface YouTubeVideo {
   thumbnail_locked: boolean;
   is_short: boolean;
   is_visible: boolean;
+  published_at: string | null;
 }
 
 type PanelKind = "poi" | "business" | "destination" | "tags" | "thumbnail";
