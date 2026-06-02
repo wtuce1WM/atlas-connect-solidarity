@@ -158,7 +158,7 @@ const OverlayFlipCard = ({
                           {h.title && (
                             <h4
                               className="text-xs font-bold uppercase tracking-[0.1em] text-white"
-                              style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                              style={{ fontFamily: "'Josefin Sans', sans-serif", WebkitTextStroke: '0.6px currentColor', textShadow: '0 0 0 currentColor' }}
                             >
                               {h.title}
                             </h4>
