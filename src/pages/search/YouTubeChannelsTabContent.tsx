@@ -212,7 +212,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   return (
     <div className={`relative px-4 pt-16 pb-32 transition-all duration-300 ${active ? "lg:max-w-[50vw] lg:mr-auto lg:ml-0" : "max-w-5xl mx-auto"}`}>
       {/* Background YouTube video */}
-      {!active && (() => {
+      {(() => {
         const bgVideoId = (city || "").trim().toLowerCase() === "essaouira" ? "2RlIa-pCINg" : "1l9IMkOcVZk";
         return (
           <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-black">
