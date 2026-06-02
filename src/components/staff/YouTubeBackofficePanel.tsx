@@ -85,7 +85,7 @@ const YouTubeBackofficePanel = () => {
         .order("name"),
       fetchAllRows<any>(
         "business_youtube_videos",
-        "id, business_id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible",
+        "id, business_id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible, published_at",
         "sort_order",
       ),
       fetchAllRows<any>("business_youtube_video_pois", "youtube_video_id", "youtube_video_id"),
