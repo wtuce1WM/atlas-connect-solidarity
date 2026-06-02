@@ -54,7 +54,17 @@ interface PanelSearchBarProps {
   aiBusinesses?: any[] | null;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const KNOWN_CITIES = ["Marrakech", "Essaouira"] as const;
+const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<string, string> => {
+  const q = (params.q || "").toLowerCase();
+  if (!q) return params;
+  const mentioned = KNOWN_CITIES.find((c) => new RegExp(`\\b${c.toLowerCase()}\\b`).test(q));
+  if (mentioned) return { ...params, city: mentioned };
+  return params;
+};
+
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+  const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
