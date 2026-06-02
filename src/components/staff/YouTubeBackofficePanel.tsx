@@ -41,6 +41,8 @@ interface Business {
   name: string;
   city: string | null;
   youtube_url: string | null;
+  logo_url: string | null;
+  youtube_channel_thumbnail_url: string | null;
 }
 
 interface YouTubeVideo {
