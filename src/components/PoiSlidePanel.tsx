@@ -142,9 +142,33 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
     setLinkedPois([]);
     setCityPoisForTabs([]);
     setLinkedVideos([]);
+    setHighlights([]);
+    setHighlightsSection({ title: null, intro: null });
   }, [entityId]);
 
-  // Pause/mute background video when an overlay opens
+  // Fetch front_highlights for the business
+  useEffect(() => {
+    if (!businessId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("front_highlights")
+        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro")
+        .eq("business_id", businessId)
+        .order("sort_order");
+      if (cancelled || !data) return;
+      const rows = data as any[];
+      setHighlights(rows.map(r => ({
+        id: r.id, icon: r.icon, title: r.title || "", description: r.description || "",
+        image_url: r.image_url, sort_order: r.sort_order,
+      })));
+      setHighlightsSection({
+        title: rows[0]?.section_title || null,
+        intro: rows[0]?.section_intro || null,
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
   useEffect(() => {
     const overlayOpen = showDirections || showBookingOverlay || showMosaic || isLightboxOpen || !!fullscreenVideo || !!openedPoiBusinessId;
     if (overlayOpen) pauseAndMute();
