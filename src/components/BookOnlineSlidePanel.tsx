@@ -210,6 +210,26 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [showExternalVideosOverlay, setShowExternalVideosOverlay] = useState(false);
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
+  const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null }[]>([]);
+  const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null }>({ title: null, intro: null });
+
+  useEffect(() => {
+    if (!businessId) { setHighlights([]); setHighlightsSection({ title: null, intro: null }); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("front_highlights")
+        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro")
+        .eq("business_id", businessId)
+        .order("sort_order");
+      if (cancelled || !data) return;
+      const rows = data as any[];
+      setHighlights(rows.map(r => ({ id: r.id, icon: r.icon, title: r.title || "", description: r.description || "", image_url: r.image_url })));
+      setHighlightsSection({ title: rows[0]?.section_title || null, intro: rows[0]?.section_intro || null });
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
 
   useEffect(() => {
     if (!businessId) return;
@@ -1715,7 +1735,54 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 prose-strong:!text-white [&_.img-h2-row]:flex [&_.img-h2-row]:items-center [&_.img-h2-row]:gap-3 [&_.img-h2-row]:my-4 [&_.img-h2-row_img]:!my-0 [&_.img-h2-row_img]:h-10 [&_.img-h2-row_img]:w-10 [&_.img-h2-row_img]:object-contain [&_.img-h2-row_img]:shrink-0 [&_.img-h2-row_h2]:!my-0"
                     dangerouslySetInnerHTML={{ __html: groupImagesWithHeadings((descOverlayContent ? descOverlayContent.html : woDescription)).replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:1.6em;line-height:1;vertical-align:middle">$1</span>') }}
                   />
+                  {!descOverlayContent && (() => {
+                    const visible = highlights.filter(h => h.title?.trim() || h.description?.trim());
+                    if (visible.length === 0) return null;
+                    return (
+                      <div className="mt-8 pt-6 border-t border-white/10">
+                        {(highlightsSection.title || highlightsSection.intro) && (
+                          <div className="mb-4">
+                            {highlightsSection.title && (
+                              <h3 className="text-base font-bold uppercase tracking-[0.12em] text-white mb-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                                {highlightsSection.title}
+                              </h3>
+                            )}
+                            {highlightsSection.intro && (
+                              <p className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif]">
+                                {highlightsSection.intro}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {visible.map((h) => (
+                            <div key={h.id} className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-3 flex flex-col gap-2">
+                              {h.image_url && (
+                                <div className="w-full h-28 rounded-lg overflow-hidden bg-white/5">
+                                  <img src={h.image_url} alt={h.title} className="w-full h-full object-cover" loading="lazy" />
+                                </div>
+                              )}
+                              <div className="flex items-center gap-2">
+                                {h.icon && <DynamicIcon name={h.icon} className="h-4 w-4 text-primary shrink-0" />}
+                                {h.title && (
+                                  <h4 className="text-xs font-bold uppercase tracking-[0.1em] text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                                    {h.title}
+                                  </h4>
+                                )}
+                              </div>
+                              {h.description && (
+                                <p className="text-xs text-white/80 leading-relaxed font-['Roboto',sans-serif]">
+                                  {h.description}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
+
               </div>
             )}
           </div>
