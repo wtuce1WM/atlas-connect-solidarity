@@ -177,7 +177,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         const [s] = sorted.splice(latestShortIdx, 1);
         sorted.unshift(s);
       }
-      const urls = sorted.map((v) => `https://www.youtube.com/watch?v=${v.video_id}`);
+      const urls = sorted.map((v) =>
+        v.is_short
+          ? `https://www.youtube.com/shorts/${v.video_id}`
+          : `https://www.youtube.com/watch?v=${v.video_id}`
+      );
       if (!cancelled) setYtOrderedUrls(urls);
     })();
     return () => { cancelled = true; };
