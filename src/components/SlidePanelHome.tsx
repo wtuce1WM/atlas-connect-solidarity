@@ -675,7 +675,9 @@ const SlidePanelHome = ({
 
         <div className="relative w-full h-full">
           <div className="relative bg-black overflow-hidden w-full h-full">
-            {embed.type === "file" ? (
+            {showYoutubeOverlay ? (
+              <div className="w-full h-full bg-black" />
+            ) : embed.type === "file" ? (
               <video
                 ref={videoRef}
                 key={videoId || videoUrl}
