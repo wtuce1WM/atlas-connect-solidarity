@@ -21,6 +21,10 @@ export default function SearchPagination({
   className = "",
 }: SearchPaginationProps) {
   if (totalPages <= 1) return null;
+  const handlePageChange = (page: number) => {
+    onPageChange(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const startResult = (currentPage - 1) * pageSize + 1;
   const endResult = Math.min(startResult + pageSize - 1, totalCount);
 
@@ -40,7 +44,7 @@ export default function SearchPagination({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onPageChange(currentPage - 1)}
+          onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className="gap-1"
         >
@@ -59,7 +63,7 @@ export default function SearchPagination({
                 key={pageNum}
                 variant={currentPage === pageNum ? "default" : "outline"}
                 size="sm"
-                onClick={() => onPageChange(pageNum)}
+                onClick={() => handlePageChange(pageNum)}
                 className="w-10"
               >
                 {pageNum}
@@ -70,7 +74,7 @@ export default function SearchPagination({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onPageChange(currentPage + 1)}
+          onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className="gap-1"
         >
