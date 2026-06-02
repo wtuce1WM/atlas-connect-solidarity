@@ -1694,7 +1694,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 </div>
               );
             })() : (
-              <div className="w-full h-full overflow-y-auto overscroll-contain">
+              <div className="w-full h-full overflow-y-auto overscroll-contain scrollbar-gold">
                 <div className={`px-4 pt-4 pb-6 md:pl-6 md:pt-6 ${descOverlayContent ? 'pr-4 md:pr-6' : 'pr-14 md:pr-16'}`}>
                   {descOverlayContent && (
                     <>
@@ -1763,7 +1763,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                                 </div>
                               )}
                               <div className="flex items-center gap-2">
-                                {h.icon && <DynamicIcon name={h.icon} className="h-4 w-4 text-primary shrink-0" />}
+                                {h.icon && <DynamicIcon name={h.icon} className="h-4 w-4 text-gold shrink-0" />}
                                 {h.title && (
                                   <h4 className="text-xs font-bold uppercase tracking-[0.1em] text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                                     {h.title}
