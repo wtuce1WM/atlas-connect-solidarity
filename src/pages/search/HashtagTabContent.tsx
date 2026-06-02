@@ -56,7 +56,10 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
   useEffect(() => { setActiveItem(null); }, [badgeId]);
   const [currentTime, setCurrentTime] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  useEffect(() => { setCurrentPage(1); }, [badgeId, city]);
+  useEffect(() => {
+    setCurrentPage(1);
+    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { window.scrollTo(0, 0); }
+  }, [badgeId, city]);
 
   useEffect(() => {
     let cancelled = false;
