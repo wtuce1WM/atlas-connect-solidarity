@@ -420,6 +420,21 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   scrollbar-color: hsl(var(--primary) / 0.7) transparent;
 }
 
+/* Gold scrollbar variant */
+.scrollbar-gold::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, hsl(var(--gold) / 0.6), hsl(var(--gold) / 0.9));
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+.scrollbar-gold::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, hsl(var(--gold) / 0.85), hsl(var(--gold)));
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+.scrollbar-gold {
+  scrollbar-color: hsl(var(--gold) / 0.8) transparent;
+
+
 /* Full-width on mobile & tablet: remove max-w constraints below lg breakpoint */
 @media (max-width: 1023px) {
   .max-w-\[80\%\] {
