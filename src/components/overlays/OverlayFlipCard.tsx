@@ -4,6 +4,16 @@ import { ChevronLeft, ChevronDown, ChevronUp, Map as MapIcon } from "lucide-reac
 import { LazyPoiGoogleMap } from "./LazyOverlays";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import { GOLD } from "@/lib/overlayConstants";
+import DynamicIcon from "@/components/DynamicIcon";
+
+export interface HighlightItem {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  image_url: string | null;
+  sort_order: number;
+}
 
 interface FlipCardProps {
   flipped: boolean;
