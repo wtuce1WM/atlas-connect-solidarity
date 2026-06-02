@@ -82,7 +82,7 @@ const YouTubeBackofficePanel = () => {
     const [bizRes, videosAll, poiAll, bizLinkAll, destAll, badgeAll, subcatAll, cityAll, themesRes, bizThemesRes] = await Promise.all([
       supabase
         .from("businesses")
-        .select("id, name, city, youtube_url, logo_url, youtube_channel_thumbnail_url")
+        .select("id, name, city, youtube_url, logo_url, youtube_channel_thumbnail_url, youtube_channel_featured")
         .eq("show_youtube_tab", true)
         .not("youtube_url", "is", null)
         .order("name"),
