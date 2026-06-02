@@ -161,6 +161,30 @@ const YouTubeBackofficePanel = () => {
     });
   };
 
+  const toggleTheme = async (businessId: string, themeId: string, checked: boolean) => {
+    const current = themesByBusiness[businessId] || new Set<string>();
+    const next = new Set(current);
+    checked ? next.add(themeId) : next.delete(themeId);
+    setThemesByBusiness((prev) => ({ ...prev, [businessId]: next }));
+    try {
+      if (checked) {
+        const { error } = await (supabase.from("business_youtube_themes" as any)
+          .insert({ business_id: businessId, theme_id: themeId }) as any);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase.from("business_youtube_themes" as any)
+          .delete()
+          .eq("business_id", businessId)
+          .eq("theme_id", themeId) as any);
+        if (error) throw error;
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Erreur d'enregistrement");
+      setThemesByBusiness((prev) => ({ ...prev, [businessId]: current }));
+    }
+  };
+
+
   const handleSync = async (business: Business, e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (!business.youtube_url) {
