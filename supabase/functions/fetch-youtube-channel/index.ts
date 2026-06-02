@@ -61,12 +61,12 @@ serve(async (req) => {
     if (parsed.type === "channel") {
       channelId = parsed.value;
     } else if (parsed.type === "handle") {
-      const searchUrl = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${parsed.value}&key=${apiKey}`;
+      const searchUrl = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${encodeURIComponent(parsed.value)}&key=${apiKey}`;
       const res = await fetch(searchUrl);
       const data = await res.json();
       channelId = data.items?.[0]?.id || null;
     } else {
-      const searchUrl = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${parsed.value}&key=${apiKey}`;
+      const searchUrl = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${encodeURIComponent(parsed.value)}&key=${apiKey}`;
       const res = await fetch(searchUrl);
       const data = await res.json();
       channelId = data.items?.[0]?.id || null;
