@@ -2170,7 +2170,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 }
               }}
               fitToMarkers
+              userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />
+
           </div>
         </OverlayShell>
       )}
