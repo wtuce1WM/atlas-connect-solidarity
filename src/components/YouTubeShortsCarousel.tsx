@@ -101,9 +101,13 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
             });
           });
 
-          // Fetch missing titles via oEmbed for document-sourced videos
+          // Sort: most recent first (by publishedAt desc), then pin latest short to front
           const itemsWithTitles: YouTubeVideo[] = Array.from(merged.values())
-            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+            .sort((a, b) => {
+              const da = a.published_at ? new Date(a.published_at).getTime() : 0;
+              const db = b.published_at ? new Date(b.published_at).getTime() : 0;
+              return db - da;
+            })
             .map((v: any) => ({
               videoId: v.video_id,
               title: v.title,
@@ -112,6 +116,12 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
               isShort: v.is_short,
               durationSeconds: v.duration_seconds,
             }));
+
+          const latestShortIdx = itemsWithTitles.findIndex((v) => v.isShort);
+          if (latestShortIdx > 0) {
+            const [short] = itemsWithTitles.splice(latestShortIdx, 1);
+            itemsWithTitles.unshift(short);
+          }
 
           // Populate missing titles via YouTube oEmbed
           const titlesToFetch = itemsWithTitles.filter((v) => !v.title);
