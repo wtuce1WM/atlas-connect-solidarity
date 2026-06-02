@@ -25,6 +25,10 @@ import { whatsappUrl } from "@/lib/phoneUtils";
 import { Phone, Heart } from "lucide-react";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { groupImagesWithHeadings } from "@/lib/groupImagesWithHeadings";
+import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
+import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
+import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
+import type { BookOnlineBusiness } from "@/hooks/useBookOnlineData";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
@@ -83,6 +87,7 @@ interface AgendaEvent {
     neighborhood?: string | null;
     whatsapp?: string | null;
     logo_bg?: string | null;
+    youtube_url?: string | null;
   } | null;
 }
 
@@ -221,7 +226,7 @@ const SlidePanelHome = ({
       if (!bizId) { setEventBusiness(null); return; }
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi, youtube_url")
         .eq("id", bizId)
         .maybeSingle();
       if (cancelled) return;
@@ -240,7 +245,7 @@ const SlidePanelHome = ({
     (async () => {
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi, youtube_url")
         .eq("id", owner.id)
         .maybeSingle();
       if (cancelled) return;
@@ -262,7 +267,7 @@ const SlidePanelHome = ({
     (async () => {
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi, youtube_url")
         .eq("id", pageBusinessId)
         .maybeSingle();
       if (cancelled) return;
@@ -324,7 +329,7 @@ const SlidePanelHome = ({
       if (bizIds.length > 0) {
         const { data: bizRows } = await supabase
           .from("businesses")
-          .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
+          .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi, youtube_url")
           .in("id", bizIds);
         ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b as any));
       }
@@ -352,6 +357,9 @@ const SlidePanelHome = ({
   const [fileMuted, setFileMuted] = useState(!soundOn);
   const [ytPlaying, setYtPlaying] = useState(true);
   const [ytMuted, setYtMuted] = useState(!soundOn);
+  const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
+  const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
+  useEffect(() => { if (!open) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); } }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -647,6 +655,19 @@ const SlidePanelHome = ({
           </div>
         )}
 
+        {/* Left sidebar — YouTube button (hover-expand, mirror of BookOnlineSlidePanel) */}
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && ctaBusiness?.youtube_url && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
+            <div
+              onClick={() => { setShowYoutubeOverlay(true); }}
+              className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
+            >
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">YouTube</span>
+              <YouTubeIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300 text-red-600" />
+            </div>
+          </div>
+        )}
+
         {effectiveDescription && (
           <DescriptionPlusButton html={effectiveDescription} businessName={businessName} isOpen={descOverlayOpen} onOpenChange={setDescOverlayOpen} />
         )}
@@ -912,6 +933,15 @@ const SlidePanelHome = ({
               slideFrom="bottom"
             />
           </div>
+        )}
+        {showYoutubeOverlay && ctaBusiness?.youtube_url && (
+          <YouTubeOverlay
+            business={{ id: ctaBusiness.id, name: ctaBusiness.name, youtube_url: ctaBusiness.youtube_url } as unknown as BookOnlineBusiness}
+            activeVideo={activeYoutubeVideo}
+            onSelectVideo={setActiveYoutubeVideo}
+            onPlayingChange={() => {}}
+            onClose={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); }}
+          />
         )}
       </div>
     </div>,
