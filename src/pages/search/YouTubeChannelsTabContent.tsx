@@ -129,7 +129,7 @@ const YouTubeChannelsTabContent = ({ city, onOpenBusiness }: Props) => {
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-3 pb-3">
-              <div className="flex gap-3 overflow-x-auto scrollbar-hide pt-1 pb-2" style={{ scrollbarWidth: "none" }}>
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pt-1 pb-2 px-2" style={{ scrollbarWidth: "none" }}>
                 {g.channels.map((ch) => (
                   <button
                     key={ch.id}
