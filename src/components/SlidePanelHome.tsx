@@ -25,6 +25,10 @@ import { whatsappUrl } from "@/lib/phoneUtils";
 import { Phone, Heart } from "lucide-react";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { groupImagesWithHeadings } from "@/lib/groupImagesWithHeadings";
+import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
+import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
+import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
+import type { BookOnlineBusiness } from "@/hooks/useBookOnlineData";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
