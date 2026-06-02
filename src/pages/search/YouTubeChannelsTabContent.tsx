@@ -9,6 +9,7 @@ interface Channel {
   id: string;
   name: string;
   logo_url: string | null;
+  youtube_channel_thumbnail_url: string | null;
   youtube_url: string | null;
   city: string | null;
 }
