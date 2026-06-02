@@ -187,6 +187,19 @@ interface CachedBusinessData {
 const businessDataCache = new Map<string, CachedBusinessData>();
 const MAX_CACHE_SIZE = 15;
 
+const meaningfulHtml = (html?: string | null) => {
+  if (!html) return null;
+  const text = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<br\s*\/?\s*>/gi, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;|&amp;nbsp;|&#160;|&#xA0;/gi, " ")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .trim();
+  return text ? html : null;
+};
+
 function setCacheEntry(id: string, data: CachedBusinessData) {
   if (businessDataCache.size >= MAX_CACHE_SIZE) {
     // Evict oldest entry
@@ -325,8 +338,7 @@ export function useBookOnlineData(businessId: string) {
       if (biz?.hide_description) {
         setWoDescription(null);
       } else {
-        const rawWoDesc = (woRes.data as any)?.description?.replace(/<[^>]*>/g, "").trim();
-        setWoDescription(rawWoDesc ? (woRes.data as any).description : biz?.description || null);
+        setWoDescription(meaningfulHtml((woRes.data as any)?.description) ?? meaningfulHtml(biz?.description));
       }
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
