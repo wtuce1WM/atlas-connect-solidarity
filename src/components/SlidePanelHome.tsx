@@ -357,6 +357,9 @@ const SlidePanelHome = ({
   const [fileMuted, setFileMuted] = useState(!soundOn);
   const [ytPlaying, setYtPlaying] = useState(true);
   const [ytMuted, setYtMuted] = useState(!soundOn);
+  const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
+  const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
+  useEffect(() => { if (!open) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); } }, [open]);
 
   useEffect(() => {
     if (!open) return;
