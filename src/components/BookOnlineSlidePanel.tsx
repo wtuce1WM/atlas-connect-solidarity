@@ -1743,7 +1743,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         {(highlightsSection.title || highlightsSection.intro) && (
                           <div className="mb-4">
                             {highlightsSection.title && (
-                              <h3 className="text-base font-extrabold uppercase tracking-[0.12em] text-white mb-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                              <h3 className="text-base font-bold uppercase tracking-[0.12em] text-white mb-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                                 {highlightsSection.title}
                               </h3>
                             )}
