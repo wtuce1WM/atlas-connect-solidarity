@@ -141,14 +141,69 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   } = useBookOnlineData(businessId);
 
   // --- Extracted hooks ---
+  // Fetch YouTube videos for this business to drive background ordering:
+  // latest short first, then other YT videos by published_at desc.
+  const [ytOrderedUrls, setYtOrderedUrls] = useState<string[]>([]);
+  useEffect(() => {
+    if (!businessId) { setYtOrderedUrls([]); return; }
+    let cancelled = false;
+    (async () => {
+      const directP = supabase
+        .from("business_youtube_videos")
+        .select("video_id, published_at, is_short")
+        .eq("business_id", businessId)
+        .eq("is_visible", true)
+        .eq("business_is_active", true);
+      const poiP = supabase
+        .from("business_youtube_video_pois")
+        .select("business_youtube_videos!inner(video_id, published_at, is_short)")
+        .eq("point_of_interest_id", businessId)
+        .eq("business_youtube_videos.is_visible", true)
+        .eq("business_youtube_videos.business_is_active", true);
+      const [{ data: direct }, { data: poi }] = await Promise.all([directP, poiP]);
+      const map = new Map<string, { video_id: string; published_at: string | null; is_short: boolean }>();
+      (direct || []).forEach((v: any) => map.set(v.video_id, v));
+      (poi || []).forEach((row: any) => {
+        const v = row.business_youtube_videos;
+        if (v && !map.has(v.video_id)) map.set(v.video_id, v);
+      });
+      const sorted = Array.from(map.values()).sort((a, b) => {
+        const da = a.published_at ? new Date(a.published_at).getTime() : 0;
+        const db = b.published_at ? new Date(b.published_at).getTime() : 0;
+        return db - da;
+      });
+      const latestShortIdx = sorted.findIndex((v) => v.is_short);
+      if (latestShortIdx > 0) {
+        const [s] = sorted.splice(latestShortIdx, 1);
+        sorted.unshift(s);
+      }
+      const urls = sorted.map((v) => `https://www.youtube.com/watch?v=${v.video_id}`);
+      if (!cancelled) setYtOrderedUrls(urls);
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
   // When opened from a pinned context (manual homepage card), force the matching
   // video to be first so it plays in the slide-panel background instead of the
   // default sort-order #1.
   const orderedVideoUrls = useMemo(() => {
-    if (!initialVideoUrl || !allVideoUrls?.includes(initialVideoUrl)) return allVideoUrls;
-    return [initialVideoUrl, ...allVideoUrls.filter(u => u !== initialVideoUrl)];
-  }, [allVideoUrls, initialVideoUrl]);
+    const ytIdOf = (u: string) => {
+      const m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+      return m?.[1] || null;
+    };
+    const ytIds = new Set(ytOrderedUrls.map(ytIdOf).filter(Boolean) as string[]);
+    const nonYt = (allVideoUrls || []).filter((u) => {
+      const id = ytIdOf(u);
+      return !id || !ytIds.has(id);
+    });
+    let merged = [...ytOrderedUrls, ...nonYt];
+    if (initialVideoUrl && merged.includes(initialVideoUrl)) {
+      merged = [initialVideoUrl, ...merged.filter((u) => u !== initialVideoUrl)];
+    }
+    return merged;
+  }, [allVideoUrls, ytOrderedUrls, initialVideoUrl]);
   const { images, videos, mediaItems, totalMedia, matterportIndex, matterportItem, lightboxItems } = useMediaItems(business, orderedVideoUrls, videoDocs);
+
   const ctaConfig = useCtaConfig(business, language);
 
   // --- Cosmetic URL rewriting ---
