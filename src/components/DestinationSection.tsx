@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Loader2, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import SearchPagination from "@/components/SearchPagination";
+
+const ITEMS_PER_PAGE = 20;
 
 export interface DestinationItem {
   id: string;
