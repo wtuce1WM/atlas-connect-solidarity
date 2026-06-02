@@ -4656,6 +4656,8 @@ const SearchPage = () => {
           )}
           <div
             className={`fixed pointer-events-none ${
+              activeTab === "youtube" && ytPanelOpen ? "hidden " : ""
+            }${
               overlayOpen
                 ? rightMapVisible
                   ? "inset-y-0 right-0 w-full lg:w-1/2 z-[201]"
