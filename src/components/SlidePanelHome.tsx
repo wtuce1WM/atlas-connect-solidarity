@@ -667,14 +667,19 @@ const SlidePanelHome = ({
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
             ) : (
-              <iframe
-                ref={iframeRef}
-                key={videoId || videoUrl}
-                src={embedUrl}
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full aspect-video max-w-none pointer-events-none md:static md:translate-x-0 md:translate-y-0 md:w-full md:h-full md:aspect-auto"
-                allow="autoplay; fullscreen; encrypted-media"
-                allowFullScreen
-              />
+              <>
+                {embed.type === "youtube" && !/\/shorts\//.test(videoUrl) && (
+                  <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
+                )}
+                <iframe
+                  ref={iframeRef}
+                  key={videoId || videoUrl}
+                  src={embedUrl}
+                  className="w-full h-full pointer-events-none"
+                  allow="autoplay; fullscreen; encrypted-media"
+                  allowFullScreen
+                />
+              </>
             )}
             {videoId && (
               <GenericVideoTimelineOverlay genericVideoId={videoId} currentTime={currentTime} />
