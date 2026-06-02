@@ -4,7 +4,10 @@ import { Play, Youtube } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 import SlidePanelHome from "@/components/SlidePanelHome";
+import SearchPagination from "@/components/SearchPagination";
 import { isAgendaLabel, formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
+
+const ITEMS_PER_PAGE = 20;
 
 
 interface EventInfo {
