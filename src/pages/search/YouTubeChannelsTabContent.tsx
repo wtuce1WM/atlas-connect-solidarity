@@ -210,6 +210,15 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full"
               allow="autoplay; encrypted-media"
               title="Background video"
+              onLoad={() => {
+                // Attempt to unmute by default. Browsers may keep it muted until
+                // the user interacts; in that case the Mute toggle remains accurate.
+                setTimeout(() => {
+                  sendBgCmd("unMute");
+                  sendBgCmd("setVolume", [100]);
+                  sendBgCmd("playVideo");
+                }, 400);
+              }}
             />
             <div className="absolute inset-0 bg-black/50" />
           </div>
