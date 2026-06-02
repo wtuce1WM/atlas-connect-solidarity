@@ -3029,7 +3029,7 @@ const SearchPage = () => {
           {[
             { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
             { key: "ai", icon: <Sparkles className="h-4 w-4" />, label: "IA" },
-            { key: "youtube", icon: <Youtube className="h-4 w-4 text-red-600" />, label: "" },
+            { key: "youtube", icon: <YouTubeIcon className="h-4 w-4 text-red-600" />, label: "" },
             ...(badgeIdParam && badgeLabelParam ? [{ key: "hashtag", label: badgeLabelParam, count: hashtagCount }] : []),
             { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },
             { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
