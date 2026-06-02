@@ -9,6 +9,7 @@ interface Channel {
   id: string;
   name: string;
   logo_url: string | null;
+  youtube_channel_thumbnail_url: string | null;
   youtube_url: string | null;
   city: string | null;
 }
@@ -58,7 +59,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
 
       let query = supabase
         .from("businesses")
-        .select("id, name, logo_url, youtube_url, city")
+        .select("id, name, logo_url, youtube_channel_thumbnail_url, youtube_url, city")
         .in("id", businessIds)
         .eq("is_active", true)
         .not("youtube_url", "is", null);
@@ -177,8 +178,9 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
                     className="flex flex-col items-center gap-2 w-24 flex-shrink-0 group"
                   >
                     <div className="relative w-20 h-20 rounded-full overflow-hidden bg-muted border border-border group-hover:border-primary transition-colors">
-                      {ch.logo_url ? (
-                        <img src={ch.logo_url} alt={ch.name} className="w-full h-full object-cover" loading="lazy" />
+                      {(ch.youtube_channel_thumbnail_url || ch.logo_url) ? (
+                        <img src={ch.youtube_channel_thumbnail_url || ch.logo_url!} alt={ch.name} className="w-full h-full object-cover" loading="lazy" />
+
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <YouTubeIcon className="h-6 w-6 text-red-600" />

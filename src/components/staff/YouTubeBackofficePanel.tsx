@@ -41,6 +41,8 @@ interface Business {
   name: string;
   city: string | null;
   youtube_url: string | null;
+  logo_url: string | null;
+  youtube_channel_thumbnail_url: string | null;
 }
 
 interface YouTubeVideo {
@@ -79,7 +81,7 @@ const YouTubeBackofficePanel = () => {
     const [bizRes, videosAll, poiAll, bizLinkAll, destAll, badgeAll, subcatAll, cityAll, themesRes, bizThemesRes] = await Promise.all([
       supabase
         .from("businesses")
-        .select("id, name, city, youtube_url")
+        .select("id, name, city, youtube_url, logo_url, youtube_channel_thumbnail_url")
         .eq("show_youtube_tab", true)
         .not("youtube_url", "is", null)
         .order("name"),
@@ -184,6 +186,31 @@ const YouTubeBackofficePanel = () => {
       toast.error(err.message || "Erreur d'enregistrement");
       setThemesByBusiness((prev) => ({ ...prev, [businessId]: current }));
     }
+  };
+
+  const uploadChannelThumbnail = async (biz: Business, file: File) => {
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `youtube-channels/${biz.id}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("business-images").upload(path, file, {
+        upsert: true, contentType: file.type || undefined,
+      });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("business-images").getPublicUrl(path);
+      const url = pub.publicUrl;
+      const { error } = await supabase.from("businesses").update({ youtube_channel_thumbnail_url: url } as any).eq("id", biz.id);
+      if (error) throw error;
+      setBusinesses((prev) => prev.map((b) => (b.id === biz.id ? { ...b, youtube_channel_thumbnail_url: url } : b)));
+      toast.success("Miniature mise à jour");
+    } catch (err: any) {
+      toast.error(err.message || "Échec de l'upload");
+    }
+  };
+
+  const removeChannelThumbnail = async (biz: Business) => {
+    const { error } = await supabase.from("businesses").update({ youtube_channel_thumbnail_url: null } as any).eq("id", biz.id);
+    if (error) { toast.error(error.message); return; }
+    setBusinesses((prev) => prev.map((b) => (b.id === biz.id ? { ...b, youtube_channel_thumbnail_url: null } : b)));
   };
 
   const toggleVideoVisibility = async (video: YouTubeVideo) => {
@@ -327,6 +354,46 @@ const YouTubeBackofficePanel = () => {
                     {isOpen
                       ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
                       : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+                    <label
+                      className="relative shrink-0 w-10 h-10 rounded-full overflow-hidden bg-muted border border-border cursor-pointer group/avatar"
+                      onClick={(e) => e.stopPropagation()}
+                      title="Cliquer pour changer la miniature"
+                    >
+                      {biz.youtube_channel_thumbnail_url || biz.logo_url ? (
+                        <img
+                          src={biz.youtube_channel_thumbnail_url || biz.logo_url!}
+                          alt={biz.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition">
+                        <ImageIcon className="h-4 w-4 text-white" />
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) uploadChannelThumbnail(biz, f);
+                          e.currentTarget.value = "";
+                        }}
+                      />
+                      {biz.youtube_channel_thumbnail_url && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeChannelThumbnail(biz); }}
+                          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[10px] leading-none flex items-center justify-center shadow"
+                          title="Retirer la miniature personnalisée"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </label>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{biz.name}</p>
                       <p className="text-xs text-muted-foreground truncate">
