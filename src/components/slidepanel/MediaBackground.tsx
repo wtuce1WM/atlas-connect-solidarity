@@ -70,8 +70,12 @@ const MediaBackground = React.memo(function MediaBackground({
       );
     }
 
+    const isYouTubeVertical = videoInfo?.type === "youtube" && isVerticalVideo;
     return (
-      <div className={`w-full h-full overflow-hidden bg-black ${videoInfo?.type === "youtube" ? "relative" : ""}`}>
+      <div
+        className={`w-full h-full overflow-hidden bg-black ${videoInfo?.type === "youtube" ? "relative" : ""}`}
+        style={isYouTubeVertical ? { containerType: "size" } : undefined}
+      >
         {videoInfo?.type === "youtube" && !isVerticalVideo && (
           <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
         )}
@@ -82,17 +86,26 @@ const MediaBackground = React.memo(function MediaBackground({
           className={
             videoInfo?.type === "youtube"
               ? isVerticalVideo
-                ? `w-full h-full ${cardsHidden ? "" : "pointer-events-none"}`
+                ? `absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${cardsHidden ? "" : "pointer-events-none"}`
                 : `w-full h-full pointer-events-none`
               : `w-full h-full ${cardsHidden ? "" : "pointer-events-none"}`
           }
           allow="autoplay; encrypted-media"
           allowFullScreen
           frameBorder="0"
-          style={{ border: 0 }}
+          style={
+            isYouTubeVertical
+              ? {
+                  border: 0,
+                  width: "max(100cqw, calc(100cqh * 9 / 16))",
+                  height: "max(100cqh, calc(100cqw * 16 / 9))",
+                }
+              : { border: 0 }
+          }
         />
       </div>
     );
+
   }
 
   if (effectiveMedia.kind === "matterport") {
