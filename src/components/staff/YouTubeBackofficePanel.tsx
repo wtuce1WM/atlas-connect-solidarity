@@ -185,6 +185,29 @@ const YouTubeBackofficePanel = () => {
     }
   };
 
+  const toggleVideoVisibility = async (video: YouTubeVideo) => {
+    const newVal = !video.is_visible;
+    setVideosByBusiness((prev) => ({
+      ...prev,
+      [video.business_id]: (prev[video.business_id] || []).map((v) =>
+        v.id === video.id ? { ...v, is_visible: newVal } : v
+      ),
+    }));
+    const { error } = await supabase
+      .from("business_youtube_videos")
+      .update({ is_visible: newVal })
+      .eq("id", video.id);
+    if (error) {
+      toast.error("Erreur lors de la mise à jour");
+      setVideosByBusiness((prev) => ({
+        ...prev,
+        [video.business_id]: (prev[video.business_id] || []).map((v) =>
+          v.id === video.id ? { ...v, is_visible: !newVal } : v
+        ),
+      }));
+    }
+  };
+
 
   const handleSync = async (business: Business, e?: React.MouseEvent) => {
     e?.stopPropagation();
