@@ -63,6 +63,7 @@ import WarningOverlay from "@/components/WarningOverlay";
 import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import YtBgLeadingControls from "@/components/YtBgLeadingControls";
 import FrontStructureNavBar from "@/components/FrontStructureNavBar";
 import FrontStructureSubNavBar from "@/components/FrontStructureSubNavBar";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
