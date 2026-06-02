@@ -463,7 +463,14 @@ const YouTubeBackofficePanel = () => {
                                   title={v.is_visible ? "Désactiver la vidéo" : "Activer la vidéo"}
                                 />
                                 <div className="min-w-0 flex-1">
-                                  <p className="text-xs font-medium line-clamp-2">{v.title}</p>
+                                  <p className="text-xs font-medium line-clamp-2">
+                                    {v.title}
+                                    {v.published_at && (
+                                      <span className="ml-1 text-[10px] text-muted-foreground font-normal">
+                                        · {new Date(v.published_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                                      </span>
+                                    )}
+                                  </p>
                                   <p className="text-[10px] text-muted-foreground font-mono">{v.video_id}</p>
                                 </div>
                               </div>
