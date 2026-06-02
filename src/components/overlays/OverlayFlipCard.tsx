@@ -40,6 +40,10 @@ interface FlipCardProps {
   showMapButton?: boolean;
   /** Optional default review to display */
   defaultReview?: { author_name: string; text: string; rating: number; source: string } | null;
+  /** Optional highlights displayed at the bottom of the expanded description */
+  highlights?: HighlightItem[];
+  highlightsSectionTitle?: string | null;
+  highlightsSectionIntro?: string | null;
 }
 
 const OverlayFlipCard = ({
@@ -47,7 +51,12 @@ const OverlayFlipCard = ({
   name, hook, description, descExpanded, onToggleDesc,
   mapMarkers, selectedMarkerId, selectedLat, selectedLng,
   backLabel, showMapButton = true, defaultReview,
+  highlights, highlightsSectionTitle, highlightsSectionIntro,
 }: FlipCardProps) => {
+  const visibleHighlights = useMemo(
+    () => (highlights || []).filter(h => (h.title?.trim() || h.description?.trim())),
+    [highlights]
+  );
   const pois = useMemo(() => {
     const selected = selectedLat && selectedLng ? [{
       id: selectedMarkerId, name, latitude: selectedLat, longitude: selectedLng,
