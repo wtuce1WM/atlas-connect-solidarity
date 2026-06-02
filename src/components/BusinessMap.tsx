@@ -444,12 +444,12 @@ const BusinessMap = ({
 
     clustererRef.current = clusterer;
 
-    // Fit bounds
+    // Fit bounds — prefer fitBounds whenever markers are available
     if (forceOverview) {
       // No city selected: show all of Morocco centered
       map.setCenter({ lat: 29.5, lng: -7.5 });
       map.setZoom(5);
-    } else if (geoBusinesses.length > 0 && !center) {
+    } else if (geoBusinesses.length > 0) {
       const bounds = new google.maps.LatLngBounds();
       geoBusinesses.forEach((b) => bounds.extend({ lat: b.latitude!, lng: b.longitude! }));
       map.fitBounds(bounds, 40);
