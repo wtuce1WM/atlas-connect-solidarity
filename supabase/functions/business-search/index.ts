@@ -1150,7 +1150,6 @@ serve(async (req) => {
     let subcategoryParentCategory: string | null = null;
     let keywordLinkedSubcategories: string[] = []; // additional subcategories found via keyword match
     let detectedSubcategoryFromKeyword = false;
-    let detectedSubcategoryKeywords: string[] = [];
     if (effectiveQuery && !labelShortcutActivated) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
@@ -1263,9 +1262,6 @@ serve(async (req) => {
           detectedSubcategoryIsReal = subcats.some(
             (sc: any) => sc.name_fr?.toLowerCase() === detectedSubcategory!.toLowerCase()
           );
-          detectedSubcategoryKeywords = (subcats.find(
-            (sc: any) => sc.name_fr?.toLowerCase() === detectedSubcategory!.toLowerCase()
-          )?.keywords || []) as string[];
           // Resolve parent category for enrichment filtering
           const { data: parentCatData } = await supabase
             .from("subcategories")
