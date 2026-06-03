@@ -135,7 +135,6 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
                 : "bg-black hover:bg-black/90"
           }`}
         >
-        >
           {voice.status === "processing" ? (
             <Loader className="h-5 w-5 text-white animate-spin" />
           ) : voice.status === "recording" ? (
