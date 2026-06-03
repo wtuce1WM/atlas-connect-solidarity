@@ -65,7 +65,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(query); } }}
             placeholder={placeholder}
             autoComplete="off"
-            className="w-full h-12 md:h-14 px-4 pr-10 text-left text-base md:text-lg bg-white/90 backdrop-blur-sm border border-gold/50 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold placeholder:text-muted-foreground placeholder:text-left"
+            className="w-full h-12 md:h-14 px-4 pr-10 text-left text-base md:text-lg bg-white/90 backdrop-blur-sm border border-primary/60 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-muted-foreground placeholder:text-left"
           />
           {query && (
             <button
@@ -83,9 +83,9 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
           type="button"
           onClick={() => submit(query)}
           aria-label={language === "fr" ? "Rechercher" : "Search"}
-          className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all shadow-lg bg-gold hover:bg-gold/90"
+          className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all shadow-lg bg-primary hover:bg-primary/90"
         >
-          <Search className="h-5 w-5 text-black" />
+          <Search className="h-5 w-5 text-primary-foreground" />
         </button>
 
         <button
