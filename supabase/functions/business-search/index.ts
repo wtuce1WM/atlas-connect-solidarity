@@ -2826,6 +2826,16 @@ serve(async (req) => {
       }
     }
 
+    // ── Inject service forced by intent-based re-evaluation (see ~L1800) ──
+    // When intent (e.g. "faire") swapped to a subcategory via a service keyword,
+    // ensure that service is enforced as a required filter downstream.
+    if (forcedServiceFromReeval && !detectedServices.includes(forcedServiceFromReeval)) {
+      detectedServices = [forcedServiceFromReeval, ...detectedServices];
+      if (!detectedService) detectedService = forcedServiceFromReeval;
+      serviceWasDetected = true;
+      console.log(`✅ Injected forced service from re-eval: "${forcedServiceFromReeval}" → detectedServices=[${detectedServices.join(", ")}]`);
+    }
+
     // ── Filter out services that don't belong to the detected subcategory ──
     // e.g. "offrir des fleurs" detects subcategory "Fleuriste" but service "Fleurs comestibles" belongs to "Fruits & Legumes"
     // For neighborhood-driven queries, keep cross-subcategory services (same local intent can span multiple subcategories)
