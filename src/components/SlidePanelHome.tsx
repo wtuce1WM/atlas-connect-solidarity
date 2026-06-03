@@ -434,9 +434,15 @@ const SlidePanelHome = ({
       try {
         const data = JSON.parse(e.data);
         const info = data?.info;
+        // onStateChange: info is a number (playerState)
+        // 1 = playing, 2 = paused, 3 = buffering, 0 = ended, -1 = unstarted
+        if (data?.event === "onStateChange" && typeof info === "number") {
+          if (info === 1) setYtPlaying(true);
+          else if (info === 2 || info === 0 || info === -1) setYtPlaying(false);
+        }
+        // infoDelivery: info is an object with playerState/muted
         if (info && typeof info === "object") {
           if (typeof info.playerState === "number") {
-            // 1 = playing, 2 = paused, 3 = buffering, 0 = ended
             if (info.playerState === 1) setYtPlaying(true);
             else if (info.playerState === 2 || info.playerState === 0) setYtPlaying(false);
           }
