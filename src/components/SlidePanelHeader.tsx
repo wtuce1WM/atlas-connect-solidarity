@@ -5,7 +5,7 @@ interface SlidePanelHeaderProps {
   /** Optional center content (e.g. title text) */
   centerContent?: React.ReactNode;
   /** Close button style variant */
-  closeVariant?: "dark" | "destructive";
+  closeVariant?: "dark" | "destructive" | "inverse";
   /** IDs for portal targets — defaults to slide-panel-toolbar-center / slide-panel-toolbar */
   toolbarLeftId?: string;
   toolbarCenterId?: string;
