@@ -47,6 +47,8 @@ interface SearchInputProps {
   };
   /** Submit icon variant: "search" (default) or "send" (paper plane for AI assistant) */
   submitIcon?: "search" | "send";
+  /** Apply Hero-style liquid glass design to input + CTAs */
+  liquid?: boolean;
 }
 
 interface SearchInputSuggestionsProps {
