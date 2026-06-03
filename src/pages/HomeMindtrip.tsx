@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play } from "lucide-react";
 
