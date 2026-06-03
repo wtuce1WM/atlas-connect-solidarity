@@ -117,7 +117,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
           type="button"
           onClick={() => submit(query)}
           aria-label={language === "fr" ? "Rechercher" : "Search"}
-          className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all shadow-lg bg-primary hover:bg-primary/90"
+          className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all bg-primary/70 hover:bg-primary/85 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
         >
           <Search className="h-5 w-5 text-primary-foreground" />
         </button>
