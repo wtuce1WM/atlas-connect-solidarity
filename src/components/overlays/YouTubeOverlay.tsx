@@ -144,7 +144,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
       </div>
 
       {/* Carousel — pinned to bottom */}
-      <div className="shrink-0 overflow-hidden px-3 pb-16 pt-2 border-t border-white/10">
+      <div className="shrink-0 overflow-hidden px-3 pb-3 pt-2 border-t border-white/10">
         <YouTubeShortsCarousel
           youtubeUrl={business.youtube_url ?? ""}
           businessId={business.id}
