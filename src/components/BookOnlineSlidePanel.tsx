@@ -201,7 +201,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       const id = ytIdOf(u);
       return !id || !ytIds.has(id);
     });
-    let merged = [...ytOrderedUrls, ...nonYt];
+    let merged = [...nonYt, ...ytOrderedUrls];
     if (initialVideoUrl && merged.includes(initialVideoUrl)) {
       merged = [initialVideoUrl, ...merged.filter((u) => u !== initialVideoUrl)];
     }
