@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, MapPin, X } from "lucide-react";
+import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, MapPin, X, Search } from "lucide-react";
 import SearchInput from "@/components/SearchInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -177,62 +177,28 @@ const HeroSection = () => {
             })}
           </div>
 
-          <div
-            className="relative"
-            onFocusCapture={(e) => {
-              const target = e.target as HTMLElement;
-              if (target.tagName === "INPUT") {
-                (target as HTMLInputElement).blur();
-                setMobileSearchOpen(true);
-              }
-            }}
-            onClickCapture={(e) => {
-              // Open full-screen MobileSearchOverlay when clicking the input area,
-              // but let inline buttons (mic, submit, suggestions) keep their own behavior.
-              const target = e.target as HTMLElement;
-              if (target.closest("button") || target.closest("a")) return;
-              if (target.tagName === "INPUT") {
-                e.preventDefault();
-                (target as HTMLInputElement).blur();
-                setMobileSearchOpen(true);
-              }
-            }}
-          >
-            <SearchInput
-              variant="hero"
-              showSuggestions={false}
-              placeholder={(() => {
-                const placeholders: Record<string, { fr: string; en: string; ar: string }> = {
-                  all: { fr: "Que cherchez-vous ? Et où ?", en: "What are you looking for? And where?", ar: "ماذا تبحث عنه؟ وأين؟" },
-                  "Hôtellerie": { fr: "Trouvez les meilleurs hôtels & riads", en: "Find the best hotels & riads", ar: "اعثر على أفضل الفنادق والرياضات" },
-                  "Restauration": { fr: "Trouvez un bon restaurant", en: "Find a great restaurant", ar: "اعثر على مطعم جيد" },
-                  "Tourisme": { fr: "Trouvez une activité inoubliable", en: "Find an unforgettable activity", ar: "اعثر على نشاط لا يُنسى" },
-                  "Commerce": { fr: "Trouvez les meilleures boutiques", en: "Find the best shops", ar: "اعثر على أفضل المتاجر" },
-                  "Bien-être": { fr: "Trouvez un spa ou hammam", en: "Find a spa or hammam", ar: "اعثر على سبا أو حمام" },
-                };
-                const p = placeholders[searchCategory] || placeholders.all;
-                return language === "ar" ? p.ar : language === "en" ? p.en : p.fr;
-              })()}
-              onSubmit={(query) => {
-                const params = new URLSearchParams();
-                const timeResult = extractTimeSlot(query);
-                const effectiveQuery = timeResult ? timeResult.cleanedQuery : query;
-                if (effectiveQuery) params.set("q", effectiveQuery);
-                if (searchCategory !== "all") params.set("category", searchCategory);
-                else if (timeResult?.timeSlot.suggestedCategory) params.set("category", timeResult.timeSlot.suggestedCategory);
-                if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
-                if (timeResult) {
-                  params.set("timeStart", String(timeResult.timeSlot.startHour));
-                  params.set("timeEnd", String(timeResult.timeSlot.endHour));
-                  params.set("timeDayOffset", String(timeResult.timeSlot.dayOffset));
-                  if (timeResult.timeSlot.dayOfWeek !== null) params.set("timeDayOfWeek", String(timeResult.timeSlot.dayOfWeek));
-                }
-                if (params.toString()) navigateWithSlide(`/search?${params.toString()}`);
-              }}
-              onNavigate={navigateWithSlide}
-              voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
-            />
-          </div>
+          {(() => {
+            const placeholders: Record<string, { fr: string; en: string; ar: string }> = {
+              all: { fr: "Que cherchez-vous ? Et où ?", en: "What are you looking for? And where?", ar: "ماذا تبحث عنه؟ وأين؟" },
+              "Hôtellerie": { fr: "Trouvez les meilleurs hôtels & riads", en: "Find the best hotels & riads", ar: "اعثر على أفضل الفنادق والرياضات" },
+              "Restauration": { fr: "Trouvez un bon restaurant", en: "Find a great restaurant", ar: "اعثر على مطعم جيد" },
+              "Tourisme": { fr: "Trouvez une activité inoubliable", en: "Find an unforgettable activity", ar: "اعثر على نشاط لا يُنسى" },
+              "Commerce": { fr: "Trouvez les meilleures boutiques", en: "Find the best shops", ar: "اعثر على أفضل المتاجر" },
+              "Bien-être": { fr: "Trouvez un spa ou hammam", en: "Find a spa or hammam", ar: "اعثر على سبا أو حمام" },
+            };
+            const p = placeholders[searchCategory] || placeholders.all;
+            const placeholder = language === "ar" ? p.ar : language === "en" ? p.en : p.fr;
+            return (
+              <button
+                type="button"
+                onClick={() => setMobileSearchOpen(true)}
+                className="w-full flex items-center gap-3 px-5 py-6 md:py-7 bg-white/90 backdrop-blur-sm border border-gold/50 rounded-xl shadow-lg text-left hover:border-gold transition-colors"
+              >
+                <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+                <span className="flex-1 truncate text-base md:text-lg text-muted-foreground">{placeholder}</span>
+              </button>
+            );
+          })()}
 
 
           {/* Resume last search chip — disabled on homepage */}
