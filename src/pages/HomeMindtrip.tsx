@@ -417,6 +417,7 @@ const HomeMindtrip = () => {
                         variant="hero"
                         placeholder="Demandez à notre assistant IA…"
                         submitIcon="send"
+                        liquid
                         showSuggestions={false}
                         onSubmit={(q) => navigate(`/search?q=${encodeURIComponent(q)}&tab=ai`)}
                       />
