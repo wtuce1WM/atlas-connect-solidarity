@@ -299,7 +299,11 @@ const SearchInput = ({
             className="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
             style={{ backgroundColor: "hsl(var(--primary))" }}
           >
-            <Search className="h-5 w-5 text-white" />
+            {submitIcon === "send" ? (
+              <Send className="h-5 w-5 text-white" />
+            ) : (
+              <Search className="h-5 w-5 text-white" />
+            )}
           </button>
         </div>
       </div>
