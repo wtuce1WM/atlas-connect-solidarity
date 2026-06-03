@@ -41,7 +41,7 @@ const SlidePanelHeader = ({
 
   return (
     <div className={baseClass}>
-      <div className="flex items-center gap-3 shrink-0 relative z-10">
+      <div className={`flex items-center gap-3 shrink-0 relative z-10 ${closeButtonContainerClassName}`}>
         <button
           type="button"
           onClick={(e) => {
