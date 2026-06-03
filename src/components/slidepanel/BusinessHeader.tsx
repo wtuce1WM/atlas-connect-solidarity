@@ -1,6 +1,5 @@
 import React from "react";
 import { MapPin, Star } from "lucide-react";
-import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 
 interface BusinessHeaderProps {
   business: any;
