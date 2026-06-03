@@ -219,7 +219,7 @@ const HomeMindtrip = () => {
           </h2>
 
           <div className="mt-16 space-y-24">
-            {STEPS.map((s, i) => (
+            {STEPS.slice(0, 1).map((s, i) => (
               <div
                 key={s.title}
                 className="space-y-8"
