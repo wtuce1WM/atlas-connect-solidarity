@@ -227,7 +227,11 @@ const SearchInput = ({
       style={{ backgroundColor: "hsl(var(--primary))" }}
       title={buttonLabel}
     >
-      <Search className="h-6 w-6 text-white" />
+      {submitIcon === "send" ? (
+        <Send className="h-6 w-6 text-white" />
+      ) : (
+        <Search className="h-6 w-6 text-white" />
+      )}
     </button>
   );
 
