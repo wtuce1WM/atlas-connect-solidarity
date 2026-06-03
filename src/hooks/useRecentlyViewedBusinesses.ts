@@ -7,6 +7,7 @@ export interface RecentlyViewedBusiness {
   city: string | null;
   slug: string;
   viewedAt: number;
+  isYoutubeChannel?: boolean;
 }
 
 const STORAGE_KEY = "recently_viewed_businesses";
@@ -29,7 +30,7 @@ function setStored(entries: RecentlyViewedBusiness[]) {
   } catch { /* quota */ }
 }
 
-function trackViewInternal(detail: { id: string; name: string; images?: string[] | null; logo_url?: string | null; city?: string | null; slug: string }) {
+function trackViewInternal(detail: { id: string; name: string; images?: string[] | null; logo_url?: string | null; city?: string | null; slug: string; isYoutubeChannel?: boolean }) {
   const current = getStored();
   const image = detail.images?.[0] || detail.logo_url || null;
   const entry: RecentlyViewedBusiness = {
@@ -39,6 +40,7 @@ function trackViewInternal(detail: { id: string; name: string; images?: string[]
     city: detail.city || null,
     slug: detail.slug,
     viewedAt: Date.now(),
+    isYoutubeChannel: detail.isYoutubeChannel || false,
   };
   const updated = [entry, ...current.filter((e) => e.id !== detail.id)].slice(0, MAX_ENTRIES);
   setStored(updated);
