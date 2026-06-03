@@ -139,12 +139,9 @@ const HomeMindtrip = () => {
       if (!container || !track) return;
       const rect = container.getBoundingClientRect();
       const vh = window.innerHeight;
-      // démarre quand le haut du conteneur croise le milieu de l'écran
-      const startOffset = vh / 2;
       const total = container.offsetHeight - vh;
       if (total <= 0) return;
-      const raw = (startOffset - rect.top) / total;
-      const progress = Math.min(1, Math.max(0, raw));
+      const progress = Math.min(1, Math.max(0, -rect.top / total));
       const maxX = Math.max(0, track.scrollWidth - window.innerWidth);
       setTrackX(progress * maxX);
     };
@@ -156,6 +153,7 @@ const HomeMindtrip = () => {
       window.removeEventListener("resize", onScroll);
     };
   }, []);
+
 
 
 
