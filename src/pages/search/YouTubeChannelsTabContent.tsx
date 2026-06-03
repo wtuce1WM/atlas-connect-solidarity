@@ -227,7 +227,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
             <iframe
               ref={bgIframeRef}
               src={`https://www.youtube-nocookie.com/embed/${bgVideoId}?autoplay=1&mute=1&loop=1&playlist=${bgVideoId}&controls=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&showinfo=0&enablejsapi=1`}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] h-[56.25vw] min-w-full min-h-full"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[max(177.78vh,calc(100%+285px))] h-[max(calc(56.25vw+160px),calc(100%+160px))]"
               allow="autoplay; encrypted-media"
               title="Background video"
               onLoad={() => {
@@ -240,8 +240,6 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
                 }, 400);
               }}
             />
-            {/* Masque le titre/chrome YouTube en haut de la vidéo de fond */}
-            <div className="absolute top-0 left-0 right-0 h-24 bg-black z-10" />
             <div className="absolute inset-0 bg-black/50" />
           </div>
         );
