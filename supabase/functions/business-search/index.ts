@@ -1150,6 +1150,7 @@ serve(async (req) => {
     let subcategoryParentCategory: string | null = null;
     let keywordLinkedSubcategories: string[] = []; // additional subcategories found via keyword match
     let detectedSubcategoryFromKeyword = false;
+    let forcedServiceFromReeval: string | null = null; // service forced by intent-based re-evaluation
     if (effectiveQuery && !labelShortcutActivated) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
@@ -1780,16 +1781,27 @@ serve(async (req) => {
             if (!betterSubcat) {
               const { data: targetServices } = await supabase
                 .from("services")
-                .select("name_fr, subcategories!inner(name_fr, categories!inner(name_fr))")
+                .select("name_fr, keywords, subcategories!inner(name_fr, categories!inner(name_fr))")
                 .eq("is_active", true)
                 .eq("subcategories.categories.name_fr", catToSearch);
               if (targetServices) {
                 for (const svc of targetServices) {
                   const svcName = (svc.name_fr || "").toLowerCase();
                   const svcNameNorm = normalizeWordRe(svcName);
-                  if (qWords.some(qw => normalizeWordRe(qw) === svcNameNorm)) {
+                  const svcKws: string[] = ((svc as any).keywords || []).map((k: string) => k.toLowerCase());
+                  const nameHit = qWords.some(qw => normalizeWordRe(qw) === svcNameNorm);
+                  const kwHit = qWords.some(qw => svcKws.some(k => {
+                    if (k.includes(" ")) {
+                      const kWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+                      return kWords.length > 0 && kWords.every(kw => qWords.some(qw2 => normalizeWordRe(qw2) === normalizeWordRe(kw)));
+                    }
+                    return normalizeWordRe(k) === normalizeWordRe(qw);
+                  }));
+                  if (nameHit || kwHit) {
                     betterSubcat = (svc as any).subcategories?.name_fr;
-                    console.log(`Category-subcategory re-evaluation via SERVICE: "${svc.name_fr}" found under "${betterSubcat}" (${catToSearch})`);
+                    console.log(`Category-subcategory re-evaluation via SERVICE: "${svc.name_fr}" (match=${nameHit ? "name" : "keyword"}) found under "${betterSubcat}" (${catToSearch})`);
+                    // Force the chosen service as a required filter downstream
+                    if (!forcedServiceFromReeval) forcedServiceFromReeval = svc.name_fr;
                     break;
                   }
                 }
@@ -2812,6 +2824,16 @@ serve(async (req) => {
           if (detectedService) serviceWasDetected = true;
         }
       }
+    }
+
+    // ── Inject service forced by intent-based re-evaluation (see ~L1800) ──
+    // When intent (e.g. "faire") swapped to a subcategory via a service keyword,
+    // ensure that service is enforced as a required filter downstream.
+    if (forcedServiceFromReeval && !detectedServices.includes(forcedServiceFromReeval)) {
+      detectedServices = [forcedServiceFromReeval, ...detectedServices];
+      if (!detectedService) detectedService = forcedServiceFromReeval;
+      serviceWasDetected = true;
+      console.log(`✅ Injected forced service from re-eval: "${forcedServiceFromReeval}" → detectedServices=[${detectedServices.join(", ")}]`);
     }
 
     // ── Filter out services that don't belong to the detected subcategory ──
