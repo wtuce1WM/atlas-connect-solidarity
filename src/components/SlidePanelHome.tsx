@@ -539,7 +539,7 @@ const SlidePanelHome = ({
             toolbarLeftId="slide-panel-home-toolbar-left"
             toolbarCenterId="slide-panel-home-toolbar-center"
             toolbarRightId="slide-panel-home-toolbar-right"
-            closeButtonContainerClassName={shouldShowOwnerLogoInHeader && ctaBusiness ? "md:ml-3 lg:ml-4" : ""}
+            closeButtonContainerClassName={shouldShowOwnerLogoInHeader && ctaBusiness ? "md:ml-10" : ""}
           />
         )}
         {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && typeof document !== "undefined" && (() => {
