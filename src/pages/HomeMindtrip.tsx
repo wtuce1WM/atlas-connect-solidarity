@@ -418,6 +418,16 @@ const HomeMindtrip = () => {
                       className="absolute inset-0 h-full w-full object-cover"
                     />
                   )}
+                  {i === 3 && (
+                    <video
+                      src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/6eab7b31-bda9-43d5-8c8b-4f972e5bb8bd-1774600396740-3cbxw.mp4"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  )}
                   <div className="relative z-10">
                     <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
                       Étape {i + 1}
