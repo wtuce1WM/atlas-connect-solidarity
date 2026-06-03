@@ -343,43 +343,46 @@ const HomeMindtrip = () => {
                               navigate(defaultUrl);
                             };
                             return (
-                              <div key={v.key} className="group relative aspect-[9/16] w-[140px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[160px] border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
-                                <button
-                                  type="button"
-                                  onClick={goSearch}
-                                  className="absolute inset-0 h-full w-full text-left"
-                                  aria-label={`Voir les résultats pour ${v.label} ${selectedCity}`}
-                                >
-                                  {thumb ? (
-                                    <img
-                                      src={thumb}
-                                      alt={v.businessName || v.label || ""}
-                                      loading="lazy"
-                                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                    />
-                                  ) : (
-                                    <div className="flex h-full w-full items-center justify-center bg-white/5">
-                                      <Play className="h-8 w-8 text-white/40" />
+                              <div
+                                key={v.key}
+                                className="relative shrink-0 snap-start rounded-xl p-[3px] bg-white/15 backdrop-blur-xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.5)]"
+                              >
+                                <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-white/40 via-transparent to-white/10" />
+                                <div className="group relative aspect-[9/16] w-[140px] overflow-hidden rounded-[10px] bg-muted md:w-[160px]">
+                                  <button
+                                    type="button"
+                                    onClick={goSearch}
+                                    className="absolute inset-0 h-full w-full text-left"
+                                    aria-label={`Voir les résultats pour ${v.label} ${selectedCity}`}
+                                  >
+                                    {thumb ? (
+                                      <img
+                                        src={thumb}
+                                        alt={v.businessName || v.label || ""}
+                                        loading="lazy"
+                                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                      />
+                                    ) : (
+                                      <div className="flex h-full w-full items-center justify-center bg-white/5">
+                                        <Play className="h-8 w-8 text-white/40" />
+                                      </div>
+                                    )}
+                                    <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/60 to-transparent" />
+                                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/60 to-transparent" />
+                                  </button>
+                                  {v.label && (
+                                    <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
+                                      <button
+                                        type="button"
+                                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                        onClick={goSearch}
+                                        className="rounded-md border-2 border-black bg-white px-2 py-1 text-center text-[10px] font-bold uppercase tracking-wide text-black shadow-lg line-clamp-2 hover:bg-white/90 transition-colors cursor-pointer"
+                                      >
+                                        {v.label}
+                                      </button>
                                     </div>
                                   )}
-                                  <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/60 to-transparent" />
-                                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/60 to-transparent" />
-                                  <div className="pointer-events-none absolute inset-0 rounded-lg bg-white/10 backdrop-blur-[2px] backdrop-saturate-150 mix-blend-overlay" />
-                                  <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-br from-white/25 via-transparent to-transparent opacity-70" />
-                                  <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-lg bg-gradient-to-b from-white/20 to-transparent" />
-                                </button>
-                                {v.label && (
-                                  <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
-                                    <button
-                                      type="button"
-                                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                      onClick={goSearch}
-                                      className="rounded-md border-2 border-black bg-white px-2 py-1 text-center text-[10px] font-bold uppercase tracking-wide text-black shadow-lg line-clamp-2 hover:bg-white/90 transition-colors cursor-pointer"
-                                    >
-                                      {v.label}
-                                    </button>
-                                  </div>
-                                )}
+                                </div>
                               </div>
                             );
                           })}
