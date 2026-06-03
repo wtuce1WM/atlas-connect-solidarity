@@ -251,13 +251,15 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
               allow="autoplay; encrypted-media"
               title="Background video"
               onLoad={() => {
-                // Attempt to unmute by default. Browsers may keep it muted until
-                // the user interacts; in that case the Mute toggle remains accurate.
-                setTimeout(() => {
-                  sendBgCmd("unMute");
-                  sendBgCmd("setVolume", [100]);
-                  sendBgCmd("playVideo");
-                }, 400);
+                // Register for player state events so play/pause stays accurate
+                // even when autoplay is blocked by the browser.
+                const w = bgIframeRef.current?.contentWindow;
+                if (!w) return;
+                w.postMessage(JSON.stringify({ event: "listening" }), "*");
+                w.postMessage(
+                  JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"] }),
+                  "*"
+                );
               }}
             />
             <div className="absolute inset-0 bg-black/50" />
