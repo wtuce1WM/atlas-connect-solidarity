@@ -551,7 +551,7 @@ const SlidePanelHome = ({
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
-            className="absolute left-4 top-3 lg:top-[calc(3.3rem+0.75rem)] z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
+            className="absolute left-4 top-3 z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
             aria-label="Fermer"
           >
             <X className="h-5 w-5 text-black" />
