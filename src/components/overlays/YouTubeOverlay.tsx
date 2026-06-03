@@ -95,6 +95,11 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
     onSelectVideo(v);
   }, [onSelectVideo]);
 
+  const activeVideoIndex = activeVideo ? allVideos.findIndex((v) => v.videoId === activeVideo.videoId) : -1;
+  const hasPrevVideo = activeVideoIndex > 0;
+  const hasNextVideo = activeVideoIndex >= 0 && activeVideoIndex < allVideos.length - 1;
+  const showVideoNavigation = !!activeVideo && allVideos.length > 1;
+
   return (
     <OverlayShell zClass="z-[76]" animClass="animate-slide-up-from-bottom" bg="bg-black" className="flex flex-col">
       {/* Floating close button */}
@@ -107,34 +112,28 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
         <X className="h-5 w-5 text-black" />
       </button>
 
-      {/* Up/Down navigation chevrons (right side) */}
-      {activeVideo && allVideos.length > 1 && (() => {
-        const idx = allVideos.findIndex((v) => v.videoId === activeVideo.videoId);
-        const hasPrev = idx > 0;
-        const hasNext = idx >= 0 && idx < allVideos.length - 1;
-        return (
-          <div className="absolute top-1/2 -translate-y-1/2 right-3 z-[100] flex flex-col gap-2 pointer-events-none">
-            <button
-              type="button"
-              onClick={() => goToOffset(-1)}
-              disabled={!hasPrev}
-              className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
-              aria-label="Vidéo précédente"
-            >
-              <ChevronUp className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => goToOffset(1)}
-              disabled={!hasNext}
-              className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
-              aria-label="Vidéo suivante"
-            >
-              <ChevronDown className="h-5 w-5" />
-            </button>
-          </div>
-        );
-      })()}
+      {showVideoNavigation && (
+        <div className="fixed top-1/2 -translate-y-1/2 right-4 z-[260] flex flex-col gap-2 pointer-events-none">
+          <button
+            type="button"
+            onClick={() => goToOffset(-1)}
+            disabled={!hasPrevVideo}
+            className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+            aria-label="Vidéo précédente"
+          >
+            <ChevronUp className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => goToOffset(1)}
+            disabled={!hasNextVideo}
+            className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+            aria-label="Vidéo suivante"
+          >
+            <ChevronDown className="h-5 w-5" />
+          </button>
+        </div>
+      )}
 
       {/* Video title */}
       {activeVideo && (
