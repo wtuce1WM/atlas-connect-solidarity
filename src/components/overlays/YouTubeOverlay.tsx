@@ -81,7 +81,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
       </button>
 
       {/* Video player area */}
-      <div className="flex-1 flex items-center justify-center px-4 min-h-0 relative">
+      <div className="flex-1 flex items-center justify-center px-4 pt-12 min-h-0 relative">
         {activeVideo ? (
           <>
             <div className={`flex items-center justify-center ${activeVideo.isShort ? "h-full" : "w-full"}`}>
