@@ -306,7 +306,7 @@ const SearchInput = ({
           <button
             type="button"
             onClick={handleSubmit}
-            className="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
+            className={`flex items-center justify-center w-12 h-12 rounded-xl transition-all hover:opacity-90 shrink-0 ${liquid ? liquidBtnClass : "shadow-lg"}`}
             style={{ backgroundColor: "hsl(var(--primary))" }}
           >
             {submitIcon === "send" ? (
