@@ -862,7 +862,7 @@ const SlidePanelHome = ({
                 }
                 return null;
               })()}
-              {ctaBusiness && (
+              {ctaBusiness && !compactBusinessHeader && (
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
                   <button
                     type="button"
