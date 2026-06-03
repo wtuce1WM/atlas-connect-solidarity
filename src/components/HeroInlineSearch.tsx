@@ -54,7 +54,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
 
   return (
     <div ref={containerRef} className="relative w-full">
-      <div className="relative flex items-center gap-2">
+      <div className="relative flex flex-col md:flex-row md:items-center gap-2">
         <div className="relative flex-1">
           <input
             ref={inputRef}
@@ -79,6 +79,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
           )}
         </div>
 
+        <div className="flex items-center gap-2 md:contents">
         <button
           type="button"
           onClick={() => submit(query)}
@@ -109,7 +110,9 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
             <Mic className="h-5 w-5 text-white" />
           )}
         </button>
+        </div>
       </div>
+
 
       {showDropdown && (
         <div className="absolute left-0 right-14 md:right-16 top-full mt-2 z-[60] bg-white rounded-xl shadow-2xl border border-border max-h-72 overflow-y-auto py-2">
