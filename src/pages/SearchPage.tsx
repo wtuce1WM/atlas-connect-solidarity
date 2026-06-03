@@ -692,6 +692,13 @@ const SearchPage = () => {
      try {
        const cached = sessionStorage.getItem("ai_suggestion_text");
        if (cached) setAiAnswerText(cached);
+       const cachedBiz = sessionStorage.getItem("ai_suggestion_businesses");
+       if (cachedBiz) {
+         try {
+           const parsed = JSON.parse(cachedBiz);
+           if (Array.isArray(parsed)) setRestoredAiBusinessPool(parsed as unknown as Business[]);
+         } catch { /* ignore */ }
+       }
      } catch { /* ignore */ }
      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [searchParams]);
