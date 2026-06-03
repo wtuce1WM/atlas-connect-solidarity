@@ -375,11 +375,9 @@ const HomeMindtrip = () => {
                                         type="button"
                                         onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
                                         onClick={goSearch}
-                                        className="relative overflow-hidden rounded-md border border-white/40 bg-white/15 px-2.5 py-1 text-center text-[10px] font-bold uppercase tracking-wide text-white shadow-[0_8px_24px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.18)] backdrop-blur-xl backdrop-saturate-150 transition-colors cursor-pointer hover:bg-white/25"
+                                        className="line-clamp-2 text-center text-[10px] font-bold uppercase tracking-wide text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)] cursor-pointer"
                                       >
-                                        <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/45 via-white/10 to-transparent" />
-                                        <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent" />
-                                        <span className="relative z-[1] line-clamp-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)]">{v.label}</span>
+                                        {v.label}
                                       </button>
                                     </div>
                                   )}
