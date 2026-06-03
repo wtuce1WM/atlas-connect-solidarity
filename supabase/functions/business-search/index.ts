@@ -1149,6 +1149,7 @@ serve(async (req) => {
     let detectedSubcategoryIsReal = false;
     let subcategoryParentCategory: string | null = null;
     let keywordLinkedSubcategories: string[] = []; // additional subcategories found via keyword match
+    let detectedSubcategoryFromKeyword = false;
     if (effectiveQuery && !labelShortcutActivated) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
@@ -1249,6 +1250,7 @@ serve(async (req) => {
             // No name match — use keyword match as primary
             if (keywordMatchedSubcats.length === 1) {
               detectedSubcategory = keywordMatchedSubcats[0];
+              detectedSubcategoryFromKeyword = true;
               console.log(`Auto-detected subcategory "${keywordMatchedSubcats[0]}" from keyword match in query "${effectiveQuery}"`);
             } else if (keywordMatchedSubcats.length > 1) {
               console.log(`Keyword matched ${keywordMatchedSubcats.length} subcategories [${keywordMatchedSubcats.join(", ")}] — skipping subcategory lock, will use broader search`);
@@ -1341,6 +1343,7 @@ serve(async (req) => {
           const { data: subcatRow } = await supabase.from("subcategories").select("name_fr").ilike("name_fr", subcatName).limit(1).single();
           if (subcatRow) {
             detectedSubcategory = subcatRow.name_fr;
+            detectedSubcategoryFromKeyword = true;
             subcategorySearchConfig = config;
             console.log(`Auto-detected subcategory "${detectedSubcategory}" from config synonym match in query "${effectiveQuery}"`);
           }
@@ -1682,7 +1685,7 @@ serve(async (req) => {
     //   → LLM extracts "hôtel mer vue Essaouira" (injecting "hôtel")
     //   → "Hôtel" subcategory auto-detected, but user never said "hôtel"
     //   → clear lock so Riads, Maisons d'hôtes etc. also appear
-    if (detectedSubcategory && intentCategory && effectiveQuery !== query) {
+    if (detectedSubcategory && intentCategory && effectiveQuery !== query && !detectedSubcategoryFromKeyword) {
       const originalLower = (query ?? "").toLowerCase();
       const subcatLower = detectedSubcategory.toLowerCase();
       const subcatWords = subcatLower.split(/[\s/]+/).filter((w: string) => w.length > 2);
@@ -1696,6 +1699,8 @@ serve(async (req) => {
         detectedSubcategoryIsReal = false;
         subcategoryParentCategory = null;
       }
+    } else if (detectedSubcategory && intentCategory && effectiveQuery !== query && detectedSubcategoryFromKeyword) {
+      console.log(`Keeping keyword-detected subcategory "${detectedSubcategory}" from rewritten query "${effectiveQuery}"`);
     }
 
     // ── Detect category-subcategory conflict ──
@@ -3434,13 +3439,15 @@ serve(async (req) => {
             subBuilder = subBuilder.ilike("city", cityToUse);
           }
         }
-        // Skip category filter only for single-intent conflicts (e.g. "manger" vs Poissonnerie)
-        // For multi-intent queries (e.g. acheter → Commerce + Agriculture), keep category restriction.
+        // Skip category filter for conflicts and when a subcategory was detected from its own keywords.
+        // Example: "acheter un gâteau" maps "gâteau" → subcategory "Pâtisserie"; the generic
+        // intent "acheter" must not narrow it back to Commerce/Agriculture.
         const skipCategoryFilterForConflict = intentSubcategoryConflict && intentCategories.length <= 1;
-        if (effectiveCategories.length > 0 && !skipCategoryFilterForConflict) {
+        const skipCategoryFilterForKeywordSubcategory = detectedSubcategoryFromKeyword && !!detectedSubcategory;
+        if (effectiveCategories.length > 0 && !skipCategoryFilterForConflict && !skipCategoryFilterForKeywordSubcategory) {
           const catOrClauses = effectiveCategories.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
           subBuilder = subBuilder.or(catOrClauses);
-        } else if (effectiveCategory && !skipCategoryFilterForConflict) {
+        } else if (effectiveCategory && !skipCategoryFilterForConflict && !skipCategoryFilterForKeywordSubcategory) {
           subBuilder = subBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         }
         // Filter by neighborhood if detected (unless explicitly skipped)
@@ -3778,7 +3785,7 @@ serve(async (req) => {
     // In broad mode (default), ALSO run tsquery even if subcategory direct query found results,
     // and merge the results. This is the key difference: broad = subcategory + full-text merged.
     const isBroadWithResults = !isStrictMode && !bundleActivated && detectedSubcategory && businesses.length > 0;
-    const broadExistingBusinesses = isBroadWithResults ? [...businesses] : [];
+    let broadExistingBusinesses = isBroadWithResults ? [...businesses] : [];
     if (isStrictMode && detectedSubcategory) {
       // In strict mode, if there are remaining query terms (e.g. "Mamounia public" from "bars de la Mamounia ouverts au public"),
       // do a supplementary tsquery search within the subcategory to find businesses matching those terms
@@ -3836,6 +3843,17 @@ serve(async (req) => {
       } else {
         console.log(`Strict mode for "${detectedSubcategory}": skipping tsquery fallback (${businesses.length} results from direct query)`);
       }
+    }
+
+    if (detectedSubcategoryFromKeyword && detectedSubcategory && businesses.length > 0) {
+      const subcatNorm = stripAccentsGlobal(detectedSubcategory.toLowerCase());
+      const beforeKeywordSubcatFilter = businesses.length;
+      businesses = businesses.filter((b: any) => {
+        const categories = (b.categories || []).map((c: string) => stripAccentsGlobal(c.toLowerCase()));
+        return categories.some((c: string) => c === subcatNorm);
+      });
+      if (broadExistingBusinesses.length > 0) broadExistingBusinesses = [...businesses];
+      console.log(`Keyword-detected subcategory relevance filter "${detectedSubcategory}": ${beforeKeywordSubcatFilter} → ${businesses.length}`);
     }
 
     // ── Synonym-linked subcategories: merge AFTER strict mode so they don't get overwritten ──
@@ -5017,7 +5035,7 @@ serve(async (req) => {
 
     // In multi-intent mode, keep only businesses that belong to one of the detected intent categories
     // (prevents broad fallback/service merges from leaking unrelated categories)
-    if (intentCategories.length > 1 && businesses.length > 0) {
+    if (intentCategories.length > 1 && businesses.length > 0 && !detectedSubcategoryFromKeyword) {
       const allowedCats = new Set(intentCategories.map(c => c.toLowerCase()));
       const beforeIntentFilter = businesses.length;
       businesses = businesses.filter((b: any) => {
