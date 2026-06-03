@@ -615,7 +615,9 @@ const SlidePanelHome = ({
               avgOn20={null}
               totalReviewCount={0}
               onOpenReviews={() => {}}
+              compact={compactBusinessHeader}
             />
+
           </div>
         )}
 
