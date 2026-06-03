@@ -1685,7 +1685,7 @@ serve(async (req) => {
     //   → LLM extracts "hôtel mer vue Essaouira" (injecting "hôtel")
     //   → "Hôtel" subcategory auto-detected, but user never said "hôtel"
     //   → clear lock so Riads, Maisons d'hôtes etc. also appear
-    if (detectedSubcategory && intentCategory && effectiveQuery !== query) {
+    if (detectedSubcategory && intentCategory && effectiveQuery !== query && !detectedSubcategoryFromKeyword) {
       const originalLower = (query ?? "").toLowerCase();
       const subcatLower = detectedSubcategory.toLowerCase();
       const subcatWords = subcatLower.split(/[\s/]+/).filter((w: string) => w.length > 2);
@@ -1699,6 +1699,8 @@ serve(async (req) => {
         detectedSubcategoryIsReal = false;
         subcategoryParentCategory = null;
       }
+    } else if (detectedSubcategory && intentCategory && effectiveQuery !== query && detectedSubcategoryFromKeyword) {
+      console.log(`Keeping keyword-detected subcategory "${detectedSubcategory}" from rewritten query "${effectiveQuery}"`);
     }
 
     // ── Detect category-subcategory conflict ──
