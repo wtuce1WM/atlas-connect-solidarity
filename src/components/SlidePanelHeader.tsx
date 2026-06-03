@@ -14,6 +14,8 @@ interface SlidePanelHeaderProps {
   mobileTransparent?: boolean;
   /** Always use dark/transparent style regardless of breakpoint */
   alwaysDark?: boolean;
+  /** Extra classes on the close-button container (e.g. to shift it right to align over a logo) */
+  closeButtonContainerClassName?: string;
 }
 
 const SlidePanelHeader = ({
@@ -25,6 +27,7 @@ const SlidePanelHeader = ({
   toolbarRightId = "slide-panel-toolbar",
   mobileTransparent = false,
   alwaysDark = false,
+  closeButtonContainerClassName = "",
 }: SlidePanelHeaderProps) => {
   const closeClass = closeVariant === "destructive"
     ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
@@ -38,7 +41,7 @@ const SlidePanelHeader = ({
 
   return (
     <div className={baseClass}>
-      <div className="flex items-center gap-3 shrink-0 relative z-10">
+      <div className={`flex items-center gap-3 shrink-0 relative z-10 ${closeButtonContainerClassName}`}>
         <button
           type="button"
           onClick={(e) => {
