@@ -26,7 +26,33 @@ const BusinessHeader = React.memo(function BusinessHeader({
   totalReviewCount,
   onOpenReviews,
   openBadgeInfo,
+  compact = false,
 }: BusinessHeaderProps) {
+  if (compact) {
+    return (
+      <div key={businessId} className="mx-auto w-fit max-w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 py-2 text-white pointer-events-auto animate-slide-in-right">
+        <div className="flex items-center gap-4">
+          {business.logo_url && business.id === businessId && (
+            <div
+              className={`shrink-0 w-12 h-12 md:w-16 md:h-16 overflow-hidden hidden md:block ${business.logo_bg === "transparent" ? "" : "rounded-xl border-2 border-white/20 shadow-lg"}`}
+              style={{ backgroundColor: business.logo_bg === "transparent" ? "transparent" : (business.logo_bg || "#fff") }}
+            >
+              <img src={business.logo_url} alt="" className={`w-full h-full object-contain ${business.logo_bg === "transparent" ? "" : "p-1"}`} />
+            </div>
+          )}
+          <div className="min-w-0 text-center">
+            <h2
+              className="text-base md:text-xl font-bold uppercase truncate"
+              style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", WebkitTextStroke: "0.8px currentColor", textShadow: "0 0 0 currentColor" }}
+            >
+              {business.name}
+            </h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div key={businessId} className="w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[4.5rem] md:h-[5.5rem] pointer-events-auto -mt-1 md:mt-0 animate-slide-in-right">
       <div
@@ -41,6 +67,7 @@ const BusinessHeader = React.memo(function BusinessHeader({
           </div>
         )}
         <div className={`min-w-0 flex-1 text-center md:text-left ${hasReviewsCard ? "md:pr-28" : ""}`}>
+
           <div className="flex items-start gap-2">
             <h2
               className={`text-base md:text-xl font-bold uppercase min-w-0 flex-1 ${hasReviewsCard ? "line-clamp-2" : "line-clamp-3 md:line-clamp-2"}`}
