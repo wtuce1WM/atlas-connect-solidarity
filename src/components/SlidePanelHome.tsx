@@ -549,14 +549,32 @@ const SlidePanelHome = ({
           />
         )}
         {compactBusinessHeader && (
-          <button
-            type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
-            className="absolute left-4 top-3 z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
-            aria-label="Fermer"
-          >
-            <X className="h-5 w-5 text-black" />
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+              className="absolute left-4 top-3 z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5 text-black" />
+            </button>
+            <div className="absolute right-4 top-3 z-[100] flex items-center gap-2 pointer-events-auto">
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-white hover:bg-white/90 transition-colors shadow-lg"
+                aria-label="Le Club OWM"
+              >
+                <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+              </button>
+              <ShareButton
+                title={ctaBusiness?.name || businessName}
+                variant="dark"
+                className="shrink-0"
+                shareUrl={ctaBusiness?.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
+              />
+            </div>
+          </>
         )}
         {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !compactBusinessHeader && typeof document !== "undefined" && (() => {
           const rightEl = document.getElementById("slide-panel-home-toolbar-right");
