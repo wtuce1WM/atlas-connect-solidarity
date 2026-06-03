@@ -11,10 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
-import stepVerifiedImage from "@/assets/home-mindtrip/step-verified.jpg";
-import stepClubImage from "@/assets/home-mindtrip/step-club.jpg";
-import stepBookingImage from "@/assets/home-mindtrip/step-booking.jpg";
-import BookingFloatingScene from "@/components/home/BookingFloatingScene";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
@@ -200,13 +196,7 @@ const HomeMindtrip = () => {
             {STEPS.map((s, i) => (
               <div
                 key={s.title}
-                className={
-                  i === 0
-                    ? "space-y-8"
-                    : `grid items-center gap-10 md:grid-cols-2 md:gap-16 ${
-                        i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
-                      }`
-                }
+                className="space-y-8"
               >
                 {i === 0 ? (
                   <div>
@@ -364,31 +354,7 @@ const HomeMindtrip = () => {
                       )}
                     </div>
                   </div>
-                ) : i === 1 ? (
-                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                    <img
-                      src={stepVerifiedImage}
-                      alt="Adresses vérifiées au Maroc — riad, thé à la menthe et carnet de voyage"
-                      loading="lazy"
-                      width={1024}
-                      height={1024}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ) : i === 2 ? (
-                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                    <img
-                      src={stepClubImage}
-                      alt="Carte de Marrakech, carnet de voyage et favoris — Le Club OWM"
-                      loading="lazy"
-                      width={1024}
-                      height={768}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <BookingFloatingScene />
-                )}
+                ) : null}
                 {i !== 0 && (
                   <div>
                     <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
