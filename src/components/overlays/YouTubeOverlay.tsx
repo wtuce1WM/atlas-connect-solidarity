@@ -80,8 +80,17 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
         <X className="h-4 w-4 text-black" />
       </button>
 
+      {/* Video title */}
+      {activeVideo && (
+        <div className="flex-shrink-0 px-16 pt-3 pb-2 flex items-center justify-center">
+          <p className="text-xs text-white font-medium text-center line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+            {activeVideo.title}
+          </p>
+        </div>
+      )}
+
       {/* Video player area */}
-      <div className="flex-1 flex items-center justify-center px-4 pt-12 min-h-0 relative">
+      <div className="flex-1 flex items-center justify-center px-4 min-h-0 relative">
         {activeVideo ? (
           <>
             <div className={`flex items-center justify-center ${activeVideo.isShort ? "h-full" : "w-full"}`}>
