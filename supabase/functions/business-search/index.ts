@@ -1801,7 +1801,7 @@ serve(async (req) => {
                     betterSubcat = (svc as any).subcategories?.name_fr;
                     console.log(`Category-subcategory re-evaluation via SERVICE: "${svc.name_fr}" (match=${nameHit ? "name" : "keyword"}) found under "${betterSubcat}" (${catToSearch})`);
                     // Force the chosen service as a required filter downstream
-                    if (!serviceFilter) serviceFilter = svc.name_fr;
+                    if (!forcedServiceFromReeval) forcedServiceFromReeval = svc.name_fr;
                     break;
                   }
                 }
