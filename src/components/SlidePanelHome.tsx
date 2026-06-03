@@ -65,7 +65,10 @@ interface SlidePanelHomeProps {
   eventId?: string | null;
   /** Serialized Test page context used to restore the previous result state after closing an establishment panel */
   returnContext?: string | null;
+  /** Compact business header (background hugs the name, centered) */
+  compactBusinessHeader?: boolean;
 }
+
 
 interface AgendaEvent {
   id: string;
