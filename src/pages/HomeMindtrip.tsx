@@ -493,11 +493,13 @@ const HomeMindtrip = () => {
             className="inline-block group"
             aria-label="Installer l'application ONE WORLD MOROCCO"
           >
-            <img
-              src="/app-icon-512.png"
-              alt="ONE WORLD MOROCCO"
-              className="mx-auto h-24 w-24 rounded-3xl shadow-xl transition-transform group-hover:scale-105"
-            />
+            <div className="mx-auto h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] transition-transform group-hover:scale-105">
+              <img
+                src="/app-icon-512.png"
+                alt="ONE WORLD MOROCCO"
+                className="h-full w-full rounded-2xl"
+              />
+            </div>
           </Link>
           <h2 className="mt-8 font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
             Installez l'application
