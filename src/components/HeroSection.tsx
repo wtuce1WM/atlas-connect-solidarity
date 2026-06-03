@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, MapPin, X, Search } from "lucide-react";
-import SearchInput from "@/components/SearchInput";
+import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, MapPin, X } from "lucide-react";
+import HeroInlineSearch from "@/components/HeroInlineSearch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 
@@ -189,14 +189,14 @@ const HeroSection = () => {
             const p = placeholders[searchCategory] || placeholders.all;
             const placeholder = language === "ar" ? p.ar : language === "en" ? p.en : p.fr;
             return (
-              <button
-                type="button"
-                onClick={() => setMobileSearchOpen(true)}
-                className="w-full flex items-center gap-3 px-5 py-6 md:py-7 bg-white/90 backdrop-blur-sm border border-gold/50 rounded-xl shadow-lg text-left hover:border-gold transition-colors"
-              >
-                <Search className="h-5 w-5 text-muted-foreground shrink-0" />
-                <span className="flex-1 truncate text-base md:text-lg text-muted-foreground">{placeholder}</span>
-              </button>
+              <HeroInlineSearch
+                placeholder={placeholder}
+                onSearch={(params) => {
+                  const qs = new URLSearchParams(params).toString();
+                  if (qs) navigateWithSlide(`/search?${qs}`);
+                }}
+                onBusinessSelect={(businessId) => navigateWithSlide(`/search?openBusiness=${businessId}`)}
+              />
             );
           })()}
 
