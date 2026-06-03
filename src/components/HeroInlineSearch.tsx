@@ -79,6 +79,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
           )}
         </div>
 
+        <div className="flex items-center gap-2 md:contents">
         <button
           type="button"
           onClick={() => submit(query)}
