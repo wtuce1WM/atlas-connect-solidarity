@@ -904,7 +904,13 @@ const SlidePanelHome = ({
               <PanelSearchBar
                 iconVariant="black"
                 onOverlayChange={setSearchOverlayOpen}
-                onAiClick={() => navigate("/search?tab=ai")}
+                onAiClick={() => {
+                  const sp = new URLSearchParams({ tab: "ai" });
+                  const q = ctaBusiness?.name || businessName || "";
+                  if (q) sp.set("q", q);
+                  if (ctaBusiness?.city) sp.set("city", ctaBusiness.city);
+                  navigate(`/search?${sp.toString()}`);
+                }}
                 onHashtagsOverlayChange={setHashtagsOverlayOpen}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
