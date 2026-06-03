@@ -358,31 +358,7 @@ const HomeMindtrip = () => {
                       )}
                     </div>
                   </div>
-                ) : i === 1 ? (
-                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                    <img
-                      src={stepVerifiedImage}
-                      alt="Adresses vérifiées au Maroc — riad, thé à la menthe et carnet de voyage"
-                      loading="lazy"
-                      width={1024}
-                      height={1024}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ) : i === 2 ? (
-                  <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                    <img
-                      src={stepClubImage}
-                      alt="Carte de Marrakech, carnet de voyage et favoris — Le Club OWM"
-                      loading="lazy"
-                      width={1024}
-                      height={768}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <BookingFloatingScene />
-                )}
+                ) : null}
                 {i !== 0 && (
                   <div>
                     <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
