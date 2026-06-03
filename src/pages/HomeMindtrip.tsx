@@ -392,7 +392,7 @@ const HomeMindtrip = () => {
         <div className="sticky top-0 flex h-screen items-center overflow-hidden">
           <div
             ref={trackRef}
-            className="flex gap-8 will-change-transform pl-6 md:pl-12 pr-[20vw]"
+            className="flex gap-8 will-change-transform px-[calc((100vw-min(85vw,42rem))/2)]"
             style={{ transform: `translate3d(${-trackX}px, 0, 0)` }}
           >
             {STEPS.slice(1).map((s, idx) => {
