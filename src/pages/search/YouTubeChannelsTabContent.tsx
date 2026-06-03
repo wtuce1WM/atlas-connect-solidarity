@@ -42,7 +42,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   const [currentTime, setCurrentTime] = useState(0);
   const bgIframeRef = useRef<HTMLIFrameElement | null>(null);
   const [bgPlaying, setBgPlaying] = useState(true);
-  const [bgMuted, setBgMuted] = useState(false);
+  const [bgMuted, setBgMuted] = useState(true);
 
   const sendBgCmd = (func: string, args: any[] = []) => {
     const w = bgIframeRef.current?.contentWindow;
