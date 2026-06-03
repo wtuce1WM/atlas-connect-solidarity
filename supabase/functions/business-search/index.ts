@@ -926,9 +926,16 @@ serve(async (req) => {
       console.log(`Resolved Web Only service ID → "${webOnlyServiceName}"`);
     }
 
+    // Strict mode: when the caller explicitly passes `city` (URL param / voice detection),
+    // restrict to businesses physically in that city — exclude the national/international leakage.
+    const strictCity = !!city;
+
     // Helper: build city OR clause including zone_city_ids coverage + "Web only" + "internationale" businesses
     const applyCityFilter = (builder: any) => {
       if (!effectiveCity) return builder;
+      if (strictCity) {
+        return builder.ilike("city", effectiveCity);
+      }
       const conditions: string[] = [`city.ilike.${effectiveCity}`];
       if (effectiveCityId) {
         // Zone nationale: ville dans zone_city_ids ET is_visible_locale = true
