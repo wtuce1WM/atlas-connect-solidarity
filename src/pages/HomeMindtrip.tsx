@@ -133,51 +133,30 @@ const HomeMindtrip = () => {
   const [trackX, setTrackX] = useState(0);
 
   useEffect(() => {
-    const container = horizontalRef.current;
-    const track = trackRef.current;
-    if (!container || !track) return;
-
-    const DURATION = 8000; // ms pour traverser toutes les cartes
-    let raf = 0;
-    let startTs = 0;
-    let started = false;
-
-    const tick = (ts: number) => {
-      if (!startTs) startTs = ts;
-      const maxX = Math.max(0, track.scrollWidth - window.innerWidth);
-      const t = Math.min(1, (ts - startTs) / DURATION);
-      // easing doux
-      const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-      setTrackX(eased * maxX);
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-
-    const check = () => {
+    const onScroll = () => {
+      const container = horizontalRef.current;
+      const track = trackRef.current;
+      if (!container || !track) return;
       const rect = container.getBoundingClientRect();
       const vh = window.innerHeight;
-      // déclenche quand le centre vertical du conteneur croise le milieu de l'écran
-      const centerInView = rect.top <= vh / 2 && rect.bottom >= vh / 2;
-      if (centerInView && !started) {
-        started = true;
-        startTs = 0;
-        raf = requestAnimationFrame(tick);
-      } else if (!centerInView && started && rect.top > vh / 2) {
-        // retour au-dessus → reset pour rejouer la prochaine fois
-        started = false;
-        cancelAnimationFrame(raf);
-        setTrackX(0);
-      }
+      // démarre quand le haut du conteneur croise le milieu de l'écran
+      const startOffset = vh / 2;
+      const total = container.offsetHeight - vh;
+      if (total <= 0) return;
+      const raw = (startOffset - rect.top) / total;
+      const progress = Math.min(1, Math.max(0, raw));
+      const maxX = Math.max(0, track.scrollWidth - window.innerWidth);
+      setTrackX(progress * maxX);
     };
-
-    check();
-    window.addEventListener("scroll", check, { passive: true });
-    window.addEventListener("resize", check);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
     return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", check);
-      window.removeEventListener("resize", check);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
   }, []);
+
 
 
 
