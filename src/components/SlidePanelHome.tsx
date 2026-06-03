@@ -900,7 +900,7 @@ const SlidePanelHome = ({
                       paused={filePaused}
                       muted={fileMuted}
                     />
-                  ) : embed.type === "youtube" && !compactBusinessHeader ? (
+                  ) : embed.type === "youtube" ? (
                     <VideoControls
                       type="youtube"
                       iframeRef={iframeRef}
