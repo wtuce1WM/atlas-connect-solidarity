@@ -256,7 +256,7 @@ const SearchInput = ({
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className={`w-full ${isHero ? "pl-5 pr-16 py-7 text-lg" : "pl-5 pr-16 py-6 text-base"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
+            className={`w-full ${isHero ? "pl-5 pr-16 py-7 text-lg" : "pl-5 pr-16 py-6 text-base"} rounded-xl ${liquid ? "bg-white/15 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] text-foreground placeholder:text-foreground/70 focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:border-white/50" : "bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold shadow-lg"}`}
           />
           {!isSendMode && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 overflow-visible">
