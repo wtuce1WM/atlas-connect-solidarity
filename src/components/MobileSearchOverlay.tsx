@@ -144,10 +144,10 @@ const MobileSearchOverlay = ({
         <button
           type="button"
           onClick={onClose}
-          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-muted transition-colors shrink-0"
-          aria-label="Retour"
+          className="flex items-center justify-center w-9 h-9 rounded-full bg-black text-white hover:bg-black/90 transition-colors shrink-0"
+          aria-label="Fermer"
         >
-          <ArrowLeft className="h-5 w-5 text-foreground" />
+          <X className="h-4 w-4" />
         </button>
 
         <div className="flex-1 relative">
