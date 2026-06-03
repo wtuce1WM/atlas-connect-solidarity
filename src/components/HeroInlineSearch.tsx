@@ -54,8 +54,9 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
 
   return (
     <div ref={containerRef} className="relative w-full">
-      <div className="relative flex items-center gap-2">
-        <div className="relative flex-1">
+      <div className="relative flex flex-col md:flex-row md:items-center gap-2">
+        <div className="flex items-center gap-2 md:contents">
+          <div className="relative flex-1">
           <input
             ref={inputRef}
             type="text"
