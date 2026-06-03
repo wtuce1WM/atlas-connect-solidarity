@@ -653,24 +653,24 @@ const SlidePanelHome = ({
         })()}
 
         {(onPrev || onNext) && (
-          <div className="absolute top-1/2 -translate-y-1/2 right-4 z-10 flex flex-col gap-3">
+          <div className="absolute top-1/2 -translate-y-1/2 right-3 z-30 flex flex-col gap-2 pointer-events-none">
             <button
               type="button"
               onClick={onPrev}
               disabled={!hasPrev}
-              className="w-11 h-11 rounded-full bg-black/50 hover:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors"
+              className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
               aria-label="Vidéo précédente"
             >
-              <ChevronUp className="h-6 w-6" />
+              <ChevronUp className="h-5 w-5" />
             </button>
             <button
               type="button"
               onClick={onNext}
               disabled={!hasNext}
-              className="w-11 h-11 rounded-full bg-black/50 hover:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors"
+              className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
               aria-label="Vidéo suivante"
             >
-              <ChevronDown className="h-6 w-6" />
+              <ChevronDown className="h-5 w-5" />
             </button>
           </div>
         )}
