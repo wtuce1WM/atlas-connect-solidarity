@@ -3785,7 +3785,7 @@ serve(async (req) => {
     // In broad mode (default), ALSO run tsquery even if subcategory direct query found results,
     // and merge the results. This is the key difference: broad = subcategory + full-text merged.
     const isBroadWithResults = !isStrictMode && !bundleActivated && detectedSubcategory && businesses.length > 0;
-    const broadExistingBusinesses = isBroadWithResults ? [...businesses] : [];
+    let broadExistingBusinesses = isBroadWithResults ? [...businesses] : [];
     if (isStrictMode && detectedSubcategory) {
       // In strict mode, if there are remaining query terms (e.g. "Mamounia public" from "bars de la Mamounia ouverts au public"),
       // do a supplementary tsquery search within the subcategory to find businesses matching those terms
@@ -3852,6 +3852,7 @@ serve(async (req) => {
         const categories = (b.categories || []).map((c: string) => stripAccentsGlobal(c.toLowerCase()));
         return categories.some((c: string) => c === subcatNorm);
       });
+      if (broadExistingBusinesses.length > 0) broadExistingBusinesses = [...businesses];
       console.log(`Keyword-detected subcategory relevance filter "${detectedSubcategory}": ${beforeKeywordSubcatFilter} → ${businesses.length}`);
     }
 
