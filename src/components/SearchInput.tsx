@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import SearchSuggestionsDropdown from "@/components/SearchSuggestionsDropdown";
 import TextSuggestionsDropdown from "@/components/TextSuggestionsDropdown";
 import { Input } from "@/components/ui/input";
-import { Search, Mic, MicOff, Loader } from "lucide-react";
+import { Search, Mic, MicOff, Loader, Send } from "lucide-react";
 
 export type SearchInputVariant = "hero" | "floating";
 
@@ -45,6 +45,8 @@ interface SearchInputProps {
     toggleRecording: () => void;
     liveTranscript: string;
   };
+  /** Submit icon variant: "search" (default) or "send" (paper plane for AI assistant) */
+  submitIcon?: "search" | "send";
 }
 
 interface SearchInputSuggestionsProps {
@@ -119,6 +121,7 @@ const SearchInput = ({
   suggestionMode = "business",
   suggestionsPosition = "bottom",
   voiceControl,
+  submitIcon = "search",
 }: SearchInputProps) => {
   const isControlled = controlledValue !== undefined;
   const [internalValue, setInternalValue] = useState(defaultValue);
@@ -224,7 +227,11 @@ const SearchInput = ({
       style={{ backgroundColor: "hsl(var(--primary))" }}
       title={buttonLabel}
     >
-      <Search className="h-6 w-6 text-white" />
+      {submitIcon === "send" ? (
+        <Send className="h-6 w-6 text-white" />
+      ) : (
+        <Search className="h-6 w-6 text-white" />
+      )}
     </button>
   );
 
@@ -292,7 +299,11 @@ const SearchInput = ({
             className="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
             style={{ backgroundColor: "hsl(var(--primary))" }}
           >
-            <Search className="h-5 w-5 text-white" />
+            {submitIcon === "send" ? (
+              <Send className="h-5 w-5 text-white" />
+            ) : (
+              <Search className="h-5 w-5 text-white" />
+            )}
           </button>
         </div>
       </div>
