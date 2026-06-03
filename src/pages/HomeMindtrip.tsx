@@ -415,8 +415,9 @@ const HomeMindtrip = () => {
       </section>
 
       {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
-      <section ref={horizontalRef} className="relative bg-background" style={{ height: "300vh" }}>
+      <section ref={horizontalRef} className="relative bg-background" style={{ height: "100vh" }}>
         <div className="sticky top-0 flex h-screen items-start overflow-hidden pt-8 md:pt-12">
+
           <div
             ref={trackRef}
             className="flex gap-8 will-change-transform px-[calc((100vw-min(85vw,42rem))/2)]"
