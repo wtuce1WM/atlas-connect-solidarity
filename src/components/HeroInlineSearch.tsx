@@ -56,7 +56,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
     <div ref={containerRef} className="relative w-full">
       <div className="relative flex items-center gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute left-3 md:left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <input
             ref={inputRef}
             type="text"
@@ -66,7 +66,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(query); } }}
             placeholder={placeholder}
             autoComplete="off"
-            className="w-full h-12 md:h-14 pl-12 pr-10 text-left text-base md:text-lg bg-white/90 backdrop-blur-sm border border-gold/50 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold placeholder:text-muted-foreground placeholder:text-left"
+            className="w-full h-12 md:h-14 pl-10 md:pl-12 pr-10 text-left text-base md:text-lg bg-white/90 backdrop-blur-sm border border-gold/50 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold placeholder:text-muted-foreground placeholder:text-left"
           />
           {query && (
             <button
