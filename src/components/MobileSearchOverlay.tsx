@@ -268,12 +268,21 @@ const MobileSearchOverlay = ({
                   className="relative group animate-slide-in-right"
                   style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
                 >
-                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-muted border border-border">
+                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-muted border border-border relative">
                     {biz.image ? (
                       <img src={biz.image} alt={biz.name} className="w-full h-full object-cover" loading="lazy" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                         <MapPin className="h-5 w-5" />
+                      </div>
+                    )}
+                    {biz.isYoutubeChannel && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="bg-[#FF0000] rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
+                          <svg viewBox="0 0 24 24" className="w-5 h-5 text-white fill-current ml-0.5">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
                       </div>
                     )}
                   </div>

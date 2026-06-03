@@ -242,6 +242,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
         logo_url: ch.logo_url,
         city: ch.city,
         slug: ch.id,
+        isYoutubeChannel: true,
       },
     }));
   };
