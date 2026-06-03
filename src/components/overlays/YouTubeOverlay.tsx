@@ -18,6 +18,32 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
+  const [allVideos, setAllVideos] = useState<YouTubeVideo[]>([]);
+  const touchStartY = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
+
+  const goToOffset = useCallback((offset: number) => {
+    if (!activeVideo || allVideos.length === 0) return;
+    const idx = allVideos.findIndex((v) => v.videoId === activeVideo.videoId);
+    if (idx === -1) return;
+    const next = allVideos[idx + offset];
+    if (next) onSelectVideo(next);
+  }, [activeVideo, allVideos, onSelectVideo]);
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+  const onTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartY.current === null || touchStartX.current === null) return;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartY.current = null;
+    touchStartX.current = null;
+    if (Math.abs(dy) < 50 || Math.abs(dx) > Math.abs(dy)) return;
+    // Swipe down → next (older), swipe up → previous (newer)
+    goToOffset(dy < 0 ? -1 : 1);
+  }, [goToOffset]);
 
   const postCmd = useCallback((func: string, args: unknown[] = []) => {
     iframeRef.current?.contentWindow?.postMessage(
