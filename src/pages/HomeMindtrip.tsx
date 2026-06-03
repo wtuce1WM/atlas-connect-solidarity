@@ -343,7 +343,7 @@ const HomeMindtrip = () => {
                               navigate(defaultUrl);
                             };
                             return (
-                              <div key={v.key} className="group relative aspect-[9/16] w-[140px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[160px]">
+                              <div key={v.key} className="group relative aspect-[9/16] w-[140px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[160px] border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
                                 <button
                                   type="button"
                                   onClick={goSearch}
@@ -364,6 +364,9 @@ const HomeMindtrip = () => {
                                   )}
                                   <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/60 to-transparent" />
                                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/60 to-transparent" />
+                                  <div className="pointer-events-none absolute inset-0 rounded-lg bg-white/10 backdrop-blur-[2px] backdrop-saturate-150 mix-blend-overlay" />
+                                  <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-br from-white/25 via-transparent to-transparent opacity-70" />
+                                  <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-lg bg-gradient-to-b from-white/20 to-transparent" />
                                 </button>
                                 {v.label && (
                                   <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
