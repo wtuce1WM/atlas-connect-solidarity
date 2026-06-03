@@ -381,37 +381,55 @@ const HomeMindtrip = () => {
                     </div>
                   </div>
                 ) : null}
-                {i !== 0 && (
-                  <div className="rounded-3xl p-8 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
-                    <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
-                      Étape {i + 1}
-                    </span>
-                    <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
-                      {s.title}
-                    </h3>
-                    <p className="mt-4 max-w-lg font-roboto text-base text-foreground/70">{s.desc}</p>
-                    {i === 3 ? (
-                      <HotelAvailabilityWidget />
-                    ) : i === 1 ? (
-                      <div className="mt-6 w-full max-w-xl">
-                        <SearchInput
-                          variant="hero"
-                          placeholder="Rechercher un hôtel, un restaurant, une expérience…"
-                          showSuggestions
-                        />
-                      </div>
-                    ) : (
-                      <Link
-                        to={s.href}
-                        className="mt-6 inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
-                      >
-                        {s.cta} →
-                      </Link>
-                    )}
-                  </div>
-                )}
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
+      <section ref={horizontalRef} className="relative bg-background" style={{ height: "300vh" }}>
+        <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+          <div
+            ref={trackRef}
+            className="flex gap-8 will-change-transform pl-6 md:pl-12 pr-[20vw]"
+            style={{ transform: `translate3d(${-trackX}px, 0, 0)` }}
+          >
+            {STEPS.slice(1).map((s, idx) => {
+              const i = idx + 1;
+              return (
+                <div
+                  key={s.title}
+                  className="w-[85vw] max-w-2xl shrink-0 rounded-3xl p-8 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
+                >
+                  <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
+                    Étape {i + 1}
+                  </span>
+                  <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
+                    {s.title}
+                  </h3>
+                  <p className="mt-4 max-w-lg font-roboto text-base text-foreground/70">{s.desc}</p>
+                  {i === 3 ? (
+                    <HotelAvailabilityWidget />
+                  ) : i === 1 ? (
+                    <div className="mt-6 w-full max-w-xl">
+                      <SearchInput
+                        variant="hero"
+                        placeholder="Rechercher un hôtel, un restaurant, une expérience…"
+                        showSuggestions
+                      />
+                    </div>
+                  ) : (
+                    <Link
+                      to={s.href}
+                      className="mt-6 inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
+                    >
+                      {s.cta} →
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
