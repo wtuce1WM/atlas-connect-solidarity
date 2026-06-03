@@ -105,20 +105,31 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
     };
   }, [active]);
 
-  // When SlidePanelHome opens, force-mute the bg video; restore previous state on close
+  // When SlidePanelHome opens, force-mute AND pause the bg video; restore previous state on close
   const prevMutedRef = useRef<boolean | null>(null);
+  const prevPlayingRef = useRef<boolean | null>(null);
   useEffect(() => {
     if (active) {
       prevMutedRef.current = bgMuted;
+      prevPlayingRef.current = bgPlaying;
       if (!bgMuted) { sendBgCmd("mute"); setBgMuted(true); }
-    } else if (prevMutedRef.current === false) {
-      sendBgCmd("unMute");
-      sendBgCmd("setVolume", [100]);
-      setBgMuted(false);
+      if (bgPlaying) { sendBgCmd("pauseVideo"); setBgPlaying(false); }
+    } else {
+      if (prevMutedRef.current === false) {
+        sendBgCmd("unMute");
+        sendBgCmd("setVolume", [100]);
+        setBgMuted(false);
+      }
+      if (prevPlayingRef.current === true) {
+        sendBgCmd("playVideo");
+        setBgPlaying(true);
+      }
       prevMutedRef.current = null;
+      prevPlayingRef.current = null;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
+
 
 
   useEffect(() => {
