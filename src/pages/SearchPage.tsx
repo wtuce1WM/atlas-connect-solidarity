@@ -680,6 +680,19 @@ const SearchPage = () => {
      }
      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [searchParams]);
+
+   // When landing on /search?tab=ai without a query, restore the last AI suggestion from session
+   useEffect(() => {
+     if (searchParams.get("tab") !== "ai") return;
+     const hasContext = !!(searchParams.get("q") || searchParams.get("category") || searchParams.get("city") || searchParams.get("subcats") || searchParams.get("badgeId"));
+     if (hasContext) return;
+     if (aiAnswerText) return;
+     try {
+       const cached = sessionStorage.getItem("ai_suggestion_text");
+       if (cached) setAiAnswerText(cached);
+     } catch { /* ignore */ }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [searchParams]);
     useEffect(() => {
       if (openDestinationParam && activeTab !== "destinations") {
         setActiveTab("destinations");
