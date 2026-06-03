@@ -73,11 +73,12 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
     <OverlayShell zClass="z-[76]" animClass="animate-slide-up-from-bottom" bg="bg-black" className="flex flex-col">
       {/* Floating close button */}
       <button
+        type="button"
         onClick={onClose}
-        className="absolute top-3 left-4 z-20 w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors shadow-sm"
+        className="absolute left-4 top-3 lg:top-[calc(3.3rem+0.75rem)] z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
         aria-label={language === "en" ? "Close" : "Fermer"}
       >
-        <X className="h-4 w-4 text-black" />
+        <X className="h-5 w-5 text-black" />
       </button>
 
       {/* Video title */}
