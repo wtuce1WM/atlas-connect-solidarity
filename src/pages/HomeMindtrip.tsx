@@ -415,8 +415,9 @@ const HomeMindtrip = () => {
                     <div className="mt-6 w-full max-w-xl">
                       <SearchInput
                         variant="hero"
-                        placeholder="Rechercher un hôtel, un restaurant, une expérience…"
-                        showSuggestions
+                        placeholder="Demandez à notre assistant IA…"
+                        submitIcon="send"
+                        showSuggestions={false}
                       />
                     </div>
                   ) : (
