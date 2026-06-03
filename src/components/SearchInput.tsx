@@ -124,6 +124,7 @@ const SearchInput = ({
   suggestionsPosition = "bottom",
   voiceControl,
   submitIcon = "search",
+  liquid = false,
 }: SearchInputProps) => {
   const isControlled = controlledValue !== undefined;
   const [internalValue, setInternalValue] = useState(defaultValue);
