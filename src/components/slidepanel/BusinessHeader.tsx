@@ -11,7 +11,10 @@ interface BusinessHeaderProps {
   totalReviewCount: number;
   onOpenReviews: () => void;
   openBadgeInfo?: { text: string; isOpen: boolean } | null;
+  /** Compact mode: background hugs content, name centered (used by YouTube tab opener) */
+  compact?: boolean;
 }
+
 
 const BusinessHeader = React.memo(function BusinessHeader({
   business,
