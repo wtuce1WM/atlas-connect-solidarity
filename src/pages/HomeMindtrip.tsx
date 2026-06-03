@@ -631,7 +631,7 @@ const STEPS = [
     icon: PlayCircle,
   },
   {
-    title: "Découvrez des adresses vérifiées.",
+    title: "Assistant IA personnalisé.",
     desc: "Chaque établissement est sélectionné, visité et validé par notre équipe pour vous garantir une expérience à la hauteur.",
     cta: "Explorer le catalogue",
     href: "/search",
