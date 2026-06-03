@@ -334,7 +334,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
         social={null}
         showSocialBadge={false}
         description={null}
-        videoName={active?.videoName || null}
+        videoName={null}
         eventId={null}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
