@@ -1,4 +1,4 @@
-import zelligeAsset from "@/assets/zellige2.png.asset.json";
+import zelligeAsset from "@/assets/zellige2.webp.asset.json";
 
 /**
  * Fond animé Liquid — IA × Maroc.
