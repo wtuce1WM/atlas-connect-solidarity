@@ -537,7 +537,7 @@ const SlidePanelHome = ({
 
       >
         {/* Top toolbar : SlidePanelHeader (même base que SlidePanel de Search) */}
-        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && (
+        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !compactBusinessHeader && (
           <SlidePanelHeader
             onClose={onClose}
             alwaysDark
@@ -547,34 +547,21 @@ const SlidePanelHome = ({
             closeButtonContainerClassName={shouldShowOwnerLogoInHeader && ctaBusiness ? "md:ml-10" : ""}
           />
         )}
-        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && typeof document !== "undefined" && (() => {
-          const centerEl = document.getElementById("slide-panel-home-toolbar-center");
+        {compactBusinessHeader && (
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+            className="absolute left-4 top-3 lg:top-[calc(3.3rem+0.75rem)] z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
+            aria-label="Fermer"
+          >
+            <X className="h-5 w-5 text-black" />
+          </button>
+        )}
+        {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !compactBusinessHeader && typeof document !== "undefined" && (() => {
           const rightEl = document.getElementById("slide-panel-home-toolbar-right");
           return (
             <>
-              {centerEl && createPortal(
-                ctaBusiness?.whatsapp ? (
-                  <a
-                    href={whatsappUrl(ctaBusiness.whatsapp)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-9 w-9 flex items-center justify-center rounded-full text-white hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: "#25D366" }}
-                    aria-label="WhatsApp"
-                  >
-                    <WhatsAppIcon className="h-4 w-4" />
-                  </a>
-                ) : ctaBusiness?.phone ? (
-                  <a
-                    href={`tel:${ctaBusiness.phone}`}
-                    className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"
-                    aria-label="Appeler"
-                  >
-                    <Phone className="h-4 w-4" />
-                  </a>
-                ) : <span />,
-                centerEl
-              )}
+
               {rightEl && createPortal(
                 <div className="flex items-center gap-2 shrink-0">
                   <button
