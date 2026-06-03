@@ -42,7 +42,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   const [currentTime, setCurrentTime] = useState(0);
   const bgIframeRef = useRef<HTMLIFrameElement | null>(null);
   const [bgPlaying, setBgPlaying] = useState(true);
-  const [bgMuted, setBgMuted] = useState(false);
+  const [bgMuted, setBgMuted] = useState(true);
 
   const sendBgCmd = (func: string, args: any[] = []) => {
     const w = bgIframeRef.current?.contentWindow;
@@ -54,6 +54,26 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("ytbg:state", { detail: { playing: bgPlaying, muted: bgMuted } }));
   }, [bgPlaying, bgMuted]);
+
+  // Listen to the YouTube iframe state to keep play/pause in sync with reality
+  // (autoplay may be blocked → real state differs from optimistic state).
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.source !== bgIframeRef.current?.contentWindow) return;
+      let data: any = e.data;
+      if (typeof data === "string") {
+        try { data = JSON.parse(data); } catch { return; }
+      }
+      if (!data || typeof data !== "object") return;
+      if (data.event === "onStateChange") {
+        // 1 = playing, 2 = paused, 3 = buffering, 0 = ended, -1 = unstarted, 5 = cued
+        if (data.info === 1) setBgPlaying(true);
+        else if (data.info === 2 || data.info === 0 || data.info === -1) setBgPlaying(false);
+      }
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
 
   useEffect(() => {
     const onTogglePlay = () => {
@@ -231,13 +251,15 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
               allow="autoplay; encrypted-media"
               title="Background video"
               onLoad={() => {
-                // Attempt to unmute by default. Browsers may keep it muted until
-                // the user interacts; in that case the Mute toggle remains accurate.
-                setTimeout(() => {
-                  sendBgCmd("unMute");
-                  sendBgCmd("setVolume", [100]);
-                  sendBgCmd("playVideo");
-                }, 400);
+                // Register for player state events so play/pause stays accurate
+                // even when autoplay is blocked by the browser.
+                const w = bgIframeRef.current?.contentWindow;
+                if (!w) return;
+                w.postMessage(JSON.stringify({ event: "listening" }), "*");
+                w.postMessage(
+                  JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"] }),
+                  "*"
+                );
               }}
             />
             <div className="absolute inset-0 bg-black/50" />
