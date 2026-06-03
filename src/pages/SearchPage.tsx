@@ -419,10 +419,11 @@ const SearchPage = () => {
 
   const aiInlineBusinessPool = useMemo(() => {
     const byId = new globalThis.Map<string, Business>();
+    for (const b of restoredAiBusinessPool) byId.set(b.id, b);
     for (const b of allBusinesses || []) byId.set(b.id, b);
     for (const b of aiRefinementBusinessPool) byId.set(b.id, b);
     return Array.from(byId.values()) as unknown as AIBusinessData[];
-  }, [allBusinesses, aiRefinementBusinessPool]);
+  }, [allBusinesses, aiRefinementBusinessPool, restoredAiBusinessPool]);
 
   // Submit a refinement turn — calls ai-search-answer with history of past turns
   const submitAiRefinement = useCallback(async (explicitText?: string) => {
