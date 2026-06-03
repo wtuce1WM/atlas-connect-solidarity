@@ -653,7 +653,7 @@ const SlidePanelHome = ({
         })()}
 
         {(onPrev || onNext) && (
-          <div className="absolute top-1/2 -translate-y-1/2 right-3 z-30 flex flex-col gap-2 pointer-events-none">
+          <div className="absolute top-1/2 -translate-y-1/2 right-3 z-30 flex flex-col gap-6 pointer-events-none">
             <button
               type="button"
               onClick={onPrev}
