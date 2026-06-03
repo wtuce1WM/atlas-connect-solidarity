@@ -47,6 +47,8 @@ interface SearchInputProps {
   };
   /** Submit icon variant: "search" (default) or "send" (paper plane for AI assistant) */
   submitIcon?: "search" | "send";
+  /** Apply Hero-style liquid glass design to input + CTAs */
+  liquid?: boolean;
 }
 
 interface SearchInputSuggestionsProps {
@@ -122,6 +124,7 @@ const SearchInput = ({
   suggestionsPosition = "bottom",
   voiceControl,
   submitIcon = "search",
+  liquid = false,
 }: SearchInputProps) => {
   const isControlled = controlledValue !== undefined;
   const [internalValue, setInternalValue] = useState(defaultValue);
@@ -187,6 +190,8 @@ const SearchInput = ({
 
   const isHero = variant === "hero";
 
+  const liquidBtnClass = "border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]";
+
   // Mic button inside input (Restaurant Guru style: white icon on dark rounded square)
   const inlineMicButton = (
     <div className="relative flex items-center justify-center">
@@ -198,12 +203,12 @@ const SearchInput = ({
         type="button"
         onClick={toggleRecording}
         disabled={voiceStatus === "processing"}
-        className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all ${
+        className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all ${liquid ? liquidBtnClass : ""} ${
           voiceStatus === "recording"
             ? "bg-red-500 animate-pulse"
             : voiceStatus === "processing"
-              ? "bg-muted"
-              : "bg-foreground/80 hover:bg-foreground"
+              ? liquid ? "bg-black" : "bg-muted"
+              : liquid ? "bg-black hover:bg-black/90" : "bg-foreground/80 hover:bg-foreground"
         }`}
         title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
       >
@@ -223,7 +228,7 @@ const SearchInput = ({
     <button
       type="button"
       onClick={handleSubmit}
-      className="flex items-center justify-center w-14 h-14 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
+      className={`flex items-center justify-center w-14 h-14 rounded-xl transition-all hover:opacity-90 shrink-0 ${liquid ? liquidBtnClass : "shadow-lg"}`}
       style={{ backgroundColor: "hsl(var(--primary))" }}
       title={buttonLabel}
     >
@@ -251,7 +256,7 @@ const SearchInput = ({
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className={`w-full ${isHero ? "pl-5 pr-16 py-7 text-lg" : "pl-5 pr-16 py-6 text-base"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
+            className={`w-full ${isHero ? "pl-5 pr-16 py-7 text-lg" : "pl-5 pr-16 py-6 text-base"} rounded-xl ${liquid ? "bg-white/15 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] text-foreground placeholder:text-foreground/70 focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:border-white/50" : "bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold shadow-lg"}`}
           />
           {!isSendMode && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 overflow-visible">
@@ -284,7 +289,7 @@ const SearchInput = ({
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className={`w-full ${isHero ? "pl-4 pr-4 py-6 text-base" : "pl-4 pr-4 py-5 text-sm"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
+            className={`w-full ${isHero ? "pl-4 pr-4 py-6 text-base" : "pl-4 pr-4 py-5 text-sm"} rounded-xl ${liquid ? "bg-white/15 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] text-foreground placeholder:text-foreground/70 focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:border-white/50" : "bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold shadow-lg"}`}
           />
           {showSuggestions && isFocused ? (
             <SearchInputSuggestions
@@ -301,7 +306,7 @@ const SearchInput = ({
           <button
             type="button"
             onClick={handleSubmit}
-            className="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
+            className={`flex items-center justify-center w-12 h-12 rounded-xl transition-all hover:opacity-90 shrink-0 ${liquid ? liquidBtnClass : "shadow-lg"}`}
             style={{ backgroundColor: "hsl(var(--primary))" }}
           >
             {submitIcon === "send" ? (
