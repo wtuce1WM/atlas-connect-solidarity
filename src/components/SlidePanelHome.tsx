@@ -904,7 +904,7 @@ const SlidePanelHome = ({
               <PanelSearchBar
                 iconVariant="black"
                 onOverlayChange={setSearchOverlayOpen}
-                onAiOverlayChange={setAiOverlayOpen}
+                onAiClick={() => navigate("/search?tab=ai")}
                 onHashtagsOverlayChange={setHashtagsOverlayOpen}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
