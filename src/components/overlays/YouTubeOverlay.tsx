@@ -94,16 +94,17 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
         {activeVideo ? (
           <>
             <div className={`flex items-center justify-center ${activeVideo.isShort ? "h-full" : "w-full"}`}>
-              <div className={`relative overflow-hidden rounded-xl ${activeVideo.isShort ? "h-full aspect-[9/16]" : "w-full aspect-video"}`}>
+              <div className={`relative ${activeVideo.isShort ? "h-full aspect-[9/16]" : "w-full aspect-video"}`}>
                 <iframe
                   ref={iframeRef}
                   key={activeVideo.videoId}
                   src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=1&mute=0&rel=0&controls=1&modestbranding=1&playsinline=1&enablejsapi=1&showinfo=0&iv_load_policy=3`}
-                  className="absolute left-0 w-full"
-                  style={{ top: "-60px", height: "calc(100% + 60px)" }}
+                  className="w-full h-full rounded-xl"
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                 />
+                {/* Mask YouTube's native title bar overlay (iframe cross-origin = no CSS access) */}
+                <div className="absolute top-0 left-0 right-0 h-12 bg-black pointer-events-none rounded-t-xl" />
               </div>
             </div>
           </>
