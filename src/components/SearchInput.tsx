@@ -235,6 +235,8 @@ const SearchInput = ({
     </button>
   );
 
+  const isSendMode = submitIcon === "send";
+
   return (
     <div className="w-full">
       {/* Desktop */}
@@ -251,9 +253,11 @@ const SearchInput = ({
             onBlur={() => setIsFocused(false)}
             className={`w-full ${isHero ? "pl-5 pr-16 py-7 text-lg" : "pl-5 pr-16 py-6 text-base"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 overflow-visible">
-            {inlineMicButton}
-          </div>
+          {!isSendMode && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 overflow-visible">
+              {inlineMicButton}
+            </div>
+          )}
           {showSuggestions && isFocused ? (
             <SearchInputSuggestions
               inputValue={inputValue}
@@ -265,6 +269,7 @@ const SearchInput = ({
           ) : null}
         </div>
         {searchButton}
+        {isSendMode && inlineMicButton}
       </div>
 
       {/* Mobile */}
@@ -292,7 +297,7 @@ const SearchInput = ({
           ) : null}
         </div>
         <div className="flex items-center justify-center gap-6">
-          {inlineMicButton}
+          {!isSendMode && inlineMicButton}
           <button
             type="button"
             onClick={handleSubmit}
@@ -305,6 +310,7 @@ const SearchInput = ({
               <Search className="h-5 w-5 text-white" />
             )}
           </button>
+          {isSendMode && inlineMicButton}
         </div>
       </div>
     </div>
