@@ -110,7 +110,9 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
             <Mic className="h-5 w-5 text-white" />
           )}
         </button>
+        </div>
       </div>
+
 
       {showDropdown && (
         <div className="absolute left-0 right-14 md:right-16 top-full mt-2 z-[60] bg-white rounded-xl shadow-2xl border border-border max-h-72 overflow-y-auto py-2">
