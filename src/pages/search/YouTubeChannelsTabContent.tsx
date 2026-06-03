@@ -244,6 +244,8 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
           </div>
         );
       })()}
+      {/* Dégradé pour masquer la liste qui passe derrière le header */}
+      <div className="fixed top-0 left-0 right-0 h-24 z-[20] pointer-events-none bg-gradient-to-b from-black via-black/80 to-transparent" />
       <Accordion type="multiple" defaultValue={defaultOpen} className="space-y-2 relative z-10 mt-4">
 
         {groups.map((g) => (
