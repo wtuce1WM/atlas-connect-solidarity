@@ -212,14 +212,14 @@ const HomeMindtrip = () => {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how-it-works" className="bg-background pt-24 md:pt-32 pb-8">
+      <section id="how-it-works" className="bg-background pt-8 md:pt-12 pb-0">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
             Comment ça marche
           </h2>
 
-          <div className="mt-16 space-y-24">
-            {STEPS.map((s, i) => (
+          <div className="mt-10 space-y-12">
+            {STEPS.slice(0, 1).map((s, i) => (
               <div
                 key={s.title}
                 className="space-y-8"
@@ -389,7 +389,7 @@ const HomeMindtrip = () => {
 
       {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
       <section ref={horizontalRef} className="relative bg-background" style={{ height: "300vh" }}>
-        <div className="sticky top-0 flex h-screen items-start overflow-hidden pt-8">
+        <div className="sticky top-0 flex h-screen items-start overflow-hidden pt-0">
           <div
             ref={trackRef}
             className="flex gap-8 will-change-transform px-[calc((100vw-min(85vw,42rem))/2)]"
