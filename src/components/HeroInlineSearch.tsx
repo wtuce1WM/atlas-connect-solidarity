@@ -104,7 +104,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
       </div>
 
       {showDropdown && (
-        <div className="absolute left-0 right-14 md:right-16 top-full mt-2 z-50 bg-white rounded-xl shadow-2xl border border-border max-h-72 overflow-y-auto py-2">
+        <div className="absolute left-0 right-14 md:right-16 top-full mt-2 z-[60] bg-white rounded-xl shadow-2xl border border-border max-h-72 overflow-y-auto py-2">
           {popularSuggestions.map((s, i) => (
             <button
               key={i}
