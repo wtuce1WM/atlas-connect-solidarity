@@ -232,6 +232,18 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
     setCurrentTime(0);
     setActiveVideos(videos);
     setActive(videos[0]);
+
+    // Track recently viewed — use the YouTube channel thumbnail as the image
+    window.dispatchEvent(new CustomEvent("track-business-view", {
+      detail: {
+        id: ch.id,
+        name: ch.name,
+        images: ch.youtube_channel_thumbnail_url ? [ch.youtube_channel_thumbnail_url] : null,
+        logo_url: ch.logo_url,
+        city: ch.city,
+        slug: ch.id,
+      },
+    }));
   };
 
   const activeIndex = active ? activeVideos.findIndex((v) => v.videoId === active.videoId) : -1;
