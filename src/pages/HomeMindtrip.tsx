@@ -343,7 +343,7 @@ const HomeMindtrip = () => {
                               navigate(defaultUrl);
                             };
                             return (
-                              <div key={v.key} className="group relative aspect-[9/16] w-[140px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[160px]">
+                              <div key={v.key} className="group relative aspect-[9/16] w-[140px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[160px] border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
                                 <button
                                   type="button"
                                   onClick={goSearch}
