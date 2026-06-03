@@ -103,6 +103,8 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                 />
+                {/* Mask YouTube's native title bar overlay */}
+                <div className="absolute top-0 left-0 right-0 h-16 bg-black pointer-events-none rounded-t-xl" />
               </div>
             </div>
           </>
