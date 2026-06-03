@@ -378,6 +378,7 @@ const SearchPage = () => {
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
   const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
+  const [restoredAiBusinessPool, setRestoredAiBusinessPool] = useState<Business[]>([]);
   const lastAiProximityRef = useRef<{ lat: number; lng: number; radiusKm: number; targetName: string; query: string } | null>(null);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
