@@ -89,36 +89,12 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
                 <iframe
                   ref={iframeRef}
                   key={activeVideo.videoId}
-                  src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=1&mute=0&rel=0&controls=0&modestbranding=1&playsinline=1&enablejsapi=1&showinfo=0&iv_load_policy=3`}
+                  src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=1&mute=0&rel=0&controls=1&modestbranding=1&playsinline=1&enablejsapi=1&showinfo=0&iv_load_policy=3`}
                   className="w-full h-full rounded-xl"
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                 />
               </div>
-            </div>
-
-            {/* Custom controls */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
-              <button
-                onClick={togglePlay}
-                className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
-              >
-                {isPlaying ? (
-                  <Pause className="h-5 w-5 text-white fill-white" />
-                ) : (
-                  <Play className="h-5 w-5 text-white fill-white ml-0.5" />
-                )}
-              </button>
-              <button
-                onClick={toggleMute}
-                className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
-              >
-                {isMuted ? (
-                  <VolumeX className="h-5 w-5 text-white" />
-                ) : (
-                  <Volume2 className="h-5 w-5 text-white" />
-                )}
-              </button>
             </div>
           </>
         ) : (
