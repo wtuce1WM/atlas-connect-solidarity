@@ -232,7 +232,7 @@ const HomeMindtrip = () => {
                     <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
                       {s.title}
                     </h3>
-                    <p className="mt-4 font-roboto text-base text-foreground/70 md:whitespace-nowrap">{s.desc}</p>
+                    <p className="mt-4 font-roboto text-base text-foreground/70">{s.desc}</p>
                   </div>
                 ) : null}
                 {i === 0 ? (
@@ -624,8 +624,8 @@ const HotelAvailabilityWidget = () => {
 
 const STEPS = [
   {
-    title: "Inspirez-vous en vidéo.",
-    desc: "Plongez dans des vidéos courtes qui révèlent l'âme des lieux : riads, tables d'exception, artisans, expériences.",
+    title: "Inspirez-vous en vidéo. Découvrez des adresses vérifiées.",
+    desc: "Plongez dans des vidéos courtes qui révèlent l'âme des lieux : riads, tables d'exception, artisans, expériences. Chaque établissement est sélectionné, visité et validé par notre équipe pour vous garantir une expérience à la hauteur.",
     cta: "Voir les vidéos",
     href: "/videos",
     icon: PlayCircle,
