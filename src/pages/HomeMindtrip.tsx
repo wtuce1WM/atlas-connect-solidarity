@@ -266,7 +266,7 @@ const HomeMindtrip = () => {
                       {loadingVideos ? (
                         <div className="flex gap-3 overflow-x-auto scrollbar-hide-mobile">
                           {Array.from({ length: 4 }).map((_, idx) => (
-                            <div key={idx} className="aspect-[9/16] w-[140px] shrink-0 animate-pulse rounded-lg bg-muted/40 md:w-[160px]" />
+                            <div key={idx} className="aspect-[9/16] w-[200px] shrink-0 animate-pulse rounded-lg bg-muted/40 md:w-[240px]" />
                           ))}
                         </div>
                       ) : videos.length === 0 ? (
@@ -343,7 +343,7 @@ const HomeMindtrip = () => {
                               navigate(defaultUrl);
                             };
                             return (
-                              <div key={v.key} className="group relative aspect-[9/16] w-[140px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[160px]">
+                              <div key={v.key} className="group relative aspect-[9/16] w-[200px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[240px]">
                                 <button
                                   type="button"
                                   onClick={goSearch}
