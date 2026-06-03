@@ -29,6 +29,7 @@ interface Props {
 }
 
 interface ActiveVideo {
+  videoId: string;
   videoUrl: string;
   videoName: string | null;
   owner: { id: string; name: string; logo_url: string | null };
@@ -39,6 +40,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   const [groups, setGroups] = useState<ThemeGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<ActiveVideo | null>(null);
+  const [activeVideos, setActiveVideos] = useState<ActiveVideo[]>([]);
   const [currentTime, setCurrentTime] = useState(0);
   const bgIframeRef = useRef<HTMLIFrameElement | null>(null);
   const [bgPlaying, setBgPlaying] = useState(true);
@@ -212,24 +214,35 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
       .order("published_at", { ascending: false });
 
     const rows = (data || []) as Array<{ video_id: string; title: string | null; published_at: string | null; is_short: boolean }>;
-    const pick = rows.find((r) => r.is_short) || rows[0];
+    const videos = rows.map((row) => ({
+      videoId: row.video_id,
+      videoUrl: row.is_short
+        ? `https://www.youtube.com/shorts/${row.video_id}`
+        : `https://www.youtube.com/watch?v=${row.video_id}`,
+      videoName: row.title,
+      owner: { id: ch.id, name: ch.name, logo_url: ch.logo_url },
+    }));
 
-    if (!pick) {
+    if (videos.length === 0) {
       // No video available → fallback: open the channel on YouTube
       if (ch.youtube_url) window.open(ch.youtube_url, "_blank", "noopener,noreferrer");
       return;
     }
 
-    const url = pick.is_short
-      ? `https://www.youtube.com/shorts/${pick.video_id}`
-      : `https://www.youtube.com/watch?v=${pick.video_id}`;
-
     setCurrentTime(0);
-    setActive({
-      videoUrl: url,
-      videoName: pick.title,
-      owner: { id: ch.id, name: ch.name, logo_url: ch.logo_url },
-    });
+    setActiveVideos(videos);
+    setActive(videos[0]);
+  };
+
+  const activeIndex = active ? activeVideos.findIndex((v) => v.videoId === active.videoId) : -1;
+  const hasPrevVideo = activeIndex > 0;
+  const hasNextVideo = activeIndex >= 0 && activeIndex < activeVideos.length - 1;
+  const goToVideoOffset = (offset: number) => {
+    if (activeIndex < 0) return;
+    const next = activeVideos[activeIndex + offset];
+    if (!next) return;
+    setCurrentTime(0);
+    setActive(next);
   };
 
   if (loading) {
@@ -335,7 +348,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
 
       <SlidePanelHome
         open={!!active}
-        onClose={() => setActive(null)}
+        onClose={() => { setActive(null); setActiveVideos([]); }}
         videoUrl={active?.videoUrl || null}
         videoId={null}
         businessName={active?.owner.name || ""}
@@ -351,6 +364,10 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
         onTimeUpdate={setCurrentTime}
         returnContext={null}
         compactBusinessHeader
+        onPrev={() => goToVideoOffset(-1)}
+        onNext={() => goToVideoOffset(1)}
+        hasPrev={hasPrevVideo}
+        hasNext={hasNextVideo}
 
       />
     </div>
