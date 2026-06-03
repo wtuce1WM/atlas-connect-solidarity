@@ -190,6 +190,8 @@ const SearchInput = ({
 
   const isHero = variant === "hero";
 
+  const liquidBtnClass = "border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]";
+
   // Mic button inside input (Restaurant Guru style: white icon on dark rounded square)
   const inlineMicButton = (
     <div className="relative flex items-center justify-center">
@@ -201,12 +203,12 @@ const SearchInput = ({
         type="button"
         onClick={toggleRecording}
         disabled={voiceStatus === "processing"}
-        className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all ${
+        className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all ${liquid ? liquidBtnClass : ""} ${
           voiceStatus === "recording"
             ? "bg-red-500 animate-pulse"
             : voiceStatus === "processing"
-              ? "bg-muted"
-              : "bg-foreground/80 hover:bg-foreground"
+              ? liquid ? "bg-black" : "bg-muted"
+              : liquid ? "bg-black hover:bg-black/90" : "bg-foreground/80 hover:bg-foreground"
         }`}
         title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
       >
@@ -226,7 +228,7 @@ const SearchInput = ({
     <button
       type="button"
       onClick={handleSubmit}
-      className="flex items-center justify-center w-14 h-14 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
+      className={`flex items-center justify-center w-14 h-14 rounded-xl transition-all hover:opacity-90 shrink-0 ${liquid ? liquidBtnClass : "shadow-lg"}`}
       style={{ backgroundColor: "hsl(var(--primary))" }}
       title={buttonLabel}
     >
