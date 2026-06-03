@@ -3439,13 +3439,15 @@ serve(async (req) => {
             subBuilder = subBuilder.ilike("city", cityToUse);
           }
         }
-        // Skip category filter only for single-intent conflicts (e.g. "manger" vs Poissonnerie)
-        // For multi-intent queries (e.g. acheter → Commerce + Agriculture), keep category restriction.
+        // Skip category filter for conflicts and when a subcategory was detected from its own keywords.
+        // Example: "acheter un gâteau" maps "gâteau" → subcategory "Pâtisserie"; the generic
+        // intent "acheter" must not narrow it back to Commerce/Agriculture.
         const skipCategoryFilterForConflict = intentSubcategoryConflict && intentCategories.length <= 1;
-        if (effectiveCategories.length > 0 && !skipCategoryFilterForConflict) {
+        const skipCategoryFilterForKeywordSubcategory = detectedSubcategoryFromKeyword && !!detectedSubcategory;
+        if (effectiveCategories.length > 0 && !skipCategoryFilterForConflict && !skipCategoryFilterForKeywordSubcategory) {
           const catOrClauses = effectiveCategories.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
           subBuilder = subBuilder.or(catOrClauses);
-        } else if (effectiveCategory && !skipCategoryFilterForConflict) {
+        } else if (effectiveCategory && !skipCategoryFilterForConflict && !skipCategoryFilterForKeywordSubcategory) {
           subBuilder = subBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         }
         // Filter by neighborhood if detected (unless explicitly skipped)
