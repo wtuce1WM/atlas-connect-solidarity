@@ -127,6 +127,32 @@ const HomeMindtrip = () => {
     el?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const horizontalRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [trackX, setTrackX] = useState(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const container = horizontalRef.current;
+      const track = trackRef.current;
+      if (!container || !track) return;
+      const rect = container.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const total = container.offsetHeight - vh;
+      if (total <= 0) return;
+      const progress = Math.min(1, Math.max(0, -rect.top / total));
+      const maxX = Math.max(0, track.scrollWidth - window.innerWidth);
+      setTrackX(progress * maxX);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
 
 
 
