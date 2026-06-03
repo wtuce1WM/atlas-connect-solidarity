@@ -168,10 +168,11 @@ export default function FiltersOverlayFlow({
         <button
           type="button"
           onClick={handleBack}
-          className="w-9 h-9 rounded-full bg-black hover:bg-black/90 flex items-center justify-center text-white"
+          className="w-9 h-9 rounded-full bg-black hover:bg-black/90 flex items-center justify-center text-white cursor-pointer touch-manipulation"
+          style={{ WebkitTapHighlightColor: "transparent" }}
           aria-label={step === 1 ? "Fermer les filtres" : "Retour"}
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4 pointer-events-none" />
         </button>
         <span className="flex-1 text-center text-sm font-semibold text-black truncate px-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
           {title}
