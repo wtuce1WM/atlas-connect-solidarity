@@ -66,7 +66,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(query); } }}
             placeholder={placeholder}
             autoComplete="off"
-            className="w-full pl-12 pr-10 py-6 md:py-7 text-base md:text-lg bg-white/90 backdrop-blur-sm border border-gold/50 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold placeholder:text-muted-foreground"
+            className="w-full h-12 md:h-14 pl-12 pr-10 text-base md:text-lg bg-white/90 backdrop-blur-sm border border-gold/50 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold placeholder:text-muted-foreground"
           />
           {query && (
             <button
