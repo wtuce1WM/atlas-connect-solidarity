@@ -127,12 +127,12 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
           onClick={() => voice.toggleRecording()}
           disabled={voice.status === "processing"}
           aria-label={language === "fr" ? "Recherche vocale" : "Voice search"}
-          className={`flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all shadow-lg ${
+          className={`flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
             voice.status === "recording"
-              ? "bg-red-500 animate-pulse"
+              ? "bg-red-500/70 animate-pulse"
               : voice.status === "processing"
-                ? "bg-muted"
-                : "bg-foreground/80 hover:bg-foreground"
+                ? "bg-muted/50"
+                : "bg-white/15 hover:bg-white/25"
           }`}
         >
           {voice.status === "processing" ? (
