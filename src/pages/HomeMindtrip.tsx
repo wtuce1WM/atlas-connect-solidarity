@@ -408,6 +408,16 @@ const HomeMindtrip = () => {
                   className="relative overflow-hidden w-[85vw] max-w-2xl shrink-0 rounded-3xl p-8 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
                 >
                   {i === 1 && <LiquidAIMoroccoBg />}
+                  {i === 2 && (
+                    <video
+                      src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/8d2846a7-fb50-4bde-8a93-c42697e23a2f-1780215120927-3j2n3k.mp4"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  )}
                   <div className="relative z-10">
                     <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
                       Étape {i + 1}
