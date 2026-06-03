@@ -365,6 +365,7 @@ const SlidePanelHome = ({
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   useEffect(() => { if (!open) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); } }, [open]);
+  useEffect(() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); }, [pageBusinessId]);
 
   useEffect(() => {
     if (!open) return;
