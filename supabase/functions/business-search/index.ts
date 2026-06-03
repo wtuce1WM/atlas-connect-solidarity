@@ -4077,7 +4077,7 @@ serve(async (req) => {
           p_category: effectiveCategory || null,
           p_service: null,
           p_limit: limit,
-          p_city_id: effectiveCityId || null,
+          p_city_id: strictCity ? null : (effectiveCityId || null),
         });
         const { data, error } = result;
 
