@@ -356,7 +356,7 @@ const HomeMindtrip = () => {
                   </div>
                 ) : null}
                 {i !== 0 && (
-                  <div>
+                  <div className="rounded-3xl p-8 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
                     <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
                       Étape {i + 1}
                     </span>
