@@ -5035,7 +5035,7 @@ serve(async (req) => {
 
     // In multi-intent mode, keep only businesses that belong to one of the detected intent categories
     // (prevents broad fallback/service merges from leaking unrelated categories)
-    if (intentCategories.length > 1 && businesses.length > 0) {
+    if (intentCategories.length > 1 && businesses.length > 0 && !detectedSubcategoryFromKeyword) {
       const allowedCats = new Set(intentCategories.map(c => c.toLowerCase()));
       const beforeIntentFilter = businesses.length;
       businesses = businesses.filter((b: any) => {
