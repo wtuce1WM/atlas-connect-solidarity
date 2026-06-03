@@ -672,8 +672,14 @@ const SearchPage = () => {
     return () => { cancelled = true; };
   }, [aiAnswerText, totalCount, allBusinesses?.length, searchQuery, searchParams, language, categoryFromUrl]);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai" | "youtube">(
-     searchParams.get("openDestination") ? "destinations" : (searchParams.get("badgeId") ? "hashtag" : "suggestions")
+     searchParams.get("tab") === "ai" ? "ai" : (searchParams.get("openDestination") ? "destinations" : (searchParams.get("badgeId") ? "hashtag" : "suggestions"))
    );
+   useEffect(() => {
+     if (searchParams.get("tab") === "ai" && activeTab !== "ai") {
+       setActiveTab("ai");
+     }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [searchParams]);
     useEffect(() => {
       if (openDestinationParam && activeTab !== "destinations") {
         setActiveTab("destinations");
