@@ -27,6 +27,7 @@ const SlidePanelHeader = ({
   toolbarRightId = "slide-panel-toolbar",
   mobileTransparent = false,
   alwaysDark = false,
+  closeButtonContainerClassName = "",
 }: SlidePanelHeaderProps) => {
   const closeClass = closeVariant === "destructive"
     ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
