@@ -240,6 +240,8 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
                 }, 400);
               }}
             />
+            {/* Masque le titre/chrome YouTube en haut de la vidéo de fond */}
+            <div className="absolute top-0 left-0 right-0 h-24 bg-black z-10" />
             <div className="absolute inset-0 bg-black/50" />
           </div>
         );
