@@ -378,6 +378,7 @@ const SearchPage = () => {
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
   const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
+  const [restoredAiBusinessPool, setRestoredAiBusinessPool] = useState<Business[]>([]);
   const lastAiProximityRef = useRef<{ lat: number; lng: number; radiusKm: number; targetName: string; query: string } | null>(null);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
@@ -418,10 +419,11 @@ const SearchPage = () => {
 
   const aiInlineBusinessPool = useMemo(() => {
     const byId = new globalThis.Map<string, Business>();
+    for (const b of restoredAiBusinessPool) byId.set(b.id, b);
     for (const b of allBusinesses || []) byId.set(b.id, b);
     for (const b of aiRefinementBusinessPool) byId.set(b.id, b);
     return Array.from(byId.values()) as unknown as AIBusinessData[];
-  }, [allBusinesses, aiRefinementBusinessPool]);
+  }, [allBusinesses, aiRefinementBusinessPool, restoredAiBusinessPool]);
 
   // Submit a refinement turn — calls ai-search-answer with history of past turns
   const submitAiRefinement = useCallback(async (explicitText?: string) => {
@@ -690,6 +692,13 @@ const SearchPage = () => {
      try {
        const cached = sessionStorage.getItem("ai_suggestion_text");
        if (cached) setAiAnswerText(cached);
+       const cachedBiz = sessionStorage.getItem("ai_suggestion_businesses");
+       if (cachedBiz) {
+         try {
+           const parsed = JSON.parse(cachedBiz);
+           if (Array.isArray(parsed)) setRestoredAiBusinessPool(parsed as unknown as Business[]);
+         } catch { /* ignore */ }
+       }
      } catch { /* ignore */ }
      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [searchParams]);
