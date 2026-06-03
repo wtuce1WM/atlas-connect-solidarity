@@ -45,6 +45,8 @@ interface SearchInputProps {
     toggleRecording: () => void;
     liveTranscript: string;
   };
+  /** Submit icon variant: "search" (default) or "send" (paper plane for AI assistant) */
+  submitIcon?: "search" | "send";
 }
 
 interface SearchInputSuggestionsProps {
