@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, MapPin, X, Search } from "lucide-react";
-import SearchInput from "@/components/SearchInput";
+import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, MapPin, X } from "lucide-react";
+import HeroInlineSearch from "@/components/HeroInlineSearch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 
