@@ -624,8 +624,8 @@ const HotelAvailabilityWidget = () => {
 
 const STEPS = [
   {
-    title: "Inspirez-vous en vidéo.",
-    desc: "Plongez dans des vidéos courtes qui révèlent l'âme des lieux : riads, tables d'exception, artisans, expériences.",
+    title: "Inspirez-vous en vidéo. Découvrez des adresses vérifiées.",
+    desc: "Plongez dans des vidéos courtes qui révèlent l'âme des lieux : riads, tables d'exception, artisans, expériences. Chaque établissement est sélectionné, visité et validé par notre équipe pour vous garantir une expérience à la hauteur.",
     cta: "Voir les vidéos",
     href: "/videos",
     icon: PlayCircle,
