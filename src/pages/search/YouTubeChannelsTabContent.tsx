@@ -339,6 +339,8 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         returnContext={null}
+        compactBusinessHeader
+
       />
     </div>
   );
