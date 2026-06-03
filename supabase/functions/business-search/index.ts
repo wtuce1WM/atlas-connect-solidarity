@@ -3851,19 +3851,10 @@ serve(async (req) => {
 
     if (detectedSubcategoryFromKeyword && detectedSubcategory && businesses.length > 0) {
       const subcatNorm = stripAccentsGlobal(detectedSubcategory.toLowerCase());
-      const keywordTerms = detectedSubcategoryKeywords.map(k => stripAccentsGlobal(k.toLowerCase()));
       const beforeKeywordSubcatFilter = businesses.length;
       businesses = businesses.filter((b: any) => {
         const categories = (b.categories || []).map((c: string) => stripAccentsGlobal(c.toLowerCase()));
-        if (categories.some((c: string) => c === subcatNorm)) return true;
-        const haystack = stripAccentsGlobal([
-          b.name,
-          b.default_service,
-          b.hook_fr,
-          ...(b.services || []),
-          ...(b.keywords || []),
-        ].filter(Boolean).join(" ").toLowerCase());
-        return keywordTerms.some(term => term && haystack.includes(term));
+        return categories.some((c: string) => c === subcatNorm);
       });
       console.log(`Keyword-detected subcategory relevance filter "${detectedSubcategory}": ${beforeKeywordSubcatFilter} → ${businesses.length}`);
     }
