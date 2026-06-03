@@ -11,10 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
-import stepVerifiedImage from "@/assets/home-mindtrip/step-verified.jpg";
-import stepClubImage from "@/assets/home-mindtrip/step-club.jpg";
-import stepBookingImage from "@/assets/home-mindtrip/step-booking.jpg";
-import BookingFloatingScene from "@/components/home/BookingFloatingScene";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 
