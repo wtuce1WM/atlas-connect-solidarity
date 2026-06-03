@@ -5,6 +5,7 @@ import { usePopularSearches } from "@/hooks/usePopularSearches";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   placeholder: string;
@@ -12,15 +13,42 @@ interface Props {
   onBusinessSelect?: (businessId: string) => void;
 }
 
+const normalize = (s: string) =>
+  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
 const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
+  const [cities, setCities] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
   const { toast } = useToast();
 
   const { suggestions: popularSuggestions } = usePopularSearches(query, true);
+
+  useEffect(() => {
+    supabase
+      .from("cities")
+      .select("name_fr")
+      .eq("is_active", true)
+      .then(({ data }) => {
+        if (data) setCities(data.map((c: { name_fr: string }) => c.name_fr));
+      });
+  }, []);
+
+  /** Find a city name mentioned in `text` (accent-insensitive, word-boundary). */
+  const detectCity = useCallback((text: string): string | null => {
+    if (!text || cities.length === 0) return null;
+    const norm = ` ${normalize(text)} `;
+    for (const city of cities) {
+      const n = normalize(city);
+      if (new RegExp(`(^|[^a-z0-9])${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`).test(norm)) {
+        return city;
+      }
+    }
+    return null;
+  }, [cities]);
 
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
@@ -35,14 +63,19 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
   const submit = useCallback((text: string) => {
     if (!text.trim()) return;
     setFocused(false);
-    onSearch({ q: text.trim(), _t: String(Date.now()) });
-  }, [onSearch]);
+    const params: Record<string, string> = { q: text.trim(), _t: String(Date.now()) };
+    const city = detectCity(text);
+    if (city) params.city = city;
+    onSearch(params);
+  }, [onSearch, detectCity]);
 
   const voice = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
       const params: Record<string, string> = { q: keywords, spoken, _t: String(Date.now()) };
       if (detectedCategory) params.category = detectedCategory;
       if (timeKeyword) params.timeKeyword = timeKeyword;
+      const city = detectCity(spoken) || detectCity(keywords);
+      if (city) params.city = city;
       onSearch(params);
     },
     onError: (message) => {
