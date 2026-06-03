@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePopularSearches } from "@/hooks/usePopularSearches";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
-import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import VoiceSearchPanel from "@/components/VoiceSearchPanel";
 
 interface Props {
   placeholder: string;
