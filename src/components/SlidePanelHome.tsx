@@ -65,7 +65,10 @@ interface SlidePanelHomeProps {
   eventId?: string | null;
   /** Serialized Test page context used to restore the previous result state after closing an establishment panel */
   returnContext?: string | null;
+  /** Compact business header (background hugs the name, centered) */
+  compactBusinessHeader?: boolean;
 }
+
 
 interface AgendaEvent {
   id: string;
@@ -122,7 +125,9 @@ const SlidePanelHome = ({
   agendaCity,
   eventId,
   returnContext,
+  compactBusinessHeader = false,
 }: SlidePanelHomeProps) => {
+
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -610,7 +615,9 @@ const SlidePanelHome = ({
               avgOn20={null}
               totalReviewCount={0}
               onOpenReviews={() => {}}
+              compact={compactBusinessHeader}
             />
+
           </div>
         )}
 
