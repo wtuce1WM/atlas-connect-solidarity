@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import SearchSuggestionsDropdown from "@/components/SearchSuggestionsDropdown";
 import TextSuggestionsDropdown from "@/components/TextSuggestionsDropdown";
 import { Input } from "@/components/ui/input";
-import { Search, Mic, MicOff, Loader } from "lucide-react";
+import { Search, Mic, MicOff, Loader, Send } from "lucide-react";
 
 export type SearchInputVariant = "hero" | "floating";
 
