@@ -1150,6 +1150,7 @@ serve(async (req) => {
     let subcategoryParentCategory: string | null = null;
     let keywordLinkedSubcategories: string[] = []; // additional subcategories found via keyword match
     let detectedSubcategoryFromKeyword = false;
+    let forcedServiceFromReeval: string | null = null; // service forced by intent-based re-evaluation
     if (effectiveQuery && !labelShortcutActivated) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
