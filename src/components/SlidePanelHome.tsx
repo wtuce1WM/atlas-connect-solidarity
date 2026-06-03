@@ -548,7 +548,7 @@ const SlidePanelHome = ({
             closeButtonContainerClassName={shouldShowOwnerLogoInHeader && ctaBusiness ? "md:ml-10" : ""}
           />
         )}
-        {compactBusinessHeader && (
+        {compactBusinessHeader && !searchOverlayOpen && !descOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && (
           <>
             <button
               type="button"
