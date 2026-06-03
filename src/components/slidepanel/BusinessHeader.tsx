@@ -52,6 +52,7 @@ const BusinessHeader = React.memo(function BusinessHeader({
             </h2>
           </div>
         </div>
+        </div>
       </div>
     );
   }
