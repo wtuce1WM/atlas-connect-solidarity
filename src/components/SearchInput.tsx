@@ -191,14 +191,14 @@ const SearchInput = ({
   const inlineMicButton = (
     <div className="relative flex items-center justify-center">
       {/* Concentric ripple rings — black */}
-      <span className="absolute w-10 h-10 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
-      <span className="absolute w-10 h-10 rounded-full border border-foreground/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
-      <span className="absolute w-10 h-10 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
+      <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
+      <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
+      <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
       <button
         type="button"
         onClick={toggleRecording}
         disabled={voiceStatus === "processing"}
-        className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-10 md:h-10 rounded-xl transition-all ${
+        className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all ${
           voiceStatus === "recording"
             ? "bg-red-500 animate-pulse"
             : voiceStatus === "processing"
