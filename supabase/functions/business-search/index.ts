@@ -1149,6 +1149,7 @@ serve(async (req) => {
     let detectedSubcategoryIsReal = false;
     let subcategoryParentCategory: string | null = null;
     let keywordLinkedSubcategories: string[] = []; // additional subcategories found via keyword match
+    let detectedSubcategoryFromKeyword = false;
     if (effectiveQuery && !labelShortcutActivated) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
@@ -1249,6 +1250,7 @@ serve(async (req) => {
             // No name match — use keyword match as primary
             if (keywordMatchedSubcats.length === 1) {
               detectedSubcategory = keywordMatchedSubcats[0];
+              detectedSubcategoryFromKeyword = true;
               console.log(`Auto-detected subcategory "${keywordMatchedSubcats[0]}" from keyword match in query "${effectiveQuery}"`);
             } else if (keywordMatchedSubcats.length > 1) {
               console.log(`Keyword matched ${keywordMatchedSubcats.length} subcategories [${keywordMatchedSubcats.join(", ")}] — skipping subcategory lock, will use broader search`);
@@ -1341,6 +1343,7 @@ serve(async (req) => {
           const { data: subcatRow } = await supabase.from("subcategories").select("name_fr").ilike("name_fr", subcatName).limit(1).single();
           if (subcatRow) {
             detectedSubcategory = subcatRow.name_fr;
+            detectedSubcategoryFromKeyword = true;
             subcategorySearchConfig = config;
             console.log(`Auto-detected subcategory "${detectedSubcategory}" from config synonym match in query "${effectiveQuery}"`);
           }
