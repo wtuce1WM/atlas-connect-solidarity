@@ -1174,7 +1174,7 @@ const SearchPage = () => {
      aiPopupShownRef.current = false;
      hasAutoAlignedResultsRef.current = false;
      hasInteractedWithCompactPanelRef.current = false;
-      setActiveTab(badgeIdParam ? "hashtag" : "suggestions");
+      setActiveTab(searchParams.get("tab") === "ai" ? "ai" : (badgeIdParam ? "hashtag" : "suggestions"));
      resetPanelStates();
      setOverlaySelectedBusiness(null);
      setIsOverlayPanelExpanded(false);
