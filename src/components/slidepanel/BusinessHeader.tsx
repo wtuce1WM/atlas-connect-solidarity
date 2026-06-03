@@ -1,5 +1,6 @@
 import React from "react";
 import { MapPin, Star } from "lucide-react";
+import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 
 interface BusinessHeaderProps {
   business: any;
@@ -30,7 +31,9 @@ const BusinessHeader = React.memo(function BusinessHeader({
 }: BusinessHeaderProps) {
   if (compact) {
     return (
-      <div key={businessId} className="mx-auto w-fit max-w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 py-2 text-white pointer-events-auto animate-slide-in-right">
+      <div key={businessId} className="mx-auto w-fit max-w-full shrink-0 flex flex-col items-center gap-1 pointer-events-auto animate-slide-in-right">
+        <YouTubeIcon className="h-6 w-6 text-red-600" />
+        <div className="rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 py-2 text-white">
         <div className="flex items-center gap-4">
           {business.logo_url && business.id === businessId && (
             <div
@@ -48,6 +51,7 @@ const BusinessHeader = React.memo(function BusinessHeader({
               {business.name}
             </h2>
           </div>
+        </div>
         </div>
       </div>
     );
