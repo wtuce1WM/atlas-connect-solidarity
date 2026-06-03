@@ -179,6 +179,13 @@ const HeroSection = () => {
 
           <div
             className="relative"
+            onFocusCapture={(e) => {
+              const target = e.target as HTMLElement;
+              if (target.tagName === "INPUT") {
+                (target as HTMLInputElement).blur();
+                setMobileSearchOpen(true);
+              }
+            }}
             onClickCapture={(e) => {
               // Open full-screen MobileSearchOverlay when clicking the input area,
               // but let inline buttons (mic, submit, suggestions) keep their own behavior.
@@ -193,7 +200,7 @@ const HeroSection = () => {
           >
             <SearchInput
               variant="hero"
-              suggestionMode="text"
+              showSuggestions={false}
               placeholder={(() => {
                 const placeholders: Record<string, { fr: string; en: string; ar: string }> = {
                   all: { fr: "Que cherchez-vous ? Et où ?", en: "What are you looking for? And where?", ar: "ماذا تبحث عنه؟ وأين؟" },
@@ -226,6 +233,7 @@ const HeroSection = () => {
               voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
             />
           </div>
+
 
           {/* Resume last search chip — disabled on homepage */}
         </div>
