@@ -14,6 +14,8 @@ interface SlidePanelHeaderProps {
   mobileTransparent?: boolean;
   /** Always use dark/transparent style regardless of breakpoint */
   alwaysDark?: boolean;
+  /** Extra classes on the close-button container (e.g. to shift it right to align over a logo) */
+  closeButtonContainerClassName?: string;
 }
 
 const SlidePanelHeader = ({
