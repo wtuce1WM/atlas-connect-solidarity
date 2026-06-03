@@ -4,6 +4,7 @@ import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play }
 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
+import HeroInlineSearch from "@/components/HeroInlineSearch";
 
 import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
@@ -165,12 +166,16 @@ const HomeMindtrip = () => {
             Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité sur le terrain.
           </p>
           <div className="mt-10 w-full max-w-2xl">
-            <SearchInput
-              variant="hero"
+            <HeroInlineSearch
               placeholder="Rechercher un hôtel, un restaurant, une expérience…"
-              showSuggestions
+              onSearch={(params) => {
+                const qs = new URLSearchParams(params).toString();
+                navigate(`/search?${qs}`);
+              }}
+              onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
             />
           </div>
+
         </div>
 
         <button
