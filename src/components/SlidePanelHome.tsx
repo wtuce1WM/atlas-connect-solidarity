@@ -125,7 +125,9 @@ const SlidePanelHome = ({
   agendaCity,
   eventId,
   returnContext,
+  compactBusinessHeader = false,
 }: SlidePanelHomeProps) => {
+
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const panelRef = useRef<HTMLDivElement>(null);
