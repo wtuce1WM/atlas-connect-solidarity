@@ -212,7 +212,7 @@ const HomeMindtrip = () => {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how-it-works" className="bg-background pt-24 md:pt-40 pb-24 md:pb-40">
+      <section id="how-it-works" className="bg-background pt-24 md:pt-40 pb-8 md:pb-12">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
             Comment ça marche
