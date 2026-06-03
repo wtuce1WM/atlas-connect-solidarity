@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { X, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { X, Play, Pause, Volume2, VolumeX, ChevronUp, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import type { BookOnlineBusiness } from "@/hooks/useBookOnlineData";
