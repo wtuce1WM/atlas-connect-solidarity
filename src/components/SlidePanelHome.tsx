@@ -795,6 +795,9 @@ const SlidePanelHome = ({
                   onOpen={() => setDescOverlayOpen(true)}
                 />
               )}
+              {compactBusinessHeader && (
+                <YouTubeIcon className="h-10 w-10 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />
+              )}
               {/* Bloc crédit unifié — priorité : social > owner > eventBusiness (mutuellement exclusifs) */}
               {(() => {
                 if (visibleSocial) {
