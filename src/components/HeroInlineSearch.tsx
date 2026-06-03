@@ -81,6 +81,15 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
 
         <button
           type="button"
+          onClick={() => submit(query)}
+          aria-label={language === "fr" ? "Rechercher" : "Search"}
+          className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all shadow-lg bg-gold hover:bg-gold/90"
+        >
+          <Search className="h-5 w-5 text-black" />
+        </button>
+
+        <button
+          type="button"
           onClick={() => voice.toggleRecording()}
           disabled={voice.status === "processing"}
           aria-label={language === "fr" ? "Recherche vocale" : "Voice search"}
