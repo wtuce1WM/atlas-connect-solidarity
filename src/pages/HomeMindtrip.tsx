@@ -4,6 +4,7 @@ import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play }
 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
+import HeroInlineSearch from "@/components/HeroInlineSearch";
 
 import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
