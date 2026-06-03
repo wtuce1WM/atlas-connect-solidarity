@@ -112,6 +112,29 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
         <X className="h-5 w-5 text-black" />
       </button>
 
+      {showVideoNavigation && (
+        <div className="fixed top-1/2 -translate-y-1/2 right-4 z-[260] flex flex-col gap-2 pointer-events-none">
+          <button
+            type="button"
+            onClick={() => goToOffset(-1)}
+            disabled={!hasPrevVideo}
+            className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+            aria-label="Vidéo précédente"
+          >
+            <ChevronUp className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => goToOffset(1)}
+            disabled={!hasNextVideo}
+            className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
+            aria-label="Vidéo suivante"
+          >
+            <ChevronDown className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+
       {/* Video title */}
       {activeVideo && (
         <div className="flex-shrink-0 px-16 pt-3 pb-2 flex items-center justify-center">
@@ -135,28 +158,6 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                 />
-                {showVideoNavigation && (
-                  <div className="absolute top-1/2 -translate-y-1/2 right-2 md:right-3 z-30 flex flex-col gap-2 pointer-events-none">
-                    <button
-                      type="button"
-                      onClick={() => goToOffset(-1)}
-                      disabled={!hasPrevVideo}
-                      className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
-                      aria-label="Vidéo précédente"
-                    >
-                      <ChevronUp className="h-5 w-5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => goToOffset(1)}
-                      disabled={!hasNextVideo}
-                      className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
-                      aria-label="Vidéo suivante"
-                    >
-                      <ChevronDown className="h-5 w-5" />
-                    </button>
-                  </div>
-                )}
                 {/* Swipe overlay (mobile/tablet only) — top 75% to leave YT controls usable */}
                 <div
                   className="absolute inset-x-0 top-0 h-[75%] lg:hidden z-10"
