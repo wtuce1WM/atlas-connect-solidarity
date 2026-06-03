@@ -130,6 +130,12 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                 />
+                {/* Swipe overlay (mobile/tablet only) — top 75% to leave YT controls usable */}
+                <div
+                  className="absolute inset-x-0 top-0 h-[75%] lg:hidden z-10"
+                  onTouchStart={onTouchStart}
+                  onTouchEnd={onTouchEnd}
+                />
               </div>
             </div>
           </>
@@ -139,6 +145,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
           </p>
         )}
       </div>
+
 
       {/* Carousel — pinned to bottom */}
       <div className="shrink-0 overflow-hidden px-3 pb-3 pt-2 border-t border-white/10">
