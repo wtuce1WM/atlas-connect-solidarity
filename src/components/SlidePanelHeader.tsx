@@ -31,6 +31,8 @@ const SlidePanelHeader = ({
 }: SlidePanelHeaderProps) => {
   const closeClass = closeVariant === "destructive"
     ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+    : closeVariant === "inverse"
+    ? "bg-black text-white shadow-2xl hover:bg-black/90 transition-colors"
     : "bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity";
 
   const baseClass = alwaysDark
