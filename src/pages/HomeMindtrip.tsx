@@ -130,8 +130,10 @@ const HomeMindtrip = () => {
 
   const scrollToNext = () => {
     const el = document.getElementById("how-it-works-title");
+    console.log("[scrollToNext] el=", el, "scrollY=", window.scrollY);
     if (!el) return;
     const y = el.getBoundingClientRect().top + window.scrollY;
+    console.log("[scrollToNext] target y=", y);
     window.scrollTo({ top: y, behavior: "smooth" });
   };
 
