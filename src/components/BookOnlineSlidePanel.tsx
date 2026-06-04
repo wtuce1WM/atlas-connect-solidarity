@@ -1366,10 +1366,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     })()}
                     <div
                       key={`rating-${business?.id}`}
-                      className="flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border-2 border-gold cursor-pointer flex-wrap slidepanel-rating-short backdrop-blur-sm bg-white/5"
+                      className="relative flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border border-white/30 cursor-pointer flex-wrap slidepanel-rating-short backdrop-blur-2xl bg-white/10 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]"
                       onClick={handleOpenReviews}
-                      style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
                     >
+                      <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
+                      <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
                       <div className="flex items-center gap-1.5 md:gap-2.5">
                         <Star className="h-5 w-5 md:h-7 md:w-7 text-gold fill-gold" />
                         <span className="text-2xl md:text-4xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
