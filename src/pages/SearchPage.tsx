@@ -3341,7 +3341,7 @@ const SearchPage = () => {
               ) : (
                 <>
                   {activeTab === "ai" && (
-                    <div className="flex items-center justify-center gap-2 mb-3 mt-4">
+                    <div className="flex items-center justify-center gap-2 mb-3 mt-3">
                       <button
                         onClick={() => setHideResultsMap(v => !v)}
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
