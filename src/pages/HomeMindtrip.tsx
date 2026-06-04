@@ -493,7 +493,7 @@ const HomeMindtrip = () => {
                       muted
                       loop
                       playsInline
-                      className="absolute inset-0 m-auto h-[80%] w-[80%] object-contain opacity-90 pointer-events-none translate-x-[16%] translate-y-[16%]"
+                      className="absolute inset-0 m-auto h-[80%] w-[80%] object-contain opacity-90 pointer-events-none translate-x-[16%] translate-y-[8%]"
                     />
                   )}
                   {i === 2 && (
