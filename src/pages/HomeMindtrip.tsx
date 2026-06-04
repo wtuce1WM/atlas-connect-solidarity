@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
 import LiquidAIMoroccoBg from "@/components/LiquidAIMoroccoBg";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
+import Step2AssistantBlock from "@/components/home/Step2AssistantBlock";
 
 import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
