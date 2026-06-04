@@ -1288,7 +1288,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         {(avgOn20 != null && totalReviewCount > 0) || woDescription || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
           <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-auto gap-4 md:gap-10 flex-1 -mt-[3rem]">
             {(hookText || business?.carousel_badge) && (
-              <div className="absolute top-0 left-0 right-0 flex justify-center pointer-events-none">
+              <div className="absolute top-12 left-0 right-0 flex justify-center pointer-events-none">
                 <div className="pointer-events-auto">
                   <TypewriterHook text={hookText || videoTabLabel} key={businessId + '-hook'} />
                 </div>
