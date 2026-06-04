@@ -438,8 +438,8 @@ const HomeMindtrip = () => {
                         frameBorder="0"
                         style={{
                           border: 0,
-                          width: "max(100cqw, calc(100cqh * 9 / 16))",
-                          height: "max(100cqh, calc(100cqw * 16 / 9))",
+                          width: "max(160cqw, calc(160cqh * 9 / 16))",
+                          height: "max(160cqh, calc(160cqw * 16 / 9))",
                         }}
                       />
                     </div>
