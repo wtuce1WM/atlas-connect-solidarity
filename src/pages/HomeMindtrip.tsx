@@ -694,6 +694,13 @@ const STEPS = [
     href: "/hotels",
     icon: CalendarCheck,
   },
+  {
+    title: "Naviguez en mode immersif.",
+    desc: "Explorez nos contenus organisés par thématiques : business, cuisine, culture, expatriation, immobilier, tourisme et bien plus.",
+    cta: "Découvrir",
+    href: "/test",
+    icon: PlayCircle,
+  },
 ];
 
 const TOOLKIT = [
