@@ -3108,7 +3108,10 @@ const SearchPage = () => {
                 setOverlaySelectedBusiness(null);
                 setIsOverlayPanelExpanded(false);
                 setShowAiPopup(false);
-                setActiveTab(tab.key as any);
+                 setActiveTab(tab.key as any);
+                 if (tab.key === "suggestions") {
+                   window.scrollTo({ top: 0, behavior: "smooth" });
+                 }
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
