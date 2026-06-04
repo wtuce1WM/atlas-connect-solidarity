@@ -442,9 +442,6 @@ const HomeMindtrip = () => {
                           height: "max(160cqh, calc(160cqw * 16 / 9))",
                         }}
                       />
-                      {/* Masque le bandeau de titre YouTube au début de la lecture */}
-                      <div className="absolute inset-x-0 top-0 h-24 bg-black pointer-events-none" />
-                      <div className="absolute inset-x-0 bottom-0 h-20 bg-black pointer-events-none" />
                     </div>
                   )}
                   <div className="relative z-10">
