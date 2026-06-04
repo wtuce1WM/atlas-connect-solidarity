@@ -543,7 +543,7 @@ const HomeMindtrip = () => {
 
 
       {/* INSPIRATION */}
-      <section className="pt-4 pb-24 md:pt-6 md:pb-32 -mt-16 md:-mt-24">
+      <section className="pt-4 pb-24 md:pt-6 md:pb-32">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <div className="flex items-end justify-between gap-6">
             <div>
