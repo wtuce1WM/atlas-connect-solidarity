@@ -2335,7 +2335,7 @@ const SearchPage = () => {
       const start = PIN_PAGE1_SIZE + (currentPage - 2) * ITEMS_PER_PAGE;
       return filteredBusinesses.slice(start, start + ITEMS_PER_PAGE);
     }
-    return filteredBusinesses;
+    return filteredBusinesses.slice(0, ITEMS_PER_PAGE);
   }, [filteredBusinesses, pinIdsParam, currentPage]);
 
   // Reset page when filter changes
