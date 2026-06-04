@@ -4229,21 +4229,23 @@ const SearchPage = () => {
         <>
           <ResultsTabContent
             belowCardsSlot={(() => {
-              const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
-              const effSub = selectedSubcategoryFilter || detectedSubcategory || null;
-              const effService = selectedServiceFilter || null;
-              if (!effCity || (!effSub && !effService)) return null;
-              return (
-                <div className="mt-6 mb-8">
-                  <SearchAIVideosCarousel
-                    subcategoryNames={effSub ? [effSub] : []}
-                    serviceName={effService}
-                    city={effCity}
-                    entryLabel={labelFromUrl}
-                    onOpenBusiness={(b) => openCompactPanel(b as any)}
-                  />
-                </div>
-              );
+              // Carrousel vidéo en bas de l'onglet Résultats — désactivé temporairement
+              // const effCity = (selectedCity && selectedCity !== "all" ? selectedCity : detectedCity) || cityFromUrlForThumbs || null;
+              // const effSub = selectedSubcategoryFilter || detectedSubcategory || null;
+              // const effService = selectedServiceFilter || null;
+              // if (!effCity || (!effSub && !effService)) return null;
+              // return (
+              //   <div className="mt-6 mb-8">
+              //     <SearchAIVideosCarousel
+              //       subcategoryNames={effSub ? [effSub] : []}
+              //       serviceName={effService}
+              //       city={effCity}
+              //       entryLabel={labelFromUrl}
+              //       onOpenBusiness={(b) => openCompactPanel(b as any)}
+              //     />
+              //   </div>
+              // );
+              return null;
             })()}
             resultsRef={resultsRef}
             resultsBarRef={resultsBarRef}
