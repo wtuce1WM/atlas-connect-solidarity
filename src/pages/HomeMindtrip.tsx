@@ -469,11 +469,11 @@ const HomeMindtrip = () => {
 
       {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
       <section ref={horizontalRef} className="relative bg-background" style={{ height: "400vh" }}>
-        <div className="sticky top-20 md:top-28 flex h-[78vh] items-center overflow-hidden">
+        <div className="sticky top-20 md:top-28 flex h-[64vh] md:h-[78vh] items-center overflow-hidden">
 
           <div
             ref={trackRef}
-            className="flex gap-8 will-change-transform px-[calc((100vw-min(85vw,42rem))/2)]"
+            className="flex gap-8 will-change-transform px-[calc((100vw-min(92vw,42rem))/2)] md:px-[calc((100vw-min(85vw,42rem))/2)]"
             style={{ transform: `translate3d(${-trackX}px, 0, 0)` }}
           >
             {STEPS.slice(1).map((s, idx) => {
