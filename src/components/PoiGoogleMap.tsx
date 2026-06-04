@@ -22,6 +22,8 @@ export interface PoiMapItem {
 interface PoiGoogleMapProps {
   pois: PoiMapItem[];
   selectedPoiId: string | null;
+  /** Highlight-only id (e.g. hover from list). Does NOT trigger map pan/zoom. */
+  hoveredPoiId?: string | null;
   onPoiClick?: (poiId: string) => void;
   center?: { lat: number; lng: number };
   subcategoryIconMap?: Record<string, string>;
@@ -225,7 +227,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -516,15 +518,16 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
   // Update overlay highlighting when selectedPoiId changes
   const prevSelectedRef = useRef<string | null>(null);
   useEffect(() => {
+    const activeId = selectedPoiId || hoveredPoiId || null;
     overlaysRef.current.forEach((overlay, id) => {
-      const isSelected = id === selectedPoiId;
-      const isLastHovered = !selectedPoiId && id === prevSelectedRef.current;
+      const isSelected = id === activeId;
+      const isLastHovered = !activeId && id === prevSelectedRef.current;
       overlay.setHighlighted(isSelected || isLastHovered);
     });
-    if (selectedPoiId) {
-      prevSelectedRef.current = selectedPoiId;
+    if (activeId) {
+      prevSelectedRef.current = activeId;
     }
-  }, [selectedPoiId]);
+  }, [selectedPoiId, hoveredPoiId]);
 
   // Keep city centered when a city center is provided (skip in fitToMarkers mode)
   useEffect(() => {
@@ -557,8 +560,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       { bg: "#C04F17", fg: "#ffffff", border: "#C04F17" },
       undefined,
     );
-    // Do not recenter on user marker: fitBounds already includes both
-    // the user location and POI markers so everything remains visible.
+    // Center map on user location so the "Vous êtes ici" marker stays centered.
+    map.setCenter({ lat: userLocation.lat, lng: userLocation.lng });
   }, [userLocation, ready]);
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
