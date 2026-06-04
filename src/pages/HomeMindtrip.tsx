@@ -471,11 +471,19 @@ const HomeMindtrip = () => {
                           onSubmit={(q) => navigate(`/search?q=${encodeURIComponent(q)}&tab=ai`)}
                         />
                       </div>
+                    ) : i === 5 ? (
+                      <Link
+                        to={s.href}
+                        style={{ backgroundColor: "#C04F17" }}
+                        className="mt-6 inline-flex items-center rounded-full px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-white border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:opacity-90 transition-opacity"
+                      >
+                        {s.cta} →
+                      </Link>
                     ) : (
                       <Link
                         to={s.href}
                         className={
-                          i === 2 || i === 4 || i === 5
+                          i === 2 || i === 4
                             ? "mt-6 inline-flex items-center rounded-full px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-white bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-white/20 transition-colors"
                             : "mt-6 inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
                         }
@@ -483,6 +491,7 @@ const HomeMindtrip = () => {
                         {s.cta} →
                       </Link>
                     )}
+
                   </div>
 
 
