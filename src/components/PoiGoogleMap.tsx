@@ -518,7 +518,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   // Update overlay highlighting when selectedPoiId changes
   const prevSelectedRef = useRef<string | null>(null);
   useEffect(() => {
-    const activeId = selectedPoiId || hoveredPoiId || null;
+    const activeId = hoveredPoiId || selectedPoiId || null;
     overlaysRef.current.forEach((overlay, id) => {
       const isSelected = id === activeId;
       const isLastHovered = !activeId && id === prevSelectedRef.current;
