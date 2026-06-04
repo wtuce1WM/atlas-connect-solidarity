@@ -231,7 +231,7 @@ const HomeMindtrip = () => {
               >
                 {i === 0 ? (
                   <div>
-                    <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
+                    <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
                       Étape {i + 1}
                     </span>
                     <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
