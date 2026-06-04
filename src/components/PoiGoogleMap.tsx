@@ -22,6 +22,8 @@ export interface PoiMapItem {
 interface PoiGoogleMapProps {
   pois: PoiMapItem[];
   selectedPoiId: string | null;
+  /** Highlight-only id (e.g. hover from list). Does NOT trigger map pan/zoom. */
+  hoveredPoiId?: string | null;
   onPoiClick?: (poiId: string) => void;
   center?: { lat: number; lng: number };
   subcategoryIconMap?: Record<string, string>;
