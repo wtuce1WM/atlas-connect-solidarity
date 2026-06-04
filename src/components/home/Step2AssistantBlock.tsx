@@ -43,6 +43,19 @@ const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
         {title}
       </h3>
 
+      <button
+        type="button"
+        onClick={() => {
+          const q1 = "je cherche un restaurant à Marrakech ouvert demain midi avec une piscine";
+          const q2 = "sur la route de l'Ourika";
+          navigate(`/search?q=${encodeURIComponent(q1)}&tab=ai&demo=${encodeURIComponent(q2)}`);
+        }}
+        className="mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 font-roboto text-xs font-semibold text-black shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] border border-white/30 transition-transform hover:scale-[1.03] active:scale-95"
+        style={{ backgroundColor: "#D4AF37" }}
+      >
+        <span aria-hidden>▶</span> Voir la démo
+      </button>
+
       <p className="mt-3 md:mt-4 max-w-lg font-roboto text-sm md:text-base text-black font-bold [text-shadow:0_1px_2px_rgba(255,255,255,0.5)]">
         {description}
       </p>
@@ -62,19 +75,6 @@ const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
           }}
           onSubmit={(q) => navigate(`/search?q=${encodeURIComponent(q)}&tab=ai`)}
         />
-
-        <button
-          type="button"
-          onClick={() => {
-            const q1 = "je cherche un restaurant à Marrakech ouvert demain midi avec une piscine";
-            const q2 = "sur la route de l'Ourika";
-            navigate(`/search?q=${encodeURIComponent(q1)}&tab=ai&demo=${encodeURIComponent(q2)}`);
-          }}
-          className="mt-3 inline-flex items-center gap-2 rounded-full px-4 py-2 font-roboto text-xs font-semibold text-white shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] border border-white/30 transition-transform hover:scale-[1.03] active:scale-95"
-          style={{ backgroundColor: "#C04F17" }}
-        >
-          <span aria-hidden>▶</span> Voir la démo en 2 questions
-        </button>
 
         {isVoiceActive && (
           <VoiceSearchPanel
