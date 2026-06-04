@@ -596,6 +596,9 @@ const SearchPage = () => {
           })
         : orderedPool;
       const poolForAi = filteredPool.length > 0 ? filteredPool : orderedPool;
+      // Sync the map pool with the cumulative AND-filtered results so markers
+      // reflect the same constraints as the AI answer (not just the last turn).
+      setAiRefinementBusinessPool(poolForAi);
       const businesses = poolForAi.slice(0, 200).map((b) => ({
         id: b.id, name: b.name, city: b.city,
         neighborhood: (b as any).neighborhood, address: (b as any).address,
