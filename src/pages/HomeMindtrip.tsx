@@ -675,7 +675,7 @@ const HotelAvailabilityWidget = () => {
   return (
     <form
       onSubmit={submit}
-      className="mt-6 grid w-full max-w-2xl gap-3 rounded-2xl border border-border/40 bg-background/40 p-4 backdrop-blur sm:grid-cols-2"
+      className="mt-6 grid w-full max-w-2xl gap-3 p-4 sm:grid-cols-2"
     >
       <label className={`${labelCls} sm:col-span-2`}>
         Destination
