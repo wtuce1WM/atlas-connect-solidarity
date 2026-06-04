@@ -3942,7 +3942,32 @@ const SearchPage = () => {
                       />
                     </div>
                   </div>
+                  {(() => {
+                    const total = totalCount ?? filteredBusinesses.length;
+                    if (total <= 20) return null;
+                    return (
+                      <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2">
+                        <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                          <button
+                            type="button"
+                            onClick={() => { if (showAllSearchMarkers) setShowAllSearchMarkers(false); }}
+                            className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                          >
+                            Top 20
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { if (!showAllSearchMarkers) setShowAllSearchMarkers(true); }}
+                            className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                          >
+                            Tous <span className="ml-0.5 opacity-70">{total}</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
+
               </div>
             </div>
           )}
