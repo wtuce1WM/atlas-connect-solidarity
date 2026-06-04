@@ -35,8 +35,8 @@ const BusinessHeader = React.memo(function BusinessHeader({
         <div className="flex items-center gap-4">
           <div className="min-w-0 text-center">
             <h2
-              className="text-base md:text-xl font-bold uppercase truncate"
-              style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", WebkitTextStroke: "0.8px currentColor", textShadow: "0 0 0 currentColor" }}
+              className="text-base md:text-xl font-bold uppercase truncate [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
+              style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em" }}
             >
               {business.name}
             </h2>
@@ -64,8 +64,8 @@ const BusinessHeader = React.memo(function BusinessHeader({
 
           <div className="flex items-start gap-2">
             <h2
-              className={`text-base md:text-xl font-bold uppercase min-w-0 flex-1 ${hasReviewsCard ? "line-clamp-2" : "line-clamp-3 md:line-clamp-2"}`}
-              style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", WebkitTextStroke: "0.8px currentColor", textShadow: "0 0 0 currentColor" }}
+              className={`text-base md:text-xl font-bold uppercase min-w-0 flex-1 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] ${hasReviewsCard ? "line-clamp-2" : "line-clamp-3 md:line-clamp-2"}`}
+              style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em" }}
             >
               {business.name}
             </h2>
