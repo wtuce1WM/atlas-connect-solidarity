@@ -10,7 +10,7 @@ const ACCENT = "#6050dc";
 
 const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish }: Props) => {
   return (
-    <div className="w-full flex flex-col items-center gap-6 py-6">
+    <div className="w-full flex flex-col items-start gap-6 py-6">
       {/* Transcript / hint */}
       {liveTranscript ? (
         <p className="text-xl md:text-2xl text-foreground font-light text-center leading-relaxed max-w-2xl px-4">
