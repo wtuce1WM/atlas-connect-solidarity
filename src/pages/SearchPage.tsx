@@ -630,6 +630,25 @@ const SearchPage = () => {
     }
   }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, aiRefinementSpokenText]);
 
+  // Demo mode: when ?demo=<followup> is present, wait for the initial AI answer,
+  // then auto-submit the follow-up question once as a refinement turn.
+  const demoTriggeredRef = useRef(false);
+  useEffect(() => {
+    const demoFollowup = searchParams.get("demo");
+    if (!demoFollowup) return;
+    if (demoTriggeredRef.current) return;
+    if (!aiAnswerText) return;
+    if (aiChatLoading) return;
+    if (aiChat.length > 0) return;
+    demoTriggeredRef.current = true;
+    const next = new URLSearchParams(searchParams);
+    next.delete("demo");
+    setSearchParams(next, { replace: true });
+    setTimeout(() => { submitAiRefinement(demoFollowup); }, 1200);
+  }, [searchParams, aiAnswerText, aiChatLoading, aiChat.length, submitAiRefinement, setSearchParams]);
+
+
+
 
 
 
