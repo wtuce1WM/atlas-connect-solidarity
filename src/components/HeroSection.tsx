@@ -17,10 +17,13 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { getTimeGreeting, extractTimeSlot } from "@/lib/timeSlots";
 import HeroLocationSelector from "@/components/HeroLocationSelector";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
+import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 
 const HeroSection = () => {
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
+
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   
