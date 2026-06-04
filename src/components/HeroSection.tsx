@@ -201,8 +201,28 @@ const HeroSection = () => {
           })()}
 
 
+          {/* Play video CTA */}
+          <div className="mt-5 flex justify-center">
+            <button
+              type="button"
+              onClick={() => {/* TODO: open video */}}
+              className="inline-flex items-center gap-3 text-black hover:opacity-80 transition-opacity"
+              aria-label="Play video"
+            >
+              <span className="flex items-center justify-center w-11 h-11 rounded-full bg-black text-white">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </span>
+              <span className="text-base font-medium">
+                {language === "ar" ? "تشغيل الفيديو" : language === "en" ? "Play video" : "Voir la vidéo"}
+              </span>
+            </button>
+          </div>
+
           {/* Resume last search chip — disabled on homepage */}
         </div>
+
 
         {/* Restaurant Guru-style location selector — disabled
         <HeroLocationSelector
