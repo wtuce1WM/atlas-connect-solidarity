@@ -3285,7 +3285,7 @@ const SearchPage = () => {
           {/* AI text — scrollable center, wider */}
           <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-4">
             {/* Top section: query + count + top "Voir les résultats" */}
-            <div className="pt-2 sm:pt-14 pb-3 text-center">
+            <div className="pt-16 sm:pt-14 pb-3 text-center">
               {/* Desktop CTA — hidden in inline AI tab */}
               {!isInline && (
                 <button
