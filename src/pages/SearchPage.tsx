@@ -3172,7 +3172,13 @@ const SearchPage = () => {
             }
           }
         }}
-        onDisableGeo={() => geo.decline()}
+        onDisableGeo={() => {
+          try {
+            localStorage.removeItem("geo_manual_coords");
+            localStorage.removeItem("geo_manual_address");
+          } catch { /* noop */ }
+          geo.decline();
+        }}
       />
 
       {/* Hidden AISearchAnswer instance — generates AI text for Sticky 4 (overlay disabled) */}
