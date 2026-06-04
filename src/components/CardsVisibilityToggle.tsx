@@ -41,7 +41,7 @@ interface DesktopMediaArrowsProps {
 }
 
 export const DesktopMediaArrows = ({ totalMedia, cardsHidden, onPrev, onNext, hideOnMobile }: DesktopMediaArrowsProps) => {
-  if (totalMedia <= 1 || cardsHidden) return null;
+  if (totalMedia <= 1 || !cardsHidden) return null;
   const visibility = hideOnMobile ? "hidden md:flex" : "flex";
   return (
     <>
