@@ -448,10 +448,10 @@ const HomeMindtrip = () => {
                     <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
                       Étape {i + 1}
                     </span>
-                    <h3 className={`mt-3 font-josefin text-3xl font-light tracking-tight md:text-4xl ${i >= 2 ? "text-white" : "text-foreground"}`}>
+                    <h3 className={`mt-3 font-josefin text-3xl font-light tracking-tight md:text-4xl ${i === 4 ? "text-black" : i >= 2 ? "text-white" : "text-foreground"}`}>
                       {s.title}
                     </h3>
-                    <p className={`mt-4 max-w-lg font-roboto text-base ${i >= 2 ? "text-white/90" : "text-foreground/70"}`}>{s.desc}</p>
+                    <p className={`mt-4 max-w-lg font-roboto text-base ${i === 4 ? "text-black/80" : i >= 2 ? "text-white/90" : "text-foreground/70"}`}>{s.desc}</p>
                     {i === 3 ? (
                       <HotelAvailabilityWidget />
                     ) : i === 1 ? (
@@ -469,7 +469,9 @@ const HomeMindtrip = () => {
                       <Link
                         to={s.href}
                         className={
-                          i === 2 || i === 4
+                          i === 4
+                            ? "mt-6 inline-flex items-center rounded-full px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-black bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-black/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-white/20 transition-colors"
+                            : i === 2
                             ? "mt-6 inline-flex items-center rounded-full px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-white bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-white/20 transition-colors"
                             : "mt-6 inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
                         }
