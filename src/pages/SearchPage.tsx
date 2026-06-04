@@ -3712,6 +3712,7 @@ const SearchPage = () => {
 
 
               {/* Videos carousel — après le carousel de miniatures issu d'une sélection de sous-catégorie OU d'un affinement, AVANT "Affinez votre demande". */}
+              {/* Désactivé temporairement dans l'onglet IA après la 1re demande
               {activeTab === "ai" && (() => {
                 const hasRefined = aiChat.some((m) => m.role === "user");
                 const hasSelection = !!(selectedSubcategoryFilter || selectedServiceFilter);
@@ -3744,6 +3745,7 @@ const SearchPage = () => {
                   </div>
                 );
               })()}
+              */}
 
               {/* Refinement chat — multi-turn "Affinez votre demande" */}
 
