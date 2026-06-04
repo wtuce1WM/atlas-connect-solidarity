@@ -469,11 +469,11 @@ const HomeMindtrip = () => {
 
       {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
       <section ref={horizontalRef} className="relative bg-background" style={{ height: "400vh" }}>
-        <div className="sticky top-20 md:top-28 flex h-[64vh] md:h-[78vh] items-center overflow-hidden">
+        <div className="sticky top-16 md:top-28 flex h-[72svh] md:h-[78vh] items-center overflow-hidden">
 
           <div
             ref={trackRef}
-            className="flex gap-8 will-change-transform px-[calc((100vw-min(92vw,42rem))/2)] md:px-[calc((100vw-min(85vw,42rem))/2)]"
+            className="flex gap-4 md:gap-8 will-change-transform px-[calc((100vw-min(96vw,42rem))/2)] md:px-[calc((100vw-min(85vw,42rem))/2)]"
             style={{ transform: `translate3d(${-trackX}px, 0, 0)` }}
           >
             {STEPS.slice(1).map((s, idx) => {
@@ -482,7 +482,7 @@ const HomeMindtrip = () => {
                 <div
                   key={s.title}
                   ref={(el) => { cardRefs.current[idx] = el; }}
-                  className="relative overflow-hidden w-[92vw] md:w-[85vw] max-w-2xl shrink-0 rounded-3xl p-6 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
+                  className="relative overflow-hidden w-[96vw] md:w-[85vw] max-w-2xl shrink-0 rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
                 >
                   {i === 1 && <LiquidAIMoroccoBg />}
                   {i === 2 && (
@@ -534,10 +534,10 @@ const HomeMindtrip = () => {
                       Étape {i + 1}
                     </span>
 
-                    <h3 className={`mt-3 font-josefin text-3xl font-light tracking-tight md:text-4xl ${i === 5 ? "text-black" : i >= 2 ? "text-white" : "text-foreground"}`}>
+                    <h3 className={`mt-3 font-josefin text-2xl font-light tracking-tight md:text-4xl ${i === 5 ? "text-black" : i >= 2 ? "text-white" : "text-foreground"}`}>
                       {s.title}
                     </h3>
-                    <p className={`mt-4 ${i === 5 ? "mx-auto" : ""} max-w-lg font-roboto text-base ${i === 5 ? "text-black/80" : i >= 2 ? "text-white/90" : "text-foreground/70"}`}>{s.desc}</p>
+                    <p className={`mt-3 md:mt-4 ${i === 5 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 5 ? "text-black/80" : i >= 2 ? "text-white/90" : "text-foreground/70"}`}>{s.desc}</p>
                     {i === 3 ? (
                       <HotelAvailabilityWidget />
                     ) : i === 1 ? (
