@@ -158,7 +158,8 @@ const PoiTabContent = ({
           </button>
           <PoiGoogleMap
             pois={allPois}
-            selectedPoiId={hoveredPoiId || null}
+            selectedPoiId={null}
+            hoveredPoiId={hoveredPoiId || null}
             onPoiClick={(poiId) => {
               setPoiMapBusiness(null);
               setPoiSelectedBusinessId(poiId);
