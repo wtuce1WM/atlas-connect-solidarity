@@ -818,11 +818,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               <div className="relative flex items-center justify-center">
                 {destination.hook && (
                   <p
-                    className="hidden md:block absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-[85vw] md:w-xl max-w-xl text-lg md:text-xl text-white/90 font-bold text-center leading-relaxed pointer-events-none"
-                    style={{
-                      fontFamily: "'Josefin Sans', sans-serif",
-                      filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
-                    }}
+                    className="hidden md:block absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-[85vw] md:w-xl max-w-xl text-lg md:text-xl text-white/90 font-bold text-center leading-relaxed pointer-events-none [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
                     {destination.hook}
                   </p>
