@@ -442,20 +442,9 @@ export default function ResultsTabContent({
                     <X className="h-4 w-4" />
                   </button>
                   <span className="flex-1 text-center text-sm font-medium text-black truncate">
-                    {(() => {
-                      const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
-                      const sub = activeFsSubId && tab ? tab.subcategories.find(s => s.id === activeFsSubId) : null;
-                      const baseLabel = sub
-                        ? sub.name
-                        : tab
-                          ? tab.name
-                          : (labelFromUrl || spokenText || searchQuery || "");
-                      const servicesSuffix = activeFsServices.length > 0 ? ` · ${activeFsServices.join(", ")}` : "";
-                      const citySuffix = effectiveCity ? ` à ${effectiveCity}` : "";
-                      const fullLabel = `${baseLabel}${servicesSuffix}${citySuffix}`;
-                      return `${mapPoiItems.length} ${language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "${fullLabel}"`;
-                    })()}
+                    {(spokenText || searchQuery || labelFromUrl || "").trim()}
                   </span>
+
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       type="button"
