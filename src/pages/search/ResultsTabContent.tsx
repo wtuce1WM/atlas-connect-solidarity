@@ -421,7 +421,7 @@ export default function ResultsTabContent({
             <div className="relative h-full min-h-0">
               <PoiGoogleMap
                 pois={mapPoiItems}
-                selectedPoiId={compactPanelBusiness?.id || fsTopBusinessId || null}
+                selectedPoiId={compactPanelBusiness?.id || null}
                 hoveredPoiId={hoveredResultId || null}
                 onPoiClick={(poiId) => {
                   const biz = filteredBusinesses.find(b => b.id === poiId)
