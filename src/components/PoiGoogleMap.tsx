@@ -560,8 +560,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       { bg: "#C04F17", fg: "#ffffff", border: "#C04F17" },
       undefined,
     );
-    // Center map on user location so the "Vous êtes ici" marker stays centered.
-    map.setCenter({ lat: userLocation.lat, lng: userLocation.lng });
+    // fitBounds already includes the user location together with the POIs,
+    // so the marker stays visible without overriding the framing.
   }, [userLocation, ready]);
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
