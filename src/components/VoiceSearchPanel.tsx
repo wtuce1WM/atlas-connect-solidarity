@@ -4,20 +4,22 @@ interface Props {
   liveTranscript: string;
   onClose: () => void;
   onFinish?: () => void;
+  align?: "center" | "start";
 }
 
 const ACCENT = "#6050dc";
 
-const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish }: Props) => {
+const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center" }: Props) => {
+  const isStart = align === "start";
   return (
-    <div className="w-full flex flex-col items-start gap-6 py-6">
+    <div className={`w-full flex flex-col gap-6 py-6 ${isStart ? "items-start" : "items-center"}`}>
       {/* Transcript / hint */}
       {liveTranscript ? (
-        <p className="text-xl md:text-2xl text-foreground font-light text-left leading-relaxed max-w-2xl px-4">
+        <p className={`text-xl md:text-2xl text-foreground font-light leading-relaxed max-w-2xl px-4 ${isStart ? "text-left" : "text-center"}`}>
           {liveTranscript}
         </p>
       ) : (
-        <p className="text-lg md:text-xl text-muted-foreground font-light text-left">
+        <p className={`text-lg md:text-xl text-muted-foreground font-light ${isStart ? "text-left" : "text-center"}`}>
           Je vous écoute…
         </p>
       )}
