@@ -258,7 +258,7 @@ const HomeMindtrip = () => {
               <button
                 type="button"
                 onClick={() => setVideoOpen(false)}
-                className="absolute top-4 right-4 h-10 w-10 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
+                className="absolute top-4 right-4 z-10 h-10 w-10 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
                 aria-label="Fermer"
               >
                 <X className="h-5 w-5" />
