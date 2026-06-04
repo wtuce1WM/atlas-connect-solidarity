@@ -129,8 +129,10 @@ const HomeMindtrip = () => {
   }, [selectedCity]);
 
   const scrollToNext = () => {
-    const el = document.getElementById("how-it-works");
-    el?.scrollIntoView({ behavior: "smooth" });
+    const el = document.getElementById("how-it-works-title");
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: y, behavior: "smooth" });
   };
 
   const horizontalRef = useRef<HTMLDivElement>(null);
