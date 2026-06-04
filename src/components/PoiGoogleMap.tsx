@@ -518,15 +518,16 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   // Update overlay highlighting when selectedPoiId changes
   const prevSelectedRef = useRef<string | null>(null);
   useEffect(() => {
+    const activeId = selectedPoiId || hoveredPoiId || null;
     overlaysRef.current.forEach((overlay, id) => {
-      const isSelected = id === selectedPoiId;
-      const isLastHovered = !selectedPoiId && id === prevSelectedRef.current;
+      const isSelected = id === activeId;
+      const isLastHovered = !activeId && id === prevSelectedRef.current;
       overlay.setHighlighted(isSelected || isLastHovered);
     });
-    if (selectedPoiId) {
-      prevSelectedRef.current = selectedPoiId;
+    if (activeId) {
+      prevSelectedRef.current = activeId;
     }
-  }, [selectedPoiId]);
+  }, [selectedPoiId, hoveredPoiId]);
 
   // Keep city centered when a city center is provided (skip in fitToMarkers mode)
   useEffect(() => {
