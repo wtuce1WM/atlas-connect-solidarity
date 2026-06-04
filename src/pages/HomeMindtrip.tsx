@@ -14,6 +14,7 @@ import heroImage from "@/assets/home-mindtrip/hero.jpg";
 import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
+import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
 type CityKey = (typeof CITIES)[number];
@@ -392,7 +393,7 @@ const HomeMindtrip = () => {
       </section>
 
       {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
-      <section ref={horizontalRef} className="relative bg-background" style={{ height: "300vh" }}>
+      <section ref={horizontalRef} className="relative bg-background" style={{ height: "400vh" }}>
         <div className="sticky top-0 flex h-screen items-center overflow-hidden">
 
           <div
@@ -428,6 +429,13 @@ const HomeMindtrip = () => {
                       className="absolute inset-0 h-full w-full object-cover"
                     />
                   )}
+                  {i === 4 && (
+                    <img
+                      src={etape5Bg.url}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  )}
                   <div className="relative z-10">
                     <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
                       Étape {i + 1}
@@ -453,7 +461,7 @@ const HomeMindtrip = () => {
                       <Link
                         to={s.href}
                         className={
-                          i === 2
+                          i === 2 || i === 4
                             ? "mt-6 inline-flex items-center rounded-full px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-white bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-white/20 transition-colors"
                             : "mt-6 inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
                         }
@@ -685,6 +693,13 @@ const STEPS = [
     cta: "Voir les hôtels",
     href: "/hotels",
     icon: CalendarCheck,
+  },
+  {
+    title: "Naviguez en mode immersif.",
+    desc: "Explorez nos contenus organisés par thématiques : business, cuisine, culture, expatriation, immobilier, tourisme et bien plus.",
+    cta: "Découvrir",
+    href: "/test",
+    icon: PlayCircle,
   },
 ];
 
