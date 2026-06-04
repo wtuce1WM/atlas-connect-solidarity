@@ -677,7 +677,7 @@ const STEPS = [
   },
   {
     title: "Naviguez en mode immersif.",
-    desc: "Explorez nos contenus organisés par thématiques : business, cuisine, culture, expatriation, immobilier, tourisme et bien plus.",
+    desc: "Associez la précision de la recherche Google, la preuve sociale/avis clients des grandes plateformes, les fonctionnalités de TripAdvisor/Booking, le navigation immersive de TikTok/Instagram/Youtube dans une application dédiée au tourisme et à la vie quotidienne au Maroc.",
     cta: "Découvrir",
     href: "/y/tarik-belasri",
     icon: PlayCircle,
