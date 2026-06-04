@@ -435,11 +435,13 @@ const HomeMindtrip = () => {
               return (
                 <div
                   key={s.title}
+                  ref={(el) => { cardRefs.current[idx] = el; }}
                   className="relative overflow-hidden w-[85vw] max-w-2xl shrink-0 rounded-3xl p-8 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
                 >
                   {i === 1 && <LiquidAIMoroccoBg />}
                   {i === 2 && (
                     <video
+                      ref={(el) => { videoRefs.current[idx] = el; }}
                       src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/8d2846a7-fb50-4bde-8a93-c42697e23a2f-1780215120927-3j2n3k.mp4"
                       autoPlay
                       muted
@@ -450,6 +452,7 @@ const HomeMindtrip = () => {
                   )}
                   {i === 3 && (
                     <video
+                      ref={(el) => { videoRefs.current[idx] = el; }}
                       src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/6eab7b31-bda9-43d5-8c8b-4f972e5bb8bd-1774600396740-3cbxw.mp4"
                       autoPlay
                       muted
@@ -461,7 +464,8 @@ const HomeMindtrip = () => {
                   {i === 4 && (
                     <div className="absolute inset-0 overflow-hidden bg-black" style={{ containerType: "size" }}>
                       <iframe
-                        src="https://www.youtube-nocookie.com/embed/45NF1zJMhCs?autoplay=1&mute=1&loop=1&playlist=45NF1zJMhCs&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&showinfo=0&disablekb=1&fs=0&cc_load_policy=0"
+                        ref={ytIframeRef}
+                        src="https://www.youtube-nocookie.com/embed/45NF1zJMhCs?autoplay=1&mute=1&loop=1&playlist=45NF1zJMhCs&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&showinfo=0&disablekb=1&fs=0&cc_load_policy=0&enablejsapi=1"
                         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                         allow="autoplay; encrypted-media"
                         frameBorder="0"
@@ -473,6 +477,7 @@ const HomeMindtrip = () => {
                       />
                     </div>
                   )}
+
                   <div className={`relative z-10 ${i === 5 ? "text-center" : ""}`}>
                     {i === 5 && (
                       <div className="mx-auto mb-6 h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)]">
