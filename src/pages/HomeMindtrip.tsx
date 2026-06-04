@@ -130,9 +130,9 @@ const HomeMindtrip = () => {
 
   const scrollToNext = () => {
     const el = document.getElementById("how-it-works-title");
-    if (!el) return;
-    const y = el.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: y, behavior: "smooth" });
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   const horizontalRef = useRef<HTMLDivElement>(null);
@@ -284,7 +284,7 @@ const HomeMindtrip = () => {
           type="button"
           onClick={scrollToNext}
           aria-label="Découvrir"
-          className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-foreground/70 transition hover:text-foreground"
+          className="absolute bottom-8 left-1/2 z-30 -translate-x-1/2 text-foreground/70 transition hover:text-foreground"
         >
           <span className="block font-josefin text-xs uppercase tracking-[0.3em]">Découvrir</span>
           <ArrowDown className="mx-auto mt-2 h-5 w-5 animate-bounce" />
