@@ -251,14 +251,14 @@ const HomeMindtrip = () => {
             </div>
           </div>
 
-          {videoOpen && (
+          {videoOpen && createPortal(
             <div
-              className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
+              className="fixed inset-0 z-[9999] bg-black flex items-center justify-center"
               onClick={() => setVideoOpen(false)}
             >
               <button
                 type="button"
-                onClick={() => setVideoOpen(false)}
+                onClick={(e) => { e.stopPropagation(); setVideoOpen(false); }}
                 className="absolute top-4 left-4 z-10 h-10 w-10 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
                 aria-label="Fermer"
               >
@@ -272,7 +272,8 @@ const HomeMindtrip = () => {
                 playsInline
                 onClick={(e) => e.stopPropagation()}
               />
-            </div>
+            </div>,
+            document.body
           )}
 
         </div>
