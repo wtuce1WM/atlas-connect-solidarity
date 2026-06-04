@@ -144,6 +144,11 @@ export default function ResultsTabContent({
   const [activeFsServices, setActiveFsServices] = useState<string[]>([]);
   const [showFiltersOverlay, setShowFiltersOverlay] = useState(false);
   useEffect(() => { if (compactPanelBusiness) setShowFiltersOverlay(false); }, [compactPanelBusiness]);
+  useEffect(() => {
+    const handler = () => setShowFiltersOverlay(true);
+    window.addEventListener("open-results-filters", handler);
+    return () => window.removeEventListener("open-results-filters", handler);
+  }, []);
   const autoFsLabelKeyRef = useRef<string | null>(null);
   const resolvedHotelSearchInfo = hotelSearchInfo || (() => {
     if (typeof window === "undefined") return null;
