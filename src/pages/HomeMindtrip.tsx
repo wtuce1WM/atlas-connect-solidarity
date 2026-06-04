@@ -710,7 +710,15 @@ const STEPS = [
     href: "/y/tarik-belasri",
     icon: PlayCircle,
   },
+  {
+    title: "Installez l'application",
+    desc: "Installez ONE WORLD MOROCCO sur votre appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur votre écran d'accueil ou votre bureau. Compatible iPhone, iPad, Android, Mac et Windows.",
+    cta: "Installer l'app",
+    href: "/install",
+    icon: PlayCircle,
+  },
 ];
+
 
 const TOOLKIT = [
   { label: "Hôtels", href: "/hotels", icon: Sparkles },
