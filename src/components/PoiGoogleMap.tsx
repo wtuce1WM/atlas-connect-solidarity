@@ -493,8 +493,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       overlaysRef.current.set(poi.id, overlay);
     });
 
-    if (center) bounds.extend(center);
-    if (userLocation) bounds.extend(userLocation);
+    // In fitToMarkers mode, fit strictly to result markers so all are visible.
+    // Otherwise also include center/userLocation in the bounds.
+    if (!(fitToMarkers && hasPoints)) {
+      if (center) bounds.extend(center);
+      if (userLocation) bounds.extend(userLocation);
+    }
 
     // Only fitBounds when pois/center actually changed, not on iconCache updates
     if ((hasPoints || center) && needsFitRef.current) {
