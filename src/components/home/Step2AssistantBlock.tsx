@@ -81,6 +81,7 @@ const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
             liveTranscript={voice.liveTranscript}
             onClose={voice.toggleRecording}
             onFinish={voice.finishRecording}
+            align="start"
           />
         )}
       </div>
