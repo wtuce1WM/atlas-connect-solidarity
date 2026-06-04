@@ -208,7 +208,7 @@ const HeroSection = () => {
           <div className="mt-5 flex justify-center">
             <button
               type="button"
-              onClick={() => {/* TODO: open video */}}
+              onClick={() => setVideoOpen(true)}
               className="inline-flex items-center gap-3 text-black hover:opacity-80 transition-opacity"
               aria-label="Play video"
             >
