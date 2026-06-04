@@ -482,7 +482,7 @@ const HomeMindtrip = () => {
                 <div
                   key={s.title}
                   ref={(el) => { cardRefs.current[idx] = el; }}
-                  className="relative overflow-hidden w-[96vw] md:w-[85vw] max-w-2xl shrink-0 rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
+                  className="relative overflow-hidden w-[85vw] md:w-[85vw] max-w-2xl shrink-0 rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
                 >
                   {i === 1 && <LiquidAIMoroccoBg />}
                   {i === 2 && (
