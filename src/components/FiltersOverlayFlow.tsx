@@ -135,9 +135,7 @@ export default function FiltersOverlayFlow({
   );
 
   const handleBack = () => {
-    if (step === 3) onSubClick(null);
-    else if (step === 2) onTabClick(null);
-    else onClose();
+    onClose();
   };
 
   const handleSubClick = (subId: string) => {
