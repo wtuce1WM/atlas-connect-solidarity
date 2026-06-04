@@ -164,7 +164,8 @@ const DestinationsTabContent = ({
           </button>
           <PoiGoogleMap
             pois={allDests}
-            selectedPoiId={hoveredDestId || null}
+            selectedPoiId={null}
+            hoveredPoiId={hoveredDestId || null}
             onPoiClick={(id) => {
               const dest = allDestItems.find((d) => d.id === id);
               if (dest) {
