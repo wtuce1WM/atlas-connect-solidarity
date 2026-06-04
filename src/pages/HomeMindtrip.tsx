@@ -468,12 +468,12 @@ const HomeMindtrip = () => {
       </section>
 
       {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
-      <section ref={horizontalRef} className="relative" style={{ height: "400vh" }}>
-        <div className="sticky top-20 md:top-28 flex h-[72vh] md:h-[78vh] items-center overflow-hidden">
+      <section ref={horizontalRef} className="relative bg-background" style={{ height: "400vh" }}>
+        <div className="sticky top-20 md:top-28 flex h-[64vh] md:h-[78vh] items-center overflow-hidden">
 
           <div
             ref={trackRef}
-            className="flex gap-8 h-full items-center will-change-transform px-[calc((100vw-min(94vw,42rem))/2)] md:px-[calc((100vw-min(85vw,42rem))/2)]"
+            className="flex gap-8 will-change-transform px-[calc((100vw-min(92vw,42rem))/2)] md:px-[calc((100vw-min(85vw,42rem))/2)]"
             style={{ transform: `translate3d(${-trackX}px, 0, 0)` }}
           >
             {STEPS.slice(1).map((s, idx) => {
@@ -482,7 +482,7 @@ const HomeMindtrip = () => {
                 <div
                   key={s.title}
                   ref={(el) => { cardRefs.current[idx] = el; }}
-                  className="relative overflow-hidden w-[94vw] md:w-[85vw] max-w-2xl shrink-0 h-full max-h-full rounded-3xl p-5 md:p-10 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
+                  className="relative overflow-hidden w-[92vw] md:w-[85vw] max-w-2xl shrink-0 rounded-3xl p-6 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
                 >
                   {i === 1 && <LiquidAIMoroccoBg />}
                   {i === 2 && (
@@ -508,12 +508,20 @@ const HomeMindtrip = () => {
                     />
                   )}
                   {i === 4 && (
-                    <img
-                      src={etape5Bg.url}
-                      alt="Navigation immersive ONE WORLD MOROCCO"
-                      className="absolute inset-0 h-full w-full object-cover"
-                      loading="lazy"
-                    />
+                    <div className="absolute inset-0 overflow-hidden bg-black" style={{ containerType: "size" }}>
+                      <iframe
+                        ref={ytIframeRef}
+                        src="https://www.youtube-nocookie.com/embed/45NF1zJMhCs?autoplay=1&mute=1&loop=1&playlist=45NF1zJMhCs&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&showinfo=0&disablekb=1&fs=0&cc_load_policy=0&enablejsapi=1"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                        allow="autoplay; encrypted-media"
+                        frameBorder="0"
+                        style={{
+                          border: 0,
+                          width: "max(160cqw, calc(160cqh * 9 / 16))",
+                          height: "max(160cqh, calc(160cqw * 16 / 9))",
+                        }}
+                      />
+                    </div>
                   )}
 
                   <div className={`relative z-10 ${i === 5 ? "text-center" : ""}`}>
@@ -675,7 +683,7 @@ const HotelAvailabilityWidget = () => {
   return (
     <form
       onSubmit={submit}
-      className="mt-6 grid w-full max-w-2xl gap-3 p-4 sm:grid-cols-2"
+      className="mt-6 grid w-full max-w-2xl gap-3 rounded-2xl border border-border/40 bg-background/40 p-4 backdrop-blur sm:grid-cols-2"
     >
       <label className={`${labelCls} sm:col-span-2`}>
         Destination
