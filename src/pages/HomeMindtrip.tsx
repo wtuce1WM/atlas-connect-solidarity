@@ -553,40 +553,6 @@ const HomeMindtrip = () => {
         </div>
       </section>
 
-      {/* INSTALL APP */}
-      <section className="py-24 md:py-32 bg-muted/30">
-        <div className="mx-auto max-w-5xl px-6 md:px-12 text-center">
-          <Link
-            to="/install"
-            className="inline-block group"
-            aria-label="Installer l'application ONE WORLD MOROCCO"
-          >
-            <div className="mx-auto h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] transition-transform group-hover:scale-105">
-              <img
-                src="/app-icon-512.png"
-                alt="ONE WORLD MOROCCO"
-                className="h-full w-full rounded-2xl"
-              />
-            </div>
-          </Link>
-          <h2 className="mt-8 font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
-            Installez l'application
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl font-roboto text-foreground/70">
-            Installez ONE WORLD MOROCCO sur votre appareil pour un accès en un clic,
-            sans barre d'adresse, avec l'icône directement sur votre écran d'accueil
-            ou votre bureau. Compatible iPhone, iPad, Android, Mac et Windows.
-          </p>
-          <div className="mt-8">
-            <Link
-              to="/install"
-              className="inline-flex items-center gap-2 rounded-full bg-primary hover:bg-primary/90 border border-white/30 px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-primary-foreground shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] transition"
-            >
-              Installer l'app
-            </Link>
-          </div>
-        </div>
-      </section>
 
       <Footer variant="verified" />
     </div>
