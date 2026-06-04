@@ -123,27 +123,32 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
           <Search className="h-5 w-5 text-primary-foreground" />
         </button>
 
-        <button
-          type="button"
-          onClick={() => voice.toggleRecording()}
-          disabled={voice.status === "processing"}
-          aria-label={language === "fr" ? "Recherche vocale" : "Voice search"}
-          className={`flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
-            voice.status === "recording"
-              ? "bg-red-500 animate-pulse"
-              : voice.status === "processing"
-                ? "bg-black"
-                : "bg-black hover:bg-black/90"
-          }`}
-        >
-          {voice.status === "processing" ? (
-            <Loader className="h-5 w-5 text-white animate-spin" />
-          ) : voice.status === "recording" ? (
-            <MicOff className="h-5 w-5 text-white" />
-          ) : (
-            <Mic className="h-5 w-5 text-white" />
-          )}
-        </button>
+        <div className="relative flex items-center justify-center shrink-0">
+          <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
+          <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
+          <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
+          <button
+            type="button"
+            onClick={() => voice.toggleRecording()}
+            disabled={voice.status === "processing"}
+            aria-label={language === "fr" ? "Recherche vocale" : "Voice search"}
+            className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
+              voice.status === "recording"
+                ? "bg-red-500 animate-pulse"
+                : voice.status === "processing"
+                  ? "bg-black"
+                  : "bg-black hover:bg-black/90"
+            }`}
+          >
+            {voice.status === "processing" ? (
+              <Loader className="h-5 w-5 text-white animate-spin" />
+            ) : voice.status === "recording" ? (
+              <MicOff className="h-5 w-5 text-white" />
+            ) : (
+              <Mic className="h-5 w-5 text-white" />
+            )}
+          </button>
+        </div>
         </div>
       </div>
 
