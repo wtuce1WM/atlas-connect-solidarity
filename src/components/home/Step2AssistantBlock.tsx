@@ -43,20 +43,10 @@ const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
         {title}
       </h3>
 
-      {/* Description — collapses while voice is active to free space */}
-      <div
-        className="grid transition-all duration-500 ease-out"
-        style={{
-          gridTemplateRows: isVoiceActive ? "0fr" : "1fr",
-          opacity: isVoiceActive ? 0 : 1,
-        }}
-      >
-        <div className="overflow-hidden">
-          <p className="mt-3 md:mt-4 max-w-lg font-roboto text-sm md:text-base text-black font-bold [text-shadow:0_1px_2px_rgba(255,255,255,0.5)]">
-            {description}
-          </p>
-        </div>
-      </div>
+      <p className="mt-3 md:mt-4 max-w-lg font-roboto text-sm md:text-base text-black font-bold [text-shadow:0_1px_2px_rgba(255,255,255,0.5)]">
+        {description}
+      </p>
+
 
       <div className="mt-4 w-full max-w-xl md:mt-6">
         <SearchInput
