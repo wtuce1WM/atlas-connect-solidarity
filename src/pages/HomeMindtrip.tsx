@@ -468,7 +468,7 @@ const HomeMindtrip = () => {
       </section>
 
       {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
-      <section ref={horizontalRef} className="relative bg-background" style={{ height: "400vh" }}>
+      <section ref={horizontalRef} className="relative" style={{ height: "400vh" }}>
         <div className="sticky top-20 md:top-28 flex h-[72vh] md:h-[78vh] items-center overflow-hidden">
 
           <div
