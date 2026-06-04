@@ -3900,15 +3900,17 @@ const SearchPage = () => {
               <div className="relative h-full min-h-0">
                 <PoiGoogleMap
                   pois={mapPoiItems}
-                  selectedPoiId={hoveredResultId || fsTopBusinessId || null}
+                  selectedPoiId={null}
+                  hoveredPoiId={hoveredResultId || null}
                   onPoiClick={(poiId) => {
                     const biz = filteredBusinesses.find(b => b.id === poiId) || allCityMapBusinesses?.find(b => b.id === poiId);
                     if (biz) openCompactPanel({ id: biz.id, name: biz.name } as any);
                   }}
-                  center={mapCenterForResults}
-                  fitToMarkers
+                  center={geo.isEnabled && geo.coords ? geo.coords : mapCenterForResults}
+                  fitToMarkers={!(geo.isEnabled && geo.coords)}
                   userLocation={geo.isEnabled && geo.coords ? geo.coords : null}
                 />
+
                 <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col">
                   <div className="relative z-10 flex items-center gap-3 px-3 py-3 bg-white/30 backdrop-blur-md">
                     <button
