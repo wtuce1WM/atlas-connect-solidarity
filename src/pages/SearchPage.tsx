@@ -3906,8 +3906,9 @@ const SearchPage = () => {
                     const biz = filteredBusinesses.find(b => b.id === poiId) || allCityMapBusinesses?.find(b => b.id === poiId);
                     if (biz) openCompactPanel({ id: biz.id, name: biz.name } as any);
                   }}
-                  center={geo.isEnabled && geo.coords ? geo.coords : mapCenterForResults}
-                  fitToMarkers={!(geo.isEnabled && geo.coords)}
+                  center={mapCenterForResults}
+                  fitToMarkers
+
                   userLocation={geo.isEnabled && geo.coords ? geo.coords : null}
                 />
 
