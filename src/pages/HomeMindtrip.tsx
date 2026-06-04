@@ -432,10 +432,10 @@ const HomeMindtrip = () => {
                     <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
                       Étape {i + 1}
                     </span>
-                    <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
+                    <h3 className={`mt-3 font-josefin text-3xl font-light tracking-tight md:text-4xl ${i >= 2 ? "text-white" : "text-foreground"}`}>
                       {s.title}
                     </h3>
-                    <p className="mt-4 max-w-lg font-roboto text-base text-foreground/70">{s.desc}</p>
+                    <p className={`mt-4 max-w-lg font-roboto text-base ${i >= 2 ? "text-white/90" : "text-foreground/70"}`}>{s.desc}</p>
                     {i === 3 ? (
                       <HotelAvailabilityWidget />
                     ) : i === 1 ? (
