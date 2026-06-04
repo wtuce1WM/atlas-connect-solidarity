@@ -213,8 +213,8 @@ export default function FiltersOverlayFlow({
                 key={s.id}
                 onClick={() => {
                   onServicesChange(selected ? [] : [s.name_fr]);
+                  onClose();
                   if (typeof window !== "undefined" && window.innerWidth < 1024) {
-                    onClose();
                     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
                   }
                 }}
