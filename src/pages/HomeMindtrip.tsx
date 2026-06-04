@@ -293,7 +293,7 @@ const HomeMindtrip = () => {
       <section id="how-it-works" className="bg-background pt-24 md:pt-40 pb-0">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
-            Comment ça marche
+            Comment fonctionne l'App ?
           </h2>
 
           <div className="mt-10 space-y-12">
