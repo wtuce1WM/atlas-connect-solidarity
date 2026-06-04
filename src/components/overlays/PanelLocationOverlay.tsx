@@ -279,7 +279,11 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
   };
 
   const handleDisableGeo = () => {
-    geo.toggle();
+    try {
+      localStorage.removeItem("geo_manual_coords");
+      localStorage.removeItem("geo_manual_address");
+    } catch { /* noop */ }
+    geo.decline();
     handleClose();
   };
 
