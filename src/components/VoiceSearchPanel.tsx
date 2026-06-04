@@ -13,11 +13,11 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish }: Props) => {
     <div className="w-full flex flex-col items-start gap-6 py-6">
       {/* Transcript / hint */}
       {liveTranscript ? (
-        <p className="text-xl md:text-2xl text-foreground font-light text-center leading-relaxed max-w-2xl px-4">
+        <p className="text-xl md:text-2xl text-foreground font-light text-left leading-relaxed max-w-2xl px-4">
           {liveTranscript}
         </p>
       ) : (
-        <p className="text-lg md:text-xl text-muted-foreground font-light text-center">
+        <p className="text-lg md:text-xl text-muted-foreground font-light text-left">
           Je vous écoute…
         </p>
       )}
