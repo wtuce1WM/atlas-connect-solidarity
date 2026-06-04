@@ -39,7 +39,7 @@ const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
         {stepLabel}
       </span>
 
-      <h3 className="mt-3 font-josefin text-2xl font-light tracking-tight md:text-4xl text-foreground">
+      <h3 className="mt-3 font-josefin text-2xl font-light tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
         {title}
       </h3>
 
@@ -52,7 +52,7 @@ const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
         }}
       >
         <div className="overflow-hidden">
-          <p className="mt-3 md:mt-4 max-w-lg font-roboto text-sm md:text-base text-foreground/70">
+          <p className="mt-3 md:mt-4 max-w-lg font-roboto text-sm md:text-base text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
             {description}
           </p>
         </div>
