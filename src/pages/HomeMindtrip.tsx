@@ -15,6 +15,8 @@ import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
+import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
+import { X } from "lucide-react";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
 type CityKey = (typeof CITIES)[number];
@@ -43,6 +45,7 @@ const HomeMindtrip = () => {
   const [videos, setVideos] = useState<VideoSlot[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [blogHeroes, setBlogHeroes] = useState<{ marrakech?: string; galeries?: string; kids?: string }>({});
+  const [videoOpen, setVideoOpen] = useState(false);
 
   useEffect(() => {
     const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
@@ -230,7 +233,46 @@ const HomeMindtrip = () => {
               }}
               onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
             />
+            <div className="mt-5 flex justify-start">
+              <button
+                type="button"
+                onClick={() => setVideoOpen(true)}
+                className="inline-flex items-center gap-3 text-foreground hover:opacity-80 transition-opacity"
+                aria-label="Play video"
+              >
+                <span className="flex items-center justify-center w-11 h-11 rounded-full bg-foreground text-background">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+                <span className="font-roboto text-base font-medium">Voir la vidéo</span>
+              </button>
+            </div>
           </div>
+
+          {videoOpen && (
+            <div
+              className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
+              onClick={() => setVideoOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setVideoOpen(false)}
+                className="absolute top-4 right-4 h-10 w-10 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
+                aria-label="Fermer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <video
+                src={heroVideoAsset.url}
+                className="max-w-full max-h-full"
+                autoPlay
+                controls
+                playsInline
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
 
         </div>
 
