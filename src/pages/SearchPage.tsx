@@ -3401,135 +3401,52 @@ const SearchPage = () => {
               </div>
             )}
 
-            {/* Disambiguation prompts — only for Results tab */}
-            {(activeTab === "suggestions" || activeTab === "ai") && (activeTab === "ai" || (!selectedCategoryFilter && !detectedCategory && !selectedSubcategoryFilter && !detectedSubcategory)) && subcategoryNamesFromUrl.length <= 1 && (() => {
+            {/* Catégorie principale uniquement — sous-catégories/services gérés par l'overlay Filtres.
+                Masqué automatiquement si :
+                - une seule catégorie principale dans les résultats
+                - un service précis a été détecté/sélectionné (requête déjà fine)
+                - une catégorie est déjà sélectionnée
+                - la requête vient de l'URL avec subcategoryNamesFromUrl (géré par le bloc précédent) */}
+            {(activeTab === "suggestions" || activeTab === "ai")
+              && !selectedCategoryFilter
+              && !selectedServiceFilter
+              && subcategoryNamesFromUrl.length <= 1
+              && (() => {
               const cats = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
-              // If only 1 category, show subcategories directly
-              if (cats.length === 1) {
-                const singleCat = cats[0];
-                const subCounts: Record<string, number> = {};
-                for (const b of allBusinesses) {
-                  if (b.main_category === singleCat && b.categories) {
-                    for (const c of b.categories) {
-                      subCounts[c] = (subCounts[c] || 0) + 1;
-                    }
-                  }
-                }
-                // When the URL constrains the search to a set of subcategories
-                // (e.g. "Marrakech Restauration"), surface exactly those chips so
-                // the user can narrow down — even if the current page sample
-                // doesn't include all of them.
-                let subcatList: { name: string; count: number }[];
-                if (subcategoryNamesFromUrl.length > 1) {
-                  subcatList = subcategoryNamesFromUrl.map((name) => ({
-                    name,
-                    count: subCounts[name] || 0,
-                  }));
-                } else {
-                  subcatList = Object.entries(subCounts)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([name, count]) => ({ name, count }));
-                }
-                if (subcatList.length > 1) {
-                  return (
-                    <div className="pb-4">
-                      <div className={`${shouldConstrainAiContent ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
-                        <p className="text-sm font-medium text-foreground mb-3">
-                          {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
-                        </p>
-                        <div className="flex overflow-x-auto gap-2 scrollbar-hide">
-                          {subcatList.map(sub => {
-                            const isActive = selectedSubcategoryFilter === sub.name || detectedSubcategory === sub.name;
-                            return (
-                            <button
-                              key={sub.name}
-                              onClick={() => {
-                                setSelectedCategoryFilter(singleCat);
-                                setSelectedSubcategoryFilter(isActive ? null : sub.name);
-                                setOverlaySelectedBusiness(null);
-                                if (!isActive) submitAiRefinement(sub.name);
-                              }}
+              if (cats.length <= 1) return null;
 
-                              className={`shrink-0 px-4 py-2 rounded-full border text-sm transition-colors whitespace-nowrap ${isActive ? "border-gold bg-gold/20 text-foreground" : "border-border bg-card text-foreground hover:border-gold/50 hover:bg-gold/10"}`}
-                            >
-                              {sub.name}
-                              <span className="ml-1.5 text-xs text-muted-foreground">{sub.count}</span>
-                            </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
+              // Filtre anti-non-discriminant : on retire les catégories qui couvrent >90% des résultats
+              const total = allBusinesses.length;
+              const catCounts: Record<string, number> = {};
+              for (const b of allBusinesses) {
+                if (b.main_category) catCounts[b.main_category] = (catCounts[b.main_category] || 0) + 1;
               }
-              // Multiple categories or no subcats: show categories
-              // Hidden in AI tab per user request
-              if (cats.length > 1 && activeTab !== "ai") {
-                return (
-                  <div className="pb-4">
-                    <div className={`${shouldConstrainAiContent ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
-                      <p className="text-sm font-medium text-foreground mb-3">
-                        {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
-                      </p>
-                      <div className="flex overflow-x-auto gap-2 scrollbar-hide">
-                        {cats.slice(0, 8).map(cat => (
-                          <button
-                            key={cat}
-                            onClick={() => {
-                              setSelectedCategoryFilter(cat);
-                              setOverlaySelectedBusiness(null);
-                              setPrevAiAnswerText(aiAnswerText);
-                                setAiAnswerText("");
-                              setAiRegenerateKey(k => k + 1);
-                            }}
-                            className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
-                          >
-                            {cat}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })()}
+              const discriminating = cats.filter(c => (catCounts[c] || 0) / total < 0.9);
+              if (discriminating.length < 2) return null;
 
-            {/* Subcategory disambiguation — only for Results tab */}
-            {(activeTab === "suggestions" || activeTab === "ai") && (activeTab === "ai" || (!selectedSubcategoryFilter && !detectedSubcategory)) && (selectedCategoryFilter || detectedCategory) && (() => {
-              const effectiveCat = selectedCategoryFilter || detectedCategory;
-              const subcatList = Object.entries(disambigSubcatCounts)
-                .sort((a, b) => b[1] - a[1])
-                .map(([name, count]) => ({ name, count }));
-
-              if (subcatList.length <= 1) return null;
               return (
                 <div className="pb-4">
                   <div className={`${shouldConstrainAiContent ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
                     <p className="text-sm font-medium text-foreground mb-3">
-                      {language === "en" ? "What type exactly?" : language === "ar" ? "أي نوع بالتحديد؟" : "Quel type précisément ?"}
+                      {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                     </p>
                     <div className="flex overflow-x-auto gap-2 scrollbar-hide">
-                      {subcatList.map(sub => {
-                        const isActive = selectedSubcategoryFilter === sub.name || detectedSubcategory === sub.name;
-                        return (
+                      {discriminating.slice(0, 8).map(cat => (
                         <button
-                          key={sub.name}
+                          key={cat}
                           onClick={() => {
-                            if (!selectedCategoryFilter && effectiveCat) setSelectedCategoryFilter(effectiveCat);
-                            setSelectedSubcategoryFilter(isActive ? null : sub.name);
+                            setSelectedCategoryFilter(cat);
                             setOverlaySelectedBusiness(null);
-                            if (!isActive) submitAiRefinement(sub.name);
+                            setPrevAiAnswerText(aiAnswerText);
+                            setAiAnswerText("");
+                            setAiRegenerateKey(k => k + 1);
                           }}
-
-                          className={`shrink-0 px-4 py-2 rounded-full border text-sm transition-colors whitespace-nowrap ${isActive ? "border-gold bg-gold/20 text-foreground" : "border-border bg-card text-foreground hover:border-gold/50 hover:bg-gold/10"}`}
+                          className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                         >
-                          {sub.name}
-                          <span className="ml-1.5 text-xs text-muted-foreground">{sub.count}</span>
+                          {cat}
+                          <span className="ml-1.5 text-xs text-muted-foreground">{catCounts[cat]}</span>
                         </button>
-                        );
-                      })}
+                      ))}
                     </div>
                   </div>
                 </div>
