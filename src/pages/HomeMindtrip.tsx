@@ -432,7 +432,7 @@ const HomeMindtrip = () => {
                   {i === 4 && (
                     <div className="absolute inset-0 overflow-hidden bg-black" style={{ containerType: "size" }}>
                       <iframe
-                        src="https://www.youtube-nocookie.com/embed/45NF1zJMhCs?autoplay=1&mute=1&loop=1&playlist=45NF1zJMhCs&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&showinfo=0"
+                        src="https://www.youtube-nocookie.com/embed/45NF1zJMhCs?autoplay=1&mute=1&loop=1&playlist=45NF1zJMhCs&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&showinfo=0&disablekb=1&fs=0&cc_load_policy=0"
                         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                         allow="autoplay; encrypted-media"
                         frameBorder="0"
@@ -442,16 +442,19 @@ const HomeMindtrip = () => {
                           height: "max(160cqh, calc(160cqw * 16 / 9))",
                         }}
                       />
+                      {/* Masque le bandeau de titre YouTube au début de la lecture */}
+                      <div className="absolute inset-x-0 top-0 h-24 bg-black pointer-events-none" />
+                      <div className="absolute inset-x-0 bottom-0 h-20 bg-black pointer-events-none" />
                     </div>
                   )}
                   <div className="relative z-10">
                     <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
                       Étape {i + 1}
                     </span>
-                    <h3 className={`mt-3 font-josefin text-3xl font-light tracking-tight md:text-4xl ${i === 4 ? "text-black" : i >= 2 ? "text-white" : "text-foreground"}`}>
+                    <h3 className={`mt-3 font-josefin text-3xl font-light tracking-tight md:text-4xl ${i >= 2 ? "text-white" : "text-foreground"}`}>
                       {s.title}
                     </h3>
-                    <p className={`mt-4 max-w-lg font-roboto text-base ${i === 4 ? "text-black/80" : i >= 2 ? "text-white/90" : "text-foreground/70"}`}>{s.desc}</p>
+                    <p className={`mt-4 max-w-lg font-roboto text-base ${i >= 2 ? "text-white/90" : "text-foreground/70"}`}>{s.desc}</p>
                     {i === 3 ? (
                       <HotelAvailabilityWidget />
                     ) : i === 1 ? (
@@ -469,9 +472,7 @@ const HomeMindtrip = () => {
                       <Link
                         to={s.href}
                         className={
-                          i === 4
-                            ? "mt-6 inline-flex items-center rounded-full px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-black bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-black/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-white/20 transition-colors"
-                            : i === 2
+                          i === 2 || i === 4
                             ? "mt-6 inline-flex items-center rounded-full px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-white bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-white/20 transition-colors"
                             : "mt-6 inline-flex font-josefin text-sm uppercase tracking-[0.2em] text-primary hover:underline"
                         }
@@ -480,6 +481,7 @@ const HomeMindtrip = () => {
                       </Link>
                     )}
                   </div>
+
                 </div>
               );
             })}
