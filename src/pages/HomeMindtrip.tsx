@@ -526,54 +526,54 @@ const HomeMindtrip = () => {
                   )}
 
                   <div className={`relative z-10 ${i === 5 ? "text-center" : ""}`}>
-                    {i === 5 && (
-                      <div className="mx-auto mb-6 h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)]">
-                        <img src="/app-icon-512.png" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl" />
-                      </div>
-                    )}
-                    <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
-                      Étape {i + 1}
-                    </span>
-
-                    <h3 className={`mt-3 font-josefin text-2xl font-light tracking-tight md:text-4xl ${i === 5 ? "text-black" : i >= 2 ? "text-white" : "text-foreground"}`}>
-                      {s.title}
-                    </h3>
-                    <p className={`mt-3 md:mt-4 ${i === 5 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 5 ? "text-black/80" : i >= 2 ? "text-white/90" : "text-foreground/70"}`}>{s.desc}</p>
-                    {i === 3 ? (
-                      <HotelAvailabilityWidget />
-                    ) : i === 1 ? (
-                      <div className="mt-4 w-full max-w-xl md:mt-6">
-                        <SearchInput
-                          variant="hero"
-                          placeholder="Demandez à notre assistant IA…"
-                          submitIcon="send"
-                          liquid
-                          showSuggestions={false}
-                          onSubmit={(q) => navigate(`/search?q=${encodeURIComponent(q)}&tab=ai`)}
-                        />
-                      </div>
-                    ) : i === 5 ? (
-                      <Link
-                        to={s.href}
-                        style={{ backgroundColor: "#C04F17" }}
-                        className="mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:opacity-90 transition-opacity md:mt-6 md:px-6 md:py-3 md:text-sm"
-                      >
-                        {s.cta} →
-                      </Link>
+                    {i === 1 ? (
+                      <Step2AssistantBlock
+                        stepLabel={`Étape ${i + 1}`}
+                        title={s.title}
+                        description={s.desc}
+                      />
                     ) : (
-                      <Link
-                        to={s.href}
-                        className={
-                          i === 2 || i === 4
-                            ? "mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-white/20 transition-colors md:mt-6 md:px-6 md:py-3 md:text-sm"
-                            : "mt-4 inline-flex font-josefin text-xs uppercase tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm"
-                        }
-                      >
-                        {s.cta} →
-                      </Link>
+                      <>
+                        {i === 5 && (
+                          <div className="mx-auto mb-6 h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)]">
+                            <img src="/app-icon-512.png" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl" />
+                          </div>
+                        )}
+                        <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
+                          Étape {i + 1}
+                        </span>
+
+                        <h3 className={`mt-3 font-josefin text-2xl font-light tracking-tight md:text-4xl ${i === 5 ? "text-black" : i >= 2 ? "text-white" : "text-foreground"}`}>
+                          {s.title}
+                        </h3>
+                        <p className={`mt-3 md:mt-4 ${i === 5 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 5 ? "text-black/80" : i >= 2 ? "text-white/90" : "text-foreground/70"}`}>{s.desc}</p>
+                        {i === 3 ? (
+                          <HotelAvailabilityWidget />
+                        ) : i === 5 ? (
+                          <Link
+                            to={s.href}
+                            style={{ backgroundColor: "#C04F17" }}
+                            className="mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:opacity-90 transition-opacity md:mt-6 md:px-6 md:py-3 md:text-sm"
+                          >
+                            {s.cta} →
+                          </Link>
+                        ) : (
+                          <Link
+                            to={s.href}
+                            className={
+                              i === 2 || i === 4
+                                ? "mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-white/20 transition-colors md:mt-6 md:px-6 md:py-3 md:text-sm"
+                                : "mt-4 inline-flex font-josefin text-xs uppercase tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm"
+                            }
+                          >
+                            {s.cta} →
+                          </Link>
+                        )}
+                      </>
                     )}
 
                   </div>
+
 
 
                 </div>
