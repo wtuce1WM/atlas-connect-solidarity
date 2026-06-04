@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -37,6 +38,7 @@ interface ActiveVideo {
 
 const YouTubeChannelsTabContent = ({ city }: Props) => {
   const { language } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [groups, setGroups] = useState<ThemeGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<ActiveVideo | null>(null);
@@ -45,6 +47,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   const bgIframeRef = useRef<HTMLIFrameElement | null>(null);
   const [bgPlaying, setBgPlaying] = useState(true);
   const [bgMuted, setBgMuted] = useState(true);
+  const autoOpenedRef = useRef(false);
 
   const sendBgCmd = (func: string, args: any[] = []) => {
     const w = bgIframeRef.current?.contentWindow;
@@ -201,6 +204,21 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   }, []);
 
   const defaultOpen = useMemo(() => groups.map((g) => g.themeId), [groups]);
+
+  // Auto-open a specific channel when ?openChannel=<businessId> is present.
+  useEffect(() => {
+    if (autoOpenedRef.current || loading) return;
+    const channelId = searchParams.get("openChannel");
+    if (!channelId) return;
+    const ch = groups.flatMap((g) => g.channels).find((c) => c.id === channelId);
+    if (!ch) return;
+    autoOpenedRef.current = true;
+    handleChannelClick(ch);
+    const next = new URLSearchParams(searchParams);
+    next.delete("openChannel");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groups, loading, searchParams]);
 
   const handleChannelClick = async (ch: Channel) => {
     // Pick the latest video for this business: prefer most-recent short,
