@@ -677,13 +677,13 @@ const HotelAvailabilityWidget = () => {
     navigate(`/search?${params.toString()}`);
   };
 
-  const fieldCls = "rounded-md border border-border/40 bg-background px-3 py-2 font-roboto text-sm text-foreground";
-  const labelCls = "flex flex-col gap-1 text-xs uppercase tracking-[0.2em] text-foreground/60";
+  const fieldCls = "rounded-md border border-border/40 bg-background px-3 py-1.5 font-roboto text-sm text-foreground md:py-2";
+  const labelCls = "flex flex-col gap-1 text-[10px] uppercase tracking-[0.2em] text-foreground/60 md:text-xs";
 
   return (
     <form
       onSubmit={submit}
-      className="mt-6 grid w-full max-w-2xl gap-3 rounded-2xl border border-border/40 bg-background/40 p-4 backdrop-blur sm:grid-cols-2"
+      className="mt-4 grid w-full max-w-2xl gap-2 rounded-2xl border border-border/40 bg-background/40 p-3 backdrop-blur sm:grid-cols-2 md:mt-6 md:gap-3 md:p-4"
     >
       <label className={`${labelCls} sm:col-span-2`}>
         Destination
@@ -727,7 +727,7 @@ const HotelAvailabilityWidget = () => {
       </label>
       <button
         type="submit"
-        className="rounded-full bg-primary hover:bg-primary/90 border border-white/30 px-6 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-primary-foreground shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] transition sm:col-span-2"
+        className="rounded-full bg-primary hover:bg-primary/90 border border-white/30 px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-primary-foreground shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] transition sm:col-span-2 md:px-6 md:py-3 md:text-sm"
       >
         Voir les disponibilités
       </button>
