@@ -17,10 +17,13 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { getTimeGreeting, extractTimeSlot } from "@/lib/timeSlots";
 import HeroLocationSelector from "@/components/HeroLocationSelector";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
+import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 
 const HeroSection = () => {
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
+
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   
@@ -205,7 +208,7 @@ const HeroSection = () => {
           <div className="mt-5 flex justify-center">
             <button
               type="button"
-              onClick={() => {/* TODO: open video */}}
+              onClick={() => setVideoOpen(true)}
               className="inline-flex items-center gap-3 text-black hover:opacity-80 transition-opacity"
               aria-label="Play video"
             >
@@ -263,7 +266,33 @@ const HeroSection = () => {
 
       </div>
 
+      {/* Video lightbox */}
+      {videoOpen && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setVideoOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setVideoOpen(false)}
+            className="absolute top-4 right-4 h-10 w-10 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30"
+            aria-label="Fermer"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <video
+            src={heroVideoAsset.url}
+            className="max-w-full max-h-full"
+            autoPlay
+            controls
+            playsInline
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
       {/* Geolocation consent banner */}
+
       {geo.showBanner && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-card border border-border rounded-xl shadow-2xl px-5 py-4 flex items-start gap-3 max-w-md w-[calc(100%-2rem)]">
           <MapPin className="h-5 w-5 text-gold mt-0.5 shrink-0" />
