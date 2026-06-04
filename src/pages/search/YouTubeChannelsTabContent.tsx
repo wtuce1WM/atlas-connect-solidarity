@@ -38,6 +38,7 @@ interface ActiveVideo {
 
 const YouTubeChannelsTabContent = ({ city }: Props) => {
   const { language } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [groups, setGroups] = useState<ThemeGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<ActiveVideo | null>(null);
@@ -46,6 +47,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   const bgIframeRef = useRef<HTMLIFrameElement | null>(null);
   const [bgPlaying, setBgPlaying] = useState(true);
   const [bgMuted, setBgMuted] = useState(true);
+  const autoOpenedRef = useRef(false);
 
   const sendBgCmd = (func: string, args: any[] = []) => {
     const w = bgIframeRef.current?.contentWindow;
