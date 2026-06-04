@@ -76,11 +76,8 @@ import VideoThumbnail from "@/components/VideoThumbnail";
 const TypewriterHook = ({ text }: { text: string }) => {
   return (
     <p
-      className="hidden md:block text-lg md:text-xl text-white/90 font-bold text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none"
-      style={{
-        fontFamily: "'Josefin Sans', sans-serif",
-        filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
-      }}
+      className="hidden md:block text-lg md:text-xl text-white/90 font-bold text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
+      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
     >
       {text}
     </p>
@@ -1268,11 +1265,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               ) : undefined}
               middleSlot={(hookText || business?.carousel_badge) ? (
                 <p
-                  className="md:hidden text-base text-white/90 font-bold text-center max-w-[95%] md:max-w-[85%] leading-relaxed pointer-events-none pl-8 pr-0 md:px-2"
-                  style={{
-                    fontFamily: "'Josefin Sans', sans-serif",
-                    filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
-                  }}
+                  className="md:hidden text-base text-white/90 font-bold text-center max-w-[95%] md:max-w-[85%] leading-relaxed pointer-events-none pl-8 pr-0 md:px-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
+                  style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                 >
                   {hookText || videoTabLabel}
                 </p>
@@ -1348,18 +1342,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
                       return (
                         <div
-                          className="text-center max-w-[95%] md:max-w-xl pl-8 pr-0 md:px-0 cursor-pointer slidepanel-review-short"
+                          className="text-center max-w-[95%] md:max-w-xl pl-8 pr-0 md:px-0 cursor-pointer slidepanel-review-short [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
                           onClick={handleOpenReviews}
-                          style={{
-                            fontFamily: "'Josefin Sans', sans-serif",
-                            filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
-                          }}
+                          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                         >
-                          <p className="text-base md:text-lg text-white/90 italic leading-relaxed line-clamp-4">
+                          <p className="text-base md:text-lg text-white/90 italic font-bold leading-relaxed line-clamp-4">
                             "{displayText}"
                           </p>
                           {defaultReview.author_name && (
-                            <p className="text-sm md:text-base text-white mt-1.5 capitalize">— {defaultReview.author_name.toLowerCase()}</p>
+                            <p className="text-sm md:text-base text-white font-bold mt-1.5 capitalize">— {defaultReview.author_name.toLowerCase()}</p>
                           )}
                         </div>
                       );
