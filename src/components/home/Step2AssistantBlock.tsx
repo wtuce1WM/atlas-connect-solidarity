@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import SearchInput from "@/components/SearchInput";
-import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import VoiceSearchPanel from "@/components/VoiceSearchPanel";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,9 +11,9 @@ interface Props {
 }
 
 /**
- * Étape 2 card content. Same "Micro Liquid Glass + texte" overlay as Hero
- * when the mic CTA is pressed. While listening, the description slides up
- * so the search field + CTAs sit just under the title.
+ * Étape 2 card content. Same "Micro Liquid Glass + texte" inline panel as
+ * the Hero (VoiceSearchPanel) when the mic CTA is pressed. The step label
+ * and title stay visible; only the description collapses to free space.
  */
 const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
   const navigate = useNavigate();
@@ -43,13 +43,12 @@ const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
         {title}
       </h3>
 
-      {/* Description — slides up & fades out while voice is active to free space */}
+      {/* Description — collapses while voice is active to free space */}
       <div
         className="grid transition-all duration-500 ease-out"
         style={{
           gridTemplateRows: isVoiceActive ? "0fr" : "1fr",
           opacity: isVoiceActive ? 0 : 1,
-          transform: isVoiceActive ? "translateY(-8px)" : "translateY(0)",
         }}
       >
         <div className="overflow-hidden">
@@ -59,10 +58,7 @@ const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
         </div>
       </div>
 
-      <div
-        className="mt-4 w-full max-w-xl md:mt-6 transition-transform duration-500 ease-out"
-        style={{ transform: isVoiceActive ? "translateY(-8px)" : "translateY(0)" }}
-      >
+      <div className="mt-4 w-full max-w-xl md:mt-6">
         <SearchInput
           variant="hero"
           placeholder="Demandez à notre assistant IA…"
@@ -76,15 +72,15 @@ const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
           }}
           onSubmit={(q) => navigate(`/search?q=${encodeURIComponent(q)}&tab=ai`)}
         />
-      </div>
 
-      <VoiceSearchOverlay
-        isOpen={isVoiceActive}
-        liveTranscript={voice.liveTranscript}
-        onClose={voice.toggleRecording}
-        onFinish={voice.finishRecording}
-        contained
-      />
+        {isVoiceActive && (
+          <VoiceSearchPanel
+            liveTranscript={voice.liveTranscript}
+            onClose={voice.toggleRecording}
+            onFinish={voice.finishRecording}
+          />
+        )}
+      </div>
     </>
   );
 };
