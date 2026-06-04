@@ -83,7 +83,8 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
     },
   });
 
-  const showDropdown = focused && popularSuggestions.length > 0;
+  const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+  const showDropdown = !isMobile && focused && popularSuggestions.length > 0;
 
   return (
     <div ref={containerRef} className="relative w-full">
