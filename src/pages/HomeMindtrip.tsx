@@ -132,6 +132,10 @@ const HomeMindtrip = () => {
   const horizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [trackX, setTrackX] = useState(0);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const ytIframeRef = useRef<HTMLIFrameElement>(null);
+  const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
     const onScroll = () => {
@@ -145,6 +149,17 @@ const HomeMindtrip = () => {
       const progress = Math.min(1, Math.max(0, -rect.top / total));
       const maxX = Math.max(0, track.scrollWidth - window.innerWidth);
       setTrackX(progress * maxX);
+
+      const centerX = window.innerWidth / 2;
+      let bestIdx = 0;
+      let bestDist = Infinity;
+      cardRefs.current.forEach((el, idx) => {
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const d = Math.abs(r.left + r.width / 2 - centerX);
+        if (d < bestDist) { bestDist = d; bestIdx = idx; }
+      });
+      setActiveStep(bestIdx);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -154,6 +169,20 @@ const HomeMindtrip = () => {
       window.removeEventListener("resize", onScroll);
     };
   }, []);
+
+  useEffect(() => {
+    videoRefs.current.forEach((v, idx) => {
+      if (!v) return;
+      if (idx === activeStep) v.play().catch(() => {});
+      else v.pause();
+    });
+    const yt = ytIframeRef.current?.contentWindow;
+    if (yt) {
+      const cmd = activeStep === 3 ? "playVideo" : "pauseVideo";
+      yt.postMessage(JSON.stringify({ event: "command", func: cmd, args: [] }), "*");
+    }
+  }, [activeStep]);
+
 
 
 
