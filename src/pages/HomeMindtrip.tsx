@@ -15,6 +15,8 @@ import heroImageMobile from "@/assets/home-mindtrip/hero-mobile.jpg";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
+import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
+import { X } from "lucide-react";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
 type CityKey = (typeof CITIES)[number];
