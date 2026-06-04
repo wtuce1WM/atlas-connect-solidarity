@@ -3379,16 +3379,6 @@ const SearchPage = () => {
                   <p className="text-primary font-semibold mt-2">
                     {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
                   </p>
-                  <button
-                    onClick={() => {
-                      setActiveTab("suggestions");
-                      setShowMobileMap(true);
-                    }}
-                    className="lg:hidden mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
-                  >
-                    <Map className="h-4 w-4" />
-                    {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-                  </button>
                 </>
               )}
             </div>
