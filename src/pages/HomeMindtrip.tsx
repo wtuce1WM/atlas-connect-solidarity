@@ -543,10 +543,10 @@ const HomeMindtrip = () => {
                           Étape {i + 1}
                         </span>
 
-                        <h3 className={`mt-3 font-josefin text-2xl font-light tracking-tight md:text-4xl ${i === 5 ? "text-black" : i >= 2 ? "text-white" : "text-foreground"}`}>
+                        <h3 className={`mt-3 font-josefin text-2xl font-light tracking-tight md:text-4xl ${i === 5 ? "text-black" : i >= 2 ? "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground"}`}>
                           {s.title}
                         </h3>
-                        <p className={`mt-3 md:mt-4 ${i === 5 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 5 ? "text-black/80" : i >= 2 ? "text-white/90" : "text-foreground/70"}`}>{s.desc}</p>
+                        <p className={`mt-3 md:mt-4 ${i === 5 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 5 ? "text-black/80" : i >= 2 ? "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground/70"}`}>{s.desc}</p>
                         {i === 3 ? (
                           <HotelAvailabilityWidget />
                         ) : i === 5 ? (
