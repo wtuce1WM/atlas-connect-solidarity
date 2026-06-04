@@ -759,8 +759,8 @@ const STEPS = [
     icon: PlayCircle,
   },
   {
-    title: "Assistant IA personnalisé.",
-    desc: "Dialoguez avec notre assistant IA pour affiner votre recherche et trouver ce que vous cherchez en cumulant les critères. Par exemple, demandez ci-dessous à notre assistant \"je cherche un restaurant à Marrakech ouvert demain midi avec une piscine\". Attendez sa réponse et demandez lui \"sur la route de l'Ourika\"... Vous n'avez plus qu'à choisir dans les options possibles pour planifier votre après-midi de demain.",
+    title: "Dialoguez avec votre assistant IA personnalisé",
+    desc: "",
     cta: "Explorer le catalogue",
     href: "/search",
     icon: Sparkles,
