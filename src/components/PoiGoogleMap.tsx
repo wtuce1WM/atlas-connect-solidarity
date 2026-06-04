@@ -506,7 +506,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       gmaps.event.trigger(map, "resize");
       // Use generous padding when fitting to markers so labels aren't clipped
       const padding = fitToMarkers
-        ? { top: 60, right: 60, bottom: 60, left: 100 }
+        ? { top: 120, right: 120, bottom: 120, left: 160 }
         : 40;
       map.fitBounds(bounds, padding);
       gmaps.event.addListenerOnce(map, "idle", () => {
