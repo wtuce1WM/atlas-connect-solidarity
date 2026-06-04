@@ -205,6 +205,21 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
 
   const defaultOpen = useMemo(() => groups.map((g) => g.themeId), [groups]);
 
+  // Auto-open a specific channel when ?openChannel=<businessId> is present.
+  useEffect(() => {
+    if (autoOpenedRef.current || loading) return;
+    const channelId = searchParams.get("openChannel");
+    if (!channelId) return;
+    const ch = groups.flatMap((g) => g.channels).find((c) => c.id === channelId);
+    if (!ch) return;
+    autoOpenedRef.current = true;
+    handleChannelClick(ch);
+    const next = new URLSearchParams(searchParams);
+    next.delete("openChannel");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groups, loading, searchParams]);
+
   const handleChannelClick = async (ch: Channel) => {
     // Pick the latest video for this business: prefer most-recent short,
     // fallback to most-recent non-short.
