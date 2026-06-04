@@ -508,20 +508,12 @@ const HomeMindtrip = () => {
                     />
                   )}
                   {i === 4 && (
-                    <div className="absolute inset-0 overflow-hidden bg-black" style={{ containerType: "size" }}>
-                      <iframe
-                        ref={ytIframeRef}
-                        src="https://www.youtube-nocookie.com/embed/45NF1zJMhCs?autoplay=1&mute=1&loop=1&playlist=45NF1zJMhCs&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&showinfo=0&disablekb=1&fs=0&cc_load_policy=0&enablejsapi=1"
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                        allow="autoplay; encrypted-media"
-                        frameBorder="0"
-                        style={{
-                          border: 0,
-                          width: "max(160cqw, calc(160cqh * 9 / 16))",
-                          height: "max(160cqh, calc(160cqw * 16 / 9))",
-                        }}
-                      />
-                    </div>
+                    <img
+                      src={etape5Bg.url}
+                      alt="Navigation immersive ONE WORLD MOROCCO"
+                      className="absolute inset-0 h-full w-full object-cover"
+                      loading="lazy"
+                    />
                   )}
 
                   <div className={`relative z-10 ${i === 5 ? "text-center" : ""}`}>
