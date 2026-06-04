@@ -3866,25 +3866,39 @@ const SearchPage = () => {
                   fitToMarkers
                   userLocation={geo.isEnabled && geo.coords ? geo.coords : null}
                 />
-                <div className="absolute top-3 left-3 z-[80] flex items-center gap-2 max-w-[calc(100%-1.5rem)]">
-                  <button
-                    type="button"
-                    onClick={() => setHideResultsMap(true)}
-                    className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
-                    aria-label={language === "en" ? "Hide map" : "Masquer la carte"}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                  {(() => {
-                    const lastUserTurn = [...aiChat].reverse().find(m => m.role === "user")?.content;
-                    const label = (lastUserTurn || searchQuery || "").trim();
-                    if (!label) return null;
-                    return (
-                      <div className="px-3 h-8 flex items-center rounded-full bg-white/95 text-black shadow-lg text-xs font-medium truncate">
-                        {label}
-                      </div>
-                    );
-                  })()}
+                <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col">
+                  <div className="relative z-10 flex items-center gap-3 px-3 py-3 bg-white/30 backdrop-blur-md">
+                    <button
+                      type="button"
+                      onClick={() => setHideResultsMap(true)}
+                      className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
+                      aria-label={language === "en" ? "Hide map" : "Masquer la carte"}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    <span className="flex-1 text-center text-sm font-medium text-black truncate">
+                      {(() => {
+                        const lastUserTurn = [...aiChat].reverse().find(m => m.role === "user")?.content;
+                        const label = (lastUserTurn || searchQuery || "").trim();
+                        return label;
+                      })()}
+                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                        className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                        aria-label="Le Club OWM"
+                      >
+                        <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                      </button>
+                      <ShareButton
+                        title={searchQuery || "Recherche"}
+                        variant="dark"
+                        className="shrink-0"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
