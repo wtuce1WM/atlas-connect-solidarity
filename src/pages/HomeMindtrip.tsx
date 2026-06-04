@@ -430,11 +430,19 @@ const HomeMindtrip = () => {
                     />
                   )}
                   {i === 4 && (
-                    <img
-                      src={etape5Bg.url}
-                      alt=""
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
+                    <div className="absolute inset-0 overflow-hidden bg-black" style={{ containerType: "size" }}>
+                      <iframe
+                        src="https://www.youtube-nocookie.com/embed/NuRrDmSxQ6Y?autoplay=1&mute=1&loop=1&playlist=NuRrDmSxQ6Y&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&showinfo=0"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                        allow="autoplay; encrypted-media"
+                        frameBorder="0"
+                        style={{
+                          border: 0,
+                          width: "max(100cqw, calc(100cqh * 9 / 16))",
+                          height: "max(100cqh, calc(100cqw * 16 / 9))",
+                        }}
+                      />
+                    </div>
                   )}
                   <div className="relative z-10">
                     <span className="font-josefin text-xs uppercase tracking-[0.3em] text-primary">
