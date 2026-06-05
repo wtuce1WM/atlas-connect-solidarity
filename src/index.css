@@ -392,6 +392,22 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   display: none;
 }
 
+/* Gold horizontal scrollbar for booking/social bars */
+.scrollbar-gold {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--gold, 45 65% 52%)) transparent;
+}
+.scrollbar-gold::-webkit-scrollbar {
+  height: 6px;
+}
+.scrollbar-gold::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-gold::-webkit-scrollbar-thumb {
+  background-color: #D4AF37;
+  border-radius: 9999px;
+}
+
 /* Sexy custom scrollbar — dark theme, terracotta accent */
 *::-webkit-scrollbar {
   width: 10px;
