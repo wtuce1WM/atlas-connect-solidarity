@@ -632,12 +632,36 @@ const SearchPage = () => {
       const turnsTokens = [...previousUserQs, q].map(tokenize).filter((arr) => arr.length > 0);
       const allTokens = Array.from(new Set(turnsTokens.flat()));
       const dedupedPool = Array.from(new globalThis.Map<string, Business>(refinementPool.map((b) => [b.id, b])).values());
-      const buildBlob = (b: Business) => normalizeText([
-        b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
-        b.city, (b as any).neighborhood, (b as any).address,
-        ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
-        ...((b as any).badges || []), ...((b as any).video_badges || []),
-      ].filter(Boolean).map((v) => String(v)).join(" | "));
+      // Load synonym/keyword enrichment maps once (services keywords, subcategories keywords,
+      // and per-business badge names) so the AND filter can match semantic variants
+      // (e.g. "centre équestre" → service "Haras" via its keywords).
+      await ensureRefinementEnrichment();
+      const enrichment = refinementEnrichmentRef.current;
+      const buildBlob = (b: Business) => {
+        const extraServiceKws: string[] = [];
+        const extraSubcatKws: string[] = [];
+        const badgeNames: string[] = [];
+        if (enrichment) {
+          for (const s of b.services || []) {
+            const kws = enrichment.servicesKw.get(String(s));
+            if (kws) extraServiceKws.push(...kws);
+          }
+          for (const c of b.categories || []) {
+            const kws = enrichment.subcatsKw.get(String(c));
+            if (kws) extraSubcatKws.push(...kws);
+          }
+          const bb = enrichment.bizBadges.get(b.id);
+          if (bb) badgeNames.push(...bb);
+        }
+        return normalizeText([
+          b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
+          b.city, (b as any).neighborhood, (b as any).address,
+          ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
+          ...((b as any).badges || []), ...((b as any).video_badges || []),
+          ...badgeNames,
+          ...extraServiceKws, ...extraSubcatKws,
+        ].filter(Boolean).map((v) => String(v)).join(" | "));
+      };
       const matchesAllTurns = (blob: string) =>
         turnsTokens.every((turnToks) => turnToks.some((t) => blob.includes(t)));
       const scoreBusiness = (blob: string): number => {
