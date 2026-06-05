@@ -1965,7 +1965,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             const hasAnything = externalLinks.length > 0 || hasSocialBar;
             if (!hasAnything) return null;
             return (
-              <div className="relative z-40 shrink-0 isolate pointer-events-auto flex flex-col">
+              <div className="relative z-40 shrink-0 mt-auto isolate pointer-events-auto flex flex-col">
                 {externalLinks.length > 0 && (
                   <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10">
                     {externalLinks.map((link) => (
