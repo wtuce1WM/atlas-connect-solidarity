@@ -4078,7 +4078,29 @@ const SearchPage = () => {
                         >
                           {aiChatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                         </button>
+                        <button
+                          type="button"
+                          onClick={refineVoice.toggleRecording}
+                          disabled={aiChatLoading}
+                          className="shrink-0 w-11 h-11 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                          aria-label={language === "en" ? "Voice refinement" : "Affiner à la voix"}
+                          title={language === "en" ? "Voice refinement" : "Affiner à la voix"}
+                        >
+                          {refineVoice.status === "processing" ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Mic className="h-4 w-4" />
+                          )}
+                        </button>
                       </form>
+                      {(refineVoice.status === "recording" || refineVoice.status === "processing") && (
+                        <VoiceSearchPanel
+                          liveTranscript={refineVoice.liveTranscript}
+                          onClose={refineVoice.toggleRecording}
+                          onFinish={refineVoice.finishRecording}
+                          align="start"
+                        />
+                      )}
                     ) : (
                       <p className="text-xs text-center text-muted-foreground italic">
                         {language === "en"
