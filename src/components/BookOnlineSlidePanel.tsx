@@ -2004,7 +2004,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     <button
                       key={`${item.name}-${item.url}`}
                       onClick={() => window.open(item.url, "_blank", "noopener")}
-                      className={`h-9 px-3 flex items-center gap-1.5 rounded-full transition-colors ${item.label ? 'bg-white/15 hover:bg-white/30 text-white' : 'bg-white hover:bg-white/90 text-black'}`}
+                      className="h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       title={item.name}
                     >
                       {!item.label && item.icon}
