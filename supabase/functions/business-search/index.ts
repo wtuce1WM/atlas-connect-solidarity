@@ -3438,7 +3438,7 @@ serve(async (req) => {
       }
     }
     // ── Inject keyword-linked subcategories into MERGED_SUBCATEGORIES ──
-    if (detectedSubcategory && keywordLinkedSubcategories.length > 0) {
+    if (detectedSubcategory && keywordLinkedSubcategories.length > 0 && keywordLinkedOwnerSubcategory === detectedSubcategory) {
       const key = detectedSubcategory.toLowerCase();
       const existing = MERGED_SUBCATEGORIES[key] || [detectedSubcategory];
       const merged = [...new Set([...existing, ...keywordLinkedSubcategories])];
@@ -3447,6 +3447,8 @@ serve(async (req) => {
         MERGED_SUBCATEGORIES[name.toLowerCase()] = merged;
       }
       console.log(`Keyword-linked merge: "${detectedSubcategory}" now merged with [${merged.join(", ")}]`);
+    } else if (detectedSubcategory && keywordLinkedSubcategories.length > 0) {
+      console.log(`Skipped stale keyword-linked merge for "${detectedSubcategory}"; links belonged to "${keywordLinkedOwnerSubcategory || "?"}"`);
     }
 
     const bundleResultIds = new Set(businesses.map(b => b.id));
