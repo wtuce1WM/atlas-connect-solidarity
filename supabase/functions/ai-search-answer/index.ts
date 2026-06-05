@@ -122,15 +122,9 @@ serve(async (req) => {
         const haystack = norm(topBusinesses.map((b: any) =>
           [b.name, b.city, b.neighborhood, b.address, (b.categories || []).join(" "), b.main_category, b.hook_fr].filter(Boolean).join(" ")
         ).join(" \n "));
-        // Also include anchor names from history (so "Jet Atlas" mentioned in turn 2 still counts as known).
-        const histText = norm(
-          (Array.isArray(history) ? history : [])
-            .filter((h: any) => h && typeof h.content === "string")
-            .map((h: any) => h.content).join(" ")
-        );
         const unknown = properNouns.filter((pn) => {
           const n = norm(pn);
-          return !haystack.includes(n) && !histText.includes(n);
+          return !haystack.includes(n);
         });
         if (unknown.length > 0) {
           topicChange = true;
@@ -140,8 +134,12 @@ serve(async (req) => {
     }
 
 
-    // Collect business IDs from results for direct linking
-    const businessIds = topBusinesses.map((b: any) => b.id).filter(Boolean);
+    // Collect business IDs from results for direct linking.
+    // On topic change, hide the previous business pool completely so stale results
+    // cannot be cited or enriched back into the answer.
+    const effectiveBusinesses = topicChange ? [] : topBusinesses;
+    const effectiveHasResults = effectiveBusinesses.length > 0;
+    const businessIds = effectiveBusinesses.map((b: any) => b.id).filter(Boolean);
 
 
 
@@ -222,8 +220,8 @@ serve(async (req) => {
       console.log(`Found ${knowledgeEntries.length} knowledge entries for query "${query}" (${businessIds.length} by business link)`);
     }
 
-    const businessContext = hasResults
-      ? topBusinesses.map((b: any, i: number) => {
+    const businessContext = effectiveHasResults
+      ? effectiveBusinesses.map((b: any, i: number) => {
           const parts = [`${i + 1}. ${b.name}`];
           if (b.wtuce_status === "verified") parts.push(`[CONFIANCE]`);
           if (b.city) parts.push(`(${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""})`);
@@ -246,7 +244,7 @@ serve(async (req) => {
         ? "Answer in Arabic."
         : "Réponds en français.";
 
-    const noResultsInstructions = !hasResults
+    const noResultsInstructions = !effectiveHasResults
       ? `\n- ${noResultsCfg || "Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles."}
 - IMPORTANT : Ne cite AUCUN nom d'établissement spécifique. Tu ne connais pas notre annuaire, donc n'invente pas de noms. Donne uniquement des conseils généraux sur la thématique ou la destination.
 - Si la recherche mentionne une ville marocaine, partage ce que tu sais sur cette ville en rapport avec la requête.
@@ -265,11 +263,11 @@ serve(async (req) => {
 RÈGLES :
 - ${langInstructions}
 - Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.
-- Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${modeInstructions || (hasResults ? `
+- Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${modeInstructions || (effectiveHasResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
 - Cite jusqu'à 10 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.).
 - CRITIQUE : Écris chaque nom EXACTEMENT comme dans la liste fournie, caractère pour caractère (mêmes accents, majuscules, ponctuation). N'ajoute JAMAIS de suffixe, de ville, de quartier, de parenthèses, de tiret descriptif, ni d'article ("Le", "La", "Restaurant", etc.) qui ne figure pas dans le nom original. Pas de reformulation, pas de traduction du nom.
-- Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : '')}${boostVerified && hasResults && !mode ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${!mode ? noResultsInstructions : ''}
+- Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : '')}${boostVerified && effectiveHasResults && !mode ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${!mode ? noResultsInstructions : ''}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - Entoure chaque nom de doubles astérisques, par exemple **Nom**.
 - FORMATAGE : Utilise du markdown riche pour structurer ta réponse. Gras (**texte**), italique (*texte*), listes à puces (- item), listes numérotées (1. item), et sauts de paragraphe. Pas de titres (#). Structure bien ta réponse avec des paragraphes et des listes quand c'est pertinent.
