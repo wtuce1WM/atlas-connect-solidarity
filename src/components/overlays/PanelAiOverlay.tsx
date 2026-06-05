@@ -29,8 +29,72 @@ interface PanelAiOverlayProps {
   onBusinessClick?: (business: BusinessData) => void;
 }
 
+const TRANSLATIONS = {
+  fr: {
+    whatToDoIn: "Que faire à",
+    similarTo: "Établissements similaires à",
+    bestPlaces: "Meilleures adresses",
+    noSuggestion: "Aucune suggestion disponible.",
+    suggestionError: "Impossible de générer une suggestion pour le moment.",
+    noAnswer: "Désolé, je n'ai pas de réponse.",
+    retryError: "Erreur, réessayez.",
+    savedToClub: "Sauvegardé dans Club OWM",
+    addedToFavorites: "adresse(s) ajoutée(s) à vos favoris.",
+    error: "Erreur",
+    saveError: "Impossible de sauvegarder pour le moment.",
+    aiSuggestion: "Suggestion IA",
+    map: "Carte",
+    saveToClub: "Sauvegarder dans Club OWM",
+    generating: "Génération en cours…",
+    assistantThinking: "L'assistant réfléchit…",
+    refinePlaceholder: "Affinez votre demande",
+    send: "Envoyer",
+  },
+  en: {
+    whatToDoIn: "What to do in",
+    similarTo: "Similar to",
+    bestPlaces: "Best places",
+    noSuggestion: "No suggestion available.",
+    suggestionError: "Unable to generate a suggestion at this time.",
+    noAnswer: "Sorry, no answer.",
+    retryError: "Error, please retry.",
+    savedToClub: "Saved to Club OWM",
+    addedToFavorites: "place(s) added to your favorites.",
+    error: "Error",
+    saveError: "Unable to save right now.",
+    aiSuggestion: "AI Suggestion",
+    map: "Map",
+    saveToClub: "Save to Club OWM",
+    generating: "Generating…",
+    assistantThinking: "Assistant is thinking…",
+    refinePlaceholder: "Refine your request",
+    send: "Send",
+  },
+  ar: {
+    whatToDoIn: "ماذا تفعل في",
+    similarTo: "أماكن مشابهة لـ",
+    bestPlaces: "أفضل العناوين",
+    noSuggestion: "لا اقتراح متاح.",
+    suggestionError: "تعذّر إنشاء اقتراح حالياً.",
+    noAnswer: "آسف، لا توجد إجابة.",
+    retryError: "خطأ، حاول مجدداً.",
+    savedToClub: "تم الحفظ في نادي OWM",
+    addedToFavorites: "عنوان (عناوين) أُضيفت.",
+    error: "خطأ",
+    saveError: "تعذّر الحفظ حالياً.",
+    aiSuggestion: "اقتراح الذكاء",
+    map: "خريطة",
+    saveToClub: "حفظ في نادي OWM",
+    generating: "جارٍ التحميل…",
+    assistantThinking: "المساعد يفكر…",
+    refinePlaceholder: "حسّن طلبك",
+    send: "إرسال",
+  },
+} as const;
+
 const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, onOpenMap, presetAnswer, presetBusinesses, onBusinessClick }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
+  const T = TRANSLATIONS[language] || TRANSLATIONS.fr;
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
   const [loading, setLoading] = useState(false);
