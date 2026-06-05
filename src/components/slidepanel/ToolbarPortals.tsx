@@ -31,6 +31,8 @@ interface ToolbarPortalsProps {
   toolbarPortalPrefix?: string;
   /** Open/closed badge — shown on mobile only between close button and WhatsApp */
   openBadgeInfo?: { text: string; isOpen: boolean } | null;
+  /** When true, hides all toolbar buttons (e.g. when description overlay is open) */
+  hideToolbarButtons?: boolean;
 }
 
 export function ToolbarPortals({
@@ -53,13 +55,14 @@ export function ToolbarPortals({
   anyOverlay,
   toolbarPortalPrefix,
   openBadgeInfo,
+  hideToolbarButtons,
 }: ToolbarPortalsProps) {
   const pfx = toolbarPortalPrefix ? `${toolbarPortalPrefix}-` : "";
   const toolbarPortal = document.getElementById(`${pfx}slide-panel-toolbar`);
   const toolbarCenterPortal = document.getElementById(`${pfx}slide-panel-toolbar-center`);
   const toolbarLeftPortal = document.getElementById(`${pfx}slide-panel-toolbar-left`);
 
-  const shouldHide = !!selectedKpBusinessId || !!selectedPoiBusinessId || showMosaic;
+  const shouldHide = !!selectedKpBusinessId || !!selectedPoiBusinessId || showMosaic || !!hideToolbarButtons;
 
   return (
     <>
