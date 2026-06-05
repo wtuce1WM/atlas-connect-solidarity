@@ -145,7 +145,7 @@ const BusinessSearch = () => {
           });
         },
         (error) => {
-          console.log("Geolocation error:", error);
+          console.warn("Geolocation error:", error);
         }
       );
     }
