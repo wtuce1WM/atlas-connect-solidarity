@@ -74,7 +74,7 @@ import ResultsTabContent from "@/pages/search/ResultsTabContent";
 import HashtagTabContent from "@/pages/search/HashtagTabContent";
 import YouTubeChannelsTabContent from "@/pages/search/YouTubeChannelsTabContent";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
-import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE } from "@/pages/search/utils";
+import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE, AI_CHAT_MAX_TURNS, MAP_FETCH_PAGE_SIZE, PIN_PAGE1_SIZE, REFINEMENT_STOPWORDS, NEARBY_ENTITY_RE, NEAR_OF_ENTITY_RE, GENERIC_NEARBY_TERMS } from "@/pages/search/utils";
 
 import type { Business, SearchResult } from "@/pages/search/types";
 
