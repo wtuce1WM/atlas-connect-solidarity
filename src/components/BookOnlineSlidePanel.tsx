@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import wooshSfx from "@/assets/woosh.wav";
 import { playWoosh } from "@/lib/overlayConstants";
 import poiNearbyImg from "@/assets/poi-nearby.webp";
+import glovoLogo from "@/assets/glovo-logo.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 
 import { whatsappUrl } from "@/lib/phoneUtils";
