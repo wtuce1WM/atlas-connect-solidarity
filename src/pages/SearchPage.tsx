@@ -401,7 +401,7 @@ const SearchPage = () => {
           supabase.from("subcategories").select("name_fr, name_en, name_ar, keywords"),
           supabase.from("business_badges").select("business_id, badges:badge_id(name_fr, name_en, name_ar)"),
         ]);
-        const servicesKw = new Map<string, string[]>();
+        const servicesKw = new globalThis.Map<string, string[]>();
         for (const s of (svcRes.data || []) as any[]) {
           const kws: string[] = Array.isArray(s.keywords) ? s.keywords.filter(Boolean) : [];
           if (kws.length === 0) continue;
@@ -409,7 +409,7 @@ const SearchPage = () => {
             if (n) servicesKw.set(String(n), kws);
           }
         }
-        const subcatsKw = new Map<string, string[]>();
+        const subcatsKw = new globalThis.Map<string, string[]>();
         for (const s of (subRes.data || []) as any[]) {
           const kws: string[] = Array.isArray(s.keywords) ? s.keywords.filter(Boolean) : [];
           if (kws.length === 0) continue;
@@ -417,7 +417,7 @@ const SearchPage = () => {
             if (n) subcatsKw.set(String(n), kws);
           }
         }
-        const bizBadges = new Map<string, string[]>();
+        const bizBadges = new globalThis.Map<string, string[]>();
         for (const row of (bbRes.data || []) as any[]) {
           const bId = row.business_id as string | undefined;
           const b = row.badges;
