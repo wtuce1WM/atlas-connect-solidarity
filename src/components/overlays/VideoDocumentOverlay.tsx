@@ -380,9 +380,9 @@ const VideoDocumentOverlay = ({
               </div>
               {activeVideo.description && descExpanded && (
                 <div
-                  className="mt-3 text-sm leading-relaxed pr-1 prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                  className="mt-3 text-sm leading-relaxed pr-1 prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!no-underline [&_a]:!pointer-events-none [&_a]:!cursor-text"
                   style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}
-                  dangerouslySetInnerHTML={{ __html: activeVideo.description }}
+                  dangerouslySetInnerHTML={{ __html: activeVideo.description.replace(/<a\b[^>]*>/gi, '<span>').replace(/<\/a>/gi, '</span>') }}
                 />
               )}
             </div>
