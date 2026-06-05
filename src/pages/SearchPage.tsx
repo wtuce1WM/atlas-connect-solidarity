@@ -2244,17 +2244,17 @@ const SearchPage = () => {
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
-    if (aiRefinementBusinessPool.length > 0) return mapPoiItemsSearch;
+    if (aiCitedMapPool.length > 0 || aiRefinementBusinessPool.length > 0) return mapPoiItemsSearch;
     if (!fsFilterSubcategories) return mapPoiItemsSearch;
     return buildFsCategoryItems(true);
-  }, [aiRefinementBusinessPool.length, mapPoiItemsSearch, fsFilterSubcategories, buildFsCategoryItems]);
+  }, [aiCitedMapPool.length, aiRefinementBusinessPool.length, mapPoiItemsSearch, fsFilterSubcategories, buildFsCategoryItems]);
 
   // Mobile/tablet map items
   const mobileMapPoiItemsFinal: PoiMapItem[] = useMemo(() => {
-    if (aiRefinementBusinessPool.length > 0) return mobileMapPoiItems;
+    if (aiCitedMapPool.length > 0 || aiRefinementBusinessPool.length > 0) return mobileMapPoiItems;
     if (!fsFilterSubcategories) return mobileMapPoiItems;
     return buildFsCategoryItems(false);
-  }, [aiRefinementBusinessPool.length, mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
+  }, [aiCitedMapPool.length, aiRefinementBusinessPool.length, mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
 
   // The top-ranked business ID for Gold marker (always highlight #1)
   const fsTopBusinessId: string | null = useMemo(() => {
