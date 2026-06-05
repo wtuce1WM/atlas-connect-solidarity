@@ -1919,13 +1919,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             const socialItems: { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[] = [
               business?.website && { name: "Site web", url: business.website, icon: <Globe className="h-4 w-4" /> },
               business?.instagram_url && { name: "Instagram", url: business.instagram_url, icon: <InstagramIcon className="h-4 w-4" /> },
-              business?.facebook_url && { name: "Facebook", url: business.facebook_url, icon: <FacebookIcon className="h-4 w-4" /> },
+              business?.facebook_url && { name: "Facebook", url: business.facebook_url, icon: <FacebookIcon className="h-4 w-4 text-[#1877F2]" /> },
               business?.tiktok_url && { name: "TikTok", url: business.tiktok_url, icon: <TikTokIcon className="h-5 w-5" /> },
-              business?.youtube_url && { name: "YouTube", url: business.youtube_url, icon: <YouTubeIcon className="h-4 w-4" /> },
+              business?.youtube_url && { name: "YouTube", url: business.youtube_url, icon: <YouTubeIcon className="h-4 w-4 text-[#FF0000]" /> },
               business?.twitter_url && { name: "X", url: business.twitter_url, icon: <TwitterIcon className="h-5 w-5" /> },
-              business?.linkedin_url && { name: "LinkedIn", url: business.linkedin_url, icon: <LinkedInIcon className="h-5 w-5" /> },
-              business?.pinterest_url && { name: "Pinterest", url: business.pinterest_url, icon: <PinterestIcon className="h-4 w-4" /> },
-              business?.vimeo_url && { name: "Vimeo", url: business.vimeo_url, icon: <VimeoIcon className="h-4 w-4" /> },
+              business?.linkedin_url && { name: "LinkedIn", url: business.linkedin_url, icon: <LinkedInIcon className="h-5 w-5 text-[#0A66C2]" /> },
+              business?.pinterest_url && { name: "Pinterest", url: business.pinterest_url, icon: <PinterestIcon className="h-4 w-4 text-[#E60023]" /> },
+              business?.vimeo_url && { name: "Vimeo", url: business.vimeo_url, icon: <VimeoIcon className="h-4 w-4 text-[#1AB7EA]" /> },
               business?.snapchat_url && { name: "Snapchat", url: business.snapchat_url, icon: <SnapchatIcon className="h-4 w-4" /> },
               (business as any)?.substack_url && { name: "Substack", url: (business as any).substack_url, icon: <SubstackIcon className="h-4 w-4 text-[#FF6719]" />, onClick: () => setShowSubstackOverlay(true) },
               business?.spotify_url && {
