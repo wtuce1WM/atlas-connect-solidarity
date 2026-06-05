@@ -455,7 +455,8 @@ const SearchPage = () => {
       // not only the 10 used for the initial AI suggestion.
       const bizData = (allBusinesses || []).slice(0, 100).map((b) => ({
         id: b.id, name: b.name, city: b.city, main_category: b.main_category,
-        categories: b.categories, hook_fr: b.hook_fr, rating: b.rating,
+        categories: b.categories, services: b.services, keywords: (b as any).keywords,
+        hook_fr: b.hook_fr, rating: b.rating,
         wtuce_status: b.wtuce_status, images: b.images, logo_url: b.logo_url,
         neighborhood: b.neighborhood, google_rating: b.google_rating,
         google_review_count: b.google_review_count, tripadvisor_rating: b.tripadvisor_rating,
@@ -595,7 +596,8 @@ const SearchPage = () => {
         }
       }
       const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
-      if (!dedicatedRefinementSearchSucceeded && !pinIdsParam && totalCount && totalCount > refinementPool.length) {
+      const poolMissingRefinementFields = refinementPool.some((b: any) => !Array.isArray(b.services) || !Array.isArray(b.categories));
+      if (!dedicatedRefinementSearchSucceeded && !pinIdsParam && totalCount && (totalCount > refinementPool.length || poolMissingRefinementFields)) {
         try {
           const { data: fullData, error: fullError } = await supabase.functions.invoke<SearchResult>("business-search", {
             body: {
@@ -657,6 +659,7 @@ const SearchPage = () => {
           b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
           b.city, (b as any).neighborhood, (b as any).address,
           ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
+          ...(((b as any).keywords as string[] | null) || []),
           ...((b as any).badges || []), ...((b as any).video_badges || []),
           ...badgeNames,
           ...extraServiceKws, ...extraSubcatKws,
@@ -776,7 +779,8 @@ const SearchPage = () => {
         if (cancelled || error || !data?.businesses) return;
         const bizData = (data.businesses as any[]).slice(0, 100).map((b: any) => ({
           id: b.id, name: b.name, city: b.city, main_category: b.main_category,
-          categories: b.categories, hook_fr: b.hook_fr, rating: b.rating,
+          categories: b.categories, services: b.services, keywords: (b as any).keywords,
+          hook_fr: b.hook_fr, rating: b.rating,
           wtuce_status: b.wtuce_status, images: b.images, logo_url: b.logo_url,
           neighborhood: b.neighborhood, google_rating: b.google_rating,
           google_review_count: b.google_review_count, tripadvisor_rating: b.tripadvisor_rating,
