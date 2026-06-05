@@ -29,8 +29,72 @@ interface PanelAiOverlayProps {
   onBusinessClick?: (business: BusinessData) => void;
 }
 
+const TRANSLATIONS = {
+  fr: {
+    whatToDoIn: "Que faire à",
+    similarTo: "Établissements similaires à",
+    bestPlaces: "Meilleures adresses",
+    noSuggestion: "Aucune suggestion disponible.",
+    suggestionError: "Impossible de générer une suggestion pour le moment.",
+    noAnswer: "Désolé, je n'ai pas de réponse.",
+    retryError: "Erreur, réessayez.",
+    savedToClub: "Sauvegardé dans Club OWM",
+    addedToFavorites: "adresse(s) ajoutée(s) à vos favoris.",
+    error: "Erreur",
+    saveError: "Impossible de sauvegarder pour le moment.",
+    aiSuggestion: "Suggestion IA",
+    map: "Carte",
+    saveToClub: "Sauvegarder dans Club OWM",
+    generating: "Génération en cours…",
+    assistantThinking: "L'assistant réfléchit…",
+    refinePlaceholder: "Affinez votre demande",
+    send: "Envoyer",
+  },
+  en: {
+    whatToDoIn: "What to do in",
+    similarTo: "Similar to",
+    bestPlaces: "Best places",
+    noSuggestion: "No suggestion available.",
+    suggestionError: "Unable to generate a suggestion at this time.",
+    noAnswer: "Sorry, no answer.",
+    retryError: "Error, please retry.",
+    savedToClub: "Saved to Club OWM",
+    addedToFavorites: "place(s) added to your favorites.",
+    error: "Error",
+    saveError: "Unable to save right now.",
+    aiSuggestion: "AI Suggestion",
+    map: "Map",
+    saveToClub: "Save to Club OWM",
+    generating: "Generating…",
+    assistantThinking: "Assistant is thinking…",
+    refinePlaceholder: "Refine your request",
+    send: "Send",
+  },
+  ar: {
+    whatToDoIn: "ماذا تفعل في",
+    similarTo: "أماكن مشابهة لـ",
+    bestPlaces: "أفضل العناوين",
+    noSuggestion: "لا اقتراح متاح.",
+    suggestionError: "تعذّر إنشاء اقتراح حالياً.",
+    noAnswer: "آسف، لا توجد إجابة.",
+    retryError: "خطأ، حاول مجدداً.",
+    savedToClub: "تم الحفظ في نادي OWM",
+    addedToFavorites: "عنوان (عناوين) أُضيفت.",
+    error: "خطأ",
+    saveError: "تعذّر الحفظ حالياً.",
+    aiSuggestion: "اقتراح الذكاء",
+    map: "خريطة",
+    saveToClub: "حفظ في نادي OWM",
+    generating: "جارٍ التحميل…",
+    assistantThinking: "المساعد يفكر…",
+    refinePlaceholder: "حسّن طلبك",
+    send: "إرسال",
+  },
+} as const;
+
 const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssistant, onSeeResults, onOpenMap, presetAnswer, presetBusinesses, onBusinessClick }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
+  const T = TRANSLATIONS[language] || TRANSLATIONS.fr;
   const [answer, setAnswer] = useState("");
   const [businesses, setBusinesses] = useState<BusinessData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -95,10 +159,10 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
         if (fetchedBusinesses) setBusinesses(fetchedBusinesses as unknown as BusinessData[]);
 
         const prompt = city
-          ? `${language === "fr" ? "Que faire à" : language === "ar" ? "ماذا تفعل في" : "What to do in"} ${city}${category ? ` (${category})` : ""}`
+          ? `${T.whatToDoIn} ${city}${category ? ` (${category})` : ""}`
           : businessName
-          ? `${language === "fr" ? "Établissements similaires à" : "Similar to"} ${businessName}`
-          : language === "fr" ? "Meilleures adresses" : "Best places";
+          ? `${T.similarTo} ${businessName}`
+          : T.bestPlaces;
 
         const { data, error } = await supabase.functions.invoke("ai-search-answer", {
           body: {
@@ -109,10 +173,10 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
         });
 
         if (error) throw error;
-        setAnswer(data?.answer || (language === "fr" ? "Aucune suggestion disponible." : "No suggestion available."));
+        setAnswer(data?.answer || T.noSuggestion);
       } catch (err) {
         console.error("AI suggestion error:", err);
-        setAnswer(language === "fr" ? "Impossible de générer une suggestion pour le moment." : "Unable to generate a suggestion at this time.");
+        setAnswer(T.suggestionError);
       } finally {
         setLoading(false);
       }
@@ -294,11 +358,11 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
         },
       });
       if (error) throw error;
-      const reply = (data?.answer || "").trim() || (language === "fr" ? "Désolé, je n'ai pas de réponse." : "Sorry, no answer.");
+      const reply = (data?.answer || "").trim() || T.noAnswer;
       setChatTurns((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch (err) {
       console.error("Chat error:", err);
-      setChatTurns((prev) => [...prev, { role: "assistant", content: language === "fr" ? "Erreur, réessayez." : "Error, please retry." }]);
+      setChatTurns((prev) => [...prev, { role: "assistant", content: T.retryError }]);
     } finally {
       setChatLoading(false);
     }
@@ -320,14 +384,14 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
         .upsert(rows as any, { onConflict: "user_id,business_id", ignoreDuplicates: true });
       if (error) throw error;
       toast({
-        title: language === "fr" ? "Sauvegardé dans Club OWM" : language === "ar" ? "تم الحفظ في نادي OWM" : "Saved to Club OWM",
-        description: `${businesses.length} ${language === "fr" ? "adresse(s) ajoutée(s) à vos favoris." : language === "ar" ? "عنوان (عناوين) أُضيفت." : "place(s) added to your favorites."}`,
+        title: T.savedToClub,
+        description: `${businesses.length} ${T.addedToFavorites}`,
       });
     } catch (err) {
       console.error("Save to Club failed:", err);
       toast({
-        title: language === "fr" ? "Erreur" : "Error",
-        description: language === "fr" ? "Impossible de sauvegarder pour le moment." : "Unable to save right now.",
+        title: T.error,
+        description: T.saveError,
         variant: "destructive",
       });
     } finally {
@@ -344,7 +408,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-gold" />
           <span className="font-semibold text-sm">
-            {language === "fr" ? "Suggestion IA" : language === "ar" ? "اقتراح الذكاء" : "AI Suggestion"}
+            {T.aiSuggestion}
           </span>
         </div>
         {/* Carte button — mobile/tablet only, same as Results tab */}
@@ -355,7 +419,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             className="lg:hidden ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
           >
             <MapIcon className="h-4 w-4" />
-            {language === "fr" ? "Carte" : language === "ar" ? "خريطة" : "Map"}
+            {T.map}
           </button>
         )}
         {/* Save to Club OWM */}
@@ -365,8 +429,8 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             onClick={handleSaveToClub}
             disabled={saving}
             className={`${onOpenMap ? "" : "ml-auto"} w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-50`}
-            title={language === "fr" ? "Sauvegarder dans Club OWM" : language === "ar" ? "حفظ في نادي OWM" : "Save to Club OWM"}
-            aria-label={language === "fr" ? "Sauvegarder dans Club OWM" : "Save to Club OWM"}
+            title={T.saveToClub}
+            aria-label={T.saveToClub}
           >
             {saving ? <Loader className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4" />}
           </button>
@@ -398,7 +462,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
           <div className="flex flex-col items-center justify-center gap-4 py-12">
             <Loader2 className="h-8 w-8 animate-spin text-gold" />
             <span className="text-sm text-muted-foreground">
-              {language === "fr" ? "Génération en cours…" : language === "ar" ? "جارٍ التحميل…" : "Generating…"}
+              {T.generating}
             </span>
           </div>
         ) : (
@@ -437,7 +501,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             {chatLoading && (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Loader2 className="h-4 w-4 animate-spin text-gold" />
-                {language === "fr" ? "L'assistant réfléchit…" : language === "ar" ? "المساعد يفكر…" : "Assistant is thinking…"}
+                {T.assistantThinking}
               </div>
             )}
           </div>
@@ -459,11 +523,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
               }}
               rows={1}
               placeholder={
-                language === "fr"
-                  ? "Affinez votre demande"
-                  : language === "ar"
-                  ? "حسّن طلبك"
-                  : "Refine your request"
+                T.refinePlaceholder
               }
               className="flex-1 resize-none rounded-2xl border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 max-h-32"
             />
@@ -471,7 +531,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
               type="submit"
               disabled={!chatInput.trim() || chatLoading}
               className="w-10 h-10 shrink-0 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40"
-              aria-label={language === "fr" ? "Envoyer" : "Send"}
+              aria-label={T.send}
             >
               {chatLoading ? <Loader className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </button>
