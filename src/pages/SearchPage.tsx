@@ -74,7 +74,7 @@ import ResultsTabContent from "@/pages/search/ResultsTabContent";
 import HashtagTabContent from "@/pages/search/HashtagTabContent";
 import YouTubeChannelsTabContent from "@/pages/search/YouTubeChannelsTabContent";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
-import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE } from "@/pages/search/utils";
+import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE, AI_CHAT_MAX_TURNS, MAP_FETCH_PAGE_SIZE, PIN_PAGE1_SIZE, REFINEMENT_STOPWORDS, NEARBY_ENTITY_RE, NEAR_OF_ENTITY_RE, GENERIC_NEARBY_TERMS } from "@/pages/search/utils";
 
 import type { Business, SearchResult } from "@/pages/search/types";
 
@@ -370,8 +370,7 @@ const SearchPage = () => {
   const [isPoiAiLoading, setIsPoiAiLoading] = useState(false);
   const [isDestAiLoading, setIsDestAiLoading] = useState(false);
   // Multi-turn refinement chat — extends the initial aiAnswerText with follow-up Q/A.
-  // Cap at 4 user turns to keep token cost bounded.
-  const AI_CHAT_MAX_TURNS = 4;
+
   const aiRefinementSpokenText = searchParams.get("spoken") || "";
   type AiClarifyOption = { id: string; label: string; text: string };
   type AiClarify = { type: string; question: string; options: AiClarifyOption[] };
@@ -627,13 +626,8 @@ const SearchPage = () => {
       // Accumulate criteria with AND semantics: each refinement turn (previous + current)
       // must match the business. A business is kept only if every turn has at least one
       // matching token in its blob.
-      const STOPWORDS = new Set([
-        "avec","sans","pour","dans","des","les","une","un","la","le","de","du","et","ou","au","aux",
-        "with","without","for","the","and","or","of","a","an","in","on","to",
-        "qui","que","est","sont","plus","moins","tres","tout","tous","toute","toutes",
-      ]);
       const tokenize = (text: string) => Array.from(new Set(
-        normalizeText(text).split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !STOPWORDS.has(t))
+        normalizeText(text).split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !REFINEMENT_STOPWORDS.has(t))
       ));
       const previousUserQs = aiChat.filter((m) => m.role === "user").map((m) => m.content);
       const turnsTokens = [...previousUserQs, q].map(tokenize).filter((arr) => arr.length > 0);
@@ -711,13 +705,10 @@ const SearchPage = () => {
       let nearbyAnchorNames: string[] = [];
       const isNearbyEligibleTurn = aiChat.some((m) => m.role === "user");
       if (isNearbyEligibleTurn && proxLat === undefined) {
-        const NEARBY_ENTITY_RE = /(?:^|(?<!\p{L}))(?:avec|et|and|with|plus)\s+(?:un|une|des|du|de\s+la|le|la|les|a|an|some)?\s*([\p{L}][\p{L}\-']{2,})\s+(?:à\s+côté|a\s+cote|à\s+coté|à\s+proximité|a\s+proximite|près|pres|proche|aux\s+alentours|nearby|around|close\s+by)(?!\p{L})/iu;
-        const NEAR_OF_ENTITY_RE = /(?:à\s+côté|a\s+cote|près|pres|proche|à\s+proximité|nearby|close\s+to|next\s+to)\s+d['’]?\s*(?:un|une|des|a|an)?\s*([\p{L}][\p{L}\-']{2,})(?!\p{L})/iu;
         const nm = q.match(NEARBY_ENTITY_RE) || q.match(NEAR_OF_ENTITY_RE);
         if (nm) {
           const entityTerm = nm[1].toLowerCase();
-          const GENERIC = new Set(["chose","truc","endroit","lieu","place","spot","activite","activité","côté","cote","côte","resultat","résultat","résultats","resultats"]);
-          if (!GENERIC.has(entityTerm) && entityTerm.length >= 3) {
+          if (!GENERIC_NEARBY_TERMS.has(entityTerm) && entityTerm.length >= 3) {
             nearbyEntityTerm = entityTerm;
             const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant")?.content || "";
             const citedFromText = lastAssistant
@@ -2235,18 +2226,17 @@ const SearchPage = () => {
       const selectFields = "id, name, city, main_category, categories, services, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count, wtuce_status, priority_score";
       const all: Business[] = [];
       let offset = 0;
-      const PAGE = 1000;
       while (true) {
         const { data } = await supabase
           .from("businesses")
           .select(selectFields)
           .eq("is_active", true)
           .ilike("city", effectiveCityForMap)
-          .range(offset, offset + PAGE - 1);
+          .range(offset, offset + MAP_FETCH_PAGE_SIZE - 1);
         if (!data || data.length === 0) break;
         all.push(...(data as unknown as Business[]));
-        if (data.length < PAGE) break;
-        offset += PAGE;
+        if (data.length < MAP_FETCH_PAGE_SIZE) break;
+        offset += MAP_FETCH_PAGE_SIZE;
       }
       if (!cancelled) setAllCityMapBusinesses(all as Business[]);
     };
@@ -2554,7 +2544,7 @@ const SearchPage = () => {
   const serverTotalCount = totalCount ?? filteredBusinesses.length;
   // In pinIds mode, page 1 shows 23 businesses (AI suggestion card takes the 4th slot
   // → 24 cards total in the grid). Subsequent pages show ITEMS_PER_PAGE (20).
-  const PIN_PAGE1_SIZE = ITEMS_PER_PAGE + 3;
+  
   const totalPages = useMemo(() => {
     if (pinIdsParam) {
       if (serverTotalCount <= PIN_PAGE1_SIZE) return 1;

@@ -92,6 +92,32 @@ export const formatDateFr = (dateStr: string) => {
 export const ITEMS_PER_PAGE = 20;
 export const SERVER_PAGE_SIZE = ITEMS_PER_PAGE + 1;
 
+// AI refinement chat — cap user turns to keep token cost bounded.
+export const AI_CHAT_MAX_TURNS = 4;
+
+// Supabase paging when fetching all map businesses for a city.
+export const MAP_FETCH_PAGE_SIZE = 1000;
+
+// pinIds mode: page 1 shows 23 businesses (AI suggestion card takes slot #4 → 24 cards total).
+export const PIN_PAGE1_SIZE = ITEMS_PER_PAGE + 3;
+
+// Stopwords used by the AI refinement AND-filter tokenizer.
+export const REFINEMENT_STOPWORDS = new Set([
+  "avec","sans","pour","dans","des","les","une","un","la","le","de","du","et","ou","au","aux",
+  "with","without","for","the","and","or","of","a","an","in","on","to",
+  "qui","que","est","sont","plus","moins","tres","tout","tous","toute","toutes",
+]);
+
+// "Nouvelle entité à proximité" — ex. "avec un golf à côté", "et un spa proche".
+export const NEARBY_ENTITY_RE = /(?:^|(?<!\p{L}))(?:avec|et|and|with|plus)\s+(?:un|une|des|du|de\s+la|le|la|les|a|an|some)?\s*([\p{L}][\p{L}\-']{2,})\s+(?:à\s+côté|a\s+cote|à\s+coté|à\s+proximité|a\s+proximite|près|pres|proche|aux\s+alentours|nearby|around|close\s+by)(?!\p{L})/iu;
+export const NEAR_OF_ENTITY_RE = /(?:à\s+côté|a\s+cote|près|pres|proche|à\s+proximité|nearby|close\s+to|next\s+to)\s+d['’]?\s*(?:un|une|des|a|an)?\s*([\p{L}][\p{L}\-']{2,})(?!\p{L})/iu;
+
+// Termes trop génériques pour déclencher une recherche "nouvelle entité à proximité".
+export const GENERIC_NEARBY_TERMS = new Set([
+  "chose","truc","endroit","lieu","place","spot","activite","activité",
+  "côté","cote","côte","resultat","résultat","résultats","resultats",
+]);
+
 // IDs des établissements du guide célébrités (dans l'ordre d'affichage souhaité)
 export const CELEBRITY_IDS = [
   "3bb71910-c17e-4ce1-a130-42c369a645a7", // La Mamounia
