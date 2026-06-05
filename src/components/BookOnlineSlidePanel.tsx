@@ -1967,7 +1967,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             return (
               <div className="relative z-40 shrink-0 isolate pointer-events-auto flex flex-col">
                 {externalLinks.length > 0 && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none">
+                  <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10">
                     {externalLinks.map((link) => (
                       <button
                         key={link.id}
@@ -1976,55 +1976,52 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                             openDocOrBooking(link.url, link.name || 'Lien', true);
                           }
                         }}
-                        className={`shrink-0 h-8 flex items-center gap-1.5 rounded-full text-white transition-colors overflow-hidden ${link.icon ? 'bg-white hover:bg-white/90' : 'bg-white/15 hover:bg-white/30'}`}
+                        className={`h-9 flex items-center gap-1.5 rounded-full transition-colors overflow-hidden ${link.icon ? 'bg-white hover:bg-white/90 text-black pr-3' : 'bg-white/15 hover:bg-white/30 text-white px-3'}`}
                         title={link.name || 'Lien'}
                       >
-                        {link.icon ? (
-                          <img src={link.icon} alt={link.name || ''} className="h-8 w-8 object-contain rounded-full p-1" loading="lazy" />
-                        ) : (
-                          <span className="px-3 text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
+                        {link.icon && (
+                          <img src={link.icon} alt={link.name || ''} className="h-9 w-9 object-contain rounded-full p-1" loading="lazy" />
                         )}
+                        <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
                       </button>
                     ))}
                   </div>
                 )}
                 {hasSocialBar && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none">
+                <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10">
                   {socialItems.map((s, i) => (
                     <button
                       key={i}
                       onClick={() => (s.onClick ? s.onClick() : window.open(s.url, "_blank", "noopener"))}
-                      className="shrink-0 h-8 w-8 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                      className="h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       title={s.name}
                     >
                       {s.icon}
+                      <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{s.name}</span>
                     </button>
                   ))}
                   {socialItems.length > 0 && bookingItems.length > 0 && (
-                    <div className="shrink-0 w-px h-5 bg-white/20" />
+                    <div className="w-px h-6 bg-white/20" />
                   )}
                   {bookingItems.map((item) => (
                     <button
                       key={`${item.name}-${item.url}`}
                       onClick={() => window.open(item.url, "_blank", "noopener")}
-                      className={`shrink-0 h-8 flex items-center justify-center rounded-full text-white transition-colors ${item.label ? 'px-3 bg-white/15 hover:bg-white/30' : 'w-8 bg-white hover:bg-white/90'}`}
+                      className={`h-9 px-3 flex items-center gap-1.5 rounded-full transition-colors ${item.label ? 'bg-white/15 hover:bg-white/30 text-white' : 'bg-white hover:bg-white/90 text-black'}`}
                       title={item.name}
                     >
-                      {item.label ? (
-                        <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{item.name}</span>
-                      ) : (
-                        item.icon
-                      )}
+                      {!item.label && item.icon}
+                      <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{item.name}</span>
                     </button>
                   ))}
                   {(socialItems.length > 0 || bookingItems.length > 0) && menuDocs.length > 0 && (
-                    <div className="shrink-0 w-px h-5 bg-white/20" />
+                    <div className="w-px h-6 bg-white/20" />
                   )}
                   {menuDocs.map((doc) => (
                     <button
                       key={doc.id}
                       onClick={() => openDocOrBooking(doc.url, doc.name || 'Menu')}
-                      className="shrink-0 h-8 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                      className="h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                     >
                       {categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Globe className="h-3.5 w-3.5" />}
                       <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
