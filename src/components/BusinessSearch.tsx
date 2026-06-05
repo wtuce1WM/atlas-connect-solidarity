@@ -65,6 +65,13 @@ const CATEGORY_CONFIG: Record<string, { labelFr: string; labelEn: string; labelA
   "Technologie": { labelFr: "Technologie", labelEn: "Technology", labelAr: "تكنولوجيا", icon: Cpu },
 };
 
+const TRANSLATIONS = {
+  fr: { category: "Catégorie", allCategories: "Toutes les catégories", filterByActivity: "Filtrer par activité", clear: "Effacer", total: "au total" },
+  en: { category: "Category", allCategories: "All categories", filterByActivity: "Filter by activity", clear: "Clear", total: "total" },
+  ar: { category: "فئة", allCategories: "جميع الفئات", filterByActivity: "تصفية حسب النشاط", clear: "مسح", total: "إجمالي" },
+} as const;
+
+
 const BusinessSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cityQuery, setCityQuery] = useState("");
@@ -250,14 +257,14 @@ const BusinessSearch = () => {
                     const IconComponent = config?.icon || LayoutGrid;
                     return <IconComponent className="mr-2 h-4 w-4 text-muted-foreground" />;
                   })()}
-                  <SelectValue placeholder={language === "fr" ? "Catégorie" : language === "ar" ? "فئة" : "Category"} />
+                  <SelectValue placeholder={T.category} />
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-lg z-50">
                   {/* All categories option */}
                   <SelectItem value="all">
                     <div className="flex items-center gap-2">
                       <LayoutGrid className="h-4 w-4 text-muted-foreground" />
-                      <span>{language === "fr" ? "Toutes les catégories" : language === "ar" ? "جميع الفئات" : "All categories"}</span>
+                      <span>{T.allCategories}</span>
                     </div>
                   </SelectItem>
                   {/* Dynamic categories from database */}
@@ -315,7 +322,7 @@ const BusinessSearch = () => {
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-medium text-foreground">
-                    {language === "fr" ? "Filtrer par activité" : language === "ar" ? "تصفية حسب النشاط" : "Filter by activity"}
+                    {T.filterByActivity}
                   </h3>
                   {selectedActivities.length > 0 && (
                     <button
@@ -323,7 +330,7 @@ const BusinessSearch = () => {
                       className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                     >
                       <X className="h-3 w-3" />
-                      {language === "fr" ? "Effacer" : language === "ar" ? "مسح" : "Clear"}
+                      {T.clear}
                     </button>
                   )}
                 </div>
@@ -352,7 +359,7 @@ const BusinessSearch = () => {
             {/* Results Count */}
             <p className="mb-6 text-center text-sm text-muted-foreground">
               {filteredBusinesses.length} {t("directory.resultsFound")}
-              {selectedActivities.length > 0 && ` (${result.totalResults} ${language === "fr" ? "au total" : language === "ar" ? "إجمالي" : "total"})`}
+              {selectedActivities.length > 0 && ` (${result.totalResults} ${T.total})`}
             </p>
 
             {/* Business Cards Grid */}
