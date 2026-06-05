@@ -1961,8 +1961,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               business?.tourradar_url && { name: "TourRadar", url: business.tourradar_url, icon: null, label: true },
               (business as any)?.other_booking_url && { name: (business as any).other_booking_name || "Réservation", url: (business as any).other_booking_url, icon: <ExternalLink className="h-3.5 w-3.5" /> },
             ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode; label?: boolean }[];
-            const hasSocialBar = socialItems.length > 0 || bookingItems.length > 0 || menuDocs.length > 0;
-            const hasAnything = externalLinks.length > 0 || hasSocialBar;
+            const hasSocialBar = socialItems.length > 0 || bookingItems.length > 0;
+            const hasMenuBar = menuDocs.length > 0;
+            const hasAnything = externalLinks.length > 0 || hasSocialBar || hasMenuBar;
             if (!hasAnything) return null;
             return (
               <div className="relative z-40 shrink-0 mt-auto isolate pointer-events-auto flex flex-col">
