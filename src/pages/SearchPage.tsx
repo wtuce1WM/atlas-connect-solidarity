@@ -2544,7 +2544,7 @@ const SearchPage = () => {
   const serverTotalCount = totalCount ?? filteredBusinesses.length;
   // In pinIds mode, page 1 shows 23 businesses (AI suggestion card takes the 4th slot
   // → 24 cards total in the grid). Subsequent pages show ITEMS_PER_PAGE (20).
-  const PIN_PAGE1_SIZE = ITEMS_PER_PAGE + 3;
+  
   const totalPages = useMemo(() => {
     if (pinIdsParam) {
       if (serverTotalCount <= PIN_PAGE1_SIZE) return 1;
