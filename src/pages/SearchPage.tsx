@@ -3855,7 +3855,23 @@ const SearchPage = () => {
                                     (b) => setHoveredResultId(b ? b.id : null)
                                   )}
                                 </div>
+                                {m.clarify && m.clarify.options.length > 0 && (
+                                  <div className="flex flex-wrap gap-2">
+                                    {m.clarify.options.map((opt) => (
+                                      <button
+                                        key={opt.id}
+                                        type="button"
+                                        onClick={() => submitAiRefinement(opt.text)}
+                                        disabled={aiChatLoading}
+                                        className="rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs sm:text-sm px-3 py-1.5 transition-colors disabled:opacity-50"
+                                      >
+                                        {opt.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
                                 {(() => {
+                                  if (m.clarify) return null;
                                   const cited = extractCitedBusinesses(m.content, aiInlineBusinessPool);
                                   if (cited.length === 0) return null;
                                   return (
