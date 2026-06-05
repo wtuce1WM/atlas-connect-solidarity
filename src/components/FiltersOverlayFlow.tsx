@@ -215,6 +215,12 @@ export default function FiltersOverlayFlow({
           >
             Filtres
           </button>
+          {activeTab && parentCategoryName && parentCategoryName !== activeTab.name && (
+            <>
+              <span aria-hidden="true" className="opacity-50">/</span>
+              <span className="truncate opacity-60">{parentCategoryName}</span>
+            </>
+          )}
           {activeTab && (
             <>
               <span aria-hidden="true" className="opacity-50">/</span>
