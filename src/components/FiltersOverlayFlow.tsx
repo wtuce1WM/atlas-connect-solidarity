@@ -86,6 +86,38 @@ export default function FiltersOverlayFlow({
     return () => { cancelled = true; };
   }, [activeTab]);
 
+  // Resolve the parent "category" name of the active tab by looking up the
+  // parent category of the tab's subcategories. We display the most frequent
+  // one as a non-clickable breadcrumb segment between "Filtres" and the tab.
+  const [parentCategoryName, setParentCategoryName] = useState<string | null>(null);
+  useEffect(() => {
+    if (!activeTab) { setParentCategoryName(null); return; }
+    const subIds = activeTab.subcategories.map((s) => s.id);
+    if (subIds.length === 0) { setParentCategoryName(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("subcategories")
+        .select("category_id, categories!inner(name_fr)")
+        .in("id", subIds);
+      if (cancelled || !data) return;
+      const counts = new Map<string, number>();
+      for (const row of data as any[]) {
+        const name = row.categories?.name_fr;
+        if (name) counts.set(name, (counts.get(name) || 0) + 1);
+      }
+      let best: string | null = null;
+      let bestCount = 0;
+      for (const [name, c] of counts) {
+        if (c > bestCount) { best = name; bestCount = c; }
+      }
+      setParentCategoryName(best);
+    })();
+    return () => { cancelled = true; };
+  }, [activeTab]);
+
+
+
   // For each sub of the active tab, compute its own subPool + visible services count.
   const subAvailability = useMemo(() => {
     const m = new Map<string, number>(); // subId -> visibleServicesCount
@@ -183,6 +215,12 @@ export default function FiltersOverlayFlow({
           >
             Filtres
           </button>
+          {activeTab && parentCategoryName && parentCategoryName !== activeTab.name && (
+            <>
+              <span aria-hidden="true" className="opacity-50">/</span>
+              <span className="truncate opacity-60">{parentCategoryName}</span>
+            </>
+          )}
           {activeTab && (
             <>
               <span aria-hidden="true" className="opacity-50">/</span>
