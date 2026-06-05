@@ -709,8 +709,8 @@ const SearchPage = () => {
       let nearbyAnchorNames: string[] = [];
       const isNearbyEligibleTurn = aiChat.some((m) => m.role === "user");
       if (isNearbyEligibleTurn && proxLat === undefined) {
-        const NEARBY_ENTITY_RE = /(?:^|\b)(?:avec|et|and|with|plus)\s+(?:un|une|des|du|de\s+la|le|la|les|a|an|some)?\s*([\p{L}][\p{L}\-']{2,})\s+(?:à\s+côté|a\s+cote|à\s+coté|à\s+proximité|a\s+proximite|près|pres|proche|aux\s+alentours|nearby|around|close\s+by)\b/iu;
-        const NEAR_OF_ENTITY_RE = /(?:à\s+côté|a\s+cote|près|pres|proche|à\s+proximité|nearby|close\s+to|next\s+to)\s+d['’]?\s*(?:un|une|des|a|an)?\s*([\p{L}][\p{L}\-']{2,})\b/iu;
+        const NEARBY_ENTITY_RE = /(?:^|(?<!\p{L}))(?:avec|et|and|with|plus)\s+(?:un|une|des|du|de\s+la|le|la|les|a|an|some)?\s*([\p{L}][\p{L}\-']{2,})\s+(?:à\s+côté|a\s+cote|à\s+coté|à\s+proximité|a\s+proximite|près|pres|proche|aux\s+alentours|nearby|around|close\s+by)(?!\p{L})/iu;
+        const NEAR_OF_ENTITY_RE = /(?:à\s+côté|a\s+cote|près|pres|proche|à\s+proximité|nearby|close\s+to|next\s+to)\s+d['’]?\s*(?:un|une|des|a|an)?\s*([\p{L}][\p{L}\-']{2,})(?!\p{L})/iu;
         const nm = q.match(NEARBY_ENTITY_RE) || q.match(NEAR_OF_ENTITY_RE);
         if (nm) {
           const entityTerm = nm[1].toLowerCase();
