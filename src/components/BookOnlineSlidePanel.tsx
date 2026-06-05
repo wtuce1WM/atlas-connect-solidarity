@@ -1967,7 +1967,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             return (
               <div className="relative z-40 shrink-0 mt-auto isolate pointer-events-auto flex flex-col">
                 {externalLinks.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none lg:flex-wrap lg:overflow-x-visible">
+
                     {externalLinks.map((link) => (
                       <button
                         key={link.id}
