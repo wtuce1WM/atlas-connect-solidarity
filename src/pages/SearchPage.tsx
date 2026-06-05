@@ -663,6 +663,7 @@ const SearchPage = () => {
           ...((b as any).badges || []), ...((b as any).video_badges || []),
           ...badgeNames,
           ...extraServiceKws, ...extraSubcatKws,
+          (b as any).extra_text || "",
         ].filter(Boolean).map((v) => String(v)).join(" | "));
       };
       const matchesAllTurns = (blob: string) =>
