@@ -852,6 +852,8 @@ const SearchPage = () => {
     setTimeout(() => { submitAiRefinement(demoFollowup); }, 1200);
   }, [searchParams, aiAnswerText, aiChatLoading, aiChat.length, submitAiRefinement, setSearchParams]);
 
+  useEffect(() => { submitAiRefinementRef.current = submitAiRefinement; }, [submitAiRefinement]);
+
 
 
 
