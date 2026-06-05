@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import wooshSfx from "@/assets/woosh.wav";
 import { playWoosh } from "@/lib/overlayConstants";
 import poiNearbyImg from "@/assets/poi-nearby.webp";
+import glovoLogo from "@/assets/glovo-logo.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 
 import { whatsappUrl } from "@/lib/phoneUtils";
@@ -1947,18 +1948,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 onClick: () => setShowSoundCloudOverlay(true),
               },
             ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[];
-            const bookingItems: { name: string; url: string; icon: React.ReactNode }[] = [
-              business?.tripadvisor_url && { name: "TripAdvisor", url: business.tripadvisor_url, icon: <TripAdvisorIcon className="h-4 w-4" /> },
-              (business as any)?.booking_url && { name: "Booking.com", url: (business as any).booking_url, icon: <BookingIcon className="h-4 w-4" /> },
-              (business as any)?.airbnb_url && { name: "Airbnb", url: (business as any).airbnb_url, icon: <AirbnbIcon className="h-4 w-4" /> },
-              (business as any)?.hotels_com_url && { name: "Hotels.com", url: (business as any).hotels_com_url, icon: <span className="text-[11px] font-bold">H</span> },
-              (business as any)?.trivago_url && { name: "Trivago", url: (business as any).trivago_url, icon: <span className="text-[11px] font-bold">T</span> },
-              business?.getyourguide_url && { name: "GetYourGuide", url: business.getyourguide_url, icon: <span className="text-[10px] font-bold">GYG</span> },
-              business?.viator_url && { name: "Viator", url: business.viator_url, icon: <span className="text-[10px] font-bold">V</span> },
-              business?.tourradar_url && { name: "TourRadar", url: business.tourradar_url, icon: <span className="text-[10px] font-bold">TR</span> },
-              (business as any)?.glovo_url && { name: "Glovo", url: (business as any).glovo_url, icon: <span className="text-[10px] font-bold">G</span> },
+            const bookingItems: { name: string; url: string; icon: React.ReactNode; label?: boolean }[] = [
+              business?.tripadvisor_url && { name: "TripAdvisor", url: business.tripadvisor_url, icon: <TripAdvisorIcon className="h-4 w-4 text-[#34E0A1]" /> },
+              (business as any)?.booking_url && { name: "Booking.com", url: (business as any).booking_url, icon: <BookingIcon className="h-4 w-4 text-[#003580]" /> },
+              (business as any)?.airbnb_url && { name: "Airbnb", url: (business as any).airbnb_url, icon: <AirbnbIcon className="h-4 w-4 text-[#FF5A5F]" /> },
+              (business as any)?.glovo_url && { name: "Glovo", url: (business as any).glovo_url, icon: <img src={glovoLogo} alt="Glovo" className="h-4 w-4 object-contain" /> },
+              (business as any)?.hotels_com_url && { name: "Hotels.com", url: (business as any).hotels_com_url, icon: null, label: true },
+              (business as any)?.trivago_url && { name: "Trivago", url: (business as any).trivago_url, icon: null, label: true },
+              business?.getyourguide_url && { name: "GetYourGuide", url: business.getyourguide_url, icon: null, label: true },
+              business?.viator_url && { name: "Viator", url: business.viator_url, icon: null, label: true },
+              business?.tourradar_url && { name: "TourRadar", url: business.tourradar_url, icon: null, label: true },
               (business as any)?.other_booking_url && { name: (business as any).other_booking_name || "Réservation", url: (business as any).other_booking_url, icon: <ExternalLink className="h-3.5 w-3.5" /> },
-            ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode }[];
+            ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode; label?: boolean }[];
             const hasSocialBar = socialItems.length > 0 || bookingItems.length > 0 || menuDocs.length > 0;
             const hasAnything = externalLinks.length > 0 || hasSocialBar;
             if (!hasAnything) return null;
@@ -2005,10 +2006,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     <button
                       key={`${item.name}-${item.url}`}
                       onClick={() => window.open(item.url, "_blank", "noopener")}
-                      className="shrink-0 h-8 w-8 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                      className={`shrink-0 h-8 flex items-center justify-center rounded-full text-white transition-colors ${item.label ? 'px-3 bg-white/15 hover:bg-white/30' : 'w-8 bg-white hover:bg-white/90'}`}
                       title={item.name}
                     >
-                      {item.icon}
+                      {item.label ? (
+                        <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{item.name}</span>
+                      ) : (
+                        item.icon
+                      )}
                     </button>
                   ))}
                   {(socialItems.length > 0 || bookingItems.length > 0) && menuDocs.length > 0 && (
