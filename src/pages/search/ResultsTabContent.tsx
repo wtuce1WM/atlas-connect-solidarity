@@ -188,7 +188,9 @@ export default function ResultsTabContent({
       const sub = tab.subcategories.find(s => s.id === subId);
       onFrontStructureFilter?.(sub?.names || tab.subcategoryNames);
     }
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
+
 
   const handleFsServicesChange = (svcs: string[]) => {
     setActiveFsServices(svcs);

@@ -141,20 +141,19 @@ export default function FiltersOverlayFlow({
   const handleSubClick = (subId: string) => {
     onSubClick(subId);
     // If this sub has no available service, skip step 3 entirely:
-    // apply the filter and close the overlay (mobile scrolls to top of results).
+    // apply the filter and close the overlay (scroll results to top).
     if ((subAvailability.get(subId) || 0) === 0) {
       onClose();
-      if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      if (typeof window !== "undefined") {
         requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
       }
     }
   };
 
-  const title = step === 3 ? (activeSub?.name || "") : step === 2 ? (activeTab?.name || "") : "Filtres";
-
   const badgeBase = "inline-flex items-center gap-2 rounded-full border backdrop-blur-sm px-4 py-2 text-sm md:px-6 md:py-3 md:text-lg font-semibold transition-colors";
   const badgeIdle = "border-white/40 bg-white/30 text-black hover:bg-white/50";
   const badgeSelected = "border-black bg-black text-white hover:bg-black/90";
+
 
   // Step 3 fallback: if user reached step 3 but no services are visible
   // (e.g. tab service prefetch hasn't returned yet), we still render gracefully.
@@ -172,9 +171,38 @@ export default function FiltersOverlayFlow({
         >
           <X className="h-4 w-4 pointer-events-none" />
         </button>
-        <span className="flex-1 text-center text-sm font-semibold text-black truncate px-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-          {title}
-        </span>
+        <nav
+          className="flex-1 min-w-0 px-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-black"
+          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+          aria-label="Fil d'Ariane"
+        >
+          <button
+            type="button"
+            onClick={() => onTabClick(null)}
+            className={`truncate hover:underline ${step === 1 ? "opacity-100" : "opacity-60"}`}
+          >
+            Filtres
+          </button>
+          {activeTab && (
+            <>
+              <span aria-hidden="true" className="opacity-50">/</span>
+              <button
+                type="button"
+                onClick={() => onSubClick(null)}
+                className={`truncate hover:underline ${step === 2 ? "opacity-100" : "opacity-60"}`}
+              >
+                {activeTab.name}
+              </button>
+            </>
+          )}
+          {activeSub && (
+            <>
+              <span aria-hidden="true" className="opacity-50">/</span>
+              <span className="truncate">{activeSub.name}</span>
+            </>
+          )}
+        </nav>
+
         <span className="w-9 h-9 shrink-0" aria-hidden="true" />
       </div>
 
@@ -212,9 +240,10 @@ export default function FiltersOverlayFlow({
                 onClick={() => {
                   onServicesChange(selected ? [] : [s.name_fr]);
                   onClose();
-                  if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                  if (typeof window !== "undefined") {
                     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
                   }
+
                 }}
                 className={`${badgeBase} ${selected ? badgeSelected : badgeIdle}`}
                 style={{ fontFamily: "'Josefin Sans', sans-serif" }}
