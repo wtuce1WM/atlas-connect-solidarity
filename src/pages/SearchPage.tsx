@@ -4046,6 +4046,7 @@ const SearchPage = () => {
 
                     {/* Composer */}
                     {!reachedCap ? (
+                      <>
                       <form
                         onSubmit={(e) => { e.preventDefault(); submitAiRefinement(); }}
                         className="flex items-end gap-2"
