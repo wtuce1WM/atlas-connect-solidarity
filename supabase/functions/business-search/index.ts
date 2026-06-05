@@ -2920,6 +2920,15 @@ serve(async (req) => {
       }
     }
 
+    // Clear keyword-linked subcategories when the query resolved to a clear
+    // subcategory + service pair. Example: "Hôtel + Piscine" must filter hotels
+    // by service Piscine, not merge in the subcategory Piscine or Beach club.
+    if (detectedSubcategory && detectedServices.length > 0 && keywordLinkedSubcategories.length > 0) {
+      console.log(`Cleared keyword-linked subcategories for "${detectedSubcategory}" because services were detected: [${detectedServices.join(", ")}]`);
+      keywordLinkedSubcategories = [];
+      keywordLinkedOwnerSubcategory = null;
+    }
+
     // ── Resolve search config from service's parent subcategory ──
     // If no subcategorySearchConfig was found from the detected subcategory name,
     // but a service was detected, check if the service's parent subcategory has a config.
