@@ -1849,6 +1849,10 @@ serve(async (req) => {
             // Update parent category to the new target so downstream disambiguation works correctly
             // (e.g. service validation can find the right "Décoration" when multiple exist)
             subcategoryParentCategory = catsToSearch[0];
+            // Reset keyword-linked subcategories: they were collected for the PREVIOUS detected
+            // subcategory (e.g. "Piscine" → [Beach club, Hôtel]) and would otherwise be merged
+            // into the new one, leaking unrelated subcategories (e.g. Beach club into Hôtel results).
+            keywordLinkedSubcategories = [];
           } else if (betterSubcat && parentInIntentCats) {
             // Multi-intent: detected subcategory is valid for one intent, but there's also a match in another
             // Trigger merge so both subcategories appear in results
