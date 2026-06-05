@@ -171,9 +171,38 @@ export default function FiltersOverlayFlow({
         >
           <X className="h-4 w-4 pointer-events-none" />
         </button>
-        <span className="flex-1 text-center text-sm font-semibold text-black truncate px-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-          {title}
-        </span>
+        <nav
+          className="flex-1 min-w-0 px-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-black"
+          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+          aria-label="Fil d'Ariane"
+        >
+          <button
+            type="button"
+            onClick={() => onTabClick(null)}
+            className={`truncate hover:underline ${step === 1 ? "opacity-100" : "opacity-60"}`}
+          >
+            Filtres
+          </button>
+          {activeTab && (
+            <>
+              <span aria-hidden="true" className="opacity-50">/</span>
+              <button
+                type="button"
+                onClick={() => onSubClick(null)}
+                className={`truncate hover:underline ${step === 2 ? "opacity-100" : "opacity-60"}`}
+              >
+                {activeTab.name}
+              </button>
+            </>
+          )}
+          {activeSub && (
+            <>
+              <span aria-hidden="true" className="opacity-50">/</span>
+              <span className="truncate">{activeSub.name}</span>
+            </>
+          )}
+        </nav>
+
         <span className="w-9 h-9 shrink-0" aria-hidden="true" />
       </div>
 
