@@ -229,7 +229,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
             proxLng = Number(target.longitude);
             proxRadiusKm = overrideRadiusKm ?? 2;
             lastProximityRef.current = { lat: proxLat, lng: proxLng, radiusKm: proxRadiusKm, targetName: target.name, query: strippedQuery };
-            console.log(`[AI chat] Proximity → "${target.name}" (${proxLat}, ${proxLng}) within ${proxRadiusKm}km`);
+            
           } else {
             console.warn(`[AI chat] Proximity target not found for: "${targetName}"`);
           }
