@@ -47,7 +47,9 @@ const VideoControls = (props: VideoControlsProps) => {
           type="button"
           onClick={() => {
             if (videoRef.current) {
-              videoRef.current.muted = !videoRef.current.muted;
+              const nextMuted = !videoRef.current.muted;
+              if (!nextMuted && videoRef.current.volume === 0) videoRef.current.volume = 1;
+              videoRef.current.muted = nextMuted;
             }
           }}
           className={btnClass}
