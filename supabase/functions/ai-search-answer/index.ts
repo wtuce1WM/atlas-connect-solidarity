@@ -95,6 +95,50 @@ serve(async (req) => {
     const topBusinesses = businesses.slice(0, isRefinement ? 60 : 10);
     const hasResults = topBusinesses.length > 0;
 
+    // --- Topic-change detection (refinement turns only) ---
+    // If the new user query references a proper noun (place / entity) that does NOT
+    // appear anywhere in the current business list, the user has likely moved on
+    // to a new topic. We then switch the model to "general knowledge" mode instead
+    // of forcing it to pick from the (now irrelevant) list.
+    let topicChange = false;
+    if (isRefinement && hasResults) {
+      const STOP = new Set([
+        "Je","Tu","Il","Elle","On","Nous","Vous","Ils","Elles","Le","La","Les","Un","Une","Des","Du","De","Au","Aux",
+        "Et","Ou","Mais","Donc","Or","Ni","Car","Si","Que","Qui","Quoi","Quel","Quelle","Quels","Quelles","Comment","Pourquoi","Quand","Où",
+        "Peut","Peux","Peuvent","Faire","Aller","Voir","Avoir","Être","Cette","Ce","Ces","Cet","Mon","Ma","Mes","Ton","Ta","Tes","Son","Sa","Ses",
+        "Pour","Avec","Sans","Dans","Sur","Par","Plus","Moins","Là","Ici","Aussi","Très",
+      ]);
+      const properNouns: string[] = [];
+      const re = /\b([A-ZÉÈÀÂÎÔÛÇ][\wÀ-ÿ'’\-]{2,}(?:\s+(?:d['’]|de\s+|du\s+|des\s+|la\s+|le\s+|les\s+)?[A-ZÉÈÀÂÎÔÛÇ][\wÀ-ÿ'’\-]{2,})*)/g;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(query)) !== null) {
+        const token = m[1].trim();
+        const first = token.split(/\s+/)[0];
+        if (STOP.has(first)) continue;
+        if (token.length >= 4) properNouns.push(token.toLowerCase());
+      }
+      if (properNouns.length > 0) {
+        const norm = (s: string) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const haystack = norm(topBusinesses.map((b: any) =>
+          [b.name, b.city, b.neighborhood, b.address, (b.categories || []).join(" "), b.main_category, b.hook_fr].filter(Boolean).join(" ")
+        ).join(" \n "));
+        // Also include anchor names from history (so "Jet Atlas" mentioned in turn 2 still counts as known).
+        const histText = norm(
+          (Array.isArray(history) ? history : [])
+            .filter((h: any) => h && typeof h.content === "string")
+            .map((h: any) => h.content).join(" ")
+        );
+        const unknown = properNouns.filter((pn) => {
+          const n = norm(pn);
+          return !haystack.includes(n) && !histText.includes(n);
+        });
+        if (unknown.length > 0) {
+          topicChange = true;
+          console.log(`Topic change detected. Unknown proper nouns: ${unknown.join(", ")}`);
+        }
+      }
+    }
+
 
     // Collect business IDs from results for direct linking
     const businessIds = topBusinesses.map((b: any) => b.id).filter(Boolean);
@@ -231,7 +275,7 @@ RÈGLES :
 - FORMATAGE : Utilise du markdown riche pour structurer ta réponse. Gras (**texte**), italique (*texte*), listes à puces (- item), listes numérotées (1. item), et sauts de paragraphe. Pas de titres (#). Structure bien ta réponse avec des paragraphes et des listes quand c'est pertinent.
 - Commence par une phrase d'accroche engageante liée à la recherche, puis laisse DEUX lignes vides avant de continuer avec les recommandations.
 - ${tone}
-- Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}${vary ? `\n- IMPORTANT : L'utilisateur demande une suggestion DIFFÉRENTE (tentative #${vary}). Change l'angle d'approche, l'ordre de présentation, le style d'accroche et mets en avant des établissements différents ou des aspects différents. Sois créatif et surprenant.` : ''}${isRefinement ? `\n- AFFINEMENT : L'utilisateur précise sa recherche initiale avec un nouveau critère. Filtre STRICTEMENT la liste fournie pour ne citer QUE les établissements qui correspondent réellement à ce critère. Analyse TOUS les champs disponibles pour chaque établissement : nom, ville, quartier, adresse, sous-catégories, hook, Services, Engagements (RSE/certifications), Badges (badges de l'établissement) et Badges vidéos (thématiques des vidéos liées). Si le critère est un lieu (quartier, route, rue, avenue, secteur…), considère qu'un établissement correspond dès que ce lieu apparaît dans son adresse OU son quartier. Cite TOUS les établissements pertinents de la liste (jusqu'à 10), pas seulement 2 ou 3 — la liste fournie peut contenir jusqu'à 60 candidats. N'hésite PAS à re-citer un établissement déjà mentionné précédemment s'il correspond au nouveau critère — la pertinence prime sur la nouveauté. Si AUCUN établissement de la liste ne correspond clairement au critère, dis-le honnêtement plutôt que d'en citer qui ne correspondent pas. Ne cite jamais un établissement uniquement parce qu'il n'a pas encore été mentionné.` : ''}
+- Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}${vary ? `\n- IMPORTANT : L'utilisateur demande une suggestion DIFFÉRENTE (tentative #${vary}). Change l'angle d'approche, l'ordre de présentation, le style d'accroche et mets en avant des établissements différents ou des aspects différents. Sois créatif et surprenant.` : ''}${isRefinement && topicChange ? `\n- CHANGEMENT DE SUJET DÉTECTÉ : La nouvelle question de l'utilisateur porte sur un lieu ou un sujet qui n'est PAS représenté dans la liste d'établissements fournie. N'essaie PAS de piocher un établissement de la liste pour répondre. Réponds librement en t'appuyant sur tes connaissances générales du Maroc (paysages, activités, culture, conseils pratiques). Ne cite AUCUN nom d'établissement de la liste — ils ne sont pas pertinents pour cette question. Invite l'utilisateur à lancer une nouvelle recherche s'il souhaite des adresses concrètes sur ce sujet.` : isRefinement ? `\n- AFFINEMENT : L'utilisateur précise sa recherche initiale avec un nouveau critère. Filtre STRICTEMENT la liste fournie pour ne citer QUE les établissements qui correspondent réellement à ce critère. Analyse TOUS les champs disponibles pour chaque établissement : nom, ville, quartier, adresse, sous-catégories, hook, Services, Engagements (RSE/certifications), Badges (badges de l'établissement) et Badges vidéos (thématiques des vidéos liées). Si le critère est un lieu (quartier, route, rue, avenue, secteur…), considère qu'un établissement correspond dès que ce lieu apparaît dans son adresse OU son quartier. Cite TOUS les établissements pertinents de la liste (jusqu'à 10), pas seulement 2 ou 3 — la liste fournie peut contenir jusqu'à 60 candidats. N'hésite PAS à re-citer un établissement déjà mentionné précédemment s'il correspond au nouveau critère — la pertinence prime sur la nouveauté. Si AUCUN établissement de la liste ne correspond clairement au critère, dis-le honnêtement plutôt que d'en citer qui ne correspondent pas. Ne cite jamais un établissement uniquement parce qu'il n'a pas encore été mentionné.` : ''}
 
 ${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS" : "ÉTABLISSEMENTS TROUVÉS"} :
 ${businessContext}${knowledgeContext ? `
