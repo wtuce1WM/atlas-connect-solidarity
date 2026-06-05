@@ -4,7 +4,7 @@ import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { createPortal } from "react-dom";
 import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass } from "lucide-react";
-import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
+import { AirbnbIcon, BookingIcon, FacebookIcon, InstagramIcon, TikTokIcon, TripAdvisorIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
 import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
@@ -1913,7 +1913,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             );
           })()}
-          {/* Social / Menu / External links strip */}
+          {/* External links + Social / Booking / Menu strips */}
           {!descGridSection && (() => {
             const socialItems: { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[] = [
               business?.instagram_url && { name: "Instagram", url: business.instagram_url, icon: <InstagramIcon className="h-4 w-4" /> },
@@ -1947,11 +1947,46 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 onClick: () => setShowSoundCloudOverlay(true),
               },
             ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[];
-            const hasReservation = externalLinks.length > 0;
-            const hasAnything = socialItems.length > 0 || menuDocs.length > 0 || hasReservation;
+            const bookingItems: { name: string; url: string; icon: React.ReactNode }[] = [
+              business?.tripadvisor_url && { name: "TripAdvisor", url: business.tripadvisor_url, icon: <TripAdvisorIcon className="h-4 w-4" /> },
+              (business as any)?.booking_url && { name: "Booking.com", url: (business as any).booking_url, icon: <BookingIcon className="h-4 w-4" /> },
+              (business as any)?.airbnb_url && { name: "Airbnb", url: (business as any).airbnb_url, icon: <AirbnbIcon className="h-4 w-4" /> },
+              (business as any)?.hotels_com_url && { name: "Hotels.com", url: (business as any).hotels_com_url, icon: <span className="text-[11px] font-bold">H</span> },
+              (business as any)?.trivago_url && { name: "Trivago", url: (business as any).trivago_url, icon: <span className="text-[11px] font-bold">T</span> },
+              business?.getyourguide_url && { name: "GetYourGuide", url: business.getyourguide_url, icon: <span className="text-[10px] font-bold">GYG</span> },
+              business?.viator_url && { name: "Viator", url: business.viator_url, icon: <span className="text-[10px] font-bold">V</span> },
+              business?.tourradar_url && { name: "TourRadar", url: business.tourradar_url, icon: <span className="text-[10px] font-bold">TR</span> },
+              (business as any)?.glovo_url && { name: "Glovo", url: (business as any).glovo_url, icon: <span className="text-[10px] font-bold">G</span> },
+              (business as any)?.other_booking_url && { name: (business as any).other_booking_name || "Réservation", url: (business as any).other_booking_url, icon: <ExternalLink className="h-3.5 w-3.5" /> },
+            ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode }[];
+            const hasSocialBar = socialItems.length > 0 || bookingItems.length > 0 || menuDocs.length > 0;
+            const hasAnything = externalLinks.length > 0 || hasSocialBar;
             if (!hasAnything) return null;
             return (
-              <div className="relative z-40 shrink-0 isolate pointer-events-auto">
+              <div className="relative z-40 shrink-0 isolate pointer-events-auto flex flex-col">
+                {externalLinks.length > 0 && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none">
+                    {externalLinks.map((link) => (
+                      <button
+                        key={link.id}
+                        onClick={() => {
+                          if (link.url && link.url !== '#' && link.url !== '*') {
+                            openDocOrBooking(link.url, link.name || 'Lien', true);
+                          }
+                        }}
+                        className={`shrink-0 h-8 flex items-center gap-1.5 rounded-full text-white transition-colors overflow-hidden ${link.icon ? 'bg-white hover:bg-white/90' : 'bg-white/15 hover:bg-white/30'}`}
+                        title={link.name || 'Lien'}
+                      >
+                        {link.icon ? (
+                          <img src={link.icon} alt={link.name || ''} className="h-8 w-8 object-contain rounded-full p-1" loading="lazy" />
+                        ) : (
+                          <span className="px-3 text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {hasSocialBar && (
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none">
                   {socialItems.map((s, i) => (
                     <button
@@ -1963,25 +1998,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       {s.icon}
                     </button>
                   ))}
-                  {externalLinks.map((link) => (
+                  {socialItems.length > 0 && bookingItems.length > 0 && (
+                    <div className="shrink-0 w-px h-5 bg-white/20" />
+                  )}
+                  {bookingItems.map((item) => (
                     <button
-                      key={link.id}
-                      onClick={() => {
-                        if (link.url && link.url !== '#' && link.url !== '*') {
-                          openDocOrBooking(link.url, link.name || 'Lien', true);
-                        }
-                      }}
-                      className={`shrink-0 h-8 flex items-center gap-1.5 rounded-full text-white transition-colors overflow-hidden ${link.icon ? 'bg-white hover:bg-white/90' : 'bg-white/15 hover:bg-white/30'}`}
-                      title={link.name || 'Lien'}
+                      key={`${item.name}-${item.url}`}
+                      onClick={() => window.open(item.url, "_blank", "noopener")}
+                      className="shrink-0 h-8 w-8 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                      title={item.name}
                     >
-                      {link.icon ? (
-                        <img src={link.icon} alt={link.name || ''} className="h-8 w-8 object-contain rounded-full p-1" loading="lazy" />
-                      ) : (
-                        <span className="px-3 text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
-                      )}
+                      {item.icon}
                     </button>
                   ))}
-                  {(socialItems.length > 0 || externalLinks.length > 0) && menuDocs.length > 0 && (
+                  {(socialItems.length > 0 || bookingItems.length > 0) && menuDocs.length > 0 && (
                     <div className="shrink-0 w-px h-5 bg-white/20" />
                   )}
                   {menuDocs.map((doc) => (
@@ -1995,6 +2025,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     </button>
                   ))}
                 </div>
+                )}
               </div>
             );
           })()}
