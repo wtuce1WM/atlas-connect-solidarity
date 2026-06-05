@@ -1986,7 +1986,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 )}
                 {hasSocialBar && (
-                <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10">
+                <div className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none lg:flex-wrap lg:overflow-x-visible">
                   {socialItems.map((s, i) => (
                     <button
                       key={i}
