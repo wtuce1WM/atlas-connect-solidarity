@@ -162,13 +162,22 @@ export default function ResultsTabContent({
       : null;
   })();
 
+  // Union of all front_structure subcategory names — used as the default
+  // filter when no specific FS tab is selected, so results stay constrained
+  // to the front_structure scope.
+  const allFsNames = useMemo(() => {
+    const s = new Set<string>();
+    for (const t of frontTabs) for (const n of t.subcategoryNames) s.add(n);
+    return s;
+  }, [frontTabs]);
+
   const handleFsTabClick = (tabId: string | null) => {
     setActiveFsTabId(tabId);
     setActiveFsSubId(null);
     setActiveFsServices([]);
     onFrontStructureServicesFilter?.(null);
     if (!tabId) {
-      onFrontStructureFilter?.(null);
+      onFrontStructureFilter?.(allFsNames.size > 0 ? allFsNames : null);
     } else {
       const tab = frontTabs.find(t => t.id === tabId);
       onFrontStructureFilter?.(tab?.subcategoryNames || null);
