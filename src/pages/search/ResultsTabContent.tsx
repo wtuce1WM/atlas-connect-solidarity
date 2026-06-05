@@ -149,6 +149,12 @@ export default function ResultsTabContent({
     window.addEventListener("open-results-filters", handler);
     return () => window.removeEventListener("open-results-filters", handler);
   }, []);
+  useEffect(() => {
+    if (!showFiltersOverlay) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [showFiltersOverlay]);
   const autoFsLabelKeyRef = useRef<string | null>(null);
   const resolvedHotelSearchInfo = hotelSearchInfo || (() => {
     if (typeof window === "undefined") return null;
