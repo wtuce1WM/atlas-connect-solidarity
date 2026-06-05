@@ -220,8 +220,8 @@ serve(async (req) => {
       console.log(`Found ${knowledgeEntries.length} knowledge entries for query "${query}" (${businessIds.length} by business link)`);
     }
 
-    const businessContext = hasResults
-      ? topBusinesses.map((b: any, i: number) => {
+    const businessContext = effectiveHasResults
+      ? effectiveBusinesses.map((b: any, i: number) => {
           const parts = [`${i + 1}. ${b.name}`];
           if (b.wtuce_status === "verified") parts.push(`[CONFIANCE]`);
           if (b.city) parts.push(`(${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""})`);
@@ -244,7 +244,7 @@ serve(async (req) => {
         ? "Answer in Arabic."
         : "Réponds en français.";
 
-    const noResultsInstructions = !hasResults
+    const noResultsInstructions = !effectiveHasResults
       ? `\n- ${noResultsCfg || "Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles."}
 - IMPORTANT : Ne cite AUCUN nom d'établissement spécifique. Tu ne connais pas notre annuaire, donc n'invente pas de noms. Donne uniquement des conseils généraux sur la thématique ou la destination.
 - Si la recherche mentionne une ville marocaine, partage ce que tu sais sur cette ville en rapport avec la requête.
