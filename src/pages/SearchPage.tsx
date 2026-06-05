@@ -2226,18 +2226,17 @@ const SearchPage = () => {
       const selectFields = "id, name, city, main_category, categories, services, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count, wtuce_status, priority_score";
       const all: Business[] = [];
       let offset = 0;
-      const PAGE = 1000;
       while (true) {
         const { data } = await supabase
           .from("businesses")
           .select(selectFields)
           .eq("is_active", true)
           .ilike("city", effectiveCityForMap)
-          .range(offset, offset + PAGE - 1);
+          .range(offset, offset + MAP_FETCH_PAGE_SIZE - 1);
         if (!data || data.length === 0) break;
         all.push(...(data as unknown as Business[]));
-        if (data.length < PAGE) break;
-        offset += PAGE;
+        if (data.length < MAP_FETCH_PAGE_SIZE) break;
+        offset += MAP_FETCH_PAGE_SIZE;
       }
       if (!cancelled) setAllCityMapBusinesses(all as Business[]);
     };
