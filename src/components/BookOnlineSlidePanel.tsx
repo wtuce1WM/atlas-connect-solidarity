@@ -1983,7 +1983,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         onClick={() => openDocOrBooking(doc.url, doc.name || 'Menu')}
                         className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       >
-                        {categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Globe className="h-3.5 w-3.5" />}
                         <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
                       </button>
                     ))}
