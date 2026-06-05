@@ -595,7 +595,8 @@ const SearchPage = () => {
         }
       }
       const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
-      if (!dedicatedRefinementSearchSucceeded && !pinIdsParam && totalCount && totalCount > refinementPool.length) {
+      const poolMissingRefinementFields = refinementPool.some((b: any) => !Array.isArray(b.services) || !Array.isArray(b.categories));
+      if (!dedicatedRefinementSearchSucceeded && !pinIdsParam && totalCount && (totalCount > refinementPool.length || poolMissingRefinementFields)) {
         try {
           const { data: fullData, error: fullError } = await supabase.functions.invoke<SearchResult>("business-search", {
             body: {
@@ -657,6 +658,7 @@ const SearchPage = () => {
           b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
           b.city, (b as any).neighborhood, (b as any).address,
           ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
+          ...(((b as any).keywords as string[] | null) || []),
           ...((b as any).badges || []), ...((b as any).video_badges || []),
           ...badgeNames,
           ...extraServiceKws, ...extraSubcatKws,
