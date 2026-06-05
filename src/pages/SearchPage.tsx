@@ -4114,7 +4114,7 @@ const SearchPage = () => {
                           liveTranscript={refineVoice.liveTranscript}
                           onClose={refineVoice.toggleRecording}
                           onFinish={refineVoice.finishRecording}
-                          align="start"
+                          align="center"
                         />
                       )}
                       </>
