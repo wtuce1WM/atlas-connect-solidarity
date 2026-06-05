@@ -257,6 +257,14 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
 
       <div
         ref={ref as React.RefObject<HTMLDivElement>}
+        onWheel={(e) => {
+          const el = (ref as React.RefObject<HTMLDivElement>).current;
+          if (!el) return;
+          const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+          if (delta === 0) return;
+          el.scrollLeft += delta;
+          e.preventDefault();
+        }}
         className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth pt-1 pb-1 pl-1 -mt-1"
       >
         {videos.map((video) => {
