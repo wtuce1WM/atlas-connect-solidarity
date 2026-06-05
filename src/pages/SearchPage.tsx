@@ -55,6 +55,7 @@ import FlightSearchOverlay, { type FlightSearchInitial } from "@/components/over
 import WebSearchOverlay from "@/components/overlays/WebSearchOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import VoiceSearchPanel from "@/components/VoiceSearchPanel";
 import { resolveProximityQuery } from "@/lib/proximityQuery";
 import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
@@ -377,6 +378,7 @@ const SearchPage = () => {
   type AiChatMessage = { role: "user" | "assistant"; content: string; clarify?: AiClarify };
   const [aiChat, setAiChat] = useState<AiChatMessage[]>([]);
   const [aiChatInput, setAiChatInput] = useState("");
+  const submitAiRefinementRef = useRef<((t?: string) => void) | null>(null);
   const aiRefinementRef = useRef<HTMLDivElement | null>(null);
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
@@ -849,6 +851,8 @@ const SearchPage = () => {
     setSearchParams(next, { replace: true });
     setTimeout(() => { submitAiRefinement(demoFollowup); }, 1200);
   }, [searchParams, aiAnswerText, aiChatLoading, aiChat.length, submitAiRefinement, setSearchParams]);
+
+  useEffect(() => { submitAiRefinementRef.current = submitAiRefinement; }, [submitAiRefinement]);
 
 
 
@@ -1880,6 +1884,21 @@ const SearchPage = () => {
     },
   });
   toggleRecordingRef.current = toggleRecording;
+
+  // Voice input for the AI refinement composer (mic icon next to "Affinez votre demande")
+  const refineVoice = useVoiceSearch({
+    onTranscript: (keywords) => {
+      const text = (keywords || "").trim();
+      if (!text) return;
+      setAiChatInput(text);
+      setTimeout(() => submitAiRefinementRef.current?.(text), 50);
+    },
+    onError: (message) => {
+      toast({ variant: "destructive", title: "Erreur microphone", description: message });
+    },
+  });
+
+
 
   // Get cities available in current result context (category/subcategory/service included)
   // Keep only direct business cities to avoid showing empty city filters
@@ -4027,6 +4046,7 @@ const SearchPage = () => {
 
                     {/* Composer */}
                     {!reachedCap ? (
+                      <>
                       <form
                         onSubmit={(e) => { e.preventDefault(); submitAiRefinement(); }}
                         className="flex items-end gap-2"
@@ -4059,7 +4079,30 @@ const SearchPage = () => {
                         >
                           {aiChatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                         </button>
+                        <button
+                          type="button"
+                          onClick={refineVoice.toggleRecording}
+                          disabled={aiChatLoading}
+                          className="shrink-0 w-11 h-11 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                          aria-label={language === "en" ? "Voice refinement" : "Affiner à la voix"}
+                          title={language === "en" ? "Voice refinement" : "Affiner à la voix"}
+                        >
+                          {refineVoice.status === "processing" ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Mic className="h-4 w-4" />
+                          )}
+                        </button>
                       </form>
+                      {(refineVoice.status === "recording" || refineVoice.status === "processing") && (
+                        <VoiceSearchPanel
+                          liveTranscript={refineVoice.liveTranscript}
+                          onClose={refineVoice.toggleRecording}
+                          onFinish={refineVoice.finishRecording}
+                          align="start"
+                        />
+                      )}
+                      </>
                     ) : (
                       <p className="text-xs text-center text-muted-foreground italic">
                         {language === "en"
