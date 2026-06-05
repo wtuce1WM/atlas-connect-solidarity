@@ -378,6 +378,7 @@ const SearchPage = () => {
   type AiChatMessage = { role: "user" | "assistant"; content: string; clarify?: AiClarify };
   const [aiChat, setAiChat] = useState<AiChatMessage[]>([]);
   const [aiChatInput, setAiChatInput] = useState("");
+  const submitAiRefinementRef = useRef<((t?: string) => void) | null>(null);
   const aiRefinementRef = useRef<HTMLDivElement | null>(null);
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
