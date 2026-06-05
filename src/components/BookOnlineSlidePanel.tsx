@@ -1093,7 +1093,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               className={`group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pl-4 pr-4 gap-2 cursor-pointer transition-colors ${openBadgeInfo?.isOpen ? 'bg-[#25D366] hover:bg-[#1fb958]' : 'backdrop-blur-md bg-black/80 hover:bg-black/90'}`}
             >
               <Clock className="h-[22px] w-[22px] shrink-0" />
-              <span className="text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Horaires</span>
+              <span className="text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">{openBadgeInfo?.isOpen ? 'Ouvert' : 'Horaires'}</span>
             </div>
           ) : null}
           {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
