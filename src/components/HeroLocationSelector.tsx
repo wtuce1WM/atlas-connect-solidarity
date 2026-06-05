@@ -76,7 +76,7 @@ const HeroLocationSelector = ({
     }
   }, [open]);
 
-  const cityLabel = detectedCity || (language === "fr" ? "Ville" : language === "ar" ? "مدينة" : "City");
+  const cityLabel = detectedCity || T.city;
 
   const filteredCities = search.trim()
     ? cities.filter((c) => {
@@ -102,7 +102,7 @@ const HeroLocationSelector = ({
           className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#25D366] bg-white text-foreground font-semibold text-sm shadow-md transition-all"
         >
           <MapPin className="h-5 w-5 text-[#25D366]" />
-          <span>{isDetecting ? (language === "fr" ? "Détection..." : "Detecting...") : cityLabel}</span>
+          <span>{isDetecting ? T.detecting : cityLabel}</span>
           {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
         </button>
 
@@ -113,14 +113,14 @@ const HeroLocationSelector = ({
             <div className="px-3 pt-3 pb-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="font-semibold text-foreground">
-                  {language === "fr" ? "Lieu:" : language === "ar" ? "المكان:" : "Location:"}
+                  {T.location}
                 </span>
                 <input
                   ref={inputRef}
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder={language === "fr" ? "Ville ou attraction" : language === "ar" ? "مدينة أو معلم" : "City or attraction"}
+                  placeholder={T.cityOrAttraction}
                   className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm"
                 />
               </div>
@@ -141,7 +141,7 @@ const HeroLocationSelector = ({
             >
               <Navigation className="h-5 w-5 text-foreground" />
               <span className="text-sm font-medium text-foreground">
-                {language === "fr" ? "Emplacement Actuel" : language === "ar" ? "الموقع الحالي" : "Current Location"}
+                {T.currentLocation}
               </span>
             </button>
 
@@ -158,7 +158,7 @@ const HeroLocationSelector = ({
             >
               <Map className="h-5 w-5 text-foreground" />
               <span className="text-sm font-medium text-foreground">
-                {language === "fr" ? "Point sur carte" : language === "ar" ? "نقطة على الخريطة" : "Point on map"}
+                {T.pointOnMap}
               </span>
             </button>
 
@@ -200,13 +200,8 @@ const HeroLocationSelector = ({
           className="flex items-center gap-2 pl-4 pr-3 py-2 rounded-l-lg text-white font-semibold text-sm shadow-md transition-all"
           style={{ backgroundColor: "#25D366" }}
         >
-          <span>
-            {language === "fr"
-              ? "Utilisez ma position exacte"
-              : language === "ar"
-                ? "استخدم موقعي الدقيق"
-                : "Use my exact location"}
-          </span>
+          <span>{T.useMyExactLocation}</span>
+
         </button>
         <TooltipProvider delayDuration={0}>
           <Tooltip>
@@ -220,11 +215,8 @@ const HeroLocationSelector = ({
               </button>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="max-w-[280px] text-sm bg-foreground text-background p-3 rounded-lg">
-              {language === "fr"
-                ? "Veuillez activer la géolocalisation pour trouver les meilleurs établissements près de chez vous. Cela nous permettra de montrer des résultats plus précis."
-                : language === "ar"
-                  ? "يرجى تفعيل تحديد الموقع الجغرافي للعثور على أفضل المؤسسات بالقرب منك. سيسمح لنا ذلك بعرض نتائج أكثر دقة."
-                  : "Please enable geolocation to find the best businesses near you. This will allow us to show more accurate results."}
+              {T.tooltip}
+
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
