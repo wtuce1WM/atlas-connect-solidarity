@@ -21,6 +21,49 @@ serve(async (req) => {
       });
     }
 
+    // --- Proximity ambiguity detection (refinement turns only) ---
+    // When the user writes "à côté", "près de", "proche", etc. WITHOUT specifying
+    // the referent (previous results / their location / a place), we don't guess —
+    // we return a `clarify` payload so the UI can ask via clickable badges.
+    const isRefinementTurn = Array.isArray(history) && history.length > 0;
+    if (isRefinementTurn) {
+      const PROX_RE = /\b(à\s+côté|a\s+cote|à\s+coté|près\b|pres\b|proche|à\s+proximité|a\s+proximite|autour|aux\s+alentours|near\b|close\s+to|next\s+to|around)\b/i;
+      // Referent already explicit → no ambiguity.
+      const REFERENT_RE = /\b(r[ée]sultats?\s+pr[ée]c[ée]dents?|d[ée]j[àa]\s+cit[ée]s?|de\s+moi|près\s+de\s+moi|pres\s+de\s+moi|ma\s+position|near\s+me|previous\s+results?|de\s+(la\s+|l[' ’]|le\s+)?[A-ZÉÈÀÂÎÔÛÇ][\wÀ-ÿ'’\- ]{2,})/i;
+      if (PROX_RE.test(query) && !REFERENT_RE.test(query)) {
+        const isEn = language === "en";
+        return new Response(
+          JSON.stringify({
+            answer: "",
+            clarify: {
+              type: "proximity",
+              question: isEn
+                ? "Close to what exactly?"
+                : "À proximité de quoi exactement ?",
+              options: [
+                {
+                  id: "near_previous",
+                  label: isEn ? "Near the previous results" : "À côté des résultats précédents",
+                  text: `${query} ${isEn ? "(near the previous results)" : "(à côté des résultats précédents)"}`,
+                },
+                {
+                  id: "near_me",
+                  label: isEn ? "Near my location" : "Près de ma position",
+                  text: `${query} ${isEn ? "(near my current location)" : "(près de ma position actuelle)"}`,
+                },
+                {
+                  id: "anywhere",
+                  label: isEn ? "Anywhere in the search area" : "Partout dans la zone de recherche",
+                  text: `${query} ${isEn ? "(anywhere in the current search area)" : "(partout dans la zone de recherche actuelle)"}`,
+                },
+              ],
+            },
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
