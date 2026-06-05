@@ -3025,15 +3025,14 @@ const SearchPage = () => {
   // Results tab list to matching businesses (single page, no server pagination).
   const fsFilteredList = useMemo(() => {
     if (!fsFilterSubcategories && (!fsFilterServices || fsFilterServices.size === 0)) return null;
-    const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
-    const matches = pool.filter(b =>
+    const matches = frontStructurePool.filter(b =>
       (!fsFilterSubcategories ||
         (b.main_category && fsFilterSubcategories.has(b.main_category)) ||
         b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
       businessMatchesFsServices(b)
     );
     return [...matches].sort(sortWtuceAndRating);
-  }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses]);
+  }, [fsFilterSubcategories, fsFilterServices, frontStructurePool]);
   const resultsFilteredBusinesses = fsFilteredList ?? filteredBusinesses;
   const fsTotalPages = fsFilteredList ? Math.max(1, Math.ceil(fsFilteredList.length / ITEMS_PER_PAGE)) : 1;
   const fsPageStart = fsFilteredList ? (currentPage - 1) * ITEMS_PER_PAGE : 0;
