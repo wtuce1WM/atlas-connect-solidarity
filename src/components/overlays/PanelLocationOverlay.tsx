@@ -19,6 +19,13 @@ interface PanelLocationOverlayProps {
 
 const DEFAULT_CENTER = { lat: 31.6295, lng: -7.9811 };
 
+const PL_T = {
+  fr: { chooseAddress: "Choisir votre adresse", myPosition: "Ma position", dontGeolocate: "Ne pas me géolocaliser", enterAddress: "Saisir une adresse…", confirmAddress: "Confirmer cette adresse" },
+  en: { chooseAddress: "Choose your address", myPosition: "My position", dontGeolocate: "Don't geolocate me", enterAddress: "Enter an address…", confirmAddress: "Confirm this address" },
+  ar: { chooseAddress: "اختر عنوانك", myPosition: "موقعي", dontGeolocate: "لا تحدد موقعي", enterAddress: "أدخل عنوانًا…", confirmAddress: "تأكيد هذا العنوان" },
+} as const;
+
+
 let gmapsPromise: Promise<void> | null = null;
 function loadGoogleMaps(): Promise<void> {
   if (gmapsPromise) return gmapsPromise;
@@ -53,6 +60,8 @@ function loadGoogleMaps(): Promise<void> {
 
 const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLocationOverlayProps) => {
   const { language } = useLanguage();
+  const T = (PL_T as any)[language] || PL_T.fr;
+
   const geo = useGeolocation();
 
   const mapRef = useRef<any>(null);
@@ -317,7 +326,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
         </button>
         <div className="flex-1">
           <span className="font-semibold text-sm">
-            {language === "fr" ? "Choisir votre adresse" : language === "ar" ? "اختر عنوانك" : "Choose your address"}
+            {T.chooseAddress}
           </span>
           {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
             <p className="text-xs text-muted-foreground mt-0.5 truncate">📍 {geo.confirmedAddress || geo.detectedCity}</p>
@@ -335,7 +344,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
             className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-gold text-white font-medium text-sm hover:bg-gold/90 transition-colors disabled:opacity-50"
           >
             {geo.isDetecting ? <Loader className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
-            {language === "fr" ? "Ma position" : language === "ar" ? "موقعي" : "My position"}
+            {T.myPosition}
           </button>
           <button
             type="button"
@@ -343,7 +352,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
             className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
           >
             <X className="h-4 w-4" />
-            {language === "fr" ? "Ne pas me géolocaliser" : language === "ar" ? "لا تحدد موقعي" : "Don't geolocate me"}
+            {T.dontGeolocate}
           </button>
         </div>
 
@@ -356,7 +365,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
             value={addressQuery}
             onChange={(e) => setAddressQuery(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSearchAddress(); } }}
-            placeholder={language === "fr" ? "Saisir une adresse…" : language === "ar" ? "أدخل عنوانًا…" : "Enter an address…"}
+            placeholder={T.enterAddress}
             className="flex-1 py-3 px-2 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {addressQuery && (
@@ -399,7 +408,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
           className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#25D366] text-white font-semibold text-sm hover:bg-[#25D366]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Check className="h-4 w-4" />
-          {language === "fr" ? "Confirmer cette adresse" : language === "ar" ? "تأكيد هذا العنوان" : "Confirm this address"}
+          {T.confirmAddress}
         </button>
       </div>
     </div>

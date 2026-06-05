@@ -45,6 +45,14 @@ interface MobileSearchOverlayProps {
   geoState?: GeoDisplayState;
 }
 
+const TRANSLATIONS = {
+  fr: { error: "Erreur", recent: "Recherches récentes", clearAll: "Effacer tout", popular: "Recherches populaires", placeholder: "Rechercher un établissement...", recentlyViewed: "Consultés récemment", suggestions: "Suggestions" },
+  en: { error: "Error", recent: "Recent searches", clearAll: "Clear all", popular: "Popular searches", placeholder: "Search for a business...", recentlyViewed: "Recently viewed", suggestions: "Suggestions" },
+  ar: { error: "خطأ", recent: "عمليات البحث الأخيرة", clearAll: "مسح الكل", popular: "عمليات البحث الشائعة", placeholder: "ابحث عن مؤسسة...", recentlyViewed: "تمت مشاهدتها مؤخرًا", suggestions: "اقتراحات" },
+} as const;
+
+
+
 const MobileSearchOverlay = ({
   open,
   onClose,
@@ -64,7 +72,9 @@ const MobileSearchOverlay = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { language } = useLanguage();
+  const T = (TRANSLATIONS as any)[language] || TRANSLATIONS.fr;
   const { toast } = useToast();
+
 
   const { suggestions: popularSuggestions } = usePopularSearches(query, true);
   const { history, deleteEntry, clearHistory } = useSearchHistory();
@@ -90,8 +100,9 @@ const MobileSearchOverlay = ({
       smartNavigate(params);
     },
     onError: (message) => {
-      toast({ title: language === "fr" ? "Erreur" : "Error", description: message, variant: "destructive" });
+      toast({ title: T.error, description: message, variant: "destructive" });
     },
+
   });
 
   // Auto-focus when opening
@@ -122,10 +133,11 @@ const MobileSearchOverlay = ({
 
   if (!open) return null;
 
-  const recentLabel = language === "fr" ? "Recherches récentes" : language === "ar" ? "عمليات البحث الأخيرة" : "Recent searches";
-  const clearLabel = language === "fr" ? "Effacer tout" : language === "ar" ? "مسح الكل" : "Clear all";
-  const popularLabel = language === "fr" ? "Recherches populaires" : language === "ar" ? "عمليات البحث الشائعة" : "Popular searches";
-  const placeholderText = language === "fr" ? "Rechercher un établissement..." : language === "ar" ? "ابحث عن مؤسسة..." : "Search for a business...";
+  const recentLabel = T.recent;
+  const clearLabel = T.clearAll;
+  const popularLabel = T.popular;
+  const placeholderText = T.placeholder;
+
 
   const showRecent = (!query || query.trim().length < 2) && history.length > 0;
   const showRecentlyViewed = (!query || query.trim().length < 2) && recentBusinesses.length > 0;
@@ -250,7 +262,7 @@ const MobileSearchOverlay = ({
           <div className="mb-6">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-3">
               <MapPin className="h-3.5 w-3.5" />
-              {language === "fr" ? "Consultés récemment" : language === "ar" ? "تمت مشاهدتها مؤخرًا" : "Recently viewed"}
+              {T.recentlyViewed}
             </span>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-2">
               {recentBusinesses.slice(0, 8).map((biz, i) => (
@@ -313,7 +325,7 @@ const MobileSearchOverlay = ({
           <div>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-3">
               <TrendingUp className="h-3.5 w-3.5" />
-              {query.trim().length >= 2 ? (language === "fr" ? "Suggestions" : "Suggestions") : popularLabel}
+              {query.trim().length >= 2 ? T.suggestions : popularLabel}
             </span>
             <div className="space-y-0.5">
               {popularSuggestions.map((s, i) => (

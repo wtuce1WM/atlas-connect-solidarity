@@ -20,6 +20,12 @@ interface CityOption {
   name_ar: string | null;
 }
 
+const TRANSLATIONS = {
+  fr: { city: "Ville", detecting: "Détection...", location: "Lieu:", cityOrAttraction: "Ville ou attraction", currentLocation: "Emplacement Actuel", pointOnMap: "Point sur carte", useMyExactLocation: "Utilisez ma position exacte", tooltip: "Veuillez activer la géolocalisation pour trouver les meilleurs établissements près de chez vous. Cela nous permettra de montrer des résultats plus précis." },
+  en: { city: "City", detecting: "Detecting...", location: "Location:", cityOrAttraction: "City or attraction", currentLocation: "Current Location", pointOnMap: "Point on map", useMyExactLocation: "Use my exact location", tooltip: "Please enable geolocation to find the best businesses near you. This will allow us to show more accurate results." },
+  ar: { city: "مدينة", detecting: "Detecting...", location: "المكان:", cityOrAttraction: "مدينة أو معلم", currentLocation: "الموقع الحالي", pointOnMap: "نقطة على الخريطة", useMyExactLocation: "استخدم موقعي الدقيق", tooltip: "يرجى تفعيل تحديد الموقع الجغرافي للعثور على أفضل المؤسسات بالقرب منك. سيسمح لنا ذلك بعرض نتائج أكثر دقة." },
+} as const;
+
 const HeroLocationSelector = ({
   detectedCity,
   confirmedAddress,
@@ -30,11 +36,13 @@ const HeroLocationSelector = ({
   onOpenMap,
 }: HeroLocationSelectorProps) => {
   const { language } = useLanguage();
+  const T = TRANSLATIONS[language] || TRANSLATIONS.fr;
   const [open, setOpen] = useState(false);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [search, setSearch] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
 
   // Load cities
   useEffect(() => {
@@ -68,7 +76,7 @@ const HeroLocationSelector = ({
     }
   }, [open]);
 
-  const cityLabel = detectedCity || (language === "fr" ? "Ville" : language === "ar" ? "مدينة" : "City");
+  const cityLabel = detectedCity || T.city;
 
   const filteredCities = search.trim()
     ? cities.filter((c) => {
@@ -94,7 +102,7 @@ const HeroLocationSelector = ({
           className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#25D366] bg-white text-foreground font-semibold text-sm shadow-md transition-all"
         >
           <MapPin className="h-5 w-5 text-[#25D366]" />
-          <span>{isDetecting ? (language === "fr" ? "Détection..." : "Detecting...") : cityLabel}</span>
+          <span>{isDetecting ? T.detecting : cityLabel}</span>
           {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
         </button>
 
@@ -105,14 +113,14 @@ const HeroLocationSelector = ({
             <div className="px-3 pt-3 pb-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="font-semibold text-foreground">
-                  {language === "fr" ? "Lieu:" : language === "ar" ? "المكان:" : "Location:"}
+                  {T.location}
                 </span>
                 <input
                   ref={inputRef}
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder={language === "fr" ? "Ville ou attraction" : language === "ar" ? "مدينة أو معلم" : "City or attraction"}
+                  placeholder={T.cityOrAttraction}
                   className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm"
                 />
               </div>
@@ -133,7 +141,7 @@ const HeroLocationSelector = ({
             >
               <Navigation className="h-5 w-5 text-foreground" />
               <span className="text-sm font-medium text-foreground">
-                {language === "fr" ? "Emplacement Actuel" : language === "ar" ? "الموقع الحالي" : "Current Location"}
+                {T.currentLocation}
               </span>
             </button>
 
@@ -150,7 +158,7 @@ const HeroLocationSelector = ({
             >
               <Map className="h-5 w-5 text-foreground" />
               <span className="text-sm font-medium text-foreground">
-                {language === "fr" ? "Point sur carte" : language === "ar" ? "نقطة على الخريطة" : "Point on map"}
+                {T.pointOnMap}
               </span>
             </button>
 
@@ -192,13 +200,8 @@ const HeroLocationSelector = ({
           className="flex items-center gap-2 pl-4 pr-3 py-2 rounded-l-lg text-white font-semibold text-sm shadow-md transition-all"
           style={{ backgroundColor: "#25D366" }}
         >
-          <span>
-            {language === "fr"
-              ? "Utilisez ma position exacte"
-              : language === "ar"
-                ? "استخدم موقعي الدقيق"
-                : "Use my exact location"}
-          </span>
+          <span>{T.useMyExactLocation}</span>
+
         </button>
         <TooltipProvider delayDuration={0}>
           <Tooltip>
@@ -212,11 +215,8 @@ const HeroLocationSelector = ({
               </button>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="max-w-[280px] text-sm bg-foreground text-background p-3 rounded-lg">
-              {language === "fr"
-                ? "Veuillez activer la géolocalisation pour trouver les meilleurs établissements près de chez vous. Cela nous permettra de montrer des résultats plus précis."
-                : language === "ar"
-                  ? "يرجى تفعيل تحديد الموقع الجغرافي للعثور على أفضل المؤسسات بالقرب منك. سيسمح لنا ذلك بعرض نتائج أكثر دقة."
-                  : "Please enable geolocation to find the best businesses near you. This will allow us to show more accurate results."}
+              {T.tooltip}
+
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

@@ -19,12 +19,20 @@ import HeroLocationSelector from "@/components/HeroLocationSelector";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 
+const HS_T = {
+  fr: { useLocationQ: "Utiliser votre position pour affiner les résultats ?", changeAnytime: "Vous pouvez changer ce choix à tout moment.", noThanks: "Non merci", enable: "Activer" },
+  en: { useLocationQ: "Use your location to refine results?", changeAnytime: "You can change this anytime.", noThanks: "No thanks", enable: "Enable" },
+  ar: { useLocationQ: "استخدام موقعك لتحسين النتائج؟", changeAnytime: "يمكنك تغيير هذا الخيار في أي وقت.", noThanks: "لا شكراً", enable: "تفعيل" },
+} as const;
+
 const HeroSection = () => {
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
 
   const { t, language } = useLanguage();
+  const T = (HS_T as any)[language] || HS_T.fr;
+
   const navigate = useNavigate();
   
   const [searchCategory, setSearchCategory] = useState("all");
@@ -298,20 +306,21 @@ const HeroSection = () => {
           <MapPin className="h-5 w-5 text-gold mt-0.5 shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium text-foreground">
-              {language === "fr" ? "Utiliser votre position pour affiner les résultats ?" : language === "ar" ? "استخدام موقعك لتحسين النتائج؟" : "Use your location to refine results?"}
+              {T.useLocationQ}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {language === "fr" ? "Vous pouvez changer ce choix à tout moment." : language === "ar" ? "يمكنك تغيير هذا الخيار في أي وقت." : "You can change this anytime."}
+              {T.changeAnytime}
             </p>
             <div className="flex gap-2 mt-3 justify-end">
               <Button variant="ghost" size="sm" onClick={geo.decline}>
-                {language === "fr" ? "Non merci" : language === "ar" ? "لا شكراً" : "No thanks"}
+                {T.noThanks}
               </Button>
               <Button size="sm" onClick={geo.accept} className="bg-gold text-black hover:bg-gold/90">
                 <MapPin className="h-3.5 w-3.5 mr-1" />
-                {language === "fr" ? "Activer" : language === "ar" ? "تفعيل" : "Enable"}
+                {T.enable}
               </Button>
             </div>
+
           </div>
           <button onClick={geo.dismiss} className="text-muted-foreground hover:text-foreground">
             <X className="h-4 w-4" />
