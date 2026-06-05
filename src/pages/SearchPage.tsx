@@ -455,7 +455,8 @@ const SearchPage = () => {
       // not only the 10 used for the initial AI suggestion.
       const bizData = (allBusinesses || []).slice(0, 100).map((b) => ({
         id: b.id, name: b.name, city: b.city, main_category: b.main_category,
-        categories: b.categories, hook_fr: b.hook_fr, rating: b.rating,
+        categories: b.categories, services: b.services, keywords: (b as any).keywords,
+        hook_fr: b.hook_fr, rating: b.rating,
         wtuce_status: b.wtuce_status, images: b.images, logo_url: b.logo_url,
         neighborhood: b.neighborhood, google_rating: b.google_rating,
         google_review_count: b.google_review_count, tripadvisor_rating: b.tripadvisor_rating,
@@ -778,7 +779,8 @@ const SearchPage = () => {
         if (cancelled || error || !data?.businesses) return;
         const bizData = (data.businesses as any[]).slice(0, 100).map((b: any) => ({
           id: b.id, name: b.name, city: b.city, main_category: b.main_category,
-          categories: b.categories, hook_fr: b.hook_fr, rating: b.rating,
+          categories: b.categories, services: b.services, keywords: (b as any).keywords,
+          hook_fr: b.hook_fr, rating: b.rating,
           wtuce_status: b.wtuce_status, images: b.images, logo_url: b.logo_url,
           neighborhood: b.neighborhood, google_rating: b.google_rating,
           google_review_count: b.google_review_count, tripadvisor_rating: b.tripadvisor_rating,
