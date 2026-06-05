@@ -79,7 +79,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
       onSearch(params);
     },
     onError: (message) => {
-      toast({ title: language === "fr" ? "Erreur" : "Error", description: message, variant: "destructive" });
+      toast({ title: language === "ar" ? "خطأ" : language === "en" ? "Error" : "Erreur", description: message, variant: "destructive" });
     },
   });
 
@@ -117,7 +117,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
         <button
           type="button"
           onClick={() => submit(query)}
-          aria-label={language === "fr" ? "Rechercher" : "Search"}
+          aria-label={language === "ar" ? "بحث" : language === "en" ? "Search" : "Rechercher"}
           className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all bg-primary hover:bg-primary/90 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
         >
           <Search className="h-5 w-5 text-primary-foreground" />
@@ -131,7 +131,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
             type="button"
             onClick={() => voice.toggleRecording()}
             disabled={voice.status === "processing"}
-            aria-label={language === "fr" ? "Recherche vocale" : "Voice search"}
+            aria-label={language === "ar" ? "بحث صوتي" : language === "en" ? "Voice search" : "Recherche vocale"}
             className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
               voice.status === "recording"
                 ? "bg-red-500 animate-pulse"
