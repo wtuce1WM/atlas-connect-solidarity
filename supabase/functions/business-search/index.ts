@@ -5264,6 +5264,38 @@ serve(async (req) => {
         logo_url: b.logo_url ?? null,
       }));
     } else if (compact === "card") {
+      // Batch-fetch video + document text for the candidate businesses so the
+      // front-side AND filter (buildBlob) can match on this enriched content too.
+      const candidateIds = paginatedBusinesses.map((b: any) => b.id).filter(Boolean);
+      const extraTextByBiz = new Map<string, string>();
+      if (candidateIds.length > 0) {
+        try {
+          const [ytRes, docRes, gvLinkRes] = await Promise.all([
+            supabase.from("business_youtube_videos").select("business_id, title").in("business_id", candidateIds),
+            supabase.from("business_documents").select("business_id, name, description").in("business_id", candidateIds),
+            supabase.from("generic_video_businesses").select("business_id, generic_video_id").in("business_id", candidateIds),
+          ]);
+          const append = (id: string, txt: string) => {
+            if (!txt) return;
+            const prev = extraTextByBiz.get(id) || "";
+            extraTextByBiz.set(id, prev ? `${prev} ${txt}` : txt);
+          };
+          for (const r of (ytRes.data || [])) append(r.business_id, r.title || "");
+          for (const r of (docRes.data || [])) append(r.business_id, `${r.name || ""} ${r.description || ""}`.trim());
+          const gvIds = Array.from(new Set((gvLinkRes.data || []).map((r: any) => r.generic_video_id).filter(Boolean)));
+          if (gvIds.length > 0) {
+            const gvRes = await supabase.from("generic_videos").select("id, title, name, description").in("id", gvIds);
+            const gvById = new Map<string, { title?: string; name?: string; description?: string }>();
+            for (const v of (gvRes.data || [])) gvById.set(v.id, v);
+            for (const link of (gvLinkRes.data || [])) {
+              const v = gvById.get(link.generic_video_id);
+              if (v) append(link.business_id, `${v.title || ""} ${v.name || ""} ${v.description || ""}`.trim());
+            }
+          }
+        } catch (e) {
+          console.warn("extra_text batch fetch failed:", e);
+        }
+      }
       projectedBusinesses = paginatedBusinesses.map((b: any) => ({
         id: b.id,
         name: b.name,
@@ -5304,6 +5336,7 @@ serve(async (req) => {
         google_review_count: b.google_review_count ?? null,
         tripadvisor_rating: b.tripadvisor_rating ?? null,
         tripadvisor_review_count: b.tripadvisor_review_count ?? null,
+        extra_text: extraTextByBiz.get(b.id) || null,
       }));
     }
 
