@@ -3988,7 +3988,7 @@ const SearchPage = () => {
                         voiceLoopRef.current = true;
                         ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
                       }}
-                      className="relative w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/30 transition-transform hover:scale-105"
+                      className="relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/30 transition-transform hover:scale-105"
                       style={{
                         background: "linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))",
                         boxShadow: "0 8px 32px hsl(var(--primary) / 0.3), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.1)",
@@ -4003,11 +4003,11 @@ const SearchPage = () => {
                         }}
                       />
                       {ttsStatus === "loading" ? (
-                        <Loader className="relative h-7 w-7 md:h-8 md:w-8 animate-spin" style={{ color: "hsl(var(--primary))" }} />
+                        <Loader className="relative h-5 w-5 md:h-6 md:w-6 animate-spin" style={{ color: "hsl(var(--primary))" }} />
                       ) : (ttsStatus === "playing") ? (
-                        <VolumeX className="relative h-7 w-7 md:h-8 md:w-8" style={{ color: "hsl(var(--primary))" }} />
+                        <VolumeX className="relative h-5 w-5 md:h-6 md:w-6" style={{ color: "hsl(var(--primary))" }} />
                       ) : (
-                        <Volume2 className="relative h-7 w-7 md:h-8 md:w-8" style={{ color: "hsl(var(--primary))" }} />
+                        <Volume2 className="relative h-5 w-5 md:h-6 md:w-6" style={{ color: "hsl(var(--primary))" }} />
                       )}
                     </button>
                   </div>
