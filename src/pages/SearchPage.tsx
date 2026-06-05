@@ -380,6 +380,68 @@ const SearchPage = () => {
   const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
   const [restoredAiBusinessPool, setRestoredAiBusinessPool] = useState<Business[]>([]);
   const lastAiProximityRef = useRef<{ lat: number; lng: number; radiusKm: number; targetName: string; query: string } | null>(null);
+  // Lazy cache for AI-refinement blob enrichment: services keywords, subcategory keywords,
+  // and per-business badge names (M2M via business_badges). Loaded once on first refinement.
+  const refinementEnrichmentRef = useRef<{
+    servicesKw: Map<string, string[]>;
+    subcatsKw: Map<string, string[]>;
+    bizBadges: Map<string, string[]>;
+  } | null>(null);
+  const refinementEnrichmentLoadingRef = useRef<Promise<void> | null>(null);
+  const ensureRefinementEnrichment = useCallback(async () => {
+    if (refinementEnrichmentRef.current) return;
+    if (refinementEnrichmentLoadingRef.current) {
+      await refinementEnrichmentLoadingRef.current;
+      return;
+    }
+    refinementEnrichmentLoadingRef.current = (async () => {
+      try {
+        const [svcRes, subRes, bbRes] = await Promise.all([
+          supabase.from("services").select("name_fr, name_en, name_ar, keywords"),
+          supabase.from("subcategories").select("name_fr, name_en, name_ar, keywords"),
+          supabase.from("business_badges").select("business_id, badges:badge_id(name_fr, name_en, name_ar)"),
+        ]);
+        const servicesKw = new globalThis.Map<string, string[]>();
+        for (const s of (svcRes.data || []) as any[]) {
+          const kws: string[] = Array.isArray(s.keywords) ? s.keywords.filter(Boolean) : [];
+          if (kws.length === 0) continue;
+          for (const n of [s.name_fr, s.name_en, s.name_ar]) {
+            if (n) servicesKw.set(String(n), kws);
+          }
+        }
+        const subcatsKw = new globalThis.Map<string, string[]>();
+        for (const s of (subRes.data || []) as any[]) {
+          const kws: string[] = Array.isArray(s.keywords) ? s.keywords.filter(Boolean) : [];
+          if (kws.length === 0) continue;
+          for (const n of [s.name_fr, s.name_en, s.name_ar]) {
+            if (n) subcatsKw.set(String(n), kws);
+          }
+        }
+        const bizBadges = new globalThis.Map<string, string[]>();
+        for (const row of (bbRes.data || []) as any[]) {
+          const bId = row.business_id as string | undefined;
+          const b = row.badges;
+          if (!bId || !b) continue;
+          const names = [b.name_fr, b.name_en, b.name_ar].filter(Boolean) as string[];
+          if (names.length === 0) continue;
+          const arr = bizBadges.get(bId) || [];
+          arr.push(...names);
+          bizBadges.set(bId, arr);
+        }
+        refinementEnrichmentRef.current = { servicesKw, subcatsKw, bizBadges };
+      } catch (e) {
+        console.warn("Failed to load AI refinement enrichment cache:", e);
+        refinementEnrichmentRef.current = {
+          servicesKw: new globalThis.Map(),
+          subcatsKw: new globalThis.Map(),
+          bizBadges: new globalThis.Map(),
+        };
+      } finally {
+        refinementEnrichmentLoadingRef.current = null;
+      }
+    })();
+    await refinementEnrichmentLoadingRef.current;
+  }, []);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
@@ -570,12 +632,36 @@ const SearchPage = () => {
       const turnsTokens = [...previousUserQs, q].map(tokenize).filter((arr) => arr.length > 0);
       const allTokens = Array.from(new Set(turnsTokens.flat()));
       const dedupedPool = Array.from(new globalThis.Map<string, Business>(refinementPool.map((b) => [b.id, b])).values());
-      const buildBlob = (b: Business) => normalizeText([
-        b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
-        b.city, (b as any).neighborhood, (b as any).address,
-        ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
-        ...((b as any).badges || []), ...((b as any).video_badges || []),
-      ].filter(Boolean).map((v) => String(v)).join(" | "));
+      // Load synonym/keyword enrichment maps once (services keywords, subcategories keywords,
+      // and per-business badge names) so the AND filter can match semantic variants
+      // (e.g. "centre équestre" → service "Haras" via its keywords).
+      await ensureRefinementEnrichment();
+      const enrichment = refinementEnrichmentRef.current;
+      const buildBlob = (b: Business) => {
+        const extraServiceKws: string[] = [];
+        const extraSubcatKws: string[] = [];
+        const badgeNames: string[] = [];
+        if (enrichment) {
+          for (const s of b.services || []) {
+            const kws = enrichment.servicesKw.get(String(s));
+            if (kws) extraServiceKws.push(...kws);
+          }
+          for (const c of b.categories || []) {
+            const kws = enrichment.subcatsKw.get(String(c));
+            if (kws) extraSubcatKws.push(...kws);
+          }
+          const bb = enrichment.bizBadges.get(b.id);
+          if (bb) badgeNames.push(...bb);
+        }
+        return normalizeText([
+          b.name, b.main_category, b.hook_fr, b.hook_en, b.hook_ar,
+          b.city, (b as any).neighborhood, (b as any).address,
+          ...(b.categories || []), ...(b.services || []), ...(b.engagements || []),
+          ...((b as any).badges || []), ...((b as any).video_badges || []),
+          ...badgeNames,
+          ...extraServiceKws, ...extraSubcatKws,
+        ].filter(Boolean).map((v) => String(v)).join(" | "));
+      };
       const matchesAllTurns = (blob: string) =>
         turnsTokens.every((turnToks) => turnToks.some((t) => blob.includes(t)));
       const scoreBusiness = (blob: string): number => {
