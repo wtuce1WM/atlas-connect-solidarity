@@ -5272,6 +5272,7 @@ serve(async (req) => {
         neighborhood: b.neighborhood ?? null,
         main_category: b.main_category ?? null,
         categories: b.categories ?? null,
+        services: b.services ?? null,
         logo_url: b.logo_url ?? null,
         images: b.images ?? null,
         latitude: b.latitude ?? null,

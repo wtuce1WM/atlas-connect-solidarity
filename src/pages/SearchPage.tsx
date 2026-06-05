@@ -673,23 +673,7 @@ const SearchPage = () => {
         const blob = buildBlob(b);
         return { b, blob, s: scoreBusiness(blob), ok: matchesAllTurns(blob) };
       });
-      // DEBUG: trace Selman / refinement matching
-      try {
-        const selman = scored.find((x) => /selman/i.test(x.b.name) && !/spa|haras/i.test(x.b.name));
-        console.log("[AI-refine debug]", {
-          poolSize: dedupedPool.length,
-          turnsTokens,
-          enrichmentLoaded: !!enrichment,
-          servicesKwSize: enrichment?.servicesKw.size,
-          selmanInPool: !!selman,
-          selmanServices: selman?.b.services,
-          selmanHarasKws: enrichment?.servicesKw.get("Haras"),
-          selmanBlobHasEquestre: selman?.blob.includes("equestre"),
-          selmanOk: selman?.ok,
-          selmanScore: selman?.s,
-          strictCount: scored.filter((x) => x.ok).length,
-        });
-      } catch {}
+      // (debug removed)
       const strictlyMatching = scored.filter((x) => x.ok).sort((a, z) => z.s - a.s).map((x) => x.b);
       const fallbackRanked = scored.sort((a, z) => z.s - a.s).map((x) => x.b);
       const orderedPool = strictlyMatching.length > 0 ? strictlyMatching : fallbackRanked;
