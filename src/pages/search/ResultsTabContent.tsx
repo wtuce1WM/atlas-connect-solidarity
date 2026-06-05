@@ -221,14 +221,15 @@ export default function ResultsTabContent({
     onFrontStructureServicesFilter?.(null);
   }, [effectiveCity, searchQuery]);
 
-  // Always constrain results to the front_structure scope when no specific
-  // FS tab is selected (otherwise out-of-scope businesses like Night Clubs
-  // leak into "all categories" results).
+  // Always constrain browse results to the front_structure scope when no specific
+  // FS tab is selected. Do not apply this default during a text/server search:
+  // it would re-count only the currently loaded page (21) instead of totalCount.
   useEffect(() => {
     if (activeFsTabId) return;
+    if (searchQuery.trim()) return;
     if (allFsNames.size === 0) return;
     onFrontStructureFilter?.(allFsNames);
-  }, [activeFsTabId, allFsNames, onFrontStructureFilter]);
+  }, [activeFsTabId, allFsNames, onFrontStructureFilter, searchQuery]);
 
   // When landing on a front-structure URL (e.g. label=Hébergement), select that tab
   // so the subcategory/services filter is visible immediately.
