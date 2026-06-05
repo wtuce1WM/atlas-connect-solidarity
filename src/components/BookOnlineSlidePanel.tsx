@@ -1917,6 +1917,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           {/* External links + Social / Booking / Menu strips */}
           {!descGridSection && (() => {
             const socialItems: { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[] = [
+              business?.website && { name: "Site web", url: business.website, icon: <Globe className="h-4 w-4" /> },
               business?.instagram_url && { name: "Instagram", url: business.instagram_url, icon: <InstagramIcon className="h-4 w-4" /> },
               business?.facebook_url && { name: "Facebook", url: business.facebook_url, icon: <FacebookIcon className="h-4 w-4" /> },
               business?.tiktok_url && { name: "TikTok", url: business.tiktok_url, icon: <TikTokIcon className="h-5 w-5" /> },
