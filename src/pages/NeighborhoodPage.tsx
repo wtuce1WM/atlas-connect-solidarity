@@ -75,6 +75,8 @@ const NeighborhoodPage = () => {
       forLabel: "pour",
       sortByRating: "Trier par note",
       sortByReviews: "Trier par avis",
+      neighborhood: "Quartier",
+      noResults: "Aucun établissement trouvé dans ce quartier",
     },
     en: {
       filterResults: "Filter results",
@@ -83,6 +85,8 @@ const NeighborhoodPage = () => {
       forLabel: "for",
       sortByRating: "Sort by rating",
       sortByReviews: "Sort by reviews",
+      neighborhood: "Neighborhood",
+      noResults: "No businesses found in this neighborhood",
     },
     ar: {
       filterResults: "تصفية النتائج",
@@ -91,6 +95,8 @@ const NeighborhoodPage = () => {
       forLabel: "لـ",
       sortByRating: "ترتيب حسب التقييم",
       sortByReviews: "ترتيب حسب التعليقات",
+      neighborhood: "حي",
+      noResults: "لم يتم العثور على مؤسسات في هذا الحي",
     },
   } as const;
   const t = TRANSLATIONS[language] || TRANSLATIONS.fr;
@@ -386,11 +392,7 @@ const NeighborhoodPage = () => {
           <div>
             <h1 className="text-3xl font-bold text-white flex items-center gap-3">
               <MapPin className="h-8 w-8 text-gold" />
-              {language === "fr"
-                ? `Quartier ${decodedNeighborhood}`
-                : language === "ar"
-                  ? `حي ${decodedNeighborhood}`
-                  : `${decodedNeighborhood} Neighborhood`}
+              {language === "en" ? `${decodedNeighborhood} ${t.neighborhood}` : `${t.neighborhood} ${decodedNeighborhood}`}
               <ShareButton title={decodedNeighborhood} />
             </h1>
             {cityName && (
@@ -573,11 +575,7 @@ const NeighborhoodPage = () => {
             <div className="text-center py-16">
               <MapPin className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">
-                {language === "fr"
-                  ? "Aucun établissement trouvé dans ce quartier"
-                  : language === "ar"
-                    ? "لم يتم العثور على مؤسسات في هذا الحي"
-                    : "No businesses found in this neighborhood"}
+                {t.noResults}
               </p>
             </div>
           ) : (

@@ -410,6 +410,8 @@ const ServicePage = () => {
       inEveryCity: "dans chaque ville",
       viewOnMap: "Voir sur la carte",
       shownOnMap: "Affiché sur la carte",
+      discover: "Découvrez",
+      yumYum: "Miam, Miam !",
     },
     en: {
       establishments: "establishments",
@@ -439,6 +441,8 @@ const ServicePage = () => {
       inEveryCity: "in every city",
       viewOnMap: "View on map",
       shownOnMap: "Shown on map",
+      discover: "Discover",
+      yumYum: "Yum, Yum!",
     },
     ar: {
       establishments: "مؤسسة",
@@ -468,6 +472,8 @@ const ServicePage = () => {
       inEveryCity: "في كل مدينة",
       viewOnMap: "عرض على الخريطة",
       shownOnMap: "معروض على الخريطة",
+      discover: "اكتشف",
+      yumYum: "!يم يم",
     }
   };
 
@@ -597,19 +603,11 @@ const ServicePage = () => {
             <div className="mb-8 bg-black/50 rounded-xl p-6">
               <div className="mb-6 text-center">
                 <h2 className="mb-2 text-xl sm:text-3xl font-bold text-white">
-                  {language === "fr"
-                    ? `Découvrez ${displayTitle} `
-                    : language === "ar"
-                      ? `اكتشف ${displayTitle} `
-                      : `Discover ${displayTitle} `}
+                  {`${t.discover} ${displayTitle} `}
                   <span className="text-gold">{t.inEveryCity}</span>
                 </h2>
                 <p className="mx-auto max-w-2xl text-gray-400">
-                  {language === "fr"
-                    ? "Miam, Miam !"
-                    : language === "ar"
-                      ? "!يم يم"
-                      : "Yum, Yum!"}
+                  {t.yumYum}
                 </p>
               </div>
               <div className="relative px-10 sm:px-0">
