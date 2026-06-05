@@ -127,12 +127,16 @@ const VideoDocumentOverlay = ({
 
 
 
-  // Vertical swipe nav (mobile) — same behavior as SlidePanelHome
+  // Swipe nav (mobile/tablet) — horizontal (thumb) + vertical fallback
   const isMobile = useIsMobile();
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  useEffect(() => {
+    setIsTouchDevice(window.matchMedia("(max-width: 1023px)").matches || ("ontouchstart" in window));
+  }, []);
   const swipeStartY = useRef<number | null>(null);
   const swipeStartX = useRef<number | null>(null);
   const swipeHandled = useRef(false);
-  const swipeEnabled = isMobile && !descExpanded;
+  const swipeEnabled = (isMobile || isTouchDevice) && !descExpanded;
   const resetSwipe = () => {
     swipeStartY.current = null;
     swipeStartX.current = null;
@@ -153,6 +157,20 @@ const VideoDocumentOverlay = ({
         if (swipeHandled.current || swipeStartY.current === null || swipeStartX.current === null) return;
         const dy = e.touches[0].clientY - swipeStartY.current;
         const dx = e.touches[0].clientX - swipeStartX.current;
+        // Horizontal swipe (thumb): right = previous, left = next
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+          if (dx < 0 && hasNext) {
+            e.preventDefault();
+            swipeHandled.current = true;
+            goTo(currentIdx + 1);
+          } else if (dx > 0 && hasPrev) {
+            e.preventDefault();
+            swipeHandled.current = true;
+            goTo(currentIdx - 1);
+          }
+          return;
+        }
+        // Vertical swipe fallback
         if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.5) {
           if (dy < 0 && hasNext) {
             e.preventDefault();
