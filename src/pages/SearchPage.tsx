@@ -2078,6 +2078,12 @@ const SearchPage = () => {
     return filteredBusinesses;
   }, [aiRefinementBusinessPool, showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
 
+  const hasActiveSearchContext = !!searchQuery.trim() || !!categoryFromUrl || totalCount !== null;
+  const frontStructurePool = useMemo(() => {
+    if (hasActiveSearchContext) return searchMapPool;
+    return allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
+  }, [hasActiveSearchContext, searchMapPool, allCityMapBusinesses, filteredBusinesses]);
+
   // "Tous" tab: show search results only (desktop) — capped to 20 unless "Voir tous" is toggled
   const mapPoiItemsSearch: PoiMapItem[] = useMemo(() => {
     const items = buildMapPoiItems(searchMapPool, true);
@@ -2093,9 +2099,7 @@ const SearchPage = () => {
   // Helper: sort and slice for front structure category filtering
   const buildFsCategoryItems = useCallback((guardDesktop: boolean): PoiMapItem[] => {
     if (!fsFilterSubcategories) return [];
-    // Use allCityMapBusinesses when available, fall back to filteredBusinesses
-    const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
-    const matching = pool.filter(b =>
+    const matching = frontStructurePool.filter(b =>
       ((b.main_category && fsFilterSubcategories.has(b.main_category)) ||
        b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
       businessMatchesFsServices(b)
@@ -2112,18 +2116,17 @@ const SearchPage = () => {
     });
     const sliced = showAllSearchMarkers ? matching : matching.slice(0, 20);
     return buildMapPoiItems(sliced, guardDesktop);
-  }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses, buildMapPoiItems, showAllSearchMarkers]);
+  }, [fsFilterSubcategories, fsFilterServices, frontStructurePool, buildMapPoiItems, showAllSearchMarkers]);
 
   // Total matching count for the active FS category tab (full pool, before slicing)
   const fsMatchingCount = useMemo(() => {
     if (!fsFilterSubcategories) return 0;
-    const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
-    return pool.filter(b =>
+    return frontStructurePool.filter(b =>
       ((b.main_category && fsFilterSubcategories.has(b.main_category)) ||
        b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
       businessMatchesFsServices(b)
     ).length;
-  }, [fsFilterSubcategories, fsFilterServices, allCityMapBusinesses, filteredBusinesses]);
+  }, [fsFilterSubcategories, fsFilterServices, frontStructurePool]);
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
