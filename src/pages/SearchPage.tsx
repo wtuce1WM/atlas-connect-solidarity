@@ -1882,6 +1882,21 @@ const SearchPage = () => {
   });
   toggleRecordingRef.current = toggleRecording;
 
+  // Voice input for the AI refinement composer (mic icon next to "Affinez votre demande")
+  const refineVoice = useVoiceSearch({
+    skipIntentExtraction: true,
+    onTranscript: (keywords) => {
+      const text = (keywords || "").trim();
+      if (!text) return;
+      setAiChatInput(text);
+      setTimeout(() => submitAiRefinementRef.current?.(text), 50);
+    },
+    onError: (message) => {
+      toast({ variant: "destructive", title: "Erreur microphone", description: message });
+    },
+  });
+
+
   // Get cities available in current result context (category/subcategory/service included)
   // Keep only direct business cities to avoid showing empty city filters
   const availableCities = useMemo(() => {
