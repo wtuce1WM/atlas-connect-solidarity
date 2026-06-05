@@ -4136,48 +4136,15 @@ const SearchPage = () => {
 
 
 
-              {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
-
+              {/* Adresse géolocalisée */}
               <div className="flex flex-col items-center gap-4 pt-14 pb-24">
-                <div className="flex items-center justify-center gap-16">
-                  {/* Listen */}
-                  <div className="relative flex items-center justify-center">
-                    <span className="absolute w-16 h-16 rounded-full border border-secondary/40 animate-[ripple_2.4s_ease-out_infinite]" />
-                    <span className="absolute w-16 h-16 rounded-full border border-secondary/30 animate-[ripple_2.4s_ease-out_0.6s_infinite]" />
-                    <span className="absolute w-16 h-16 rounded-full border border-secondary/20 animate-[ripple_2.4s_ease-out_1.2s_infinite]" />
-                    {(ttsStatus === "playing" || ttsStatus === "loading") ? (
-                      <button
-                        onClick={ttsStop}
-                        className="relative z-10 w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                      >
-                        {ttsStatus === "loading" ? <Loader className="h-7 w-7 text-white animate-spin" /> : <VolumeX className="h-7 w-7 text-white" />}
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          const lastAssistant = [...aiChat].reverse().find(m => m.role === "assistant")?.content;
-                          const sourceText = lastAssistant || aiAnswerText;
-                          const cleanText = sourceText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                          const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                          ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                          voiceLoopRef.current = true;
-                          ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                        }}
-                        className="relative z-10 w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                        title={language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
-                      >
-                        <Volume2 className="h-7 w-7 text-white" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {/* Adresse géolocalisée sous le speaker */}
                 {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
                   <p className="text-sm text-muted-foreground font-medium">
                     📍 {geo.confirmedAddress || geo.detectedCity}
                   </p>
                 )}
               </div>
+
 
             </div>
           </div>
