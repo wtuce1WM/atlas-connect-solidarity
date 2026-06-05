@@ -239,7 +239,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
               dbTripadvisorReviewCount: biz?.tripadvisor_review_count,
             };
           });
-        console.log("[HotelAvailability] Filtered hotels:", linkedFbHotels.map(h => h.name));
+        
       }
 
       setResults(allOffers);
