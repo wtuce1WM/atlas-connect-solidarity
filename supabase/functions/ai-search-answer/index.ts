@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [] } = await req.json();
+    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext } = await req.json();
 
     if (!query) {
       return new Response(JSON.stringify({ answer: "" }), {
