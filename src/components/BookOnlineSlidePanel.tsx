@@ -991,6 +991,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         anyOverlay={anyOverlay}
         toolbarPortalPrefix={toolbarPortalPrefix}
         openBadgeInfo={openBadgeInfo}
+        hideToolbarButtons={showDescriptionOverlay}
       />
 
       {/* ClubLoginPopup is mounted globally (SearchPage). Avoid duplicate instance here. */}
