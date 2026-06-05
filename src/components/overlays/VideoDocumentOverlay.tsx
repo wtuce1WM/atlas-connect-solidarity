@@ -283,34 +283,29 @@ const VideoDocumentOverlay = ({
         );
       })()}
 
-      {/* Custom Play/Pause + Mute controls — only for native file videos.
-          Hidden when the parent renders them inline via onControlsApi. */}
-      {isFile && !onControlsApi && (
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-6 md:gap-10 z-20">
-          <button
-            onClick={togglePlay}
-            className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
-            aria-label={isPlaying ? "Pause" : "Lecture"}
-          >
-            {isPlaying ? (
-              <Pause className="h-5 w-5 text-white fill-white" />
-            ) : (
-              <Play className="h-5 w-5 text-white fill-white ml-0.5" />
-            )}
-          </button>
-          <button
-            onClick={toggleMute}
-            className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
-            aria-label={isMuted ? "Activer le son" : "Couper le son"}
-          >
-            {isMuted ? (
-              <VolumeX className="h-5 w-5 text-white" />
-            ) : (
-              <Volume2 className="h-5 w-5 text-white" />
-            )}
-          </button>
-        </div>
-      )}
+      {/* Round Play/Pause + Mute controls — identical style to BookOnlineSlidePanel. */}
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-3 md:gap-10 z-20">
+        <button
+          type="button"
+          onClick={togglePlay}
+          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
+          aria-label={isPlaying ? "Pause" : "Play"}
+        >
+          {isPlaying
+            ? <Pause className="h-5 w-5 md:h-6 md:w-6" />
+            : <Play className="h-5 w-5 md:h-6 md:w-6" />}
+        </button>
+        <button
+          type="button"
+          onClick={toggleMute}
+          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
+          aria-label={isMuted ? "Unmute" : "Mute"}
+        >
+          {isMuted
+            ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" />
+            : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+        </button>
+      </div>
 
       {/* Description card */}
       {(() => {
