@@ -19,6 +19,12 @@ import HeroLocationSelector from "@/components/HeroLocationSelector";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 
+const HS_T = {
+  fr: { useLocationQ: "Utiliser votre position pour affiner les résultats ?", changeAnytime: "Vous pouvez changer ce choix à tout moment.", noThanks: "Non merci", enable: "Activer" },
+  en: { useLocationQ: "Use your location to refine results?", changeAnytime: "You can change this anytime.", noThanks: "No thanks", enable: "Enable" },
+  ar: { useLocationQ: "استخدام موقعك لتحسين النتائج؟", changeAnytime: "يمكنك تغيير هذا الخيار في أي وقت.", noThanks: "لا شكراً", enable: "تفعيل" },
+} as const;
+
 const HeroSection = () => {
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
