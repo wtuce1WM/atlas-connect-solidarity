@@ -87,8 +87,10 @@ const SearchInputSuggestions = ({
     ? history.slice(0, 5).map((entry) => ({ id: entry.id, query: entry.query }))
     : [];
 
-  const recentLabel = language === "fr" ? "Recherches récentes" : language === "ar" ? "عمليات البحث الأخيرة" : "Recent searches";
-  const clearLabel = language === "fr" ? "Effacer" : language === "ar" ? "مسح" : "Clear";
+  const T = (TRANSLATIONS as any)[language] || TRANSLATIONS.fr;
+  const recentLabel = T.recent;
+  const clearLabel = T.clear;
+
 
   if (suggestionMode === "text") {
     return (
@@ -139,7 +141,9 @@ const SearchInput = ({
   const setInputValue = isControlled ? (v: string) => controlledOnChange?.(v) : setInternalValue;
   const [isFocused, setIsFocused] = useState(false);
   const { language } = useLanguage();
+  const T = (TRANSLATIONS as any)[language] || TRANSLATIONS.fr;
   const navigate = useNavigate();
+
   const { toast } = useToast();
 
   const go = useCallback((url: string) => (onNavigate ? onNavigate(url) : navigate(url)), [onNavigate, navigate]);
@@ -158,7 +162,7 @@ const SearchInput = ({
       }
     },
     onError: (message) => {
-      toast({ title: language === "fr" ? "Erreur" : "Error", description: message, variant: "destructive" });
+      toast({ title: T.error, description: message, variant: "destructive" });
     },
   });
 
@@ -187,13 +191,10 @@ const SearchInput = ({
   };
 
   const placeholder = customPlaceholder ||
-    (language === "fr"
-      ? variant === "hero" ? "Que cherchez-vous ?" : "Rechercher un établissement..."
-      : language === "ar"
-        ? variant === "hero" ? "ماذا تبحث عنه؟" : "ابحث عن مؤسسة..."
-        : variant === "hero" ? "What are you looking for?" : "Search for a business...");
+    (variant === "hero" ? T.placeholderHero : T.placeholderFloating);
 
-  const buttonLabel = language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search";
+  const buttonLabel = T.search;
+
 
   const isHero = variant === "hero";
 
@@ -217,7 +218,7 @@ const SearchInput = ({
               ? liquid ? "bg-black" : "bg-muted"
               : liquid ? "bg-black hover:bg-black/90" : "bg-foreground/80 hover:bg-foreground"
         }`}
-        title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
+        title={T.voiceSearch}
       >
         {voiceStatus === "processing" ? (
           <Loader className="h-5 w-5 text-white animate-spin" />
