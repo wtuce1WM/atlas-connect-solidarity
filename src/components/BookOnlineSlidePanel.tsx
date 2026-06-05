@@ -1961,11 +1961,34 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               business?.tourradar_url && { name: "TourRadar", url: business.tourradar_url, icon: null, label: true },
               (business as any)?.other_booking_url && { name: (business as any).other_booking_name || "Réservation", url: (business as any).other_booking_url, icon: <ExternalLink className="h-3.5 w-3.5" /> },
             ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode; label?: boolean }[];
-            const hasSocialBar = socialItems.length > 0 || bookingItems.length > 0 || menuDocs.length > 0;
-            const hasAnything = externalLinks.length > 0 || hasSocialBar;
+            const hasSocialBar = socialItems.length > 0 || bookingItems.length > 0;
+            const hasMenuBar = menuDocs.length > 0;
+            const hasAnything = externalLinks.length > 0 || hasSocialBar || hasMenuBar;
             if (!hasAnything) return null;
             return (
               <div className="relative z-40 shrink-0 mt-auto isolate pointer-events-auto flex flex-col">
+                {hasMenuBar && (
+                  <div
+                    onWheel={(e) => {
+                      const el = e.currentTarget;
+                      if (el.scrollWidth > el.clientWidth && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                        el.scrollLeft += e.deltaY;
+                      }
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-gold lg:flex-wrap lg:overflow-x-visible"
+                  >
+                    {menuDocs.map((doc) => (
+                      <button
+                        key={doc.id}
+                        onClick={() => openDocOrBooking(doc.url, doc.name || 'Menu')}
+                        className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                      >
+                        {categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Globe className="h-3.5 w-3.5" />}
+                        <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {externalLinks.length > 0 && (
                   <div
                     onWheel={(e) => {
@@ -2026,19 +2049,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     >
                       {!item.label && item.icon}
                       <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{item.name}</span>
-                    </button>
-                  ))}
-                  {(socialItems.length > 0 || bookingItems.length > 0) && menuDocs.length > 0 && (
-                    <div className="shrink-0 w-px h-6 bg-white/20" />
-                  )}
-                  {menuDocs.map((doc) => (
-                    <button
-                      key={doc.id}
-                      onClick={() => openDocOrBooking(doc.url, doc.name || 'Menu')}
-                      className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
-                    >
-                      {categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Globe className="h-3.5 w-3.5" />}
-                      <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
                     </button>
                   ))}
                 </div>
