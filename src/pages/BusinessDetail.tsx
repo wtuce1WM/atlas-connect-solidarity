@@ -475,8 +475,30 @@ const BusinessDetail = () => {
   }, [business?.id, business?.categories, business?.city]);
 
   if (isLoading) {
-    return null;
+    return (
+      <div className="min-h-dvh bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-6 animate-pulse">
+          <div className="aspect-[16/9] w-full rounded-xl bg-muted" />
+          <div className="mt-6 space-y-3">
+            <div className="h-8 w-2/3 rounded bg-muted" />
+            <div className="h-4 w-1/3 rounded bg-muted" />
+            <div className="flex gap-2 pt-2">
+              <div className="h-6 w-20 rounded-full bg-muted" />
+              <div className="h-6 w-24 rounded-full bg-muted" />
+              <div className="h-6 w-16 rounded-full bg-muted" />
+            </div>
+            <div className="space-y-2 pt-4">
+              <div className="h-4 w-full rounded bg-muted" />
+              <div className="h-4 w-11/12 rounded bg-muted" />
+              <div className="h-4 w-9/12 rounded bg-muted" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
+
 
   if (!business) {
     return <Navigate to="/404" replace />;
