@@ -240,9 +240,10 @@ export default function FiltersOverlayFlow({
                 onClick={() => {
                   onServicesChange(selected ? [] : [s.name_fr]);
                   onClose();
-                  if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                  if (typeof window !== "undefined") {
                     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
                   }
+
                 }}
                 className={`${badgeBase} ${selected ? badgeSelected : badgeIdle}`}
                 style={{ fontFamily: "'Josefin Sans', sans-serif" }}
