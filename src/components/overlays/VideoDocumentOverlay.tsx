@@ -284,7 +284,7 @@ const VideoDocumentOverlay = ({
       })()}
 
       {/* Round Play/Pause + Mute controls — identical style to BookOnlineSlidePanel. */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-3 md:gap-10 z-20">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-3 md:gap-10 z-20">
         <button
           type="button"
           onClick={togglePlay}
