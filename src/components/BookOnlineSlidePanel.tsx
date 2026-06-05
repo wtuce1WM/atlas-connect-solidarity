@@ -2349,32 +2349,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           compact
           onSeeResults={onClose}
           leadingControls={
-            activeVideoOverlay ? (
-              overlayControlsApi ? (
-                <div className="flex items-center gap-3 md:gap-10">
-                  <button
-                    type="button"
-                    onClick={overlayControlsApi.togglePlay}
-                    className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-                    aria-label={overlayControlsApi.isPlaying ? "Pause" : "Play"}
-                  >
-                    {overlayControlsApi.isPlaying
-                      ? <Pause className="h-5 w-5 md:h-6 md:w-6" />
-                      : <Play className="h-5 w-5 md:h-6 md:w-6" />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={overlayControlsApi.toggleMute}
-                    className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-                    aria-label={overlayControlsApi.isMuted ? "Unmute" : "Mute"}
-                  >
-                    {overlayControlsApi.isMuted
-                      ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" />
-                      : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-                  </button>
-                </div>
-              ) : undefined
-            ) :
+            activeVideoOverlay ? undefined :
             (showPoiMapOverlay || showDirections) ? undefined :
             effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? (
               <VideoControls
