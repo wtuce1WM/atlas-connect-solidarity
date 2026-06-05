@@ -1156,6 +1156,7 @@ serve(async (req) => {
     let detectedSubcategoryIsReal = false;
     let subcategoryParentCategory: string | null = null;
     let keywordLinkedSubcategories: string[] = []; // additional subcategories found via keyword match
+    let keywordLinkedOwnerSubcategory: string | null = null;
     let detectedSubcategoryFromKeyword = false;
     let forcedServiceFromReeval: string | null = null; // service forced by intent-based re-evaluation
     if (effectiveQuery && !labelShortcutActivated) {
@@ -1279,6 +1280,7 @@ serve(async (req) => {
             // Name match already found — store keyword matches as additional linked subcategories
             if (keywordMatchedSubcats.length > 0) {
               keywordLinkedSubcategories = keywordMatchedSubcats;
+              keywordLinkedOwnerSubcategory = detectedSubcategory;
               console.log(`Keyword-linked subcategories for "${detectedSubcategory}": [${keywordLinkedSubcategories.join(", ")}]`);
             }
           } else {
@@ -1853,6 +1855,7 @@ serve(async (req) => {
             // subcategory (e.g. "Piscine" → [Beach club, Hôtel]) and would otherwise be merged
             // into the new one, leaking unrelated subcategories (e.g. Beach club into Hôtel results).
             keywordLinkedSubcategories = [];
+            keywordLinkedOwnerSubcategory = null;
           } else if (betterSubcat && parentInIntentCats) {
             // Multi-intent: detected subcategory is valid for one intent, but there's also a match in another
             // Trigger merge so both subcategories appear in results
@@ -3435,7 +3438,7 @@ serve(async (req) => {
       }
     }
     // ── Inject keyword-linked subcategories into MERGED_SUBCATEGORIES ──
-    if (detectedSubcategory && keywordLinkedSubcategories.length > 0) {
+    if (detectedSubcategory && keywordLinkedSubcategories.length > 0 && keywordLinkedOwnerSubcategory === detectedSubcategory) {
       const key = detectedSubcategory.toLowerCase();
       const existing = MERGED_SUBCATEGORIES[key] || [detectedSubcategory];
       const merged = [...new Set([...existing, ...keywordLinkedSubcategories])];
@@ -3444,6 +3447,8 @@ serve(async (req) => {
         MERGED_SUBCATEGORIES[name.toLowerCase()] = merged;
       }
       console.log(`Keyword-linked merge: "${detectedSubcategory}" now merged with [${merged.join(", ")}]`);
+    } else if (detectedSubcategory && keywordLinkedSubcategories.length > 0) {
+      console.log(`Skipped stale keyword-linked merge for "${detectedSubcategory}"; links belonged to "${keywordLinkedOwnerSubcategory || "?"}"`);
     }
 
     const bundleResultIds = new Set(businesses.map(b => b.id));
