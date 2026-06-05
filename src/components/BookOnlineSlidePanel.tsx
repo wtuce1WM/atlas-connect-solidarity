@@ -1444,15 +1444,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
-      {/* YouTube Overlay */}
-      {showYoutubeOverlay && (
+      {/* YouTube Overlay — portaled to document.body for identical rendering to SlidePanelHome */}
+      {showYoutubeOverlay && createPortal(
         <YouTubeOverlay
           business={business}
           activeVideo={activeYoutubeVideo}
           onSelectVideo={setActiveYoutubeVideo}
           onPlayingChange={setYoutubeIsPlaying}
           onClose={() => { setYoutubeOverlayOpen(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
-        />
+        />,
+        document.body,
       )}
 
       {/* External Videos Overlay (long-form YouTube videos linked to this business/POI) */}
