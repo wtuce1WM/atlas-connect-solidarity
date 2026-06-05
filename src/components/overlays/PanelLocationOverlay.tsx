@@ -19,6 +19,13 @@ interface PanelLocationOverlayProps {
 
 const DEFAULT_CENTER = { lat: 31.6295, lng: -7.9811 };
 
+const PL_T = {
+  fr: { chooseAddress: "Choisir votre adresse", myPosition: "Ma position", dontGeolocate: "Ne pas me géolocaliser", enterAddress: "Saisir une adresse…", confirmAddress: "Confirmer cette adresse" },
+  en: { chooseAddress: "Choose your address", myPosition: "My position", dontGeolocate: "Don't geolocate me", enterAddress: "Enter an address…", confirmAddress: "Confirm this address" },
+  ar: { chooseAddress: "اختر عنوانك", myPosition: "موقعي", dontGeolocate: "لا تحدد موقعي", enterAddress: "أدخل عنوانًا…", confirmAddress: "تأكيد هذا العنوان" },
+} as const;
+
+
 let gmapsPromise: Promise<void> | null = null;
 function loadGoogleMaps(): Promise<void> {
   if (gmapsPromise) return gmapsPromise;
