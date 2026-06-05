@@ -32,19 +32,23 @@ serve(async (req) => {
 Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés concrets (type d'établissement, service, produit, ville, quartier, personnage historique, nom propre).
 
 INTENTION SPÉCIALE — RECHERCHE D'HÔTELS PAR VILLE (sans nom précis) :
-Si l'utilisateur cherche un hôtel/riad/maison d'hôtes DANS UNE VILLE pour des DATES (sans nommer un établissement précis), réponds avec :
+Si l'utilisateur cherche un hôtel/riad/maison d'hôtes DANS UNE VILLE **ET mentionne EXPLICITEMENT des DATES** (sans nommer un établissement précis ET sans qualificatif de service comme piscine, spa, vue mer, rooftop, hammam, etc.), réponds avec :
 {"intent": "hotelSearch", "city": "Ville", "checkIn": "YYYY-MM-DD", "checkOut": "YYYY-MM-DD", "adults": 2}
-- Déclencheurs : "hôtel à [ville]", "trouve un hôtel à [ville] du X au Y", "réserver un hôtel à [ville]", "hotel in [city] from X to Y", "book a hotel in [city]"
+- Déclencheurs : "hôtel à [ville] **du X au Y**", "trouve un hôtel à [ville] **pour ce week-end**", "réserver un hôtel à [ville] **demain**", "hotel in [city] **from X to Y**"
 - Date actuelle : ${today}. Résoudre les dates relatives. Si checkIn donné sans checkOut, mettre checkOut = checkIn + 1 jour.
-- Si AUCUNE date n'est donnée : checkIn = demain, checkOut = après-demain.
+- **SI AUCUNE DATE EXPLICITE N'EST DONNÉE → NE PAS utiliser hotelSearch. Utiliser le format keywords classique.**
+- **SI L'UTILISATEUR AJOUTE UN QUALIFICATIF (piscine, spa, vue mer, rooftop, romantique, pas cher, luxe, hammam, jardin, etc.) → NE PAS utiliser hotelSearch. Utiliser le format keywords classique.**
 - adults par défaut 2.
 - IMPORTANT : si l'utilisateur nomme un établissement précis → utilise hotelAvailability à la place.
-- Si aucune ville n'est mentionnée mais l'intention est claire, mettre city: "" (le client demandera).
 
-Exemples hotelSearch :
+Exemples hotelSearch (dates explicites + pas de qualificatif) :
 "Trouve un hôtel à Marrakech du 10 au 15 mars" → {"intent": "hotelSearch", "city": "Marrakech", "checkIn": "2026-03-10", "checkOut": "2026-03-15", "adults": 2}
 "Hôtel à Essaouira ce week-end" → {"intent": "hotelSearch", "city": "Essaouira", "checkIn": "...", "checkOut": "..."}
-"Réserver un hôtel à Casablanca pour 2 adultes" → {"intent": "hotelSearch", "city": "Casablanca", "adults": 2}
+
+Exemples NON hotelSearch (à traiter en keywords classiques) :
+"hôtel avec piscine à Marrakech" → {"keywords": "hôtel piscine Marrakech", "category": "Hôtellerie"}
+"hôtel à Marrakech" (pas de date) → {"keywords": "hôtel Marrakech", "category": "Hôtellerie"}
+"riad pas cher à Fès" → {"keywords": "riad Fès", "category": "Hôtellerie"}
 
 INTENTION SPÉCIALE — RECHERCHE DE VOL :
 Si l'utilisateur cherche un vol/billet d'avion, réponds avec ce JSON :
