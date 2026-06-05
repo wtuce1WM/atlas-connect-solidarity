@@ -4074,25 +4074,40 @@ const SearchPage = () => {
                         <button
                           type="submit"
                           disabled={aiChatLoading || !aiChatInput.trim()}
-                          className="shrink-0 w-11 h-11 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="flex items-center justify-center w-14 h-14 rounded-xl transition-all hover:opacity-90 shrink-0 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
+                          style={{ backgroundColor: "hsl(var(--primary))" }}
                           aria-label={language === "en" ? "Send" : "Envoyer"}
+                          title={language === "en" ? "Send" : "Envoyer"}
                         >
-                          {aiChatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                          {aiChatLoading ? <Loader2 className="h-6 w-6 text-white animate-spin" /> : <Send className="h-6 w-6 text-white" />}
                         </button>
-                        <button
-                          type="button"
-                          onClick={refineVoice.toggleRecording}
-                          disabled={aiChatLoading}
-                          className="shrink-0 w-11 h-11 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                          aria-label={language === "en" ? "Voice refinement" : "Affiner à la voix"}
-                          title={language === "en" ? "Voice refinement" : "Affiner à la voix"}
-                        >
-                          {refineVoice.status === "processing" ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Mic className="h-4 w-4" />
-                          )}
-                        </button>
+                        <div className="relative flex items-center justify-center shrink-0">
+                          <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
+                          <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
+                          <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
+                          <button
+                            type="button"
+                            onClick={refineVoice.toggleRecording}
+                            disabled={aiChatLoading || refineVoice.status === "processing"}
+                            className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
+                              refineVoice.status === "recording"
+                                ? "bg-red-500 animate-pulse"
+                                : refineVoice.status === "processing"
+                                  ? "bg-black"
+                                  : "bg-black hover:bg-black/90"
+                            }`}
+                            aria-label={language === "en" ? "Voice refinement" : "Affiner à la voix"}
+                            title={language === "en" ? "Voice refinement" : "Affiner à la voix"}
+                          >
+                            {refineVoice.status === "processing" ? (
+                              <Loader2 className="h-5 w-5 text-white animate-spin" />
+                            ) : refineVoice.status === "recording" ? (
+                              <MicOff className="h-5 w-5 text-white" />
+                            ) : (
+                              <Mic className="h-5 w-5 text-white" />
+                            )}
+                          </button>
+                        </div>
                       </form>
                       {(refineVoice.status === "recording" || refineVoice.status === "processing") && (
                         <VoiceSearchPanel
