@@ -31,6 +31,8 @@ interface ToolbarPortalsProps {
   toolbarPortalPrefix?: string;
   /** Open/closed badge — shown on mobile only between close button and WhatsApp */
   openBadgeInfo?: { text: string; isOpen: boolean } | null;
+  /** When true, hides all toolbar buttons (e.g. when description overlay is open) */
+  hideToolbarButtons?: boolean;
 }
 
 export function ToolbarPortals({
