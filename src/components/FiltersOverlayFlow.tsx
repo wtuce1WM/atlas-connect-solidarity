@@ -218,7 +218,13 @@ export default function FiltersOverlayFlow({
           {activeTab && parentCategoryName && parentCategoryName !== activeTab.name && (
             <>
               <span aria-hidden="true" className="opacity-50">/</span>
-              <span className="truncate opacity-60">{parentCategoryName}</span>
+              <button
+                type="button"
+                onClick={() => onTabClick(null)}
+                className="truncate hover:underline opacity-60"
+              >
+                {parentCategoryName}
+              </button>
             </>
           )}
           {activeTab && (
@@ -236,7 +242,13 @@ export default function FiltersOverlayFlow({
           {activeSub && (
             <>
               <span aria-hidden="true" className="opacity-50">/</span>
-              <span className="truncate">{activeSub.name}</span>
+              <button
+                type="button"
+                onClick={() => onSubClick(activeSub.id)}
+                className="truncate hover:underline"
+              >
+                {activeSub.name}
+              </button>
             </>
           )}
         </nav>
