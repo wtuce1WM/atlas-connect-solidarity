@@ -3965,7 +3965,7 @@ const SearchPage = () => {
                       <div
                         className="absolute rounded-full pointer-events-none"
                         style={{
-                          inset: "-8px",
+                          inset: "-4px",
                           background: "conic-gradient(from 0deg, transparent 0%, hsl(var(--primary)) 35%, hsl(var(--primary) / 0.5) 50%, transparent 70%)",
                           animation: "spin 2s linear infinite",
                           filter: "blur(0.5px)",
