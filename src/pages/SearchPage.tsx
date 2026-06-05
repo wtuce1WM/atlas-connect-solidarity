@@ -626,13 +626,8 @@ const SearchPage = () => {
       // Accumulate criteria with AND semantics: each refinement turn (previous + current)
       // must match the business. A business is kept only if every turn has at least one
       // matching token in its blob.
-      const STOPWORDS = new Set([
-        "avec","sans","pour","dans","des","les","une","un","la","le","de","du","et","ou","au","aux",
-        "with","without","for","the","and","or","of","a","an","in","on","to",
-        "qui","que","est","sont","plus","moins","tres","tout","tous","toute","toutes",
-      ]);
       const tokenize = (text: string) => Array.from(new Set(
-        normalizeText(text).split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !STOPWORDS.has(t))
+        normalizeText(text).split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !REFINEMENT_STOPWORDS.has(t))
       ));
       const previousUserQs = aiChat.filter((m) => m.role === "user").map((m) => m.content);
       const turnsTokens = [...previousUserQs, q].map(tokenize).filter((arr) => arr.length > 0);
