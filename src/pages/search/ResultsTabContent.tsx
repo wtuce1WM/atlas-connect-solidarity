@@ -539,7 +539,7 @@ export default function ResultsTabContent({
             : filteredBusinesses;
           return (
             <div
-              className={`fixed inset-0 z-[90] shadow-2xl flex flex-col bg-no-repeat bg-cover bg-center animate-slide-up-from-bottom ${!compactPanelBusiness ? "lg:left-1/2" : ""}`}
+              className={`fixed inset-0 z-[90] shadow-2xl flex flex-col bg-no-repeat bg-cover bg-center animate-slide-up-from-bottom ${compactPanelBusiness ? "lg:left-1/2" : "lg:left-1/2"}`}
               style={{ backgroundImage: "url('/hero_magical_realism_v3.jpg')" }}
             >
               <FiltersOverlayFlow
