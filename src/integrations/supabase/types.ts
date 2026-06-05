@@ -5802,6 +5802,10 @@ export type Database = {
           read_ct: number
         }[]
       }
+      refresh_business_search_vector_for_ids: {
+        Args: { _ids: string[] }
+        Returns: undefined
+      }
       replace_business_documents: {
         Args: { p_business_id: string; p_docs: Json }
         Returns: Json
