@@ -502,25 +502,35 @@ const SearchPage = () => {
         .replace(/\s{2,}/g, " ")
         .trim() || q;
 
-      try {
-        const { data: refinedData, error: refinedError } = await supabase.functions.invoke<SearchResult>("business-search", {
-          body: {
-            query: refinedQuery,
-            language,
-            pageSize: 100,
-            offset: 0,
-            compact: "card",
-            ...(cityFromUrl ? { city: cityFromUrl } : {}),
-            ...(proxLat !== undefined && proxLng !== undefined ? { latitude: proxLat, longitude: proxLng, radiusKm: proxRadiusKm ?? 2 } : {}),
+      // Approach 3: a refinement turn always narrows the INITIAL pool (allBusinesses)
+      // via the AND filter below. We do NOT relaunch business-search for refinements,
+      // because the new turn alone (e.g. "avec des jeux pour les enfants") would lose
+      // the original intent ("hôtel à Marrakech") and return unrelated results.
+      // Exception: a proximity turn ("près de Riad X", "moins de 500m de…") IS a new
+      // geographic search and must hit the backend with lat/lng.
+      if (proxLat !== undefined && proxLng !== undefined) {
+        try {
+          const { data: refinedData, error: refinedError } = await supabase.functions.invoke<SearchResult>("business-search", {
+            body: {
+              query: refinedQuery,
+              language,
+              pageSize: 100,
+              offset: 0,
+              compact: "card",
+              ...(cityFromUrl ? { city: cityFromUrl } : {}),
+              latitude: proxLat,
+              longitude: proxLng,
+              radiusKm: proxRadiusKm ?? 2,
+            }
+          });
+          if (!refinedError && refinedData?.businesses?.length) {
+            refinementPool = refinedData.businesses;
+            setAiRefinementBusinessPool(refinedData.businesses);
+            dedicatedRefinementSearchSucceeded = true;
           }
-        });
-        if (!refinedError && refinedData?.businesses?.length) {
-          refinementPool = refinedData.businesses;
-          setAiRefinementBusinessPool(refinedData.businesses);
-          dedicatedRefinementSearchSucceeded = true;
+        } catch (refinedSearchError) {
+          console.warn("AI proximity refinement search failed:", refinedSearchError);
         }
-      } catch (refinedSearchError) {
-        console.warn("AI refinement dedicated search failed:", refinedSearchError);
       }
       const useSubcatBypass = subcategoryNamesFromUrl.length > 0 && !!cityFromUrl;
       if (!dedicatedRefinementSearchSucceeded && !pinIdsParam && totalCount && totalCount > refinementPool.length) {
