@@ -1159,7 +1159,7 @@ const Home = () => {
           .in("id", [...linkedIds])
           .order("sort_order", { ascending: true });
         const vids = (vidsData as any[]) || [];
-        console.log("[Vlogs debug]", { city, destId, linkedIds: [...linkedIds], vidsCount: vids.length, vidsErr });
+        
 
         // Fetch badges for these generic videos
         const vlogBadgesByVideo: Record<string, string[]> = {};
