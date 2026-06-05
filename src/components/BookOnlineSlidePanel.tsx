@@ -1981,7 +1981,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   >
                     {hasVideosBadge && (
                       <button
-                        onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }}
+                        onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }}
                         className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       >
                         <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">Vidéos</span>
@@ -1989,7 +1989,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     )}
                     {hasImagesBadge && (
                       <button
-                        onClick={() => { setDescGridSection("images"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }}
+                        onClick={() => { setDescGridSection("images"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }}
                         className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       >
                         <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">Images</span>
