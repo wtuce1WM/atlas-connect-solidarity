@@ -19,11 +19,19 @@ interface CityWithCount extends City {
   businessCount: number;
 }
 
+const CS_T = {
+  fr: { exploreOur: "Explorez nos ", cities: "Villes", description: "Découvrez les meilleures adresses dans chaque ville du Maroc", businesses: "établissements" },
+  en: { exploreOur: "Explore our ", cities: "Cities", description: "Discover the best addresses in every city of Morocco", businesses: "businesses" },
+  ar: { exploreOur: "استكشف ", cities: "مدننا", description: "اكتشف أفضل العناوين في كل مدينة مغربية", businesses: "مؤسسة" },
+} as const;
+
 const CitiesSection = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { t, language } = useLanguage();
+  const T = (CS_T as any)[language] || CS_T.fr;
   const [cities, setCities] = useState<CityWithCount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchCities = async () => {
