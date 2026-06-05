@@ -246,7 +246,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
           ? lastProximityRef.current.query
           : (strippedQuery || lastProximityRef.current.query);
         lastProximityRef.current = { ...lastProximityRef.current, radiusKm: proxRadiusKm, query: strippedQuery };
-        console.log(`[AI chat] Reusing proximity → "${lastProximityRef.current.targetName}" (${proxLat}, ${proxLng}) within ${proxRadiusKm}km — query: "${strippedQuery}"`);
+        
       }
 
       // Strip conversational filler ("quels sont les", "?", articles…) so the
