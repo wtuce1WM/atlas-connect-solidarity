@@ -370,8 +370,7 @@ const SearchPage = () => {
   const [isPoiAiLoading, setIsPoiAiLoading] = useState(false);
   const [isDestAiLoading, setIsDestAiLoading] = useState(false);
   // Multi-turn refinement chat — extends the initial aiAnswerText with follow-up Q/A.
-  // Cap at 4 user turns to keep token cost bounded.
-  const AI_CHAT_MAX_TURNS = 4;
+
   const aiRefinementSpokenText = searchParams.get("spoken") || "";
   type AiClarifyOption = { id: string; label: string; text: string };
   type AiClarify = { type: string; question: string; options: AiClarifyOption[] };
