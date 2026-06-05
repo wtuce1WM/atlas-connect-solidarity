@@ -1190,16 +1190,26 @@ serve(async (req) => {
         const isBlockedGenericWord = (w: string) => GENERIC_KEYWORD_BLOCKLIST.has(normalizeWord(w));
 
         // ── PASS 1: Name matches only (priority over keyword matches) ──
+        // Collect ALL matching subcategory names along with the position of the
+        // first query word that triggered the match. When several subcategories
+        // match (e.g. "hotel avec piscine" matches both "Hôtel" and "Piscine"),
+        // we keep the one that appears LEFT-MOST in the query — French syntax
+        // puts the main noun before its qualifier, so the left-most word is the
+        // user's primary intent (subject), and trailing words act as services.
+        const nameMatches: { name: string; position: number; length: number }[] = [];
         for (const sc of sorted) {
           const n = sc.name_fr?.toLowerCase();
           if (!n) continue;
           const nWords = n.split(/\s+/).filter((w: string) => w.length > 1);
           const nContentWords = nWords.filter((w: string) => !FRENCH_STOP_WORDS.has(w));
           const nContent = nContentWords.join(" ");
-          const singleWordMatch = !n.includes(" ") && qWords.some(qw => 
-            qw === n || stripPluralSimple(qw) === n || qw === stripPluralSimple(n) ||
-            stripAccents(qw) === stripAccents(n) || normalizeWord(qw) === stripAccents(n) || stripAccents(qw) === normalizeWord(n)
-          );
+          let matchedWordIdx = -1;
+          const singleWordMatch = !n.includes(" ") && qWords.some((qw, idx) => {
+            const ok = qw === n || stripPluralSimple(qw) === n || qw === stripPluralSimple(n) ||
+              stripAccents(qw) === stripAccents(n) || normalizeWord(qw) === stripAccents(n) || stripAccents(qw) === normalizeWord(n);
+            if (ok && matchedWordIdx === -1) matchedWordIdx = idx;
+            return ok;
+          });
           const multiWordMatch = n.includes(" ") && nContentWords.length > 0 && nContentWords.every((nw: string) =>
             qWords.some(qw => qw === nw || normalizeWord(qw) === normalizeWord(nw))
           );
@@ -1211,10 +1221,27 @@ serve(async (req) => {
             }
             return partWords.every((pw: string) => qWords.some(qw => qw === pw || normalizeWord(qw) === normalizeWord(pw)));
           });
-          if (n.includes(" ") ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent)) || multiWordMatch || slashMatch) : singleWordMatch) {
-            detectedSubcategory = sc.name_fr;
-            console.log(`Auto-detected subcategory "${sc.name_fr}" from name match in query "${effectiveQuery}"`);
-            break;
+          const isMatch = n.includes(" ")
+            ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent)) || multiWordMatch || slashMatch)
+            : singleWordMatch;
+          if (isMatch) {
+            // Compute left-most query position for multi-word names
+            if (matchedWordIdx === -1) {
+              const firstContentNw = nContentWords[0] || nWords[0] || n;
+              const idx = qWords.findIndex(qw => qw === firstContentNw || normalizeWord(qw) === normalizeWord(firstContentNw));
+              matchedWordIdx = idx >= 0 ? idx : qLower.indexOf(n);
+            }
+            nameMatches.push({ name: sc.name_fr, position: matchedWordIdx, length: n.length });
+          }
+        }
+        if (nameMatches.length > 0) {
+          // Pick left-most position; tie-break by longer name (more specific)
+          nameMatches.sort((a, b) => a.position - b.position || b.length - a.length);
+          detectedSubcategory = nameMatches[0].name;
+          if (nameMatches.length > 1) {
+            console.log(`Auto-detected subcategory "${detectedSubcategory}" (left-most) among [${nameMatches.map(m => m.name).join(", ")}] for query "${effectiveQuery}"`);
+          } else {
+            console.log(`Auto-detected subcategory "${detectedSubcategory}" from name match in query "${effectiveQuery}"`);
           }
         }
 
