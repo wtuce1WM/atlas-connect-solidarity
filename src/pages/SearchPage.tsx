@@ -4102,6 +4102,7 @@ const SearchPage = () => {
                           align="start"
                         />
                       )}
+                      </>
                     ) : (
                       <p className="text-xs text-center text-muted-foreground italic">
                         {language === "en"
