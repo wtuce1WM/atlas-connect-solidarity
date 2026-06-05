@@ -3954,7 +3954,7 @@ const SearchPage = () => {
                     <div
                       className="absolute rounded-full animate-pulse pointer-events-none backdrop-blur-xl"
                       style={{
-                        inset: "-18px",
+                        inset: "-9px",
                         background: "linear-gradient(135deg, rgba(255,255,255,0.15), hsl(var(--primary) / 0.1))",
                         border: "1px solid rgba(255,255,255,0.25)",
                         boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35)",
