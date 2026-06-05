@@ -125,22 +125,15 @@ const CitiesSection = () => {
         {/* Section Header */}
         <div className="mb-8 text-center">
           <h2 className="mb-2 text-3xl font-bold text-white">
-            {language === "fr"
-              ? "Explorez nos "
-              : language === "ar"
-                ? "استكشف "
-                : "Explore our "}
+            {T.exploreOur}
             <span className="text-primary">
-              {language === "fr" ? "Villes" : language === "ar" ? "مدننا" : "Cities"}
+              {T.cities}
             </span>
           </h2>
           <p className="mx-auto max-w-2xl text-gray-400">
-            {language === "fr"
-              ? "Découvrez les meilleures adresses dans chaque ville du Maroc"
-              : language === "ar"
-                ? "اكتشف أفضل العناوين في كل مدينة مغربية"
-                : "Discover the best addresses in every city of Morocco"}
+            {T.description}
           </p>
+
         </div>
 
         {/* Scrollable Cities */}
@@ -195,14 +188,10 @@ const CitiesSection = () => {
                     <div className="flex items-center gap-1 text-xs text-gray-400">
                       <Building2 className="h-3 w-3" />
                       <span>
-                        {city.businessCount}{" "}
-                        {language === "fr"
-                          ? "établissements"
-                          : language === "ar"
-                            ? "مؤسسة"
-                            : "businesses"}
+                        {city.businessCount} {T.businesses}
                       </span>
                     </div>
+
                   </CardContent>
                 </Card>
               </Link>
