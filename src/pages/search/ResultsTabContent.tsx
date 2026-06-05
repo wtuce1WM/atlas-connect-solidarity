@@ -215,6 +215,15 @@ export default function ResultsTabContent({
     onFrontStructureServicesFilter?.(null);
   }, [effectiveCity, searchQuery]);
 
+  // Always constrain results to the front_structure scope when no specific
+  // FS tab is selected (otherwise out-of-scope businesses like Night Clubs
+  // leak into "all categories" results).
+  useEffect(() => {
+    if (activeFsTabId) return;
+    if (allFsNames.size === 0) return;
+    onFrontStructureFilter?.(allFsNames);
+  }, [activeFsTabId, allFsNames, onFrontStructureFilter]);
+
   // When landing on a front-structure URL (e.g. label=Hébergement), select that tab
   // so the subcategory/services filter is visible immediately.
   useEffect(() => {
