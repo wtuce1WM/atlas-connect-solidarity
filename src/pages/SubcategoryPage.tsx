@@ -318,7 +318,19 @@ const SubcategoryPage = () => {
       next: "Suivant",
       showing: "Affichage de",
       to: "à",
-      results: "résultats"
+      results: "résultats",
+      filterResults: "Filtrer les résultats",
+      standing: "Standing",
+      allMasc: "Tous",
+      allFem: "Toutes",
+      allStandings: "Tous les standings",
+      selectService: "Sélectionnez un service",
+      clearFilters: "Effacer les filtres",
+      forLabel: "pour",
+      sortByRating: "Trier par note",
+      sortByReviews: "Trier par avis",
+      filterByServices: "Filtrer par service(s)",
+      inCity: " à ",
     },
     en: {
       establishments: "establishments",
@@ -333,7 +345,19 @@ const SubcategoryPage = () => {
       next: "Next",
       showing: "Showing",
       to: "to",
-      results: "results"
+      results: "results",
+      filterResults: "Filter results",
+      standing: "Standing",
+      allMasc: "All",
+      allFem: "All",
+      allStandings: "All standings",
+      selectService: "Select a service",
+      clearFilters: "Clear filters",
+      forLabel: "for",
+      sortByRating: "Sort by rating",
+      sortByReviews: "Sort by reviews",
+      filterByServices: "Filter by service(s)",
+      inCity: " in ",
     },
     ar: {
       establishments: "مؤسسة",
@@ -348,7 +372,19 @@ const SubcategoryPage = () => {
       next: "التالي",
       showing: "عرض",
       to: "إلى",
-      results: "نتائج"
+      results: "نتائج",
+      filterResults: "تصفية النتائج",
+      standing: "مستوى",
+      allMasc: "الكل",
+      allFem: "الكل",
+      allStandings: "جميع المستويات",
+      selectService: "اختر خدمة",
+      clearFilters: "مسح الفلاتر",
+      forLabel: "لـ",
+      sortByRating: "ترتيب حسب التقييم",
+      sortByReviews: "ترتيب حسب التعليقات",
+      filterByServices: "تصفية حسب الخدمات",
+      inCity: " في ",
     }
   };
 
@@ -550,7 +586,7 @@ const SubcategoryPage = () => {
               className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-medium transition-colors hover:bg-white/20"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              {language === "fr" ? "Filtrer les résultats" : language === "ar" ? "تصفية النتائج" : "Filter results"}
+              {t.filterResults}
               {activeFilterCount > 0 && (
                 <span className="ml-auto bg-gold text-black text-xs font-bold rounded-full px-2 py-0.5">
                   {activeFilterCount}
@@ -588,14 +624,14 @@ const SubcategoryPage = () => {
               {selectedCity !== "all" && availableGammes.length > 0 && (
                 <div className="flex-1 min-w-[140px]">
                   <label className={`text-sm font-bold ${textClass} mb-1.5 block`}>
-                    {language === "fr" ? "Standing" : language === "ar" ? "مستوى" : "Standing"}
+                    {t.standing}
                   </label>
                   <Select value={selectedGamme} onValueChange={(v) => { setSelectedGamme(v); scrollToFilterToggle(); }}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={language === "fr" ? "Tous" : language === "ar" ? "الكل" : "All"} />
+                      <SelectValue placeholder={t.allMasc} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{language === "fr" ? "Tous les standings" : language === "ar" ? "جميع المستويات" : "All standings"}</SelectItem>
+                      <SelectItem value="all">{t.allStandings}</SelectItem>
                       {availableGammes.map((gamme) => (
                         <SelectItem key={gamme.id} value={gamme.id}>
                           {gamme.name_fr}
@@ -614,7 +650,7 @@ const SubcategoryPage = () => {
             <div className="mb-8">
               <div className="mb-3">
                 <label className="text-sm font-bold text-white">
-                  {language === "fr" ? "Filtrer par service(s)" : language === "ar" ? "تصفية حسب الخدمات" : "Filter by service(s)"}
+                  {t.filterByServices}
                 </label>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -643,7 +679,7 @@ const SubcategoryPage = () => {
                     onClick={clearFilters}
                     className="text-sm text-gold underline hover:text-gold/80 transition-colors"
                   >
-                    {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+                    {t.clearFilters}
                   </button>
                 </div>
               )}
@@ -660,7 +696,7 @@ const SubcategoryPage = () => {
               {/* Results count + Sort */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <h2 className={`text-lg font-bold ${textClass}`}>
-                  {filteredBusinesses.length} {t.establishments} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {getSubcategoryName()}{selectedCity ? (language === "fr" ? ` à ${selectedCity}` : language === "ar" ? ` في ${selectedCity}` : ` in ${selectedCity}`) : ""}
+                  {filteredBusinesses.length} {t.establishments} {t.forLabel} {getSubcategoryName()}{selectedCity ? `${t.inCity}${selectedCity}` : ""}
                 </h2>
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                   <Button
@@ -670,7 +706,7 @@ const SubcategoryPage = () => {
                     className="text-xs"
                   >
                     <span className="mr-1">↑↓</span>
-                    {language === "fr" ? "Trier par note" : language === "ar" ? "ترتيب حسب التقييم" : "Sort by rating"}
+                    {t.sortByRating}
                   </Button>
                   <Button
                     variant={sortMode === "reviews" ? "default" : "outline"}
@@ -679,7 +715,7 @@ const SubcategoryPage = () => {
                     className="text-xs"
                   >
                     <span className="mr-1">↑↓</span>
-                    {language === "fr" ? "Trier par avis" : language === "ar" ? "ترتيب حسب التعليقات" : "Sort by reviews"}
+                    {t.sortByReviews}
                   </Button>
                 </div>
               </div>

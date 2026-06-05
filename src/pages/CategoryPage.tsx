@@ -328,7 +328,19 @@ const CategoryPage = () => {
       next: "Suivant",
       showing: "Affichage de",
       to: "à",
-      results: "résultats"
+      results: "résultats",
+      filterResults: "Filtrer les résultats",
+      standing: "Standing",
+      allMasc: "Tous",
+      allFem: "Toutes",
+      allStandings: "Tous les standings",
+      selectService: "Sélectionnez un service",
+      clearFilters: "Effacer les filtres",
+      forLabel: "pour",
+      sortByRating: "Trier par note",
+      sortByReviews: "Trier par avis",
+      subcategory: "Sous-catégorie",
+      allSubcategories: "Toutes les sous-catégories",
     },
     en: {
       establishments: "establishments",
@@ -344,7 +356,19 @@ const CategoryPage = () => {
       next: "Next",
       showing: "Showing",
       to: "to",
-      results: "results"
+      results: "results",
+      filterResults: "Filter results",
+      standing: "Standing",
+      allMasc: "All",
+      allFem: "All",
+      allStandings: "All standings",
+      selectService: "Select a service",
+      clearFilters: "Clear filters",
+      forLabel: "for",
+      sortByRating: "Sort by rating",
+      sortByReviews: "Sort by reviews",
+      subcategory: "Subcategory",
+      allSubcategories: "All subcategories",
     },
     ar: {
       establishments: "مؤسسة",
@@ -360,7 +384,19 @@ const CategoryPage = () => {
       next: "التالي",
       showing: "عرض",
       to: "إلى",
-      results: "نتائج"
+      results: "نتائج",
+      filterResults: "تصفية النتائج",
+      standing: "مستوى",
+      allMasc: "الكل",
+      allFem: "الكل",
+      allStandings: "جميع المستويات",
+      selectService: "اختر خدمة",
+      clearFilters: "مسح الفلاتر",
+      forLabel: "لـ",
+      sortByRating: "ترتيب حسب التقييم",
+      sortByReviews: "ترتيب حسب التعليقات",
+      subcategory: "الفئة الفرعية",
+      allSubcategories: "كل الفئات الفرعية",
     }
   };
 
@@ -530,7 +566,7 @@ const CategoryPage = () => {
               className={`flex items-center gap-2 w-full px-4 py-2.5 rounded-lg ${isWhiteBg ? 'bg-black/5 border border-black/10 text-black' : 'bg-white/10 border border-white/20 text-white'} text-sm font-medium transition-colors ${isWhiteBg ? 'hover:bg-black/10' : 'hover:bg-white/20'}`}
             >
               <SlidersHorizontal className="h-4 w-4" />
-              {language === "fr" ? "Filtrer les résultats" : language === "ar" ? "تصفية النتائج" : "Filter results"}
+              {t.filterResults}
               {(selectedSubcategories.length > 0 || selectedServices.length > 0 || selectedGamme !== "all") && (
                 <span className="ml-auto bg-gold text-black text-xs font-bold rounded-full px-2 py-0.5">
                   {[...selectedSubcategories, ...selectedServices, ...(selectedGamme !== "all" ? [selectedGamme] : [])].length}
@@ -571,14 +607,14 @@ const CategoryPage = () => {
               {availableSubcategories.length > 0 && (
                 <div className="flex-1 min-w-[140px]">
                   <label className={`text-sm font-bold ${textClass} mb-1.5 block`}>
-                    {language === "fr" ? "Sous-catégorie" : language === "ar" ? "الفئة الفرعية" : "Subcategory"}
+                    {t.subcategory}
                   </label>
                   <Select value={selectedSubcategories[0] || "all"} onValueChange={handleSubcategoryChange}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={language === "fr" ? "Toutes" : language === "ar" ? "الكل" : "All"} />
+                      <SelectValue placeholder={t.allFem} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{language === "fr" ? "Toutes les sous-catégories" : language === "ar" ? "كل الفئات الفرعية" : "All subcategories"}</SelectItem>
+                      <SelectItem value="all">{t.allSubcategories}</SelectItem>
                       {availableSubcategories.map((subcat) => (
                         <SelectItem key={subcat} value={subcat}>
                           {subcat}
@@ -593,14 +629,14 @@ const CategoryPage = () => {
               {selectedSubcategories.length > 0 && availableGammes.length > 0 && (
                 <div className="flex-1 min-w-[140px]">
                   <label className={`text-sm font-bold ${textClass} mb-1.5 block`}>
-                    {language === "fr" ? "Standing" : language === "ar" ? "مستوى" : "Standing"}
+                    {t.standing}
                   </label>
                   <Select value={selectedGamme} onValueChange={(v) => { setSelectedGamme(v); scrollToFilterToggle(); }}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={language === "fr" ? "Tous" : language === "ar" ? "الكل" : "All"} />
+                      <SelectValue placeholder={t.allMasc} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{language === "fr" ? "Tous les standings" : language === "ar" ? "جميع المستويات" : "All standings"}</SelectItem>
+                      <SelectItem value="all">{t.allStandings}</SelectItem>
                       {availableGammes.map((gamme) => (
                         <SelectItem key={gamme.id} value={gamme.id}>
                           {gamme.name_fr}
@@ -619,7 +655,7 @@ const CategoryPage = () => {
             <div className="mb-8">
               <div className="mb-3">
                 <label className="text-sm font-bold text-white">
-                  {language === "fr" ? "Sélectionnez un service" : language === "ar" ? "اختر خدمة" : "Select a service"}
+                  {t.selectService}
                 </label>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -651,7 +687,7 @@ const CategoryPage = () => {
                 onClick={clearFilters}
                 className="text-sm text-gold underline hover:text-gold/80 transition-colors"
               >
-                {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+                {t.clearFilters}
               </button>
             </div>
           )}
@@ -669,7 +705,7 @@ const CategoryPage = () => {
               {/* Results count + Sort */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <h2 className={`text-lg font-bold ${textClass}`}>
-                  {filteredBusinesses.length} {t.establishments} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {getCategoryName()}
+                  {filteredBusinesses.length} {t.establishments} {t.forLabel} {getCategoryName()}
                 </h2>
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                   <Button
@@ -679,7 +715,7 @@ const CategoryPage = () => {
                     className="text-xs"
                   >
                     <span className="mr-1">↑↓</span>
-                    {language === "fr" ? "Trier par note" : language === "ar" ? "ترتيب حسب التقييم" : "Sort by rating"}
+                    {t.sortByRating}
                   </Button>
                   <Button
                     variant={sortMode === "reviews" ? "default" : "outline"}
@@ -688,7 +724,7 @@ const CategoryPage = () => {
                     className="text-xs"
                   >
                     <span className="mr-1">↑↓</span>
-                    {language === "fr" ? "Trier par avis" : language === "ar" ? "ترتيب حسب التعليقات" : "Sort by reviews"}
+                    {t.sortByReviews}
                   </Button>
                 </div>
               </div>

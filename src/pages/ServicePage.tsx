@@ -396,7 +396,20 @@ const ServicePage = () => {
       next: "Suivant",
       showing: "Affichage de",
       to: "à",
-      results: "résultats"
+      results: "résultats",
+      filterResults: "Filtrer les résultats",
+      standing: "Standing",
+      allMasc: "Tous",
+      allFem: "Toutes",
+      allStandings: "Tous les standings",
+      selectService: "Sélectionnez un service",
+      clearFilters: "Effacer les filtres",
+      forLabel: "pour",
+      sortByRating: "Trier par note",
+      sortByReviews: "Trier par avis",
+      inEveryCity: "dans chaque ville",
+      viewOnMap: "Voir sur la carte",
+      shownOnMap: "Affiché sur la carte",
     },
     en: {
       establishments: "establishments",
@@ -412,7 +425,20 @@ const ServicePage = () => {
       next: "Next",
       showing: "Showing",
       to: "to",
-      results: "results"
+      results: "results",
+      filterResults: "Filter results",
+      standing: "Standing",
+      allMasc: "All",
+      allFem: "All",
+      allStandings: "All standings",
+      selectService: "Select a service",
+      clearFilters: "Clear filters",
+      forLabel: "for",
+      sortByRating: "Sort by rating",
+      sortByReviews: "Sort by reviews",
+      inEveryCity: "in every city",
+      viewOnMap: "View on map",
+      shownOnMap: "Shown on map",
     },
     ar: {
       establishments: "مؤسسة",
@@ -428,7 +454,20 @@ const ServicePage = () => {
       next: "التالي",
       showing: "عرض",
       to: "إلى",
-      results: "نتائج"
+      results: "نتائج",
+      filterResults: "تصفية النتائج",
+      standing: "مستوى",
+      allMasc: "الكل",
+      allFem: "الكل",
+      allStandings: "جميع المستويات",
+      selectService: "اختر خدمة",
+      clearFilters: "مسح الفلاتر",
+      forLabel: "لـ",
+      sortByRating: "ترتيب حسب التقييم",
+      sortByReviews: "ترتيب حسب التعليقات",
+      inEveryCity: "في كل مدينة",
+      viewOnMap: "عرض على الخريطة",
+      shownOnMap: "معروض على الخريطة",
     }
   };
 
@@ -563,7 +602,7 @@ const ServicePage = () => {
                     : language === "ar"
                       ? `اكتشف ${displayTitle} `
                       : `Discover ${displayTitle} `}
-                  <span className="text-gold">{language === "fr" ? "dans chaque ville" : language === "ar" ? "في كل مدينة" : "in every city"}</span>
+                  <span className="text-gold">{t.inEveryCity}</span>
                 </h2>
                 <p className="mx-auto max-w-2xl text-gray-400">
                   {language === "fr"
@@ -665,7 +704,7 @@ const ServicePage = () => {
               className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white border border-border text-foreground text-sm font-medium transition-colors hover:bg-white/90"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              {language === "fr" ? "Filtrer les résultats" : language === "ar" ? "تصفية النتائج" : "Filter results"}
+              {t.filterResults}
               {(selectedGammeFilter !== "all" || selectedServices.length > 1) && (
                 <span className="ml-auto bg-gold text-black text-xs font-bold rounded-full px-2 py-0.5">
                   {(selectedGammeFilter !== "all" ? 1 : 0) + (selectedServices.length > 1 ? selectedServices.length - 1 : 0)}
@@ -716,7 +755,7 @@ const ServicePage = () => {
             <div className={`mb-8 ${showFilters ? 'block' : 'hidden'} sm:block`}>
               <div className="mb-3">
                 <label className="text-sm font-bold text-white">
-                  {language === "fr" ? "Sélectionnez un service" : language === "ar" ? "اختر خدمة" : "Select a service"}
+                  {t.selectService}
                 </label>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -753,7 +792,7 @@ const ServicePage = () => {
                 }}
                 className="text-sm text-gold underline hover:text-gold/80 transition-colors"
               >
-                {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+                {t.clearFilters}
               </button>
             </div>
           )}
@@ -768,7 +807,7 @@ const ServicePage = () => {
               {/* Results count + Sort */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <h2 className="text-lg font-bold text-white">
-                  {filteredBusinesses.length} {t.establishments} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {displayTitle}
+                  {filteredBusinesses.length} {t.establishments} {t.forLabel} {displayTitle}
                 </h2>
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                   <Button
@@ -778,7 +817,7 @@ const ServicePage = () => {
                     className="text-xs"
                   >
                     <span className="mr-1">↑↓</span>
-                    {language === "fr" ? "Trier par note" : language === "ar" ? "ترتيب حسب التقييم" : "Sort by rating"}
+                    {t.sortByRating}
                   </Button>
                   <Button
                     variant={sortMode === "reviews" ? "default" : "outline"}
@@ -787,7 +826,7 @@ const ServicePage = () => {
                     className="text-xs"
                   >
                     <span className="mr-1">↑↓</span>
-                    {language === "fr" ? "Trier par avis" : language === "ar" ? "ترتيب حسب التعليقات" : "Sort by reviews"}
+                    {t.sortByReviews}
                   </Button>
                 </div>
               </div>
@@ -806,8 +845,8 @@ const ServicePage = () => {
                     onSelectBusiness={handleSelectBusiness}
                     showMapButton={true}
                     mapButtonLabels={{
-                      view: language === "fr" ? "Voir sur la carte" : language === "ar" ? "عرض على الخريطة" : "View on map",
-                      shown: language === "fr" ? "Affiché sur la carte" : language === "ar" ? "معروض على الخريطة" : "Shown on map"
+                      view: t.viewOnMap,
+                      shown: t.shownOnMap
                     }}
                   />
                 ))}

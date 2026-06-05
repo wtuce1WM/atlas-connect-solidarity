@@ -67,6 +67,34 @@ const NeighborhoodPage = () => {
   const { neighborhood } = useParams<{ neighborhood: string }>();
   const [searchParams] = useSearchParams();
   const { language } = useLanguage();
+  const TRANSLATIONS = {
+    fr: {
+      filterResults: "Filtrer les résultats",
+      clearFilters: "Effacer les filtres",
+      selectService: "Sélectionnez un service",
+      forLabel: "pour",
+      sortByRating: "Trier par note",
+      sortByReviews: "Trier par avis",
+    },
+    en: {
+      filterResults: "Filter results",
+      clearFilters: "Clear filters",
+      selectService: "Select a service",
+      forLabel: "for",
+      sortByRating: "Sort by rating",
+      sortByReviews: "Sort by reviews",
+    },
+    ar: {
+      filterResults: "تصفية النتائج",
+      clearFilters: "مسح الفلاتر",
+      selectService: "اختر خدمة",
+      forLabel: "لـ",
+      sortByRating: "ترتيب حسب التقييم",
+      sortByReviews: "ترتيب حسب التعليقات",
+    },
+  } as const;
+  const t = TRANSLATIONS[language] || TRANSLATIONS.fr;
+
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
@@ -413,7 +441,7 @@ const NeighborhoodPage = () => {
               className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-medium transition-colors hover:bg-white/20"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              {language === "fr" ? "Filtrer les résultats" : language === "ar" ? "تصفية النتائج" : "Filter results"}
+              {t.filterResults}
               {activeFilterCount > 0 && (
                 <span className="ml-auto bg-gold text-black text-xs font-bold rounded-full px-2 py-0.5">
                   {activeFilterCount}
@@ -506,7 +534,7 @@ const NeighborhoodPage = () => {
                   onClick={clearAllFilters}
                   className="text-sm text-gold underline hover:text-gold/80 transition-colors"
                 >
-                  {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+                  {t.clearFilters}
                 </button>
               </div>
             )}
@@ -515,7 +543,7 @@ const NeighborhoodPage = () => {
             {selectedCategory && availableActivities.length > 0 && (
               <div>
                 <label className="text-sm font-bold text-white mb-2 block">
-                  {language === "fr" ? "Sélectionnez un service" : language === "ar" ? "اختر خدمة" : "Select a service"}
+                  {t.selectService}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {availableActivities.slice(0, 8).map((activity) => (
@@ -556,7 +584,7 @@ const NeighborhoodPage = () => {
             <>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <h2 className="text-lg font-bold text-white">
-                  {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {decodedNeighborhood}
+                  {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""} {t.forLabel} {decodedNeighborhood}
                 </h2>
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                   <Button
@@ -566,7 +594,7 @@ const NeighborhoodPage = () => {
                     className="text-xs"
                   >
                     <span className="mr-1">↑↓</span>
-                    {language === "fr" ? "Trier par note" : language === "ar" ? "ترتيب حسب التقييم" : "Sort by rating"}
+                    {t.sortByRating}
                   </Button>
                   <Button
                     variant={sortMode === "reviews" ? "default" : "outline"}
@@ -575,7 +603,7 @@ const NeighborhoodPage = () => {
                     className="text-xs"
                   >
                     <span className="mr-1">↑↓</span>
-                    {language === "fr" ? "Trier par avis" : language === "ar" ? "ترتيب حسب التعليقات" : "Sort by reviews"}
+                    {t.sortByReviews}
                   </Button>
                 </div>
               </div>
