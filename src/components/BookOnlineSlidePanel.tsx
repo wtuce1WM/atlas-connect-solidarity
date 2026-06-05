@@ -1914,7 +1914,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             );
           })()}
-          {/* External links + Social / Booking / Menu strips */}
+          {/* External links + Social / Booking / Menu strips — pinned at viewport bottom */}
           {!descGridSection && (() => {
             const socialItems: { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[] = [
               business?.website && { name: "Site web", url: business.website, icon: <Globe className="h-4 w-4" /> },
