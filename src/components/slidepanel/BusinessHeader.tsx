@@ -52,14 +52,6 @@ const BusinessHeader = React.memo(function BusinessHeader({
       key={businessId}
       className="mx-auto w-fit max-w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white h-[4.5rem] md:h-[5.5rem] pointer-events-auto -mt-1 md:mt-0 animate-slide-in-right flex items-center justify-center gap-4"
     >
-      {business.logo_url && business.id === businessId && (
-        <div
-          className={`shrink-0 w-20 h-20 overflow-hidden hidden md:block ${business.logo_bg === "transparent" ? "" : "rounded-xl border-2 border-white/20 shadow-lg"}`}
-          style={{ backgroundColor: business.logo_bg === "transparent" ? "transparent" : (business.logo_bg || "#fff") }}
-        >
-          <img src={business.logo_url} alt="" className={`w-full h-full object-contain ${business.logo_bg === "transparent" ? "" : "p-1"}`} />
-        </div>
-      )}
       <div className="min-w-0 text-center">
         <h2
           className={`text-base md:text-xl font-bold uppercase [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] ${hasReviewsCard ? "line-clamp-2" : "line-clamp-3 md:line-clamp-2"}`}
