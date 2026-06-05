@@ -92,7 +92,7 @@ const BusinessSearch = () => {
       if (!error && data) {
         // Get unique values - need Set because Supabase doesn't support DISTINCT in JS client
         const uniqueCategories = [...new Set(data.map(b => b.main_category))] as string[];
-        console.log("Fetched categories:", uniqueCategories);
+        
         // Sort alphabetically with French locale
         uniqueCategories.sort((a, b) => a.localeCompare(b, 'fr'));
         setAvailableCategories(uniqueCategories);
@@ -145,7 +145,7 @@ const BusinessSearch = () => {
           });
         },
         (error) => {
-          console.log("Geolocation error:", error);
+          console.warn("Geolocation error:", error);
         }
       );
     }
