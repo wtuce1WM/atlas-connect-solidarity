@@ -3935,9 +3935,89 @@ const SearchPage = () => {
               })()}
               */}
 
+              {/* Liquid-glass Speaker (TTS) — placé sous le dernier carousel, AVANT "Affinez votre demande" */}
+              {activeTab !== "poi" && activeTab !== "destinations" && aiAnswerText && !isAiRegenerating && (
+                <div className="mt-8 flex justify-center">
+                  <div className="relative flex items-center justify-center">
+                    {/* Outer expanding glass ring */}
+                    <div
+                      className="absolute rounded-full animate-ping pointer-events-none backdrop-blur-2xl backdrop-saturate-150"
+                      style={{
+                        inset: "-28px",
+                        background: "radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%)",
+                        border: "1px solid hsl(var(--primary) / 0.3)",
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 32px hsl(var(--primary) / 0.2)",
+                        animationDuration: "2.4s",
+                      }}
+                    />
+                    {/* Mid pulse glass ring */}
+                    <div
+                      className="absolute rounded-full animate-pulse pointer-events-none backdrop-blur-xl"
+                      style={{
+                        inset: "-18px",
+                        background: "linear-gradient(135deg, rgba(255,255,255,0.15), hsl(var(--primary) / 0.1))",
+                        border: "1px solid rgba(255,255,255,0.25)",
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35)",
+                      }}
+                    />
+                    {/* Rotating conic accent (only when playing/loading) */}
+                    {(ttsStatus === "playing" || ttsStatus === "loading") && (
+                      <div
+                        className="absolute rounded-full pointer-events-none"
+                        style={{
+                          inset: "-8px",
+                          background: "conic-gradient(from 0deg, transparent 0%, hsl(var(--primary)) 35%, hsl(var(--primary) / 0.5) 50%, transparent 70%)",
+                          animation: "spin 2s linear infinite",
+                          filter: "blur(0.5px)",
+                        }}
+                      />
+                    )}
+                    {/* Glass core button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (ttsStatus === "playing" || ttsStatus === "loading") {
+                          ttsStop();
+                          return;
+                        }
+                        const lastAssistant = [...aiChat].reverse().find(m => m.role === "assistant")?.content;
+                        const sourceText = lastAssistant || aiAnswerText;
+                        const cleanText = sourceText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                        const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                        ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                        voiceLoopRef.current = true;
+                        ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                      }}
+                      className="relative w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/30 transition-transform hover:scale-105"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))",
+                        boxShadow: "0 8px 32px hsl(var(--primary) / 0.3), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.1)",
+                      }}
+                      title={language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
+                    >
+                      {/* Specular highlight */}
+                      <span
+                        className="absolute inset-1 rounded-full pointer-events-none"
+                        style={{
+                          background: "linear-gradient(160deg, rgba(255,255,255,0.4) 0%, transparent 45%)",
+                        }}
+                      />
+                      {ttsStatus === "loading" ? (
+                        <Loader className="relative h-7 w-7 md:h-8 md:w-8 animate-spin" style={{ color: "hsl(var(--primary))" }} />
+                      ) : (ttsStatus === "playing") ? (
+                        <VolumeX className="relative h-7 w-7 md:h-8 md:w-8" style={{ color: "hsl(var(--primary))" }} />
+                      ) : (
+                        <Volume2 className="relative h-7 w-7 md:h-8 md:w-8" style={{ color: "hsl(var(--primary))" }} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Refinement chat — multi-turn "Affinez votre demande" */}
 
               {activeTab !== "poi" && activeTab !== "destinations" && aiAnswerText && !isAiRegenerating && (() => {
+
                 const userTurns = aiChat.filter((m) => m.role === "user").length;
                 const reachedCap = userTurns >= AI_CHAT_MAX_TURNS;
                 return (
