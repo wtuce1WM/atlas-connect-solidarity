@@ -26,7 +26,7 @@ serve(async (req) => {
     // the referent (previous results / their location / a place), we don't guess —
     // we return a `clarify` payload so the UI can ask via clickable badges.
     const isRefinementTurn = Array.isArray(history) && history.length > 0;
-    if (isRefinementTurn) {
+    if (isRefinementTurn && !nearbyContext) {
       const PROX_RE = /\b(à\s+côté|a\s+cote|à\s+coté|près\b|pres\b|proche|à\s+proximité|a\s+proximite|autour|aux\s+alentours|near\b|close\s+to|next\s+to|around)\b/i;
       // Referent already explicit → no ambiguity.
       const REFERENT_RE = /\b(r[ée]sultats?\s+pr[ée]c[ée]dents?|d[ée]j[àa]\s+cit[ée]s?|de\s+moi|près\s+de\s+moi|pres\s+de\s+moi|ma\s+position|near\s+me|previous\s+results?|de\s+(la\s+|l[' ’]|le\s+)?[A-ZÉÈÀÂÎÔÛÇ][\wÀ-ÿ'’\- ]{2,})/i;
