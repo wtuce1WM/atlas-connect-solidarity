@@ -112,6 +112,16 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
         <X className="h-5 w-5 text-black" />
       </button>
 
+      {/* Mute toggle */}
+      <button
+        type="button"
+        onClick={toggleMute}
+        className="absolute left-16 top-3 lg:top-[calc(3.3rem+0.75rem)] z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
+        aria-label={isMuted ? (language === "en" ? "Unmute" : "Activer le son") : (language === "en" ? "Mute" : "Couper le son")}
+      >
+        {isMuted ? <VolumeX className="h-5 w-5 text-black" /> : <Volume2 className="h-5 w-5 text-black" />}
+      </button>
+
       {showVideoNavigation && (
         <div className="fixed top-1/2 -translate-y-1/2 right-4 z-[260] flex flex-col gap-2 pointer-events-none">
           <button
