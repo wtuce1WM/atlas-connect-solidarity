@@ -82,6 +82,8 @@ const BusinessSearch = () => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const { t, language } = useLanguage();
+  const T = (TRANSLATIONS as any)[language] || TRANSLATIONS.fr;
+
   const { toast } = useToast();
 
   // Load available categories from database using RPC or direct query
