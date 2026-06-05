@@ -141,20 +141,19 @@ export default function FiltersOverlayFlow({
   const handleSubClick = (subId: string) => {
     onSubClick(subId);
     // If this sub has no available service, skip step 3 entirely:
-    // apply the filter and close the overlay (mobile scrolls to top of results).
+    // apply the filter and close the overlay (scroll results to top).
     if ((subAvailability.get(subId) || 0) === 0) {
       onClose();
-      if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      if (typeof window !== "undefined") {
         requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
       }
     }
   };
 
-  const title = step === 3 ? (activeSub?.name || "") : step === 2 ? (activeTab?.name || "") : "Filtres";
-
   const badgeBase = "inline-flex items-center gap-2 rounded-full border backdrop-blur-sm px-4 py-2 text-sm md:px-6 md:py-3 md:text-lg font-semibold transition-colors";
   const badgeIdle = "border-white/40 bg-white/30 text-black hover:bg-white/50";
   const badgeSelected = "border-black bg-black text-white hover:bg-black/90";
+
 
   // Step 3 fallback: if user reached step 3 but no services are visible
   // (e.g. tab service prefetch hasn't returned yet), we still render gracefully.
