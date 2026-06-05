@@ -342,7 +342,7 @@ const VideoDocumentOverlay = ({
               <div className="flex items-center gap-3">
                 <div className="min-w-0 flex-1">
                   {activeVideo.name ? (
-                    <h2 className="text-base md:text-xl font-bold drop-shadow-lg uppercase line-clamp-2 md:truncate" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
+                    <h2 className="text-base md:text-xl font-bold drop-shadow-lg uppercase" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
                       {activeVideo.name}
                     </h2>
                   ) : showOwnerFallback ? (
@@ -363,7 +363,7 @@ const VideoDocumentOverlay = ({
                       )}
                     </div>
                   ) : (
-                    <h2 className="text-base md:text-xl font-bold drop-shadow-lg uppercase line-clamp-2 md:truncate" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
+                    <h2 className="text-base md:text-xl font-bold drop-shadow-lg uppercase" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
                       {businessName || 'Détails'}
                     </h2>
                   )}
