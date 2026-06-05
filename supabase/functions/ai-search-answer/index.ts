@@ -122,15 +122,9 @@ serve(async (req) => {
         const haystack = norm(topBusinesses.map((b: any) =>
           [b.name, b.city, b.neighborhood, b.address, (b.categories || []).join(" "), b.main_category, b.hook_fr].filter(Boolean).join(" ")
         ).join(" \n "));
-        // Also include anchor names from history (so "Jet Atlas" mentioned in turn 2 still counts as known).
-        const histText = norm(
-          (Array.isArray(history) ? history : [])
-            .filter((h: any) => h && typeof h.content === "string")
-            .map((h: any) => h.content).join(" ")
-        );
         const unknown = properNouns.filter((pn) => {
           const n = norm(pn);
-          return !haystack.includes(n) && !histText.includes(n);
+          return !haystack.includes(n);
         });
         if (unknown.length > 0) {
           topicChange = true;
@@ -140,8 +134,12 @@ serve(async (req) => {
     }
 
 
-    // Collect business IDs from results for direct linking
-    const businessIds = topBusinesses.map((b: any) => b.id).filter(Boolean);
+    // Collect business IDs from results for direct linking.
+    // On topic change, hide the previous business pool completely so stale results
+    // cannot be cited or enriched back into the answer.
+    const effectiveBusinesses = topicChange ? [] : topBusinesses;
+    const effectiveHasResults = effectiveBusinesses.length > 0;
+    const businessIds = effectiveBusinesses.map((b: any) => b.id).filter(Boolean);
 
 
 
