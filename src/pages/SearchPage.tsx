@@ -715,7 +715,10 @@ const SearchPage = () => {
       });
       if (error) throw error;
       const answer = (data as any)?.answer || "";
-      if (!answer) {
+      const clarify = (data as any)?.clarify as AiClarify | undefined;
+      if (clarify && Array.isArray(clarify.options) && clarify.options.length > 0) {
+        setAiChat((prev) => [...prev, { role: "assistant", content: clarify.question || "", clarify }]);
+      } else if (!answer) {
         setAiChatError(language === "en" ? "No answer received." : "Aucune réponse reçue.");
       } else {
         setAiChat((prev) => [...prev, { role: "assistant", content: answer }]);
