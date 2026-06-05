@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [] } = await req.json();
+    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext } = await req.json();
 
     if (!query) {
       return new Response(JSON.stringify({ answer: "" }), {
@@ -26,7 +26,7 @@ serve(async (req) => {
     // the referent (previous results / their location / a place), we don't guess —
     // we return a `clarify` payload so the UI can ask via clickable badges.
     const isRefinementTurn = Array.isArray(history) && history.length > 0;
-    if (isRefinementTurn) {
+    if (isRefinementTurn && !nearbyContext) {
       const PROX_RE = /\b(à\s+côté|a\s+cote|à\s+coté|près\b|pres\b|proche|à\s+proximité|a\s+proximite|autour|aux\s+alentours|near\b|close\s+to|next\s+to|around)\b/i;
       // Referent already explicit → no ambiguity.
       const REFERENT_RE = /\b(r[ée]sultats?\s+pr[ée]c[ée]dents?|d[ée]j[àa]\s+cit[ée]s?|de\s+moi|près\s+de\s+moi|pres\s+de\s+moi|ma\s+position|near\s+me|previous\s+results?|de\s+(la\s+|l[' ’]|le\s+)?[A-ZÉÈÀÂÎÔÛÇ][\wÀ-ÿ'’\- ]{2,})/i;
@@ -237,7 +237,20 @@ ${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS
 ${businessContext}${knowledgeContext ? `
 
 CONNAISSANCES COMPLÉMENTAIRES (si pertinent, intègre ces informations de manière naturelle pour enrichir tes recommandations — ne mets pas en avant un établissement uniquement parce qu'il a une entrée ici) :
-${knowledgeContext}` : ''}`;
+${knowledgeContext}` : ''}${
+  nearbyContext && Array.isArray(nearbyContext.items) && nearbyContext.items.length > 0 ? `
+
+CONTEXTE PROXIMITÉ — INSTRUCTION SPÉCIALE :
+L'utilisateur a affiné sa recherche en demandant "${nearbyContext.entity}" À PROXIMITÉ des résultats précédents${
+    Array.isArray(nearbyContext.anchorNames) && nearbyContext.anchorNames.length > 0
+      ? ` (${nearbyContext.anchorNames.slice(0, 6).join(", ")})`
+      : ""
+  }.
+Voici les "${nearbyContext.entity}" trouvés à moins de 5 km de ces résultats, déjà inclus dans la liste ÉTABLISSEMENTS TROUVÉS ci-dessus : ${
+    nearbyContext.items.map((i: any) => `**${i.name}**${i.city ? ` (${i.city})` : ""}`).join(", ")
+  }.
+Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact entre **doubles astérisques**, en précisant brièvement leur proximité avec les résultats précédents. Tu peux aussi rappeler 1 à 2 des résultats précédents pertinents pour faire le lien. NE filtre PAS la liste ; ces établissements correspondent au critère par construction (proximité géographique vérifiée).` : ''
+}`;
 
     const effectiveTemperature = vary ? Math.min(temperature + 0.3, 1.5) : temperature;
 

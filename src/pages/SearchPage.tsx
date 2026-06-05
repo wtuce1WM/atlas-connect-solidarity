@@ -700,18 +700,111 @@ const SearchPage = () => {
           })
         : orderedPool;
       const poolForAi = filteredPool.length > 0 ? filteredPool : orderedPool;
+
+      // --- "Nouvelle entité à proximité" : ex. "avec un golf à côté", "et un spa proche", "près d'un cinéma".
+      // On lance une recherche dédiée pour l'entité, restreinte au voisinage des résultats précédemment cités,
+      // puis on l'ajoute au pool de l'IA + au pool d'affichage (carousel/carte).
+      let nearbyEntityResults: Business[] = [];
+      let nearbyEntityTerm = "";
+      let nearbyAnchorNames: string[] = [];
+      const isNearbyEligibleTurn = aiChat.some((m) => m.role === "user");
+      if (isNearbyEligibleTurn && proxLat === undefined) {
+        const NEARBY_ENTITY_RE = /(?:^|\b)(?:avec|et|and|with|plus)\s+(?:un|une|des|du|de\s+la|le|la|les|a|an|some)?\s*([\p{L}][\p{L}\-']{2,})\s+(?:à\s+côté|a\s+cote|à\s+coté|à\s+proximité|a\s+proximite|près|pres|proche|aux\s+alentours|nearby|around|close\s+by)\b/iu;
+        const NEAR_OF_ENTITY_RE = /(?:à\s+côté|a\s+cote|près|pres|proche|à\s+proximité|nearby|close\s+to|next\s+to)\s+d['’]?\s*(?:un|une|des|a|an)?\s*([\p{L}][\p{L}\-']{2,})\b/iu;
+        const nm = q.match(NEARBY_ENTITY_RE) || q.match(NEAR_OF_ENTITY_RE);
+        if (nm) {
+          const entityTerm = nm[1].toLowerCase();
+          const GENERIC = new Set(["chose","truc","endroit","lieu","place","spot","activite","activité","côté","cote","côte","resultat","résultat","résultats","resultats"]);
+          if (!GENERIC.has(entityTerm) && entityTerm.length >= 3) {
+            nearbyEntityTerm = entityTerm;
+            const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant")?.content || "";
+            const citedFromText = lastAssistant
+              ? extractCitedBusinesses(lastAssistant, aiInlineBusinessPool)
+              : [];
+            const anchorPool: Business[] = (citedFromText.length > 0
+              ? (citedFromText as unknown as Business[])
+              : (poolForAi.slice(0, 5)));
+            const anchors = anchorPool.filter(
+              (b) => typeof b.latitude === "number" && typeof b.longitude === "number"
+            );
+            if (anchors.length > 0) {
+              nearbyAnchorNames = anchors.map((a) => a.name);
+              const cLat = anchors.reduce((s, b) => s + (b.latitude as number), 0) / anchors.length;
+              const cLng = anchors.reduce((s, b) => s + (b.longitude as number), 0) / anchors.length;
+              const spread = anchors.reduce(
+                (m, b) => Math.max(m, haversineKm(cLat, cLng, b.latitude as number, b.longitude as number)),
+                0,
+              );
+              const searchRadius = Math.min(20, Math.max(5, spread + 5));
+              try {
+                const { data: nearbyData } = await supabase.functions.invoke<SearchResult>("business-search", {
+                  body: {
+                    query: entityTerm,
+                    language,
+                    pageSize: 30,
+                    offset: 0,
+                    compact: "card",
+                    latitude: cLat,
+                    longitude: cLng,
+                    radiusKm: searchRadius,
+                  },
+                });
+                const found = (nearbyData?.businesses || []) as Business[];
+                const proxKm = 5;
+                nearbyEntityResults = found
+                  .filter((b) =>
+                    typeof b.latitude === "number" && typeof b.longitude === "number" &&
+                    anchors.some((a) =>
+                      haversineKm(a.latitude as number, a.longitude as number, b.latitude as number, b.longitude as number) <= proxKm,
+                    )
+                  )
+                  .slice(0, 8);
+              } catch (e) {
+                console.warn("AI nearby-entity search failed:", e);
+              }
+            }
+          }
+        }
+      }
+
       // Sync the map pool with the cumulative AND-filtered results so markers
       // reflect the same constraints as the AI answer (not just the last turn).
-      setAiRefinementBusinessPool(poolForAi);
-      const businesses = poolForAi.slice(0, 200).map((b) => ({
+      // When a "nearby new entity" was detected, prepend its results so they appear in the carousel/map.
+      const mergedPool: Business[] = (() => {
+        if (nearbyEntityResults.length === 0) return poolForAi;
+        const dedup = new globalThis.Map<string, Business>();
+        for (const b of nearbyEntityResults) dedup.set(b.id, b);
+        for (const b of poolForAi) if (!dedup.has(b.id)) dedup.set(b.id, b);
+        return Array.from(dedup.values());
+      })();
+      setAiRefinementBusinessPool(mergedPool);
+
+      const toAiPayload = (b: Business) => ({
         id: b.id, name: b.name, city: b.city,
         neighborhood: (b as any).neighborhood, address: (b as any).address,
         main_category: b.main_category,
         categories: b.categories, services: b.services, engagements: b.engagements,
         hook_fr: b.hook_fr, hook_en: b.hook_en, wtuce_status: b.wtuce_status,
-      }));
+      });
+      const baseBusinesses = poolForAi.slice(0, 200).map(toAiPayload);
+      const baseIds = new Set(baseBusinesses.map((b) => b.id));
+      const nearbyBusinessesPayload = nearbyEntityResults
+        .filter((b) => !baseIds.has(b.id))
+        .map(toAiPayload);
+      const businesses = [...baseBusinesses, ...nearbyBusinessesPayload];
+
       const { data, error } = await supabase.functions.invoke("ai-search-answer", {
-        body: { query: q, businesses, language, history: nextHistory },
+        body: {
+          query: q,
+          businesses,
+          language,
+          history: nextHistory,
+          nearbyContext: nearbyEntityResults.length > 0 ? {
+            entity: nearbyEntityTerm,
+            anchorNames: nearbyAnchorNames.slice(0, 8),
+            items: nearbyEntityResults.map((b) => ({ name: b.name, city: b.city })),
+          } : undefined,
+        },
       });
       if (error) throw error;
       const answer = (data as any)?.answer || "";
@@ -738,7 +831,7 @@ const SearchPage = () => {
     } finally {
       setAiChatLoading(false);
     }
-  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, aiRefinementSpokenText]);
+  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, aiRefinementSpokenText, aiInlineBusinessPool]);
 
   // Demo mode: when ?demo=<followup> is present, wait for the initial AI answer,
   // then auto-submit the follow-up question once as a refinement turn.
