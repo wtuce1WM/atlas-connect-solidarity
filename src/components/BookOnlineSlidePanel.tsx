@@ -1975,23 +1975,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
                     </button>
                   ))}
-                  {externalLinks.map((link) => (
+                  {hasReservation && (
                     <button
-                      key={link.id}
-                      onClick={() => {
-                        if (link.url && link.url !== '#' && link.url !== '*') {
-                          openDocOrBooking(link.url, link.name || 'Lien', true);
-                        }
-                      }}
-                      className={`shrink-0 h-8 flex items-center gap-1.5 rounded-full text-white transition-colors overflow-hidden ${link.icon ? 'bg-white hover:bg-white/90' : 'bg-white/15 hover:bg-white/30'}`}
+                      onClick={() => setShowExtLinksOverlay(true)}
+                      className="shrink-0 h-8 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                     >
-                      {link.icon ? (
-                        <img src={link.icon} alt={link.name || ''} className="h-8 w-8 object-contain rounded-full p-1" loading="lazy" />
-                      ) : (
-                        <span className="px-3 text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
-                      )}
+                      <CalendarCheck className="h-3.5 w-3.5" />
+                      <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">Plateformes de réservation</span>
                     </button>
-                  ))}
+                  )}
                 </div>
               </div>
             );
