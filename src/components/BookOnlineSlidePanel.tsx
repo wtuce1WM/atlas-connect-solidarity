@@ -2032,7 +2032,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             );
           })()}
-          <div className="shrink-0 h-[5rem] md:h-[5.25rem]" />
+          
         </OverlayShell>
       )}
 
