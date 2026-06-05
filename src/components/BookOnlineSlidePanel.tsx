@@ -1342,28 +1342,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               if (avgOn20 != null && totalReviewCount > 0) {
                 return (
                   <>
-                    {(() => {
-                      const defaultReview = reviewTexts.find((r) => {
-                        const displayText = ((language === "en" ? r.text_en : r.text_fr) || r.text || "").trim();
-                        return r.is_default && displayText.length > 0;
-                      });
-                      if (!defaultReview) return null;
-                      const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
-                      return (
-                        <div
-                          className="text-center max-w-[95%] md:max-w-xl pl-8 pr-0 md:px-0 cursor-pointer slidepanel-review-short [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
-                          onClick={handleOpenReviews}
-                          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                        >
-                          <p className="text-base md:text-lg text-white/90 italic font-bold leading-relaxed line-clamp-4">
-                            "{displayText}"
-                          </p>
-                          {defaultReview.author_name && (
-                            <p className="text-sm md:text-base text-white font-bold mt-1.5 capitalize">— {defaultReview.author_name.toLowerCase()}</p>
-                          )}
-                        </div>
-                      );
-                    })()}
+                    {null}
+
                     <div
                       key={`rating-${business?.id}`}
                       className="relative flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border border-white/30 cursor-pointer flex-wrap slidepanel-rating-short backdrop-blur-2xl bg-white/10 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]"
