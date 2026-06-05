@@ -1994,7 +1994,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 )}
                 {hasSocialBar && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-gold lg:flex-wrap lg:overflow-x-visible">
+                <div
+                  onWheel={(e) => {
+                    const el = e.currentTarget;
+                    if (el.scrollWidth > el.clientWidth && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                      el.scrollLeft += e.deltaY;
+                    }
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-gold lg:flex-wrap lg:overflow-x-visible"
+                >
                   {socialItems.map((s, i) => (
                     <button
                       key={i}
