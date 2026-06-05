@@ -1967,7 +1967,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             return (
               <div className="relative z-40 shrink-0 mt-auto isolate pointer-events-auto flex flex-col">
                 {externalLinks.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none lg:flex-wrap lg:overflow-x-visible">
+
                     {externalLinks.map((link) => (
                       <button
                         key={link.id}
@@ -1976,7 +1977,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                             openDocOrBooking(link.url, link.name || 'Lien', true);
                           }
                         }}
-                        className="h-9 flex items-center gap-1.5 rounded-full transition-colors overflow-hidden bg-white/15 hover:bg-white/30 text-white px-3"
+                        className="shrink-0 h-9 flex items-center gap-1.5 rounded-full transition-colors overflow-hidden bg-white/15 hover:bg-white/30 text-white px-3"
                         title={link.name || 'Lien'}
                       >
                         <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
@@ -1985,12 +1986,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 )}
                 {hasSocialBar && (
-                <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10">
+                <div className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none lg:flex-wrap lg:overflow-x-visible">
                   {socialItems.map((s, i) => (
                     <button
                       key={i}
                       onClick={() => (s.onClick ? s.onClick() : window.open(s.url, "_blank", "noopener"))}
-                      className="h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                      className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       title={s.name}
                     >
                       {s.icon}
@@ -1998,13 +1999,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     </button>
                   ))}
                   {socialItems.length > 0 && bookingItems.length > 0 && (
-                    <div className="w-px h-6 bg-white/20" />
+                    <div className="shrink-0 w-px h-6 bg-white/20" />
                   )}
                   {bookingItems.map((item) => (
                     <button
                       key={`${item.name}-${item.url}`}
                       onClick={() => window.open(item.url, "_blank", "noopener")}
-                      className="h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                      className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       title={item.name}
                     >
                       {!item.label && item.icon}
@@ -2012,13 +2013,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     </button>
                   ))}
                   {(socialItems.length > 0 || bookingItems.length > 0) && menuDocs.length > 0 && (
-                    <div className="w-px h-6 bg-white/20" />
+                    <div className="shrink-0 w-px h-6 bg-white/20" />
                   )}
                   {menuDocs.map((doc) => (
                     <button
                       key={doc.id}
                       onClick={() => openDocOrBooking(doc.url, doc.name || 'Menu')}
-                      className="h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                      className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                     >
                       {categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Globe className="h-3.5 w-3.5" />}
                       <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
