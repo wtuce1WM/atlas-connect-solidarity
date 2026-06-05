@@ -2533,7 +2533,7 @@ const SearchPage = () => {
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
           body: {
             query: prox ? prox.query : baseQuery,
-            spoken: useSubcatBypass ? undefined : (spokenText || undefined),
+            spoken: useSubcatBypass ? undefined : (spokenText || searchQuery.trim() || undefined),
             language: language,
             pageSize: SERVER_PAGE_SIZE,
             offset: 0,
