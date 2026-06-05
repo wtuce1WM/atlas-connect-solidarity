@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -162,13 +162,22 @@ export default function ResultsTabContent({
       : null;
   })();
 
+  // Union of all front_structure subcategory names — used as the default
+  // filter when no specific FS tab is selected, so results stay constrained
+  // to the front_structure scope.
+  const allFsNames = useMemo(() => {
+    const s = new Set<string>();
+    for (const t of frontTabs) for (const n of t.subcategoryNames) s.add(n);
+    return s;
+  }, [frontTabs]);
+
   const handleFsTabClick = (tabId: string | null) => {
     setActiveFsTabId(tabId);
     setActiveFsSubId(null);
     setActiveFsServices([]);
     onFrontStructureServicesFilter?.(null);
     if (!tabId) {
-      onFrontStructureFilter?.(null);
+      onFrontStructureFilter?.(allFsNames.size > 0 ? allFsNames : null);
     } else {
       const tab = frontTabs.find(t => t.id === tabId);
       onFrontStructureFilter?.(tab?.subcategoryNames || null);
@@ -205,6 +214,15 @@ export default function ResultsTabContent({
     setActiveFsServices([]);
     onFrontStructureServicesFilter?.(null);
   }, [effectiveCity, searchQuery]);
+
+  // Always constrain results to the front_structure scope when no specific
+  // FS tab is selected (otherwise out-of-scope businesses like Night Clubs
+  // leak into "all categories" results).
+  useEffect(() => {
+    if (activeFsTabId) return;
+    if (allFsNames.size === 0) return;
+    onFrontStructureFilter?.(allFsNames);
+  }, [activeFsTabId, allFsNames, onFrontStructureFilter]);
 
   // When landing on a front-structure URL (e.g. label=Hébergement), select that tab
   // so the subcategory/services filter is visible immediately.
