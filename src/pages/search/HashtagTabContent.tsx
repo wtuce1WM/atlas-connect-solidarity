@@ -94,7 +94,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
             .from("events")
             .select("id, name, images, videos, default_business_id, city_id, start_date, end_date, days_of_week, start_time, end_time")
             .in("id", candidateIds)
-            .or(`end_date.gte.${today},end_date.is.null`)
+            .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today})`)
             .order("start_date", { ascending: true });
           const { data } = filterByCity && cityId ? await query.eq("city_id", cityId) : await query;
           eventRows = ((data as any[]) || []).filter((ev) => ev?.images?.[0] || ev?.videos?.[0]);
