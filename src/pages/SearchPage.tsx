@@ -3943,7 +3943,7 @@ const SearchPage = () => {
                     <div
                       className="absolute rounded-full animate-ping pointer-events-none backdrop-blur-2xl backdrop-saturate-150"
                       style={{
-                        inset: "-28px",
+                        inset: "-14px",
                         background: "radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%)",
                         border: "1px solid hsl(var(--primary) / 0.3)",
                         boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 32px hsl(var(--primary) / 0.2)",
