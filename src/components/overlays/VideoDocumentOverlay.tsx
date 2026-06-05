@@ -234,33 +234,35 @@ const VideoDocumentOverlay = ({
           <video
             ref={videoRef}
             src={vidUrl}
-            className="w-full h-full bg-black object-cover"
+            className="w-full h-full bg-black object-cover md:object-contain"
             autoPlay
             loop
             playsInline
-            onLoadedMetadata={(e) => {
-              const v = e.currentTarget;
-              v.className = `w-full h-full bg-black ${v.videoHeight > v.videoWidth ? "object-cover" : "object-contain"}`;
-            }}
           />
         ) : (
-            <div className={`w-full h-full overflow-hidden bg-black ${overlayVid.type === "youtube" ? "relative" : ""}`}>
+            <div
+              className={`w-full h-full overflow-hidden bg-black ${overlayVid.type === "youtube" ? "relative" : ""}`}
+              style={overlayVid.type === "youtube" && isVerticalHint ? { containerType: "size" } : undefined}
+            >
             {overlayVid.type === "youtube" && !isVerticalHint && (
-              <>
-                <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
-              </>
+              <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
             )}
             <iframe
               ref={iframeRef}
               src={overlayEmbedUrl}
               className={overlayVid.type === "youtube"
                 ? isVerticalHint
-                  ? "w-full h-full"
-                  : "w-full h-[calc(100%+80px)] -mt-16 -mb-[46px]"
+                  ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  : "w-full h-full"
                 : "w-full h-full"
               }
               allow="autoplay; encrypted-media; fullscreen"
               allowFullScreen
+              style={overlayVid.type === "youtube" && isVerticalHint ? {
+                border: 0,
+                width: "max(100cqw, calc(100cqh * 9 / 16))",
+                height: "max(100cqh, calc(100cqw * 16 / 9))",
+              } : undefined}
             />
           </div>
         )}
