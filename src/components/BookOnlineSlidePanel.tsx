@@ -1266,12 +1266,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   })}
                 </div>
               ) : undefined}
-              middleSlot={(hookText || business?.carousel_badge) ? (
+              middleSlot={hookText ? (
                 <p
                   className="md:hidden text-base text-white/90 font-bold text-center max-w-[95%] md:max-w-[85%] leading-relaxed pointer-events-none pl-8 pr-0 md:px-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
                   style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                 >
-                  {hookText || videoTabLabel}
+                  {hookText}
                 </p>
               ) : undefined}
               rightSlot={undefined}
@@ -1287,10 +1287,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
           <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-auto gap-4 md:gap-10 flex-1 -mt-[3rem]">
-            {(hookText || business?.carousel_badge) && (
+            {hookText && (
               <div className="absolute top-12 left-0 right-0 flex justify-center pointer-events-none">
                 <div className="pointer-events-auto">
-                  <TypewriterHook text={hookText || videoTabLabel} key={businessId + '-hook'} />
+                  <TypewriterHook text={hookText} key={businessId + '-hook'} />
                 </div>
               </div>
             )}
