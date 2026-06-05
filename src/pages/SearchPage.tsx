@@ -432,9 +432,9 @@ const SearchPage = () => {
       } catch (e) {
         console.warn("Failed to load AI refinement enrichment cache:", e);
         refinementEnrichmentRef.current = {
-          servicesKw: new Map(),
-          subcatsKw: new Map(),
-          bizBadges: new Map(),
+          servicesKw: new globalThis.Map(),
+          subcatsKw: new globalThis.Map(),
+          bizBadges: new globalThis.Map(),
         };
       } finally {
         refinementEnrichmentLoadingRef.current = null;
