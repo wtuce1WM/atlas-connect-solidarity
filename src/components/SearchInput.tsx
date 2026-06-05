@@ -51,6 +51,13 @@ interface SearchInputProps {
   liquid?: boolean;
 }
 
+const TRANSLATIONS = {
+  fr: { recent: "Recherches récentes", clear: "Effacer", error: "Erreur", placeholderHero: "Que cherchez-vous ?", placeholderFloating: "Rechercher un établissement...", search: "Recherche", voiceSearch: "Recherche vocale" },
+  en: { recent: "Recent searches", clear: "Clear", error: "Error", placeholderHero: "What are you looking for?", placeholderFloating: "Search for a business...", search: "Search", voiceSearch: "Voice search" },
+  ar: { recent: "عمليات البحث الأخيرة", clear: "مسح", error: "خطأ", placeholderHero: "ماذا تبحث عنه؟", placeholderFloating: "ابحث عن مؤسسة...", search: "بحث", voiceSearch: "بحث صوتي" },
+} as const;
+
+
 interface SearchInputSuggestionsProps {
   inputValue: string;
   suggestionMode: "business" | "text";
