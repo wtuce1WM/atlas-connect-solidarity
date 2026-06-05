@@ -55,13 +55,14 @@ export function ToolbarPortals({
   anyOverlay,
   toolbarPortalPrefix,
   openBadgeInfo,
+  hideToolbarButtons,
 }: ToolbarPortalsProps) {
   const pfx = toolbarPortalPrefix ? `${toolbarPortalPrefix}-` : "";
   const toolbarPortal = document.getElementById(`${pfx}slide-panel-toolbar`);
   const toolbarCenterPortal = document.getElementById(`${pfx}slide-panel-toolbar-center`);
   const toolbarLeftPortal = document.getElementById(`${pfx}slide-panel-toolbar-left`);
 
-  const shouldHide = !!selectedKpBusinessId || !!selectedPoiBusinessId || showMosaic;
+  const shouldHide = !!selectedKpBusinessId || !!selectedPoiBusinessId || showMosaic || !!hideToolbarButtons;
 
   return (
     <>
