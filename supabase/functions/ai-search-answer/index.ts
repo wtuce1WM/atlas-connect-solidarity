@@ -237,7 +237,20 @@ ${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS
 ${businessContext}${knowledgeContext ? `
 
 CONNAISSANCES COMPLÉMENTAIRES (si pertinent, intègre ces informations de manière naturelle pour enrichir tes recommandations — ne mets pas en avant un établissement uniquement parce qu'il a une entrée ici) :
-${knowledgeContext}` : ''}`;
+${knowledgeContext}` : ''}${
+  nearbyContext && Array.isArray(nearbyContext.items) && nearbyContext.items.length > 0 ? `
+
+CONTEXTE PROXIMITÉ — INSTRUCTION SPÉCIALE :
+L'utilisateur a affiné sa recherche en demandant "${nearbyContext.entity}" À PROXIMITÉ des résultats précédents${
+    Array.isArray(nearbyContext.anchorNames) && nearbyContext.anchorNames.length > 0
+      ? ` (${nearbyContext.anchorNames.slice(0, 6).join(", ")})`
+      : ""
+  }.
+Voici les "${nearbyContext.entity}" trouvés à moins de 5 km de ces résultats, déjà inclus dans la liste ÉTABLISSEMENTS TROUVÉS ci-dessus : ${
+    nearbyContext.items.map((i: any) => `**${i.name}**${i.city ? ` (${i.city})` : ""}`).join(", ")
+  }.
+Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact entre **doubles astérisques**, en précisant brièvement leur proximité avec les résultats précédents. Tu peux aussi rappeler 1 à 2 des résultats précédents pertinents pour faire le lien. NE filtre PAS la liste ; ces établissements correspondent au critère par construction (proximité géographique vérifiée).` : ''
+}`;
 
     const effectiveTemperature = vary ? Math.min(temperature + 0.3, 1.5) : temperature;
 
