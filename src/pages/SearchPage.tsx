@@ -2170,7 +2170,19 @@ const SearchPage = () => {
   // Pool used for "Voir tous": full results when fetched, otherwise current page.
   // When the AI panel produced a refined dedicated search (e.g. "artisans à proximité"),
   // mirror that refined set on the map so markers match the visible AI results.
+  // When AI has produced an assistant answer with cited businesses (in **bold**),
+  // restrict the map to those exact cited results so markers match what the user reads.
+  const aiCitedMapPool = useMemo(() => {
+    const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant")?.content;
+    if (!lastAssistant) return [] as Business[];
+    const cited = extractCitedBusinesses(lastAssistant, aiInlineBusinessPool);
+    return cited as unknown as Business[];
+  }, [aiChat, aiInlineBusinessPool]);
+
   const searchMapPool = useMemo(() => {
+    if (aiCitedMapPool.length > 0) {
+      return aiCitedMapPool;
+    }
     if (aiRefinementBusinessPool.length > 0) {
       return aiRefinementBusinessPool;
     }
@@ -2178,7 +2190,7 @@ const SearchPage = () => {
       return allSearchMapBusinesses;
     }
     return filteredBusinesses;
-  }, [aiRefinementBusinessPool, showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
+  }, [aiCitedMapPool, aiRefinementBusinessPool, showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
 
   const hasActiveSearchContext = !!searchQuery.trim() || !!categoryFromUrl || totalCount !== null;
   const frontStructurePool = useMemo(() => {
@@ -2232,17 +2244,17 @@ const SearchPage = () => {
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
-    if (aiRefinementBusinessPool.length > 0) return mapPoiItemsSearch;
+    if (aiCitedMapPool.length > 0 || aiRefinementBusinessPool.length > 0) return mapPoiItemsSearch;
     if (!fsFilterSubcategories) return mapPoiItemsSearch;
     return buildFsCategoryItems(true);
-  }, [aiRefinementBusinessPool.length, mapPoiItemsSearch, fsFilterSubcategories, buildFsCategoryItems]);
+  }, [aiCitedMapPool.length, aiRefinementBusinessPool.length, mapPoiItemsSearch, fsFilterSubcategories, buildFsCategoryItems]);
 
   // Mobile/tablet map items
   const mobileMapPoiItemsFinal: PoiMapItem[] = useMemo(() => {
-    if (aiRefinementBusinessPool.length > 0) return mobileMapPoiItems;
+    if (aiCitedMapPool.length > 0 || aiRefinementBusinessPool.length > 0) return mobileMapPoiItems;
     if (!fsFilterSubcategories) return mobileMapPoiItems;
     return buildFsCategoryItems(false);
-  }, [aiRefinementBusinessPool.length, mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
+  }, [aiCitedMapPool.length, aiRefinementBusinessPool.length, mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
 
   // The top-ranked business ID for Gold marker (always highlight #1)
   const fsTopBusinessId: string | null = useMemo(() => {
