@@ -372,7 +372,10 @@ const SearchPage = () => {
   // Cap at 4 user turns to keep token cost bounded.
   const AI_CHAT_MAX_TURNS = 4;
   const aiRefinementSpokenText = searchParams.get("spoken") || "";
-  const [aiChat, setAiChat] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  type AiClarifyOption = { id: string; label: string; text: string };
+  type AiClarify = { type: string; question: string; options: AiClarifyOption[] };
+  type AiChatMessage = { role: "user" | "assistant"; content: string; clarify?: AiClarify };
+  const [aiChat, setAiChat] = useState<AiChatMessage[]>([]);
   const [aiChatInput, setAiChatInput] = useState("");
   const aiRefinementRef = useRef<HTMLDivElement | null>(null);
   const [aiChatLoading, setAiChatLoading] = useState(false);
