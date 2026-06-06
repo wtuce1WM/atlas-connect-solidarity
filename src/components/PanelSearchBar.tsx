@@ -1,5 +1,6 @@
-import { useState, useCallback, useRef, useEffect, type ReactNode } from "react";
-import { Search, Sparkles, MapPin, Hash } from "lucide-react";
+import { useState, useCallback, useRef, useEffect, type ReactNode, type RefObject } from "react";
+import { Search, Sparkles, MapPin, Hash, Play, Pause, Volume2, VolumeX } from "lucide-react";
+
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
