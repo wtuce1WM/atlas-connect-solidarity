@@ -3,6 +3,7 @@ import SearchInput from "@/components/SearchInput";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useDragScroll } from "@/hooks/useDragScroll";
 import { useGeolocation } from "@/hooks/useGeolocation";
 
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
