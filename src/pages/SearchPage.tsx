@@ -2340,15 +2340,22 @@ const SearchPage = () => {
     return buildMapPoiItems(sliced, guardDesktop);
   }, [fsFilterSubcategories, fsFilterServices, frontStructurePool, buildMapPoiItems, showAllSearchMarkers]);
 
+  const fsFilterMatchesUrlSubcats = useMemo(() => {
+    if (!fsFilterSubcategories || subcategoryNamesFromUrl.length === 0) return false;
+    if (fsFilterSubcategories.size !== subcategoryNamesFromUrl.length) return false;
+    return subcategoryNamesFromUrl.every((name) => fsFilterSubcategories.has(name));
+  }, [fsFilterSubcategories, subcategoryNamesFromUrl]);
+
   // Total matching count for the active FS category tab (full pool, before slicing)
   const fsMatchingCount = useMemo(() => {
     if (!fsFilterSubcategories) return 0;
+    if (fsFilterMatchesUrlSubcats && totalCount !== null) return totalCount;
     return frontStructurePool.filter(b =>
       ((b.main_category && fsFilterSubcategories.has(b.main_category)) ||
        b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))) &&
       businessMatchesFsServices(b)
     ).length;
-  }, [fsFilterSubcategories, fsFilterServices, frontStructurePool]);
+  }, [fsFilterSubcategories, fsFilterServices, frontStructurePool, fsFilterMatchesUrlSubcats, totalCount]);
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
