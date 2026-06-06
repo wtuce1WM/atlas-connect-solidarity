@@ -205,7 +205,7 @@ export function CtaBar({
     if (isWhatsAppCta(label) && business?.whatsapp) {
       ctaItems.push(
         <a key="url4" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+          className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
           <span className="truncate">WhatsApp</span>
