@@ -1,5 +1,5 @@
 /// <reference types="@types/google.maps" />
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { X, Info, MapPin } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -23,6 +23,9 @@ const parseStoredCoords = (key: string): { lat: number; lng: number } | null => 
 
 const readStoredOrigin = (): { lat: number; lng: number } | null =>
   parseStoredCoords(GEO_MANUAL_COORDS_KEY) || parseStoredCoords(GEO_AUTO_COORDS_KEY);
+
+const sameCoords = (a: { lat: number; lng: number } | null, b: { lat: number; lng: number } | null) =>
+  (!a && !b) || (!!a && !!b && a.lat === b.lat && a.lng === b.lng);
 
 /* ── Google Maps loader (shared singleton) ── */
 let gmapsPromise: Promise<void> | null = null;
