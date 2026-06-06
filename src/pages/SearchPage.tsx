@@ -3690,7 +3690,7 @@ const SearchPage = () => {
                     <p className="text-sm font-medium text-foreground mb-3">
                       {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                     </p>
-                    <div className="flex overflow-x-auto gap-2 scrollbar-hide">
+                    <HScroll className="flex overflow-x-auto gap-2 scrollbar-hide">
                       {discriminating.slice(0, 8).map(cat => (
                         <button
                           key={cat}
