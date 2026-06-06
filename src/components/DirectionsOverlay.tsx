@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { X, Info, MapPin } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
@@ -21,8 +21,32 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [originError, setOriginError] = useState<string | null>(null);
+  const [isRequestingOrigin, setIsRequestingOrigin] = useState(false);
   const [showInfoCard, setShowInfoCard] = useState(true);
   const geo = useGeolocation();
+
+  const requestBrowserOrigin = useCallback(() => {
+    if (!navigator.geolocation) {
+      setOriginError("Géolocalisation indisponible");
+      return;
+    }
+
+    setIsRequestingOrigin(true);
+    setOriginError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`);
+        setOriginError(null);
+        setIsRequestingOrigin(false);
+      },
+      (err) => {
+        setUserOrigin(null);
+        setOriginError(err.message || "Position indisponible");
+        setIsRequestingOrigin(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  }, []);
 
   useEffect(() => {
     if (geo.coords) {
@@ -34,30 +58,16 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       setUserOrigin(null);
       return;
     }
-    if (navigator.geolocation) {
-      setOriginError(null);
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`);
-          setOriginError(null);
-        },
-        (err) => {
-          setUserOrigin(null);
-          setOriginError(err.message || "Position indisponible");
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-      );
-    }
-  }, [geo.coords, geo.isEnabled]);
+    requestBrowserOrigin();
+  }, [geo.coords, geo.isEnabled, requestBrowserOrigin]);
 
-  const dest = business.latitude && business.longitude
-    ? `${business.latitude},${business.longitude}`
-    : encodeURIComponent(business.address || business.name);
-  const destRaw = business.latitude && business.longitude
+  const destRaw = business.latitude != null && business.longitude != null
     ? `${business.latitude},${business.longitude}`
     : business.address || business.name;
-  const needsGeoConsent = !userOrigin && !geo.isEnabled;
-  const waitingForOrigin = !userOrigin && geo.isEnabled && !originError;
+  const dest = encodeURIComponent(destRaw);
+  const origin = userOrigin ? encodeURIComponent(userOrigin) : null;
+  const needsGeoConsent = !userOrigin && (!geo.isEnabled || !!originError);
+  const waitingForOrigin = !userOrigin && geo.isEnabled && isRequestingOrigin && !originError;
 
 
   return (
