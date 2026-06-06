@@ -4723,9 +4723,14 @@ const SearchPage = () => {
               // with the new subset (e.g. clicking "Glacier" → 17 results).
               if (subcategoryNamesFromUrl.length > 0 && subNames && subNames.size > 0) {
                 const currentSet = new Set(subcategoryNamesFromUrl);
-                const sameSize = currentSet.size === subNames.size;
-                const sameContent = sameSize && Array.from(subNames).every((n) => currentSet.has(n));
-                if (!sameContent) {
+                // Only sync when the new set NARROWS the current URL selection
+                // (strict subset). Never widen — the default "all FS names" effect
+                // in ResultsTabContent would otherwise clobber the original
+                // homepage-card subcats with every subcategory of every entry.
+                const isStrictSubset =
+                  subNames.size < currentSet.size &&
+                  Array.from(subNames).every((n) => currentSet.has(n));
+                if (isStrictSubset) {
                   const next = new URLSearchParams(searchParams);
                   next.set("subcats", Array.from(subNames).join("|"));
                   next.set("_t", String(Date.now()));
