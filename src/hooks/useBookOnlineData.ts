@@ -151,6 +151,7 @@ export interface PoiBusiness {
   longitude: number | null;
   city: string | null;
   neighborhood: string | null;
+  categories: string[] | null;
 }
 
 export interface VideoDoc {
