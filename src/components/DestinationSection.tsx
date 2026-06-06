@@ -189,7 +189,10 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
         totalPages={totalPages}
         totalCount={destinations.length}
         pageSize={ITEMS_PER_PAGE}
-        onPageChange={setCurrentPage}
+        onPageChange={(p) => {
+          setCurrentPage(p);
+          try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch {}
+        }}
         language={language}
       />
     </>
