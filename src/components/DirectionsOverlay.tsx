@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
-import { X, Info } from "lucide-react";
+import { X, Info, MapPin } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 interface DirectionsOverlayProps {
   business: {
@@ -20,15 +21,24 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
+  const geo = useGeolocation();
 
   useEffect(() => {
+    if (geo.coords) {
+      setUserOrigin(`${geo.coords.lat},${geo.coords.lng}`);
+      return;
+    }
+    if (!geo.isEnabled) {
+      setUserOrigin(null);
+      return;
+    }
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`),
-        () => {}
+        () => setUserOrigin(null)
       );
     }
-  }, []);
+  }, [geo.coords, geo.isEnabled]);
 
   const dest = business.latitude && business.longitude
     ? `${business.latitude},${business.longitude}`
@@ -36,6 +46,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const destRaw = business.latitude && business.longitude
     ? `${business.latitude},${business.longitude}`
     : business.address || business.name;
+  const needsGeoConsent = !userOrigin && !geo.isEnabled;
 
   return (
     <div className="absolute inset-0 z-[100] bg-white flex flex-col">
