@@ -182,8 +182,8 @@ export function CtaBar({
         ) : (
           <button key="shop"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
-            style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+            className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+            style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <ShoppingBag className="h-4 w-4 hidden md:block" />
             <span className="truncate">{shopCtaLabel}</span>
           </button>
