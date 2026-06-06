@@ -79,7 +79,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       ro.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [showInfoCard, directionsMode, originRaw]);
+  }, [showInfoCard, directionsMode]);
 
   const requestBrowserOrigin = useCallback(() => {
     if (!navigator.geolocation) {
