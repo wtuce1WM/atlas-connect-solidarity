@@ -71,7 +71,7 @@ import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
-import VideoControls from "@/components/VideoControls";
+
 import VideoThumbnail from "@/components/VideoThumbnail";
 
 /* Static hook text component */
@@ -1154,7 +1154,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* Overlaid content */}
       <div
-        className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[70px] md:pb-[66px]' : 'pb-8'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""} scrollbar-hide-mobile`}
+        className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[90px]' : 'pb-8'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""} scrollbar-hide-mobile`}
         style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
         onTouchStart={externalVideoInteractiveMode ? undefined : handleMediaTouchStart}
         onTouchMove={externalVideoInteractiveMode ? undefined : handleMediaTouchMove}
@@ -2401,28 +2401,25 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           closeTrigger={closeTrigger}
           compact
           onSeeResults={onClose}
-          leadingControls={
+          videoControls={
             activeVideoOverlay ? undefined :
             (showPoiMapOverlay || showDirections) ? undefined :
-            effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? (
-              <VideoControls
-                type="file"
-                videoRef={videoRef as React.RefObject<HTMLVideoElement>}
-                paused={videoPaused}
-                muted={videoMuted}
-              />
-            ) :
-            effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? (
-              <VideoControls
-                type="youtube"
-                iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
-                playing={!videoPaused}
-                muted={videoMuted}
-                onPlayingChange={(p) => setVideoPaused(!p)}
-                onMutedChange={(m) => setVideoMuted(m)}
-              />
-            ) : undefined
+            effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? {
+              type: "file",
+              videoRef: videoRef as React.RefObject<HTMLVideoElement>,
+              paused: videoPaused,
+              muted: videoMuted,
+            } :
+            effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? {
+              type: "youtube",
+              iframeRef: iframeRef as React.RefObject<HTMLIFrameElement>,
+              playing: !videoPaused,
+              muted: videoMuted,
+              onPlayingChange: (p: boolean) => setVideoPaused(!p),
+              onMutedChange: (m: boolean) => setVideoMuted(m),
+            } : undefined
           }
+
         />
       )}
 
