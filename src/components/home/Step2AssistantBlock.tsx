@@ -64,46 +64,28 @@ const Step2AssistantBlock = ({ stepLabel, title, description, onMobileSearchClic
 
 
       <div className="mt-4 w-full max-w-xl md:mt-6">
-        {/* Desktop: inline assistant input with liquid voice panel */}
-        <div className="hidden lg:block">
-          <SearchInput
-            variant="hero"
-            placeholder="Demandez à notre assistant IA…"
-            submitIcon="send"
-            liquid
-            showSuggestions={false}
-            voiceControl={{
-              status: voice.status,
-              toggleRecording: voice.toggleRecording,
-              liveTranscript: voice.liveTranscript,
-            }}
-            onSubmit={(q) => navigate(`/search?q=${encodeURIComponent(q)}&tab=ai`)}
+        <SearchInput
+          variant="hero"
+          placeholder="Demandez à notre assistant IA…"
+          submitIcon="send"
+          liquid
+          showSuggestions={false}
+          voiceControl={{
+            status: voice.status,
+            toggleRecording: voice.toggleRecording,
+            liveTranscript: voice.liveTranscript,
+          }}
+          onSubmit={(q) => navigate(`/search?q=${encodeURIComponent(q)}&tab=ai`)}
+        />
+
+        {isVoiceActive && (
+          <VoiceSearchPanel
+            liveTranscript={voice.liveTranscript}
+            onClose={voice.toggleRecording}
+            onFinish={voice.finishRecording}
+            align="start"
           />
-
-          {isVoiceActive && (
-            <VoiceSearchPanel
-              liveTranscript={voice.liveTranscript}
-              onClose={voice.toggleRecording}
-              onFinish={voice.finishRecording}
-              align="start"
-            />
-          )}
-        </div>
-
-        {/* Mobile/Tablet: trigger fullscreen overlay */}
-        <div className="lg:hidden">
-          <button
-            type="button"
-            onClick={() => onMobileSearchClick?.()}
-            className="w-full flex items-center gap-3 h-12 px-4 text-left text-base text-foreground/80 bg-white/15 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)]"
-          >
-            <Search className="h-5 w-5 shrink-0" />
-            <span className="flex-1 truncate">Demandez à notre assistant IA…</span>
-            <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-black/80 border border-white/30">
-              <Mic className="h-4 w-4 text-white" />
-            </span>
-          </button>
-        </div>
+        )}
       </div>
 
 
