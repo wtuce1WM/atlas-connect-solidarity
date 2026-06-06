@@ -45,6 +45,7 @@ interface GeolocationState {
 const STORAGE_KEY = "geo_preference";
 const MANUAL_COORDS_KEY = "geo_manual_coords";
 const MANUAL_ADDRESS_KEY = "geo_manual_address";
+const AUTO_COORDS_KEY = "geo_auto_coords";
 
 interface InitialGeolocationSnapshot {
   isEnabled: boolean;
@@ -61,14 +62,24 @@ function readInitialGeolocationSnapshot(): InitialGeolocationSnapshot {
 
   const stored = localStorage.getItem(STORAGE_KEY);
   const manualCoordsStr = localStorage.getItem(MANUAL_COORDS_KEY);
+  const autoCoordsStr = localStorage.getItem(AUTO_COORDS_KEY);
   const manualAddr = localStorage.getItem(MANUAL_ADDRESS_KEY);
   let manualCoords: { lat: number; lng: number } | null = null;
+  let autoCoords: { lat: number; lng: number } | null = null;
 
   if (manualCoordsStr) {
     try {
       manualCoords = JSON.parse(manualCoordsStr);
     } catch {
       manualCoords = null;
+    }
+  }
+
+  if (autoCoordsStr) {
+    try {
+      autoCoords = JSON.parse(autoCoordsStr);
+    } catch {
+      autoCoords = null;
     }
   }
 
@@ -79,7 +90,7 @@ function readInitialGeolocationSnapshot(): InitialGeolocationSnapshot {
   return {
     isEnabled: stored === "enabled",
     showBanner: stored === null,
-    coords: null,
+    coords: stored === "enabled" ? autoCoords : null,
     confirmedAddress: null,
     isManual: false,
   };
