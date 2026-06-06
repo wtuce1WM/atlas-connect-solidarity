@@ -118,9 +118,21 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
               </button>
             </div>
           </div>
+        ) : waitingForOrigin ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-muted/30">
+            <div className="text-sm text-muted-foreground">Localisation en cours…</div>
+          </div>
+        ) : originError && !userOrigin ? (
+          <div className="absolute inset-0 flex items-center justify-center p-6 bg-muted/30">
+            <div className="max-w-sm w-full bg-background rounded-2xl shadow-xl p-6 text-center space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Impossible d'obtenir votre position. Vérifiez l'autorisation de localisation du navigateur.
+              </p>
+            </div>
+          </div>
         ) : (
           <iframe
-            src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
+            src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${userOrigin}&destination=${dest}&mode=${directionsMode}`}
             className="absolute inset-0 w-full h-full border-0"
             allowFullScreen
             loading="lazy"
