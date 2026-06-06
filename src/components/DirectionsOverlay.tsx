@@ -32,6 +32,38 @@ interface RouteData { encodedPolyline: string; viewport?: unknown; distanceMeter
 const routeCache = new Map<string, RouteData>();
 const coordKey = (coords: { lat: number; lng: number }) => `${coords.lat.toFixed(6)},${coords.lng.toFixed(6)}`;
 
+const decodeEncodedPolyline = (encoded: string): google.maps.LatLngLiteral[] => {
+  const path: google.maps.LatLngLiteral[] = [];
+  let index = 0;
+  let lat = 0;
+  let lng = 0;
+
+  while (index < encoded.length) {
+    let result = 0;
+    let shift = 0;
+    let byte = 0;
+    do {
+      byte = encoded.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20 && index < encoded.length);
+    lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+
+    result = 0;
+    shift = 0;
+    do {
+      byte = encoded.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20 && index < encoded.length);
+    lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+
+    path.push({ lat: lat / 1e5, lng: lng / 1e5 });
+  }
+
+  return path;
+};
+
 /* ── Google Maps loader (shared singleton) ── */
 let gmapsPromise: Promise<void> | null = null;
 function loadGoogleMaps(): Promise<void> {
@@ -232,7 +264,11 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     });
 
     const drawRoute = (encodedPolyline: string) => {
-      const path = gmaps.geometry.encoding.decodePath(encodedPolyline);
+      const path = decodeEncodedPolyline(encodedPolyline);
+      if (!path.length) {
+        setRouteError("Itinéraire indisponible");
+        return;
+      }
       if (polylineRef.current) polylineRef.current.setMap(null);
       polylineRef.current = new gmaps.Polyline({
         path, map, strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9,
