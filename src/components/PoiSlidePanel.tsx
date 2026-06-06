@@ -813,7 +813,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
           <BookOnlineSlidePanel
             businessId={openedPoiBusinessId}
             onClose={() => setOpenedPoiBusinessId(null)}
-            showSearchBar={showSearchBar}
+            showSearchBar={false}
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
           />
