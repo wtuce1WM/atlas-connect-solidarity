@@ -564,15 +564,7 @@ const HomeMindtrip = () => {
                 >
                   {i === 1 && (
                     <>
-                      <div className="absolute inset-0 bg-white" />
-                      <video
-                        src={mockupDemoIaVideo.url}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        className="absolute inset-0 m-auto h-[65%] w-[65%] md:h-[80%] md:w-[80%] object-contain opacity-95 pointer-events-none translate-x-[16%] translate-y-[-4%] md:translate-y-[8%] bg-white mix-blend-screen"
-                      />
+                      <Step2PhoneMockup />
                     </>
                   )}
                   {i === 2 && (
