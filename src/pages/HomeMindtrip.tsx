@@ -589,6 +589,7 @@ const HomeMindtrip = () => {
                         stepLabel={`Étape ${i + 1}`}
                         title={s.title}
                         description={s.desc}
+                        onMobileSearchClick={() => setMobileSearchOpen(true)}
                       />
                     ) : (
                       <>
