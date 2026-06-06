@@ -124,6 +124,13 @@ export function CtaBar({
 
   const isWhatsAppCta = (label: string) => label.toLowerCase().replace(/[\s_-]/g, '') === 'whatsapp';
 
+  // Liquid glass effect — inner highlights + soft gradient overlays. Keeps the underlying background color.
+  const glassFx =
+    "relative overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-1px_0_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.28)] " +
+    "before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none before:bg-gradient-to-b before:from-white/25 before:via-transparent before:to-white/5 " +
+    "after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-[inherit] after:pointer-events-none after:bg-gradient-to-b after:from-white/25 after:to-transparent after:blur-[1px] " +
+    "[&>*]:relative [&>*]:z-10";
+
   const ctaItems: React.ReactNode[] = [];
 
   if (bookingCta && !cardsHidden) {
