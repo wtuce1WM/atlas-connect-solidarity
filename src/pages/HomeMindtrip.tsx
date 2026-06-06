@@ -53,7 +53,16 @@ const HomeMindtrip = () => {
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [blogHeroes, setBlogHeroes] = useState<{ marrakech?: string; galeries?: string; kids?: string }>({});
   const [videoOpen, setVideoOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const { toast } = useToast();
+  const heroVoice = useVoiceSearch({
+    onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
+      const params = new URLSearchParams({ q: keywords, spoken, _t: String(Date.now()) });
+      if (detectedCategory) params.set("category", detectedCategory);
+      if (timeKeyword) params.set("timeKeyword", timeKeyword);
+      navigate(`/search?${params.toString()}`);
+    },
+    onError: (message) => toast({ title: "Erreur", description: message, variant: "destructive" }),
+  });
 
   useEffect(() => {
     const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
