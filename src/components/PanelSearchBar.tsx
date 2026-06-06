@@ -229,6 +229,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             icon={<MapPin className="h-5 w-5" />}
             label="Lieu"
             ariaLabel="Géolocalisation"
+            active={geo.isEnabled && (!!geo.detectedCity || !!geo.detectedNeighborhood || !!geo.confirmedAddress)}
             onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
           />
           <Cell
