@@ -3707,7 +3707,7 @@ const SearchPage = () => {
                           <span className="ml-1.5 text-xs text-muted-foreground">{catCounts[cat]}</span>
                         </button>
                       ))}
-                    </div>
+                    </HScroll>
                   </div>
                 </div>
               );
