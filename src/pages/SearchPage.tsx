@@ -1536,6 +1536,16 @@ const SearchPage = () => {
     }
   }, [searchQuery, categoryFromUrl, queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity, cityFromUrl]);
 
+  // If query explicitly mentions a city (e.g. voice search "à Essaouira"), override selectedCity
+  useEffect(() => {
+    if (cityFromUrl) return;
+    if (!cityMentionedInQuery) return;
+    if (normalizeText(cityMentionedInQuery) !== normalizeText(selectedCity)) {
+      setSelectedCity(cityMentionedInQuery);
+      setIsGeoCityAutoSelected(false);
+    }
+  }, [cityMentionedInQuery, cityFromUrl, selectedCity]);
+
   // Reset map visibility when a new search is performed
   useEffect(() => {
     setHideResultsMap(false);
