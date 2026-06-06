@@ -4,6 +4,28 @@ import { X, Info, MapPin } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useGeolocation } from "@/hooks/useGeolocation";
 
+const GEO_STORAGE_KEY = "geo_preference";
+const GEO_MANUAL_COORDS_KEY = "geo_manual_coords";
+const GEO_MANUAL_ADDRESS_KEY = "geo_manual_address";
+const GEO_AUTO_COORDS_KEY = "geo_auto_coords";
+
+const parseStoredCoords = (key: string): string | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { lat?: unknown; lng?: unknown };
+    return typeof parsed.lat === "number" && typeof parsed.lng === "number"
+      ? `${parsed.lat},${parsed.lng}`
+      : null;
+  } catch {
+    return null;
+  }
+};
+
+const readStoredOrigin = (): string | null =>
+  parseStoredCoords(GEO_MANUAL_COORDS_KEY) || parseStoredCoords(GEO_AUTO_COORDS_KEY);
+
 interface DirectionsOverlayProps {
   business: {
     name: string;
@@ -20,6 +42,7 @@ interface DirectionsOverlayProps {
 const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
+  const [storedOrigin, setStoredOrigin] = useState<string | null>(() => readStoredOrigin());
   const [originError, setOriginError] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
   const geo = useGeolocation();
@@ -33,8 +56,17 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     setOriginError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`);
+        const nextOrigin = `${pos.coords.latitude},${pos.coords.longitude}`;
+        setUserOrigin(nextOrigin);
+        setStoredOrigin(nextOrigin);
         setOriginError(null);
+        try {
+          window.localStorage.setItem(GEO_STORAGE_KEY, "enabled");
+          window.localStorage.removeItem(GEO_MANUAL_COORDS_KEY);
+          window.localStorage.removeItem(GEO_MANUAL_ADDRESS_KEY);
+          window.localStorage.setItem(GEO_AUTO_COORDS_KEY, JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }));
+          window.dispatchEvent(new CustomEvent("geo:changed"));
+        } catch { /* noop */ }
       },
       (err) => {
         setUserOrigin(null);
@@ -45,22 +77,33 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   }, []);
 
   useEffect(() => {
+    const syncStoredOrigin = () => setStoredOrigin(readStoredOrigin());
+    syncStoredOrigin();
+    window.addEventListener("geo:changed", syncStoredOrigin);
+    window.addEventListener("storage", syncStoredOrigin);
+    return () => {
+      window.removeEventListener("geo:changed", syncStoredOrigin);
+      window.removeEventListener("storage", syncStoredOrigin);
+    };
+  }, []);
+
+  useEffect(() => {
     if (geo.coords) {
-      setUserOrigin(`${geo.coords.lat},${geo.coords.lng}`);
+      const nextOrigin = `${geo.coords.lat},${geo.coords.lng}`;
+      setUserOrigin(nextOrigin);
+      setStoredOrigin(nextOrigin);
       setOriginError(null);
       return;
     }
-    if (!geo.isEnabled) {
+    if (!geo.isEnabled && !storedOrigin) {
       setUserOrigin(null);
       return;
     }
-    requestBrowserOrigin();
-  }, [geo.coords, geo.isEnabled, requestBrowserOrigin]);
+    if (!storedOrigin) requestBrowserOrigin();
+  }, [geo.coords, geo.isEnabled, storedOrigin, requestBrowserOrigin]);
 
-  const fallbackOriginRaw = geo.confirmedAddress
-    || (geo.detectedNeighborhood && geo.detectedCity ? `${geo.detectedNeighborhood}, ${geo.detectedCity}, Maroc` : null)
-    || (geo.detectedCity ? `${geo.detectedCity}, Maroc` : null);
-  const originRaw = userOrigin || fallbackOriginRaw;
+  const fallbackOriginRaw = geo.confirmedAddress || null;
+  const originRaw = userOrigin || storedOrigin || fallbackOriginRaw;
   const origin = originRaw ? encodeURIComponent(originRaw) : null;
   const destRaw = business.latitude != null && business.longitude != null
     ? `${business.latitude},${business.longitude}`
