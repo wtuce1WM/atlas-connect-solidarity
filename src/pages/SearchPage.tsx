@@ -3257,6 +3257,11 @@ const SearchPage = () => {
   // to the page size.
   const fsFilteredList = useMemo(() => {
     if (subcategoryNamesFromUrl.length > 0) return null;
+    // In pinIds mode, the URL provides an explicit allow-list of businesses.
+    // Never override it with the FS subcategory filter (which would otherwise
+    // pull all city businesses matching the label, e.g. all Marrakech "Piscines",
+    // and break the 20-per-page pagination of the pinned set).
+    if (pinIdsParam) return null;
     if (!fsFilterSubcategories && (!fsFilterServices || fsFilterServices.size === 0)) return null;
     const matches = frontStructurePool.filter(b =>
       (!fsFilterSubcategories ||
@@ -3265,7 +3270,7 @@ const SearchPage = () => {
       businessMatchesFsServices(b)
     );
     return [...matches].sort(sortWtuceAndRating);
-  }, [subcategoryNamesFromUrl, fsFilterSubcategories, fsFilterServices, frontStructurePool]);
+  }, [subcategoryNamesFromUrl, pinIdsParam, fsFilterSubcategories, fsFilterServices, frontStructurePool]);
   const resultsFilteredBusinesses = fsFilteredList ?? filteredBusinesses;
   const fsTotalPages = fsFilteredList ? Math.max(1, Math.ceil(fsFilteredList.length / ITEMS_PER_PAGE)) : 1;
   const fsPageStart = fsFilteredList ? (currentPage - 1) * ITEMS_PER_PAGE : 0;
