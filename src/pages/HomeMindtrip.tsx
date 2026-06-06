@@ -530,14 +530,17 @@ const HomeMindtrip = () => {
                   className="relative overflow-hidden w-[85vw] md:w-[85vw] max-w-2xl shrink-0 rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
                 >
                   {i === 1 && (
-                    <video
-                      src={mockupDemoIaVideo.url}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="absolute inset-0 m-auto h-[65%] w-[65%] md:h-[80%] md:w-[80%] object-contain opacity-90 pointer-events-none translate-x-[16%] translate-y-[-4%] md:translate-y-[8%]"
-                    />
+                    <>
+                      <div className="absolute inset-0 bg-black" />
+                      <video
+                        src={mockupDemoIaVideo.url}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="absolute inset-0 m-auto h-[65%] w-[65%] md:h-[80%] md:w-[80%] object-contain opacity-90 pointer-events-none translate-x-[16%] translate-y-[-4%] md:translate-y-[8%]"
+                      />
+                    </>
                   )}
                   {i === 2 && (
                     <video
