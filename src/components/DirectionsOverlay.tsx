@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { X, Info, MapPin } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
@@ -45,7 +45,41 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [storedOrigin, setStoredOrigin] = useState<string | null>(() => readStoredOrigin());
   const [originError, setOriginError] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
+  const [cardOffset, setCardOffset] = useState(0);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const geo = useGeolocation();
+
+  useEffect(() => {
+    if (!showInfoCard) {
+      setCardOffset(0);
+      return;
+    }
+    const container = mapContainerRef.current;
+    if (!container) return;
+    let raf = 0;
+    const measure = () => {
+      const el = container.querySelector<HTMLElement>("[data-info-card]");
+      if (!el) {
+        raf = requestAnimationFrame(measure);
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      // bottom of card relative to container top + small gap
+      const containerTop = container.getBoundingClientRect().top;
+      const next = Math.max(0, Math.ceil(rect.bottom - containerTop) + 8);
+      setCardOffset(next);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    const el = container.querySelector<HTMLElement>("[data-info-card]");
+    if (el) ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [showInfoCard, directionsMode]);
 
   const requestBrowserOrigin = useCallback(() => {
     if (!navigator.geolocation) {
@@ -151,7 +185,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           </a>
         </div>
       </div>
-      <div className="flex-1 relative min-h-0">
+      <div ref={mapContainerRef} className="flex-1 relative min-h-0">
         {needsGeoConsent ? (
           <div className="absolute inset-0 flex items-center justify-center p-6 bg-muted/30">
             <div className="max-w-sm w-full bg-background rounded-2xl shadow-xl p-6 text-center space-y-4">
@@ -188,7 +222,8 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         ) : (
           <iframe
             src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${origin}&destination=${dest}&mode=${directionsMode}`}
-            className="absolute inset-0 w-full h-full border-0"
+            className="absolute left-0 right-0 bottom-0 w-full border-0"
+            style={{ top: cardOffset, height: `calc(100% - ${cardOffset}px)` }}
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
