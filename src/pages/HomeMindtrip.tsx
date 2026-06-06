@@ -543,15 +543,18 @@ const HomeMindtrip = () => {
                     </>
                   )}
                   {i === 2 && (
-                    <video
-                      ref={(el) => { videoRefs.current[idx] = el; }}
-                      src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/8d2846a7-fb50-4bde-8a93-c42697e23a2f-1780215120927-3j2n3k.mp4"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
+                    <>
+                      <div className="absolute inset-0 bg-white" />
+                      <video
+                        ref={(el) => { videoRefs.current[idx] = el; }}
+                        src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/8d2846a7-fb50-4bde-8a93-c42697e23a2f-1780215120927-3j2n3k.mp4"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="absolute inset-0 h-full w-full object-cover bg-white"
+                      />
+                    </>
                   )}
                   {i === 3 && (
                     <video
