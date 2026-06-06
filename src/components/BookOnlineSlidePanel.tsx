@@ -2168,23 +2168,87 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </OverlayShell>
       )}
 
-      {showPoiMapOverlay && (
+      {showPoiMapOverlay && (() => {
+        const poiSubcatCounts = new Map<string, number>();
+        for (const p of poiBusinesses) {
+          const sc = p.categories?.[0];
+          if (sc) poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
+        }
+        const poiSubcatList = Array.from(poiSubcatCounts.entries())
+          .sort((a, b) => a[0].localeCompare(b[0]));
+        const filteredPoiBusinesses = poiSubcatFilter
+          ? poiBusinesses.filter((p) => (p.categories?.[0] || null) === poiSubcatFilter)
+          : poiBusinesses;
+        const showPoiFilter = poiMapMode === "poi" && poiSubcatList.length >= 2;
+        return (
         <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
           <div className="sticky top-0 z-10 flex items-center px-4 py-2 gap-2 bg-black/30 backdrop-blur-sm">
             <button
-              onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
+              onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); setPoiSubcatFilter(null); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
               className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
               aria-label="Fermer"
             >
               <X className="h-4 w-4" />
             </button>
-            <span className="text-sm font-bold text-white truncate drop-shadow-md">
+            <span className="text-sm font-bold text-white truncate drop-shadow-md flex-1">
               {poiMapMode === "destinations"
                 ? (language === "en" ? "Where are you going?" : "Où allez-vous ?")
                 : poiBusinesses.length > 0
                   ? (language === "en" ? `Nearby points of interest of ${business?.name}` : `Points d'intérêt à proximité de ${business?.name}`)
                   : (language === "en" ? `Nearby establishments of ${business?.name}` : `Établissements à proximité de ${business?.name}`)}
             </span>
+            {showPoiFilter && (
+              <Popover open={poiSubcatOpen} onOpenChange={setPoiSubcatOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    className={`relative shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full bg-white text-black border-2 border-black shadow-lg transition-colors ${poiSubcatFilter ? "ring-2 ring-gold" : "hover:bg-neutral-50"}`}
+                    aria-label={language === "en" ? "Filter points of interest" : "Filtrer les points d'intérêt"}
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    {poiSubcatFilter && (
+                      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-gold text-black text-[10px] font-bold flex items-center justify-center shadow">1</span>
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" sideOffset={6} className="w-72 p-2 bg-white border-0 shadow-xl rounded-xl z-[250]">
+                  <div className="px-2 pt-1 pb-1 text-[10px] uppercase tracking-wider text-black/40 font-semibold">
+                    {language === "en" ? "Points of interest" : "Points d'intérêt"}
+                  </div>
+                  <button
+                    onClick={() => { setPoiSubcatFilter(null); setPoiSubcatOpen(false); }}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
+                  >
+                    {poiSubcatFilter === null
+                      ? <CheckCircle2 className="h-5 w-5 text-black shrink-0" strokeWidth={2} />
+                      : <Circle className="h-5 w-5 text-black/40 shrink-0" strokeWidth={1.5} />}
+                    <span className={`flex-1 text-sm ${poiSubcatFilter === null ? "font-semibold text-black" : "text-black/70"}`} style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      {language === "en" ? "All" : "Toutes"}
+                    </span>
+                    <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">{poiBusinesses.length}</span>
+                  </button>
+                  <div className="max-h-64 overflow-y-auto">
+                    {poiSubcatList.map(([name, count]) => {
+                      const selected = poiSubcatFilter === name;
+                      return (
+                        <button
+                          key={name}
+                          onClick={() => { setPoiSubcatFilter(selected ? null : name); setPoiSubcatOpen(false); }}
+                          className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/5 transition-colors text-left"
+                        >
+                          {selected
+                            ? <CheckCircle2 className="h-5 w-5 text-black shrink-0" strokeWidth={2} />
+                            : <Circle className="h-5 w-5 text-black/40 shrink-0" strokeWidth={1.5} />}
+                          <span className={`flex-1 text-sm ${selected ? "font-semibold text-black" : "text-black/70"}`} style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                            {name}
+                          </span>
+                          <span className="text-xs text-black/50 bg-black/5 rounded-full px-2 py-0.5 min-w-[24px] text-center">{count}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
           <div className="flex-1 min-h-0 -mt-[3.25rem]">
             <PoiGoogleMap
@@ -2209,7 +2273,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       images: business.images, city: business.city, neighborhood: business.neighborhood,
                       markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
                     } as PoiMapItem] : []),
-                    ...(poiBusinesses.map(p => ({
+                    ...(filteredPoiBusinesses.map(p => ({
                       id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
                       images: p.images, city: p.city, neighborhood: p.neighborhood,
                     } as PoiMapItem))),
@@ -2234,7 +2298,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
           </div>
         </OverlayShell>
-      )}
+        );
+      })()}
 
       {/* Mosaic overlay */}
       {showMosaic && (
