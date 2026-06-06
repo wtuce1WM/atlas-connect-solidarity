@@ -272,6 +272,7 @@ export function useGeolocation(): GeolocationState {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
+        localStorage.setItem(AUTO_COORDS_KEY, JSON.stringify({ lat: latitude, lng: longitude }));
         setCoords({ lat: latitude, lng: longitude });
 
         setDetectedCity(findNearestCity(latitude, longitude, cities));
@@ -294,6 +295,7 @@ export function useGeolocation(): GeolocationState {
     localStorage.setItem(STORAGE_KEY, "enabled");
     localStorage.removeItem(MANUAL_COORDS_KEY);
     localStorage.removeItem(MANUAL_ADDRESS_KEY);
+    localStorage.removeItem(AUTO_COORDS_KEY);
     setIsManual(false);
     setConfirmedAddress(null);
     setIsEnabled(true);
@@ -311,11 +313,13 @@ export function useGeolocation(): GeolocationState {
   const toggle = useCallback(() => {
     if (isEnabled) {
       localStorage.setItem(STORAGE_KEY, "disabled");
+      localStorage.removeItem(AUTO_COORDS_KEY);
       setIsEnabled(false);
     } else {
       localStorage.setItem(STORAGE_KEY, "enabled");
       localStorage.removeItem(MANUAL_COORDS_KEY);
       localStorage.removeItem(MANUAL_ADDRESS_KEY);
+      localStorage.removeItem(AUTO_COORDS_KEY);
       setIsManual(false);
       setConfirmedAddress(null);
       setIsEnabled(true);
