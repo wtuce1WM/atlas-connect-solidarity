@@ -8,7 +8,9 @@ import SearchInput from "@/components/SearchInput";
 import LiquidAIMoroccoBg from "@/components/LiquidAIMoroccoBg";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import Step2AssistantBlock from "@/components/home/Step2AssistantBlock";
-import MobileSearchOverlay from "@/components/MobileSearchOverlay";
+import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { useToast } from "@/hooks/use-toast";
 import { Search, Mic } from "lucide-react";
 
 import { useSEO } from "@/hooks/useSEO";
