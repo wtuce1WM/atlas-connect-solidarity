@@ -1476,16 +1476,20 @@ const SearchPage = () => {
     return countryTerms.some(term => normalizedQuery.includes(term));
   }, [searchQuery, inputValue]);
 
-  const queryHasExplicitCity = useMemo(() => {
-    if (cityFromUrl) return true;
+  const cityMentionedInQuery = useMemo(() => {
     const normalizedQuery = normalizeText(searchQuery || inputValue);
-    if (!normalizedQuery) return false;
-
-    return citiesWithPriority.some((c) => {
+    if (!normalizedQuery) return null;
+    const match = citiesWithPriority.find((c) => {
       const normalizedCity = normalizeText(c.name);
       return normalizedCity.length > 2 && normalizedQuery.includes(normalizedCity);
     });
-  }, [cityFromUrl, searchQuery, inputValue, citiesWithPriority]);
+    return match?.name || null;
+  }, [searchQuery, inputValue, citiesWithPriority]);
+
+  const queryHasExplicitCity = useMemo(() => {
+    if (cityFromUrl) return true;
+    return !!cityMentionedInQuery;
+  }, [cityFromUrl, cityMentionedInQuery]);
 
   // Parse time slot from URL params (set by HeroSection or FloatingSearchBar)
   const activeTimeSlot: TimeSlot | null = useMemo(() => {
