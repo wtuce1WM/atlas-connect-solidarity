@@ -282,7 +282,7 @@ const HomeMindtrip = () => {
             <div className="lg:hidden">
               <button
                 type="button"
-                onClick={() => setMobileSearchOpen(true)}
+                onClick={() => heroVoice.toggleRecording()}
                 className="w-full flex items-center gap-3 h-12 px-4 text-left text-base text-foreground/80 bg-white/15 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)]"
               >
                 <Search className="h-5 w-5 shrink-0" />
