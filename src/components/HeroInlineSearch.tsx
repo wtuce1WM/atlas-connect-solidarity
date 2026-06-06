@@ -11,12 +11,13 @@ interface Props {
   placeholder: string;
   onSearch: (params: Record<string, string>) => void;
   onBusinessSelect?: (businessId: string) => void;
+  onMobileSearchClick?: () => void;
 }
 
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
+const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props) => {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
@@ -84,6 +85,8 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
   });
 
   const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+  const isBelowDesktop = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
+  const useMobileOverlay = isBelowDesktop && !!onMobileSearchClick;
   const showDropdown = !isMobile && focused && popularSuggestions.length > 0;
 
   return (
@@ -129,7 +132,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
           <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
           <button
             type="button"
-            onClick={() => voice.toggleRecording()}
+            onClick={() => (useMobileOverlay ? onMobileSearchClick!() : voice.toggleRecording())}
             disabled={voice.status === "processing"}
             aria-label={language === "ar" ? "بحث صوتي" : language === "en" ? "Voice search" : "Recherche vocale"}
             className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
@@ -169,7 +172,7 @@ const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
         </div>
       )}
 
-      {(voice.status === "recording" || voice.status === "processing") && (
+      {!useMobileOverlay && (voice.status === "recording" || voice.status === "processing") && (
         <VoiceSearchPanel
           liveTranscript={voice.liveTranscript}
           onClose={voice.toggleRecording}
