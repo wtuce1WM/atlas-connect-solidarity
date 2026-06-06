@@ -215,7 +215,7 @@ export function CtaBar({
       ctaItems.push(
         url4Cta.forceExternal ? (
           <a key="url4" href={url4Cta.fullUrl} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
             <ExternalLink className="h-4 w-4 hidden md:block" />
             <span className="truncate">{label}</span>
@@ -223,7 +223,7 @@ export function CtaBar({
         ) : (
           <button key="url4"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(url4Cta.fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }}
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <span className="truncate">{label}</span>
           </button>
