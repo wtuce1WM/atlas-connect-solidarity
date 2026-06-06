@@ -81,8 +81,11 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
         {cardsHidden ? (
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
-            style={{ backgroundColor: '#25D366' }}
+            className="relative overflow-hidden inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-b before:from-white/30 before:via-transparent before:to-white/5 before:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-full after:bg-gradient-to-b after:from-white/30 after:to-transparent after:blur-[1px] after:pointer-events-none [&>*]:relative [&>*]:z-10"
+            style={{
+              backgroundColor: '#25D366',
+              boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.45), inset 0 -1px 0 0 rgba(0,0,0,0.25), 0 4px 14px -2px rgba(0,0,0,0.35)',
+            }}
             aria-label="Afficher les cartes"
             onClick={(e) => { e.stopPropagation(); showCards(); }}
             onMouseDown={(e) => e.stopPropagation()}
@@ -95,8 +98,11 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
         ) : (
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-white shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:opacity-90 transition-colors"
-            style={{ backgroundColor: '#25D366' }}
+            className="relative overflow-hidden inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-white shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:opacity-90 transition-colors before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-b before:from-white/25 before:via-transparent before:to-white/5 before:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-full after:bg-gradient-to-b after:from-white/30 after:to-transparent after:blur-[1px] after:pointer-events-none [&>*]:relative [&>*]:z-10"
+            style={{
+              backgroundColor: '#25D366',
+              boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.45), inset 0 -1px 0 0 rgba(0,0,0,0.25), 0 4px 14px -2px rgba(0,0,0,0.35)',
+            }}
             aria-label="Masquer les cartes"
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
