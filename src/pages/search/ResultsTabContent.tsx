@@ -235,9 +235,13 @@ export default function ResultsTabContent({
   useEffect(() => {
     if (activeFsTabId) return;
     if (searchQuery.trim()) return;
+    // Skip the default-all FS filter when the URL already conveys an explicit
+    // label intent (e.g. extra card "Ateliers" with pinIds). Otherwise the
+    // 132+ allFsNames set would override pinIds and inflate the result count.
+    if (labelFromUrl && labelFromUrl.trim()) return;
     if (allFsNames.size === 0) return;
     onFrontStructureFilter?.(allFsNames);
-  }, [activeFsTabId, allFsNames, onFrontStructureFilter, searchQuery]);
+  }, [activeFsTabId, allFsNames, onFrontStructureFilter, searchQuery, labelFromUrl]);
 
   // When landing on a front-structure URL (e.g. label=Hébergement), select that tab
   // so the subcategory/services filter is visible immediately.
