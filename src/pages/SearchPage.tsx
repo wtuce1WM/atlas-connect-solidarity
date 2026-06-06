@@ -3227,7 +3227,15 @@ const SearchPage = () => {
 
   const goToPage = async (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    requestAnimationFrame(() => {
+      const el = resultsBarRef.current;
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - 60;
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
 
     // When results are pinned (pinIds), all businesses are already loaded;
     // pagination must stay client-side to preserve coherence.
