@@ -22,7 +22,6 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
-import mockupDemoIaVideo from "@/assets/mockup-demo-ia.webm.asset.json";
 import { X } from "lucide-react";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -41,6 +40,40 @@ type VideoSlot = {
   eventId: string | null;
   businessId: string | null;
 };
+
+const Step2PhoneMockup = () => (
+  <div className="absolute inset-0 flex items-center justify-center bg-white pointer-events-none">
+    <div className="relative h-[58%] w-[42%] translate-x-[18%] -translate-y-[4%] rotate-[10deg] rounded-[2rem] border-[10px] border-foreground/80 bg-white shadow-[0_24px_50px_rgba(0,0,0,0.2)] md:h-[74%] md:w-[38%] md:translate-y-[6%]">
+      <div className="absolute left-1/2 top-2 h-4 w-20 -translate-x-1/2 rounded-full bg-foreground/80" />
+      <div className="flex h-full flex-col overflow-hidden rounded-[1.35rem] bg-white px-3 pb-3 pt-8">
+        <div className="mb-2 flex items-center gap-2 text-[8px] font-bold uppercase text-foreground/60">
+          <span>✦ IA</span><span>▶ YouTube</span><span>◎ Lieu</span>
+        </div>
+        <div className="space-y-1.5 text-[9px] leading-tight text-foreground/75">
+          <p>Je veux me séparer de la mythique route de l'Ourika...</p>
+          <p className="font-bold text-foreground">Café del Mar Marrakech</p>
+          <p>ambiance festive et dynamique, piscine et coucher du soleil.</p>
+        </div>
+        <div className="mt-auto grid grid-cols-2 gap-2">
+          <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+            <div className="h-16 bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)))]" />
+            <div className="p-1.5">
+              <div className="h-2 w-20 rounded bg-foreground/70" />
+              <div className="mt-1 h-2 w-12 rounded bg-foreground/30" />
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+            <div className="h-16 bg-[linear-gradient(135deg,hsl(var(--muted)),hsl(var(--secondary)))]" />
+            <div className="p-1.5">
+              <div className="h-2 w-16 rounded bg-foreground/70" />
+              <div className="mt-1 h-2 w-10 rounded bg-foreground/30" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 const HomeMindtrip = () => {
   
@@ -531,15 +564,7 @@ const HomeMindtrip = () => {
                 >
                   {i === 1 && (
                     <>
-                      <div className="absolute inset-0 bg-white" />
-                      <video
-                        src={mockupDemoIaVideo.url}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        className="absolute inset-0 m-auto h-[65%] w-[65%] md:h-[80%] md:w-[80%] object-contain opacity-90 pointer-events-none translate-x-[16%] translate-y-[-4%] md:translate-y-[8%] bg-white"
-                      />
+                      <Step2PhoneMockup />
                     </>
                   )}
                   {i === 2 && (
