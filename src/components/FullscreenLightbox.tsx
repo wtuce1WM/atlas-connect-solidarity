@@ -41,9 +41,12 @@ const FullscreenLightbox = ({ items, currentIndex, onIndexChange, onClose }: Ful
     if (handled.current || startX.current === null || startY.current === null) return;
     const dx = e.touches[0].clientX - startX.current;
     const dy = e.touches[0].clientY - startY.current;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2 && count > 1) {
+    if (count > 1 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) {
       handled.current = true;
       if (dx < 0) next(); else prev();
+    } else if (count > 1 && Math.abs(dy) > 50 && Math.abs(dy) > Math.abs(dx) * 1.2) {
+      handled.current = true;
+      if (dy < 0) next(); else prev();
     }
   };
   const onTouchEnd = () => { startX.current = null; startY.current = null; handled.current = false; };
