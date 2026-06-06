@@ -280,6 +280,8 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
 
   const originParam = origin ? encodeURIComponent(`${origin.lat},${origin.lng}`) : null;
   const destParam = encodeURIComponent(destRaw);
+  const googleTravelMode = directionsMode === "walking" ? "walking" : "driving";
+  const appleDirFlag = directionsMode === "walking" ? "w" : "d";
 
   return (
     <div className="absolute inset-0 z-[100] bg-white flex flex-col">
@@ -304,13 +306,13 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           </div>
         </div>
         <div className="shrink-0 flex items-center gap-2">
-          <a href={`https://www.google.com/maps/dir/?api=1${originParam ? `&origin=${originParam}` : ""}&destination=${destParam}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
+          <a href={`https://www.google.com/maps/dir/?api=1${originParam ? `&origin=${originParam}` : ""}&destination=${destParam}&travelmode=${googleTravelMode}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
             <img src="https://www.gstatic.com/images/branding/product/1x/maps_48dp.png" alt="Google Maps" className="h-6 w-6 object-contain" />
           </a>
           <a href={business.latitude && business.longitude ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Waze">
             <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-6 w-6 object-contain" />
           </a>
-          <a href={business.latitude && business.longitude ? `https://maps.apple.com/?daddr=${business.latitude},${business.longitude}&dirflg=d` : `https://maps.apple.com/?daddr=${encodeURIComponent(destRaw)}&dirflg=d`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Apple Plans">
+          <a href={business.latitude && business.longitude ? `https://maps.apple.com/?daddr=${business.latitude},${business.longitude}&dirflg=${appleDirFlag}` : `https://maps.apple.com/?daddr=${encodeURIComponent(destRaw)}&dirflg=${appleDirFlag}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Apple Plans">
             <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-7 w-7 object-contain" />
           </a>
         </div>
