@@ -50,7 +50,7 @@ const MapBusinessInfoCard = ({ business, onClose, hideDirections, hideClose }: M
   })();
 
   return (
-    <div className="absolute top-1 left-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg sm:top-2 sm:left-2 sm:right-auto sm:min-w-[320px] sm:rounded">
+    <div data-info-card className="absolute top-1 left-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg sm:top-2 sm:left-2 sm:right-auto sm:min-w-[320px] sm:rounded">
       <div className="flex items-start justify-between gap-2 mb-2">
         <span className="text-sm font-bold" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{business.name}</span>
         {!hideClose && (
