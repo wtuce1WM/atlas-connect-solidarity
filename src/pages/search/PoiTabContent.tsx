@@ -216,7 +216,7 @@ const PoiTabContent = ({
                     setPoiPanelExpanded(false);
                   }}
                   forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
-                  showSearchBar
+                  showSearchBar={false}
                   onSearch={onSearchNavigate}
                   onSearchBusinessSelect={onBusinessSelect}
                   onPrevBusiness={() => {
