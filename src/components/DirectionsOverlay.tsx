@@ -102,8 +102,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     if (!storedOrigin) requestBrowserOrigin();
   }, [geo.coords, geo.isEnabled, storedOrigin, requestBrowserOrigin]);
 
-  const fallbackOriginRaw = geo.confirmedAddress || null;
-  const originRaw = userOrigin || storedOrigin || fallbackOriginRaw;
+  const originRaw = userOrigin || storedOrigin;
   const origin = originRaw ? encodeURIComponent(originRaw) : null;
   const destRaw = business.latitude != null && business.longitude != null
     ? `${business.latitude},${business.longitude}`
