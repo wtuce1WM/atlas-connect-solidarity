@@ -45,8 +45,12 @@ interface PanelSearchBarProps {
   onOpenMap?: () => void;
   /** When provided, the Sparkles button calls this instead of opening the AI overlay (used on /search to switch to the IA tab) */
   onAiClick?: () => void;
-  /** Extra controls (e.g. video play/mute) rendered before the 4 default round buttons */
+  /** Extra controls (e.g. video play/mute) rendered before the 4 default round buttons. Deprecated — prefer `videoControls`. */
   leadingControls?: ReactNode;
+  /** Inline video play/mute controls rendered as labelled cells inside the unified dock pill */
+  videoControls?:
+    | { type: "file"; videoRef: RefObject<HTMLVideoElement>; paused: boolean; muted: boolean }
+    | { type: "youtube"; iframeRef: RefObject<HTMLIFrameElement>; playing: boolean; muted: boolean; onPlayingChange: (p: boolean) => void; onMutedChange: (m: boolean) => void };
   /** When true, hides the Sparkles (Suggestion IA) button from the floating bar */
   hideAiButton?: boolean;
   /** Pre-generated AI text from /search Sticky 4 — forwarded to PanelAiOverlay to keep both views in sync */
@@ -54,6 +58,7 @@ interface PanelSearchBarProps {
   /** Businesses pool matching aiAnswerText (for thumbnail resolution) */
   aiBusinesses?: any[] | null;
 }
+
 
 const KNOWN_CITIES = ["Marrakech", "Essaouira"] as const;
 const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<string, string> => {
@@ -64,7 +69,7 @@ const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<s
   return params;
 };
 
-const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
@@ -117,46 +122,120 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
 
   const isBlack = iconVariant === "black";
 
+  // Single cell used inside the unified dock pill: round icon + small label below
+  const Cell = ({ icon, label, onClick, ariaLabel }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className="group shrink-0 flex flex-col items-center justify-end gap-1 px-1.5 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
+    >
+      <span className="w-10 h-10 rounded-full bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+        {icon}
+      </span>
+      <span className="text-[9px] font-medium uppercase tracking-wide text-white/85 leading-none font-['Josefin_Sans',sans-serif]">{label}</span>
+    </button>
+  );
+
+  // Render play/mute cells from the typed videoControls prop
+  const renderVideoCells = (): ReactNode => {
+    if (!videoControls) return null;
+    if (videoControls.type === "file") {
+      const { videoRef, paused, muted } = videoControls;
+      return (
+        <>
+          <Cell
+            icon={paused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+            label={paused ? "Play" : "Pause"}
+            ariaLabel={paused ? "Play" : "Pause"}
+            onClick={() => {
+              const v = videoRef.current;
+              if (!v) return;
+              if (v.paused) v.play(); else v.pause();
+            }}
+          />
+          <Cell
+            icon={muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+            label={muted ? "Sound" : "Mute"}
+            ariaLabel={muted ? "Unmute" : "Mute"}
+            onClick={() => {
+              const v = videoRef.current;
+              if (!v) return;
+              const next = !v.muted;
+              if (!next && v.volume === 0) v.volume = 1;
+              v.muted = next;
+            }}
+          />
+        </>
+      );
+    }
+    const { iframeRef, playing, muted, onPlayingChange, onMutedChange } = videoControls;
+    return (
+      <>
+        <Cell
+          icon={playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          label={playing ? "Pause" : "Play"}
+          ariaLabel={playing ? "Pause" : "Play"}
+          onClick={() => {
+            iframeRef.current?.contentWindow?.postMessage(
+              JSON.stringify({ event: "command", func: playing ? "pauseVideo" : "playVideo" }),
+              "*"
+            );
+            onPlayingChange(!playing);
+          }}
+        />
+        <Cell
+          icon={muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+          label={muted ? "Sound" : "Mute"}
+          ariaLabel={muted ? "Unmute" : "Mute"}
+          onClick={() => {
+            iframeRef.current?.contentWindow?.postMessage(
+              JSON.stringify({ event: "command", func: muted ? "unMute" : "mute" }),
+              "*"
+            );
+            onMutedChange(!muted);
+          }}
+        />
+      </>
+    );
+  };
+
   return (
     <>
-      {/* Trigger bar fixed at bottom */}
-      <div className={`absolute bottom-0 z-[85] py-3 flex items-center justify-center gap-3 md:gap-10 ${compact && !leadingControls ? 'left-1/2 -translate-x-1/2 px-0' : 'left-0 right-0 px-4'}`}>
-        {leadingControls}
-        <button
-          type="button"
-          onClick={() => setOverlay(true)}
-          aria-label="Search"
-          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-        >
-          <Search className="h-5 w-5 md:h-6 md:w-6" />
-        </button>
-        {!hideAiButton && (
-          <button
-            type="button"
-            onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
-            aria-label="Suggestion IA"
-            className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-          >
-            <Sparkles className="h-5 w-5 md:h-6 md:w-6" />
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
-          aria-label="Géolocalisation"
-          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-        >
-          <MapPin className="h-5 w-5 md:h-6 md:w-6" />
-        </button>
-        <button
-          type="button"
-          onClick={() => setHashtagsOverlayOpen(true)}
-          aria-label="Hashtags"
-          className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-        >
-          <Hash className="h-5 w-5 md:h-6 md:w-6" />
-        </button>
+      {/* Unified dock pill at the bottom of the panel */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[85]">
+        <div className="flex items-end gap-0.5 rounded-[28px] border border-white/15 backdrop-blur-2xl bg-black/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_32px_rgba(0,0,0,0.45)] px-2 py-1.5">
+          {renderVideoCells()}
+          {leadingControls}
+          <Cell
+            icon={<Search className="h-5 w-5" />}
+            label="Search"
+            ariaLabel="Search"
+            onClick={() => setOverlay(true)}
+          />
+          {!hideAiButton && (
+            <Cell
+              icon={<Sparkles className="h-5 w-5" />}
+              label="IA"
+              ariaLabel="Suggestion IA"
+              onClick={() => { if (onAiClick) onAiClick(); else setAiOverlayOpen(true); }}
+            />
+          )}
+          <Cell
+            icon={<MapPin className="h-5 w-5" />}
+            label="Lieu"
+            ariaLabel="Géolocalisation"
+            onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
+          />
+          <Cell
+            icon={<Hash className="h-5 w-5" />}
+            label="Tags"
+            ariaLabel="Hashtags"
+            onClick={() => setHashtagsOverlayOpen(true)}
+          />
+        </div>
       </div>
+
 
       {hashtagsOverlayOpen && (
         <OverlayShell zClass="z-[92]" coverToolbar={false}>
