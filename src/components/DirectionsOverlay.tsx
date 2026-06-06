@@ -165,6 +165,15 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       const top = container.getBoundingClientRect().top;
       const next = Math.max(0, Math.ceil(rect.bottom - top) + 8);
       setCardOffset((current) => current === next ? current : next);
+      cardOffsetRef.current = next;
+      // Re-fit current bounds to account for new offset, without refetching route
+      const map = mapRef.current;
+      const poly = polylineRef.current;
+      if (map && poly) {
+        const b = new google.maps.LatLngBounds();
+        poly.getPath().forEach((p) => b.extend(p));
+        map.fitBounds(b, { top: next + 24, left: 32, right: 32, bottom: 48 });
+      }
     };
     measure();
     const ro = new ResizeObserver(measure);
