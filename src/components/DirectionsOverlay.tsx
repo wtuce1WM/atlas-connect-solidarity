@@ -61,13 +61,17 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     requestBrowserOrigin();
   }, [geo.coords, geo.isEnabled, requestBrowserOrigin]);
 
+  const fallbackOriginRaw = geo.confirmedAddress
+    || (geo.detectedNeighborhood && geo.detectedCity ? `${geo.detectedNeighborhood}, ${geo.detectedCity}, Maroc` : null)
+    || (geo.detectedCity ? `${geo.detectedCity}, Maroc` : null);
+  const originRaw = userOrigin || fallbackOriginRaw;
+  const origin = originRaw ? encodeURIComponent(originRaw) : null;
   const destRaw = business.latitude != null && business.longitude != null
     ? `${business.latitude},${business.longitude}`
     : business.address || business.name;
   const dest = encodeURIComponent(destRaw);
-  const origin = userOrigin ? encodeURIComponent(userOrigin) : null;
-  const needsGeoConsent = !userOrigin && (!geo.isEnabled || !!originError);
-  const waitingForOrigin = !userOrigin && geo.isEnabled && isRequestingOrigin && !originError;
+  const needsGeoConsent = !originRaw && (!geo.isEnabled || !!originError);
+  const waitingForOrigin = !originRaw && geo.isEnabled && !originError;
 
 
   return (
@@ -98,7 +102,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           </div>
         </div>
         <div className="shrink-0 flex items-center gap-2">
-          <a href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
+          <a href={`https://www.google.com/maps/dir/?api=1${origin ? `&origin=${origin}` : ""}&destination=${dest}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
             <img src="https://www.gstatic.com/images/branding/product/1x/maps_48dp.png" alt="Google Maps" className="h-6 w-6 object-contain" />
           </a>
           <a href={business.latitude && business.longitude ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Waze">
