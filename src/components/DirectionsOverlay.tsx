@@ -21,7 +21,6 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [originError, setOriginError] = useState<string | null>(null);
-  const [isRequestingOrigin, setIsRequestingOrigin] = useState(false);
   const [showInfoCard, setShowInfoCard] = useState(true);
   const geo = useGeolocation();
 
@@ -31,18 +30,15 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       return;
     }
 
-    setIsRequestingOrigin(true);
     setOriginError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`);
         setOriginError(null);
-        setIsRequestingOrigin(false);
       },
       (err) => {
         setUserOrigin(null);
         setOriginError(err.message || "Position indisponible");
-        setIsRequestingOrigin(false);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
