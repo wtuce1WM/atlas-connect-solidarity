@@ -85,6 +85,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [routeError, setRouteError] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
   const [cardOffset, setCardOffset] = useState(0);
+  const cardOffsetRef = useRef(0);
   const [mapsReady, setMapsReady] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapDivRef = useRef<HTMLDivElement | null>(null);
