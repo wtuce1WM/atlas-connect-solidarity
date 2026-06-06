@@ -2401,28 +2401,25 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           closeTrigger={closeTrigger}
           compact
           onSeeResults={onClose}
-          leadingControls={
+          videoControls={
             activeVideoOverlay ? undefined :
             (showPoiMapOverlay || showDirections) ? undefined :
-            effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? (
-              <VideoControls
-                type="file"
-                videoRef={videoRef as React.RefObject<HTMLVideoElement>}
-                paused={videoPaused}
-                muted={videoMuted}
-              />
-            ) :
-            effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? (
-              <VideoControls
-                type="youtube"
-                iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
-                playing={!videoPaused}
-                muted={videoMuted}
-                onPlayingChange={(p) => setVideoPaused(!p)}
-                onMutedChange={(m) => setVideoMuted(m)}
-              />
-            ) : undefined
+            effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? {
+              type: "file",
+              videoRef: videoRef as React.RefObject<HTMLVideoElement>,
+              paused: videoPaused,
+              muted: videoMuted,
+            } :
+            effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? {
+              type: "youtube",
+              iframeRef: iframeRef as React.RefObject<HTMLIFrameElement>,
+              playing: !videoPaused,
+              muted: videoMuted,
+              onPlayingChange: (p: boolean) => setVideoPaused(!p),
+              onMutedChange: (m: boolean) => setVideoMuted(m),
+            } : undefined
           }
+
         />
       )}
 
