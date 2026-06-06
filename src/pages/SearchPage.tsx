@@ -3,6 +3,7 @@ import SearchInput from "@/components/SearchInput";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { useIsMobile } from "@/hooks/use-mobile";
+import HScroll from "@/components/HScroll";
 import { useGeolocation } from "@/hooks/useGeolocation";
 
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
@@ -3634,7 +3635,7 @@ const SearchPage = () => {
                   <p className="text-sm font-medium text-foreground mb-3">
                     {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                   </p>
-                  <div className="flex overflow-x-auto gap-2 scrollbar-hide">
+                  <HScroll className="flex overflow-x-auto gap-2 scrollbar-hide">
                     {subcategoryNamesFromUrl.map((name) => {
                       const count = subcatUrlCounts[name] ?? 0;
                       return (
@@ -3655,7 +3656,7 @@ const SearchPage = () => {
                         </button>
                       );
                     })}
-                  </div>
+                  </HScroll>
                 </div>
               </div>
             )}
@@ -3689,7 +3690,7 @@ const SearchPage = () => {
                     <p className="text-sm font-medium text-foreground mb-3">
                       {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                     </p>
-                    <div className="flex overflow-x-auto gap-2 scrollbar-hide">
+                    <HScroll className="flex overflow-x-auto gap-2 scrollbar-hide">
                       {discriminating.slice(0, 8).map(cat => (
                         <button
                           key={cat}
@@ -3706,7 +3707,7 @@ const SearchPage = () => {
                           <span className="ml-1.5 text-xs text-muted-foreground">{catCounts[cat]}</span>
                         </button>
                       ))}
-                    </div>
+                    </HScroll>
                   </div>
                 </div>
               );
