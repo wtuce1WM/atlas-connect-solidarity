@@ -705,6 +705,16 @@ const HomeMindtrip = () => {
 
 
       <Footer variant="verified" />
+
+      <MobileSearchOverlay
+        open={mobileSearchOpen}
+        onClose={() => setMobileSearchOpen(false)}
+        onSearch={(params) => {
+          const qs = new URLSearchParams(params).toString();
+          navigate(`/search?${qs}`);
+        }}
+        onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
+      />
     </div>
   );
 };
