@@ -25,7 +25,12 @@ const readStoredOrigin = (): { lat: number; lng: number } | null =>
   parseStoredCoords(GEO_MANUAL_COORDS_KEY) || parseStoredCoords(GEO_AUTO_COORDS_KEY);
 
 const sameCoords = (a: { lat: number; lng: number } | null, b: { lat: number; lng: number } | null) =>
-  (!a && !b) || (!!a && !!b && a.lat === b.lat && a.lng === b.lng);
+  (!a && !b) || (!!a && !!b && Math.abs(a.lat - b.lat) < 0.000001 && Math.abs(a.lng - b.lng) < 0.000001);
+
+type DirectionsMode = "walking" | "driving";
+interface RouteData { encodedPolyline: string; viewport?: unknown; distanceMeters?: number | null; duration?: string | null }
+const routeCache = new Map<string, RouteData>();
+const coordKey = (coords: { lat: number; lng: number }) => `${coords.lat.toFixed(6)},${coords.lng.toFixed(6)}`;
 
 /* ── Google Maps loader (shared singleton) ── */
 let gmapsPromise: Promise<void> | null = null;
@@ -78,7 +83,7 @@ interface DirectionsOverlayProps {
 }
 
 const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
-  const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
+  const [directionsMode, setDirectionsMode] = useState<DirectionsMode>("walking");
   const [userOrigin, setUserOrigin] = useState<{ lat: number; lng: number } | null>(null);
   const [storedOrigin, setStoredOrigin] = useState<{ lat: number; lng: number } | null>(() => readStoredOrigin());
   const [originError, setOriginError] = useState<string | null>(null);
@@ -91,6 +96,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const mapDivRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
+  const routeRequestRef = useRef(0);
   const originMarkerRef = useRef<google.maps.Marker | null>(null);
   const destMarkerRef = useRef<google.maps.Marker | null>(null);
   const geo = useGeolocation();
@@ -148,6 +154,9 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       : null
   ), [business.latitude, business.longitude]);
   const destRaw = destLatLng ? `${destLatLng.lat},${destLatLng.lng}` : (business.address || business.name);
+  const routeKey = useMemo(() => (
+    origin && destLatLng ? `${directionsMode}:${coordKey(origin)}:${coordKey(destLatLng)}` : null
+  ), [origin, destLatLng, directionsMode]);
   const needsGeoConsent = !origin && (!geo.isEnabled || !!originError);
   const waitingForOrigin = !origin && geo.isEnabled && !originError;
   const showMap = !!origin && !!destLatLng && !needsGeoConsent && !waitingForOrigin;
@@ -203,10 +212,11 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
 
   // Fetch route + draw
   useEffect(() => {
-    if (!mapsReady || !showMap || !mapRef.current || !origin || !destLatLng) return;
+    if (!mapsReady || !showMap || !mapRef.current || !origin || !destLatLng || !routeKey) return;
     const gmaps = window.google.maps;
     const map = mapRef.current;
     let cancelled = false;
+    const requestId = ++routeRequestRef.current;
     setRouteError(null);
 
     // Origin marker (terracotta Pin)
@@ -221,12 +231,34 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       position: destLatLng, map, title: business.name,
     });
 
+    const drawRoute = (encodedPolyline: string) => {
+      const path = gmaps.geometry.encoding.decodePath(encodedPolyline);
+      if (polylineRef.current) polylineRef.current.setMap(null);
+      polylineRef.current = new gmaps.Polyline({
+        path, map, strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9,
+      });
+      const bounds = new gmaps.LatLngBounds();
+      path.forEach((p) => bounds.extend(p));
+      map.fitBounds(bounds, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
+    };
+
+    const cachedRoute = routeCache.get(routeKey);
+    if (cachedRoute?.encodedPolyline) {
+      drawRoute(cachedRoute.encodedPolyline);
+      return () => { cancelled = true; };
+    }
+
+    if (polylineRef.current) {
+      polylineRef.current.setMap(null);
+      polylineRef.current = null;
+    }
+
     (async () => {
       try {
         const { data, error } = await supabase.functions.invoke("compute-route", {
           body: { origin, destination: destLatLng, mode: directionsMode },
         });
-        if (cancelled) return;
+        if (cancelled || requestId !== routeRequestRef.current) return;
         if (error || !data?.encodedPolyline) {
           setRouteError("Itinéraire indisponible");
           const b = new gmaps.LatLngBounds();
@@ -234,14 +266,8 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
           return;
         }
-        const path = gmaps.geometry.encoding.decodePath(data.encodedPolyline);
-        if (polylineRef.current) polylineRef.current.setMap(null);
-        polylineRef.current = new gmaps.Polyline({
-          path, map, strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9,
-        });
-        const bounds = new gmaps.LatLngBounds();
-        path.forEach((p) => bounds.extend(p));
-        map.fitBounds(bounds, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
+        routeCache.set(routeKey, data as RouteData);
+        drawRoute(data.encodedPolyline);
       } catch (e) {
         if (!cancelled) {
           console.error(e); setRouteError("Itinéraire indisponible");
@@ -250,7 +276,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     })();
 
     return () => { cancelled = true; };
-  }, [mapsReady, showMap, origin, destLatLng, directionsMode, business.name]);
+  }, [mapsReady, showMap, origin, destLatLng, routeKey, directionsMode, business.name]);
 
   const originParam = origin ? encodeURIComponent(`${origin.lat},${origin.lng}`) : null;
   const destParam = encodeURIComponent(destRaw);
