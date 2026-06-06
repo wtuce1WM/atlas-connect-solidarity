@@ -20,12 +20,14 @@ interface DirectionsOverlayProps {
 const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
+  const [originError, setOriginError] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
   const geo = useGeolocation();
 
   useEffect(() => {
     if (geo.coords) {
       setUserOrigin(`${geo.coords.lat},${geo.coords.lng}`);
+      setOriginError(null);
       return;
     }
     if (!geo.isEnabled) {
@@ -33,9 +35,17 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       return;
     }
     if (navigator.geolocation) {
+      setOriginError(null);
       navigator.geolocation.getCurrentPosition(
-        (pos) => setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`),
-        () => setUserOrigin(null)
+        (pos) => {
+          setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`);
+          setOriginError(null);
+        },
+        (err) => {
+          setUserOrigin(null);
+          setOriginError(err.message || "Position indisponible");
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
       );
     }
   }, [geo.coords, geo.isEnabled]);
@@ -47,6 +57,8 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     ? `${business.latitude},${business.longitude}`
     : business.address || business.name;
   const needsGeoConsent = !userOrigin && !geo.isEnabled;
+  const waitingForOrigin = !userOrigin && geo.isEnabled && !originError;
+
 
   return (
     <div className="absolute inset-0 z-[100] bg-white flex flex-col">
@@ -106,9 +118,21 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
               </button>
             </div>
           </div>
+        ) : waitingForOrigin ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-muted/30">
+            <div className="text-sm text-muted-foreground">Localisation en cours…</div>
+          </div>
+        ) : originError && !userOrigin ? (
+          <div className="absolute inset-0 flex items-center justify-center p-6 bg-muted/30">
+            <div className="max-w-sm w-full bg-background rounded-2xl shadow-xl p-6 text-center space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Impossible d'obtenir votre position. Vérifiez l'autorisation de localisation du navigateur.
+              </p>
+            </div>
+          </div>
         ) : (
           <iframe
-            src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
+            src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${userOrigin}&destination=${dest}&mode=${directionsMode}`}
             className="absolute inset-0 w-full h-full border-0"
             allowFullScreen
             loading="lazy"
