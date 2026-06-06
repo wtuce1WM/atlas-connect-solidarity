@@ -85,6 +85,8 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
   });
 
   const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+  const isBelowDesktop = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
+  const useMobileOverlay = isBelowDesktop && !!onMobileSearchClick;
   const showDropdown = !isMobile && focused && popularSuggestions.length > 0;
 
   return (
