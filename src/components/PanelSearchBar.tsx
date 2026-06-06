@@ -123,14 +123,18 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
   const isBlack = iconVariant === "black";
 
   // Single cell used inside the unified dock pill: round icon + small label below
-  const Cell = ({ icon, label, onClick, ariaLabel }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string }) => (
+  const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean }) => (
     <button
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
       className="group shrink-0 flex flex-col items-center justify-end gap-1 px-1.5 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
     >
-      <span className="w-10 h-10 rounded-full bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+      <span
+        className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors ${
+          active ? "bg-[#C04F17] group-hover:bg-[#C04F17]/90" : "bg-white/10 group-hover:bg-white/20"
+        }`}
+      >
         {icon}
       </span>
       <span className="text-[9px] font-medium uppercase tracking-wide text-white/85 leading-none font-['Josefin_Sans',sans-serif]">{label}</span>
