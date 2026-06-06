@@ -242,9 +242,9 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     });
   }, [mapsReady, showMap, origin]);
 
-  // Fetch route + draw
+  // Fetch route + draw using native Google DirectionsService
   useEffect(() => {
-    if (!mapsReady || !showMap || !mapRef.current || !origin || !destLatLng || !routeKey) return;
+    if (!mapsReady || !showMap || !mapRef.current || !origin || !destLatLng) return;
     const gmaps = window.google.maps;
     const map = mapRef.current;
     let cancelled = false;
@@ -263,56 +263,45 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       position: destLatLng, map, title: business.name,
     });
 
-    const drawRoute = (encodedPolyline: string) => {
-      const path = decodeEncodedPolyline(encodedPolyline);
-      if (!path.length) {
-        setRouteError("Itinéraire indisponible");
-        return;
-      }
-      if (polylineRef.current) polylineRef.current.setMap(null);
-      polylineRef.current = new gmaps.Polyline({
-        path, map, strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9,
+    if (!directionsServiceRef.current) {
+      directionsServiceRef.current = new gmaps.DirectionsService();
+    }
+    if (!directionsRendererRef.current) {
+      directionsRendererRef.current = new gmaps.DirectionsRenderer({
+        map,
+        suppressMarkers: true,
+        preserveViewport: true,
+        polylineOptions: { strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9 },
       });
-      const bounds = new gmaps.LatLngBounds();
-      path.forEach((p) => bounds.extend(p));
-      map.fitBounds(bounds, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
-    };
-
-    const cachedRoute = routeCache.get(routeKey);
-    if (cachedRoute?.encodedPolyline) {
-      drawRoute(cachedRoute.encodedPolyline);
-      return () => { cancelled = true; };
+    } else {
+      directionsRendererRef.current.setMap(map);
     }
 
-    if (polylineRef.current) {
-      polylineRef.current.setMap(null);
-      polylineRef.current = null;
-    }
+    const travelMode = directionsMode === "walking"
+      ? gmaps.TravelMode.WALKING
+      : gmaps.TravelMode.DRIVING;
 
-    (async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke("compute-route", {
-          body: { origin, destination: destLatLng, mode: directionsMode },
-        });
+    directionsServiceRef.current.route(
+      { origin, destination: destLatLng, travelMode },
+      (result, status) => {
         if (cancelled || requestId !== routeRequestRef.current) return;
-        if (error || !data?.encodedPolyline) {
+        if (status !== gmaps.DirectionsStatus.OK || !result) {
           setRouteError("Itinéraire indisponible");
           const b = new gmaps.LatLngBounds();
           b.extend(origin); b.extend(destLatLng);
           map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
           return;
         }
-        routeCache.set(routeKey, data as RouteData);
-        drawRoute(data.encodedPolyline);
-      } catch (e) {
-        if (!cancelled) {
-          console.error(e); setRouteError("Itinéraire indisponible");
+        directionsRendererRef.current!.setDirections(result);
+        const bounds = result.routes[0]?.bounds;
+        if (bounds) {
+          map.fitBounds(bounds, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
         }
       }
-    })();
+    );
 
     return () => { cancelled = true; };
-  }, [mapsReady, showMap, origin, destLatLng, routeKey, directionsMode, business.name]);
+  }, [mapsReady, showMap, origin, destLatLng, directionsMode, business.name]);
 
   const originParam = origin ? encodeURIComponent(`${origin.lat},${origin.lng}`) : null;
   const destParam = encodeURIComponent(destRaw);
