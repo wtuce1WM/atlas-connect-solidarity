@@ -85,9 +85,10 @@ const Step2AssistantBlock = ({ stepLabel, title, description, onMobileSearchClic
           showSuggestions={false}
           voiceControl={{
             status: voice.status,
-            toggleRecording: voice.toggleRecording,
+            toggleRecording: isBelowDesktop && onMobileSearchClick ? onMobileSearchClick : voice.toggleRecording,
             liveTranscript: voice.liveTranscript,
           }}
+
           onSubmit={(q) => navigate(`/search?q=${encodeURIComponent(q)}&tab=ai`)}
         />
 
