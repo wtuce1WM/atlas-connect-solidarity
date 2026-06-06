@@ -267,31 +267,15 @@ const HomeMindtrip = () => {
             Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité sur le terrain.
           </p>
           <div className="mt-10 w-full max-w-2xl">
-            {/* Desktop: inline search */}
-            <div className="hidden lg:block">
-              <HeroInlineSearch
-                placeholder="Rechercher un hôtel, un restaurant, une expérience…"
-                onSearch={(params) => {
-                  const qs = new URLSearchParams(params).toString();
-                  navigate(`/search?${qs}`);
-                }}
-                onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
-              />
-            </div>
-            {/* Mobile/Tablet: trigger fullscreen overlay */}
-            <div className="lg:hidden">
-              <button
-                type="button"
-                onClick={() => heroVoice.toggleRecording()}
-                className="w-full flex items-center gap-3 h-12 px-4 text-left text-base text-foreground/80 bg-white/15 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)]"
-              >
-                <Search className="h-5 w-5 shrink-0" />
-                <span className="flex-1 truncate">Rechercher un hôtel, un restaurant…</span>
-                <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-black/80 border border-white/30">
-                  <Mic className="h-4 w-4 text-white" />
-                </span>
-              </button>
-            </div>
+            <HeroInlineSearch
+              placeholder="Rechercher un hôtel, un restaurant, une expérience…"
+              onSearch={(params) => {
+                const qs = new URLSearchParams(params).toString();
+                navigate(`/search?${qs}`);
+              }}
+              onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
+              mobileVoiceTrigger={() => heroVoice.toggleRecording()}
+            />
             <div className="mt-5 flex justify-start">
               <button
                 type="button"
