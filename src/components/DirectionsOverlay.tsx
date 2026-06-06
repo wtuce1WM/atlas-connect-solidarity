@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { X, Info, MapPin } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
@@ -24,6 +24,26 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [showInfoCard, setShowInfoCard] = useState(true);
   const geo = useGeolocation();
 
+  const requestBrowserOrigin = useCallback(() => {
+    if (!navigator.geolocation) {
+      setOriginError("Géolocalisation indisponible");
+      return;
+    }
+
+    setOriginError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`);
+        setOriginError(null);
+      },
+      (err) => {
+        setUserOrigin(null);
+        setOriginError(err.message || "Position indisponible");
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  }, []);
+
   useEffect(() => {
     if (geo.coords) {
       setUserOrigin(`${geo.coords.lat},${geo.coords.lng}`);
@@ -34,30 +54,20 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       setUserOrigin(null);
       return;
     }
-    if (navigator.geolocation) {
-      setOriginError(null);
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`);
-          setOriginError(null);
-        },
-        (err) => {
-          setUserOrigin(null);
-          setOriginError(err.message || "Position indisponible");
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-      );
-    }
-  }, [geo.coords, geo.isEnabled]);
+    requestBrowserOrigin();
+  }, [geo.coords, geo.isEnabled, requestBrowserOrigin]);
 
-  const dest = business.latitude && business.longitude
-    ? `${business.latitude},${business.longitude}`
-    : encodeURIComponent(business.address || business.name);
-  const destRaw = business.latitude && business.longitude
+  const fallbackOriginRaw = geo.confirmedAddress
+    || (geo.detectedNeighborhood && geo.detectedCity ? `${geo.detectedNeighborhood}, ${geo.detectedCity}, Maroc` : null)
+    || (geo.detectedCity ? `${geo.detectedCity}, Maroc` : null);
+  const originRaw = userOrigin || fallbackOriginRaw;
+  const origin = originRaw ? encodeURIComponent(originRaw) : null;
+  const destRaw = business.latitude != null && business.longitude != null
     ? `${business.latitude},${business.longitude}`
     : business.address || business.name;
-  const needsGeoConsent = !userOrigin && !geo.isEnabled;
-  const waitingForOrigin = !userOrigin && geo.isEnabled && !originError;
+  const dest = encodeURIComponent(destRaw);
+  const needsGeoConsent = !originRaw && (!geo.isEnabled || !!originError);
+  const waitingForOrigin = !originRaw && geo.isEnabled && !originError;
 
 
   return (
@@ -88,7 +98,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           </div>
         </div>
         <div className="shrink-0 flex items-center gap-2">
-          <a href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
+          <a href={`https://www.google.com/maps/dir/?api=1${origin ? `&origin=${origin}` : ""}&destination=${dest}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
             <img src="https://www.gstatic.com/images/branding/product/1x/maps_48dp.png" alt="Google Maps" className="h-6 w-6 object-contain" />
           </a>
           <a href={business.latitude && business.longitude ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Waze">
@@ -111,7 +121,10 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
                 Pour calculer l'itinéraire depuis votre position, autorisez l'accès à votre localisation.
               </p>
               <button
-                onClick={geo.accept}
+                onClick={() => {
+                  geo.accept();
+                  requestBrowserOrigin();
+                }}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#C04F17] text-white px-4 py-2 text-sm font-medium hover:bg-[#C04F17]/90 transition-colors"
               >
                 <MapPin className="h-4 w-4" /> Activer ma localisation
@@ -132,7 +145,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           </div>
         ) : (
           <iframe
-            src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${userOrigin}&destination=${dest}&mode=${directionsMode}`}
+            src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${origin}&destination=${dest}&mode=${directionsMode}`}
             className="absolute inset-0 w-full h-full border-0"
             allowFullScreen
             loading="lazy"
