@@ -8,6 +8,17 @@ const corsHeaders = {
 
 interface LatLng { lat: number; lng: number }
 
+interface RoutePayload {
+  encodedPolyline: string;
+  viewport: unknown | null;
+  distanceMeters: number | null;
+  duration: string | null;
+}
+
+const CACHE_TTL_MS = 10 * 60 * 1000;
+const routeCache = new Map<string, { expiresAt: number; payload: RoutePayload }>();
+const coordKey = (coords: LatLng) => `${coords.lat.toFixed(6)},${coords.lng.toFixed(6)}`;
+
 const isLatLng = (v: unknown): v is LatLng =>
   !!v && typeof v === "object" &&
   typeof (v as LatLng).lat === "number" && typeof (v as LatLng).lng === "number" &&
@@ -31,9 +42,22 @@ serve(async (req) => {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    if (body.mode !== undefined && body.mode !== "walking" && body.mode !== "driving") {
+      return new Response(JSON.stringify({ error: "Invalid travel mode" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const mode = body.mode === "driving" ? "DRIVE" : "WALK";
     const origin = body.origin as LatLng;
     const destination = body.destination as LatLng;
+    const cacheKey = `${mode}:${coordKey(origin)}:${coordKey(destination)}`;
+    const cached = routeCache.get(cacheKey);
+
+    if (cached && cached.expiresAt > Date.now()) {
+      return new Response(JSON.stringify(cached.payload), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const resp = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
       method: "POST",
@@ -63,12 +87,15 @@ serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({
+    const payload: RoutePayload = {
       encodedPolyline: route.polyline.encodedPolyline,
       viewport: route.viewport ?? null,
       distanceMeters: route.distanceMeters ?? null,
       duration: route.duration ?? null,
-    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    };
+    routeCache.set(cacheKey, { expiresAt: Date.now() + CACHE_TTL_MS, payload });
+
+    return new Response(JSON.stringify(payload), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
     return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
