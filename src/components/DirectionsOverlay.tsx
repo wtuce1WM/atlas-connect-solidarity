@@ -121,7 +121,10 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
                 Pour calculer l'itinéraire depuis votre position, autorisez l'accès à votre localisation.
               </p>
               <button
-                onClick={geo.accept}
+                onClick={() => {
+                  geo.accept();
+                  requestBrowserOrigin();
+                }}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#C04F17] text-white px-4 py-2 text-sm font-medium hover:bg-[#C04F17]/90 transition-colors"
               >
                 <MapPin className="h-4 w-4" /> Activer ma localisation
@@ -142,7 +145,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           </div>
         ) : (
           <iframe
-            src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${userOrigin}&destination=${dest}&mode=${directionsMode}`}
+            src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${origin}&destination=${dest}&mode=${directionsMode}`}
             className="absolute inset-0 w-full h-full border-0"
             allowFullScreen
             loading="lazy"
