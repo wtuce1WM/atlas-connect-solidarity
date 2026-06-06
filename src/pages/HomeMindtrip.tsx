@@ -43,7 +43,7 @@ type VideoSlot = {
 
 const Step2PhoneMockup = () => (
   <div className="absolute inset-0 flex items-center justify-center bg-white pointer-events-none">
-    <div className="relative h-[58%] w-[42%] translate-x-[18%] -translate-y-[4%] rotate-[10deg] rounded-[2rem] border-[10px] border-foreground/80 bg-white shadow-[0_24px_50px_rgba(0,0,0,0.2)] md:h-[74%] md:w-[38%] md:translate-y-[6%]">
+    <div className="relative h-[58%] w-[42%] translate-x-[18%] translate-y-[8%] rotate-[10deg] rounded-[2rem] border-[10px] border-foreground/80 bg-white shadow-[0_24px_50px_rgba(0,0,0,0.2)] md:h-[74%] md:w-[38%] md:translate-y-[16%]">
       <div className="absolute left-1/2 top-2 h-4 w-20 -translate-x-1/2 rounded-full bg-foreground/80" />
       <div className="flex h-full flex-col overflow-hidden rounded-[1.35rem] bg-white px-3 pb-3 pt-8">
         <div className="mb-2 flex items-center gap-2 text-[8px] font-bold uppercase text-foreground/60">
