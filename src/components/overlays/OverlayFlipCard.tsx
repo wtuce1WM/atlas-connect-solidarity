@@ -150,7 +150,7 @@ const OverlayFlipCard = ({
                       >
                         {h.image_url && (
                           <div className="w-full h-24 rounded-lg overflow-hidden bg-white/5">
-                            <img src={h.image_url} alt={h.title} className="w-full h-full object-cover" loading="lazy" />
+                            <img src={h.image_url} alt={h.title} className="w-full h-full object-cover" loading="eager" decoding="async" />
                           </div>
                         )}
                         <div className="flex items-center gap-2">
