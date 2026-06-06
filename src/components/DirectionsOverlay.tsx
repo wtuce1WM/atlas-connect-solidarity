@@ -229,10 +229,9 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         if (cancelled) return;
         if (error || !data?.encodedPolyline) {
           setRouteError("Itinéraire indisponible");
-          // Fallback: fit on origin + destination
           const b = new gmaps.LatLngBounds();
           b.extend(origin); b.extend(destLatLng);
-          map.fitBounds(b, { top: cardOffset + 24, left: 32, right: 32, bottom: 48 });
+          map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
           return;
         }
         const path = gmaps.geometry.encoding.decodePath(data.encodedPolyline);
@@ -242,7 +241,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         });
         const bounds = new gmaps.LatLngBounds();
         path.forEach((p) => bounds.extend(p));
-        map.fitBounds(bounds, { top: cardOffset + 24, left: 32, right: 32, bottom: 48 });
+        map.fitBounds(bounds, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
       } catch (e) {
         if (!cancelled) {
           console.error(e); setRouteError("Itinéraire indisponible");
@@ -251,7 +250,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     })();
 
     return () => { cancelled = true; };
-  }, [mapsReady, showMap, origin, destLatLng, directionsMode, cardOffset, business.name]);
+  }, [mapsReady, showMap, origin, destLatLng, directionsMode, business.name]);
 
   const originParam = origin ? encodeURIComponent(`${origin.lat},${origin.lng}`) : null;
   const destParam = encodeURIComponent(destRaw);
