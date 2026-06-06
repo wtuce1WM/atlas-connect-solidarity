@@ -906,6 +906,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         goMedia(dx < 0 ? 1 : -1);
       }
 
+
+
     }
     onTouchEnd?.();
   }, [onTouchEnd, goMedia, hasNextBusiness, hasPrevBusiness, onNextBusiness, onPrevBusiness]);
