@@ -11,6 +11,7 @@ interface Props {
   placeholder: string;
   onSearch: (params: Record<string, string>) => void;
   onBusinessSelect?: (businessId: string) => void;
+  onMobileSearchClick?: () => void;
 }
 
 const normalize = (s: string) =>
