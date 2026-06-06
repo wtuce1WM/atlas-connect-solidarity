@@ -162,7 +162,8 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       if (!el) { raf = requestAnimationFrame(measure); return; }
       const rect = el.getBoundingClientRect();
       const top = container.getBoundingClientRect().top;
-      setCardOffset(Math.max(0, Math.ceil(rect.bottom - top) + 8));
+      const next = Math.max(0, Math.ceil(rect.bottom - top) + 8);
+      setCardOffset((current) => current === next ? current : next);
     };
     measure();
     const ro = new ResizeObserver(measure);
