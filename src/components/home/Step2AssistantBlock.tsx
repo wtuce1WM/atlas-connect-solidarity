@@ -54,7 +54,7 @@ const Step2AssistantBlock = ({ stepLabel, title, description, onMobileSearchClic
         {stepLabel}
       </span>
 
-      <h3 className="mt-3 font-josefin text-2xl font-light tracking-tight md:text-4xl text-black [text-shadow:0_1px_2px_rgba(255,255,255,0.5)]">
+      <h3 className="mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl text-black [text-shadow:0_1px_2px_rgba(255,255,255,0.5)]">
         {title}
       </h3>
 
