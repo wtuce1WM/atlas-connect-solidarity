@@ -8,6 +8,8 @@ import SearchInput from "@/components/SearchInput";
 import LiquidAIMoroccoBg from "@/components/LiquidAIMoroccoBg";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import Step2AssistantBlock from "@/components/home/Step2AssistantBlock";
+import MobileSearchOverlay from "@/components/MobileSearchOverlay";
+import { Search, Mic } from "lucide-react";
 
 import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
