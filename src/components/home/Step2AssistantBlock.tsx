@@ -17,7 +17,7 @@ interface Props {
  * the Hero (VoiceSearchPanel) when the mic CTA is pressed. The step label
  * and title stay visible; only the description collapses to free space.
  */
-const Step2AssistantBlock = ({ stepLabel, title, description }: Props) => {
+const Step2AssistantBlock = ({ stepLabel, title, description, onMobileSearchClick }: Props) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
