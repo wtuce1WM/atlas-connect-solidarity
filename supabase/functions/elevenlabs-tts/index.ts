@@ -62,7 +62,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("ElevenLabs TTS error:", response.status, errorText);
-      return new Response(JSON.stringify({ error: `ElevenLabs API error: ${response.status}` }), {
+      return new Response(JSON.stringify({ error: `ElevenLabs API error: ${response.status}`, detail: errorText }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
