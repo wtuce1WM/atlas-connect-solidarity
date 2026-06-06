@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Search, Mic } from "lucide-react";
 import SearchInput from "@/components/SearchInput";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -8,6 +9,7 @@ interface Props {
   stepLabel: string;
   title: string;
   description: string;
+  onMobileSearchClick?: () => void;
 }
 
 /**
