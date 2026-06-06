@@ -203,7 +203,15 @@ export default function ResultsTabContent({
       const sub = tab.subcategories.find(s => s.id === subId);
       onFrontStructureFilter?.(sub?.names || tab.subcategoryNames);
     }
-    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+    requestAnimationFrame(() => {
+      const el = resultsBarRef.current;
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - 60;
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
   };
 
 
