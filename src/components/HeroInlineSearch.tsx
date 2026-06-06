@@ -132,7 +132,7 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
           <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
           <button
             type="button"
-            onClick={() => voice.toggleRecording()}
+            onClick={() => (useMobileOverlay ? onMobileSearchClick!() : voice.toggleRecording())}
             disabled={voice.status === "processing"}
             aria-label={language === "ar" ? "بحث صوتي" : language === "en" ? "Voice search" : "Recherche vocale"}
             className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl shrink-0 transition-all border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
