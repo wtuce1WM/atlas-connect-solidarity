@@ -1260,10 +1260,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             )}
             {woDescription ? (
-              <div className="mt-8 md:mt-0 slidepanel-plus-short">
-                <div
-                  className="cursor-pointer group flex flex-col items-center gap-2"
-                  onClick={() => setShowDescriptionOverlay(true)}
+              <div className="mt-8 md:mt-0 slidepanel-plus-short relative z-[40]">
+                <button
+                  type="button"
+                  className="cursor-pointer group flex flex-col items-center gap-2 bg-transparent border-0 p-0"
+                  onClick={(e) => { e.stopPropagation(); setShowDescriptionOverlay(true); }}
+                  onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setShowDescriptionOverlay(true); }}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                  aria-label="Ouvrir la description"
                 >
                   <div
                     className="relative w-12 h-12 rounded-full border border-white/30 flex items-center justify-center overflow-hidden backdrop-blur-2xl bg-black/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)] transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
@@ -1272,7 +1277,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     <span aria-hidden="true" className="pointer-events-none absolute top-0 left-1.5 right-1.5 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
                     <span className="relative text-2xl text-white font-light leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">+</span>
                   </div>
-                </div>
+                </button>
               </div>
             ) : (
               <div className="mt-8 md:mt-0 slidepanel-plus-short invisible pointer-events-none" aria-hidden="true">
