@@ -538,8 +538,7 @@ const HomeMindtrip = () => {
                         muted
                         loop
                         playsInline
-                        className="absolute inset-0 m-auto h-[65%] w-[65%] md:h-[80%] md:w-[80%] object-contain opacity-90 pointer-events-none translate-x-[16%] translate-y-[-4%] md:translate-y-[8%] bg-white"
-                        style={{ clipPath: "polygon(28% 7%, 91% 12%, 74% 93%, 8% 87%)" }}
+                        className="absolute inset-0 m-auto h-[65%] w-[65%] md:h-[80%] md:w-[80%] object-contain opacity-95 pointer-events-none translate-x-[16%] translate-y-[-4%] md:translate-y-[8%] bg-white mix-blend-screen"
                       />
                     </>
                   )}
