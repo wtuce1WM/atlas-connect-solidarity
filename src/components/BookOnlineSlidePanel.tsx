@@ -2045,7 +2045,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   {bookingItems.map((item) => (
                     <button
                       key={`${item.name}-${item.url}`}
-                      onClick={() => window.open(item.url, "_blank", "noopener")}
+                      onClick={() => {
+                        if (item.name === "Booking.com") openDocOrBooking(item.url, item.name, true);
+                        else window.open(item.url, "_blank", "noopener");
+                      }}
                       className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       title={item.name}
                     >
