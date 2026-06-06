@@ -1,5 +1,5 @@
 /// <reference types="@types/google.maps" />
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { X, Info, MapPin } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -23,6 +23,9 @@ const parseStoredCoords = (key: string): { lat: number; lng: number } | null => 
 
 const readStoredOrigin = (): { lat: number; lng: number } | null =>
   parseStoredCoords(GEO_MANUAL_COORDS_KEY) || parseStoredCoords(GEO_AUTO_COORDS_KEY);
+
+const sameCoords = (a: { lat: number; lng: number } | null, b: { lat: number; lng: number } | null) =>
+  (!a && !b) || (!!a && !!b && a.lat === b.lat && a.lng === b.lng);
 
 /* ── Google Maps loader (shared singleton) ── */
 let gmapsPromise: Promise<void> | null = null;
@@ -112,7 +115,10 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   }, []);
 
   useEffect(() => {
-    const sync = () => setStoredOrigin(readStoredOrigin());
+    const sync = () => {
+      const next = readStoredOrigin();
+      setStoredOrigin((current) => sameCoords(current, next) ? current : next);
+    };
     sync();
     window.addEventListener("geo:changed", sync);
     window.addEventListener("storage", sync);
@@ -125,16 +131,21 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   useEffect(() => {
     if (geo.coords) {
       const next = { lat: geo.coords.lat, lng: geo.coords.lng };
-      setUserOrigin(next); setStoredOrigin(next); setOriginError(null);
+      setUserOrigin((current) => sameCoords(current, next) ? current : next);
+      setStoredOrigin((current) => sameCoords(current, next) ? current : next);
+      setOriginError(null);
       return;
     }
     if (!geo.isEnabled && !storedOrigin) { setUserOrigin(null); return; }
     if (!storedOrigin) requestBrowserOrigin();
   }, [geo.coords, geo.isEnabled, storedOrigin, requestBrowserOrigin]);
 
-  const origin = userOrigin || storedOrigin;
-  const destLatLng = business.latitude != null && business.longitude != null
-    ? { lat: business.latitude, lng: business.longitude } : null;
+  const origin = useMemo(() => userOrigin || storedOrigin, [userOrigin, storedOrigin]);
+  const destLatLng = useMemo(() => (
+    business.latitude != null && business.longitude != null
+      ? { lat: business.latitude, lng: business.longitude }
+      : null
+  ), [business.latitude, business.longitude]);
   const destRaw = destLatLng ? `${destLatLng.lat},${destLatLng.lng}` : (business.address || business.name);
   const needsGeoConsent = !origin && (!geo.isEnabled || !!originError);
   const waitingForOrigin = !origin && geo.isEnabled && !originError;
@@ -151,7 +162,8 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       if (!el) { raf = requestAnimationFrame(measure); return; }
       const rect = el.getBoundingClientRect();
       const top = container.getBoundingClientRect().top;
-      setCardOffset(Math.max(0, Math.ceil(rect.bottom - top) + 8));
+      const next = Math.max(0, Math.ceil(rect.bottom - top) + 8);
+      setCardOffset((current) => current === next ? current : next);
     };
     measure();
     const ro = new ResizeObserver(measure);
