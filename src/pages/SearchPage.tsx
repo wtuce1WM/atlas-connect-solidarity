@@ -3656,7 +3656,7 @@ const SearchPage = () => {
                         </button>
                       );
                     })}
-                  </div>
+                  </HScroll>
                 </div>
               </div>
             )}
