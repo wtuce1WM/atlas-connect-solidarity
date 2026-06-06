@@ -1102,22 +1102,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
-          {business?.spotify_url && (
-            <div onClick={() => setShowSpotifyOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Spotify</span>
-              <svg viewBox="0 0 24 24" className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" fill="#1DB954" aria-hidden="true">
-                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.224.364-.704.479-1.068.255-2.928-1.789-6.612-2.193-10.95-1.203-.42.096-.84-.168-.936-.588-.096-.42.168-.84.588-.936 4.752-1.085 8.832-.62 12.108 1.404.36.224.479.704.258 1.068zm1.473-3.272c-.282.456-.879.6-1.335.318-3.348-2.058-8.454-2.652-12.42-1.452-.51.156-1.05-.132-1.206-.642-.156-.51.132-1.05.642-1.206 4.53-1.374 10.155-.708 14.022 1.668.456.282.6.879.297 1.314zm.129-3.408c-4.014-2.382-10.638-2.604-14.466-1.44-.612.186-1.26-.162-1.446-.774-.186-.612.162-1.26.774-1.446 4.392-1.332 11.706-1.074 16.32 1.668.546.324.726 1.032.402 1.578-.324.546-1.032.726-1.584.414z"/>
-              </svg>
-            </div>
-          )}
-          {business?.soundcloud_url && (
-            <div onClick={() => setShowSoundCloudOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">SoundCloud</span>
-              <svg viewBox="0 0 24 24" className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" fill="#FF5500" aria-hidden="true">
-                <path d="M11.56 8.87V17h8.76c1.85-.13 3.68-1.5 3.68-3.92 0-2.6-2.13-3.96-4-3.96-.55 0-1.06.1-1.55.27-.55-2.7-2.85-4.4-5.55-4.4-.45 0-.94.07-1.34.18zm-1.5.43c-.36-.13-.74-.2-1.13-.2-.5 0-.96.1-1.4.27V17h2.53V9.3zm-3.92.7c-.27-.07-.55-.1-.84-.1-.3 0-.58.04-.84.1V17h1.68V10zm-2.86.66c-.2-.04-.4-.07-.6-.07-.2 0-.42.03-.62.07V17h1.22v-6.34zM.78 12c-.32.13-.56.5-.56.93 0 .43.24.8.56.93V12zm21.66-2.88z"/>
-              </svg>
-            </div>
-          )}
           {hasYoutubeBottomCarousel && (
             <div onClick={() => {
               if (hasYoutubeReady || hasYoutubeChannel) {
