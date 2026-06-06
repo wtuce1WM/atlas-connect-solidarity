@@ -80,7 +80,7 @@ function loadGoogleMaps(): Promise<void> {
       .then(({ key }) => {
         if (!key) throw new Error("No key returned");
         const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=geometry,marker,routes`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=geometry,marker`;
         script.async = true;
         script.onload = () => resolve();
         script.onerror = () => { gmapsPromise = null; reject(new Error("Failed to load Google Maps")); };
@@ -120,6 +120,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [storedOrigin, setStoredOrigin] = useState<{ lat: number; lng: number } | null>(() => readStoredOrigin());
   const [originError, setOriginError] = useState<string | null>(null);
   const [routeError, setRouteError] = useState<string | null>(null);
+  const [routeInfo, setRouteInfo] = useState<{ distanceMeters: number | null; duration: string | null } | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
   const [cardOffset, setCardOffset] = useState(0);
   const cardOffsetRef = useRef(0);
@@ -127,8 +128,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapDivRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null);
-  const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
+  const polylineRef = useRef<google.maps.Polyline | null>(null);
   const routeRequestRef = useRef(0);
   const originMarkerRef = useRef<google.maps.Marker | null>(null);
   const destMarkerRef = useRef<google.maps.Marker | null>(null);
@@ -210,10 +210,11 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       cardOffsetRef.current = next;
       // Re-fit current bounds to account for new offset, without refetching route
       const map = mapRef.current;
-      const renderer = directionsRendererRef.current;
-      const route = renderer?.getDirections()?.routes?.[0];
-      if (map && route?.bounds) {
-        map.fitBounds(route.bounds, { top: next + 24, left: 32, right: 32, bottom: 48 });
+      const poly = polylineRef.current;
+      if (map && poly) {
+        const b = new google.maps.LatLngBounds();
+        poly.getPath().forEach((p) => b.extend(p));
+        map.fitBounds(b, { top: next + 24, left: 32, right: 32, bottom: 48 });
       }
     };
     measure();
@@ -242,7 +243,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     });
   }, [mapsReady, showMap, origin]);
 
-  // Fetch route + draw using native Google DirectionsService
+  // Fetch route via edge function (Routes API) + draw polyline + capture distance/duration
   useEffect(() => {
     if (!mapsReady || !showMap || !mapRef.current || !origin || !destLatLng) return;
     const gmaps = window.google.maps;
@@ -250,6 +251,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     let cancelled = false;
     const requestId = ++routeRequestRef.current;
     setRouteError(null);
+    setRouteInfo(null);
 
     // Origin marker (terracotta Pin)
     if (originMarkerRef.current) originMarkerRef.current.setMap(null);
@@ -263,45 +265,62 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       position: destLatLng, map, title: business.name,
     });
 
-    if (!directionsServiceRef.current) {
-      directionsServiceRef.current = new gmaps.DirectionsService();
-    }
-    if (!directionsRendererRef.current) {
-      directionsRendererRef.current = new gmaps.DirectionsRenderer({
-        map,
-        suppressMarkers: true,
-        preserveViewport: true,
-        polylineOptions: { strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9 },
+    if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
+
+    const drawRoute = (encoded: string) => {
+      const path = decodeEncodedPolyline(encoded);
+      if (!path.length) { setRouteError("Itinéraire indisponible"); return; }
+      if (polylineRef.current) polylineRef.current.setMap(null);
+      polylineRef.current = new gmaps.Polyline({
+        path, map, strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9,
       });
-    } else {
-      directionsRendererRef.current.setMap(map);
-    }
+      const b = new gmaps.LatLngBounds();
+      path.forEach((p) => b.extend(p));
+      map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
+    };
 
-    const travelMode = directionsMode === "walking"
-      ? gmaps.TravelMode.WALKING
-      : gmaps.TravelMode.DRIVING;
-
-    directionsServiceRef.current.route(
-      { origin, destination: destLatLng, travelMode },
-      (result, status) => {
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("compute-route", {
+          body: { origin, destination: destLatLng, mode: directionsMode },
+        });
         if (cancelled || requestId !== routeRequestRef.current) return;
-        if (status !== gmaps.DirectionsStatus.OK || !result) {
+        if (error || !data?.encodedPolyline) {
           setRouteError("Itinéraire indisponible");
           const b = new gmaps.LatLngBounds();
           b.extend(origin); b.extend(destLatLng);
           map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
           return;
         }
-        directionsRendererRef.current!.setDirections(result);
-        const bounds = result.routes[0]?.bounds;
-        if (bounds) {
-          map.fitBounds(bounds, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
-        }
+        drawRoute(data.encodedPolyline);
+        setRouteInfo({
+          distanceMeters: typeof data.distanceMeters === "number" ? data.distanceMeters : null,
+          duration: typeof data.duration === "string" ? data.duration : null,
+        });
+      } catch (e) {
+        if (!cancelled) { console.error(e); setRouteError("Itinéraire indisponible"); }
       }
-    );
+    })();
 
     return () => { cancelled = true; };
   }, [mapsReady, showMap, origin, destLatLng, directionsMode, business.name]);
+
+  const formatDistance = (m: number | null) => {
+    if (m == null) return null;
+    return m >= 1000 ? `${(m / 1000).toFixed(m >= 10000 ? 0 : 1)} km` : `${Math.round(m)} m`;
+  };
+  const formatDuration = (d: string | null) => {
+    if (!d) return null;
+    const secs = parseInt(d.replace(/s$/, ""), 10);
+    if (!Number.isFinite(secs)) return null;
+    if (secs < 60) return `${secs} s`;
+    const mins = Math.round(secs / 60);
+    if (mins < 60) return `${mins} min`;
+    const h = Math.floor(mins / 60);
+    const r = mins % 60;
+    return r ? `${h} h ${r} min` : `${h} h`;
+  };
+
 
   const originParam = origin ? encodeURIComponent(`${origin.lat},${origin.lng}`) : null;
   const destParam = encodeURIComponent(destRaw);
@@ -376,6 +395,16 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         ) : (
           <>
             <div ref={mapDivRef} className="absolute inset-0 w-full h-full" />
+            {routeInfo && (formatDistance(routeInfo.distanceMeters) || formatDuration(routeInfo.duration)) && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur shadow-lg rounded-full px-4 py-2 flex items-center gap-3 text-sm font-medium text-foreground">
+                {formatDuration(routeInfo.duration) && (
+                  <span>{directionsMode === "walking" ? "🚶" : "🚗"} {formatDuration(routeInfo.duration)}</span>
+                )}
+                {formatDistance(routeInfo.distanceMeters) && (
+                  <span className="text-muted-foreground">· {formatDistance(routeInfo.distanceMeters)}</span>
+                )}
+              </div>
+            )}
             {routeError && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1.5 rounded-full">
                 {routeError}
