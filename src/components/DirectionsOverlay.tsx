@@ -222,7 +222,8 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         ) : (
           <iframe
             src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${origin}&destination=${dest}&mode=${directionsMode}`}
-            className="absolute inset-0 w-full h-full border-0"
+            className="absolute left-0 right-0 bottom-0 w-full border-0"
+            style={{ top: cardOffset, height: `calc(100% - ${cardOffset}px)` }}
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
