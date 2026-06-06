@@ -88,14 +88,34 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         </div>
       </div>
       <div className="flex-1 relative min-h-0">
-        <iframe
-          src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
-          className="absolute inset-0 w-full h-full border-0"
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          title={`Itinéraire vers ${business.name}`}
-        />
+        {needsGeoConsent ? (
+          <div className="absolute inset-0 flex items-center justify-center p-6 bg-muted/30">
+            <div className="max-w-sm w-full bg-background rounded-2xl shadow-xl p-6 text-center space-y-4">
+              <div className="mx-auto h-12 w-12 rounded-full bg-[#C04F17]/10 flex items-center justify-center">
+                <MapPin className="h-6 w-6 text-[#C04F17]" />
+              </div>
+              <h3 className="text-base font-semibold">Activer la localisation</h3>
+              <p className="text-sm text-muted-foreground">
+                Pour calculer l'itinéraire depuis votre position, autorisez l'accès à votre localisation.
+              </p>
+              <button
+                onClick={geo.accept}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#C04F17] text-white px-4 py-2 text-sm font-medium hover:bg-[#C04F17]/90 transition-colors"
+              >
+                <MapPin className="h-4 w-4" /> Activer ma localisation
+              </button>
+            </div>
+          </div>
+        ) : (
+          <iframe
+            src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
+            className="absolute inset-0 w-full h-full border-0"
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title={`Itinéraire vers ${business.name}`}
+          />
+        )}
         {showInfoCard && (
           <MapBusinessInfoCard business={business} onClose={() => setShowInfoCard(false)} hideDirections hideClose />
         )}
