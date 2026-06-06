@@ -124,13 +124,20 @@ export function CtaBar({
 
   const isWhatsAppCta = (label: string) => label.toLowerCase().replace(/[\s_-]/g, '') === 'whatsapp';
 
+  // Liquid glass effect — inner highlights + soft gradient overlays. Keeps the underlying background color.
+  const glassFx =
+    "relative overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-1px_0_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.28)] " +
+    "before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none before:bg-gradient-to-b before:from-white/25 before:via-transparent before:to-white/5 " +
+    "after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-[inherit] after:pointer-events-none after:bg-gradient-to-b after:from-white/25 after:to-transparent after:blur-[1px] " +
+    "[&>*]:relative [&>*]:z-10";
+
   const ctaItems: React.ReactNode[] = [];
 
   if (bookingCta && !cardsHidden) {
     if (isWhatsAppCta(bookingCtaLabel) && business?.whatsapp) {
       ctaItems.push(
         <a key="booking" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+          className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
           <span className="truncate">WhatsApp</span>
@@ -140,7 +147,7 @@ export function CtaBar({
       ctaItems.push(
         bookingCta.forceExternal ? (
           <a key="booking" href={bookingCta.fullUrl} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
             <CalendarCheck className="h-4 w-4 hidden md:block" />
             <span className="truncate">{bookingCtaLabel}</span>
@@ -149,7 +156,7 @@ export function CtaBar({
         ) : (
           <button key="booking"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <CalendarCheck className="h-4 w-4 hidden md:block" />
             <span className="truncate">{bookingCtaLabel}</span>
@@ -163,7 +170,7 @@ export function CtaBar({
     if (isWhatsAppCta(shopCtaLabel) && business?.whatsapp) {
       ctaItems.push(
         <a key="shop" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+          className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
           <span className="truncate">WhatsApp</span>
@@ -173,7 +180,7 @@ export function CtaBar({
       ctaItems.push(
         shopCta.forceExternal ? (
           <a key="shop" href={shopCta.fullUrl} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
             <ShoppingBag className="h-4 w-4 hidden md:block" />
             <span className="truncate">{shopCtaLabel}</span>
@@ -182,7 +189,7 @@ export function CtaBar({
         ) : (
           <button key="shop"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <ShoppingBag className="h-4 w-4 hidden md:block" />
             <span className="truncate">{shopCtaLabel}</span>
@@ -198,7 +205,7 @@ export function CtaBar({
     if (isWhatsAppCta(label) && business?.whatsapp) {
       ctaItems.push(
         <a key="url4" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+          className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
           <span className="truncate">WhatsApp</span>
@@ -208,7 +215,7 @@ export function CtaBar({
       ctaItems.push(
         url4Cta.forceExternal ? (
           <a key="url4" href={url4Cta.fullUrl} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
             <ExternalLink className="h-4 w-4 hidden md:block" />
             <span className="truncate">{label}</span>
@@ -216,7 +223,7 @@ export function CtaBar({
         ) : (
           <button key="url4"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(url4Cta.fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }}
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <span className="truncate">{label}</span>
           </button>
@@ -231,7 +238,7 @@ export function CtaBar({
     if (isWhatsAppCta(label) && business?.whatsapp) {
       ctaItems.push(
         <a key="url5" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+          className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
           <span className="truncate">WhatsApp</span>
@@ -241,7 +248,7 @@ export function CtaBar({
       ctaItems.push(
         url5Cta.forceExternal ? (
           <a key="url5" href={url5Cta.fullUrl} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
             <ExternalLink className="h-4 w-4 hidden md:block" />
             <span className="truncate">{label}</span>
@@ -249,7 +256,7 @@ export function CtaBar({
         ) : (
           <button key="url5"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(url5Cta.fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }}
-            className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <span className="truncate">{label}</span>
           </button>
@@ -262,7 +269,7 @@ export function CtaBar({
       <button
         key="directions"
         onClick={() => setShowDirections(true)}
-        className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left"
+        className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left ${glassFx}`}
         style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
       >
         <MapPin className="h-4 w-4 hidden md:block" />
