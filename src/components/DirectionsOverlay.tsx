@@ -185,7 +185,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           </a>
         </div>
       </div>
-      <div className="flex-1 relative min-h-0">
+      <div ref={mapContainerRef} className="flex-1 relative min-h-0">
         {needsGeoConsent ? (
           <div className="absolute inset-0 flex items-center justify-center p-6 bg-muted/30">
             <div className="max-w-sm w-full bg-background rounded-2xl shadow-xl p-6 text-center space-y-4">
