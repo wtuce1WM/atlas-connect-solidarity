@@ -7,7 +7,7 @@ import SlidePanelHome from "@/components/SlidePanelHome";
 import SearchPagination from "@/components/SearchPagination";
 import { isAgendaLabel, formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 24;
 
 
 interface EventInfo {
