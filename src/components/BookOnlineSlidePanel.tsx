@@ -1763,7 +1763,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                             )}
                           </div>
                         )}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 ${visible.length === 4 ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
                           {visible.map((h) => (
                             <div key={h.id} className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-3 flex flex-col gap-2">
                               {h.image_url && (
