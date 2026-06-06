@@ -17,7 +17,7 @@ interface Props {
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-const HeroInlineSearch = ({ placeholder, onSearch }: Props) => {
+const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props) => {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
