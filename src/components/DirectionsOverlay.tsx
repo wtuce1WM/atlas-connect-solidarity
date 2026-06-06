@@ -210,11 +210,10 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       cardOffsetRef.current = next;
       // Re-fit current bounds to account for new offset, without refetching route
       const map = mapRef.current;
-      const poly = polylineRef.current;
-      if (map && poly) {
-        const b = new google.maps.LatLngBounds();
-        poly.getPath().forEach((p) => b.extend(p));
-        map.fitBounds(b, { top: next + 24, left: 32, right: 32, bottom: 48 });
+      const renderer = directionsRendererRef.current;
+      const route = renderer?.getDirections()?.routes?.[0];
+      if (map && route?.bounds) {
+        map.fitBounds(route.bounds, { top: next + 24, left: 32, right: 32, bottom: 48 });
       }
     };
     measure();
