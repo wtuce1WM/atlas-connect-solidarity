@@ -99,7 +99,10 @@ export function ToolbarPortals({
                   <span className="absolute w-20 h-20 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_1.2s_infinite]" style={{ borderColor: "rgba(37,211,102,0.1)" }} />
                 </>
               )}
-              <span className="relative z-10 h-9 w-9 flex items-center justify-center rounded-full text-white" style={{ backgroundColor: "#25D366" }}>
+              <span
+                className="relative z-10 h-9 w-9 flex items-center justify-center rounded-full text-white overflow-hidden before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-b before:from-white/30 before:via-transparent before:to-white/5 before:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-full after:bg-gradient-to-b after:from-white/35 after:to-transparent after:blur-[1px] after:pointer-events-none [&>svg]:relative [&>svg]:z-10"
+                style={{ backgroundColor: "#25D366", boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.45), inset 0 -1px 0 0 rgba(0,0,0,0.25), 0 4px 14px -2px rgba(0,0,0,0.35)' }}
+              >
                 <WhatsAppIcon className="h-4 w-4" />
               </span>
             </a>
@@ -112,7 +115,10 @@ export function ToolbarPortals({
                   <span className="absolute w-20 h-20 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_1.2s_infinite]" style={{ borderColor: "rgba(0,0,0,0.08)" }} />
                 </>
               )}
-              <span className="relative z-10 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background">
+              <span
+                className="relative z-10 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background overflow-hidden before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-b before:from-white/25 before:via-transparent before:to-white/5 before:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-full after:bg-gradient-to-b after:from-white/30 after:to-transparent after:blur-[1px] after:pointer-events-none [&>svg]:relative [&>svg]:z-10"
+                style={{ boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.35), inset 0 -1px 0 0 rgba(0,0,0,0.3), 0 4px 14px -2px rgba(0,0,0,0.35)' }}
+              >
                 <Phone className="h-4 w-4" />
               </span>
             </a>
