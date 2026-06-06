@@ -1395,7 +1395,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           setBookingOverlayUrl={setBookingOverlayUrl}
           setBookingOverlayTitle={setBookingOverlayTitle}
           setActiveBusinessId={setActiveBusinessId}
-          hideVideoControls={showSearchBar}
+          hideVideoControls={showSearchBar && !cardsHidden}
         />
 
       </div>
