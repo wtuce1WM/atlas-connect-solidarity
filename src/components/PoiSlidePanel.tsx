@@ -805,9 +805,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
         </div>
       )}
 
-      {showSearchBar && (
-        <PanelSearchBar onSearch={onSearch} onBusinessSelect={onSearchBusinessSelect} onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))} compact />
-      )}
+      {/* PanelSearchBar removed in POI overlay — no bottom round CTAs */}
 
       {/* Recursive SlidePanel for selected POI */}
       {openedPoiBusinessId && (
