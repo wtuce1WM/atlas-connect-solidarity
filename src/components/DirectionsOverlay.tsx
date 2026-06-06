@@ -45,7 +45,41 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [storedOrigin, setStoredOrigin] = useState<string | null>(() => readStoredOrigin());
   const [originError, setOriginError] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
+  const [cardOffset, setCardOffset] = useState(0);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const geo = useGeolocation();
+
+  useEffect(() => {
+    if (!showInfoCard) {
+      setCardOffset(0);
+      return;
+    }
+    const container = mapContainerRef.current;
+    if (!container) return;
+    let raf = 0;
+    const measure = () => {
+      const el = container.querySelector<HTMLElement>("[data-info-card]");
+      if (!el) {
+        raf = requestAnimationFrame(measure);
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      // bottom of card relative to container top + small gap
+      const containerTop = container.getBoundingClientRect().top;
+      const next = Math.max(0, Math.ceil(rect.bottom - containerTop) + 8);
+      setCardOffset(next);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    const el = container.querySelector<HTMLElement>("[data-info-card]");
+    if (el) ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [showInfoCard, directionsMode, originRaw]);
 
   const requestBrowserOrigin = useCallback(() => {
     if (!navigator.geolocation) {
