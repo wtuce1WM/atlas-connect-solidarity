@@ -3245,7 +3245,12 @@ const SearchPage = () => {
 
   // Front Structure filter: when a subcategory chip is active, restrict the
   // Results tab list to matching businesses (single page, no server pagination).
+  // Skip entirely when the URL already drives the query via `subcats` (homepage
+  // card): the server bypass is paginated (e.g. totalCount=190, page=21), and
+  // applying a client-side FS filter on the loaded page would shrink the count
+  // to the page size.
   const fsFilteredList = useMemo(() => {
+    if (subcategoryNamesFromUrl.length > 0) return null;
     if (!fsFilterSubcategories && (!fsFilterServices || fsFilterServices.size === 0)) return null;
     const matches = frontStructurePool.filter(b =>
       (!fsFilterSubcategories ||
@@ -3254,7 +3259,7 @@ const SearchPage = () => {
       businessMatchesFsServices(b)
     );
     return [...matches].sort(sortWtuceAndRating);
-  }, [fsFilterSubcategories, fsFilterServices, frontStructurePool]);
+  }, [subcategoryNamesFromUrl, fsFilterSubcategories, fsFilterServices, frontStructurePool]);
   const resultsFilteredBusinesses = fsFilteredList ?? filteredBusinesses;
   const fsTotalPages = fsFilteredList ? Math.max(1, Math.ceil(fsFilteredList.length / ITEMS_PER_PAGE)) : 1;
   const fsPageStart = fsFilteredList ? (currentPage - 1) * ITEMS_PER_PAGE : 0;
