@@ -531,7 +531,7 @@ const HomeMindtrip = () => {
                 >
                   {i === 1 && (
                     <>
-                      <div className="absolute inset-0 bg-black" />
+                      <div className="absolute inset-0 bg-white" />
                       <video
                         src={mockupDemoIaVideo.url}
                         autoPlay
