@@ -8,7 +8,9 @@ import SearchInput from "@/components/SearchInput";
 import LiquidAIMoroccoBg from "@/components/LiquidAIMoroccoBg";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
 import Step2AssistantBlock from "@/components/home/Step2AssistantBlock";
-import MobileSearchOverlay from "@/components/MobileSearchOverlay";
+import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { useToast } from "@/hooks/use-toast";
 import { Search, Mic } from "lucide-react";
 
 import { useSEO } from "@/hooks/useSEO";
@@ -51,7 +53,16 @@ const HomeMindtrip = () => {
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [blogHeroes, setBlogHeroes] = useState<{ marrakech?: string; galeries?: string; kids?: string }>({});
   const [videoOpen, setVideoOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const { toast } = useToast();
+  const heroVoice = useVoiceSearch({
+    onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
+      const params = new URLSearchParams({ q: keywords, spoken, _t: String(Date.now()) });
+      if (detectedCategory) params.set("category", detectedCategory);
+      if (timeKeyword) params.set("timeKeyword", timeKeyword);
+      navigate(`/search?${params.toString()}`);
+    },
+    onError: (message) => toast({ title: "Erreur", description: message, variant: "destructive" }),
+  });
 
   useEffect(() => {
     const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
@@ -271,7 +282,7 @@ const HomeMindtrip = () => {
             <div className="lg:hidden">
               <button
                 type="button"
-                onClick={() => setMobileSearchOpen(true)}
+                onClick={() => heroVoice.toggleRecording()}
                 className="w-full flex items-center gap-3 h-12 px-4 text-left text-base text-foreground/80 bg-white/15 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)]"
               >
                 <Search className="h-5 w-5 shrink-0" />
@@ -589,7 +600,7 @@ const HomeMindtrip = () => {
                         stepLabel={`Étape ${i + 1}`}
                         title={s.title}
                         description={s.desc}
-                        onMobileSearchClick={() => setMobileSearchOpen(true)}
+                        onMobileSearchClick={() => heroVoice.toggleRecording()}
                       />
                     ) : (
                       <>
@@ -706,14 +717,11 @@ const HomeMindtrip = () => {
 
       <Footer variant="verified" />
 
-      <MobileSearchOverlay
-        open={mobileSearchOpen}
-        onClose={() => setMobileSearchOpen(false)}
-        onSearch={(params) => {
-          const qs = new URLSearchParams(params).toString();
-          navigate(`/search?${qs}`);
-        }}
-        onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
+      <VoiceSearchOverlay
+        isOpen={heroVoice.status === "recording" || heroVoice.status === "processing"}
+        liveTranscript={heroVoice.liveTranscript}
+        onClose={heroVoice.toggleRecording}
+        onFinish={heroVoice.finishRecording}
       />
     </div>
   );
