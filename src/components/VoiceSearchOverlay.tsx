@@ -52,51 +52,58 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
         )}
       </div>
 
-      {/* Mic button with conic gradient ring */}
+      {/* Mic with liquid glass animated rings (same as homepage) */}
       <div className="flex-1 flex items-start justify-center pt-12">
         <div className="relative">
-          {/* Outer subtle rings */}
+          {/* Outer expanding glass ring */}
           <div
-            className="absolute rounded-full animate-ping pointer-events-none"
+            className="absolute rounded-full animate-ping pointer-events-none backdrop-blur-2xl backdrop-saturate-150"
             style={{
-              inset: "-32px",
-              border: `1.5px solid ${ACCENT}15`,
+              inset: "-28px",
+              background: `radial-gradient(circle, ${ACCENT}15 0%, transparent 70%)`,
+              border: `1px solid ${ACCENT}30`,
+              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 32px ${ACCENT}20`,
               animationDuration: "2.4s",
             }}
           />
+          {/* Mid pulse glass ring */}
           <div
-            className="absolute rounded-full animate-pulse pointer-events-none"
+            className="absolute rounded-full animate-pulse pointer-events-none backdrop-blur-xl"
             style={{
-              inset: "-20px",
-              border: `1px solid ${ACCENT}10`,
+              inset: "-18px",
+              background: `linear-gradient(135deg, rgba(255,255,255,0.15), ${ACCENT}10)`,
+              border: `1px solid rgba(255,255,255,0.25)`,
+              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.35)`,
             }}
           />
-
-          {/* Spinning conic gradient ring */}
+          {/* Rotating conic accent */}
           <div
             className="absolute rounded-full pointer-events-none"
             style={{
-              inset: "-6px",
+              inset: "-8px",
               background: `conic-gradient(from 0deg, transparent 0%, ${ACCENT} 35%, ${ACCENT}80 50%, transparent 70%)`,
               animation: "spin 2s linear infinite",
+              filter: "blur(0.5px)",
             }}
           />
-          {/* Inner mask to create the ring effect */}
-          <div
-            className="absolute rounded-full bg-background pointer-events-none"
-            style={{ inset: "-2px" }}
-          />
-
-          {/* Main button */}
+          {/* Glass core button */}
           <button
+            type="button"
             onClick={guardClick(liveTranscript && onFinish ? onFinish : onClose)}
-            className="relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105"
+            className="relative w-20 h-20 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/30 transition-transform hover:scale-105"
             style={{
-              backgroundColor: "hsl(var(--background))",
-              boxShadow: `0 0 30px ${ACCENT}20`,
+              background: `linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))`,
+              boxShadow: `0 8px 32px ${ACCENT}30, inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.1)`,
             }}
           >
-            <Mic className="h-8 w-8" style={{ color: ACCENT }} />
+            {/* Specular highlight */}
+            <span
+              className="absolute inset-1 rounded-full pointer-events-none"
+              style={{
+                background: `linear-gradient(160deg, rgba(255,255,255,0.4) 0%, transparent 45%)`,
+              }}
+            />
+            <Mic className="relative h-8 w-8" style={{ color: ACCENT }} />
           </button>
         </div>
       </div>
