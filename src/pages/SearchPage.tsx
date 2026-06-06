@@ -1846,9 +1846,16 @@ const SearchPage = () => {
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
       setAvailabilityRestrictedIds(null);
-      setInputValue(keywords);
-      setSearchQuery(keywords);
-      const params: Record<string, string> = { q: keywords, spoken };
+      // If a previous search is already active, merge the new spoken text
+      // with the existing query so consecutive voice searches refine instead
+      // of replacing the previous one.
+      const prevQ = (searchParams.get("q") || "").trim();
+      const prevSpoken = (searchParams.get("spoken") || "").trim();
+      const mergedKeywords = prevQ ? `${prevQ} ${keywords}`.trim() : keywords;
+      const mergedSpoken = prevSpoken ? `${prevSpoken} ${spoken}`.trim() : spoken;
+      setInputValue(mergedKeywords);
+      setSearchQuery(mergedKeywords);
+      const params: Record<string, string> = { q: mergedKeywords, spoken: mergedSpoken };
       if (category) params.category = category;
       // Handle temporal keyword from voice search
       if (timeKeyword) {
