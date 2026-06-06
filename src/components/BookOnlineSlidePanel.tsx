@@ -885,31 +885,42 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   // Horizontal swipe on media to navigate (replaces left/right chevrons)
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  // Ignore touches that originate from interactive controls (buttons/links/inputs),
+  // otherwise the drag-to-hide re-render swallows the synthetic click on iOS,
+  // requiring multiple taps to trigger CTAs.
+  const isInteractiveTarget = (target: EventTarget | null) => {
+    if (!(target instanceof Element)) return false;
+    return !!target.closest('button, a, input, textarea, select, label, [role="button"], [data-cta]');
+  };
   const handleMediaTouchStart = useCallback((e: React.TouchEvent) => {
+    if (isInteractiveTarget(e.target)) {
+      swipeStartRef.current = null;
+      return;
+    }
     const t = e.touches[0];
     swipeStartRef.current = { x: t.clientX, y: t.clientY };
     onTouchStart?.(e);
   }, [onTouchStart]);
   const handleMediaTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!swipeStartRef.current) return;
     onTouchMove?.(e);
   }, [onTouchMove]);
   const handleMediaTouchEnd = useCallback((e: React.TouchEvent) => {
     const start = swipeStartRef.current;
     swipeStartRef.current = null;
-    if (start) {
-      const t = e.changedTouches[0];
-      const dx = t.clientX - start.x;
-      const dy = t.clientY - start.y;
-      const absX = Math.abs(dx);
-      const absY = Math.abs(dy);
-      if (absX > 60 && absX > absY * 1.5) {
-        goMedia(dx < 0 ? 1 : -1);
-      } else if (absY > 60 && absY > absX * 1.5) {
-        if (dy < 0 && hasNextBusiness) {
-          onNextBusiness?.();
-        } else if (dy > 0 && hasPrevBusiness) {
-          onPrevBusiness?.();
-        }
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    if (absX > 60 && absX > absY * 1.5) {
+      goMedia(dx < 0 ? 1 : -1);
+    } else if (absY > 60 && absY > absX * 1.5) {
+      if (dy < 0 && hasNextBusiness) {
+        onNextBusiness?.();
+      } else if (dy > 0 && hasPrevBusiness) {
+        onPrevBusiness?.();
       }
     }
     onTouchEnd?.();
