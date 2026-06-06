@@ -130,6 +130,29 @@ const HomeMindtrip = () => {
     return () => { cancelled = true; };
   }, [selectedCity]);
 
+  const fetchFrontStructureSubcategoryNames = async (label: string) => {
+    const { data: entry } = await (supabase as any)
+      .from("front_structure")
+      .select("id")
+      .ilike("name", label)
+      .maybeSingle();
+    const entryId = (entry as any)?.id;
+    if (!entryId) return [] as string[];
+
+    const { data: links } = await (supabase as any)
+      .from("front_structure_subcategories")
+      .select("subcategory_id")
+      .eq("front_structure_id", entryId);
+    const ids = ((links as any[]) || []).map((l) => l.subcategory_id).filter(Boolean);
+    if (ids.length === 0) return [] as string[];
+
+    const { data: subcats } = await (supabase as any)
+      .from("subcategories")
+      .select("name_fr")
+      .in("id", ids);
+    return ((subcats as any[]) || []).map((s) => s.name_fr).filter(Boolean) as string[];
+  };
+
   const scrollToNext = () => {
     const el = document.getElementById("how-it-works-title");
     if (el) {
@@ -356,13 +379,18 @@ const HomeMindtrip = () => {
                           {videos.map((v) => {
                             const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
                             if (!v.label) return null;
-                            const useSubcats = v.kind === "entry" && v.subcategoryNames.length > 0;
-                            const defaultUrl = useSubcats
-                              ? `/search?subcats=${encodeURIComponent(v.subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
-                              : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
+                            const buildSearchUrl = async () => {
+                              const subcategoryNames = v.kind === "entry"
+                                ? (v.subcategoryNames.length > 0 ? v.subcategoryNames : await fetchFrontStructureSubcategoryNames(v.label || ""))
+                                : [];
+                              return subcategoryNames.length > 0
+                                ? `/search?subcats=${encodeURIComponent(subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
+                                : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
+                            };
                             const goSearch = async (e: React.MouseEvent) => {
                               e.preventDefault();
                               e.stopPropagation();
+                              const defaultUrl = await buildSearchUrl();
                               let businessId = v.businessId;
                               if (!businessId && !v.badgeId && !v.eventId && v.kind === "extra" && v.key.startsWith("extra:")) {
                                 const cardId = v.key.slice("extra:".length);
