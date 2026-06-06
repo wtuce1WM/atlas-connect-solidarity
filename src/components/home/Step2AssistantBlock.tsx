@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Mic } from "lucide-react";
 import SearchInput from "@/components/SearchInput";
@@ -21,6 +22,17 @@ const Step2AssistantBlock = ({ stepLabel, title, description, onMobileSearchClic
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Mobile + tablette : on délègue au parent (overlay STT fullscreen)
+  const [isBelowDesktop, setIsBelowDesktop] = useState<boolean>(
+    () => typeof window !== "undefined" ? window.matchMedia("(max-width: 1023px)").matches : false
+  );
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1023px)");
+    const onChange = () => setIsBelowDesktop(mql.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
   const voice = useVoiceSearch({
     onTranscript: (keywords) => {
       navigate(`/search?q=${encodeURIComponent(keywords)}&tab=ai`);
@@ -30,7 +42,8 @@ const Step2AssistantBlock = ({ stepLabel, title, description, onMobileSearchClic
     },
   });
 
-  const isVoiceActive = voice.status === "recording" || voice.status === "processing";
+  const isVoiceActive = !isBelowDesktop && (voice.status === "recording" || voice.status === "processing");
+
 
   return (
     <>
@@ -72,9 +85,10 @@ const Step2AssistantBlock = ({ stepLabel, title, description, onMobileSearchClic
           showSuggestions={false}
           voiceControl={{
             status: voice.status,
-            toggleRecording: voice.toggleRecording,
+            toggleRecording: isBelowDesktop && onMobileSearchClick ? onMobileSearchClick : voice.toggleRecording,
             liveTranscript: voice.liveTranscript,
           }}
+
           onSubmit={(q) => navigate(`/search?q=${encodeURIComponent(q)}&tab=ai`)}
         />
 
