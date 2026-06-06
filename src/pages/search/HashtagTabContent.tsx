@@ -546,7 +546,10 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
           totalPages={Math.ceil(items.length / ITEMS_PER_PAGE)}
           totalCount={items.length}
           pageSize={ITEMS_PER_PAGE}
-          onPageChange={setCurrentPage}
+          onPageChange={(p) => {
+            setCurrentPage(p);
+            try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch { window.scrollTo(0, 0); }
+          }}
         />
         </>
       )}
