@@ -2342,7 +2342,6 @@ const SearchPage = () => {
 
   const fsFilterMatchesUrlSubcats = useMemo(() => {
     if (!fsFilterSubcategories || subcategoryNamesFromUrl.length === 0) return false;
-    if (fsFilterSubcategories.size !== subcategoryNamesFromUrl.length) return false;
     return subcategoryNamesFromUrl.every((name) => fsFilterSubcategories.has(name));
   }, [fsFilterSubcategories, subcategoryNamesFromUrl]);
 
