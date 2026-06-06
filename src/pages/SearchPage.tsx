@@ -5026,7 +5026,7 @@ const SearchPage = () => {
       )}
 
       {/* Bottom floating search bar — anchored to the right map when open, centered otherwise */}
-      {!compactPanelBusiness && !poiPanelOpen && (() => {
+      {!compactPanelBusiness && !overlaySelectedBusiness && !poiPanelOpen && (() => {
         const rightMapVisible = hasKnownLocation && (
           (activeTab === "suggestions" && !hideResultsMap) ||
           (activeTab === "ai" && !hideResultsMap) ||
