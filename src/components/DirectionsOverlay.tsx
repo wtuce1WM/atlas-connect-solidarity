@@ -80,7 +80,7 @@ function loadGoogleMaps(): Promise<void> {
       .then(({ key }) => {
         if (!key) throw new Error("No key returned");
         const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=geometry,marker`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=geometry,marker,routes`;
         script.async = true;
         script.onload = () => resolve();
         script.onerror = () => { gmapsPromise = null; reject(new Error("Failed to load Google Maps")); };
