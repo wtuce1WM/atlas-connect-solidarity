@@ -274,7 +274,7 @@ const HomeMindtrip = () => {
                 navigate(`/search?${qs}`);
               }}
               onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
-              mobileVoiceTrigger={() => heroVoice.toggleRecording()}
+              
             />
             <div className="mt-5 flex justify-start">
               <button
