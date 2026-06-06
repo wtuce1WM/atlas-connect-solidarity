@@ -4973,7 +4973,10 @@ const SearchPage = () => {
           setIsGeoCityAutoSelected(false);
           setSearchParams(params);
         }}
-        onVoiceStart={() => toggleRecording()}
+        onVoiceStart={() => {
+          setMobileSearchOverlayOpen(false);
+          toggleRecording();
+        }}
         onAiSuggestionClick={() => {
           aiPopupShownRef.current = false;
           if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
