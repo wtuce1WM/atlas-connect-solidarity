@@ -4715,7 +4715,24 @@ const SearchPage = () => {
             }}
             t={t}
             effectiveCity={effectiveCityForMap}
-            onFrontStructureFilter={(subNames) => { setFsFilterSubcategories(subNames); setFsFilterServices(null); }}
+            onFrontStructureFilter={(subNames) => {
+              setFsFilterSubcategories(subNames);
+              setFsFilterServices(null);
+              // When the URL drives the query via `subcats` (homepage card),
+              // sync the chip selection to the URL so the server re-queries
+              // with the new subset (e.g. clicking "Glacier" → 17 results).
+              if (subcategoryNamesFromUrl.length > 0 && subNames && subNames.size > 0) {
+                const currentSet = new Set(subcategoryNamesFromUrl);
+                const sameSize = currentSet.size === subNames.size;
+                const sameContent = sameSize && Array.from(subNames).every((n) => currentSet.has(n));
+                if (!sameContent) {
+                  const next = new URLSearchParams(searchParams);
+                  next.set("subcats", Array.from(subNames).join("|"));
+                  next.set("_t", String(Date.now()));
+                  setSearchParams(next, { replace: true });
+                }
+              }
+            }}
             onFrontStructureServicesFilter={(svcs) => setFsFilterServices(svcs)}
             fsTopBusinessId={fsTopBusinessId}
             hideAiSuggestion={false}
