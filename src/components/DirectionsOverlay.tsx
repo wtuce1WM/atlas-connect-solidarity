@@ -243,7 +243,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     });
   }, [mapsReady, showMap, origin]);
 
-  // Fetch route + draw using native Google DirectionsService
+  // Fetch route via edge function (Routes API) + draw polyline + capture distance/duration
   useEffect(() => {
     if (!mapsReady || !showMap || !mapRef.current || !origin || !destLatLng) return;
     const gmaps = window.google.maps;
@@ -251,6 +251,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     let cancelled = false;
     const requestId = ++routeRequestRef.current;
     setRouteError(null);
+    setRouteInfo(null);
 
     // Origin marker (terracotta Pin)
     if (originMarkerRef.current) originMarkerRef.current.setMap(null);
@@ -264,45 +265,62 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       position: destLatLng, map, title: business.name,
     });
 
-    if (!directionsServiceRef.current) {
-      directionsServiceRef.current = new gmaps.DirectionsService();
-    }
-    if (!directionsRendererRef.current) {
-      directionsRendererRef.current = new gmaps.DirectionsRenderer({
-        map,
-        suppressMarkers: true,
-        preserveViewport: true,
-        polylineOptions: { strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9 },
+    if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
+
+    const drawRoute = (encoded: string) => {
+      const path = decodeEncodedPolyline(encoded);
+      if (!path.length) { setRouteError("Itinéraire indisponible"); return; }
+      if (polylineRef.current) polylineRef.current.setMap(null);
+      polylineRef.current = new gmaps.Polyline({
+        path, map, strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9,
       });
-    } else {
-      directionsRendererRef.current.setMap(map);
-    }
+      const b = new gmaps.LatLngBounds();
+      path.forEach((p) => b.extend(p));
+      map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
+    };
 
-    const travelMode = directionsMode === "walking"
-      ? gmaps.TravelMode.WALKING
-      : gmaps.TravelMode.DRIVING;
-
-    directionsServiceRef.current.route(
-      { origin, destination: destLatLng, travelMode },
-      (result, status) => {
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("compute-route", {
+          body: { origin, destination: destLatLng, mode: directionsMode },
+        });
         if (cancelled || requestId !== routeRequestRef.current) return;
-        if (status !== gmaps.DirectionsStatus.OK || !result) {
+        if (error || !data?.encodedPolyline) {
           setRouteError("Itinéraire indisponible");
           const b = new gmaps.LatLngBounds();
           b.extend(origin); b.extend(destLatLng);
           map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
           return;
         }
-        directionsRendererRef.current!.setDirections(result);
-        const bounds = result.routes[0]?.bounds;
-        if (bounds) {
-          map.fitBounds(bounds, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
-        }
+        drawRoute(data.encodedPolyline);
+        setRouteInfo({
+          distanceMeters: typeof data.distanceMeters === "number" ? data.distanceMeters : null,
+          duration: typeof data.duration === "string" ? data.duration : null,
+        });
+      } catch (e) {
+        if (!cancelled) { console.error(e); setRouteError("Itinéraire indisponible"); }
       }
-    );
+    })();
 
     return () => { cancelled = true; };
   }, [mapsReady, showMap, origin, destLatLng, directionsMode, business.name]);
+
+  const formatDistance = (m: number | null) => {
+    if (m == null) return null;
+    return m >= 1000 ? `${(m / 1000).toFixed(m >= 10000 ? 0 : 1)} km` : `${Math.round(m)} m`;
+  };
+  const formatDuration = (d: string | null) => {
+    if (!d) return null;
+    const secs = parseInt(d.replace(/s$/, ""), 10);
+    if (!Number.isFinite(secs)) return null;
+    if (secs < 60) return `${secs} s`;
+    const mins = Math.round(secs / 60);
+    if (mins < 60) return `${mins} min`;
+    const h = Math.floor(mins / 60);
+    const r = mins % 60;
+    return r ? `${h} h ${r} min` : `${h} h`;
+  };
+
 
   const originParam = origin ? encodeURIComponent(`${origin.lat},${origin.lng}`) : null;
   const destParam = encodeURIComponent(destRaw);
