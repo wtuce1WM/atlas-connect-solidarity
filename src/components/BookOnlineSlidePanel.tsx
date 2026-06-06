@@ -1890,7 +1890,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           {/* External links + Social / Booking / Menu strips — pinned at viewport bottom */}
           {!descGridSection && (() => {
             const socialItems: { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[] = [
-              business?.website && { name: "Site web", url: business.website, icon: <Globe className="h-4 w-4" /> },
+              business?.website && { name: "Site web", url: business.website, icon: <Globe className="h-4 w-4" />, onClick: () => {
+                const url = business.website!.startsWith("http") ? business.website! : `https://${business.website}`;
+                if (business?.website_force_external) window.open(url, "_blank", "noopener");
+                else openDocOrBooking(url, "Site web", true);
+              } },
+              ctaConfig.bookingCta && { name: ctaConfig.bookingCtaLabel, url: ctaConfig.bookingCta.fullUrl, icon: <CalendarCheck className="h-4 w-4" />, onClick: () => {
+                if (ctaConfig.bookingCta!.forceExternal) window.open(ctaConfig.bookingCta!.fullUrl, "_blank", "noopener");
+                else openDocOrBooking(ctaConfig.bookingCta!.fullUrl, ctaConfig.bookingCtaLabel, true);
+              } },
+              ctaConfig.shopCta && { name: ctaConfig.shopCtaLabel, url: ctaConfig.shopCta.fullUrl, icon: <ShoppingCart className="h-4 w-4" />, onClick: () => {
+                if (ctaConfig.shopCta!.forceExternal) window.open(ctaConfig.shopCta!.fullUrl, "_blank", "noopener");
+                else openDocOrBooking(ctaConfig.shopCta!.fullUrl, ctaConfig.shopCtaLabel, true);
+              } },
               business?.instagram_url && { name: "Instagram", url: business.instagram_url, icon: <InstagramIcon className="h-4 w-4" /> },
               business?.facebook_url && { name: "Facebook", url: business.facebook_url, icon: <FacebookIcon className="h-4 w-4 text-[#1877F2]" /> },
               business?.tiktok_url && { name: "TikTok", url: business.tiktok_url, icon: <TikTokIcon className="h-5 w-5" /> },
