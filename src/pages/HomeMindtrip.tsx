@@ -551,7 +551,7 @@ const HomeMindtrip = () => {
 
           <div
             ref={trackRef}
-            className="flex gap-4 md:gap-8 will-change-transform px-6 md:px-12"
+            className="flex gap-4 md:gap-8 will-change-transform pl-[7.5vw] pr-[7.5vw] md:pl-[max(3rem,calc((100vw-672px)/2))] md:pr-[max(3rem,calc((100vw-672px)/2))]"
             style={{ transform: `translate3d(${-trackX}px, 0, 0)` }}
           >
             {STEPS.slice(1).map((s, idx) => {
