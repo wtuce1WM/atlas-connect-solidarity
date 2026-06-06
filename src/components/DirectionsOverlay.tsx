@@ -1,30 +1,65 @@
+/// <reference types="@types/google.maps" />
 import { useState, useEffect, useCallback, useRef } from "react";
-import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { X, Info, MapPin } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { supabase } from "@/integrations/supabase/client";
 
 const GEO_STORAGE_KEY = "geo_preference";
 const GEO_MANUAL_COORDS_KEY = "geo_manual_coords";
 const GEO_MANUAL_ADDRESS_KEY = "geo_manual_address";
 const GEO_AUTO_COORDS_KEY = "geo_auto_coords";
 
-const parseStoredCoords = (key: string): string | null => {
+const parseStoredCoords = (key: string): { lat: number; lng: number } | null => {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as { lat?: unknown; lng?: unknown };
     return typeof parsed.lat === "number" && typeof parsed.lng === "number"
-      ? `${parsed.lat},${parsed.lng}`
-      : null;
-  } catch {
-    return null;
-  }
+      ? { lat: parsed.lat, lng: parsed.lng } : null;
+  } catch { return null; }
 };
 
-const readStoredOrigin = (): string | null =>
+const readStoredOrigin = (): { lat: number; lng: number } | null =>
   parseStoredCoords(GEO_MANUAL_COORDS_KEY) || parseStoredCoords(GEO_AUTO_COORDS_KEY);
+
+/* ── Google Maps loader (shared singleton) ── */
+let gmapsPromise: Promise<void> | null = null;
+function loadGoogleMaps(): Promise<void> {
+  if (gmapsPromise) return gmapsPromise;
+  if (window.google?.maps) { gmapsPromise = Promise.resolve(); return gmapsPromise; }
+  gmapsPromise = new Promise((resolve, reject) => {
+    fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-google-maps-key`, {
+      headers: {
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+    })
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(({ key }) => {
+        if (!key) throw new Error("No key returned");
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=geometry,marker`;
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => { gmapsPromise = null; reject(new Error("Failed to load Google Maps")); };
+        document.head.appendChild(script);
+      })
+      .catch((err) => { gmapsPromise = null; reject(err); });
+  });
+  return gmapsPromise;
+}
+
+const TERRACOTTA = "#C04F17";
+const buildPinIcon = (gmaps: typeof google.maps): google.maps.Icon => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 384 512"><path fill="${TERRACOTTA}" stroke="#ffffff" stroke-width="16" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`;
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new gmaps.Size(32, 40),
+    anchor: new gmaps.Point(16, 40),
+  };
+};
 
 interface DirectionsOverlayProps {
   business: {
@@ -41,108 +76,163 @@ interface DirectionsOverlayProps {
 
 const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
-  const [userOrigin, setUserOrigin] = useState<string | null>(null);
-  const [storedOrigin, setStoredOrigin] = useState<string | null>(() => readStoredOrigin());
+  const [userOrigin, setUserOrigin] = useState<{ lat: number; lng: number } | null>(null);
+  const [storedOrigin, setStoredOrigin] = useState<{ lat: number; lng: number } | null>(() => readStoredOrigin());
   const [originError, setOriginError] = useState<string | null>(null);
+  const [routeError, setRouteError] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
   const [cardOffset, setCardOffset] = useState(0);
+  const [mapsReady, setMapsReady] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapDivRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const polylineRef = useRef<google.maps.Polyline | null>(null);
+  const originMarkerRef = useRef<google.maps.Marker | null>(null);
+  const destMarkerRef = useRef<google.maps.Marker | null>(null);
   const geo = useGeolocation();
 
   const requestBrowserOrigin = useCallback(() => {
-    if (!navigator.geolocation) {
-      setOriginError("Géolocalisation indisponible");
-      return;
-    }
+    if (!navigator.geolocation) { setOriginError("Géolocalisation indisponible"); return; }
     setOriginError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const nextOrigin = `${pos.coords.latitude},${pos.coords.longitude}`;
-        setUserOrigin(nextOrigin);
-        setStoredOrigin(nextOrigin);
-        setOriginError(null);
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setUserOrigin(next); setStoredOrigin(next); setOriginError(null);
         try {
           window.localStorage.setItem(GEO_STORAGE_KEY, "enabled");
           window.localStorage.removeItem(GEO_MANUAL_COORDS_KEY);
           window.localStorage.removeItem(GEO_MANUAL_ADDRESS_KEY);
-          window.localStorage.setItem(GEO_AUTO_COORDS_KEY, JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }));
+          window.localStorage.setItem(GEO_AUTO_COORDS_KEY, JSON.stringify(next));
           window.dispatchEvent(new CustomEvent("geo:changed"));
         } catch { /* noop */ }
       },
-      (err) => {
-        setUserOrigin(null);
-        setOriginError(err.message || "Position indisponible");
-      },
+      (err) => { setUserOrigin(null); setOriginError(err.message || "Position indisponible"); },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   }, []);
 
   useEffect(() => {
-    const syncStoredOrigin = () => setStoredOrigin(readStoredOrigin());
-    syncStoredOrigin();
-    window.addEventListener("geo:changed", syncStoredOrigin);
-    window.addEventListener("storage", syncStoredOrigin);
+    const sync = () => setStoredOrigin(readStoredOrigin());
+    sync();
+    window.addEventListener("geo:changed", sync);
+    window.addEventListener("storage", sync);
     return () => {
-      window.removeEventListener("geo:changed", syncStoredOrigin);
-      window.removeEventListener("storage", syncStoredOrigin);
+      window.removeEventListener("geo:changed", sync);
+      window.removeEventListener("storage", sync);
     };
   }, []);
 
   useEffect(() => {
     if (geo.coords) {
-      const nextOrigin = `${geo.coords.lat},${geo.coords.lng}`;
-      setUserOrigin(nextOrigin);
-      setStoredOrigin(nextOrigin);
-      setOriginError(null);
+      const next = { lat: geo.coords.lat, lng: geo.coords.lng };
+      setUserOrigin(next); setStoredOrigin(next); setOriginError(null);
       return;
     }
-    if (!geo.isEnabled && !storedOrigin) {
-      setUserOrigin(null);
-      return;
-    }
+    if (!geo.isEnabled && !storedOrigin) { setUserOrigin(null); return; }
     if (!storedOrigin) requestBrowserOrigin();
   }, [geo.coords, geo.isEnabled, storedOrigin, requestBrowserOrigin]);
 
-  const originRaw = userOrigin || storedOrigin;
-  const origin = originRaw ? encodeURIComponent(originRaw) : null;
-  const destRaw = business.latitude != null && business.longitude != null
-    ? `${business.latitude},${business.longitude}`
-    : business.address || business.name;
-  const dest = encodeURIComponent(destRaw);
-  const needsGeoConsent = !originRaw && (!geo.isEnabled || !!originError);
-  const waitingForOrigin = !originRaw && geo.isEnabled && !originError;
+  const origin = userOrigin || storedOrigin;
+  const destLatLng = business.latitude != null && business.longitude != null
+    ? { lat: business.latitude, lng: business.longitude } : null;
+  const destRaw = destLatLng ? `${destLatLng.lat},${destLatLng.lng}` : (business.address || business.name);
+  const needsGeoConsent = !origin && (!geo.isEnabled || !!originError);
+  const waitingForOrigin = !origin && geo.isEnabled && !originError;
+  const showMap = !!origin && !!destLatLng && !needsGeoConsent && !waitingForOrigin;
 
-  // Measure info card so iframe sits below it and Google auto-fits the full route
+  // Measure info card for fitBounds padding
   useEffect(() => {
-    if (!showInfoCard) {
-      setCardOffset(0);
-      return;
-    }
+    if (!showInfoCard) { setCardOffset(0); return; }
     const container = mapContainerRef.current;
     if (!container) return;
     let raf = 0;
     const measure = () => {
       const el = container.querySelector<HTMLElement>("[data-info-card]");
-      if (!el) {
-        raf = requestAnimationFrame(measure);
-        return;
-      }
+      if (!el) { raf = requestAnimationFrame(measure); return; }
       const rect = el.getBoundingClientRect();
-      const containerTop = container.getBoundingClientRect().top;
-      const next = Math.max(0, Math.ceil(rect.bottom - containerTop) + 8);
-      setCardOffset(next);
+      const top = container.getBoundingClientRect().top;
+      setCardOffset(Math.max(0, Math.ceil(rect.bottom - top) + 8));
     };
     measure();
     const ro = new ResizeObserver(measure);
     const el = container.querySelector<HTMLElement>("[data-info-card]");
     if (el) ro.observe(el);
     window.addEventListener("resize", measure);
-    return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-      window.removeEventListener("resize", measure);
-    };
-  }, [showInfoCard, directionsMode]);
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); window.removeEventListener("resize", measure); };
+  }, [showInfoCard, showMap]);
+
+  useEffect(() => {
+    if (!showMap) return;
+    loadGoogleMaps().then(() => setMapsReady(true)).catch((e) => {
+      console.error(e); setRouteError("Impossible de charger la carte");
+    });
+  }, [showMap]);
+
+  useEffect(() => {
+    if (!mapsReady || !showMap || !mapDivRef.current || mapRef.current || !origin) return;
+    const gmaps = window.google.maps;
+    mapRef.current = new gmaps.Map(mapDivRef.current, {
+      center: origin, zoom: 13,
+      mapTypeControl: false, streetViewControl: false,
+      fullscreenControl: false, zoomControl: true,
+      gestureHandling: "greedy", clickableIcons: false,
+    });
+  }, [mapsReady, showMap, origin]);
+
+  // Fetch route + draw
+  useEffect(() => {
+    if (!mapsReady || !showMap || !mapRef.current || !origin || !destLatLng) return;
+    const gmaps = window.google.maps;
+    const map = mapRef.current;
+    let cancelled = false;
+    setRouteError(null);
+
+    // Origin marker (terracotta Pin)
+    if (originMarkerRef.current) originMarkerRef.current.setMap(null);
+    originMarkerRef.current = new gmaps.Marker({
+      position: origin, map, icon: buildPinIcon(gmaps),
+      title: "Vous êtes ici", zIndex: 2000,
+    });
+    // Destination marker (default red)
+    if (destMarkerRef.current) destMarkerRef.current.setMap(null);
+    destMarkerRef.current = new gmaps.Marker({
+      position: destLatLng, map, title: business.name,
+    });
+
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("compute-route", {
+          body: { origin, destination: destLatLng, mode: directionsMode },
+        });
+        if (cancelled) return;
+        if (error || !data?.encodedPolyline) {
+          setRouteError("Itinéraire indisponible");
+          // Fallback: fit on origin + destination
+          const b = new gmaps.LatLngBounds();
+          b.extend(origin); b.extend(destLatLng);
+          map.fitBounds(b, { top: cardOffset + 24, left: 32, right: 32, bottom: 48 });
+          return;
+        }
+        const path = gmaps.geometry.encoding.decodePath(data.encodedPolyline);
+        if (polylineRef.current) polylineRef.current.setMap(null);
+        polylineRef.current = new gmaps.Polyline({
+          path, map, strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9,
+        });
+        const bounds = new gmaps.LatLngBounds();
+        path.forEach((p) => bounds.extend(p));
+        map.fitBounds(bounds, { top: cardOffset + 24, left: 32, right: 32, bottom: 48 });
+      } catch (e) {
+        if (!cancelled) {
+          console.error(e); setRouteError("Itinéraire indisponible");
+        }
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [mapsReady, showMap, origin, destLatLng, directionsMode, cardOffset, business.name]);
+
+  const originParam = origin ? encodeURIComponent(`${origin.lat},${origin.lng}`) : null;
+  const destParam = encodeURIComponent(destRaw);
 
   return (
     <div className="absolute inset-0 z-[100] bg-white flex flex-col">
@@ -150,8 +240,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         <button
           onClick={onClose}
           className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:opacity-90 transition-opacity"
-          title="Fermer"
-          aria-label="Fermer l'itinéraire"
+          title="Fermer" aria-label="Fermer l'itinéraire"
         >
           <X className="h-4 w-4" />
         </button>
@@ -160,19 +249,15 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
             <button
               onClick={() => setDirectionsMode("walking")}
               className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              🚶 À pied
-            </button>
+            >🚶 À pied</button>
             <button
               onClick={() => setDirectionsMode("driving")}
               className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              🚗 Voiture
-            </button>
+            >🚗 Voiture</button>
           </div>
         </div>
         <div className="shrink-0 flex items-center gap-2">
-          <a href={`https://www.google.com/maps/dir/?api=1${origin ? `&origin=${origin}` : ""}&destination=${dest}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
+          <a href={`https://www.google.com/maps/dir/?api=1${originParam ? `&origin=${originParam}` : ""}&destination=${destParam}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
             <img src="https://www.gstatic.com/images/branding/product/1x/maps_48dp.png" alt="Google Maps" className="h-6 w-6 object-contain" />
           </a>
           <a href={business.latitude && business.longitude ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Waze">
@@ -195,10 +280,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
                 Pour calculer l'itinéraire depuis votre position, autorisez l'accès à votre localisation.
               </p>
               <button
-                onClick={() => {
-                  geo.accept();
-                  requestBrowserOrigin();
-                }}
+                onClick={() => { geo.accept(); requestBrowserOrigin(); }}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#C04F17] text-white px-4 py-2 text-sm font-medium hover:bg-[#C04F17]/90 transition-colors"
               >
                 <MapPin className="h-4 w-4" /> Activer ma localisation
@@ -218,15 +300,14 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
             </div>
           </div>
         ) : (
-          <iframe
-            src={`https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_EMBED_KEY}&origin=${origin}&destination=${dest}&mode=${directionsMode}`}
-            className="absolute left-0 right-0 bottom-0 w-full border-0"
-            style={{ top: cardOffset, height: `calc(100% - ${cardOffset}px)` }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title={`Itinéraire vers ${business.name}`}
-          />
+          <>
+            <div ref={mapDivRef} className="absolute inset-0 w-full h-full" />
+            {routeError && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1.5 rounded-full">
+                {routeError}
+              </div>
+            )}
+          </>
         )}
         {showInfoCard && (
           <MapBusinessInfoCard business={business} onClose={() => setShowInfoCard(false)} hideDirections hideClose />
