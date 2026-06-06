@@ -321,6 +321,9 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     return r ? `${h} h ${r} min` : `${h} h`;
   };
 
+  const routeDurationLabel = routeInfo ? formatDuration(routeInfo.duration) : null;
+  const routeDistanceLabel = routeInfo ? formatDistance(routeInfo.distanceMeters) : null;
+
 
   const originParam = origin ? encodeURIComponent(`${origin.lat},${origin.lng}`) : null;
   const destParam = encodeURIComponent(destRaw);
@@ -337,16 +340,24 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         >
           <X className="h-4 w-4" />
         </button>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex items-center bg-muted rounded-full p-0.5">
-            <button
-              onClick={() => setDirectionsMode("walking")}
-              className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >🚶 À pied</button>
-            <button
-              onClick={() => setDirectionsMode("driving")}
-              className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >🚗 Voiture</button>
+        <div className="flex-1 flex items-center justify-center min-w-0 px-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center bg-muted rounded-full p-0.5">
+              <button
+                onClick={() => setDirectionsMode("walking")}
+                className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              >🚶 À pied</button>
+              <button
+                onClick={() => setDirectionsMode("driving")}
+                className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              >🚗 Voiture</button>
+            </div>
+            {(routeDurationLabel || routeDistanceLabel) && (
+              <div className="shrink-0 rounded-full border bg-background px-3 py-1 text-xs font-semibold text-foreground shadow-sm">
+                {directionsMode === "walking" ? "🚶" : "🚗"} {routeDurationLabel || "—"}
+                {routeDistanceLabel ? <span className="text-muted-foreground"> · {routeDistanceLabel}</span> : null}
+              </div>
+            )}
           </div>
         </div>
         <div className="shrink-0 flex items-center gap-2">
@@ -395,13 +406,13 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         ) : (
           <>
             <div ref={mapDivRef} className="absolute inset-0 w-full h-full" />
-            {routeInfo && (formatDistance(routeInfo.distanceMeters) || formatDuration(routeInfo.duration)) && (
+            {(routeDistanceLabel || routeDurationLabel) && (
               <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 bg-white/95 backdrop-blur shadow-lg rounded-full px-4 py-2 flex items-center gap-2 text-sm font-medium text-foreground">
-                {formatDuration(routeInfo.duration) && (
-                  <span>{directionsMode === "walking" ? "🚶" : "🚗"} {formatDuration(routeInfo.duration)}</span>
+                {routeDurationLabel && (
+                  <span>{directionsMode === "walking" ? "🚶" : "🚗"} {routeDurationLabel}</span>
                 )}
-                {formatDistance(routeInfo.distanceMeters) && (
-                  <span className="text-muted-foreground">· {formatDistance(routeInfo.distanceMeters)}</span>
+                {routeDistanceLabel && (
+                  <span className="text-muted-foreground">· {routeDistanceLabel}</span>
                 )}
               </div>
             )}
