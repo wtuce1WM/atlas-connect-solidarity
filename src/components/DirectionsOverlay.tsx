@@ -129,6 +129,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const mapDivRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
+  const polylinesRef = useRef<google.maps.Polyline[]>([]);
   const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null);
   const directionsRenderersRef = useRef<google.maps.DirectionsRenderer[]>([]);
   const routeLabelsRef = useRef<google.maps.OverlayView[]>([]);
