@@ -269,6 +269,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     });
 
     if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
+    if (infoWindowRef.current) { infoWindowRef.current.close(); infoWindowRef.current = null; }
 
     const drawRoute = (encoded: string) => {
       const path = decodeEncodedPolyline(encoded);
