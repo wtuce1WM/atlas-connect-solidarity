@@ -3480,6 +3480,7 @@ const SearchPage = () => {
       })()}
 
       {/* Warning Overlay — forces user to pick city + category */}
+      {/* DÉSACTIVÉ temporairement — à réévaluer
       {!isLoading && !!disambiguationType && allBusinesses.length > 0 && !compactPanelBusiness && !showAiPopup && !warningDismissed && (
         <WarningOverlay
           allBusinesses={allBusinesses}
@@ -3495,19 +3496,15 @@ const SearchPage = () => {
             setSelectedCity(city);
             setIsGeoCityAutoSelected(false);
             setCurrentPage(1);
-            // Update URL so the search refetches with server-side city filter
             const next = new URLSearchParams(searchParams);
             next.set("city", city);
             setSearchParams(next, { replace: true });
-            // If category is already known, dismiss overlay immediately to avoid
-            // it reappearing when the new search resets detectedSubcategory
             if (selectedCategoryFilter || detectedSubcategory || detectedCategory) {
               setWarningDismissed(true);
             }
           }}
           onSelectCategory={(cat) => {
             setSelectedCategoryFilter(cat);
-            // If city is already known, dismiss overlay immediately
             if ((selectedCity && selectedCity !== "all") || detectedCity) {
               setWarningDismissed(true);
             }
@@ -3515,6 +3512,8 @@ const SearchPage = () => {
           onClose={() => setWarningDismissed(true)}
         />
       )}
+      */}
+
 
       {/* AI Suggestion Overlay — fullscreen when triggered from ✨ button, inline when in the "Suggestion IA" tab */}
       {(showAiPopup || activeTab === "ai") && (() => {
