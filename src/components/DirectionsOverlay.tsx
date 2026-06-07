@@ -274,7 +274,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
       if (!path.length) { setRouteError("Itinéraire indisponible"); return; }
       if (polylineRef.current) polylineRef.current.setMap(null);
       polylineRef.current = new gmaps.Polyline({
-        path, map, strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9,
+        path, map, strokeColor: "#4285F4", strokeWeight: 6, strokeOpacity: 0.9,
       });
       const b = new gmaps.LatLngBounds();
       path.forEach((p) => b.extend(p));
