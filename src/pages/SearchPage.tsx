@@ -343,9 +343,9 @@ const SearchPage = () => {
     setShowAllSearchMarkers(false);
   }, [searchQuery]);
 
-  // When switching FS tabs: default to "Tous" if a subcategory filter is active, else "Top 20"
+  // Default to "Top 20" whenever the FS subcategory filter changes
   useEffect(() => {
-    setShowAllSearchMarkers(!!fsFilterSubcategories && fsFilterSubcategories.size > 0);
+    setShowAllSearchMarkers(false);
   }, [fsFilterSubcategories]);
 
   // Helper: a business matches the service filter when at least one of its
