@@ -192,9 +192,9 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
 
   const setReverseGeocodedAddress = useCallback((address: string | null) => {
     if (!address) return;
-        selectedAddressRef.current = address;
-        setSelectedAddress(address);
-        setAddressQuery(address);
+    selectedAddressRef.current = address;
+    setSelectedAddress(address);
+    setAddressQuery(address);
   }, []);
 
   const reverseGeocode = useCallback(async (pos: { lat: number; lng: number }): Promise<string | null> => {
