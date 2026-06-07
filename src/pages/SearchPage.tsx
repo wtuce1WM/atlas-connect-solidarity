@@ -3401,7 +3401,7 @@ const SearchPage = () => {
       <Header compact variant={activeTab === "youtube" ? "city" : undefined} rightContent={
         <div data-tab-bar ref={tabBarRef} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {[
-            { key: "suggestions", icon: <Search className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
+            { key: "suggestions", icon: <Search className="h-4 w-4" />, label: language === "ar" ? "بحث" : "Search", count: totalCount },
             { key: "ai", icon: <Sparkles className="h-4 w-4" />, label: "IA" },
             { key: "youtube", icon: <YouTubeIcon className="h-4 w-4 text-red-600" />, label: "Youtube" },
             ...(badgeIdParam && badgeLabelParam ? [{ key: "hashtag", label: badgeLabelParam, count: hashtagCount }] : []),
