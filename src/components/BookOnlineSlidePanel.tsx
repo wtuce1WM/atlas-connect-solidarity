@@ -2280,7 +2280,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         const TOP_LIMIT = 20;
         const activeFrontTab = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
         const afterCat = activeFrontTab
-          ? poiBusinesses.filter((p) => (p.categories || []).some((c) => activeFrontTab.subcategoryNames.has(c)))
+          ? activePoiCategoryBusinesses
           : poiBusinesses;
         const poiSubcatCounts = new Map<string, number>();
         for (const p of afterCat) {
@@ -2415,7 +2415,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
                         {poiCatFilter && (
-                          <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setDescGridPage(0); setDescGridSection("poi"); setPoiShowAll(false); }}>
+                          <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiCategoryBusinesses([]); setPoiCategoryBusinessCatId(null); setDescGridPage(0); setDescGridSection("poi"); setPoiShowAll(false); }}>
                             Toutes les catégories
                           </DropdownMenuItem>
                         )}
