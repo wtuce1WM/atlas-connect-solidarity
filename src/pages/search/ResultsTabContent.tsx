@@ -146,6 +146,34 @@ export default function ResultsTabContent({
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
   const [activeFsServices, setActiveFsServices] = useState<string[]>([]);
   const [showFiltersOverlay, setShowFiltersOverlay] = useState(false);
+  // Filtre "à proximité" — actif uniquement en mode "Tous" et si on connait la position user.
+  const [proximityKm, setProximityKm] = useState<number | null>(null);
+  // Reset le filtre proximité quand on change de ville, requête, sous-cat ou quand on quitte "Tous"
+  useEffect(() => { setProximityKm(null); }, [effectiveCity, searchQuery, activeFsSubId, showAllSearchMarkers]);
+
+  const proximityActive = !!(proximityKm && userCoords && showAllSearchMarkers);
+
+  const proximityFilteredBusinesses = useMemo(() => {
+    if (!proximityActive) return null;
+    return filteredBusinesses.filter((b) => {
+      const d = getDistanceKm(b);
+      return d != null && d <= proximityKm!;
+    });
+  }, [proximityActive, proximityKm, filteredBusinesses, getDistanceKm]);
+
+  const proximityFilteredMapPoiItems = useMemo(() => {
+    if (!proximityActive) return null;
+    return mapPoiItems.filter((p) => {
+      if (p.latitude == null || p.longitude == null) return false;
+      const d = haversineKm(userCoords!.lat, userCoords!.lng, p.latitude, p.longitude);
+      return d <= proximityKm!;
+    });
+  }, [proximityActive, proximityKm, mapPoiItems, userCoords]);
+
+  const effectiveBusinesses = proximityFilteredBusinesses ?? paginatedBusinesses;
+  const effectiveMapPoiItems = proximityFilteredMapPoiItems ?? mapPoiItems;
+  const proximityCount = proximityFilteredBusinesses?.length ?? 0;
+
   useEffect(() => { if (compactPanelBusiness) setShowFiltersOverlay(false); }, [compactPanelBusiness]);
   useEffect(() => {
     const handler = () => setShowFiltersOverlay(true);
