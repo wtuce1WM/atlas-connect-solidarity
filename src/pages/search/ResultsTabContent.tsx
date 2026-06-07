@@ -495,7 +495,7 @@ export default function ResultsTabContent({
 
               {/* Pagination */}
               {!proximityActive && totalPages > 1 && (
-                <div className="mb-20 flex flex-col items-center gap-1">
+                <div className="mb-20 pb-6 flex flex-col items-center gap-1">
                   <p className="text-sm text-muted-foreground">
                     {t.showing} {startResult} {t.to} {endResult} sur {displayedResultsCount} {t.results}
                   </p>
