@@ -2243,13 +2243,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="absolute inset-0">
             <button
               onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); setPoiSubcatFilter(null); setPoiShowAll(false); setPoiProximityKm(null); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
-              className="absolute top-3 left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
+              className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
               aria-label="Fermer"
             >
               <X className="h-4 w-4" />
             </button>
             {(showAllToggle || showSubcatPill || showProxPill) && (
-              <div className="absolute top-3 left-14 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+              <div className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+
 
                 {showAllToggle && (
                   <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
