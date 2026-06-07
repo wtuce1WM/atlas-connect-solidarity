@@ -492,7 +492,24 @@ const BusinessMap = ({
 
   return (
     <div ref={mapShellRef} className="relative rounded-xl overflow-hidden border border-border shadow-sm">
-      <style>{`.gm-style .gm-fullscreen-control { display: none !important; }`}</style>
+      <style>{`
+        .gm-style .gm-fullscreen-control { display: none !important; }
+        .gm-style .gm-ui-hover-effect {
+          background: #000 !important;
+          border-radius: 9999px !important;
+          opacity: 1 !important;
+          width: 28px !important;
+          height: 28px !important;
+          top: 6px !important;
+          right: 6px !important;
+}
+        .gm-style .gm-ui-hover-effect > span {
+          background-color: #fff !important;
+          margin: 6px !important;
+          width: 16px !important;
+          height: 16px !important;
+        }
+      `}</style>
       <button
         type="button"
         onClick={toggleFullscreen}
