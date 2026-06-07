@@ -2310,10 +2310,12 @@ const SearchPage = () => {
   }, [aiChat, aiInlineBusinessPool]);
 
   const searchMapPool = useMemo(() => {
-    // "Tous" toggle wins: show the full search result set, even when the AI
-    // panel has cited a subset of businesses.
-    if (showAllSearchMarkers && allSearchMapBusinesses.length > filteredBusinesses.length) {
-      return allSearchMapBusinesses;
+    // "Tous" toggle wins: show the full search result set (already loaded or
+    // freshly fetched), even when the AI panel has cited a subset.
+    if (showAllSearchMarkers) {
+      return allSearchMapBusinesses.length > filteredBusinesses.length
+        ? allSearchMapBusinesses
+        : filteredBusinesses;
     }
     if (aiCitedMapPool.length > 0) {
       return aiCitedMapPool;
