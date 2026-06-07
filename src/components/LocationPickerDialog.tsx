@@ -264,13 +264,17 @@ const LocationPickerDialog = ({
   }, []);
 
   const reverseGeocode = useCallback(async (pos: { lat: number; lng: number }): Promise<string | null> => {
-    const { data } = await supabase.functions.invoke("geocode-locations", {
-      body: { mode: "reverse", lat: pos.lat, lng: pos.lng },
-    });
+    try {
+      const { data } = await supabase.functions.invoke("geocode-locations", {
+        body: { mode: "reverse", lat: pos.lat, lng: pos.lng },
+      });
 
-    if (typeof data?.address === "string" && data.address.trim()) {
-      setReverseGeocodedAddress(data.address);
-      return data.address;
+      if (typeof data?.address === "string" && data.address.trim()) {
+        setReverseGeocodedAddress(data.address);
+        return data.address;
+      }
+    } catch {
+      // fallback to the browser geocoder below
     }
 
     if (!window.google?.maps) return null;
