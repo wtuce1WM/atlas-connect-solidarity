@@ -204,7 +204,7 @@ export default function FiltersOverlayFlow({
           <X className="h-4 w-4 pointer-events-none" />
         </button>
         <nav
-          className="flex-1 min-w-0 px-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-black"
+          className="flex-1 min-w-0 px-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-white"
           style={{ fontFamily: "'Josefin Sans', sans-serif" }}
           aria-label="Fil d'Ariane"
         >
