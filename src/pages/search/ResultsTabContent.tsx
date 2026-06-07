@@ -157,6 +157,14 @@ export default function ResultsTabContent({
 
   const proximityActive = !!(proximityKm && userCoords);
 
+  // Masquer le filtre "À proximité" si l'utilisateur est à plus de 10 km du centre de recherche
+  const userNearSearchArea = useMemo(() => {
+    if (!userCoords) return false;
+    if (!mapCenterForResults) return true;
+    const d = haversineKm(userCoords.lat, userCoords.lng, mapCenterForResults.lat, mapCenterForResults.lng);
+    return d <= 10;
+  }, [userCoords, mapCenterForResults]);
+
   const proximityFilteredBusinesses = useMemo(() => {
     if (!proximityActive) return null;
     // Use the full search map pool (same as the markers) so the cards never miss
@@ -644,7 +652,7 @@ export default function ResultsTabContent({
                         );
                       })()}
                       {/* Filtre "À proximité" — visible uniquement en mode "Tous" et si on connait la position user */}
-                      {userCoords && (() => {
+                      {userCoords && userNearSearchArea && (() => {
                         const opts: { km: number; label: string }[] = [
                           { km: 0.5, label: "Moins de 500 m" },
                           { km: 1, label: "Moins de 1 km" },
