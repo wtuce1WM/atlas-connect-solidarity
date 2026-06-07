@@ -2324,7 +2324,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors bg-[#D4AF37] text-black"
                       >
                         <MapPin className="h-3.5 w-3.5" />
                         {poiSubcatFilter || "Points d'intérêt"}
