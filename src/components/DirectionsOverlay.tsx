@@ -371,12 +371,6 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >🚗 Voiture</button>
             </div>
-            {(routeDurationLabel || routeDistanceLabel) && (
-              <div className="shrink-0 rounded-full border bg-background px-3 py-1 text-xs font-semibold text-foreground shadow-sm">
-                {directionsMode === "walking" ? "🚶" : "🚗"} {routeDurationLabel || "—"}
-                {routeDistanceLabel ? <span className="text-muted-foreground"> · {routeDistanceLabel}</span> : null}
-              </div>
-            )}
           </div>
         </div>
         <div className="shrink-0 flex items-center gap-2">
