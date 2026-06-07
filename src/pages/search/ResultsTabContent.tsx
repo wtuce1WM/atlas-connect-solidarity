@@ -153,7 +153,7 @@ export default function ResultsTabContent({
   // Reset le filtre proximité quand on change de ville, requête, sous-cat ou quand on quitte "Tous"
   useEffect(() => { setProximityKm(null); }, [effectiveCity, searchQuery, activeFsSubId, showAllSearchMarkers]);
 
-  const proximityActive = !!(proximityKm && userCoords && showAllSearchMarkers);
+  const proximityActive = !!(proximityKm && userCoords);
 
   const proximityFilteredBusinesses = useMemo(() => {
     if (!proximityActive) return null;
