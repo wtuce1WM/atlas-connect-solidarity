@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { MapPin, Navigation, Search, X, Loader, Check } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 declare global {
   interface Window {
@@ -84,6 +85,8 @@ const LocationPickerDialog = ({
   const autocompleteRef = useRef<any>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const selectedCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
+  const selectedAddressRef = useRef("");
 
   const [addressQuery, setAddressQuery] = useState("");
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -94,6 +97,14 @@ const LocationPickerDialog = ({
   const [openCount, setOpenCount] = useState(0);
 
   const activeCoords = selectedCoords || (isEnabled && coords ? coords : null);
+
+  useEffect(() => {
+    selectedCoordsRef.current = selectedCoords;
+  }, [selectedCoords]);
+
+  useEffect(() => {
+    selectedAddressRef.current = selectedAddress;
+  }, [selectedAddress]);
 
   // Track open transitions and load Google Maps SDK
   useEffect(() => {
@@ -134,6 +145,7 @@ const LocationPickerDialog = ({
       map.addListener("click", (e: any) => {
         if (!e.latLng) return;
         const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
         placeMarker(pos);
         reverseGeocode(pos);
@@ -154,6 +166,8 @@ const LocationPickerDialog = ({
               lng: place.geometry.location.lng(),
             };
             const addr = place.formatted_address || place.name || "";
+            selectedCoordsRef.current = pos;
+            selectedAddressRef.current = addr;
             setSelectedCoords(pos);
             setSelectedAddress(addr);
             setAddressQuery(addr);
@@ -232,6 +246,7 @@ const LocationPickerDialog = ({
       markerRef.current.addListener("dragend", (e: any) => {
         if (!e.latLng) return;
         const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        selectedCoordsRef.current = newPos;
         setSelectedCoords(newPos);
         reverseGeocode(newPos);
       });
@@ -241,29 +256,37 @@ const LocationPickerDialog = ({
 
 
 
-  // When coords arrive after clicking "Ma position", update the dialog
-  useEffect(() => {
-    if (waitingForPosition && coords) {
-      setSelectedCoords(coords);
-      setSelectedAddress(detectedCity || "");
-      setAddressQuery(detectedCity || "");
-      setWaitingForPosition(false);
-      placeMarker(coords);
-      mapRef.current?.setCenter(coords);
-      mapRef.current?.setZoom(14);
-    }
-  }, [waitingForPosition, coords, detectedCity, placeMarker]);
-
-  const reverseGeocode = useCallback((pos: { lat: number; lng: number }) => {
-    if (!window.google?.maps) return;
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ location: pos }, (results: any, status: any) => {
-      if (status === "OK" && results?.[0]) {
-        setSelectedAddress(results[0].formatted_address);
-        setAddressQuery(results[0].formatted_address);
-      }
-    });
+  const setReverseGeocodedAddress = useCallback((address: string | null) => {
+    if (!address) return;
+    selectedAddressRef.current = address;
+    setSelectedAddress(address);
+    setAddressQuery(address);
   }, []);
+
+  const reverseGeocode = useCallback(async (pos: { lat: number; lng: number }): Promise<string | null> => {
+    try {
+      const { data } = await supabase.functions.invoke("geocode-locations", {
+        body: { mode: "reverse", lat: pos.lat, lng: pos.lng },
+      });
+
+      if (typeof data?.address === "string" && data.address.trim()) {
+        setReverseGeocodedAddress(data.address);
+        return data.address;
+      }
+    } catch {
+      // fallback to the browser geocoder below
+    }
+
+    if (!window.google?.maps) return null;
+    const geocoder = new window.google.maps.Geocoder();
+    return new Promise((resolve) => {
+      geocoder.geocode({ location: pos }, (results: any, status: any) => {
+        const address = status === "OK" && results?.[0]?.formatted_address ? results[0].formatted_address : null;
+        setReverseGeocodedAddress(address);
+        resolve(address);
+      });
+    });
+  }, [setReverseGeocodedAddress]);
 
   const handleSearchAddress = useCallback(() => {
     if (!addressQuery.trim() || !window.google?.maps) return;
@@ -276,9 +299,12 @@ const LocationPickerDialog = ({
         if (status === "OK" && results?.[0]?.geometry?.location) {
           const loc = results[0].geometry.location;
           const pos = { lat: loc.lat(), lng: loc.lng() };
+          selectedCoordsRef.current = pos;
           setSelectedCoords(pos);
-          setSelectedAddress(results[0].formatted_address || addressQuery);
-          setAddressQuery(results[0].formatted_address || addressQuery);
+          const address = results[0].formatted_address || addressQuery;
+          selectedAddressRef.current = address;
+          setSelectedAddress(address);
+          setAddressQuery(address);
           placeMarker(pos);
           mapRef.current?.setCenter(pos);
           mapRef.current?.setZoom(16);
@@ -289,39 +315,32 @@ const LocationPickerDialog = ({
 
   const handleUseCurrentPosition = () => {
     onUseCurrentPosition();
-    if (coords) {
-      // Coords already available, use them immediately
-      setSelectedCoords(coords);
-      setSelectedAddress(detectedCity || "");
-      setAddressQuery(detectedCity || "");
-      placeMarker(coords);
-      mapRef.current?.setCenter(coords);
-      mapRef.current?.setZoom(14);
-    } else {
-      // Coords not yet available — directly request browser geolocation
-      // (handles the case where isEnabled is already true but coords are null)
-      setWaitingForPosition(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
-          setSelectedCoords(pos);
-          placeMarker(pos);
-          mapRef.current?.setCenter(pos);
-          mapRef.current?.setZoom(14);
-          reverseGeocode(pos);
-          setWaitingForPosition(false);
-        },
-        () => {
-          setWaitingForPosition(false);
-        },
-        { enableHighAccuracy: false, timeout: 10000 }
-      );
-    }
+    selectedAddressRef.current = "";
+    setSelectedAddress("");
+    setAddressQuery("");
+    setWaitingForPosition(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+        selectedCoordsRef.current = pos;
+        setSelectedCoords(pos);
+        placeMarker(pos);
+        mapRef.current?.setCenter(pos);
+        mapRef.current?.setZoom(14);
+        reverseGeocode(pos).finally(() => setWaitingForPosition(false));
+      },
+      () => {
+        setWaitingForPosition(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
-  const handleConfirm = () => {
-    if (activeCoords) {
-      onConfirm(activeCoords, selectedAddress || detectedCity || "");
+  const handleConfirm = async () => {
+    const coordsToConfirm = selectedCoordsRef.current || activeCoords;
+    if (coordsToConfirm) {
+      const addressToConfirm = selectedAddressRef.current || await reverseGeocode(coordsToConfirm) || addressQuery || detectedCity || `${coordsToConfirm.lat.toFixed(5)}, ${coordsToConfirm.lng.toFixed(5)}`;
+      onConfirm(coordsToConfirm, addressToConfirm);
       onOpenChange(false);
     }
   };

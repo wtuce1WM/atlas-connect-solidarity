@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { X, MapPin, Navigation, Search, Loader, Check } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { supabase } from "@/integrations/supabase/client";
 
 declare global {
   interface Window {
@@ -127,6 +128,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       map.addListener("click", (e: any) => {
         if (!e.latLng) return;
         const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
         placeMarker(pos);
         reverseGeocode(pos);
@@ -146,6 +148,8 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
           if (place.geometry?.location) {
             const pos = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
             const addr = place.formatted_address || place.name || "";
+            selectedCoordsRef.current = pos;
+            selectedAddressRef.current = addr;
             setSelectedCoords(pos);
             setSelectedAddress(addr);
             setAddressQuery(addr);
@@ -186,16 +190,37 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
     }
   }, [open]);
 
-  const reverseGeocode = useCallback((pos: { lat: number; lng: number }) => {
-    if (!window.google?.maps) return;
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ location: pos }, (results: any, status: any) => {
-      if (status === "OK" && results?.[0]) {
-        setSelectedAddress(results[0].formatted_address);
-        setAddressQuery(results[0].formatted_address);
-      }
-    });
+  const setReverseGeocodedAddress = useCallback((address: string | null) => {
+    if (!address) return;
+    selectedAddressRef.current = address;
+    setSelectedAddress(address);
+    setAddressQuery(address);
   }, []);
+
+  const reverseGeocode = useCallback(async (pos: { lat: number; lng: number }): Promise<string | null> => {
+    try {
+      const { data } = await supabase.functions.invoke("geocode-locations", {
+        body: { mode: "reverse", lat: pos.lat, lng: pos.lng },
+      });
+
+      if (typeof data?.address === "string" && data.address.trim()) {
+        setReverseGeocodedAddress(data.address);
+        return data.address;
+      }
+    } catch {
+      // fallback to the browser geocoder below
+    }
+
+    if (!window.google?.maps) return null;
+    const geocoder = new window.google.maps.Geocoder();
+    return new Promise((resolve) => {
+      geocoder.geocode({ location: pos }, (results: any, status: any) => {
+        const address = status === "OK" && results?.[0]?.formatted_address ? results[0].formatted_address : null;
+        setReverseGeocodedAddress(address);
+        resolve(address);
+      });
+    });
+  }, [setReverseGeocodedAddress]);
 
   const placeMarker = useCallback((pos: { lat: number; lng: number }) => {
     if (!mapRef.current) return;
@@ -219,24 +244,12 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       markerRef.current.addListener("dragend", (e: any) => {
         if (!e.latLng) return;
         const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        selectedCoordsRef.current = newPos;
         setSelectedCoords(newPos);
         reverseGeocode(newPos);
       });
     }
   }, [reverseGeocode]);
-
-  // When coords arrive after requesting position
-  useEffect(() => {
-    if (waitingForPosition && coords) {
-      setSelectedCoords(coords);
-      setSelectedAddress(geo.detectedCity || "");
-      setAddressQuery(geo.detectedCity || "");
-      setWaitingForPosition(false);
-      placeMarker(coords);
-      mapRef.current?.setCenter(coords);
-      mapRef.current?.setZoom(14);
-    }
-  }, [waitingForPosition, coords, geo.detectedCity, placeMarker]);
 
   const handleSearchAddress = useCallback(() => {
     if (!addressQuery.trim() || !window.google?.maps) return;
@@ -247,9 +260,12 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       if (status === "OK" && results?.[0]?.geometry?.location) {
         const loc = results[0].geometry.location;
         const pos = { lat: loc.lat(), lng: loc.lng() };
+        selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
-        setSelectedAddress(results[0].formatted_address || addressQuery);
-        setAddressQuery(results[0].formatted_address || addressQuery);
+        const address = results[0].formatted_address || addressQuery;
+        selectedAddressRef.current = address;
+        setSelectedAddress(address);
+        setAddressQuery(address);
         placeMarker(pos);
         mapRef.current?.setCenter(pos);
         mapRef.current?.setZoom(16);
@@ -259,16 +275,19 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
 
   const handleUseCurrentPosition = () => {
     if (!navigator.geolocation) return;
+    selectedAddressRef.current = "";
+    setSelectedAddress("");
+    setAddressQuery("");
     setWaitingForPosition(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+        selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
         placeMarker(pos);
         mapRef.current?.setCenter(pos);
         mapRef.current?.setZoom(14);
-        reverseGeocode(pos);
-        setWaitingForPosition(false);
+        reverseGeocode(pos).finally(() => setWaitingForPosition(false));
       },
       (err) => {
         console.warn("Geolocation denied/error:", err);
@@ -278,11 +297,11 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
     );
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     const coordsToConfirm = selectedCoordsRef.current || coords;
-    const addressToConfirm = selectedAddressRef.current || addressQuery || geo.detectedCity || "";
 
     if (coordsToConfirm) {
+      const addressToConfirm = selectedAddressRef.current || await reverseGeocode(coordsToConfirm) || addressQuery || geo.detectedCity || `${coordsToConfirm.lat.toFixed(5)}, ${coordsToConfirm.lng.toFixed(5)}`;
       geo.setManualLocation(coordsToConfirm, addressToConfirm);
       handleClose();
     }

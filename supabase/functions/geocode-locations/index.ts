@@ -18,6 +18,16 @@ async function geocode(name: string, apiKey: string): Promise<{ lat: number; lng
   return null;
 }
 
+async function reverseGeocode(lat: number, lng: number, apiKey: string): Promise<string | null> {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (data.status === 'OK' && data.results?.[0]?.formatted_address) {
+    return data.results[0].formatted_address;
+  }
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -34,6 +44,26 @@ serve(async (req) => {
     const body = await req.json();
     const { mode, name, context } = body;
     // mode: "single" (geocode one name) or "batch" (geocode all missing GPS)
+
+    if (mode === 'reverse') {
+      const lat = Number(body.lat);
+      const lng = Number(body.lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return new Response(JSON.stringify({ error: 'lat and lng are required' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const address = await reverseGeocode(lat, lng, apiKey);
+      if (address) {
+        return new Response(JSON.stringify({ address }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ error: 'Address not found' }), {
+        status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     if (mode === 'single') {
       if (!name) {
