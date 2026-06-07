@@ -2310,14 +2310,16 @@ const SearchPage = () => {
   }, [aiChat, aiInlineBusinessPool]);
 
   const searchMapPool = useMemo(() => {
+    // "Tous" toggle wins: show the full search result set, even when the AI
+    // panel has cited a subset of businesses.
+    if (showAllSearchMarkers && allSearchMapBusinesses.length > filteredBusinesses.length) {
+      return allSearchMapBusinesses;
+    }
     if (aiCitedMapPool.length > 0) {
       return aiCitedMapPool;
     }
     if (aiRefinementBusinessPool.length > 0) {
       return aiRefinementBusinessPool;
-    }
-    if (showAllSearchMarkers && allSearchMapBusinesses.length > filteredBusinesses.length) {
-      return allSearchMapBusinesses;
     }
     return filteredBusinesses;
   }, [aiCitedMapPool, aiRefinementBusinessPool, showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
