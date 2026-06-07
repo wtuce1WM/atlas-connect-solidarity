@@ -120,6 +120,7 @@ export default function ResultsTabContent({
   activeTimeSlot,
   language,
   openCompactPanel,
+  onCloseCompactPanel,
   getDistanceKm,
   setShowMobileMap,
   setShowAiPopup,
