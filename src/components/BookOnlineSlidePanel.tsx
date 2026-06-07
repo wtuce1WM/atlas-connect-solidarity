@@ -2294,6 +2294,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     </button>
                   </div>
                 )}
+                <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4AF37] text-black">
+                    <MapPin className="h-3.5 w-3.5" />
+                    Points d'intérêt
+                  </span>
+                </div>
                 {showSubcatPill && (
                   <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     <DropdownMenu>
