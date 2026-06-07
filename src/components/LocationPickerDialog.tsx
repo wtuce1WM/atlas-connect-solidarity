@@ -255,27 +255,21 @@ const LocationPickerDialog = ({
 
 
 
-  // When coords arrive after clicking "Ma position", update the dialog
-  useEffect(() => {
-    if (waitingForPosition && coords) {
-      setSelectedCoords(coords);
-      setSelectedAddress(detectedCity || "");
-      setAddressQuery(detectedCity || "");
-      setWaitingForPosition(false);
-      placeMarker(coords);
-      mapRef.current?.setCenter(coords);
-      mapRef.current?.setZoom(14);
-    }
-  }, [waitingForPosition, coords, detectedCity, placeMarker]);
-
-  const reverseGeocode = useCallback((pos: { lat: number; lng: number }) => {
-    if (!window.google?.maps) return;
+  const reverseGeocode = useCallback((pos: { lat: number; lng: number }): Promise<string | null> => {
+    if (!window.google?.maps) return Promise.resolve(null);
     const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ location: pos }, (results: any, status: any) => {
+    return new Promise((resolve) => {
+      geocoder.geocode({ location: pos }, (results: any, status: any) => {
       if (status === "OK" && results?.[0]) {
-        setSelectedAddress(results[0].formatted_address);
-        setAddressQuery(results[0].formatted_address);
+        const address = results[0].formatted_address;
+        selectedAddressRef.current = address;
+        setSelectedAddress(address);
+        setAddressQuery(address);
+        resolve(address);
+        return;
       }
+        resolve(null);
+      });
     });
   }, []);
 
@@ -290,9 +284,12 @@ const LocationPickerDialog = ({
         if (status === "OK" && results?.[0]?.geometry?.location) {
           const loc = results[0].geometry.location;
           const pos = { lat: loc.lat(), lng: loc.lng() };
+          selectedCoordsRef.current = pos;
           setSelectedCoords(pos);
-          setSelectedAddress(results[0].formatted_address || addressQuery);
-          setAddressQuery(results[0].formatted_address || addressQuery);
+          const address = results[0].formatted_address || addressQuery;
+          selectedAddressRef.current = address;
+          setSelectedAddress(address);
+          setAddressQuery(address);
           placeMarker(pos);
           mapRef.current?.setCenter(pos);
           mapRef.current?.setZoom(16);
