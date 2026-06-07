@@ -370,6 +370,7 @@ const BusinessMap = ({
       (marker as any)._isVerified = isVerified;
 
       marker.addListener("click", () => {
+        markerOpenedAtRef.current = Date.now();
         infoWindow.setContent(infoHtml(b, !!onBusinessClick));
         infoWindow.open(map, marker);
 
@@ -381,6 +382,8 @@ const BusinessMap = ({
             if (btn) {
               btn.addEventListener("click", (e) => {
                 e.preventDefault();
+                // Ignore the synthetic "ghost click" that follows the marker tap on touch devices
+                if (Date.now() - markerOpenedAtRef.current < 500) return;
                 onBusinessClick(b);
               });
             }
@@ -390,6 +393,7 @@ const BusinessMap = ({
           if (dirBtn) {
             dirBtn.addEventListener("click", (e) => {
               e.preventDefault();
+              if (Date.now() - markerOpenedAtRef.current < 500) return;
               window.open(`https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}`, "_blank");
             });
           }
