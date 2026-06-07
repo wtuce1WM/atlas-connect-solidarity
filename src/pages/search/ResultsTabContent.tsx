@@ -631,6 +631,46 @@ export default function ResultsTabContent({
                           </div>
                         );
                       })()}
+                      {/* Filtre "À proximité" — visible uniquement en mode "Tous" et si on connait la position user */}
+                      {showAllSearchMarkers && userCoords && (() => {
+                        const opts: { km: number; label: string }[] = [
+                          { km: 0.5, label: "Moins de 500 m" },
+                          { km: 1, label: "Moins de 1 km" },
+                          { km: 5, label: "Moins de 5 km" },
+                          { km: 10, label: "Moins de 10 km" },
+                        ];
+                        const active = opts.find(o => o.km === proximityKm);
+                        return (
+                          <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                                >
+                                  <Navigation className="h-3.5 w-3.5" />
+                                  {active ? active.label : "À proximité"}
+                                  {proximityActive && (
+                                    <span className="ml-0.5 opacity-70">{proximityCount}</span>
+                                  )}
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="z-[95]">
+                                {proximityKm != null && (
+                                  <DropdownMenuItem onSelect={() => setProximityKm(null)}>
+                                    Toutes distances
+                                  </DropdownMenuItem>
+                                )}
+                                {opts.map(o => (
+                                  <DropdownMenuItem key={o.km} onSelect={() => setProximityKm(o.km)}>
+                                    {o.label}
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })()}
