@@ -2257,10 +2257,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     : (language === "en" ? `Nearby establishments of ${business?.name}` : `Établissements à proximité de ${business?.name}`)}
               </span>
             </div>
+          </div>
+          <div className="flex-1 min-h-0 relative">
             {(showAllToggle || showSubcatPill || showProxPill) && (
-              <div className="flex items-center justify-center gap-2 pt-2 flex-wrap">
+              <div className="absolute top-2 left-0 right-0 z-[5] flex items-center justify-center gap-2 px-3 flex-wrap pointer-events-none">
                 {showAllToggle && (
-                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     <button
                       type="button"
                       onClick={() => setPoiShowAll(false)}
@@ -2278,7 +2280,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 )}
                 {showSubcatPill && (
-                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -2305,7 +2307,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 )}
                 {showProxPill && (
-                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -2345,8 +2347,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 )}
               </div>
             )}
-          </div>
-          <div className="flex-1 min-h-0">
+
             <PoiGoogleMap
               pois={poiMapMode === "destinations"
                 ? [
