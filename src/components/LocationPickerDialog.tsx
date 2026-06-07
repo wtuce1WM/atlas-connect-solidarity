@@ -328,7 +328,7 @@ const LocationPickerDialog = ({
             "p-0 gap-0 overflow-hidden flex flex-col"
           )}
         >
-          <DialogPrimitive.Close className="absolute left-4 top-4 rounded-full bg-black text-white w-8 h-8 flex items-center justify-center hover:bg-black/80 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
+          <DialogPrimitive.Close className="absolute left-4 top-4 rounded-full bg-black text-white w-8 h-8 flex items-center justify-center hover:bg-black/80 transition-colors focus:outline-none disabled:pointer-events-none z-10">
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
