@@ -1691,7 +1691,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               } else if (descGridSection === "poi") {
                 const activeFrontTabGrid = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
                 const afterCatGrid = activeFrontTabGrid
-                  ? poiBusinesses.filter((p) => (p.categories || []).some((c) => activeFrontTabGrid.subcategoryNames.has(c)))
+                  ? activePoiCategoryBusinesses
                   : poiBusinesses;
                 const afterSubcatGrid = poiSubcatFilter
                   ? afterCatGrid.filter((p) => (p.categories || []).includes(poiSubcatFilter))
@@ -1764,7 +1764,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   )}
                   <div className="w-full max-w-3xl mx-auto px-3 md:px-3 relative" style={{ perspective: "1200px", maxWidth: isMobileGrid ? "85%" : undefined }}>
                     <div
-                      key={`${descGridSection}-${descGridPage}`}
+                      key={`${descGridSection}-${poiCatFilter || "all"}-${poiSubcatFilter || "all"}-${poiProximityKm ?? "all"}-${descGridPage}`}
                       style={{
                         animation: "0.5s cubic-bezier(0.4, 0, 0.2, 1) both",
                         animationName: "descGridFlip",
