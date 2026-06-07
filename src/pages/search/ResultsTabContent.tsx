@@ -5,7 +5,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Building2, ChevronLeft, ChevronRight, Map, Clock, MapPin, X, Heart, SlidersHorizontal } from "lucide-react";
+import { Building2, ChevronLeft, ChevronRight, Map, Clock, MapPin, X, Heart, SlidersHorizontal, Navigation } from "lucide-react";
+import { haversineKm } from "@/lib/haversine";
 import ShareButton from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
 import SearchResultCard from "@/components/SearchResultCard";
@@ -145,6 +146,34 @@ export default function ResultsTabContent({
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
   const [activeFsServices, setActiveFsServices] = useState<string[]>([]);
   const [showFiltersOverlay, setShowFiltersOverlay] = useState(false);
+  // Filtre "à proximité" — actif uniquement en mode "Tous" et si on connait la position user.
+  const [proximityKm, setProximityKm] = useState<number | null>(null);
+  // Reset le filtre proximité quand on change de ville, requête, sous-cat ou quand on quitte "Tous"
+  useEffect(() => { setProximityKm(null); }, [effectiveCity, searchQuery, activeFsSubId, showAllSearchMarkers]);
+
+  const proximityActive = !!(proximityKm && userCoords && showAllSearchMarkers);
+
+  const proximityFilteredBusinesses = useMemo(() => {
+    if (!proximityActive) return null;
+    return filteredBusinesses.filter((b) => {
+      const d = getDistanceKm(b);
+      return d != null && d <= proximityKm!;
+    });
+  }, [proximityActive, proximityKm, filteredBusinesses, getDistanceKm]);
+
+  const proximityFilteredMapPoiItems = useMemo(() => {
+    if (!proximityActive) return null;
+    return mapPoiItems.filter((p) => {
+      if (p.latitude == null || p.longitude == null) return false;
+      const d = haversineKm(userCoords!.lat, userCoords!.lng, p.latitude, p.longitude);
+      return d <= proximityKm!;
+    });
+  }, [proximityActive, proximityKm, mapPoiItems, userCoords]);
+
+  const effectiveBusinesses = proximityFilteredBusinesses ?? paginatedBusinesses;
+  const effectiveMapPoiItems = proximityFilteredMapPoiItems ?? mapPoiItems;
+  const proximityCount = proximityFilteredBusinesses?.length ?? 0;
+
   useEffect(() => { if (compactPanelBusiness) setShowFiltersOverlay(false); }, [compactPanelBusiness]);
   useEffect(() => {
     const handler = () => setShowFiltersOverlay(true);
@@ -390,7 +419,7 @@ export default function ResultsTabContent({
               </div>
               {/* Results grid */}
               <div className={`grid gap-4 ${resolvedHotelSearchInfo ? "pt-2 lg:pt-10" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
-                {paginatedBusinesses.map((business, index) => {
+                {effectiveBusinesses.map((business, index) => {
                   const card = (
                     <SearchResultCard
                       key={business.id}
@@ -411,7 +440,7 @@ export default function ResultsTabContent({
               {belowCardsSlot}
 
               {/* Pagination */}
-              {totalPages > 1 && (
+              {!proximityActive && totalPages > 1 && (
                 <div className="mb-20 flex flex-col items-center gap-1">
                   <p className="text-sm text-muted-foreground">
                     {t.showing} {startResult} {t.to} {endResult} sur {displayedResultsCount} {t.results}
@@ -475,7 +504,7 @@ export default function ResultsTabContent({
           <div className="w-1/2 sticky top-0 h-screen z-[50] overflow-hidden">
             <div className="relative h-full min-h-0">
               <PoiGoogleMap
-                pois={mapPoiItems}
+                pois={effectiveMapPoiItems}
                 selectedPoiId={compactPanelBusiness?.id || null}
                 hoveredPoiId={hoveredResultId || null}
                 onPoiClick={(poiId) => {
@@ -595,6 +624,46 @@ export default function ResultsTabContent({
                                 {frontTabs.map((ft) => (
                                   <DropdownMenuItem key={ft.id} onSelect={() => handleFsTabClick(ft.id)}>
                                     {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        );
+                      })()}
+                      {/* Filtre "À proximité" — visible uniquement en mode "Tous" et si on connait la position user */}
+                      {showAllSearchMarkers && userCoords && (() => {
+                        const opts: { km: number; label: string }[] = [
+                          { km: 0.5, label: "Moins de 500 m" },
+                          { km: 1, label: "Moins de 1 km" },
+                          { km: 5, label: "Moins de 5 km" },
+                          { km: 10, label: "Moins de 10 km" },
+                        ];
+                        const active = opts.find(o => o.km === proximityKm);
+                        return (
+                          <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                                >
+                                  <Navigation className="h-3.5 w-3.5" />
+                                  {active ? active.label : "À proximité"}
+                                  {proximityActive && (
+                                    <span className="ml-0.5 opacity-70">{proximityCount}</span>
+                                  )}
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="z-[95]">
+                                {proximityKm != null && (
+                                  <DropdownMenuItem onSelect={() => setProximityKm(null)}>
+                                    Toutes distances
+                                  </DropdownMenuItem>
+                                )}
+                                {opts.map(o => (
+                                  <DropdownMenuItem key={o.km} onSelect={() => setProximityKm(o.km)}>
+                                    {o.label}
                                   </DropdownMenuItem>
                                 ))}
                               </DropdownMenuContent>
