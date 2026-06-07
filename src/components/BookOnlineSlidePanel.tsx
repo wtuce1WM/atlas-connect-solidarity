@@ -774,15 +774,26 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const hasDestCarousel = destinations.length > 1;
   const hasPoiCarousel = poiBusinesses.length >= 2;
 
-  // Fetch KP group title
+  // Fetch KP group title (try kp1 first, then fall back to kp2)
   useEffect(() => {
-    const kpCode = business?.kp_regroupement?.trim();
-    if (!kpCode || !hasKpCarousel) { setKpGroupTitle(null); return; }
+    const kp1 = business?.kp_regroupement?.trim();
+    const kp2 = business?.kp_regroupement_2?.trim();
+    if ((!kp1 && !kp2) || !hasKpCarousel) { setKpGroupTitle(null); return; }
     let cancelled = false;
-    supabase.from("kp_group_titles").select("title").eq("kp_code", kpCode).eq("kp_type", "kp1").maybeSingle()
-      .then(({ data }) => { if (!cancelled) setKpGroupTitle(data?.title || null); });
+    (async () => {
+      let title: string | null = null;
+      if (kp1) {
+        const { data } = await supabase.from("kp_group_titles").select("title").eq("kp_code", kp1).eq("kp_type", "kp1").maybeSingle();
+        title = data?.title || null;
+      }
+      if (!title && kp2) {
+        const { data } = await supabase.from("kp_group_titles").select("title").eq("kp_code", kp2).eq("kp_type", "kp2").maybeSingle();
+        title = data?.title || null;
+      }
+      if (!cancelled) setKpGroupTitle(title);
+    })();
     return () => { cancelled = true; };
-  }, [business?.kp_regroupement, hasKpCarousel]);
+  }, [business?.kp_regroupement, business?.kp_regroupement_2, hasKpCarousel]);
 
   const videoTabLabel = useMemo(() => {
     if (business?.carousel_badge) {
