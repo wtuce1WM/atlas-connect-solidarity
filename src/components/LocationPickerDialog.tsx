@@ -453,7 +453,7 @@ const LocationPickerDialog = ({
             onClick={handleConfirm}
             disabled={!activeCoords}
             style={{ backgroundColor: "#25D366", fontFamily: "'Josefin Sans', sans-serif" }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-semibold text-sm normal-case tracking-normal hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Check className="h-4 w-4" />
             {language === "en" ? "Confirm this address" : language === "ar" ? "تأكيد هذا العنوان" : "Confirmer cette adresse"}
