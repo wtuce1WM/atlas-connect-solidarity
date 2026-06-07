@@ -335,7 +335,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
             }
             onRemove() { this.div?.remove(); this.div = undefined; }
           }
-          const overlay = new PillOverlay(mid);
+          const overlay = new PillOverlay(mid) as unknown as google.maps.OverlayView;
           overlay.setMap(map);
           routeLabelsRef.current.push(overlay);
         });
