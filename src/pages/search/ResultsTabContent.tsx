@@ -134,6 +134,7 @@ export default function ResultsTabContent({
   fsTopBusinessId,
   allCityMapBusinesses,
   allSearchMapBusinesses,
+  allSearchMapPoiItems,
   hideAiSuggestion,
   hotelSearchInfo,
   showAllSearchMarkers,
