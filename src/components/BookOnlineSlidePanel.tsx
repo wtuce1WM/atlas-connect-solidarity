@@ -241,6 +241,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
   const poiOpenedFromMapRef = useRef(false);
   const { coords: userCoords } = useGeolocation();
+  const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
   
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
