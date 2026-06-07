@@ -452,7 +452,7 @@ const LocationPickerDialog = ({
           <button
             onClick={handleConfirm}
             disabled={!activeCoords}
-            style={{ backgroundColor: "#25D366" }}
+            style={{ backgroundColor: "#25D366", fontFamily: "'Josefin Sans', sans-serif" }}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Check className="h-4 w-4" />
