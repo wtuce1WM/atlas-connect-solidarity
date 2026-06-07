@@ -262,17 +262,12 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     if (destMarkerRef.current) { destMarkerRef.current.setMap(null); destMarkerRef.current = null; }
     if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
     if (infoWindowRef.current) { infoWindowRef.current.close(); infoWindowRef.current = null; }
+    directionsRenderersRef.current.forEach((r) => r.setMap(null));
+    directionsRenderersRef.current = [];
+    routeLabelsRef.current.forEach((iw) => iw.close());
+    routeLabelsRef.current = [];
 
     if (!directionsServiceRef.current) directionsServiceRef.current = new gmaps.DirectionsService();
-    if (!directionsRendererRef.current) {
-      directionsRendererRef.current = new gmaps.DirectionsRenderer({
-        map,
-        suppressMarkers: false,
-        preserveViewport: false,
-      });
-    } else {
-      directionsRendererRef.current.setMap(map);
-    }
 
     directionsServiceRef.current.route(
       {
@@ -290,15 +285,50 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
           return;
         }
-        directionsRendererRef.current!.setDirections(result);
-        const leg = result.routes[0]?.legs[0];
-        if (leg) {
+
+        const routes = result.routes || [];
+        // Render each alternative — primary first goes on top
+        routes.forEach((route, idx) => {
+          const isPrimary = idx === 0;
+          const renderer = new gmaps.DirectionsRenderer({
+            map,
+            directions: result,
+            routeIndex: idx,
+            suppressMarkers: !isPrimary,
+            preserveViewport: true,
+            polylineOptions: {
+              strokeColor: isPrimary ? "#4285F4" : "#9AA8FF",
+              strokeOpacity: isPrimary ? 0.95 : 0.7,
+              strokeWeight: isPrimary ? 6 : 5,
+              zIndex: isPrimary ? 10 : 1,
+            },
+          });
+          directionsRenderersRef.current.push(renderer);
+
+          // Label at a midpoint with duration + distance (Google Maps native look)
+          const leg = route.legs?.[0];
+          if (!leg) return;
+          const path: google.maps.LatLng[] = [];
+          leg.steps?.forEach((s) => s.path?.forEach((p) => path.push(p)));
+          const mid = path[Math.floor(path.length / 2)] || leg.end_location;
+          const dur = leg.duration?.text || "";
+          const dist = leg.distance?.text || "";
+          const icon = directionsMode === "walking" ? "🚶" : "🚗";
+          const content = `<div style="font-family:Roboto,Arial,sans-serif;font-size:13px;line-height:1.2;padding:2px 4px;white-space:nowrap;"><div style="font-weight:600;color:#202124;">${icon} ${dur}</div><div style="color:#5f6368;font-size:12px;">${dist}</div></div>`;
+          const iw = new gmaps.InfoWindow({ content, position: mid, disableAutoPan: true });
+          iw.open({ map });
+          routeLabelsRef.current.push(iw);
+        });
+
+        const primary = routes[0];
+        const leg0 = primary?.legs?.[0];
+        if (leg0) {
           setRouteInfo({
-            distanceMeters: leg.distance?.value ?? null,
-            duration: leg.duration?.value != null ? `${leg.duration.value}s` : null,
+            distanceMeters: leg0.distance?.value ?? null,
+            duration: leg0.duration?.value != null ? `${leg0.duration.value}s` : null,
           });
         }
-        const bounds = result.routes[0]?.bounds;
+        const bounds = primary?.bounds;
         if (bounds) {
           map.fitBounds(bounds, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
         }
