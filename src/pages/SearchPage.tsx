@@ -3400,20 +3400,7 @@ const SearchPage = () => {
   return (
     <div className={`min-h-screen ${activeTab === "youtube" ? "bg-transparent" : "bg-white"}`} style={{ overflowX: 'clip' }}>
       <Header compact variant={activeTab === "youtube" ? "city" : undefined} rightContent={
-        <div data-tab-bar ref={(el) => {
-          if (el) {
-            const active = el.querySelector('[data-active-tab="true"]') as HTMLElement;
-            if (active) {
-              const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
-              el.scrollTo({ left: scrollLeft, behavior: "smooth" });
-            }
-          }
-        }} onWheel={(e) => {
-          const el = e.currentTarget;
-          const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-          if (delta === 0) return;
-          el.scrollLeft += delta;
-        }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        <div data-tab-bar ref={tabBarRef} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {[
             { key: "suggestions", icon: <Search className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
             { key: "ai", icon: <Sparkles className="h-4 w-4" />, label: "IA" },
