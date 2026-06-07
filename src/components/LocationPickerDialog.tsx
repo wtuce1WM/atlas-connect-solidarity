@@ -172,7 +172,9 @@ const LocationPickerDialog = ({
       mapRef.current = null;
       markerRef.current = null;
       autocompleteRef.current = null;
+      infoWindowRef.current = null;
     };
+
   }, [openCount, mapsLoaded]);
 
   useEffect(() => {
@@ -195,26 +197,36 @@ const LocationPickerDialog = ({
   // Track when we're waiting for browser geolocation to resolve
   const [waitingForPosition, setWaitingForPosition] = useState(false);
 
+  const infoWindowRef = useRef<any>(null);
+
   const placeMarker = useCallback((pos: { lat: number; lng: number }) => {
     if (!mapRef.current) return;
+    const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="46" viewBox="0 0 384 512"><path fill="#C04F17" stroke="#ffffff" stroke-width="20" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`;
+    const icon = {
+      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(pinSvg)}`,
+      scaledSize: new window.google.maps.Size(36, 46),
+      anchor: new window.google.maps.Point(18, 46),
+    };
     if (markerRef.current) {
       markerRef.current.setPosition(pos);
+      markerRef.current.setIcon(icon);
     } else {
       markerRef.current = new window.google.maps.Marker({
         position: pos,
         map: mapRef.current,
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 12,
-          fillColor: "#b89a5a",
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 3,
-        },
+        icon,
         animation: window.google.maps.Animation.DROP,
       });
     }
+    if (!infoWindowRef.current) {
+      infoWindowRef.current = new window.google.maps.InfoWindow({
+        content: `<div style="font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:600;color:#C04F17;padding:2px 4px;white-space:nowrap;">Vous êtes ici</div>`,
+        disableAutoPan: true,
+      });
+    }
+    infoWindowRef.current.open({ map: mapRef.current, anchor: markerRef.current });
   }, []);
+
 
   // When coords arrive after clicking "Ma position", update the dialog
   useEffect(() => {
