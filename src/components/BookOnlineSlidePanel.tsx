@@ -2249,6 +2249,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             >
               <X className="h-4 w-4" />
             </button>
+            <div className="absolute top-[calc(3.3rem+0.75rem)] right-3 z-[15] flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                aria-label="Le Club OWM"
+              >
+                <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+              </button>
+              <ShareButton
+                title={business?.name || (language === "en" ? "Nearby" : "À proximité")}
+                variant="dark"
+                className="shrink-0"
+              />
+            </div>
             {business?.name && (
               <div className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
                 <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
