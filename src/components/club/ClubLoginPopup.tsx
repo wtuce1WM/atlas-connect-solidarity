@@ -42,7 +42,7 @@ const ClubLoginPopup = () => {
         className="w-[90%] max-w-md rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ backgroundColor: "#6050DC" }} className="p-3 sm:p-6 text-white relative">
+        <div style={{ backgroundColor: "#C04F17" }} className="p-3 sm:p-6 text-white relative">
           <button
             type="button"
             onClick={() => setOpen(false)}
