@@ -151,7 +151,7 @@ export default function ResultsTabContent({
   // Filtre "à proximité" — actif uniquement en mode "Tous" et si on connait la position user.
   const [proximityKm, setProximityKm] = useState<number | null>(null);
   // Reset le filtre proximité quand on change de ville, requête, sous-cat ou quand on quitte "Tous"
-  useEffect(() => { setProximityKm(null); }, [effectiveCity, searchQuery, activeFsSubId, showAllSearchMarkers]);
+  useEffect(() => { setProximityKm(null); }, [effectiveCity, searchQuery, activeFsSubId]);
 
   const proximityActive = !!(proximityKm && userCoords);
 
