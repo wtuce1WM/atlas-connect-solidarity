@@ -2310,27 +2310,27 @@ const SearchPage = () => {
   }, [aiChat, aiInlineBusinessPool]);
 
   const searchMapPool = useMemo(() => {
-    // "Tous" toggle wins: show the full search result set (already loaded or
-    // freshly fetched), even when the AI panel has cited a subset.
+    const isAiTab = activeTab === "ai" || showAiPopup;
+    // "Tous" toggle wins everywhere.
     if (showAllSearchMarkers) {
       return allSearchMapBusinesses.length > filteredBusinesses.length
         ? allSearchMapBusinesses
         : filteredBusinesses;
     }
-    if (aiCitedMapPool.length > 0) {
-      return aiCitedMapPool;
+    // AI tab: map reflects the AI conversation (cited / refined pools).
+    if (isAiTab) {
+      if (aiCitedMapPool.length > 0) return aiCitedMapPool;
+      if (aiRefinementBusinessPool.length > 0) return aiRefinementBusinessPool;
     }
-    if (aiRefinementBusinessPool.length > 0) {
-      return aiRefinementBusinessPool;
-    }
+    // Results tab (and any other tab): always show the plain search results.
     return filteredBusinesses;
-  }, [aiCitedMapPool, aiRefinementBusinessPool, showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
-
+  }, [activeTab, showAiPopup, aiCitedMapPool, aiRefinementBusinessPool, showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
   const hasActiveSearchContext = !!searchQuery.trim() || !!categoryFromUrl || totalCount !== null;
   const frontStructurePool = useMemo(() => {
     if (hasActiveSearchContext) return searchMapPool;
     return allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
   }, [hasActiveSearchContext, searchMapPool, allCityMapBusinesses, filteredBusinesses]);
+
 
   // "Tous" tab: show search results only (desktop) — capped to 20 unless "Voir tous" is toggled
   const mapPoiItemsSearch: PoiMapItem[] = useMemo(() => {
