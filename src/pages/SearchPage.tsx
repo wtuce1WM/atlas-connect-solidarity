@@ -3428,12 +3428,7 @@ const SearchPage = () => {
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
-                const btn = e.currentTarget;
-                const container = btn.parentElement;
-                if (container) {
-                  const scrollLeft = btn.offsetLeft - container.clientWidth / 2 + btn.offsetWidth / 2;
-                  container.scrollTo({ left: scrollLeft, behavior: "smooth" });
-                }
+              
               }}
               className={`flex items-center gap-2 px-3 py-2 text-xs font-bold transition-colors border-b-2 whitespace-nowrap ${
                 isActive
