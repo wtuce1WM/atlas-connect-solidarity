@@ -907,12 +907,17 @@ const SearchPage = () => {
 
     // Center the active tab in the tab bar whenever it changes
     useEffect(() => {
-      const el = document.querySelector<HTMLElement>('[data-tab-bar]');
-      if (!el) return;
-      const active = el.querySelector<HTMLElement>('[data-active-tab="true"]');
-      if (!active) return;
-      const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
-      el.scrollTo({ left: scrollLeft, behavior: "smooth" });
+      const center = () => {
+        const el = document.querySelector<HTMLElement>('[data-tab-bar]');
+        if (!el) return;
+        const active = el.querySelector<HTMLElement>('[data-active-tab="true"]');
+        if (!active) return;
+        const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
+        el.scrollTo({ left: Math.max(0, scrollLeft), behavior: "smooth" });
+      };
+      const r1 = requestAnimationFrame(() => requestAnimationFrame(center));
+      const t = setTimeout(center, 200);
+      return () => { cancelAnimationFrame(r1); clearTimeout(t); };
     }, [activeTab]);
 
    // When landing on /search?tab=ai without a query, restore the last AI suggestion from session
