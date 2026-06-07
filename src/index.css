@@ -683,3 +683,9 @@ html.hide-scrollbar-search::-webkit-scrollbar {
 @media (prefers-reduced-motion: reduce) {
   .club-hero-bg, .club-hero-halo, .club-hero-ember, .club-hero-inner { transform: none !important; animation: none !important; }
 }
+
+/* Google Places Autocomplete dropdown must sit above Radix Dialog and remain clickable */
+.pac-container {
+  z-index: 10000 !important;
+  pointer-events: auto !important;
+}
