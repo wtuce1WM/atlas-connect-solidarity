@@ -201,11 +201,22 @@ const LocationPickerDialog = ({
 
   const placeMarker = useCallback((pos: { lat: number; lng: number }) => {
     if (!mapRef.current) return;
-    const pinSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="46" viewBox="0 0 384 512"><path fill="#C04F17" stroke="#ffffff" stroke-width="20" d="M192 0C86 0 0 86 0 192c0 144 192 320 192 320s192-176 192-320C384 86 298 0 192 0zm0 272c-44.2 0-80-35.8-80-80s35.8-80 80-80 80 35.8 80 80-35.8 80-80 80z"/></svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="120" viewBox="0 0 220 120">
+      <g transform="translate(86,0)">
+        <path fill="#C04F17" stroke="#ffffff" stroke-width="2" d="M24 0C10.7 0 0 10.7 0 24c0 18 24 40 24 40s24-22 24-40C48 10.7 37.3 0 24 0zm0 34c-5.5 0-10-4.5-10-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10z"/>
+      </g>
+      <g transform="translate(40,72)" filter="url(#s)">
+        <rect width="140" height="34" rx="17" fill="#C04F17"/>
+        <circle cx="18" cy="17" r="8" fill="none" stroke="#ffffff" stroke-width="2"/>
+        <circle cx="18" cy="17" r="2.5" fill="#ffffff"/>
+        <text x="34" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="13" font-weight="700" fill="#ffffff">Vous êtes ici</text>
+      </g>
+      <defs><filter id="s" x="-10%" y="-30%" width="120%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter></defs>
+    </svg>`;
     const icon = {
-      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(pinSvg)}`,
-      scaledSize: new window.google.maps.Size(36, 46),
-      anchor: new window.google.maps.Point(18, 46),
+      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+      scaledSize: new window.google.maps.Size(220, 120),
+      anchor: new window.google.maps.Point(110, 64),
     };
     if (markerRef.current) {
       markerRef.current.setPosition(pos);
@@ -218,14 +229,8 @@ const LocationPickerDialog = ({
         animation: window.google.maps.Animation.DROP,
       });
     }
-    if (!infoWindowRef.current) {
-      infoWindowRef.current = new window.google.maps.InfoWindow({
-        content: `<div style="font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:600;color:#C04F17;padding:2px 4px;white-space:nowrap;">Vous êtes ici</div>`,
-        disableAutoPan: true,
-      });
-    }
-    infoWindowRef.current.open({ map: mapRef.current, anchor: markerRef.current });
   }, []);
+
 
 
   // When coords arrive after clicking "Ma position", update the dialog
