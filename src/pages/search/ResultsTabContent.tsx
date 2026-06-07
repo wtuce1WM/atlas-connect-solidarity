@@ -76,6 +76,7 @@ export interface ResultsTabContentProps {
   onFrontStructureServicesFilter?: (services: Set<string> | null) => void;
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
+  allSearchMapBusinesses?: Business[];
   hideAiSuggestion?: boolean;
   hotelSearchInfo?: { city: string; checkIn: string; checkOut: string; adults: number } | null;
   showAllSearchMarkers?: boolean;
@@ -131,6 +132,7 @@ export default function ResultsTabContent({
   onFrontStructureServicesFilter,
   fsTopBusinessId,
   allCityMapBusinesses,
+  allSearchMapBusinesses,
   hideAiSuggestion,
   hotelSearchInfo,
   showAllSearchMarkers,
@@ -155,11 +157,16 @@ export default function ResultsTabContent({
 
   const proximityFilteredBusinesses = useMemo(() => {
     if (!proximityActive) return null;
-    return filteredBusinesses.filter((b) => {
+    // Use the full search map pool (same as the markers) so the cards never miss
+    // a result that's only loaded in the map pool, not yet in the paginated list.
+    const pool = (allSearchMapBusinesses && allSearchMapBusinesses.length > filteredBusinesses.length)
+      ? allSearchMapBusinesses
+      : filteredBusinesses;
+    return pool.filter((b) => {
       const d = getDistanceKm(b);
       return d != null && d <= proximityKm!;
     });
-  }, [proximityActive, proximityKm, filteredBusinesses, getDistanceKm]);
+  }, [proximityActive, proximityKm, filteredBusinesses, allSearchMapBusinesses, getDistanceKm]);
 
   const proximityFilteredMapPoiItems = useMemo(() => {
     if (!proximityActive) return null;
