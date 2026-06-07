@@ -290,26 +290,48 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         // Render each alternative — primary first goes on top
         routes.forEach((route, idx) => {
           const isPrimary = idx === 0;
+          // For walking: use Google's native dotted style (suppressPolylines → manual dots).
+          // For driving: classic blue solid line.
           const renderer = new gmaps.DirectionsRenderer({
             map,
             directions: result,
             routeIndex: idx,
             suppressMarkers: !isPrimary,
             preserveViewport: true,
-            polylineOptions: {
-              strokeColor: isPrimary ? "#4285F4" : "#9AA8FF",
-              strokeOpacity: isPrimary ? 0.95 : 0.7,
-              strokeWeight: isPrimary ? 6 : 5,
-              zIndex: isPrimary ? 10 : 1,
-            },
+            suppressPolylines: directionsMode === "walking",
           });
           directionsRenderersRef.current.push(renderer);
 
-          // Custom pill label at midpoint (Google Maps "alt route" style)
           const leg = route.legs?.[0];
           if (!leg) return;
           const path: google.maps.LatLng[] = [];
           leg.steps?.forEach((s) => s.path?.forEach((p) => path.push(p)));
+
+          // Manual walking polyline: dotted dark-blue circles (Google native style)
+          if (directionsMode === "walking") {
+            const color = isPrimary ? "#1a237e" : "#5c6bc0";
+            const dotted = new gmaps.Polyline({
+              path,
+              map,
+              strokeOpacity: 0,
+              zIndex: isPrimary ? 10 : 1,
+              icons: [{
+                icon: {
+                  path: gmaps.SymbolPath.CIRCLE,
+                  scale: 4,
+                  fillColor: color,
+                  fillOpacity: 1,
+                  strokeColor: color,
+                  strokeWeight: 1,
+                },
+                offset: "0",
+                repeat: "12px",
+              }],
+            });
+            polylinesRef.current.push(dotted);
+          }
+
+          // Label with tail (Google Maps "alt route" style)
           const mid = path[Math.floor(path.length / 2)] || leg.end_location;
           const dur = leg.duration?.text || "";
           const dist = leg.distance?.text || "";
@@ -320,11 +342,17 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
             private pos: google.maps.LatLng;
             constructor(pos: google.maps.LatLng) { super(); this.pos = pos; }
             onAdd() {
-              const div = document.createElement("div");
-              div.style.cssText = "position:absolute;transform:translate(-50%,-50%);background:#fff;border:1px solid rgba(0,0,0,0.15);border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.25);padding:4px 8px;font-family:Roboto,Arial,sans-serif;white-space:nowrap;pointer-events:none;z-index:" + (isPrimary ? 50 : 40) + ";";
-              div.innerHTML = `<div style="font-size:13px;font-weight:600;color:#202124;line-height:1.15;">${icon} ${dur}</div><div style="font-size:11px;color:#5f6368;line-height:1.15;">${dist}</div>`;
-              this.div = div;
-              this.getPanes()!.floatPane.appendChild(div);
+              const wrap = document.createElement("div");
+              wrap.style.cssText = `position:absolute;transform:translate(-50%,calc(-100% - 10px));pointer-events:none;z-index:${isPrimary ? 50 : 40};filter:drop-shadow(0 1px 2px rgba(0,0,0,0.25));`;
+              wrap.innerHTML = `
+                <div style="background:#fff;border:1px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;font-family:Roboto,Arial,sans-serif;white-space:nowrap;">
+                  <div style="font-size:13px;font-weight:600;color:#202124;line-height:1.15;">${icon} ${dur}</div>
+                  <div style="font-size:11px;color:#5f6368;line-height:1.15;margin-top:1px;">${dist}</div>
+                </div>
+                <div style="position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid #fff;"></div>
+              `;
+              this.div = wrap;
+              this.getPanes()!.floatPane.appendChild(wrap);
             }
             draw() {
               if (!this.div) return;
