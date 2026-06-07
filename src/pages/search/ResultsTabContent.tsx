@@ -711,7 +711,10 @@ export default function ResultsTabContent({
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="z-[95]">
                                 {proximityKm != null && (
-                                  <DropdownMenuItem onSelect={() => setProximityKm(null)}>
+                                  <DropdownMenuItem onSelect={() => {
+                                    setProximityKm(null);
+                                    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+                                  }}>
                                     Toutes distances
                                   </DropdownMenuItem>
                                 )}
@@ -725,6 +728,7 @@ export default function ResultsTabContent({
                                       onSelect={(e) => {
                                         if (disabled) { e.preventDefault(); return; }
                                         setProximityKm(o.km);
+                                        requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
                                       }}
                                       className={disabled ? "opacity-40 pointer-events-none" : ""}
                                     >
