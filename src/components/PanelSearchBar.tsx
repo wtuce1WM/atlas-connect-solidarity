@@ -137,7 +137,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       >
         {icon}
       </span>
-      <span className="text-[9px] font-bold tracking-wider text-white leading-none font-['Roboto',sans-serif]">{label}</span>
+      <span className="text-[11px] font-bold tracking-wider text-white leading-none font-['Roboto',sans-serif]">{label}</span>
     </button>
   );
 
