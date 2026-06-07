@@ -298,9 +298,17 @@ export default function ResultsTabContent({
         }
       }
     }
-    const entries = Object.entries(counts);
+    const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     if (entries.length === 0) return;
-    const [bestId] = entries.sort((a, b) => b[1] - a[1])[0];
+    const [bestId, bestCount] = entries[0];
+    const secondCount = entries[1]?.[1] ?? 0;
+    const total = filteredBusinesses.length;
+    // Only auto-lock a main category when the dominance is clear:
+    // - best tab covers at least 60% of results,
+    // - AND it is at least twice the runner-up.
+    // Otherwise leave it null so the badge stays "Catégorie" (ambiguous search).
+    const dominant = bestCount / total >= 0.6 && bestCount >= secondCount * 2;
+    if (!dominant) return;
     setActiveFsTabId(bestId);
 
   }, [frontTabs, filteredBusinesses, activeFsTabId, labelFromUrl]);
