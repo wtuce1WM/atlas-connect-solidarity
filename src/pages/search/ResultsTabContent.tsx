@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Building2, ChevronLeft, ChevronRight, Map, Clock, MapPin, X, Heart, SlidersHorizontal, Navigation } from "lucide-react";
+import { Building2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Map, Clock, MapPin, X, Heart, SlidersHorizontal, Navigation } from "lucide-react";
 import { haversineKm } from "@/lib/haversine";
 import ShareButton from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
@@ -507,8 +507,11 @@ export default function ResultsTabContent({
                       disabled={currentPage === 1}
                       className="gap-1"
                     >
-                      <ChevronLeft className="h-4 w-4" />
-                      {t.previous}
+                      <span className="sm:hidden"><ChevronsLeft className="h-4 w-4" /></span>
+                      <span className="hidden sm:inline-flex items-center gap-1">
+                        <ChevronLeft className="h-4 w-4" />
+                        {t.previous}
+                      </span>
                     </Button>
 
                     <div className="flex items-center gap-1">
@@ -544,8 +547,11 @@ export default function ResultsTabContent({
                       disabled={currentPage === totalPages}
                       className="gap-1"
                     >
-                      {t.next}
-                      <ChevronRight className="h-4 w-4" />
+                      <span className="sm:hidden"><ChevronsRight className="h-4 w-4" /></span>
+                      <span className="hidden sm:inline-flex items-center gap-1">
+                        {t.next}
+                        <ChevronRight className="h-4 w-4" />
+                      </span>
                     </Button>
                   </div>
                 </div>
