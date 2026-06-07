@@ -352,6 +352,7 @@ export default function ResultsTabContent({
                 <button
                   onClick={() => {
                     setShowFiltersOverlay(false);
+                    if (compactPanelBusiness) onCloseCompactPanel?.();
                     if (hasKnownLocation && hideResultsMap) {
                       setHideResultsMap(false);
                     } else {
