@@ -252,29 +252,23 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
 
   const handleUseCurrentPosition = () => {
     geo.accept();
-    if (coords) {
-      setSelectedCoords(coords);
-      setSelectedAddress(geo.detectedCity || "");
-      setAddressQuery(geo.detectedCity || "");
-      placeMarker(coords);
-      mapRef.current?.setCenter(coords);
-      mapRef.current?.setZoom(14);
-    } else {
-      setWaitingForPosition(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
-          setSelectedCoords(pos);
-          placeMarker(pos);
-          mapRef.current?.setCenter(pos);
-          mapRef.current?.setZoom(14);
-          reverseGeocode(pos);
-          setWaitingForPosition(false);
-        },
-        () => setWaitingForPosition(false),
-        { enableHighAccuracy: false, timeout: 10000 }
-      );
-    }
+    setWaitingForPosition(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+        setSelectedCoords(pos);
+        placeMarker(pos);
+        mapRef.current?.setCenter(pos);
+        mapRef.current?.setZoom(14);
+        reverseGeocode(pos);
+        setWaitingForPosition(false);
+      },
+      (err) => {
+        console.warn("Geolocation denied/error:", err);
+        setWaitingForPosition(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   const handleConfirm = () => {
