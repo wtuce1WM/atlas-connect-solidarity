@@ -134,6 +134,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const routeRequestRef = useRef(0);
   const originMarkerRef = useRef<google.maps.Marker | null>(null);
   const destMarkerRef = useRef<google.maps.Marker | null>(null);
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const geo = useGeolocation();
 
   const requestBrowserOrigin = useCallback(() => {
@@ -268,6 +269,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     });
 
     if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
+    if (infoWindowRef.current) { infoWindowRef.current.close(); infoWindowRef.current = null; }
 
     const drawRoute = (encoded: string) => {
       const path = decodeEncodedPolyline(encoded);
@@ -295,10 +297,26 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           return;
         }
         drawRoute(data.encodedPolyline);
-        setRouteInfo({
-          distanceMeters: typeof data.distanceMeters === "number" ? data.distanceMeters : null,
-          duration: typeof data.duration === "string" ? data.duration : null,
-        });
+        const distM = typeof data.distanceMeters === "number" ? data.distanceMeters : null;
+        const dur = typeof data.duration === "string" ? data.duration : null;
+        setRouteInfo({ distanceMeters: distM, duration: dur });
+
+        // Native Google InfoWindow at polyline midpoint with duration · distance
+        const path = polylineRef.current?.getPath();
+        if (path && path.getLength() > 0) {
+          const mid = path.getAt(Math.floor(path.getLength() / 2));
+          const durLabel = formatDuration(dur);
+          const distLabel = formatDistance(distM);
+          if (durLabel || distLabel) {
+            if (infoWindowRef.current) infoWindowRef.current.close();
+            infoWindowRef.current = new gmaps.InfoWindow({
+              position: mid,
+              content: `<div style="font:600 13px/1.2 Roboto,Arial,sans-serif;color:#202124;padding:2px 4px;">${directionsMode === "walking" ? "🚶" : "🚗"} ${durLabel ?? ""}${durLabel && distLabel ? " · " : ""}${distLabel ?? ""}</div>`,
+              disableAutoPan: true,
+            });
+            infoWindowRef.current.open({ map });
+          }
+        }
       } catch (e) {
         if (!cancelled) { console.error(e); setRouteError("Itinéraire indisponible"); }
       }
@@ -354,12 +372,6 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >🚗 Voiture</button>
             </div>
-            {(routeDurationLabel || routeDistanceLabel) && (
-              <div className="shrink-0 rounded-full border bg-background px-3 py-1 text-xs font-semibold text-foreground shadow-sm">
-                {directionsMode === "walking" ? "🚶" : "🚗"} {routeDurationLabel || "—"}
-                {routeDistanceLabel ? <span className="text-muted-foreground"> · {routeDistanceLabel}</span> : null}
-              </div>
-            )}
           </div>
         </div>
         <div className="shrink-0 flex items-center gap-2">
@@ -408,16 +420,6 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         ) : (
           <>
             <div ref={mapDivRef} className="absolute inset-0 w-full h-full" />
-            {(routeDistanceLabel || routeDurationLabel) && (
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 bg-white/95 backdrop-blur shadow-lg rounded-full px-4 py-2 flex items-center gap-2 text-sm font-medium text-foreground">
-                {routeDurationLabel && (
-                  <span>{directionsMode === "walking" ? "🚶" : "🚗"} {routeDurationLabel}</span>
-                )}
-                {routeDistanceLabel && (
-                  <span className="text-muted-foreground">· {routeDistanceLabel}</span>
-                )}
-              </div>
-            )}
             {routeError && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1.5 rounded-full">
                 {routeError}
