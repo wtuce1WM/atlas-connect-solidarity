@@ -225,12 +225,8 @@ export default function ResultsTabContent({
     window.addEventListener("open-results-filters", handler);
     return () => window.removeEventListener("open-results-filters", handler);
   }, []);
-  useEffect(() => {
-    if (!showFiltersOverlay) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
-  }, [showFiltersOverlay]);
+  // NB: on ne verrouille pas le scroll du body — l'overlay est en lg:left-1/2,
+  // la grille de résultats doit rester scrollable derrière sur desktop.
   const autoFsLabelKeyRef = useRef<string | null>(null);
   const resolvedHotelSearchInfo = hotelSearchInfo || (() => {
     if (typeof window === "undefined") return null;
