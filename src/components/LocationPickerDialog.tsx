@@ -377,11 +377,11 @@ const LocationPickerDialog = ({
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         <DialogHeader className="p-5 pb-3 shrink-0 text-center sm:text-center">
-          <DialogTitle className="text-lg font-bold text-foreground text-center">
+          <DialogTitle className="text-lg font-bold text-foreground text-center" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
             {language === "en" ? "Choose your address" : language === "ar" ? "اختر عنوانك" : "Choisir votre adresse"}
           </DialogTitle>
           {detectedCity && isEnabled && (
-            <p className="text-xs text-muted-foreground mt-0.5 text-center">📍 {detectedCity}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 text-center" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>📍 {detectedCity}</p>
           )}
         </DialogHeader>
 
@@ -390,6 +390,7 @@ const LocationPickerDialog = ({
             <button
               onClick={handleUseCurrentPosition}
               disabled={isDetecting}
+              style={{ fontFamily: "'Josefin Sans', sans-serif" }}
               className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-gold text-white font-medium text-sm hover:bg-gold/90 transition-colors disabled:opacity-50"
             >
               {isDetecting ? <Loader className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
@@ -398,6 +399,7 @@ const LocationPickerDialog = ({
             {onDisableGeo && (
               <button
                 onClick={() => { onDisableGeo(); onOpenChange(false); }}
+                style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                 className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
               >
                 <X className="h-4 w-4" />
@@ -415,6 +417,7 @@ const LocationPickerDialog = ({
               onChange={(e) => setAddressQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={language === "en" ? "Enter an address…" : language === "ar" ? "أدخل عنوانًا…" : "Saisir une adresse…"}
+              style={{ fontFamily: "'Josefin Sans', sans-serif" }}
               className="flex-1 py-3 px-2 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
             />
             {addressQuery && (
@@ -449,7 +452,7 @@ const LocationPickerDialog = ({
           <button
             onClick={handleConfirm}
             disabled={!activeCoords}
-            style={{ backgroundColor: "#25D366" }}
+            style={{ backgroundColor: "#25D366", fontFamily: "'Josefin Sans', sans-serif" }}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Check className="h-4 w-4" />
