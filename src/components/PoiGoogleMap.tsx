@@ -432,12 +432,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
                 ${poi.totalReviews ? `<span style="color:rgba(255,255,255,0.7);">· ${poi.totalReviews} avis</span>` : ""}
               </div>`
             : "";
-          const distKm = userLocation && poi.latitude && poi.longitude
+          const currentUserLoc = userLocationRef.current;
+          const distKm = currentUserLoc && poi.latitude && poi.longitude
             ? (() => {
                 const R = 6371;
-                const dLat = ((poi.latitude! - userLocation.lat) * Math.PI) / 180;
-                const dLon = ((poi.longitude! - userLocation.lng) * Math.PI) / 180;
-                const a = Math.sin(dLat / 2) ** 2 + Math.cos((userLocation.lat * Math.PI) / 180) * Math.cos((poi.latitude! * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+                const dLat = ((poi.latitude! - currentUserLoc.lat) * Math.PI) / 180;
+                const dLon = ((poi.longitude! - currentUserLoc.lng) * Math.PI) / 180;
+                const a = Math.sin(dLat / 2) ** 2 + Math.cos((currentUserLoc.lat * Math.PI) / 180) * Math.cos((poi.latitude! * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
                 return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
               })()
             : null;
