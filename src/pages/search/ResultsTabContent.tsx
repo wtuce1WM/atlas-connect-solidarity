@@ -652,7 +652,7 @@ export default function ResultsTabContent({
                         );
                       })()}
                       {/* Filtre "À proximité" — visible uniquement en mode "Tous" et si on connait la position user */}
-                      {userCoords && (() => {
+                      {userCoords && userNearSearchArea && (() => {
                         const opts: { km: number; label: string }[] = [
                           { km: 0.5, label: "Moins de 500 m" },
                           { km: 1, label: "Moins de 1 km" },
