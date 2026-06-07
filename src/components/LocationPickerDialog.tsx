@@ -300,14 +300,17 @@ const LocationPickerDialog = ({
 
   const handleUseCurrentPosition = () => {
     onUseCurrentPosition();
+    selectedAddressRef.current = "";
+    setSelectedAddress("");
+    setAddressQuery("");
     if (coords) {
       // Coords already available, use them immediately
+      selectedCoordsRef.current = coords;
       setSelectedCoords(coords);
-      setSelectedAddress(detectedCity || "");
-      setAddressQuery(detectedCity || "");
       placeMarker(coords);
       mapRef.current?.setCenter(coords);
       mapRef.current?.setZoom(14);
+      reverseGeocode(coords);
     } else {
       // Coords not yet available — directly request browser geolocation
       // (handles the case where isEnabled is already true but coords are null)
@@ -315,12 +318,12 @@ const LocationPickerDialog = ({
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+          selectedCoordsRef.current = pos;
           setSelectedCoords(pos);
           placeMarker(pos);
           mapRef.current?.setCenter(pos);
           mapRef.current?.setZoom(14);
-          reverseGeocode(pos);
-          setWaitingForPosition(false);
+          reverseGeocode(pos).finally(() => setWaitingForPosition(false));
         },
         () => {
           setWaitingForPosition(false);
@@ -330,9 +333,11 @@ const LocationPickerDialog = ({
     }
   };
 
-  const handleConfirm = () => {
-    if (activeCoords) {
-      onConfirm(activeCoords, selectedAddress || detectedCity || "");
+  const handleConfirm = async () => {
+    const coordsToConfirm = selectedCoordsRef.current || activeCoords;
+    if (coordsToConfirm) {
+      const addressToConfirm = selectedAddressRef.current || await reverseGeocode(coordsToConfirm) || addressQuery || detectedCity || `${coordsToConfirm.lat.toFixed(5)}, ${coordsToConfirm.lng.toFixed(5)}`;
+      onConfirm(coordsToConfirm, addressToConfirm);
       onOpenChange(false);
     }
   };
