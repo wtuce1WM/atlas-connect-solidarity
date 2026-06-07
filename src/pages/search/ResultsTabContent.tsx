@@ -56,6 +56,7 @@ export interface ResultsTabContentProps {
   activeTimeSlot: TimeSlot | null;
   language: string;
   openCompactPanel: (biz: AIBusinessData) => void;
+  onCloseCompactPanel?: () => void;
   getDistanceKm: (b: Business) => number | null;
   setShowMobileMap: (v: boolean) => void;
   setShowAiPopup: (v: boolean) => void;
