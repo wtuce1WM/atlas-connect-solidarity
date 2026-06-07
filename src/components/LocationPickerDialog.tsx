@@ -328,16 +328,16 @@ const LocationPickerDialog = ({
             "p-0 gap-0 overflow-hidden flex flex-col"
           )}
         >
-          <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
+          <DialogPrimitive.Close className="absolute left-4 top-4 rounded-full bg-black text-white w-8 h-8 flex items-center justify-center hover:bg-black/80 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
-        <DialogHeader className="p-5 pb-3 shrink-0">
-          <DialogTitle className="text-lg font-bold text-foreground">
+        <DialogHeader className="p-5 pb-3 shrink-0 text-center sm:text-center">
+          <DialogTitle className="text-lg font-bold text-foreground text-center">
             {language === "en" ? "Choose your address" : language === "ar" ? "اختر عنوانك" : "Choisir votre adresse"}
           </DialogTitle>
           {detectedCity && isEnabled && (
-            <p className="text-xs text-muted-foreground mt-0.5">📍 {detectedCity}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 text-center">📍 {detectedCity}</p>
           )}
         </DialogHeader>
 
