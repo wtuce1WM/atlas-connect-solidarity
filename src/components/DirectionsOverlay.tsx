@@ -419,16 +419,6 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
         ) : (
           <>
             <div ref={mapDivRef} className="absolute inset-0 w-full h-full" />
-            {(routeDistanceLabel || routeDurationLabel) && (
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 bg-white/95 backdrop-blur shadow-lg rounded-full px-4 py-2 flex items-center gap-2 text-sm font-medium text-foreground">
-                {routeDurationLabel && (
-                  <span>{directionsMode === "walking" ? "🚶" : "🚗"} {routeDurationLabel}</span>
-                )}
-                {routeDistanceLabel && (
-                  <span className="text-muted-foreground">· {routeDistanceLabel}</span>
-                )}
-              </div>
-            )}
             {routeError && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1.5 rounded-full">
                 {routeError}
