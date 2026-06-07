@@ -127,6 +127,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       map.addListener("click", (e: any) => {
         if (!e.latLng) return;
         const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
         placeMarker(pos);
         reverseGeocode(pos);
@@ -146,6 +147,8 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
           if (place.geometry?.location) {
             const pos = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
             const addr = place.formatted_address || place.name || "";
+            selectedCoordsRef.current = pos;
+            selectedAddressRef.current = addr;
             setSelectedCoords(pos);
             setSelectedAddress(addr);
             setAddressQuery(addr);
@@ -226,6 +229,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       markerRef.current.addListener("dragend", (e: any) => {
         if (!e.latLng) return;
         const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        selectedCoordsRef.current = newPos;
         setSelectedCoords(newPos);
         reverseGeocode(newPos);
       });
@@ -256,6 +260,9 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
 
   const handleUseCurrentPosition = () => {
     if (!navigator.geolocation) return;
+    selectedAddressRef.current = "";
+    setSelectedAddress("");
+    setAddressQuery("");
     setWaitingForPosition(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -279,7 +286,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
     const coordsToConfirm = selectedCoordsRef.current || coords;
 
     if (coordsToConfirm) {
-      const addressToConfirm = selectedAddressRef.current || addressQuery || await reverseGeocode(coordsToConfirm) || geo.detectedCity || "";
+      const addressToConfirm = selectedAddressRef.current || await reverseGeocode(coordsToConfirm) || addressQuery || geo.detectedCity || `${coordsToConfirm.lat.toFixed(5)}, ${coordsToConfirm.lng.toFixed(5)}`;
       geo.setManualLocation(coordsToConfirm, addressToConfirm);
       handleClose();
     }
