@@ -2240,27 +2240,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         const activeProx = proxOpts.find((o) => o.km === poiProximityKm) || null;
         return (
         <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
-          <div className="sticky top-0 z-10 px-4 py-2 gap-2 bg-black/30 backdrop-blur-sm">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); setPoiSubcatFilter(null); setPoiShowAll(false); setPoiProximityKm(null); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
-                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
-                aria-label="Fermer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <span className="text-sm font-bold text-white truncate drop-shadow-md flex-1">
-                {poiMapMode === "destinations"
-                  ? (language === "en" ? "Where are you going?" : "Où allez-vous ?")
-                  : poiBusinesses.length > 0
-                    ? (language === "en" ? `Nearby points of interest of ${business?.name}` : `Points d'intérêt à proximité de ${business?.name}`)
-                    : (language === "en" ? `Nearby establishments of ${business?.name}` : `Établissements à proximité de ${business?.name}`)}
-              </span>
-            </div>
-          </div>
-          <div className="flex-1 min-h-0 relative">
+          <div className="absolute inset-0">
+            <button
+              onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); setPoiSubcatFilter(null); setPoiShowAll(false); setPoiProximityKm(null); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
+              className="absolute top-3 left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
+              aria-label="Fermer"
+            >
+              <X className="h-4 w-4" />
+            </button>
             {(showAllToggle || showSubcatPill || showProxPill) && (
-              <div className="absolute top-2 left-0 right-0 z-[5] flex items-center justify-center gap-2 px-3 flex-wrap pointer-events-none">
+              <div className="absolute top-3 left-14 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+
                 {showAllToggle && (
                   <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     <button
