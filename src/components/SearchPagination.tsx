@@ -36,7 +36,7 @@ export default function SearchPagination({
   const next = language === "en" ? "Next" : language === "ar" ? "التالي" : "Suivant";
 
   return (
-    <div className={`mb-20 flex flex-col items-center gap-1 ${className}`}>
+    <div className={`mb-20 pb-4 flex flex-col items-center gap-1 ${className}`}>
       <p className="text-sm text-muted-foreground">
         {showing} {startResult} {to} {endResult} {onWord} {totalCount} {results}
       </p>
