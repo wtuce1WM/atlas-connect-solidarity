@@ -239,9 +239,66 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [poiShowAll, setPoiShowAll] = useState(false);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
+  const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
+  const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
   const poiOpenedFromMapRef = useRef(false);
   const { coords: userCoords } = useGeolocation();
   const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
+  const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
+
+  useEffect(() => {
+    if (!poiCatFilter || !business?.city) {
+      setPoiCategoryBusinesses([]);
+      setPoiCategoryBusinessCatId(null);
+      return;
+    }
+
+    const activeFrontTab = frontTabs.find((t) => t.id === poiCatFilter) || null;
+    if (!activeFrontTab) {
+      setPoiCategoryBusinesses([]);
+      setPoiCategoryBusinessCatId(poiCatFilter);
+      return;
+    }
+
+    let cancelled = false;
+    const subcategoryNames = activeFrontTab.subcategoryNames;
+
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, main_category, priority_score")
+        .eq("is_active", true)
+        .ilike("city", business.city)
+        .order("priority_score", { ascending: false, nullsFirst: false })
+        .limit(1000);
+
+      if (cancelled) return;
+
+      const rows = ((data || []) as any[])
+        .filter((p) => p.id !== businessId)
+        .filter((p) => {
+          const inMain = p.main_category && subcategoryNames.has(p.main_category);
+          const inCats = Array.isArray(p.categories) && p.categories.some((c: string) => subcategoryNames.has(c));
+          return inMain || inCats;
+        })
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          images: p.images,
+          logo_url: p.logo_url,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          city: p.city,
+          neighborhood: p.neighborhood,
+          categories: p.categories,
+        }));
+
+      setPoiCategoryBusinesses(rows as PoiBusiness[]);
+      setPoiCategoryBusinessCatId(poiCatFilter);
+    })();
+
+    return () => { cancelled = true; };
+  }, [poiCatFilter, business?.city, businessId, frontTabs]);
   
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
