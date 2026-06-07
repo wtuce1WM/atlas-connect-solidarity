@@ -77,6 +77,7 @@ export interface ResultsTabContentProps {
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
   allSearchMapBusinesses?: Business[];
+  allSearchMapPoiItems?: PoiMapItem[];
   hideAiSuggestion?: boolean;
   hotelSearchInfo?: { city: string; checkIn: string; checkOut: string; adults: number } | null;
   showAllSearchMarkers?: boolean;
@@ -133,6 +134,7 @@ export default function ResultsTabContent({
   fsTopBusinessId,
   allCityMapBusinesses,
   allSearchMapBusinesses,
+  allSearchMapPoiItems,
   hideAiSuggestion,
   hotelSearchInfo,
   showAllSearchMarkers,
@@ -170,12 +172,15 @@ export default function ResultsTabContent({
 
   const proximityFilteredMapPoiItems = useMemo(() => {
     if (!proximityActive) return null;
-    return mapPoiItems.filter((p) => {
+    const pool = (allSearchMapPoiItems && allSearchMapPoiItems.length > mapPoiItems.length)
+      ? allSearchMapPoiItems
+      : mapPoiItems;
+    return pool.filter((p) => {
       if (p.latitude == null || p.longitude == null) return false;
       const d = haversineKm(userCoords!.lat, userCoords!.lng, p.latitude, p.longitude);
       return d <= proximityKm!;
     });
-  }, [proximityActive, proximityKm, mapPoiItems, userCoords]);
+  }, [proximityActive, proximityKm, mapPoiItems, allSearchMapPoiItems, userCoords]);
 
   const effectiveBusinesses = proximityFilteredBusinesses ?? paginatedBusinesses;
   const effectiveMapPoiItems = proximityFilteredMapPoiItems ?? mapPoiItems;
