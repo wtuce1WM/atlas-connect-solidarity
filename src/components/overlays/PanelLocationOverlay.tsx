@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { X, MapPin, Navigation, Search, Loader, Check } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { supabase } from "@/integrations/supabase/client";
 
 declare global {
   interface Window {
@@ -189,18 +190,33 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
     }
   }, [open]);
 
-  const reverseGeocode = useCallback((pos: { lat: number; lng: number }): Promise<string | null> => {
-    if (!window.google?.maps) return Promise.resolve(null);
-    const geocoder = new window.google.maps.Geocoder();
-    return new Promise((resolve) => {
-      geocoder.geocode({ location: pos }, (results: any, status: any) => {
-      if (status === "OK" && results?.[0]) {
-        const address = results[0].formatted_address;
+  const setReverseGeocodedAddress = useCallback((address: string | null) => {
+    if (!address) return;
         selectedAddressRef.current = address;
         setSelectedAddress(address);
         setAddressQuery(address);
+  }, []);
+
+  const reverseGeocode = useCallback(async (pos: { lat: number; lng: number }): Promise<string | null> => {
+    const { data } = await supabase.functions.invoke("geocode-locations", {
+      body: { mode: "reverse", lat: pos.lat, lng: pos.lng },
+    });
+
+    if (typeof data?.address === "string" && data.address.trim()) {
+      setReverseGeocodedAddress(data.address);
+      return data.address;
+    }
+
+    if (!window.google?.maps) return null;
+    const geocoder = new window.google.maps.Geocoder();
+    return new Promise((resolve) => {
+      geocoder.geocode({ location: pos }, (results: any, status: any) => {
+        const address = status === "OK" && results?.[0]?.formatted_address ? results[0].formatted_address : null;
+        setReverseGeocodedAddress(address);
         resolve(address);
-        return;
+      });
+    });
+  }, [setReverseGeocodedAddress]);
       }
         resolve(null);
       });
