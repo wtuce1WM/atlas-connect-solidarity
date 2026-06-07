@@ -360,6 +360,7 @@ export default function ResultsTabContent({
   // pin-based results (a pool in a restaurant would auto-select "Restauration").
   useEffect(() => {
     if (activeFsTabId) return;
+    if (fsManuallyResetRef.current) return;
     if (labelFromUrl && labelFromUrl.trim()) return;
     if (!frontTabs.length || !filteredBusinesses?.length) return;
     const counts: Record<string, number> = {};
