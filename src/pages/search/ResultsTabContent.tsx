@@ -252,6 +252,7 @@ export default function ResultsTabContent({
   }, [frontTabs]);
 
   const handleFsTabClick = (tabId: string | null) => {
+    fsManuallyResetRef.current = tabId === null;
     setActiveFsTabId(tabId);
     setActiveFsSubId(null);
     setActiveFsServices([]);
