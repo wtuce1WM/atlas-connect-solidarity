@@ -182,9 +182,9 @@ export default function FiltersOverlayFlow({
     }
   };
 
-  const badgeBase = "inline-flex items-center gap-2 rounded-full border backdrop-blur-sm px-4 py-2 text-sm md:px-6 md:py-3 md:text-lg font-semibold transition-colors";
-  const badgeIdle = "border-white/40 bg-white/30 text-black hover:bg-white/50";
-  const badgeSelected = "border-black bg-black text-white hover:bg-black/90";
+  const badgeBase = "relative inline-flex items-center gap-2 rounded-full border-2 border-black px-4 py-2 text-sm md:px-6 md:py-3 md:text-lg font-semibold transition-all overflow-hidden backdrop-blur-xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),inset_0_-1px_2px_0_rgba(255,255,255,0.25),0_4px_16px_-4px_rgba(0,0,0,0.3)] before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-br before:from-white/50 before:via-white/10 before:to-white/30 before:pointer-events-none [&>*]:relative [&>*]:z-10";
+  const badgeIdle = "bg-white/20 text-black hover:bg-white/30";
+  const badgeSelected = "bg-black/70 text-white hover:bg-black/80";
 
 
   // Step 3 fallback: if user reached step 3 but no services are visible
