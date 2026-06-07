@@ -44,7 +44,7 @@ import { useLocation } from "react-router-dom";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 
 import { useBookOnlineData } from "@/hooks/useBookOnlineData";
-import type { Destination } from "@/hooks/useBookOnlineData";
+import type { Destination, PoiBusiness } from "@/hooks/useBookOnlineData";
 import VideoDocumentOverlay from "@/components/overlays/VideoDocumentOverlay";
 import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import ExternalVideosOverlay from "@/components/overlays/ExternalVideosOverlay";
