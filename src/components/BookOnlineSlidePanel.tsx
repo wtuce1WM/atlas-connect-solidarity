@@ -62,6 +62,7 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 import { useHotelAvailability } from "@/hooks/useHotelAvailability";
 import { useOpenStatus } from "@/hooks/useOpenStatus";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import { ToolbarPortals } from "@/components/slidepanel/ToolbarPortals";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { CtaBar, CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
@@ -237,8 +238,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
+  const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
   const poiOpenedFromMapRef = useRef(false);
   const { coords: userCoords } = useGeolocation();
+  const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
   
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
@@ -2203,10 +2206,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {showPoiMapOverlay && (() => {
         const TOP_LIMIT = 20;
+        const activeFrontTab = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
+        const afterCat = activeFrontTab
+          ? poiBusinesses.filter((p) => (p.categories || []).some((c) => activeFrontTab.subcategoryNames.has(c)))
+          : poiBusinesses;
         const poiSubcatCounts = new Map<string, number>();
-        for (const p of poiBusinesses) {
-          const sc = p.categories?.[0];
-          if (sc) poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
+        for (const p of afterCat) {
+          for (const sc of (p.categories || [])) {
+            if (!sc) continue;
+            poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
+          }
         }
         const poiSubcatList = Array.from(poiSubcatCounts.entries())
           .sort((a, b) => a[0].localeCompare(b[0]));
@@ -2215,15 +2224,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             ? haversineKm(userCoords.lat, userCoords.lng, p.latitude, p.longitude)
             : null;
         const afterSubcat = poiSubcatFilter
-          ? poiBusinesses.filter((p) => (p.categories?.[0] || null) === poiSubcatFilter)
-          : poiBusinesses;
+          ? afterCat.filter((p) => (p.categories || []).includes(poiSubcatFilter))
+          : afterCat;
         const afterProx = poiProximityKm != null
           ? afterSubcat.filter((p) => { const d = distOf(p); return d != null && d <= poiProximityKm; })
           : afterSubcat;
-        const filterActive = !!poiSubcatFilter || poiProximityKm != null;
+        const filterActive = !!poiCatFilter || !!poiSubcatFilter || poiProximityKm != null;
         const displayedPoi = (poiShowAll || filterActive) ? afterProx : afterProx.slice(0, TOP_LIMIT);
         const total = poiBusinesses.length;
         const showAllToggle = poiMapMode === "poi" && (total > TOP_LIMIT || poiShowAll);
+        const showCatPill = poiMapMode === "poi" && frontTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi" && !!userCoords && poiBusinesses.some((p) => p.latitude != null && p.longitude != null);
         const proxOpts: { km: number; label: string }[] = [
@@ -2243,7 +2253,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
           <div className="absolute inset-0">
             <button
-              onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); setPoiSubcatFilter(null); setPoiShowAll(false); setPoiProximityKm(null); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
+              onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); setPoiSubcatFilter(null); setPoiCatFilter(null); setPoiShowAll(false); setPoiProximityKm(null); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
               className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
               aria-label="Fermer"
             >
@@ -2295,32 +2305,51 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 )}
                 <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4AF37] text-black">
-                    <MapPin className="h-3.5 w-3.5" />
-                    Points d'intérêt
-                  </span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                      >
+                        <MapPin className="h-3.5 w-3.5" />
+                        {poiSubcatFilter || "Points d'intérêt"}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
+                      {poiSubcatFilter && (
+                        <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
+                          Tous les points d'intérêt
+                        </DropdownMenuItem>
+                      )}
+                      {poiSubcatList.map(([name, count]) => (
+                        <DropdownMenuItem key={name} onSelect={() => setPoiSubcatFilter(name)}>
+                          {name} <span className="ml-1 opacity-60">({count})</span>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                {showSubcatPill && (
+                {showCatPill && (
                   <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <SlidersHorizontal className="h-3.5 w-3.5" />
-                          {poiSubcatFilter || "Sous-catégorie"}
+                          {activeFrontTab?.name || "Catégories"}
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
-                        {poiSubcatFilter && (
-                          <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
-                            Toutes les sous-catégories
+                        {poiCatFilter && (
+                          <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); }}>
+                            Toutes les catégories
                           </DropdownMenuItem>
                         )}
-                        {poiSubcatList.map(([name, count]) => (
-                          <DropdownMenuItem key={name} onSelect={() => setPoiSubcatFilter(name)}>
-                            {name} <span className="ml-1 opacity-60">({count})</span>
+                        {frontTabs.map((ft) => (
+                          <DropdownMenuItem key={ft.id} onSelect={() => { setPoiCatFilter(ft.id); setPoiSubcatFilter(null); }}>
+                            {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
