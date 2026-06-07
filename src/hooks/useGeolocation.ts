@@ -83,9 +83,10 @@ function readInitialGeolocationSnapshot(): InitialGeolocationSnapshot {
     }
   }
 
-  if (manualAddr) {
-    return { isEnabled: true, showBanner: false, coords: manualCoords, confirmedAddress: manualAddr, isManual: true };
+  if (manualCoords || manualAddr) {
+    return { isEnabled: true, showBanner: false, coords: manualCoords, confirmedAddress: manualAddr || null, isManual: true };
   }
+
 
   return {
     isEnabled: stored === "enabled",
