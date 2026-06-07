@@ -299,7 +299,7 @@
 <div class="grain"></div>
 
 <header id="hdr">
-  <a href="/" class="brand" aria-label="One World Morocco — Accueil">
+  <a href="/" target="_top" class="brand" aria-label="One World Morocco — Accueil">
     <img src="/logo-hamsa-gold.png" alt="One World Morocco" class="brand-logo" />
     <span class="brand-name">ONE WORLD MOROCCO</span>
   </a>
@@ -512,6 +512,18 @@
 </footer>
 
 <script>
+  document.addEventListener('click', function(event){
+    const link = event.target.closest('a[href]');
+    if(!link) return;
+    const href = link.getAttribute('href') || '';
+    if(href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+    const url = new URL(href, window.location.href);
+    if(url.origin === window.location.origin && window.top !== window.self){
+      event.preventDefault();
+      window.top.location.href = url.pathname + url.search + url.hash;
+    }
+  });
+
   const hdr=document.getElementById('hdr');
   addEventListener('scroll',()=>hdr.classList.toggle('scrolled',scrollY>60));
   const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{threshold:.14});
