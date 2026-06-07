@@ -2206,10 +2206,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {showPoiMapOverlay && (() => {
         const TOP_LIMIT = 20;
+        const activeFrontTab = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
+        const afterCat = activeFrontTab
+          ? poiBusinesses.filter((p) => (p.categories || []).some((c) => activeFrontTab.subcategoryNames.has(c)))
+          : poiBusinesses;
         const poiSubcatCounts = new Map<string, number>();
-        for (const p of poiBusinesses) {
-          const sc = p.categories?.[0];
-          if (sc) poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
+        for (const p of afterCat) {
+          for (const sc of (p.categories || [])) {
+            if (!sc) continue;
+            poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
+          }
         }
         const poiSubcatList = Array.from(poiSubcatCounts.entries())
           .sort((a, b) => a[0].localeCompare(b[0]));
@@ -2218,15 +2224,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             ? haversineKm(userCoords.lat, userCoords.lng, p.latitude, p.longitude)
             : null;
         const afterSubcat = poiSubcatFilter
-          ? poiBusinesses.filter((p) => (p.categories?.[0] || null) === poiSubcatFilter)
-          : poiBusinesses;
+          ? afterCat.filter((p) => (p.categories || []).includes(poiSubcatFilter))
+          : afterCat;
         const afterProx = poiProximityKm != null
           ? afterSubcat.filter((p) => { const d = distOf(p); return d != null && d <= poiProximityKm; })
           : afterSubcat;
-        const filterActive = !!poiSubcatFilter || poiProximityKm != null;
+        const filterActive = !!poiCatFilter || !!poiSubcatFilter || poiProximityKm != null;
         const displayedPoi = (poiShowAll || filterActive) ? afterProx : afterProx.slice(0, TOP_LIMIT);
         const total = poiBusinesses.length;
         const showAllToggle = poiMapMode === "poi" && (total > TOP_LIMIT || poiShowAll);
+        const showCatPill = poiMapMode === "poi" && frontTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi" && !!userCoords && poiBusinesses.some((p) => p.latitude != null && p.longitude != null);
         const proxOpts: { km: number; label: string }[] = [
