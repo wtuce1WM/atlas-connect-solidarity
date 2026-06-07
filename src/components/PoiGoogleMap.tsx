@@ -500,8 +500,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     // Otherwise also include center/userLocation in the bounds.
     if (!(fitToMarkers && hasPoints)) {
       if (center) bounds.extend(center);
-      if (userLocation) bounds.extend(userLocation);
     }
+    // Always include userLocation so the "Vous êtes ici" marker stays in view
+    if (userLocation) bounds.extend(userLocation);
 
     // Only fitBounds when pois/center actually changed, not on iconCache updates
     if ((hasPoints || center) && needsFitRef.current) {
