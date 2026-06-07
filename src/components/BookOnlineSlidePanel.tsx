@@ -3,7 +3,8 @@ import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/component
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass, ShoppingCart, SlidersHorizontal, CheckCircle2, Circle, Navigation } from "lucide-react";
+import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass, ShoppingCart, SlidersHorizontal, CheckCircle2, Circle, Navigation, Heart } from "lucide-react";
+import ShareButton from "@/components/ShareButton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { haversineKm } from "@/lib/haversine";
@@ -2248,6 +2249,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             >
               <X className="h-4 w-4" />
             </button>
+            <div className="absolute top-[calc(3.3rem+0.75rem)] right-3 z-[15] flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                aria-label="Le Club OWM"
+              >
+                <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+              </button>
+              <ShareButton
+                title={business?.name || (language === "en" ? "Nearby" : "À proximité")}
+                variant="dark"
+                className="shrink-0"
+              />
+            </div>
             {business?.name && (
               <div className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
                 <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
