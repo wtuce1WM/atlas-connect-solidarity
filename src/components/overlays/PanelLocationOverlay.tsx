@@ -258,7 +258,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
   }, [addressQuery, placeMarker]);
 
   const handleUseCurrentPosition = () => {
-    geo.accept();
+    if (!navigator.geolocation) return;
     setWaitingForPosition(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
