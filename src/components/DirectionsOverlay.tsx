@@ -245,7 +245,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     });
   }, [mapsReady, showMap, origin]);
 
-  // Fetch route via edge function (Routes API) + draw polyline + capture distance/duration
+  // Native Google DirectionsService + DirectionsRenderer (shows route, time & distance natively)
   useEffect(() => {
     if (!mapsReady || !showMap || !mapRef.current || !origin || !destLatLng) return;
     const gmaps = window.google.maps;
@@ -255,54 +255,52 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     setRouteError(null);
     setRouteInfo(null);
 
-    // Origin marker (terracotta Pin)
-    if (originMarkerRef.current) originMarkerRef.current.setMap(null);
-    originMarkerRef.current = new gmaps.Marker({
-      position: origin, map, icon: buildPinIcon(gmaps),
-      title: "Vous êtes ici", zIndex: 2000,
-    });
-    // Destination marker (default red)
-    if (destMarkerRef.current) destMarkerRef.current.setMap(null);
-    destMarkerRef.current = new gmaps.Marker({
-      position: destLatLng, map, title: business.name,
-    });
-
+    // Hide our custom markers — DirectionsRenderer draws its own A/B markers natively
+    if (originMarkerRef.current) { originMarkerRef.current.setMap(null); originMarkerRef.current = null; }
+    if (destMarkerRef.current) { destMarkerRef.current.setMap(null); destMarkerRef.current = null; }
     if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
 
-    const drawRoute = (encoded: string) => {
-      const path = decodeEncodedPolyline(encoded);
-      if (!path.length) { setRouteError("Itinéraire indisponible"); return; }
-      if (polylineRef.current) polylineRef.current.setMap(null);
-      polylineRef.current = new gmaps.Polyline({
-        path, map, strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9,
+    if (!directionsServiceRef.current) directionsServiceRef.current = new gmaps.DirectionsService();
+    if (!directionsRendererRef.current) {
+      directionsRendererRef.current = new gmaps.DirectionsRenderer({
+        map,
+        suppressMarkers: false,
+        preserveViewport: false,
+        polylineOptions: { strokeColor: TERRACOTTA, strokeWeight: 5, strokeOpacity: 0.9 },
       });
-      const b = new gmaps.LatLngBounds();
-      path.forEach((p) => b.extend(p));
-      map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
-    };
+    } else {
+      directionsRendererRef.current.setMap(map);
+    }
 
-    (async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke("compute-route", {
-          body: { origin, destination: destLatLng, mode: directionsMode },
-        });
+    directionsServiceRef.current.route(
+      {
+        origin,
+        destination: destLatLng,
+        travelMode: directionsMode === "walking" ? gmaps.TravelMode.WALKING : gmaps.TravelMode.DRIVING,
+      },
+      (result, status) => {
         if (cancelled || requestId !== routeRequestRef.current) return;
-        if (error || !data?.encodedPolyline) {
+        if (status !== gmaps.DirectionsStatus.OK || !result) {
           setRouteError("Itinéraire indisponible");
           const b = new gmaps.LatLngBounds();
           b.extend(origin); b.extend(destLatLng);
           map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
           return;
         }
-        drawRoute(data.encodedPolyline);
-        setRouteInfo({
-          distanceMeters: typeof data.distanceMeters === "number" ? data.distanceMeters : null,
-          duration: typeof data.duration === "string" ? data.duration : null,
-        });
-      } catch (e) {
-        if (!cancelled) { console.error(e); setRouteError("Itinéraire indisponible"); }
+        directionsRendererRef.current!.setDirections(result);
+        const leg = result.routes[0]?.legs[0];
+        if (leg) {
+          setRouteInfo({
+            distanceMeters: leg.distance?.value ?? null,
+            duration: leg.duration?.value != null ? `${leg.duration.value}s` : null,
+          });
+        }
+        const bounds = result.routes[0]?.bounds;
+        if (bounds) {
+          map.fitBounds(bounds, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
+        }
       }
-    })();
+    );
 
     return () => { cancelled = true; };
   }, [mapsReady, showMap, origin, destLatLng, directionsMode, business.name]);
