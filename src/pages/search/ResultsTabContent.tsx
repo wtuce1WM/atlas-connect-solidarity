@@ -701,11 +701,23 @@ export default function ResultsTabContent({
                                     Toutes distances
                                   </DropdownMenuItem>
                                 )}
-                                {opts.map(o => (
-                                  <DropdownMenuItem key={o.km} onSelect={() => setProximityKm(o.km)}>
-                                    {o.label}
-                                  </DropdownMenuItem>
-                                ))}
+                                {opts.map(o => {
+                                  const count = proximityCountsByKm[o.km] ?? 0;
+                                  const disabled = count === 0;
+                                  return (
+                                    <DropdownMenuItem
+                                      key={o.km}
+                                      disabled={disabled}
+                                      onSelect={(e) => {
+                                        if (disabled) { e.preventDefault(); return; }
+                                        setProximityKm(o.km);
+                                      }}
+                                      className={disabled ? "opacity-40 pointer-events-none" : ""}
+                                    >
+                                      {o.label} <span className="ml-1 opacity-60">({count})</span>
+                                    </DropdownMenuItem>
+                                  );
+                                })}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
