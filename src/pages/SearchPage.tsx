@@ -2272,7 +2272,8 @@ const SearchPage = () => {
     setAllSearchMapBusinesses([]);
   }, [searchQuery, spokenText, language]);
   useEffect(() => {
-    if (!showAllSearchMarkers) return;
+    // Preload the full map pool as soon as we know there are more results than the current page,
+    // so the "Tous" toggle on the Results tab shows every marker instantly (no wait on click).
     if (!totalCount || totalCount <= filteredBusinesses.length) return;
     if (allSearchMapBusinesses.length >= totalCount) return;
     let cancelled = false;
@@ -2295,7 +2296,7 @@ const SearchPage = () => {
       setAllSearchMapBusinesses((data.businesses || []) as Business[]);
     })();
     return () => { cancelled = true; };
-  }, [showAllSearchMarkers, totalCount, filteredBusinesses.length, allSearchMapBusinesses.length, searchQuery, spokenText, language, categoryFromUrl, cityFromUrl, subcategoryNamesFromUrl]);
+  }, [totalCount, filteredBusinesses.length, allSearchMapBusinesses.length, searchQuery, spokenText, language, categoryFromUrl, cityFromUrl, subcategoryNamesFromUrl]);
 
   // Pool used for "Voir tous": full results when fetched, otherwise current page.
   // When the AI panel produced a refined dedicated search (e.g. "artisans à proximité"),
