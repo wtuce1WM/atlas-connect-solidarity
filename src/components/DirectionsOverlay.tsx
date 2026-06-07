@@ -134,6 +134,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const routeRequestRef = useRef(0);
   const originMarkerRef = useRef<google.maps.Marker | null>(null);
   const destMarkerRef = useRef<google.maps.Marker | null>(null);
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const geo = useGeolocation();
 
   const requestBrowserOrigin = useCallback(() => {
