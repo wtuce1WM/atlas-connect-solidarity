@@ -226,9 +226,17 @@ const LocationPickerDialog = ({
         position: pos,
         map: mapRef.current,
         icon,
+        draggable: true,
         animation: window.google.maps.Animation.DROP,
       });
+      markerRef.current.addListener("dragend", (e: any) => {
+        if (!e.latLng) return;
+        const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        setSelectedCoords(newPos);
+        reverseGeocode(newPos);
+      });
     }
+
   }, []);
 
 
