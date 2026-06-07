@@ -172,7 +172,9 @@ const LocationPickerDialog = ({
       mapRef.current = null;
       markerRef.current = null;
       autocompleteRef.current = null;
+      infoWindowRef.current = null;
     };
+
   }, [openCount, mapsLoaded]);
 
   useEffect(() => {
