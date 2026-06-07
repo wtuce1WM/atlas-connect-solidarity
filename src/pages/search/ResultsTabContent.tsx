@@ -76,6 +76,7 @@ export interface ResultsTabContentProps {
   onFrontStructureServicesFilter?: (services: Set<string> | null) => void;
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
+  allSearchMapBusinesses?: Business[];
   hideAiSuggestion?: boolean;
   hotelSearchInfo?: { city: string; checkIn: string; checkOut: string; adults: number } | null;
   showAllSearchMarkers?: boolean;
