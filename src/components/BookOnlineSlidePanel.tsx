@@ -2249,8 +2249,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <X className="h-4 w-4" />
             </button>
             {business?.name && (
-              <div className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] text-center text-white text-sm font-semibold drop-shadow-md pointer-events-none truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                {language === "en" ? `Near ${business.name}` : `À proximité de ${business.name}`}
+              <div className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
+                <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  {language === "en" ? `Near ${business.name}` : `À proximité de ${business.name}`}
+                </div>
               </div>
             )}
             {(showAllToggle || showSubcatPill || showProxPill) && (
