@@ -1632,7 +1632,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   } as GridItem;
                 });
               } else if (descGridSection === "poi") {
-                gridItems = poiBusinesses.map((poi) => ({
+                const activeFrontTabGrid = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
+                const afterCatGrid = activeFrontTabGrid
+                  ? poiBusinesses.filter((p) => (p.categories || []).some((c) => activeFrontTabGrid.subcategoryNames.has(c)))
+                  : poiBusinesses;
+                const afterSubcatGrid = poiSubcatFilter
+                  ? afterCatGrid.filter((p) => (p.categories || []).includes(poiSubcatFilter))
+                  : afterCatGrid;
+                const afterProxGrid = poiProximityKm != null
+                  ? afterSubcatGrid.filter((p) => {
+                      const d = userCoords && p.latitude != null && p.longitude != null
+                        ? haversineKm(userCoords.lat, userCoords.lng, p.latitude, p.longitude)
+                        : null;
+                      return d != null && d <= poiProximityKm;
+                    })
+                  : afterSubcatGrid;
+                gridItems = afterProxGrid.map((poi) => ({
                   key: `poi-${poi.id}`,
                   imgUrl: poi.images?.filter(Boolean)?.[0] || (poi as any).logo_url || null,
                   label: poi.name,
