@@ -132,12 +132,12 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
     >
       <span
         className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors ${
-          active ? "bg-[#C04F17] group-hover:bg-[#C04F17]/90" : "bg-white/10 group-hover:bg-white/20"
+          active ? "bg-[#C04F17] group-hover:bg-[#C04F17]/90" : "bg-white/15 group-hover:bg-white/25"
         }`}
       >
         {icon}
       </span>
-      <span className="text-[9px] font-medium uppercase tracking-wide text-white/85 leading-none font-['Josefin_Sans',sans-serif]">{label}</span>
+      <span className="text-[9px] font-medium uppercase tracking-wide text-white leading-none font-['Josefin_Sans',sans-serif]">{label}</span>
     </button>
   );
 
