@@ -502,7 +502,7 @@ const BusinessMap = ({
           height: 28px !important;
           top: 6px !important;
           right: 6px !important;
-несено        }
+}
         .gm-style .gm-ui-hover-effect > span {
           background-color: #fff !important;
           margin: 6px !important;
