@@ -2305,32 +2305,51 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 )}
                 <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4AF37] text-black">
-                    <MapPin className="h-3.5 w-3.5" />
-                    Points d'intérêt
-                  </span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                      >
+                        <MapPin className="h-3.5 w-3.5" />
+                        {poiSubcatFilter || "Points d'intérêt"}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
+                      {poiSubcatFilter && (
+                        <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
+                          Tous les points d'intérêt
+                        </DropdownMenuItem>
+                      )}
+                      {poiSubcatList.map(([name, count]) => (
+                        <DropdownMenuItem key={name} onSelect={() => setPoiSubcatFilter(name)}>
+                          {name} <span className="ml-1 opacity-60">({count})</span>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                {showSubcatPill && (
+                {showCatPill && (
                   <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <SlidersHorizontal className="h-3.5 w-3.5" />
-                          {poiSubcatFilter || "Sous-catégorie"}
+                          {activeFrontTab?.name || "Catégories"}
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
-                        {poiSubcatFilter && (
-                          <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
-                            Toutes les sous-catégories
+                        {poiCatFilter && (
+                          <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); }}>
+                            Toutes les catégories
                           </DropdownMenuItem>
                         )}
-                        {poiSubcatList.map(([name, count]) => (
-                          <DropdownMenuItem key={name} onSelect={() => setPoiSubcatFilter(name)}>
-                            {name} <span className="ml-1 opacity-60">({count})</span>
+                        {frontTabs.map((ft) => (
+                          <DropdownMenuItem key={ft.id} onSelect={() => { setPoiCatFilter(ft.id); setPoiSubcatFilter(null); }}>
+                            {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
