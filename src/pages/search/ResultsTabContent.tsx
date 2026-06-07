@@ -151,9 +151,9 @@ export default function ResultsTabContent({
   // Filtre "à proximité" — actif uniquement en mode "Tous" et si on connait la position user.
   const [proximityKm, setProximityKm] = useState<number | null>(null);
   // Reset le filtre proximité quand on change de ville, requête, sous-cat ou quand on quitte "Tous"
-  useEffect(() => { setProximityKm(null); }, [effectiveCity, searchQuery, activeFsSubId, showAllSearchMarkers]);
+  useEffect(() => { setProximityKm(null); }, [effectiveCity, searchQuery, activeFsSubId]);
 
-  const proximityActive = !!(proximityKm && userCoords && showAllSearchMarkers);
+  const proximityActive = !!(proximityKm && userCoords);
 
   const proximityFilteredBusinesses = useMemo(() => {
     if (!proximityActive) return null;
@@ -639,7 +639,7 @@ export default function ResultsTabContent({
                         );
                       })()}
                       {/* Filtre "À proximité" — visible uniquement en mode "Tous" et si on connait la position user */}
-                      {showAllSearchMarkers && userCoords && (() => {
+                      {userCoords && (() => {
                         const opts: { km: number; label: string }[] = [
                           { km: 0.5, label: "Moins de 500 m" },
                           { km: 1, label: "Moins de 1 km" },
