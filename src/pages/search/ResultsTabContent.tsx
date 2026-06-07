@@ -194,6 +194,26 @@ export default function ResultsTabContent({
   const effectiveMapPoiItems = proximityFilteredMapPoiItems ?? mapPoiItems;
   const proximityCount = proximityFilteredBusinesses?.length ?? 0;
 
+  // Pré-calcule le nombre de résultats pour chaque palier de distance
+  // afin de neutraliser les options vides dans le dropdown.
+  const proximityCountsByKm = useMemo(() => {
+    const result: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
+    if (!userCoords) return result;
+    const pool = (allSearchMapBusinesses && allSearchMapBusinesses.length > filteredBusinesses.length)
+      ? allSearchMapBusinesses
+      : filteredBusinesses;
+    for (const b of pool) {
+      const d = getDistanceKm(b);
+      if (d == null) continue;
+      if (d <= 0.5) result[0.5]++;
+      if (d <= 1) result[1]++;
+      if (d <= 5) result[5]++;
+      if (d <= 10) result[10]++;
+    }
+    return result;
+  }, [userCoords, filteredBusinesses, allSearchMapBusinesses, getDistanceKm]);
+  const proximityHasAny = (proximityCountsByKm[10] ?? 0) > 0;
+
   useEffect(() => { if (compactPanelBusiness) setShowFiltersOverlay(false); }, [compactPanelBusiness]);
   useEffect(() => {
     const handler = () => setShowFiltersOverlay(true);
