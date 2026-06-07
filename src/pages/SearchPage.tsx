@@ -3372,6 +3372,11 @@ const SearchPage = () => {
               el.scrollTo({ left: scrollLeft, behavior: "smooth" });
             }
           }
+        }} onWheel={(e) => {
+          const el = e.currentTarget;
+          const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+          if (delta === 0) return;
+          el.scrollLeft += delta;
         }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {[
             { key: "suggestions", icon: <Search className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
