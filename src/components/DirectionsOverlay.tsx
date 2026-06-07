@@ -267,6 +267,8 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     directionsRenderersRef.current = [];
     routeLabelsRef.current.forEach((ov) => ov.setMap(null));
     routeLabelsRef.current = [];
+    polylinesRef.current.forEach((p) => p.setMap(null));
+    polylinesRef.current = [];
 
     if (!directionsServiceRef.current) directionsServiceRef.current = new gmaps.DirectionsService();
 
