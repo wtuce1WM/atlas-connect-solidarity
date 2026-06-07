@@ -84,6 +84,8 @@ const LocationPickerDialog = ({
   const autocompleteRef = useRef<any>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const selectedCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
+  const selectedAddressRef = useRef("");
 
   const [addressQuery, setAddressQuery] = useState("");
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -94,6 +96,14 @@ const LocationPickerDialog = ({
   const [openCount, setOpenCount] = useState(0);
 
   const activeCoords = selectedCoords || (isEnabled && coords ? coords : null);
+
+  useEffect(() => {
+    selectedCoordsRef.current = selectedCoords;
+  }, [selectedCoords]);
+
+  useEffect(() => {
+    selectedAddressRef.current = selectedAddress;
+  }, [selectedAddress]);
 
   // Track open transitions and load Google Maps SDK
   useEffect(() => {
@@ -134,6 +144,7 @@ const LocationPickerDialog = ({
       map.addListener("click", (e: any) => {
         if (!e.latLng) return;
         const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        selectedCoordsRef.current = pos;
         setSelectedCoords(pos);
         placeMarker(pos);
         reverseGeocode(pos);
@@ -154,6 +165,8 @@ const LocationPickerDialog = ({
               lng: place.geometry.location.lng(),
             };
             const addr = place.formatted_address || place.name || "";
+            selectedCoordsRef.current = pos;
+            selectedAddressRef.current = addr;
             setSelectedCoords(pos);
             setSelectedAddress(addr);
             setAddressQuery(addr);
@@ -232,6 +245,7 @@ const LocationPickerDialog = ({
       markerRef.current.addListener("dragend", (e: any) => {
         if (!e.latLng) return;
         const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        selectedCoordsRef.current = newPos;
         setSelectedCoords(newPos);
         reverseGeocode(newPos);
       });
