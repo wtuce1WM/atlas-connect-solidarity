@@ -2339,6 +2339,12 @@ const SearchPage = () => {
     return showAllSearchMarkers ? items : items.slice(0, 20);
   }, [buildMapPoiItems, searchMapPool, showAllSearchMarkers]);
 
+  // Full (un-sliced) map pool used by the proximity filter so the markers stay
+  // in sync with the result cards even when "Tous" is not toggled.
+  const allSearchMapPoiItems: PoiMapItem[] = useMemo(() => {
+    return buildMapPoiItems(allSearchMapBusinesses.length > 0 ? allSearchMapBusinesses : searchMapPool, true);
+  }, [buildMapPoiItems, allSearchMapBusinesses, searchMapPool]);
+
   // "Tous" tab: mobile/tablet
   const mobileMapPoiItems: PoiMapItem[] = useMemo(() => {
     const items = buildMapPoiItems(searchMapPool, false);
