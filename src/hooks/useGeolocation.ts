@@ -200,11 +200,11 @@ export function useGeolocation(): GeolocationState {
       setShowBanner(false);
     }
 
-    if (manualAddr) {
+    if (manualCoordsStr || manualAddr) {
       try {
         const parsed = manualCoordsStr ? JSON.parse(manualCoordsStr) : null;
         setCoords(parsed);
-        setConfirmedAddress(manualAddr);
+        setConfirmedAddress(manualAddr || null);
         setIsManual(true);
         setIsEnabled(true);
         setShowBanner(false);
