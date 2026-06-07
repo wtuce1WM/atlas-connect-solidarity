@@ -246,7 +246,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     });
   }, [mapsReady, showMap, origin]);
 
-  // Fetch route via edge function (Routes API) + draw polyline + capture distance/duration
+  // Native Google DirectionsService + DirectionsRenderer (route, markers A/B, time & distance natives)
   useEffect(() => {
     if (!mapsReady || !showMap || !mapRef.current || !origin || !destLatLng) return;
     const gmaps = window.google.maps;
@@ -256,71 +256,53 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     setRouteError(null);
     setRouteInfo(null);
 
-    // Origin marker (terracotta Pin)
-    if (originMarkerRef.current) originMarkerRef.current.setMap(null);
-    originMarkerRef.current = new gmaps.Marker({
-      position: origin, map, icon: buildPinIcon(gmaps),
-      title: "Vous êtes ici", zIndex: 2000,
-    });
-    // Destination marker (default red)
-    if (destMarkerRef.current) destMarkerRef.current.setMap(null);
-    destMarkerRef.current = new gmaps.Marker({
-      position: destLatLng, map, title: business.name,
-    });
-
+    // Clear our custom markers + polyline + info window — DirectionsRenderer handles all of this natively
+    if (originMarkerRef.current) { originMarkerRef.current.setMap(null); originMarkerRef.current = null; }
+    if (destMarkerRef.current) { destMarkerRef.current.setMap(null); destMarkerRef.current = null; }
     if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
     if (infoWindowRef.current) { infoWindowRef.current.close(); infoWindowRef.current = null; }
 
-    const drawRoute = (encoded: string) => {
-      const path = decodeEncodedPolyline(encoded);
-      if (!path.length) { setRouteError("Itinéraire indisponible"); return; }
-      if (polylineRef.current) polylineRef.current.setMap(null);
-      polylineRef.current = new gmaps.Polyline({
-        path, map, strokeColor: "#4285F4", strokeWeight: 6, strokeOpacity: 0.9,
+    if (!directionsServiceRef.current) directionsServiceRef.current = new gmaps.DirectionsService();
+    if (!directionsRendererRef.current) {
+      directionsRendererRef.current = new gmaps.DirectionsRenderer({
+        map,
+        suppressMarkers: false,
+        preserveViewport: false,
       });
-      const b = new gmaps.LatLngBounds();
-      path.forEach((p) => b.extend(p));
-      map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
-    };
+    } else {
+      directionsRendererRef.current.setMap(map);
+    }
 
-    (async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke("compute-route", {
-          body: { origin, destination: destLatLng, mode: directionsMode },
-        });
+    directionsServiceRef.current.route(
+      {
+        origin,
+        destination: destLatLng,
+        travelMode: directionsMode === "walking" ? gmaps.TravelMode.WALKING : gmaps.TravelMode.DRIVING,
+        provideRouteAlternatives: true,
+      },
+      (result, status) => {
         if (cancelled || requestId !== routeRequestRef.current) return;
-        if (error || !data?.encodedPolyline) {
-          setRouteError("Itinéraire indisponible");
+        if (status !== gmaps.DirectionsStatus.OK || !result) {
+          setRouteError("Itinéraire indisponible (vérifiez l'activation de l'API Directions Google)");
           const b = new gmaps.LatLngBounds();
           b.extend(origin); b.extend(destLatLng);
           map.fitBounds(b, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
           return;
         }
-        drawRoute(data.encodedPolyline);
-        const distM = typeof data.distanceMeters === "number" ? data.distanceMeters : null;
-        const dur = typeof data.duration === "string" ? data.duration : null;
-        setRouteInfo({ distanceMeters: distM, duration: dur });
-
-        // Native Google InfoWindow at polyline midpoint with duration · distance
-        const path = polylineRef.current?.getPath();
-        if (path && path.getLength() > 0) {
-          const mid = path.getAt(Math.floor(path.getLength() / 2));
-          const durLabel = formatDuration(dur);
-          const distLabel = formatDistance(distM);
-          if (durLabel || distLabel) {
-            if (infoWindowRef.current) infoWindowRef.current.close();
-            infoWindowRef.current = new gmaps.InfoWindow({
-              position: mid,
-              content: `<div style="font:600 13px/1.2 Roboto,Arial,sans-serif;color:#202124;padding:2px 4px;">${directionsMode === "walking" ? "🚶" : "🚗"} ${durLabel ?? ""}${durLabel && distLabel ? " · " : ""}${distLabel ?? ""}</div>`,
-              disableAutoPan: true,
-            });
-            infoWindowRef.current.open({ map });
-          }
+        directionsRendererRef.current!.setDirections(result);
+        const leg = result.routes[0]?.legs[0];
+        if (leg) {
+          setRouteInfo({
+            distanceMeters: leg.distance?.value ?? null,
+            duration: leg.duration?.value != null ? `${leg.duration.value}s` : null,
+          });
         }
-      } catch (e) {
-        if (!cancelled) { console.error(e); setRouteError("Itinéraire indisponible"); }
+        const bounds = result.routes[0]?.bounds;
+        if (bounds) {
+          map.fitBounds(bounds, { top: cardOffsetRef.current + 24, left: 32, right: 32, bottom: 48 });
+        }
       }
-    })();
+    );
 
     return () => { cancelled = true; };
   }, [mapsReady, showMap, origin, destLatLng, directionsMode, business.name]);
