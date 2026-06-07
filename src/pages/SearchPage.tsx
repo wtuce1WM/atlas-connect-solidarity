@@ -4691,6 +4691,7 @@ const SearchPage = () => {
               return null;
             })()}
             resultsRef={resultsRef}
+            onCloseCompactPanel={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
             resultsBarRef={resultsBarRef}
             compactPanelBusiness={compactPanelBusiness}
             hasKnownLocation={hasKnownLocation}

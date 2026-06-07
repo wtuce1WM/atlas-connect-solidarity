@@ -56,6 +56,7 @@ export interface ResultsTabContentProps {
   activeTimeSlot: TimeSlot | null;
   language: string;
   openCompactPanel: (biz: AIBusinessData) => void;
+  onCloseCompactPanel?: () => void;
   getDistanceKm: (b: Business) => number | null;
   setShowMobileMap: (v: boolean) => void;
   setShowAiPopup: (v: boolean) => void;
@@ -119,6 +120,7 @@ export default function ResultsTabContent({
   activeTimeSlot,
   language,
   openCompactPanel,
+  onCloseCompactPanel,
   getDistanceKm,
   setShowMobileMap,
   setShowAiPopup,
@@ -350,6 +352,7 @@ export default function ResultsTabContent({
                 <button
                   onClick={() => {
                     setShowFiltersOverlay(false);
+                    if (compactPanelBusiness) onCloseCompactPanel?.();
                     if (hasKnownLocation && hideResultsMap) {
                       setHideResultsMap(false);
                     } else {
