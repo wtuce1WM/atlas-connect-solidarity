@@ -405,7 +405,8 @@ const LocationPickerDialog = ({
           <button
             onClick={handleConfirm}
             disabled={!activeCoords}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gold text-white font-semibold text-sm hover:bg-gold/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ backgroundColor: "#25D366" }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Check className="h-4 w-4" />
             {language === "en" ? "Confirm this address" : language === "ar" ? "تأكيد هذا العنوان" : "Confirmer cette adresse"}
