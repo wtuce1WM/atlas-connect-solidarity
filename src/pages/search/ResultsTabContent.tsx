@@ -504,7 +504,7 @@ export default function ResultsTabContent({
           <div className="w-1/2 sticky top-0 h-screen z-[50] overflow-hidden">
             <div className="relative h-full min-h-0">
               <PoiGoogleMap
-                pois={mapPoiItems}
+                pois={effectiveMapPoiItems}
                 selectedPoiId={compactPanelBusiness?.id || null}
                 hoveredPoiId={hoveredResultId || null}
                 onPoiClick={(poiId) => {
