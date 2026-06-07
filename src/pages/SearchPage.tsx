@@ -913,8 +913,7 @@ const SearchPage = () => {
       if (!el) return;
       const active = el.querySelector<HTMLElement>('[data-active-tab="true"]');
       if (!active) return;
-      const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
-      el.scrollTo({ left: Math.max(0, scrollLeft), behavior: "smooth" });
+      active.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
     }, []);
 
     useEffect(() => {
@@ -3429,12 +3428,7 @@ const SearchPage = () => {
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
-                const btn = e.currentTarget;
-                const container = btn.parentElement;
-                if (container) {
-                  const scrollLeft = btn.offsetLeft - container.clientWidth / 2 + btn.offsetWidth / 2;
-                  container.scrollTo({ left: scrollLeft, behavior: "smooth" });
-                }
+              
               }}
               className={`flex items-center gap-2 px-3 py-2 text-xs font-bold transition-colors border-b-2 whitespace-nowrap ${
                 isActive
