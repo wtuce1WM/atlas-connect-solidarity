@@ -132,6 +132,7 @@ export default function ResultsTabContent({
   onFrontStructureServicesFilter,
   fsTopBusinessId,
   allCityMapBusinesses,
+  allSearchMapBusinesses,
   hideAiSuggestion,
   hotelSearchInfo,
   showAllSearchMarkers,
