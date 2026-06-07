@@ -186,6 +186,17 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
     }
   }, [open]);
 
+  const reverseGeocode = useCallback((pos: { lat: number; lng: number }) => {
+    if (!window.google?.maps) return;
+    const geocoder = new window.google.maps.Geocoder();
+    geocoder.geocode({ location: pos }, (results: any, status: any) => {
+      if (status === "OK" && results?.[0]) {
+        setSelectedAddress(results[0].formatted_address);
+        setAddressQuery(results[0].formatted_address);
+      }
+    });
+  }, []);
+
   const placeMarker = useCallback((pos: { lat: number; lng: number }) => {
     if (!mapRef.current) return;
     if (markerRef.current) {
@@ -194,6 +205,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       markerRef.current = new window.google.maps.Marker({
         position: pos,
         map: mapRef.current,
+        draggable: true,
         icon: {
           path: window.google.maps.SymbolPath.CIRCLE,
           scale: 12,
@@ -204,8 +216,14 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
         },
         animation: window.google.maps.Animation.DROP,
       });
+      markerRef.current.addListener("dragend", (e: any) => {
+        if (!e.latLng) return;
+        const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        setSelectedCoords(newPos);
+        reverseGeocode(newPos);
+      });
     }
-  }, []);
+  }, [reverseGeocode]);
 
   // When coords arrive after requesting position
   useEffect(() => {
@@ -219,17 +237,6 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       mapRef.current?.setZoom(14);
     }
   }, [waitingForPosition, coords, geo.detectedCity, placeMarker]);
-
-  const reverseGeocode = useCallback((pos: { lat: number; lng: number }) => {
-    if (!window.google?.maps) return;
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ location: pos }, (results: any, status: any) => {
-      if (status === "OK" && results?.[0]) {
-        setSelectedAddress(results[0].formatted_address);
-        setAddressQuery(results[0].formatted_address);
-      }
-    });
-  }, []);
 
   const handleSearchAddress = useCallback(() => {
     if (!addressQuery.trim() || !window.google?.maps) return;
