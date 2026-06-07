@@ -2325,11 +2325,12 @@ const SearchPage = () => {
     // Results tab (and any other tab): always show the plain search results.
     return filteredBusinesses;
   }, [activeTab, showAiPopup, aiCitedMapPool, aiRefinementBusinessPool, showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
+  const hasActiveSearchContext = !!searchQuery.trim() || !!categoryFromUrl || totalCount !== null;
   const frontStructurePool = useMemo(() => {
     if (hasActiveSearchContext) return searchMapPool;
     return allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
   }, [hasActiveSearchContext, searchMapPool, allCityMapBusinesses, filteredBusinesses]);
-  const hasActiveSearchContext = !!searchQuery.trim() || !!categoryFromUrl || totalCount !== null;
+
 
   // "Tous" tab: show search results only (desktop) — capped to 20 unless "Voir tous" is toggled
   const mapPoiItemsSearch: PoiMapItem[] = useMemo(() => {
