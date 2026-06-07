@@ -391,7 +391,7 @@ const LocationPickerDialog = ({
               onClick={handleUseCurrentPosition}
               disabled={isDetecting}
               style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-gold text-white font-medium text-sm hover:bg-gold/90 transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-gold text-white font-medium text-sm normal-case tracking-normal hover:bg-gold/90 transition-colors disabled:opacity-50"
             >
               {isDetecting ? <Loader className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
               {language === "en" ? "My position" : language === "ar" ? "موقعي" : "Ma position"}
@@ -400,7 +400,7 @@ const LocationPickerDialog = ({
               <button
                 onClick={() => { onDisableGeo(); onOpenChange(false); }}
                 style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm normal-case tracking-normal hover:bg-primary/90 transition-colors"
               >
                 <X className="h-4 w-4" />
                 {language === "en" ? "Don't geolocate me" : language === "ar" ? "لا تحدد موقعي" : "Ne pas me géolocaliser"}
@@ -453,7 +453,7 @@ const LocationPickerDialog = ({
             onClick={handleConfirm}
             disabled={!activeCoords}
             style={{ backgroundColor: "#25D366", fontFamily: "'Josefin Sans', sans-serif" }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-semibold text-sm normal-case tracking-normal hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Check className="h-4 w-4" />
             {language === "en" ? "Confirm this address" : language === "ar" ? "تأكيد هذا العنوان" : "Confirmer cette adresse"}
