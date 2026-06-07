@@ -208,12 +208,6 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
     <>
       {/* Unified dock pill at the bottom of the panel */}
       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[85]">
-        {/* Radial halo: darkens the video around the pill without a hard shadow line */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[260%] rounded-full"
-          style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0) 70%)" }}
-        />
         <div className="relative flex items-end gap-0.5 rounded-[28px] border border-white/25 backdrop-blur-2xl bg-black/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_10px_rgba(0,0,0,0.3)] px-2 py-1.5">
           {renderVideoCells()}
           {leadingControls}
