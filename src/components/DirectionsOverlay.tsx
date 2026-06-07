@@ -131,7 +131,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null);
   const directionsRenderersRef = useRef<google.maps.DirectionsRenderer[]>([]);
-  const routeLabelsRef = useRef<google.maps.InfoWindow[]>([]);
+  const routeLabelsRef = useRef<google.maps.OverlayView[]>([]);
   const routeRequestRef = useRef(0);
   const originMarkerRef = useRef<google.maps.Marker | null>(null);
   const destMarkerRef = useRef<google.maps.Marker | null>(null);
