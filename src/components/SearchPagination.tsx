@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SearchPaginationProps {
@@ -48,8 +48,11 @@ export default function SearchPagination({
           disabled={currentPage === 1}
           className="gap-1"
         >
-          <ChevronLeft className="h-4 w-4" />
-          {previous}
+          <span className="sm:hidden"><ChevronsLeft className="h-4 w-4" /></span>
+          <span className="hidden sm:inline-flex items-center gap-1">
+            <ChevronLeft className="h-4 w-4" />
+            {previous}
+          </span>
         </Button>
         <div className="flex items-center gap-1">
           {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -78,8 +81,11 @@ export default function SearchPagination({
           disabled={currentPage === totalPages}
           className="gap-1"
         >
-          {next}
-          <ChevronRight className="h-4 w-4" />
+          <span className="sm:hidden"><ChevronsRight className="h-4 w-4" /></span>
+          <span className="hidden sm:inline-flex items-center gap-1">
+            {next}
+            <ChevronRight className="h-4 w-4" />
+          </span>
         </Button>
       </div>
     </div>
