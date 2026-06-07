@@ -905,20 +905,41 @@ const SearchPage = () => {
      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams]);
 
-    // Center the active tab in the tab bar whenever it changes
+    // Tab bar: centering + native non-passive wheel handler for horizontal scroll
+    const tabBarRef = useRef<HTMLDivElement | null>(null);
+
+    const centerActiveTab = useCallback(() => {
+      const el = tabBarRef.current;
+      if (!el) return;
+      const active = el.querySelector<HTMLElement>('[data-active-tab="true"]');
+      if (!active) return;
+      const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
+      el.scrollTo({ left: Math.max(0, scrollLeft), behavior: "smooth" });
+    }, []);
+
     useEffect(() => {
-      const center = () => {
-        const el = document.querySelector<HTMLElement>('[data-tab-bar]');
-        if (!el) return;
-        const active = el.querySelector<HTMLElement>('[data-active-tab="true"]');
-        if (!active) return;
-        const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
-        el.scrollTo({ left: Math.max(0, scrollLeft), behavior: "smooth" });
+      const r = requestAnimationFrame(() => requestAnimationFrame(centerActiveTab));
+      const t = setTimeout(centerActiveTab, 250);
+      return () => { cancelAnimationFrame(r); clearTimeout(t); };
+    }, [activeTab, centerActiveTab]);
+
+    useEffect(() => {
+      const el = tabBarRef.current;
+      if (!el) return;
+      const onWheel = (e: WheelEvent) => {
+        const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+        if (delta === 0) return;
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (maxScroll <= 0) return;
+        // Only intercept if we can scroll in that direction
+        if ((delta > 0 && el.scrollLeft < maxScroll) || (delta < 0 && el.scrollLeft > 0)) {
+          e.preventDefault();
+          el.scrollLeft += delta;
+        }
       };
-      const r1 = requestAnimationFrame(() => requestAnimationFrame(center));
-      const t = setTimeout(center, 200);
-      return () => { cancelAnimationFrame(r1); clearTimeout(t); };
-    }, [activeTab]);
+      el.addEventListener("wheel", onWheel, { passive: false });
+      return () => el.removeEventListener("wheel", onWheel);
+    }, []);
 
    // When landing on /search?tab=ai without a query, restore the last AI suggestion from session
    useEffect(() => {
@@ -3379,20 +3400,7 @@ const SearchPage = () => {
   return (
     <div className={`min-h-screen ${activeTab === "youtube" ? "bg-transparent" : "bg-white"}`} style={{ overflowX: 'clip' }}>
       <Header compact variant={activeTab === "youtube" ? "city" : undefined} rightContent={
-        <div data-tab-bar ref={(el) => {
-          if (el) {
-            const active = el.querySelector('[data-active-tab="true"]') as HTMLElement;
-            if (active) {
-              const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
-              el.scrollTo({ left: scrollLeft, behavior: "smooth" });
-            }
-          }
-        }} onWheel={(e) => {
-          const el = e.currentTarget;
-          const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-          if (delta === 0) return;
-          el.scrollLeft += delta;
-        }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        <div data-tab-bar ref={tabBarRef} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {[
             { key: "suggestions", icon: <Search className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
             { key: "ai", icon: <Sparkles className="h-4 w-4" />, label: "IA" },
