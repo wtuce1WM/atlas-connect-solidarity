@@ -913,8 +913,7 @@ const SearchPage = () => {
       if (!el) return;
       const active = el.querySelector<HTMLElement>('[data-active-tab="true"]');
       if (!active) return;
-      const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
-      el.scrollTo({ left: Math.max(0, scrollLeft), behavior: "smooth" });
+      active.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
     }, []);
 
     useEffect(() => {
