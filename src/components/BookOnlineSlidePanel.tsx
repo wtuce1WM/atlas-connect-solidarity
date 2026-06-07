@@ -2301,8 +2301,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         const afterProx = poiProximityKm != null
           ? afterSubcat.filter((p) => { const d = distOf(p); return d != null && d <= poiProximityKm; })
           : afterSubcat;
-        const filterActive = !!poiCatFilter || !!poiSubcatFilter || poiProximityKm != null;
-        const displayedPoi = (poiShowAll || filterActive) ? afterProx : afterProx.slice(0, TOP_LIMIT);
+        const displayedPoi = poiShowAll ? afterProx : afterProx.slice(0, TOP_LIMIT);
         const total = afterProx.length;
         const showAllToggle = poiMapMode === "poi" && (total > TOP_LIMIT || poiShowAll);
         const showCatPill = poiMapMode === "poi" && frontTabs.length >= 2;
