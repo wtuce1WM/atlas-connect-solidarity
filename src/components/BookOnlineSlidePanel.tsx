@@ -2239,7 +2239,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         }
         const activeProx = proxOpts.find((o) => o.km === poiProximityKm) || null;
         return (
-        <OverlayShell zClass="z-[80]" desktopOnly={false} coverToolbar={false} animClass="animate-slide-up-from-bottom">
+        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
           <div className="absolute inset-0">
             <button
               onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); setPoiSubcatFilter(null); setPoiShowAll(false); setPoiProximityKm(null); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
