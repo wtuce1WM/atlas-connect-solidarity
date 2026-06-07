@@ -517,8 +517,8 @@ export default function ResultsTabContent({
                   </div>
                 </div>
                 {(() => {
-                  const total = activeFsTabId === null ? (searchResultsTotal ?? 0) : (fsMatchingCount ?? 0);
-                  const showToggle = total > 20 || !!activeFsSubId;
+                  const total = Math.max(searchResultsTotal ?? 0, fsMatchingCount ?? 0, mapPoiItems.length);
+                  const showToggle = total > 20 || !!activeFsSubId || !!showAllSearchMarkers;
                   return (
                     <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2">
                       {showToggle && (
