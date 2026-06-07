@@ -213,7 +213,7 @@ export default function FiltersOverlayFlow({
             onClick={() => onTabClick(null)}
             className={`truncate hover:underline ${step === 1 ? "opacity-100" : "opacity-60"}`}
           >
-            Filtres
+            Catégories
           </button>
           {activeTab && parentCategoryName && parentCategoryName !== activeTab.name && (
             <>
