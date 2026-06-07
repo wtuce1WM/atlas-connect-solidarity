@@ -44,7 +44,7 @@ import { useLocation } from "react-router-dom";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 
 import { useBookOnlineData } from "@/hooks/useBookOnlineData";
-import type { Destination } from "@/hooks/useBookOnlineData";
+import type { Destination, PoiBusiness } from "@/hooks/useBookOnlineData";
 import VideoDocumentOverlay from "@/components/overlays/VideoDocumentOverlay";
 import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import ExternalVideosOverlay from "@/components/overlays/ExternalVideosOverlay";
@@ -239,9 +239,66 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [poiShowAll, setPoiShowAll] = useState(false);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
+  const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
+  const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
   const poiOpenedFromMapRef = useRef(false);
   const { coords: userCoords } = useGeolocation();
   const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
+  const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
+
+  useEffect(() => {
+    if (!poiCatFilter || !business?.city) {
+      setPoiCategoryBusinesses([]);
+      setPoiCategoryBusinessCatId(null);
+      return;
+    }
+
+    const activeFrontTab = frontTabs.find((t) => t.id === poiCatFilter) || null;
+    if (!activeFrontTab) {
+      setPoiCategoryBusinesses([]);
+      setPoiCategoryBusinessCatId(poiCatFilter);
+      return;
+    }
+
+    let cancelled = false;
+    const subcategoryNames = activeFrontTab.subcategoryNames;
+
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, main_category, priority_score")
+        .eq("is_active", true)
+        .ilike("city", business.city)
+        .order("priority_score", { ascending: false, nullsFirst: false })
+        .limit(1000);
+
+      if (cancelled) return;
+
+      const rows = ((data || []) as any[])
+        .filter((p) => p.id !== businessId)
+        .filter((p) => {
+          const inMain = p.main_category && subcategoryNames.has(p.main_category);
+          const inCats = Array.isArray(p.categories) && p.categories.some((c: string) => subcategoryNames.has(c));
+          return inMain || inCats;
+        })
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          images: p.images,
+          logo_url: p.logo_url,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          city: p.city,
+          neighborhood: p.neighborhood,
+          categories: p.categories,
+        }));
+
+      setPoiCategoryBusinesses(rows as PoiBusiness[]);
+      setPoiCategoryBusinessCatId(poiCatFilter);
+    })();
+
+    return () => { cancelled = true; };
+  }, [poiCatFilter, business?.city, businessId, frontTabs]);
   
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
@@ -1634,7 +1691,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               } else if (descGridSection === "poi") {
                 const activeFrontTabGrid = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
                 const afterCatGrid = activeFrontTabGrid
-                  ? poiBusinesses.filter((p) => (p.categories || []).some((c) => activeFrontTabGrid.subcategoryNames.has(c)))
+                  ? activePoiCategoryBusinesses
                   : poiBusinesses;
                 const afterSubcatGrid = poiSubcatFilter
                   ? afterCatGrid.filter((p) => (p.categories || []).includes(poiSubcatFilter))
@@ -1707,7 +1764,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   )}
                   <div className="w-full max-w-3xl mx-auto px-3 md:px-3 relative" style={{ perspective: "1200px", maxWidth: isMobileGrid ? "85%" : undefined }}>
                     <div
-                      key={`${descGridSection}-${descGridPage}`}
+                      key={`${descGridSection}-${poiCatFilter || "all"}-${poiSubcatFilter || "all"}-${poiProximityKm ?? "all"}-${descGridPage}`}
                       style={{
                         animation: "0.5s cubic-bezier(0.4, 0, 0.2, 1) both",
                         animationName: "descGridFlip",
@@ -2223,7 +2280,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         const TOP_LIMIT = 20;
         const activeFrontTab = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
         const afterCat = activeFrontTab
-          ? poiBusinesses.filter((p) => (p.categories || []).some((c) => activeFrontTab.subcategoryNames.has(c)))
+          ? activePoiCategoryBusinesses
           : poiBusinesses;
         const poiSubcatCounts = new Map<string, number>();
         for (const p of afterCat) {
@@ -2244,8 +2301,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         const afterProx = poiProximityKm != null
           ? afterSubcat.filter((p) => { const d = distOf(p); return d != null && d <= poiProximityKm; })
           : afterSubcat;
-        const filterActive = !!poiCatFilter || !!poiSubcatFilter || poiProximityKm != null;
-        const displayedPoi = (poiShowAll || filterActive) ? afterProx : afterProx.slice(0, TOP_LIMIT);
+        const displayedPoi = poiShowAll ? afterProx : afterProx.slice(0, TOP_LIMIT);
         const total = afterProx.length;
         const showAllToggle = poiMapMode === "poi" && (total > TOP_LIMIT || poiShowAll);
         const showCatPill = poiMapMode === "poi" && frontTabs.length >= 2;
@@ -2358,7 +2414,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
                         {poiCatFilter && (
-                          <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setDescGridPage(0); setDescGridSection("poi"); setPoiShowAll(false); }}>
+                          <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiCategoryBusinesses([]); setPoiCategoryBusinessCatId(null); setDescGridPage(0); setDescGridSection("poi"); setPoiShowAll(false); }}>
                             Toutes les catégories
                           </DropdownMenuItem>
                         )}
