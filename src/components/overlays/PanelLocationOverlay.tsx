@@ -217,11 +217,6 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       });
     });
   }, [setReverseGeocodedAddress]);
-      }
-        resolve(null);
-      });
-    });
-  }, []);
 
   const placeMarker = useCallback((pos: { lat: number; lng: number }) => {
     if (!mapRef.current) return;
