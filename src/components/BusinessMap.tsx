@@ -168,6 +168,7 @@ const BusinessMap = ({
   const rippleOverlayRef = useRef<google.maps.OverlayView | null>(null);
   const rippleDivRef = useRef<HTMLDivElement | null>(null);
   const lastFingerprintRef = useRef<string>("");
+  const markerOpenedAtRef = useRef<number>(0);
 
   const [internalBusinesses, setInternalBusinesses] = useState<MapBusiness[]>([]);
   const [internalLoading, setInternalLoading] = useState(!externalBusinesses);
