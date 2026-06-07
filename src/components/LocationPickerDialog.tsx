@@ -215,8 +215,8 @@ const LocationPickerDialog = ({
     </svg>`;
     const icon = {
       url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-      scaledSize: new window.google.maps.Size(220, 120),
-      anchor: new window.google.maps.Point(110, 64),
+      scaledSize: new window.google.maps.Size(143, 78),
+      anchor: new window.google.maps.Point(71, 42),
     };
     if (markerRef.current) {
       markerRef.current.setPosition(pos);
