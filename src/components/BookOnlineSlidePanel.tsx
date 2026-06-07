@@ -2246,7 +2246,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           : afterSubcat;
         const filterActive = !!poiCatFilter || !!poiSubcatFilter || poiProximityKm != null;
         const displayedPoi = (poiShowAll || filterActive) ? afterProx : afterProx.slice(0, TOP_LIMIT);
-        const total = poiBusinesses.length;
+        const total = afterProx.length;
         const showAllToggle = poiMapMode === "poi" && (total > TOP_LIMIT || poiShowAll);
         const showCatPill = poiMapMode === "poi" && frontTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
