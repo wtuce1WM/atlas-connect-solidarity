@@ -739,7 +739,7 @@ export default function ResultsTabContent({
           return (
             <div
               className="fixed inset-0 z-[230] shadow-2xl flex flex-col bg-no-repeat bg-cover bg-center animate-slide-up-from-bottom lg:left-1/2"
-              style={{ backgroundImage: "url('/hero_magical_realism_v3.jpg')" }}
+              style={{ backgroundImage: "url('/hero_magical_realism_v1.jpg')" }}
             >
               <FiltersOverlayFlow
                 frontTabs={frontTabs}
