@@ -296,10 +296,26 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           return;
         }
         drawRoute(data.encodedPolyline);
-        setRouteInfo({
-          distanceMeters: typeof data.distanceMeters === "number" ? data.distanceMeters : null,
-          duration: typeof data.duration === "string" ? data.duration : null,
-        });
+        const distM = typeof data.distanceMeters === "number" ? data.distanceMeters : null;
+        const dur = typeof data.duration === "string" ? data.duration : null;
+        setRouteInfo({ distanceMeters: distM, duration: dur });
+
+        // Native Google InfoWindow at polyline midpoint with duration · distance
+        const path = polylineRef.current?.getPath();
+        if (path && path.getLength() > 0) {
+          const mid = path.getAt(Math.floor(path.getLength() / 2));
+          const durLabel = formatDuration(dur);
+          const distLabel = formatDistance(distM);
+          if (durLabel || distLabel) {
+            if (infoWindowRef.current) infoWindowRef.current.close();
+            infoWindowRef.current = new gmaps.InfoWindow({
+              position: mid,
+              content: `<div style="font:600 13px/1.2 Roboto,Arial,sans-serif;color:#202124;padding:2px 4px;">${directionsMode === "walking" ? "🚶" : "🚗"} ${durLabel ?? ""}${durLabel && distLabel ? " · " : ""}${distLabel ?? ""}</div>`,
+              disableAutoPan: true,
+            });
+            infoWindowRef.current.open({ map });
+          }
+        }
       } catch (e) {
         if (!cancelled) { console.error(e); setRouteError("Itinéraire indisponible"); }
       }
