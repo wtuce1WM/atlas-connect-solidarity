@@ -2419,7 +2419,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                           </DropdownMenuItem>
                         )}
                         {frontTabs.map((ft) => (
-                          <DropdownMenuItem key={ft.id} onSelect={() => { setPoiCatFilter(ft.id); setPoiSubcatFilter(null); setDescGridPage(0); setDescGridSection("poi"); setPoiShowAll(false); }}>
+                          <DropdownMenuItem key={ft.id} onSelect={() => { setPoiCatFilter(ft.id); setPoiSubcatFilter(null); setDescGridPage(0); setDescGridSection("poi"); setPoiShowAll(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}>
                             {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
                           </DropdownMenuItem>
                         ))}
