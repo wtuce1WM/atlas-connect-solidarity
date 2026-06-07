@@ -194,6 +194,7 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       markerRef.current = new window.google.maps.Marker({
         position: pos,
         map: mapRef.current,
+        draggable: true,
         icon: {
           path: window.google.maps.SymbolPath.CIRCLE,
           scale: 12,
@@ -204,8 +205,14 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
         },
         animation: window.google.maps.Animation.DROP,
       });
+      markerRef.current.addListener("dragend", (e: any) => {
+        if (!e.latLng) return;
+        const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        setSelectedCoords(newPos);
+        reverseGeocode(newPos);
+      });
     }
-  }, []);
+  }, [reverseGeocode]);
 
   // When coords arrive after requesting position
   useEffect(() => {
