@@ -4789,6 +4789,7 @@ const SearchPage = () => {
             hideAiSuggestion={false}
             allCityMapBusinesses={allCityMapBusinesses}
             allSearchMapBusinesses={allSearchMapBusinesses}
+            allSearchMapPoiItems={allSearchMapPoiItems}
             hotelSearchInfo={hotelSearchInfoForResults}
             showAllSearchMarkers={showAllSearchMarkers}
             onToggleShowAllSearchMarkers={() => setShowAllSearchMarkers(v => !v)}
