@@ -150,6 +150,9 @@ export default function ResultsTabContent({
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
   const [activeFsServices, setActiveFsServices] = useState<string[]>([]);
   const [showFiltersOverlay, setShowFiltersOverlay] = useState(false);
+  // Quand l'utilisateur revient explicitement à la racine via le breadcrumb "Filtres",
+  // on bloque l'auto-sélection de la catégorie dominante jusqu'à ce qu'il en choisisse une.
+  const fsManuallyResetRef = useRef(false);
   // Filtre "à proximité" — actif uniquement en mode "Tous" et si on connait la position user.
   const [proximityKm, setProximityKm] = useState<number | null>(null);
   // Reset le filtre proximité quand on change de ville, requête, sous-cat ou quand on quitte "Tous"
@@ -249,6 +252,7 @@ export default function ResultsTabContent({
   }, [frontTabs]);
 
   const handleFsTabClick = (tabId: string | null) => {
+    fsManuallyResetRef.current = tabId === null;
     setActiveFsTabId(tabId);
     setActiveFsSubId(null);
     setActiveFsServices([]);
@@ -356,6 +360,7 @@ export default function ResultsTabContent({
   // pin-based results (a pool in a restaurant would auto-select "Restauration").
   useEffect(() => {
     if (activeFsTabId) return;
+    if (fsManuallyResetRef.current) return;
     if (labelFromUrl && labelFromUrl.trim()) return;
     if (!frontTabs.length || !filteredBusinesses?.length) return;
     const counts: Record<string, number> = {};
