@@ -77,6 +77,7 @@ export interface ResultsTabContentProps {
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
   allSearchMapBusinesses?: Business[];
+  allSearchMapPoiItems?: PoiMapItem[];
   hideAiSuggestion?: boolean;
   hotelSearchInfo?: { city: string; checkIn: string; checkOut: string; adults: number } | null;
   showAllSearchMarkers?: boolean;
