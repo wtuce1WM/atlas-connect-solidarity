@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -146,6 +147,7 @@ export default function ResultsTabContent({
   belowCardsSlot,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
+  const [, setSearchParams] = useSearchParams();
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
   const [activeFsServices, setActiveFsServices] = useState<string[]>([]);
@@ -252,6 +254,7 @@ export default function ResultsTabContent({
   }, [frontTabs]);
 
   const handleFsTabClick = (tabId: string | null) => {
+    const wasManualReset = fsManuallyResetRef.current;
     fsManuallyResetRef.current = tabId === null;
     setActiveFsTabId(tabId);
     setActiveFsSubId(null);
@@ -262,6 +265,16 @@ export default function ResultsTabContent({
     } else {
       const tab = frontTabs.find(t => t.id === tabId);
       onFrontStructureFilter?.(tab?.subcategoryNames || null);
+      // Si on revient dans Catégories (racine) puis on choisit un badge,
+      // on ré-initialise la grille en effaçant la requête texte.
+      if (wasManualReset) {
+        setSearchParams((prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete("q");
+          next.delete("spoken");
+          return next;
+        }, { replace: true });
+      }
     }
     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
