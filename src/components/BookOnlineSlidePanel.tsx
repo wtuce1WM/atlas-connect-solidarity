@@ -2324,7 +2324,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
           <div className="absolute inset-0">
             <button
-              onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); setPoiSubcatFilter(null); setPoiCatFilter(null); setPoiShowAll(false); setPoiProximityKm(null); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
+              onClick={() => { setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
               className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
               aria-label="Fermer"
             >
@@ -2419,7 +2419,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                           </DropdownMenuItem>
                         )}
                         {frontTabs.map((ft) => (
-                          <DropdownMenuItem key={ft.id} onSelect={() => { setPoiCatFilter(ft.id); setPoiSubcatFilter(null); setDescGridPage(0); setDescGridSection("poi"); setPoiShowAll(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}>
+                          <DropdownMenuItem key={ft.id} onSelect={() => { setPoiCatFilter(ft.id); setPoiSubcatFilter(null); setDescGridPage(0); setDescGridSection("poi"); setShowDescriptionOverlay(true); setPoiShowAll(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}>
+
                             {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
                           </DropdownMenuItem>
                         ))}
