@@ -150,6 +150,9 @@ export default function ResultsTabContent({
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
   const [activeFsServices, setActiveFsServices] = useState<string[]>([]);
   const [showFiltersOverlay, setShowFiltersOverlay] = useState(false);
+  // Quand l'utilisateur revient explicitement à la racine via le breadcrumb "Filtres",
+  // on bloque l'auto-sélection de la catégorie dominante jusqu'à ce qu'il en choisisse une.
+  const fsManuallyResetRef = useRef(false);
   // Filtre "à proximité" — actif uniquement en mode "Tous" et si on connait la position user.
   const [proximityKm, setProximityKm] = useState<number | null>(null);
   // Reset le filtre proximité quand on change de ville, requête, sous-cat ou quand on quitte "Tous"
