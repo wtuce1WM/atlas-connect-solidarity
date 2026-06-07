@@ -131,7 +131,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null);
   const directionsRenderersRef = useRef<google.maps.DirectionsRenderer[]>([]);
-  const routeLabelsRef = useRef<google.maps.InfoWindow[]>([]);
+  const routeLabelsRef = useRef<google.maps.OverlayView[]>([]);
   const routeRequestRef = useRef(0);
   const originMarkerRef = useRef<google.maps.Marker | null>(null);
   const destMarkerRef = useRef<google.maps.Marker | null>(null);
@@ -264,7 +264,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
     if (infoWindowRef.current) { infoWindowRef.current.close(); infoWindowRef.current = null; }
     directionsRenderersRef.current.forEach((r) => r.setMap(null));
     directionsRenderersRef.current = [];
-    routeLabelsRef.current.forEach((iw) => iw.close());
+    routeLabelsRef.current.forEach((ov) => ov.setMap(null));
     routeLabelsRef.current = [];
 
     if (!directionsServiceRef.current) directionsServiceRef.current = new gmaps.DirectionsService();
@@ -305,7 +305,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           });
           directionsRenderersRef.current.push(renderer);
 
-          // Label at a midpoint with duration + distance (Google Maps native look)
+          // Custom pill label at midpoint (Google Maps "alt route" style)
           const leg = route.legs?.[0];
           if (!leg) return;
           const path: google.maps.LatLng[] = [];
@@ -314,10 +314,30 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           const dur = leg.duration?.text || "";
           const dist = leg.distance?.text || "";
           const icon = directionsMode === "walking" ? "🚶" : "🚗";
-          const content = `<div style="font-family:Roboto,Arial,sans-serif;font-size:13px;line-height:1.2;padding:2px 4px;white-space:nowrap;"><div style="font-weight:600;color:#202124;">${icon} ${dur}</div><div style="color:#5f6368;font-size:12px;">${dist}</div></div>`;
-          const iw = new gmaps.InfoWindow({ content, position: mid, disableAutoPan: true });
-          iw.open({ map });
-          routeLabelsRef.current.push(iw);
+
+          class PillOverlay extends gmaps.OverlayView {
+            private div?: HTMLDivElement;
+            private pos: google.maps.LatLng;
+            constructor(pos: google.maps.LatLng) { super(); this.pos = pos; }
+            onAdd() {
+              const div = document.createElement("div");
+              div.style.cssText = "position:absolute;transform:translate(-50%,-50%);background:#fff;border:1px solid rgba(0,0,0,0.15);border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.25);padding:4px 8px;font-family:Roboto,Arial,sans-serif;white-space:nowrap;pointer-events:none;z-index:" + (isPrimary ? 50 : 40) + ";";
+              div.innerHTML = `<div style="font-size:13px;font-weight:600;color:#202124;line-height:1.15;">${icon} ${dur}</div><div style="font-size:11px;color:#5f6368;line-height:1.15;">${dist}</div>`;
+              this.div = div;
+              this.getPanes()!.floatPane.appendChild(div);
+            }
+            draw() {
+              if (!this.div) return;
+              const p = this.getProjection()?.fromLatLngToDivPixel(this.pos);
+              if (!p) return;
+              this.div.style.left = p.x + "px";
+              this.div.style.top = p.y + "px";
+            }
+            onRemove() { this.div?.remove(); this.div = undefined; }
+          }
+          const overlay = new PillOverlay(mid) as unknown as google.maps.OverlayView;
+          overlay.setMap(map);
+          routeLabelsRef.current.push(overlay);
         });
 
         const primary = routes[0];
