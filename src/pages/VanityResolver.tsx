@@ -12,7 +12,7 @@ const RESERVED = new Set([
   "search", "staff", "affiliates", "devenir-affilie", "mission", "contact",
   "blog", "neighborhood", "carte", "subcategory", "hotels", "club",
   "search-analytics", "destination", "conditions-generales", "unsubscribe",
-  "fiche", "test", "install", "corporate",
+  "fiche", "test", "install", "corporate", "u", "y",
 ]);
 
 type Resolved =

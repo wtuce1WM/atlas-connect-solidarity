@@ -5799,6 +5799,28 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      get_public_club_profile: {
+        Args: { _nickname: string }
+        Returns: {
+          avatar_url: string
+          city: string
+          country: string
+          description: string
+          facebook: string
+          first_name: string
+          instagram: string
+          last_name: string
+          linkedin: string
+          nickname: string
+          pinterest: string
+          soundcloud: string
+          spotify: string
+          tiktok: string
+          twitter: string
+          website: string
+          youtube: string
+        }[]
+      }
       get_user_roles_with_emails: {
         Args: never
         Returns: {
