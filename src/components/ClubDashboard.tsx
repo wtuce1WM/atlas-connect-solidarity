@@ -365,9 +365,34 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       <Tabs defaultValue="account" className="w-full" orientation="vertical">
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
           <div className="flex flex-col gap-4">
-            <Link to="/" aria-label="Accueil" className="hidden md:flex items-center justify-center px-1">
-              <img src={accountAvatar} alt="Mon compte" className="h-24 w-auto" loading="lazy" width={512} height={512} />
-            </Link>
+            <div className="hidden md:flex items-center justify-center px-1">
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                aria-label="Changer la photo de profil"
+                className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
+              >
+                <img
+                  src={avatarUrl || accountAvatar}
+                  alt="Photo de profil"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                {uploadingAvatar && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-background/60">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  </span>
+                )}
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
+            </div>
             <TabsList className="flex md:flex-col h-auto bg-transparent p-0 gap-1 md:items-stretch md:justify-start overflow-x-auto md:overflow-visible">
               {[
                 { value: "account", Icon: UserIcon, label: language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte" },
