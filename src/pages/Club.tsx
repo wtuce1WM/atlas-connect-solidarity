@@ -306,7 +306,7 @@ const Club = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.nickname.trim() || !form.email.trim()) return;
+    if (!form.first_name.trim() || !form.email.trim()) return;
 
     if (password.length < 6) {
       toast({ title: t.passwordTooShort, variant: "destructive" });
@@ -336,16 +336,15 @@ const Club = () => {
       }
 
       const payload: Record<string, string> = {
-        nickname: form.nickname.trim(),
+        nickname: form.first_name.trim(),
         email: form.email.trim(),
       };
       if (authData.user?.id) (payload as any).user_id = authData.user.id;
       if (form.first_name.trim()) payload.first_name = form.first_name.trim();
       if (form.last_name.trim()) payload.last_name = form.last_name.trim();
-      if (form.city.trim()) payload.city = form.city.trim();
-      if (form.country.trim()) payload.country = form.country.trim();
       if (form.phone.trim()) payload.phone = form.phone.trim();
       if (form.whatsapp.trim()) payload.whatsapp = form.whatsapp.trim();
+
 
       const { error } = await supabase.from("club_members" as any).insert(payload as any);
       if (error) throw error;
