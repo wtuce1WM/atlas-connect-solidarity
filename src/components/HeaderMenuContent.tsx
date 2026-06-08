@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 const SOCIAL_ORDER = [
   "social_whatsapp", "social_tiktok", "social_instagram", "social_facebook",
   "social_twitter", "social_pinterest", "social_soundcloud", "social_youtube",
+  "social_linkedin",
 ];
 
 const SOCIAL_ICONS: Record<string, (cls: string) => JSX.Element> = {
