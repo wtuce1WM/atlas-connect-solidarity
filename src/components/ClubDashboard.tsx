@@ -41,7 +41,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
   const t = {
     fr: {
-      title: "Mon espace Club",
+      title: "\n",
       subtitle: "Gérez vos informations personnelles",
       firstName: "Prénom",
       lastName: "Nom",
@@ -60,7 +60,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       memberSince: "Membre depuis",
     },
     en: {
-      title: "My Club Space",
+      title: "\n",
       subtitle: "Manage your personal information",
       firstName: "First name",
       lastName: "Last name",
@@ -79,7 +79,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       memberSince: "Member since",
     },
     ar: {
-      title: "مساحتي في النادي",
+      title: "\n",
       subtitle: "إدارة معلوماتك الشخصية",
       firstName: "الاسم الأول",
       lastName: "اللقب",
@@ -98,7 +98,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       memberSince: "عضو منذ",
     },
   }[language] || {
-    title: "Mon espace Club",
+    title: "\n",
     subtitle: "Gérez vos informations personnelles",
     firstName: "Prénom",
     lastName: "Nom",
@@ -108,7 +108,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     selectCountry: "Sélectionner un pays",
     emailLabel: "Email",
     phoneLabel: "Téléphone",
-      whatsappLabel: "WhatsApp",
+    whatsappLabel: "WhatsApp",
     save: "Enregistrer",
     saved: "Modifications enregistrées !",
     errorMsg: "Une erreur est survenue, veuillez réessayer.",
@@ -310,11 +310,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </TabsTrigger>
           <TabsTrigger value="addresses" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
             <MapPin className="h-4 w-4" />
-            <span>{language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses"}</span>
+            <span>{language === "en" ? "My places" : language === "ar" ? "عناويني" : "MES ADDANS RESSES"}</span>
           </TabsTrigger>
           <TabsTrigger value="travel" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
             <Plane className="h-4 w-4" />
-            <span>{language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage"}</span>
+            <span>{language === "en" ? "Travel" : language === "ar" ? "سفر" : "C"}</span>
           </TabsTrigger>
           <TabsTrigger value="inspiration" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
             <Lightbulb className="h-4 w-4" />
