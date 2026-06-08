@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import { Crown, Loader2, Mail, Eye, EyeOff } from "lucide-react";
+import { Crown, Loader2, Mail, Eye, EyeOff, Home } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -375,7 +376,21 @@ const Club = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {user && (
+        <header className="fixed left-0 right-0 top-0 z-30 bg-background/90 backdrop-blur">
+          <div className="mx-auto flex items-start px-4 py-3 w-full">
+            <Link
+              to="/"
+              aria-label="Accueil"
+              className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors"
+            >
+              <Home className="h-5 w-5 text-foreground" />
+            </Link>
+          </div>
+        </header>
+      )}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
+
       {/* Hero — masqué une fois connecté */}
       {!user && (
         <section className="club-hero relative overflow-hidden text-primary-foreground min-h-[80vh] flex items-center justify-center px-4">

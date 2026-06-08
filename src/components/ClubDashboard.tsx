@@ -388,26 +388,15 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
   return (
     <div className="space-y-8">
-      {/* Top bar: Accueil + Logout */}
+      {/* Header */}
       <div className="flex items-center justify-between gap-3">
-        <Link
-          to="/"
-          aria-label="Accueil"
-          className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-md text-foreground hover:bg-muted transition"
-        >
-          <Home className="h-4 w-4 shrink-0" />
-          <span>Accueil</span>
-        </Link>
+        <h2 className="text-2xl font-bold">{t.title}</h2>
         <Button variant="outline" size="sm" onClick={onLogout} className="gap-2">
           <LogOut className="h-4 w-4" />
           {t.logout}
         </Button>
       </div>
 
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold">{t.title}</h2>
-      </div>
 
 
       <Tabs defaultValue="account" className="w-full" orientation="vertical">
