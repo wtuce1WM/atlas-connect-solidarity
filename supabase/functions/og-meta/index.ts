@@ -111,6 +111,33 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
     }
   }
 
+  // ---------- Profil Club public ----------
+  // /u/:nickname
+  const clubMatch = path.match(/^\/u\/([^/]+)/);
+  if (clubMatch) {
+    const nickname = decodeURIComponent(clubMatch[1]);
+    const { data } = await supabase.rpc("get_public_club_profile", { _nickname: nickname });
+    const row = Array.isArray(data) ? data[0] : null;
+    if (row) {
+      const displayName = (row.first_name || row.last_name)
+        ? `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim()
+        : row.nickname;
+      let avatar = row.avatar_url || "";
+      if (avatar && !/^https?:\/\//i.test(avatar)) {
+        const { data: pub } = supabase.storage.from("club-avatars").getPublicUrl(avatar);
+        avatar = pub?.publicUrl || "";
+      }
+      const cleanDesc = row.description
+        ? String(row.description).replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().substring(0, 160)
+        : `Profil public de ${displayName} sur ${SITE_NAME}.`;
+      return {
+        title: `${displayName} (@${row.nickname}) — ${SITE_NAME}`,
+        description: cleanDesc,
+        image: avatar || DEFAULT_OG_IMAGE,
+      };
+    }
+  }
+
   // ---------- Destination ----------
   const destMatch = path.match(/^\/destination\/([^/]+)/);
   if (destMatch) {
