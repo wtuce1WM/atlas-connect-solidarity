@@ -156,85 +156,90 @@ const PublicClubProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-amber-100 to-amber-50 text-neutral-900">
-      {/* Top bar */}
-      <div className="absolute top-4 right-4 z-10">
-        <ShareButton variant="dark" title={`${displayName} — One World Morocco`} />
-      </div>
-
-      <div className="mx-auto max-w-xl px-4 pt-12 pb-16 flex flex-col items-center text-center">
-        {/* Avatar */}
-        <div className="h-28 w-28 rounded-full bg-white shadow-md flex items-center justify-center overflow-hidden mb-4 ring-1 ring-black/5">
-          {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt={displayName} className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-3xl font-semibold text-neutral-400">
-              {(profile.nickname[0] || "?").toUpperCase()}
-            </span>
-          )}
+    <div className="min-h-screen w-full bg-neutral-950 flex items-center justify-center py-6 px-3 sm:py-10">
+      <div className="relative w-full max-w-[420px] min-h-[85vh] rounded-[2.5rem] bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 shadow-2xl ring-1 ring-white/10 overflow-hidden">
+        {/* Top bar */}
+        <div className="absolute top-4 right-4 z-10">
+          <ShareButton variant="dark" title={`${displayName} — One World Morocco`} />
         </div>
 
-        {/* Name */}
-        <h1 className="text-2xl font-bold tracking-tight">{displayName}</h1>
-        {displayName !== profile.nickname && (
-          <p className="text-sm text-neutral-500 mt-0.5">@{profile.nickname}</p>
-        )}
+        {/* Decorative top gradient */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/20 to-transparent pointer-events-none" />
 
-        {/* Location */}
-        {(profile.city || profile.country) && (
-          <p className="mt-2 inline-flex items-center gap-1 text-sm text-neutral-600">
-            <MapPin className="h-4 w-4" />
-            {[profile.city, profile.country].filter(Boolean).join(", ")}
-          </p>
-        )}
+        <div className="relative px-6 pt-12 pb-10 flex flex-col items-center text-center">
+          {/* Avatar */}
+          <div className="h-28 w-28 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden mb-4 ring-2 ring-white/20 shadow-xl">
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt={displayName} className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-3xl font-semibold text-neutral-400">
+                {(profile.nickname[0] || "?").toUpperCase()}
+              </span>
+            )}
+          </div>
 
-        {/* Description */}
-        {profile.description && (
-          <p className="mt-3 text-[15px] leading-relaxed text-neutral-700 whitespace-pre-line max-w-md">
-            {profile.description}
-          </p>
-        )}
+          {/* Name */}
+          <h1 className="text-2xl font-bold tracking-tight text-white">{displayName}</h1>
+          {displayName !== profile.nickname && (
+            <p className="text-sm text-neutral-400 mt-0.5">@{profile.nickname}</p>
+          )}
 
-        {/* Social icons row */}
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-4">
-          {socials.map((s) => {
-            const v = profile[s.kind] as string | null;
-            if (!v) return null;
-            return (
+          {/* Location */}
+          {(profile.city || profile.country) && (
+            <p className="mt-2 inline-flex items-center gap-1 text-sm text-neutral-400">
+              <MapPin className="h-4 w-4" />
+              {[profile.city, profile.country].filter(Boolean).join(", ")}
+            </p>
+          )}
+
+          {/* Description */}
+          {profile.description && (
+            <p className="mt-3 text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line max-w-md">
+              {profile.description}
+            </p>
+          )}
+
+          {/* Social icons row */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+            {socials.map((s) => {
+              const v = profile[s.kind] as string | null;
+              if (!v) return null;
+              return (
+                <a
+                  key={s.kind}
+                  href={buildUrl(s.kind as string, v)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="hover:scale-110 transition-transform"
+                >
+                  {SOCIAL_ICONS[s.kind as string]}
+                </a>
+              );
+            })}
+          </div>
+
+          {/* Link buttons */}
+          <div className="w-full mt-8 space-y-3">
+            {links.map((l, i) => (
               <a
-                key={s.kind}
-                href={buildUrl(s.kind as string, v)}
+                key={i}
+                href={l.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={s.label}
-                className="text-neutral-800 hover:scale-110 transition-transform"
+                className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
               >
-                {SOCIAL_ICONS[s.kind as string]}
+                <span className="inline-flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-neutral-400" />
+                  {l.label}
+                </span>
               </a>
-            );
-          })}
-        </div>
+            ))}
+          </div>
 
-        {/* Link buttons */}
-        <div className="w-full mt-8 space-y-3">
-          {links.map((l, i) => (
-            <a
-              key={i}
-              href={l.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full rounded-2xl bg-white/80 hover:bg-white py-4 px-5 text-center font-medium shadow-sm hover:shadow transition-all backdrop-blur-sm border border-black/5"
-            >
-              <span className="inline-flex items-center gap-2">
-                <Globe className="h-4 w-4 text-neutral-500" />
-                {l.label}
-              </span>
-            </a>
-          ))}
-        </div>
-
-        <div className="mt-12 text-xs text-neutral-500">
-          <a href="/" className="hover:text-neutral-700">oneworldmorocco.com</a>
+          <div className="mt-12 text-xs text-neutral-500">
+            <a href="/" className="hover:text-neutral-300">oneworldmorocco.com</a>
+          </div>
         </div>
       </div>
     </div>
