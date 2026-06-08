@@ -247,6 +247,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         email: form.email.trim() || null,
         phone: form.phone.trim() || null,
         whatsapp: form.whatsapp.trim() || null,
+        website: form.website.trim() || null,
+        instagram: form.instagram.trim() || null,
+        facebook: form.facebook.trim() || null,
+        tiktok: form.tiktok.trim() || null,
+        youtube: form.youtube.trim() || null,
+        twitter: form.twitter.trim() || null,
+        linkedin: form.linkedin.trim() || null,
+        pinterest: form.pinterest.trim() || null,
         user_id: user.id,
       };
 
