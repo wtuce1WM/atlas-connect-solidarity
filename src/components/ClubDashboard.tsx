@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { businessUrl } from "@/lib/businessUrl";
-import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles } from "lucide-react";
+import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles, Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -303,7 +303,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       </div>
 
       <Tabs defaultValue="account" className="w-full">
-        <TabsList className="w-full grid grid-cols-5 h-auto bg-muted/40">
+        <TabsList className="w-full grid grid-cols-6 h-auto bg-muted/40">
           <TabsTrigger value="account" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
             <UserIcon className="h-4 w-4" />
             <span>{language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte"}</span>
@@ -323,6 +323,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           <TabsTrigger value="notifications" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
             <Bell className="h-4 w-4" />
             <span>{language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="contact" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <Mail className="h-4 w-4" />
+            <span>{language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous"}</span>
           </TabsTrigger>
         </TabsList>
 
@@ -560,6 +564,29 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         <TabsContent value="notifications" className="mt-6">
           <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
             {language === "en" ? "No notifications yet." : language === "ar" ? "لا توجد إشعارات بعد." : "Aucune notification pour le moment."}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="contact" className="mt-6">
+          <div className="rounded-lg border bg-background p-6 text-sm space-y-3">
+            <h3 className="text-lg font-bold flex items-center gap-2">
+              <Mail className="h-5 w-5 text-gold" />
+              {language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous"}
+            </h3>
+            <p className="text-muted-foreground">
+              {language === "en"
+                ? "A question, a suggestion? Our team is here to help."
+                : language === "ar"
+                ? "سؤال أو اقتراح؟ فريقنا في خدمتك."
+                : "Une question, une suggestion ? Notre équipe est à votre écoute."}
+            </p>
+            <a
+              href="mailto:contact@oneworldmorocco.com"
+              className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
+            >
+              <Mail className="h-4 w-4" />
+              contact@oneworldmorocco.com
+            </a>
           </div>
         </TabsContent>
       </Tabs>
