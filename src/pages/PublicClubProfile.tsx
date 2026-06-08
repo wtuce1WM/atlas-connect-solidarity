@@ -93,10 +93,10 @@ const PublicClubProfile = () => {
       if (cancelled) return;
       const row = Array.isArray(data) ? data[0] : null;
       if (row?.avatar_url && !/^https?:\/\//i.test(row.avatar_url)) {
-        const { data: signed } = await supabase.storage
+        const { data: pub } = supabase.storage
           .from("club-avatars")
-          .createSignedUrl(row.avatar_url, 60 * 60 * 24 * 7);
-        if (signed?.signedUrl) row.avatar_url = signed.signedUrl;
+          .getPublicUrl(row.avatar_url);
+        if (pub?.publicUrl) row.avatar_url = pub.publicUrl;
       }
       if (row?.description) {
         row.description = String(row.description)
