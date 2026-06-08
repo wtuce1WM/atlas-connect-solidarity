@@ -204,6 +204,12 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             soundcloud: (memberRes.data as any).soundcloud || "",
             description: (memberRes.data as any).description || "",
           });
+          const path = (memberRes.data as any).avatar_url || null;
+          setAvatarPath(path);
+          if (path) {
+            const { data: signed } = await supabase.storage.from("club-avatars").createSignedUrl(path, 3600);
+            if (signed?.signedUrl) setAvatarUrl(signed.signedUrl);
+          }
           // Fetch the member's personas
           const { data: cmpData } = await supabase
             .from("club_member_personas" as any)
