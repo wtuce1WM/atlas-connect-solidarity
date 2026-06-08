@@ -415,7 +415,7 @@ const Club = () => {
 
 
 
-        <section className={`${user ? "w-full" : "max-w-3xl mx-auto"} px-4 py-12`}>
+        <section className={`${user ? "w-full pt-20" : "max-w-3xl mx-auto py-12"} px-4 ${user ? "pb-12" : ""}`}>
           {user ? (
             /* ===== Logged-in: Dashboard ===== */
             <div className="w-full">
