@@ -15,6 +15,7 @@ import ClubDashboard from "@/components/ClubDashboard";
 import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
+import ShareButton from "@/components/ShareButton";
 
 const Club = () => {
   const { language } = useLanguage();
