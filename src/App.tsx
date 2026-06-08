@@ -70,6 +70,7 @@ const Install = lazy(() => import("./pages/Install"));
 const VanityResolver = lazy(() => import("./pages/VanityResolver"));
 const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 const YouTubeChannelResolver = lazy(() => import("./pages/YouTubeChannelResolver"));
+const PublicClubProfile = lazy(() => import("./pages/PublicClubProfile"));
 
 const queryClient = new QueryClient();
 
