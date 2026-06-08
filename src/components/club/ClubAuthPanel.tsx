@@ -211,7 +211,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
             type="submit"
             disabled={isLoggingIn || !loginEmail.trim() || !loginPassword}
             className="w-full text-white font-semibold normal-case tracking-normal hover:opacity-90"
-            style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: "#25D366" }}
+            style={{ fontFamily: "'Roboto', sans-serif", backgroundColor: "#25D366" }}
           >
             {isLoggingIn ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Crown className="h-4 w-4 mr-2" />}
             {t.login}
