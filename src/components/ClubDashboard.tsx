@@ -14,6 +14,15 @@ import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
+import RichTextEditor from "@/components/staff/RichTextEditor";
+
+const MAX_DESCRIPTION_LENGTH = 200;
+const plainTextLength = (html: string) => {
+  if (!html) return 0;
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return (tmp.textContent || "").replace(/\s+/g, " ").trim().length;
+};
 
 
 interface ClubDashboardProps {
