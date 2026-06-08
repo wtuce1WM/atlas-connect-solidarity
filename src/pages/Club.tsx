@@ -375,7 +375,7 @@ const Club = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <HomeMindtripHeader alwaysWhite={!user} />
+      {!user && <HomeMindtripHeader alwaysWhite={!user} />}
       {/* Hero — masqué une fois connecté */}
       {!user && (
         <section className="club-hero relative overflow-hidden text-primary-foreground min-h-[80vh] flex items-center justify-center px-4">
