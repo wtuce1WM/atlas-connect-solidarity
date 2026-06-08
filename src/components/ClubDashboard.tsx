@@ -566,6 +566,29 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             {language === "en" ? "No notifications yet." : language === "ar" ? "لا توجد إشعارات بعد." : "Aucune notification pour le moment."}
           </div>
         </TabsContent>
+
+        <TabsContent value="contact" className="mt-6">
+          <div className="rounded-lg border bg-background p-6 text-sm space-y-3">
+            <h3 className="text-lg font-bold flex items-center gap-2">
+              <Mail className="h-5 w-5 text-gold" />
+              {language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous"}
+            </h3>
+            <p className="text-muted-foreground">
+              {language === "en"
+                ? "A question, a suggestion? Our team is here to help."
+                : language === "ar"
+                ? "سؤال أو اقتراح؟ فريقنا في خدمتك."
+                : "Une question, une suggestion ? Notre équipe est à votre écoute."}
+            </p>
+            <a
+              href="mailto:contact@oneworldmorocco.com"
+              className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
+            >
+              <Mail className="h-4 w-4" />
+              contact@oneworldmorocco.com
+            </a>
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );
