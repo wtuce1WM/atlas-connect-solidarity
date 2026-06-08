@@ -48,6 +48,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     twitter: "",
     linkedin: "",
     pinterest: "",
+    spotify: "",
+    soundcloud: "",
   });
 
   const t = {
@@ -183,6 +185,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             twitter: (memberRes.data as any).twitter || "",
             linkedin: (memberRes.data as any).linkedin || "",
             pinterest: (memberRes.data as any).pinterest || "",
+            spotify: (memberRes.data as any).spotify || "",
+            soundcloud: (memberRes.data as any).soundcloud || "",
           });
           // Fetch the member's personas
           const { data: cmpData } = await supabase
@@ -256,6 +260,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         twitter: form.twitter.trim() || null,
         linkedin: form.linkedin.trim() || null,
         pinterest: form.pinterest.trim() || null,
+        spotify: form.spotify.trim() || null,
+        soundcloud: form.soundcloud.trim() || null,
         user_id: user.id,
       };
 
@@ -496,6 +502,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               { key: "twitter", label: "X / Twitter", placeholder: "https://x.com/…" },
               { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/…" },
               { key: "pinterest", label: "Pinterest", placeholder: "https://pinterest.com/…" },
+              { key: "spotify", label: "Spotify", placeholder: "https://open.spotify.com/…" },
+              { key: "soundcloud", label: "SoundCloud", placeholder: "https://soundcloud.com/…" },
             ] as const).map(({ key, label, placeholder }) => (
               <div key={key} className="flex items-center gap-3">
                 <Label className="w-28 shrink-0 text-sm text-muted-foreground">{label}</Label>
