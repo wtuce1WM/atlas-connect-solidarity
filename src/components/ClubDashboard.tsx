@@ -277,6 +277,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         pinterest: form.pinterest.trim() || null,
         spotify: form.spotify.trim() || null,
         soundcloud: form.soundcloud.trim() || null,
+        description: form.description?.trim() || null,
         user_id: user.id,
       };
 
