@@ -359,7 +359,7 @@ const Club = () => {
     }
   };
 
-  const isFormValid = form.nickname.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
+  const isFormValid = form.first_name.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
 
   if (authLoading) {
     return (
