@@ -46,16 +46,6 @@ const SOCIAL_TITLES: Record<string, string> = {
   social_linkedin: "LinkedIn",
 };
 
-const SOCIAL_TITLES: Record<string, string> = {
-  social_whatsapp: "WhatsApp",
-  social_tiktok: "TikTok",
-  social_instagram: "Instagram",
-  social_facebook: "Facebook",
-  social_twitter: "X (Twitter)",
-  social_pinterest: "Pinterest",
-  social_soundcloud: "SoundCloud",
-  social_youtube: "YouTube",
-};
 
 interface Props {
   onNavigate?: () => void;
