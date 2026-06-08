@@ -472,7 +472,56 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </div>
 
+        {/* External links */}
+        <div className="pt-2">
+          <label className="text-sm text-foreground font-semibold mb-2 flex items-center gap-2">
+            <ExternalLink className="h-4 w-4 text-gold" />
+            {language === "en" ? "External links" : language === "ar" ? "روابط خارجية" : "Liens externes"}
+          </label>
+          <p className="text-xs text-muted-foreground mb-3">
+            {language === "en"
+              ? "Add your website and social networks (optional)."
+              : language === "ar"
+              ? "أضف موقعك الإلكتروني وشبكاتك الاجتماعية (اختياري)."
+              : "Ajoutez votre site web et vos réseaux sociaux (facultatif)."}
+          </p>
+          <div className="space-y-3">
+            {([
+              { key: "website", label: language === "en" ? "Website" : language === "ar" ? "موقع الويب" : "Site web", placeholder: "https://…" },
+              { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/…" },
+              { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/…" },
+              { key: "tiktok", label: "TikTok", placeholder: "https://tiktok.com/@…" },
+              { key: "youtube", label: "YouTube", placeholder: "https://youtube.com/@…" },
+              { key: "twitter", label: "X / Twitter", placeholder: "https://x.com/…" },
+              { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/…" },
+              { key: "pinterest", label: "Pinterest", placeholder: "https://pinterest.com/…" },
+            ] as const).map(({ key, label, placeholder }) => (
+              <div key={key} className="flex items-center gap-3">
+                <Label className="w-28 shrink-0 text-sm text-muted-foreground">{label}</Label>
+                <Input
+                  value={form[key]}
+                  onChange={handleChange(key)}
+                  placeholder={placeholder}
+                  className="flex-1 text-sm"
+                />
+                {form[key] && (
+                  <a
+                    href={form[key]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label={`Ouvrir ${label}`}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         <p className="text-xs text-muted-foreground">{t.required}</p>
+
 
         <Button
           onClick={handleSave}
