@@ -80,6 +80,24 @@ const PublicClubProfile = () => {
       });
       if (cancelled) return;
       const row = Array.isArray(data) ? data[0] : null;
+      if (row?.avatar_url && !/^https?:\/\//i.test(row.avatar_url)) {
+        const { data: pub } = supabase.storage.from("club-avatars").getPublicUrl(row.avatar_url);
+        row.avatar_url = pub?.publicUrl ?? row.avatar_url;
+      }
+      if (row?.description) {
+        row.description = String(row.description)
+          .replace(/<\s*br\s*\/?\s*>/gi, "\n")
+          .replace(/<\/p\s*>/gi, "\n\n")
+          .replace(/<[^>]+>/g, "")
+          .replace(/&nbsp;/g, " ")
+          .replace(/&amp;/g, "&")
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/\n{3,}/g, "\n\n")
+          .trim();
+      }
       setProfile(row ?? null);
       setLoading(false);
     })();
