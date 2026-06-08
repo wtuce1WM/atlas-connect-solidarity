@@ -16,6 +16,7 @@ import type { User } from "@supabase/supabase-js";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import accountAvatar from "@/assets/default-avatar.png";
 import RichTextEditor from "@/components/staff/RichTextEditor";
+import { SOCIAL_ICONS } from "@/lib/socialIcons";
 
 const MAX_DESCRIPTION_LENGTH = 200;
 const plainTextLength = (html: string) => {
