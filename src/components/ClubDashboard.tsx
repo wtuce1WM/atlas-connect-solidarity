@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
+import logoHamsa from "@/assets/logo-hamsa-gold.png";
+
 
 interface ClubDashboardProps {
   user: User;
@@ -306,7 +308,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
           <div className="flex flex-col gap-4">
             <Link to="/" aria-label="Accueil" className="hidden md:flex items-center gap-2 px-1">
-              <img src="/src/assets/logo-hamsa-gold.png" alt="One World Morocco" className="h-9 w-auto" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+              <img src={logoHamsa} alt="One World Morocco" className="h-9 w-auto" />
               <span className="font-josefin text-xs uppercase tracking-[0.18em] text-foreground">ONE WORLD MOROCCO</span>
             </Link>
             <TabsList className="flex md:flex-col h-auto bg-transparent p-0 gap-1 md:items-stretch md:justify-start overflow-x-auto md:overflow-visible">
