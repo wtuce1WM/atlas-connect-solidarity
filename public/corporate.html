@@ -582,6 +582,20 @@
       sy=Math.max(-1,Math.min(1,-r.top/r.height));kick();
     },{passive:true});
   })();
+  (function(){
+    var b=document.getElementById('burger'),p=document.getElementById('navPanel');
+    if(!b||!p)return;
+    var close=function(){b.setAttribute('aria-expanded','false');p.classList.remove('open');};
+    b.addEventListener('click',function(e){e.stopPropagation();
+      var open=b.getAttribute('aria-expanded')==='true';
+      b.setAttribute('aria-expanded',open?'false':'true');
+      p.classList.toggle('open',!open);
+    });
+    p.addEventListener('click',function(e){if(e.target.tagName==='A')close();});
+    document.addEventListener('click',function(e){
+      if(!p.contains(e.target)&&e.target!==b&&!b.contains(e.target))close();
+    });
+  })();
 </script>
 </body>
 </html>
