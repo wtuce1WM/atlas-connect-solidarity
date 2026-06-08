@@ -462,7 +462,27 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
                 Pour calculer l'itinéraire depuis votre position, autorisez l'accès à votre localisation.
               </p>
               <button
-                onClick={() => { geo.accept(); requestBrowserOrigin(); }}
+                onClick={() => {
+                  console.log("[geo-cta] click", {
+                    hasNavigatorGeo: !!navigator.geolocation,
+                    isSecureContext: typeof window !== "undefined" ? window.isSecureContext : "n/a",
+                    geoIsEnabled: geo.isEnabled,
+                    storedOrigin,
+                    originError,
+                  });
+                  try {
+                    geo.accept();
+                    console.log("[geo-cta] geo.accept ok");
+                  } catch (e) {
+                    console.error("[geo-cta] geo.accept threw", e);
+                  }
+                  try {
+                    requestBrowserOrigin();
+                    console.log("[geo-cta] requestBrowserOrigin invoked");
+                  } catch (e) {
+                    console.error("[geo-cta] requestBrowserOrigin threw", e);
+                  }
+                }}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#C04F17] text-white px-4 py-2 text-sm font-medium hover:bg-[#C04F17]/90 transition-colors"
               >
                 <MapPin className="h-4 w-4" /> Activer ma localisation
