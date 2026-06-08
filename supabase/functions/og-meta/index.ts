@@ -102,9 +102,10 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
           },
         }),
       };
+      const rawDesc = biz.hook_fr || biz.description || `Découvrez ${biz.name}.`;
       return {
         title: `${biz.name}${biz.city ? ` – ${biz.city}` : ""} | ${SITE_NAME}`,
-        description: biz.hook_fr || (biz.description?.substring(0, 160)) || `Découvrez ${biz.name}.`,
+        description: stripHtml(rawDesc).substring(0, 160),
         image,
         jsonLd,
       };
