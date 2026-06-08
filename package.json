@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "bunx tsx scripts/generate-sitemap.ts",
+    "prebuild": "bunx tsx scripts/generate-sitemap.ts && bunx tsx scripts/generate-business-og-pages.ts",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "sitemap": "bunx tsx scripts/generate-sitemap.ts",
+    "og-pages": "bunx tsx scripts/generate-business-og-pages.ts",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
