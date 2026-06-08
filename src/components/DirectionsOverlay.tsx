@@ -197,7 +197,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const routeKey = useMemo(() => (
     origin && destLatLng ? `${directionsMode}:${coordKey(origin)}:${coordKey(destLatLng)}` : null
   ), [origin, destLatLng, directionsMode]);
-  const needsGeoConsent = !origin && (!geo.isEnabled || !!originError);
+  const needsGeoConsent = !origin && !geo.isEnabled && !originError;
   const waitingForOrigin = !origin && geo.isEnabled && !originError;
   const showMap = !!origin && !!destLatLng && !needsGeoConsent && !waitingForOrigin;
 
