@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
-import { Share2, X, Check, Copy } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Share2, X, Check, Copy, Link as LinkIcon } from "lucide-react";
 import { FacebookIcon, TwitterIcon, WhatsAppIcon, LinkedInIcon } from "@/components/staff/SocialMediaIcons";
+import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 interface ShareButtonProps {
   /** Optional custom title for the share text. Defaults to document.title */
@@ -15,7 +16,6 @@ interface ShareButtonProps {
 const ShareButton = ({ title, shareUrl, variant = "gold", className = "" }: ShareButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   const rawUrl = shareUrl || (typeof window !== "undefined" ? window.location.href : "");
   // Strip internal cache-buster _t from shared URLs ; route public pages via the
@@ -57,59 +57,70 @@ const ShareButton = ({ title, shareUrl, variant = "gold", className = "" }: Shar
 
   const currentUrl = cleanUrl;
   const shareTitle = title || (typeof document !== "undefined" ? document.title : "");
+  const displayUrl = (() => {
+    try {
+      const u = new URL(currentUrl);
+      return u.host + u.pathname.replace(/\/$/, "");
+    } catch {
+      return currentUrl;
+    }
+  })();
 
+  // Close on Escape
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
     };
-    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", onKey);
+    // Lock scroll
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
   }, [isOpen]);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(currentUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback
       const input = document.createElement("input");
       input.value = currentUrl;
       document.body.appendChild(input);
       input.select();
       document.execCommand("copy");
       document.body.removeChild(input);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const shareLinks = [
     {
       name: "WhatsApp",
-      icon: <WhatsAppIcon className="h-4 w-4" />,
+      icon: <WhatsAppIcon className="h-6 w-6" />,
       url: `https://wa.me/?text=${encodeURIComponent(shareTitle + " " + currentUrl)}`,
-      color: "hover:text-green-500",
+      bg: "bg-[#25D366] text-white",
     },
     {
       name: "Facebook",
-      icon: <FacebookIcon className="h-4 w-4" />,
+      icon: <FacebookIcon className="h-6 w-6" />,
       url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`,
-      color: "hover:text-blue-600",
+      bg: "bg-[#1877F2] text-white",
     },
     {
       name: "X",
-      icon: <TwitterIcon className="h-4 w-4" />,
+      icon: <TwitterIcon className="h-5 w-5" />,
       url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(currentUrl)}`,
-      color: "hover:text-foreground",
+      bg: "bg-black text-white",
     },
     {
       name: "LinkedIn",
-      icon: <LinkedInIcon className="h-4 w-4" />,
+      icon: <LinkedInIcon className="h-6 w-6" />,
       url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`,
-      color: "hover:text-blue-700",
+      bg: "bg-[#0A66C2] text-white",
     },
   ];
 
@@ -121,42 +132,85 @@ const ShareButton = ({ title, shareUrl, variant = "gold", className = "" }: Shar
         : "text-muted-foreground hover:text-foreground";
 
   return (
-    <div className={`relative inline-flex ${className}`} ref={menuRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`h-9 w-9 flex items-center justify-center rounded-full bg-muted transition-colors ${buttonColor}`}
-        aria-label="Partager"
-        title="Partager"
-      >
-        {isOpen ? <X className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-      </button>
+    <>
+      <div className={`relative inline-flex ${className}`}>
+        <button
+          onClick={() => setIsOpen(true)}
+          className={`h-9 w-9 flex items-center justify-center rounded-full bg-muted transition-colors ${buttonColor}`}
+          aria-label="Partager"
+          title="Partager"
+        >
+          <Share2 className="h-4 w-4" />
+        </button>
+      </div>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 z-50 flex items-center gap-1 rounded-full bg-primary backdrop-blur-lg border border-primary-foreground/10 px-3 py-2 shadow-xl animate-in fade-in-0 zoom-in-95">
-          {shareLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`p-2 rounded-full text-primary-foreground/80 transition-colors ${link.color}`}
-              title={link.name}
-              onClick={() => setIsOpen(false)}
-            >
-              {link.icon}
-            </a>
-          ))}
-          <div className="w-px h-5 bg-primary-foreground/20 mx-1" />
-          <button
-            onClick={handleCopy}
-            className="p-2 rounded-full text-primary-foreground/80 hover:text-primary-foreground transition-colors"
-            title="Copier le lien"
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in-0"
+          onClick={() => setIsOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Partager"
+        >
+          <div
+            className="relative w-full max-w-md rounded-3xl bg-white text-foreground shadow-2xl p-6 animate-in zoom-in-95 fade-in-0"
+            onClick={(e) => e.stopPropagation()}
           >
-            {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
-          </button>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Partager</h2>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+                aria-label="Fermer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Preview card */}
+            <div className="rounded-2xl bg-neutral-900 text-white p-6 flex flex-col items-center text-center mb-5">
+              <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center overflow-hidden mb-3">
+                <img src={logoGold} alt="" className="h-16 w-16 object-contain" />
+              </div>
+              <div className="font-semibold text-base line-clamp-2">{shareTitle}</div>
+              <div className="text-xs text-white/70 mt-1 break-all line-clamp-1">{displayUrl}</div>
+            </div>
+
+            {/* Share targets */}
+            <div className="grid grid-cols-5 gap-3 mb-2">
+              <button
+                onClick={handleCopy}
+                className="flex flex-col items-center gap-1.5 group"
+                title="Copier le lien"
+              >
+                <span className="h-12 w-12 rounded-full bg-muted text-foreground flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                  {copied ? <Check className="h-5 w-5 text-green-600" /> : <LinkIcon className="h-5 w-5" />}
+                </span>
+                <span className="text-[11px] text-foreground/70">{copied ? "Copié" : "Copier"}</span>
+              </button>
+
+              {shareLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsOpen(false)}
+                  className="flex flex-col items-center gap-1.5 group"
+                  title={link.name}
+                >
+                  <span className={`h-12 w-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 ${link.bg}`}>
+                    {link.icon}
+                  </span>
+                  <span className="text-[11px] text-foreground/70">{link.name}</span>
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
