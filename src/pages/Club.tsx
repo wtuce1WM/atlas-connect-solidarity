@@ -377,8 +377,8 @@ const Club = () => {
   return (
     <div className="min-h-screen bg-background">
       {user && (
-        <header className="fixed left-0 right-0 top-0 z-30 bg-background/90 backdrop-blur">
-          <div className="mx-auto flex items-start px-4 py-3 w-full">
+        <Header
+          leftContent={
             <Link
               to="/"
               aria-label="Accueil"
@@ -386,8 +386,9 @@ const Club = () => {
             >
               <Home className="h-5 w-5 text-foreground" />
             </Link>
-          </div>
-        </header>
+          }
+          rightContent={<div />}
+        />
       )}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
 
