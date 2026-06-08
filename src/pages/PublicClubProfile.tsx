@@ -95,7 +95,7 @@ const PublicClubProfile = () => {
   useSEO({
     title: profile ? `${displayName} (@${profile.nickname}) — One World Morocco` : "Profil",
     description: profile?.description || `Profil public de ${displayName}`,
-    image: profile?.avatar_url || undefined,
+    ogImage: profile?.avatar_url || undefined,
   });
 
   if (loading) {
