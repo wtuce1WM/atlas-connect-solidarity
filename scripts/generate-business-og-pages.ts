@@ -215,7 +215,7 @@ async function main() {
   // 2) Récupère les fiches associées (actives uniquement)
   const ids = vanities.map((v) => v.target_id);
   const businesses: Biz[] = [];
-  const PAGE = 500;
+  const PAGE = 50;
   for (let i = 0; i < ids.length; i += PAGE) {
     const chunk = ids.slice(i, i + PAGE);
     const { data, error } = await supabase
