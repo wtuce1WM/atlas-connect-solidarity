@@ -460,7 +460,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       <div className="space-y-3">
         <h3 className="text-lg font-bold flex items-center gap-2">
           <Bookmark className="h-5 w-5 text-gold" />
-          {language === "en" ? "My saved places" : language === "ar" ? "أماكني المحفوظة" : "Mes adresses sauvegardées"}
+          {language === "en" ? "My saved places" : language === "ar" ? "أماكني المحفوظة" : "le titre des ognlets neaucun\nMes adresses sauvegardées"}
         </h3>
         {bookmarks.length === 0 ? (
           <p className="text-sm text-muted-foreground">
