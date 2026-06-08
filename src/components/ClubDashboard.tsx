@@ -261,6 +261,44 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setUploadingAvatar(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("club-avatars").upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      // Remove old file
+      if (avatarPath && avatarPath !== path) {
+        await supabase.storage.from("club-avatars").remove([avatarPath]);
+      }
+      // Persist path
+      if (memberId) {
+        await supabase.from("club_members").update({ avatar_url: path } as any).eq("id", memberId);
+      } else {
+        const { data, error } = await supabase
+          .from("club_members")
+          .insert({ user_id: user.id, nickname: form.nickname || user.email || "Membre", avatar_url: path } as any)
+          .select("id")
+          .single();
+        if (error) throw error;
+        if (data) setMemberId(data.id);
+      }
+      setAvatarPath(path);
+      const { data: signed } = await supabase.storage.from("club-avatars").createSignedUrl(path, 3600);
+      if (signed?.signedUrl) setAvatarUrl(signed.signedUrl);
+      toast({ title: "Photo mise à jour" });
+    } catch (err) {
+      console.error("Avatar upload error:", err);
+      toast({ title: "Échec du téléversement", variant: "destructive" });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!form.nickname.trim()) return;
     if (plainTextLength(form.description) > MAX_DESCRIPTION_LENGTH) {
