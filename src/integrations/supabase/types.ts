@@ -2286,6 +2286,7 @@ export type Database = {
       }
       club_members: {
         Row: {
+          avatar_url: string | null
           city: string | null
           country: string | null
           created_at: string
@@ -2311,6 +2312,7 @@ export type Database = {
           youtube: string | null
         }
         Insert: {
+          avatar_url?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
@@ -2336,6 +2338,7 @@ export type Database = {
           youtube?: string | null
         }
         Update: {
+          avatar_url?: string | null
           city?: string | null
           country?: string | null
           created_at?: string

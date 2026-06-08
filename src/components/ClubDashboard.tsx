@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles, Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -41,6 +41,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [personas, setPersonas] = useState<{ id: string; slug: string; name_fr: string; name_en: string | null; name_ar: string | null }[]>([]);
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<Set<string>>(new Set());
   const [initialPersonaIds, setInitialPersonaIds] = useState<Set<string>>(new Set());
+  const [avatarPath, setAvatarPath] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -200,6 +204,12 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             soundcloud: (memberRes.data as any).soundcloud || "",
             description: (memberRes.data as any).description || "",
           });
+          const path = (memberRes.data as any).avatar_url || null;
+          setAvatarPath(path);
+          if (path) {
+            const { data: signed } = await supabase.storage.from("club-avatars").createSignedUrl(path, 3600);
+            if (signed?.signedUrl) setAvatarUrl(signed.signedUrl);
+          }
           // Fetch the member's personas
           const { data: cmpData } = await supabase
             .from("club_member_personas" as any)
@@ -249,6 +259,44 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
   const handleChange = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setUploadingAvatar(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("club-avatars").upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      // Remove old file
+      if (avatarPath && avatarPath !== path) {
+        await supabase.storage.from("club-avatars").remove([avatarPath]);
+      }
+      // Persist path
+      if (memberId) {
+        await supabase.from("club_members").update({ avatar_url: path } as any).eq("id", memberId);
+      } else {
+        const { data, error } = await supabase
+          .from("club_members")
+          .insert({ user_id: user.id, nickname: form.nickname || user.email || "Membre", avatar_url: path } as any)
+          .select("id")
+          .single();
+        if (error) throw error;
+        if (data) setMemberId(data.id);
+      }
+      setAvatarPath(path);
+      const { data: signed } = await supabase.storage.from("club-avatars").createSignedUrl(path, 3600);
+      if (signed?.signedUrl) setAvatarUrl(signed.signedUrl);
+      toast({ title: "Photo mise à jour" });
+    } catch (err) {
+      console.error("Avatar upload error:", err);
+      toast({ title: "Échec du téléversement", variant: "destructive" });
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const handleSave = async () => {
@@ -355,9 +403,34 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       <Tabs defaultValue="account" className="w-full" orientation="vertical">
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
           <div className="flex flex-col gap-4">
-            <Link to="/" aria-label="Accueil" className="hidden md:flex items-center justify-center px-1">
-              <img src={accountAvatar} alt="Mon compte" className="h-24 w-auto" loading="lazy" width={512} height={512} />
-            </Link>
+            <div className="hidden md:flex items-center justify-center px-1">
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                aria-label="Changer la photo de profil"
+                className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
+              >
+                <img
+                  src={avatarUrl || accountAvatar}
+                  alt="Photo de profil"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                {uploadingAvatar && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-background/60">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  </span>
+                )}
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
+            </div>
             <TabsList className="flex md:flex-col h-auto bg-transparent p-0 gap-1 md:items-stretch md:justify-start overflow-x-auto md:overflow-visible">
               {[
                 { value: "account", Icon: UserIcon, label: language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte" },
