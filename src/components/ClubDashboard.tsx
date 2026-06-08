@@ -41,7 +41,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
   const t = {
     fr: {
-      title: "\n",
+      title: "Mon espace Club",
       subtitle: "Gérez vos informations personnelles",
       firstName: "Prénom",
       lastName: "Nom",
@@ -60,7 +60,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       memberSince: "Membre depuis",
     },
     en: {
-      title: "\n",
+      title: "My Club Space",
       subtitle: "Manage your personal information",
       firstName: "First name",
       lastName: "Last name",
@@ -79,7 +79,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       memberSince: "Member since",
     },
     ar: {
-      title: "\n",
+      title: "مساحتي في النادي",
       subtitle: "إدارة معلوماتك الشخصية",
       firstName: "الاسم الأول",
       lastName: "اللقب",
@@ -98,7 +98,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       memberSince: "عضو منذ",
     },
   }[language] || {
-    title: "\n",
+    title: "Mon espace Club",
     subtitle: "Gérez vos informations personnelles",
     firstName: "Prénom",
     lastName: "Nom",
