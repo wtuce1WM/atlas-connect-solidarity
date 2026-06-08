@@ -616,7 +616,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               { key: "soundcloud", label: "SoundCloud", placeholder: "https://soundcloud.com/…" },
             ] as const).map(({ key, label, placeholder }) => (
               <div key={key} className="flex items-center gap-3">
-                <Label className="w-28 shrink-0 text-sm text-muted-foreground">{label}</Label>
+                <div className="w-28 shrink-0 flex items-center gap-2">
+                  {key !== "website" && SOCIAL_ICONS[key as string]}
+                  <Label className="text-sm text-muted-foreground">{label}</Label>
+                </div>
                 <Input
                   value={form[key]}
                   onChange={handleChange(key)}
