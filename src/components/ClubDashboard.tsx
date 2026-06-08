@@ -3,6 +3,7 @@ import { businessUrl } from "@/lib/businessUrl";
 import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles, Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -39,6 +40,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     email: "",
     phone: "",
     whatsapp: "",
+    website: "",
+    instagram: "",
+    facebook: "",
+    tiktok: "",
+    youtube: "",
+    twitter: "",
+    linkedin: "",
+    pinterest: "",
   });
 
   const t = {
@@ -166,6 +175,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             email: memberRes.data.email || user.email || "",
             phone: memberRes.data.phone || "",
             whatsapp: memberRes.data.whatsapp || "",
+            website: (memberRes.data as any).website || "",
+            instagram: (memberRes.data as any).instagram || "",
+            facebook: (memberRes.data as any).facebook || "",
+            tiktok: (memberRes.data as any).tiktok || "",
+            youtube: (memberRes.data as any).youtube || "",
+            twitter: (memberRes.data as any).twitter || "",
+            linkedin: (memberRes.data as any).linkedin || "",
+            pinterest: (memberRes.data as any).pinterest || "",
           });
           // Fetch the member's personas
           const { data: cmpData } = await supabase
@@ -231,6 +248,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         email: form.email.trim() || null,
         phone: form.phone.trim() || null,
         whatsapp: form.whatsapp.trim() || null,
+        website: form.website.trim() || null,
+        instagram: form.instagram.trim() || null,
+        facebook: form.facebook.trim() || null,
+        tiktok: form.tiktok.trim() || null,
+        youtube: form.youtube.trim() || null,
+        twitter: form.twitter.trim() || null,
+        linkedin: form.linkedin.trim() || null,
+        pinterest: form.pinterest.trim() || null,
         user_id: user.id,
       };
 
@@ -448,7 +473,56 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </div>
 
+        {/* External links */}
+        <div className="pt-2">
+          <label className="text-sm text-foreground font-semibold mb-2 flex items-center gap-2">
+            <ExternalLink className="h-4 w-4 text-gold" />
+            {language === "en" ? "External links" : language === "ar" ? "روابط خارجية" : "Liens externes"}
+          </label>
+          <p className="text-xs text-muted-foreground mb-3">
+            {language === "en"
+              ? "Add your website and social networks (optional)."
+              : language === "ar"
+              ? "أضف موقعك الإلكتروني وشبكاتك الاجتماعية (اختياري)."
+              : "Ajoutez votre site web et vos réseaux sociaux (facultatif)."}
+          </p>
+          <div className="space-y-3">
+            {([
+              { key: "website", label: language === "en" ? "Website" : language === "ar" ? "موقع الويب" : "Site web", placeholder: "https://…" },
+              { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/…" },
+              { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/…" },
+              { key: "tiktok", label: "TikTok", placeholder: "https://tiktok.com/@…" },
+              { key: "youtube", label: "YouTube", placeholder: "https://youtube.com/@…" },
+              { key: "twitter", label: "X / Twitter", placeholder: "https://x.com/…" },
+              { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/…" },
+              { key: "pinterest", label: "Pinterest", placeholder: "https://pinterest.com/…" },
+            ] as const).map(({ key, label, placeholder }) => (
+              <div key={key} className="flex items-center gap-3">
+                <Label className="w-28 shrink-0 text-sm text-muted-foreground">{label}</Label>
+                <Input
+                  value={form[key]}
+                  onChange={handleChange(key)}
+                  placeholder={placeholder}
+                  className="flex-1 text-sm"
+                />
+                {form[key] && (
+                  <a
+                    href={form[key]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label={`Ouvrir ${label}`}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         <p className="text-xs text-muted-foreground">{t.required}</p>
+
 
         <Button
           onClick={handleSave}
