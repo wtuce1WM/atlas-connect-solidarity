@@ -495,6 +495,25 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </div>
 
+        {/* Description */}
+        <div className="pt-2">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm text-foreground font-semibold flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-gold" />
+              Description
+            </label>
+            <span className={`text-xs ${plainTextLength(form.description) > MAX_DESCRIPTION_LENGTH ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+              {plainTextLength(form.description)} / {MAX_DESCRIPTION_LENGTH}
+            </span>
+          </div>
+          <RichTextEditor
+            content={form.description}
+            onChange={(html) => setForm(prev => ({ ...prev, description: html }))}
+            placeholder="Quelques mots sur vous (200 caractères max)…"
+            maxHeight="220px"
+          />
+        </div>
+
         {/* External links */}
         <div className="pt-2">
           <label className="text-sm text-foreground font-semibold mb-2 flex items-center gap-2">
