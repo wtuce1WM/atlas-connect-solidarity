@@ -51,7 +51,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
 
         </Link>
 
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-6 lg:flex">
           <Link to="/corporate" className={linkClass}>Ajoutez votre entreprise</Link>
           <Link to="/club" className={linkClass}>Le club OWM</Link>
           <Link to="/install" className={linkClass}>Application</Link>
@@ -62,7 +62,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
           aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}
-          className={`md:hidden ${
+          className={`lg:hidden ${
             blackHamburger && !scrolled ? "text-black" : "text-white"
           }`}
         >
