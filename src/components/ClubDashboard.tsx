@@ -174,6 +174,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             email: memberRes.data.email || user.email || "",
             phone: memberRes.data.phone || "",
             whatsapp: memberRes.data.whatsapp || "",
+            website: (memberRes.data as any).website || "",
+            instagram: (memberRes.data as any).instagram || "",
+            facebook: (memberRes.data as any).facebook || "",
+            tiktok: (memberRes.data as any).tiktok || "",
+            youtube: (memberRes.data as any).youtube || "",
+            twitter: (memberRes.data as any).twitter || "",
+            linkedin: (memberRes.data as any).linkedin || "",
+            pinterest: (memberRes.data as any).pinterest || "",
           });
           // Fetch the member's personas
           const { data: cmpData } = await supabase
