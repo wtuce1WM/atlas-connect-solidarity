@@ -396,10 +396,10 @@ const Club = () => {
 
 
 
-        <section className="max-w-3xl mx-auto px-4 py-12">
+        <section className={`${user ? "w-full" : "max-w-3xl mx-auto"} px-4 py-12`}>
           {user ? (
             /* ===== Logged-in: Dashboard ===== */
-            <div className="max-w-lg mx-auto">
+            <div className="w-full">
               <ClubDashboard user={user} onLogout={handleLogout} />
             </div>
           ) : (
