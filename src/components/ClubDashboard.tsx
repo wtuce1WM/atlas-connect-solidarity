@@ -3,6 +3,7 @@ import { businessUrl } from "@/lib/businessUrl";
 import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles, Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
