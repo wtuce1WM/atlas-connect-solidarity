@@ -41,6 +41,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [personas, setPersonas] = useState<{ id: string; slug: string; name_fr: string; name_en: string | null; name_ar: string | null }[]>([]);
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<Set<string>>(new Set());
   const [initialPersonaIds, setInitialPersonaIds] = useState<Set<string>>(new Set());
+  const [avatarPath, setAvatarPath] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
