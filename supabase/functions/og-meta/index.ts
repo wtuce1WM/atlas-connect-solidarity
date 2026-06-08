@@ -60,17 +60,56 @@ const CATEGORY_TO_SCHEMA: Record<string, string> = {
 
 async function resolveMeta(supabase: any, path: string, params: URLSearchParams): Promise<Meta> {
   // ---------- Fiche établissement ----------
-  // /fiche/:slug ou /business/:slug (legacy)
+  // /fiche/:slug, /business/:slug (legacy), ou vanity URL (/:slug à la racine)
   const ficheMatch = path.match(/^\/(?:fiche|business)\/([^/]+)/);
-  if (ficheMatch) {
-    const slug = decodeURIComponent(ficheMatch[1]);
-    const { data: biz } = await supabase
+  const RESERVED_ROOT = new Set([
+    "", "videos", "ancien-index", "business", "city", "category", "service",
+    "search", "staff", "affiliates", "devenir-affilie", "mission", "contact",
+    "blog", "neighborhood", "carte", "subcategory", "hotels", "club",
+    "search-analytics", "destination", "conditions-generales", "unsubscribe",
+    "fiche", "test", "install", "corporate", "u", "y", "poi",
+  ]);
+  const vanityMatch = !ficheMatch ? path.match(/^\/([^/]+)\/?$/) : null;
+  let resolvedBizSlug: string | null = ficheMatch ? decodeURIComponent(ficheMatch[1]) : null;
+  let resolvedBizId: string | null = null;
+
+  if (!resolvedBizSlug && vanityMatch) {
+    const candidate = decodeURIComponent(vanityMatch[1]).toLowerCase();
+    if (!RESERVED_ROOT.has(candidate)) {
+      const { data: vu } = await supabase
+        .from("vanity_urls")
+        .select("target_type, target_id")
+        .eq("slug", candidate)
+        .maybeSingle();
+      if (vu?.target_type === "business") {
+        resolvedBizId = vu.target_id as string;
+      } else if (vu?.target_type === "destination") {
+        const { data: d } = await supabase
+          .from("destinations")
+          .select("name, description, image_url, images")
+          .eq("id", vu.target_id)
+          .maybeSingle();
+        if (d) {
+          return {
+            title: `${d.name} | ${SITE_NAME}`,
+            description: (d.description?.substring(0, 160)) || `Découvrez ${d.name} au Maroc.`,
+            image: d.image_url || d.images?.[0] || DEFAULT_OG_IMAGE,
+          };
+        }
+      }
+    }
+  }
+
+  if (resolvedBizSlug || resolvedBizId) {
+    const query = supabase
       .from("businesses")
-      .select("name, city, description, images, hook_fr, address, phone, latitude, longitude, main_category, google_rating, google_review_count, website")
-      .eq("slug", slug)
-      .eq("is_active", true)
-      .maybeSingle();
+      .select("slug, name, city, description, images, hook_fr, address, phone, latitude, longitude, main_category, google_rating, google_review_count, website")
+      .eq("is_active", true);
+    const { data: biz } = await (resolvedBizId
+      ? query.eq("id", resolvedBizId).maybeSingle()
+      : query.eq("slug", resolvedBizSlug!).maybeSingle());
     if (biz) {
+      const slug = biz.slug || resolvedBizSlug || "";
       const schemaType = (biz.main_category && CATEGORY_TO_SCHEMA[biz.main_category]) || "LocalBusiness";
       const image = biz.images?.[0] || DEFAULT_OG_IMAGE;
       const jsonLd: Record<string, unknown> = {
