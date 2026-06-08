@@ -543,6 +543,26 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         )}
       </div>
+        </TabsContent>
+
+        <TabsContent value="travel" className="mt-6">
+          <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
+            {language === "en" ? "Your travel plans will appear here soon." : language === "ar" ? "ستظهر خطط سفرك هنا قريباً." : "Vos projets de voyage apparaîtront ici prochainement."}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="inspiration" className="mt-6">
+          <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
+            {language === "en" ? "Personalized inspiration coming soon." : language === "ar" ? "إلهام شخصي قريباً." : "Inspiration personnalisée bientôt disponible."}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="mt-6">
+          <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
+            {language === "en" ? "No notifications yet." : language === "ar" ? "لا توجد إشعارات بعد." : "Aucune notification pour le moment."}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
