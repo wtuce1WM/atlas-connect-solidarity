@@ -197,6 +197,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             pinterest: (memberRes.data as any).pinterest || "",
             spotify: (memberRes.data as any).spotify || "",
             soundcloud: (memberRes.data as any).soundcloud || "",
+            description: (memberRes.data as any).description || "",
           });
           // Fetch the member's personas
           const { data: cmpData } = await supabase
