@@ -2289,6 +2289,7 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string
+          description: string | null
           email: string | null
           facebook: string | null
           first_name: string | null
@@ -2313,6 +2314,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          description?: string | null
           email?: string | null
           facebook?: string | null
           first_name?: string | null
@@ -2337,6 +2339,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          description?: string | null
           email?: string | null
           facebook?: string | null
           first_name?: string | null

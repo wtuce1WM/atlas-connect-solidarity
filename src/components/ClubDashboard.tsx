@@ -14,6 +14,15 @@ import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
+import RichTextEditor from "@/components/staff/RichTextEditor";
+
+const MAX_DESCRIPTION_LENGTH = 200;
+const plainTextLength = (html: string) => {
+  if (!html) return 0;
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return (tmp.textContent || "").replace(/\s+/g, " ").trim().length;
+};
 
 
 interface ClubDashboardProps {
@@ -50,6 +59,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     pinterest: "",
     spotify: "",
     soundcloud: "",
+    description: "",
   });
 
   const t = {
@@ -187,6 +197,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             pinterest: (memberRes.data as any).pinterest || "",
             spotify: (memberRes.data as any).spotify || "",
             soundcloud: (memberRes.data as any).soundcloud || "",
+            description: (memberRes.data as any).description || "",
           });
           // Fetch the member's personas
           const { data: cmpData } = await supabase
@@ -241,6 +252,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
   const handleSave = async () => {
     if (!form.nickname.trim()) return;
+    if (plainTextLength(form.description) > MAX_DESCRIPTION_LENGTH) {
+      toast({ title: `Description : ${MAX_DESCRIPTION_LENGTH} caractères max`, variant: "destructive" });
+      return;
+    }
     setIsSaving(true);
     try {
       const payload = {
@@ -262,6 +277,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         pinterest: form.pinterest.trim() || null,
         spotify: form.spotify.trim() || null,
         soundcloud: form.soundcloud.trim() || null,
+        description: form.description?.trim() || null,
         user_id: user.id,
       };
 
@@ -477,6 +493,25 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               );
             })}
           </div>
+        </div>
+
+        {/* Description */}
+        <div className="pt-2">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm text-foreground font-semibold flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-gold" />
+              Description
+            </label>
+            <span className={`text-xs ${plainTextLength(form.description) > MAX_DESCRIPTION_LENGTH ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+              {plainTextLength(form.description)} / {MAX_DESCRIPTION_LENGTH}
+            </span>
+          </div>
+          <RichTextEditor
+            content={form.description}
+            onChange={(html) => setForm(prev => ({ ...prev, description: html }))}
+            placeholder="Quelques mots sur vous (200 caractères max)…"
+            maxHeight="220px"
+          />
         </div>
 
         {/* External links */}
