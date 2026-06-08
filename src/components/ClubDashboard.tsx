@@ -303,7 +303,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       </div>
 
       <Tabs defaultValue="account" className="w-full">
-        <TabsList className="w-full grid grid-cols-5 h-auto bg-muted/40">
+        <TabsList className="w-full grid grid-cols-6 h-auto bg-muted/40">
           <TabsTrigger value="account" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
             <UserIcon className="h-4 w-4" />
             <span>{language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte"}</span>
@@ -323,6 +323,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           <TabsTrigger value="notifications" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
             <Bell className="h-4 w-4" />
             <span>{language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="contact" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <Mail className="h-4 w-4" />
+            <span>{language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous"}</span>
           </TabsTrigger>
         </TabsList>
 
