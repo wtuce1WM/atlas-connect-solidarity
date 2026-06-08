@@ -31,6 +31,19 @@ const HOVER_COLORS: Record<string, string> = {
   social_pinterest: "hover:text-[#E60023]",
   social_soundcloud: "hover:text-[#FF5500]",
   social_youtube: "hover:text-[#FF0000]",
+  social_linkedin: "hover:text-[#0A66C2]",
+};
+
+const SOCIAL_TITLES: Record<string, string> = {
+  social_whatsapp: "WhatsApp",
+  social_tiktok: "TikTok",
+  social_instagram: "Instagram",
+  social_facebook: "Facebook",
+  social_twitter: "X (Twitter)",
+  social_pinterest: "Pinterest",
+  social_soundcloud: "SoundCloud",
+  social_youtube: "YouTube",
+  social_linkedin: "LinkedIn",
 };
 
 const SOCIAL_TITLES: Record<string, string> = {
