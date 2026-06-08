@@ -102,9 +102,10 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
           },
         }),
       };
+      const rawDesc = biz.hook_fr || biz.description || `Découvrez ${biz.name}.`;
       return {
         title: `${biz.name}${biz.city ? ` – ${biz.city}` : ""} | ${SITE_NAME}`,
-        description: biz.hook_fr || (biz.description?.substring(0, 160)) || `Découvrez ${biz.name}.`,
+        description: stripHtml(rawDesc).substring(0, 160),
         image,
         jsonLd,
       };
@@ -350,4 +351,17 @@ ${meta.jsonLd ? `  <script type="application/ld+json">${JSON.stringify(meta.json
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function stripHtml(s: string): string {
+  return String(s)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
 }
