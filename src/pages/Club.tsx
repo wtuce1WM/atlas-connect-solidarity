@@ -15,6 +15,7 @@ import ClubDashboard from "@/components/ClubDashboard";
 import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
+import ShareButton from "@/components/ShareButton";
 
 const Club = () => {
   const { language } = useLanguage();
@@ -388,7 +389,11 @@ const Club = () => {
               <Home className="h-5 w-5 text-foreground" />
             </Link>
           }
-          rightContent={<div />}
+          rightContent={
+            <div className="flex justify-end w-full">
+              <ShareButton variant="dark" />
+            </div>
+          }
         />
       )}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
