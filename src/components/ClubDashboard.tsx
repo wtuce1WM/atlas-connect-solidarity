@@ -39,6 +39,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     email: "",
     phone: "",
     whatsapp: "",
+    website: "",
+    instagram: "",
+    facebook: "",
+    tiktok: "",
+    youtube: "",
+    twitter: "",
+    linkedin: "",
+    pinterest: "",
   });
 
   const t = {
