@@ -2300,6 +2300,8 @@ export type Database = {
           phone: string | null
           pinterest: string | null
           skype: string | null
+          soundcloud: string | null
+          spotify: string | null
           tiktok: string | null
           twitter: string | null
           user_id: string | null
@@ -2322,6 +2324,8 @@ export type Database = {
           phone?: string | null
           pinterest?: string | null
           skype?: string | null
+          soundcloud?: string | null
+          spotify?: string | null
           tiktok?: string | null
           twitter?: string | null
           user_id?: string | null
@@ -2344,6 +2348,8 @@ export type Database = {
           phone?: string | null
           pinterest?: string | null
           skype?: string | null
+          soundcloud?: string | null
+          spotify?: string | null
           tiktok?: string | null
           twitter?: string | null
           user_id?: string | null
