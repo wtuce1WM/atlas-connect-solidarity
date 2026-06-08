@@ -59,6 +59,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     pinterest: "",
     spotify: "",
     soundcloud: "",
+    description: "",
   });
 
   const t = {
