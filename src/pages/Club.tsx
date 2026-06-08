@@ -127,7 +127,7 @@ const Club = () => {
 
   const t = {
     fr: {
-      title: "Le Club OWM",
+      title: "\n",
       subtitle: "Rejoignez le club et accédez à des avantages exclusifs",
       desc: "En tant que membre du Club One World Morocco, vous bénéficiez de réductions, d'offres spéciales et d'un accès privilégié aux meilleurs établissements du Maroc.",
       benefits: "Avantages membres",
@@ -158,7 +158,7 @@ const Club = () => {
       googleSignIn: "Continuer avec Google",
     },
     en: {
-      title: "The OWM Club",
+      title: "\n",
       subtitle: "Join the club and access exclusive benefits",
       desc: "As a One World Morocco Club member, enjoy discounts, special offers, and privileged access to the best establishments in Morocco.",
       benefits: "Member benefits",
@@ -189,7 +189,7 @@ const Club = () => {
       googleSignIn: "Continue with Google",
     },
     ar: {
-      title: "نادي OWM",
+      title: "\n",
       subtitle: "انضم إلى النادي واحصل على مزايا حصرية",
       desc: "بصفتك عضواً في نادي One World Morocco، استمتع بتخفيضات وعروض خاصة ووصول مميز لأفضل المؤسسات في المغرب.",
       benefits: "مزايا الأعضاء",
@@ -220,7 +220,7 @@ const Club = () => {
       googleSignIn: "المتابعة مع جوجل",
     },
   }[language] || {
-    title: "Le Club OWM",
+    title: "\n",
     subtitle: "Rejoignez le club et accédez à des avantages exclusifs",
     desc: "En tant que membre du Club One World Morocco, vous bénéficiez de réductions, d'offres spéciales et d'un accès privilégié aux meilleurs établissements du Maroc.",
     benefits: "Avantages membres",
