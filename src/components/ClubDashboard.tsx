@@ -14,6 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
+import accountAvatar from "@/assets/default-avatar.png";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 
 const MAX_DESCRIPTION_LENGTH = 200;
