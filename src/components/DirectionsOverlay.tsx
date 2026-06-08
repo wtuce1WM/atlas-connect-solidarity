@@ -140,12 +140,10 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const geo = useGeolocation();
 
   const requestBrowserOrigin = useCallback(() => {
-    if (!navigator.geolocation) { console.warn("[geo-cta] no navigator.geolocation"); setOriginError("Géolocalisation indisponible"); return; }
+    if (!navigator.geolocation) { setOriginError("Géolocalisation indisponible"); return; }
     setOriginError(null);
-    console.log("[geo-cta] calling getCurrentPosition…");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        console.log("[geo-cta] getCurrentPosition success", pos.coords.latitude, pos.coords.longitude);
         const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserOrigin(next); setStoredOrigin(next); setOriginError(null);
         try {
@@ -156,7 +154,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           window.dispatchEvent(new CustomEvent("geo:changed"));
         } catch { /* noop */ }
       },
-      (err) => { console.warn("[geo-cta] getCurrentPosition error", err?.code, err?.message); setUserOrigin(null); setOriginError(err.message || "Position indisponible"); },
+      (err) => { setUserOrigin(null); setOriginError(err.message || "Position indisponible"); },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   }, []);
@@ -197,7 +195,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const routeKey = useMemo(() => (
     origin && destLatLng ? `${directionsMode}:${coordKey(origin)}:${coordKey(destLatLng)}` : null
   ), [origin, destLatLng, directionsMode]);
-  const needsGeoConsent = !origin && (!geo.isEnabled || !!originError);
+  const needsGeoConsent = !origin && !geo.isEnabled && !originError;
   const waitingForOrigin = !origin && geo.isEnabled && !originError;
   const showMap = !!origin && !!destLatLng && !needsGeoConsent && !waitingForOrigin;
 
@@ -464,27 +462,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
                 Pour calculer l'itinéraire depuis votre position, autorisez l'accès à votre localisation.
               </p>
               <button
-                onClick={() => {
-                  console.log("[geo-cta] click", {
-                    hasNavigatorGeo: !!navigator.geolocation,
-                    isSecureContext: typeof window !== "undefined" ? window.isSecureContext : "n/a",
-                    geoIsEnabled: geo.isEnabled,
-                    storedOrigin,
-                    originError,
-                  });
-                  try {
-                    geo.accept();
-                    console.log("[geo-cta] geo.accept ok");
-                  } catch (e) {
-                    console.error("[geo-cta] geo.accept threw", e);
-                  }
-                  try {
-                    requestBrowserOrigin();
-                    console.log("[geo-cta] requestBrowserOrigin invoked");
-                  } catch (e) {
-                    console.error("[geo-cta] requestBrowserOrigin threw", e);
-                  }
-                }}
+                onClick={() => { geo.accept(); requestBrowserOrigin(); }}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#C04F17] text-white px-4 py-2 text-sm font-medium hover:bg-[#C04F17]/90 transition-colors"
               >
                 <MapPin className="h-4 w-4" /> Activer ma localisation
