@@ -306,7 +306,7 @@ const Club = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.nickname.trim() || !form.email.trim()) return;
+    if (!form.first_name.trim() || !form.email.trim()) return;
 
     if (password.length < 6) {
       toast({ title: t.passwordTooShort, variant: "destructive" });
@@ -336,16 +336,15 @@ const Club = () => {
       }
 
       const payload: Record<string, string> = {
-        nickname: form.nickname.trim(),
+        nickname: form.first_name.trim(),
         email: form.email.trim(),
       };
       if (authData.user?.id) (payload as any).user_id = authData.user.id;
       if (form.first_name.trim()) payload.first_name = form.first_name.trim();
       if (form.last_name.trim()) payload.last_name = form.last_name.trim();
-      if (form.city.trim()) payload.city = form.city.trim();
-      if (form.country.trim()) payload.country = form.country.trim();
       if (form.phone.trim()) payload.phone = form.phone.trim();
       if (form.whatsapp.trim()) payload.whatsapp = form.whatsapp.trim();
+
 
       const { error } = await supabase.from("club_members" as any).insert(payload as any);
       if (error) throw error;
@@ -360,7 +359,7 @@ const Club = () => {
     }
   };
 
-  const isFormValid = form.nickname.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
+  const isFormValid = form.first_name.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
 
   if (authLoading) {
     return (
@@ -525,8 +524,10 @@ const Club = () => {
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.firstName}</label>
-                          <Input value={form.first_name} onChange={handleChange("first_name")} />
+                          <label className="text-sm text-foreground font-semibold mb-1 block">
+                            {t.firstName} <span className="text-destructive">*</span>
+                          </label>
+                          <Input value={form.first_name} onChange={handleChange("first_name")} required />
                         </div>
                         <div>
                           <label className="text-sm text-muted-foreground mb-1 block">{t.lastName}</label>
@@ -534,45 +535,6 @@ const Club = () => {
                         </div>
                       </div>
 
-                      <div>
-                        <label className="text-sm text-foreground font-semibold mb-1 block">
-                          {t.nickname} <span className="text-destructive">*</span>
-                        </label>
-                        <Input value={form.nickname} onChange={handleChange("nickname")} required />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.cityLabel}</label>
-                          <Input value={form.city} onChange={handleChange("city")} />
-                        </div>
-                        <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.countryLabel}</label>
-                          <Select
-                            value={form.country}
-                            onValueChange={(val) => setForm(prev => ({ ...prev, country: val === "__none__" ? "" : val }))}
-                          >
-                            <SelectTrigger className="bg-background">
-                              <SelectValue placeholder={t.countryLabel} />
-                            </SelectTrigger>
-                            <SelectContent className="bg-background z-50">
-                              <SelectItem value="__none__">—</SelectItem>
-                              {sortedCountries.map((c) => {
-                                const flag = countryFlag(c.code);
-                                const name = getCountryName(c);
-                                return (
-                                  <SelectItem key={c.id} value={name} textValue={name}>
-                                    <span className="flex items-center gap-2">
-                                      {flag && <span>{flag}</span>}
-                                      <span>{name}</span>
-                                    </span>
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
 
                       <div>
                         <label className="text-sm text-foreground font-semibold mb-1 block">
