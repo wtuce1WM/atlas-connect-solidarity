@@ -296,7 +296,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">{t.title}</h2>
-          <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+          
         </div>
         <Button variant="outline" size="sm" onClick={onLogout} className="gap-2">
           <LogOut className="h-4 w-4" />
