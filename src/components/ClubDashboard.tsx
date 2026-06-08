@@ -41,7 +41,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
   const t = {
     fr: {
-      title: "\n",
+      title: "Mon espace Club",
       subtitle: "Gérez vos informations personnelles",
       firstName: "Prénom",
       lastName: "Nom",
@@ -60,7 +60,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       memberSince: "Membre depuis",
     },
     en: {
-      title: "\n",
+      title: "My Club Space",
       subtitle: "Manage your personal information",
       firstName: "First name",
       lastName: "Last name",
@@ -79,7 +79,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       memberSince: "Member since",
     },
     ar: {
-      title: "\n",
+      title: "مساحتي في النادي",
       subtitle: "إدارة معلوماتك الشخصية",
       firstName: "الاسم الأول",
       lastName: "اللقب",
@@ -98,7 +98,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       memberSince: "عضو منذ",
     },
   }[language] || {
-    title: "\n",
+    title: "Mon espace Club",
     subtitle: "Gérez vos informations personnelles",
     firstName: "Prénom",
     lastName: "Nom",
@@ -310,11 +310,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </TabsTrigger>
           <TabsTrigger value="addresses" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
             <MapPin className="h-4 w-4" />
-            <span>{language === "en" ? "My places" : language === "ar" ? "عناويني" : "MES ADDANS RESSES"}</span>
+            <span>{language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses"}</span>
           </TabsTrigger>
           <TabsTrigger value="travel" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
             <Plane className="h-4 w-4" />
-            <span>{language === "en" ? "Travel" : language === "ar" ? "سفر" : "C"}</span>
+            <span>{language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage"}</span>
           </TabsTrigger>
           <TabsTrigger value="inspiration" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
             <Lightbulb className="h-4 w-4" />
@@ -460,7 +460,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       <div className="space-y-3">
         <h3 className="text-lg font-bold flex items-center gap-2">
           <Bookmark className="h-5 w-5 text-gold" />
-          {language === "en" ? "My saved places" : language === "ar" ? "أماكني المحفوظة" : "le titre des ognlets neaucun\nMes adresses sauvegardées"}
+          {language === "en" ? "My saved places" : language === "ar" ? "أماكني المحفوظة" : "Mes adresses sauvegardées"}
         </h3>
         {bookmarks.length === 0 ? (
           <p className="text-sm text-muted-foreground">
