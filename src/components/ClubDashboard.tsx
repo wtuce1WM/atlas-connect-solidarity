@@ -586,7 +586,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             </a>
           </div>
         </TabsContent>
+          </div>
+        </div>
       </Tabs>
+
     </div>
   );
 };
