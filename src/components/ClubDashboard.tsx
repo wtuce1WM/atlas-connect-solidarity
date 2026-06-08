@@ -304,25 +304,32 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
       <Tabs defaultValue="account" className="w-full" orientation="vertical">
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
-          <TabsList className="flex md:flex-col h-auto bg-transparent p-0 gap-1 md:items-stretch md:justify-start overflow-x-auto md:overflow-visible">
-            {[
-              { value: "account", Icon: UserIcon, label: language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte" },
-              { value: "addresses", Icon: MapPin, label: language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses" },
-              { value: "travel", Icon: Plane, label: language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage" },
-              { value: "inspiration", Icon: Lightbulb, label: language === "en" ? "Inspiration" : language === "ar" ? "إلهام" : "Inspiration" },
-              { value: "notifications", Icon: Bell, label: language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications" },
-              { value: "contact", Icon: Mail, label: language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous" },
-            ].map(({ value, Icon, label }) => (
-              <TabsTrigger
-                key={value}
-                value={value}
-                className="w-full justify-start gap-2 px-3 py-2 text-sm rounded-md data-[state=active]:bg-muted data-[state=active]:font-semibold hover:bg-muted/50"
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="truncate">{label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="flex flex-col gap-4">
+            <Link to="/" aria-label="Accueil" className="hidden md:flex items-center gap-2 px-1">
+              <img src="/src/assets/logo-hamsa-gold.png" alt="One World Morocco" className="h-9 w-auto" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+              <span className="font-josefin text-xs uppercase tracking-[0.18em] text-foreground">ONE WORLD MOROCCO</span>
+            </Link>
+            <TabsList className="flex md:flex-col h-auto bg-transparent p-0 gap-1 md:items-stretch md:justify-start overflow-x-auto md:overflow-visible">
+              {[
+                { value: "account", Icon: UserIcon, label: language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte" },
+                { value: "addresses", Icon: MapPin, label: language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses" },
+                { value: "travel", Icon: Plane, label: language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage" },
+                { value: "inspiration", Icon: Lightbulb, label: language === "en" ? "Inspiration" : language === "ar" ? "إلهام" : "Inspiration" },
+                { value: "notifications", Icon: Bell, label: language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications" },
+                { value: "contact", Icon: Mail, label: language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous" },
+              ].map(({ value, Icon, label }) => (
+                <TabsTrigger
+                  key={value}
+                  value={value}
+                  className="w-full justify-start gap-2 px-3 py-2 text-sm rounded-md data-[state=active]:bg-muted data-[state=active]:font-semibold hover:bg-muted/50"
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{label}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+
 
           <div className="min-w-0">
 
