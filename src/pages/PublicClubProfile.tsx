@@ -207,9 +207,9 @@ const PublicClubProfile = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={s.label}
-                className="text-neutral-800 hover:text-neutral-950 hover:scale-110 transition-transform"
+                className="text-neutral-800 hover:scale-110 transition-transform"
               >
-                {s.icon}
+                {SOCIAL_ICONS[s.kind as string]}
               </a>
             );
           })}
