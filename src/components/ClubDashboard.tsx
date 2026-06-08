@@ -302,6 +302,31 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </Button>
       </div>
 
+      <Tabs defaultValue="account" className="w-full">
+        <TabsList className="w-full grid grid-cols-5 h-auto bg-muted/40">
+          <TabsTrigger value="account" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <UserIcon className="h-4 w-4" />
+            <span>{language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="addresses" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <MapPin className="h-4 w-4" />
+            <span>{language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="travel" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <Plane className="h-4 w-4" />
+            <span>{language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="inspiration" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <Lightbulb className="h-4 w-4" />
+            <span>{language === "en" ? "Inspiration" : language === "ar" ? "إلهام" : "Inspiration"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <Bell className="h-4 w-4" />
+            <span>{language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications"}</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="account" className="mt-6">
       {/* Form */}
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
