@@ -403,6 +403,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       <Tabs defaultValue="account" className="w-full" orientation="vertical">
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
           <div className="flex flex-col gap-4">
+            <Link
+              to="/"
+              aria-label="Accueil"
+              className="hidden md:inline-flex items-center gap-2 px-3 py-2 text-sm rounded-md text-foreground hover:bg-muted transition"
+            >
+              <Home className="h-4 w-4 shrink-0" />
+              <span>Accueil</span>
+            </Link>
             <div className="hidden md:flex items-center justify-center px-1">
               <button
                 type="button"
