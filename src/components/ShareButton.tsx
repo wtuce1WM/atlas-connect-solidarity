@@ -31,15 +31,24 @@ const ShareButton = ({ title, shareUrl, variant = "gold", className = "" }: Shar
     "/neighborhood/",
     "/city/",
   ];
+  // Single-segment paths handled by VanityResolver — must mirror its RESERVED set.
+  const RESERVED_ROOT = new Set([
+    "", "videos", "ancien-index", "business", "city", "category", "service",
+    "search", "staff", "affiliates", "devenir-affilie", "mission", "contact",
+    "blog", "neighborhood", "carte", "subcategory", "hotels", "club",
+    "search-analytics", "destination", "conditions-generales", "unsubscribe",
+    "fiche", "test", "install", "corporate", "u", "y",
+  ]);
   const cleanUrl = (() => {
     try {
       const url = new URL(rawUrl);
       url.searchParams.delete("_t");
-      const shouldProxy =
-        !shareUrl &&
-        PROXIED_PREFIXES.some(
-          (p) => url.pathname === p || url.pathname.startsWith(p),
-        );
+      const isPrefixMatch = PROXIED_PREFIXES.some(
+        (p) => url.pathname === p || url.pathname.startsWith(p),
+      );
+      const vanityMatch = url.pathname.match(/^\/([^/]+)\/?$/);
+      const isVanity = !!vanityMatch && !RESERVED_ROOT.has(vanityMatch[1].toLowerCase());
+      const shouldProxy = !shareUrl && (isPrefixMatch || isVanity);
       if (shouldProxy) {
         const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
         const proxy = new URL(`https://${projectId}.supabase.co/functions/v1/og-meta`);
