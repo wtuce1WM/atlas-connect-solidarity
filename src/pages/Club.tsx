@@ -525,8 +525,10 @@ const Club = () => {
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.firstName}</label>
-                          <Input value={form.first_name} onChange={handleChange("first_name")} />
+                          <label className="text-sm text-foreground font-semibold mb-1 block">
+                            {t.firstName} <span className="text-destructive">*</span>
+                          </label>
+                          <Input value={form.first_name} onChange={handleChange("first_name")} required />
                         </div>
                         <div>
                           <label className="text-sm text-muted-foreground mb-1 block">{t.lastName}</label>
@@ -534,45 +536,6 @@ const Club = () => {
                         </div>
                       </div>
 
-                      <div>
-                        <label className="text-sm text-foreground font-semibold mb-1 block">
-                          {t.nickname} <span className="text-destructive">*</span>
-                        </label>
-                        <Input value={form.nickname} onChange={handleChange("nickname")} required />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.cityLabel}</label>
-                          <Input value={form.city} onChange={handleChange("city")} />
-                        </div>
-                        <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.countryLabel}</label>
-                          <Select
-                            value={form.country}
-                            onValueChange={(val) => setForm(prev => ({ ...prev, country: val === "__none__" ? "" : val }))}
-                          >
-                            <SelectTrigger className="bg-background">
-                              <SelectValue placeholder={t.countryLabel} />
-                            </SelectTrigger>
-                            <SelectContent className="bg-background z-50">
-                              <SelectItem value="__none__">—</SelectItem>
-                              {sortedCountries.map((c) => {
-                                const flag = countryFlag(c.code);
-                                const name = getCountryName(c);
-                                return (
-                                  <SelectItem key={c.id} value={name} textValue={name}>
-                                    <span className="flex items-center gap-2">
-                                      {flag && <span>{flag}</span>}
-                                      <span>{name}</span>
-                                    </span>
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
 
                       <div>
                         <label className="text-sm text-foreground font-semibold mb-1 block">
