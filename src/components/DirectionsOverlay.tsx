@@ -140,12 +140,10 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
   const geo = useGeolocation();
 
   const requestBrowserOrigin = useCallback(() => {
-    if (!navigator.geolocation) { console.warn("[geo-cta] no navigator.geolocation"); setOriginError("Géolocalisation indisponible"); return; }
+    if (!navigator.geolocation) { setOriginError("Géolocalisation indisponible"); return; }
     setOriginError(null);
-    console.log("[geo-cta] calling getCurrentPosition…");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        console.log("[geo-cta] getCurrentPosition success", pos.coords.latitude, pos.coords.longitude);
         const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserOrigin(next); setStoredOrigin(next); setOriginError(null);
         try {
@@ -156,7 +154,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
           window.dispatchEvent(new CustomEvent("geo:changed"));
         } catch { /* noop */ }
       },
-      (err) => { console.warn("[geo-cta] getCurrentPosition error", err?.code, err?.message); setUserOrigin(null); setOriginError(err.message || "Position indisponible"); },
+      (err) => { setUserOrigin(null); setOriginError(err.message || "Position indisponible"); },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   }, []);
