@@ -355,9 +355,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       <Tabs defaultValue="account" className="w-full" orientation="vertical">
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
           <div className="flex flex-col gap-4">
-            <Link to="/" aria-label="Accueil" className="hidden md:flex items-center gap-2 px-1">
-              <img src={logoHamsa} alt="One World Morocco" className="h-9 w-auto" />
-              <span className="font-josefin text-xs uppercase tracking-[0.18em] text-foreground">ONE WORLD MOROCCO</span>
+            <Link to="/" aria-label="Accueil" className="hidden md:flex items-center justify-center px-1">
+              <img src={accountAvatar} alt="Mon compte" className="h-24 w-auto" loading="lazy" width={512} height={512} />
             </Link>
             <TabsList className="flex md:flex-col h-auto bg-transparent p-0 gap-1 md:items-stretch md:justify-start overflow-x-auto md:overflow-visible">
               {[
