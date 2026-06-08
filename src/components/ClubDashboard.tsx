@@ -449,7 +449,9 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           {t.save}
         </Button>
       </div>
+        </TabsContent>
 
+        <TabsContent value="addresses" className="mt-6">
       {/* Bookmarks section */}
       <div className="space-y-3">
         <h3 className="text-lg font-bold flex items-center gap-2">
