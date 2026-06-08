@@ -5,6 +5,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { User as UserIcon, MapPin, Plane, Lightbulb, Bell } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -300,6 +302,31 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </Button>
       </div>
 
+      <Tabs defaultValue="account" className="w-full">
+        <TabsList className="w-full grid grid-cols-5 h-auto bg-muted/40">
+          <TabsTrigger value="account" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <UserIcon className="h-4 w-4" />
+            <span>{language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="addresses" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <MapPin className="h-4 w-4" />
+            <span>{language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="travel" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <Plane className="h-4 w-4" />
+            <span>{language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="inspiration" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <Lightbulb className="h-4 w-4" />
+            <span>{language === "en" ? "Inspiration" : language === "ar" ? "إلهام" : "Inspiration"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-background">
+            <Bell className="h-4 w-4" />
+            <span>{language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications"}</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="account" className="mt-6">
       {/* Form */}
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
@@ -422,7 +449,9 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           {t.save}
         </Button>
       </div>
+        </TabsContent>
 
+        <TabsContent value="addresses" className="mt-6">
       {/* Bookmarks section */}
       <div className="space-y-3">
         <h3 className="text-lg font-bold flex items-center gap-2">
@@ -514,6 +543,26 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         )}
       </div>
+        </TabsContent>
+
+        <TabsContent value="travel" className="mt-6">
+          <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
+            {language === "en" ? "Your travel plans will appear here soon." : language === "ar" ? "ستظهر خطط سفرك هنا قريباً." : "Vos projets de voyage apparaîtront ici prochainement."}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="inspiration" className="mt-6">
+          <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
+            {language === "en" ? "Personalized inspiration coming soon." : language === "ar" ? "إلهام شخصي قريباً." : "Inspiration personnalisée bientôt disponible."}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="mt-6">
+          <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
+            {language === "en" ? "No notifications yet." : language === "ar" ? "لا توجد إشعارات بعد." : "Aucune notification pour le moment."}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
