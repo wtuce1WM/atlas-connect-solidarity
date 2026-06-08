@@ -135,16 +135,16 @@ const PublicClubProfile = () => {
   }
   if (!profile) return <NotFound />;
 
-  const socials: { kind: keyof PublicProfile; label: string; icon: JSX.Element }[] = [
-    { kind: "instagram", label: "Instagram", icon: <Instagram className="h-6 w-6" /> },
-    { kind: "youtube", label: "YouTube", icon: <Youtube className="h-6 w-6" /> },
-    { kind: "tiktok", label: "TikTok", icon: <TikTokIcon className="h-6 w-6" /> },
-    { kind: "facebook", label: "Facebook", icon: <Facebook className="h-6 w-6" /> },
-    { kind: "twitter", label: "X", icon: <Twitter className="h-6 w-6" /> },
-    { kind: "linkedin", label: "LinkedIn", icon: <Linkedin className="h-6 w-6" /> },
-    { kind: "pinterest", label: "Pinterest", icon: <PinterestIcon className="h-6 w-6" /> },
-    { kind: "spotify", label: "Spotify", icon: <Music2 className="h-6 w-6" /> },
-    { kind: "soundcloud", label: "SoundCloud", icon: <Music2 className="h-6 w-6" /> },
+  const socials: { kind: keyof PublicProfile; label: string }[] = [
+    { kind: "instagram", label: "Instagram" },
+    { kind: "youtube", label: "YouTube" },
+    { kind: "tiktok", label: "TikTok" },
+    { kind: "facebook", label: "Facebook" },
+    { kind: "twitter", label: "X" },
+    { kind: "linkedin", label: "LinkedIn" },
+    { kind: "pinterest", label: "Pinterest" },
+    { kind: "spotify", label: "Spotify" },
+    { kind: "soundcloud", label: "SoundCloud" },
   ];
 
   const links: { label: string; url: string }[] = [];
