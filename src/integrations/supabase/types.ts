@@ -2290,42 +2290,66 @@ export type Database = {
           country: string | null
           created_at: string
           email: string | null
+          facebook: string | null
           first_name: string | null
           id: string
+          instagram: string | null
           last_name: string | null
+          linkedin: string | null
           nickname: string
           phone: string | null
+          pinterest: string | null
           skype: string | null
+          tiktok: string | null
+          twitter: string | null
           user_id: string | null
+          website: string | null
           whatsapp: string | null
+          youtube: string | null
         }
         Insert: {
           city?: string | null
           country?: string | null
           created_at?: string
           email?: string | null
+          facebook?: string | null
           first_name?: string | null
           id?: string
+          instagram?: string | null
           last_name?: string | null
+          linkedin?: string | null
           nickname: string
           phone?: string | null
+          pinterest?: string | null
           skype?: string | null
+          tiktok?: string | null
+          twitter?: string | null
           user_id?: string | null
+          website?: string | null
           whatsapp?: string | null
+          youtube?: string | null
         }
         Update: {
           city?: string | null
           country?: string | null
           created_at?: string
           email?: string | null
+          facebook?: string | null
           first_name?: string | null
           id?: string
+          instagram?: string | null
           last_name?: string | null
+          linkedin?: string | null
           nickname?: string
           phone?: string | null
+          pinterest?: string | null
           skype?: string | null
+          tiktok?: string | null
+          twitter?: string | null
           user_id?: string | null
+          website?: string | null
           whatsapp?: string | null
+          youtube?: string | null
         }
         Relationships: []
       }
