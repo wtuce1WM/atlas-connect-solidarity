@@ -201,13 +201,23 @@ async function cleanPreviouslyGenerated() {
 async function main() {
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // 1) Récupère toutes les vanity URLs de type business
-  const { data: vanities, error: vErr } = await supabase
-    .from("vanity_urls")
-    .select("slug, target_id")
-    .eq("target_type", "business");
-  if (vErr) throw vErr;
-  if (!vanities || vanities.length === 0) {
+  // 1) Récupère toutes les vanity URLs de type business (paginé, PostgREST plafonne à 1000/req)
+  const vanities: { slug: string; target_id: string }[] = [];
+  const VPAGE = 1000;
+  let vFrom = 0;
+  while (true) {
+    const { data, error } = await supabase
+      .from("vanity_urls")
+      .select("slug, target_id")
+      .eq("target_type", "business")
+      .range(vFrom, vFrom + VPAGE - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    vanities.push(...(data as { slug: string; target_id: string }[]));
+    if (data.length < VPAGE) break;
+    vFrom += VPAGE;
+  }
+  if (vanities.length === 0) {
     console.log("[og-pages] Aucune vanity URL business trouvée.");
     return;
   }
