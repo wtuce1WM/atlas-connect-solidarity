@@ -3355,7 +3355,7 @@ const SearchPage = () => {
       businessMatchesFsServices(b)
     );
     return [...matches].sort(sortWtuceAndRating);
-  }, [subcategoryNamesFromUrl, pinIdsParam, fsFilterSubcategories, fsFilterServices, frontStructurePool, filteredBusinesses]);
+  }, [subcategoryNamesFromUrl, pinIdsParam, fsFilterSubcategories, fsFilterServices, fsUserOverride, frontStructurePool, filteredBusinesses]);
   const resultsFilteredBusinesses = fsFilteredList ?? filteredBusinesses;
   const fsTotalPages = fsFilteredList ? Math.max(1, Math.ceil(fsFilteredList.length / ITEMS_PER_PAGE)) : 1;
   const fsPageStart = fsFilteredList ? (currentPage - 1) * ITEMS_PER_PAGE : 0;
