@@ -2753,7 +2753,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
       toast({
         title: "Succès",
-        description: business ? "Entreprise mise à jour avec succès." : "Entreprise créée avec succès.",
+        description: business
+          ? "Entreprise mise à jour avec succès."
+          : "Entreprise créée. ⚠️ Republiez le site (bouton Publish) pour activer l'aperçu de partage (OpenGraph) de sa page.",
+        duration: business ? 4000 : 10000,
       });
 
       onSuccess();
