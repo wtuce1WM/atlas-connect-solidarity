@@ -334,6 +334,7 @@ const SearchPage = () => {
   const [mobileFsSubId, setMobileFsSubId] = useState<string | null>(null);
   const [mobileFsServices, setMobileFsServices] = useState<string[]>([]);
   const [showAllSearchMarkers, setShowAllSearchMarkers] = useState(false);
+  const [mobileProximityKm, setMobileProximityKm] = useState<number | null>(null);
   const autoMobileFsLabelKeyRef = useRef<string | null>(null);
 
   // Reset front structure filter when search query changes
@@ -345,6 +346,7 @@ const SearchPage = () => {
     setMobileFsSubId(null);
     setMobileFsServices([]);
     setShowAllSearchMarkers(false);
+    setMobileProximityKm(null);
   }, [searchQuery]);
 
   // Default to "Top 20" whenever the FS subcategory filter changes
