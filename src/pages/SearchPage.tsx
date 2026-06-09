@@ -2367,9 +2367,15 @@ const SearchPage = () => {
   }, [activeTab, showAiPopup, aiCitedMapPool, aiRefinementBusinessPool, showAllSearchMarkers, allSearchMapBusinesses, filteredBusinesses]);
   const hasActiveSearchContext = !!searchQuery.trim() || !!categoryFromUrl || totalCount !== null;
   const frontStructurePool = useMemo(() => {
-    if (hasActiveSearchContext) return searchMapPool;
+    if (hasActiveSearchContext) {
+      // Préfère le pool complet préchargé (jusqu'à totalCount) pour que les
+      // filtres FS voient l'ensemble des résultats serveur, pas seulement la
+      // page courante (21 items).
+      if (allSearchMapBusinesses.length > searchMapPool.length) return allSearchMapBusinesses;
+      return searchMapPool;
+    }
     return allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
-  }, [hasActiveSearchContext, searchMapPool, allCityMapBusinesses, filteredBusinesses]);
+  }, [hasActiveSearchContext, searchMapPool, allSearchMapBusinesses, allCityMapBusinesses, filteredBusinesses]);
 
 
   // "Tous" tab: show search results only (desktop) — capped to 20 unless "Voir tous" is toggled
