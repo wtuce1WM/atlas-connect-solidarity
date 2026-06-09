@@ -133,6 +133,7 @@ export default function ResultsTabContent({
   effectiveCity,
   onFrontStructureFilter,
   onFrontStructureServicesFilter,
+  onFrontStructureUserOverride,
   fsTopBusinessId,
   allCityMapBusinesses,
   allSearchMapBusinesses,
