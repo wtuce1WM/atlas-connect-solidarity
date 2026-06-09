@@ -36,9 +36,8 @@ const FooterCityDestinations = ({ city, cityRowId, onCityChange }: Props) => {
     (async () => {
       const { data } = await (supabase
         .from("destinations" as any)
-        .select("id, name_fr, city_ids, is_searchable")
-        .contains("city_ids", [cityRowId])
-        .eq("is_searchable", true) as any);
+        .select("id, name_fr, city_ids")
+        .contains("city_ids", [cityRowId]) as any);
       if (cancelled) return;
       const list = ((data || []) as any[])
         .map((d) => ({ id: d.id as string, name: (d.name_fr as string) || "" }))
