@@ -4868,7 +4868,7 @@ const SearchPage = () => {
               </div>
               {(() => {
                 const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
-                const total = mobileFsTabId === null ? (totalCount ?? filteredBusinesses.length) : fsMatchingCount;
+                const total = mobileFsTabId === null ? (fsFilteredList?.length ?? totalCount ?? filteredBusinesses.length) : fsMatchingCount;
                 const showToggle = total > 20 || !!mobileFsSubId;
                 const subs = activeFsTab?.subcategories ?? [];
                 const activeSubName = mobileFsSubId
