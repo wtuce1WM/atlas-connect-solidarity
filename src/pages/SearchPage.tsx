@@ -5058,17 +5058,14 @@ const SearchPage = () => {
                 const counts = new globalThis.Map<string, number>();
                 for (const p of allPois) {
                   const subs = (p as any).subcategories as string[] | null | undefined;
-                  if (!subs) continue;
-                  for (const s of subs) {
-                    const k = (s ?? "").trim();
-                    if (!k) continue;
-                    counts.set(k, (counts.get(k) ?? 0) + 1);
-                  }
+                  const k = (subs?.[0] ?? "").trim();
+                  if (!k) continue;
+                  counts.set(k, (counts.get(k) ?? 0) + 1);
                 }
                 const entries = Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "fr"));
                 if (entries.length === 0) return null;
                 const filteredCount = mobilePoiSubcat
-                  ? allPois.filter(p => ((p as any).subcategories as string[] | null | undefined)?.includes(mobilePoiSubcat)).length
+                  ? allPois.filter(p => ((p as any).subcategories as string[] | null | undefined)?.[0] === mobilePoiSubcat).length
                   : allPois.length;
                 return (
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60]">
