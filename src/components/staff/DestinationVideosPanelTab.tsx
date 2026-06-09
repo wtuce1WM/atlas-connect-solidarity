@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, GripVertical, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ interface DestVideo {
   thumbnail_url: string | null;
   sort_order: number;
   business_id: string;
+  link_id?: string | null;
   business_name: string;
   destination_id: string;
   destination_name: string;
@@ -116,6 +117,7 @@ const DestinationVideosPanelTab = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const pendingOrderRef = useRef<DestVideo[] | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -157,7 +159,8 @@ const DestinationVideosPanelTab = () => {
     // Fetch generic videos linked to destinations
     const { data: gvdLinks } = await supabase
       .from("generic_video_destinations" as any)
-      .select("generic_video_id, destination_id, sort_order") as any;
+      .select("id, generic_video_id, destination_id, sort_order")
+      .order("sort_order", { ascending: true }) as any;
 
     const genericVideoIds = [...new Set((gvdLinks || []).map((l: any) => l.generic_video_id))] as string[];
     const genericVideosMap = new Map<string, any>();
@@ -179,6 +182,7 @@ const DestinationVideosPanelTab = () => {
         thumbnail_url: gv.thumbnail_url,
         sort_order: link.sort_order ?? 0,
         business_id: link.generic_video_id,
+        link_id: link.id,
         destination_id: link.destination_id,
         city: gv.city || null,
         neighborhood: gv.neighborhood || null,
@@ -263,6 +267,7 @@ const DestinationVideosPanelTab = () => {
         thumbnail_url: d.thumbnail_url,
         sort_order: d.sort_order,
         business_id: d.business_id,
+        link_id: d.link_id || null,
         business_name: d._source === "generic" ? "Générique" : (bizMap.get(d.business_id) || "—"),
         destination_id: d.destination_id,
         destination_name: destMap.get(d.destination_id) || "—",
