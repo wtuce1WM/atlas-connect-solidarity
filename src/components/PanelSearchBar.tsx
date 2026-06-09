@@ -123,23 +123,30 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
   const isBlack = iconVariant === "black";
 
   // Single cell used inside the unified dock pill: round icon + small label below
-  const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={ariaLabel}
-      className="group shrink-0 flex flex-col items-center justify-end gap-1 px-1.5 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
-    >
-      <span
-        className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors ${
-          active ? "bg-[#C04F17] group-hover:bg-[#C04F17]/90" : "bg-black/60 group-hover:bg-black/75"
-        }`}
+  const Cell = ({ icon, label, onClick, ariaLabel, active, variant }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media" }) => {
+    const isMedia = variant === "media";
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={ariaLabel}
+        className="group shrink-0 flex flex-col items-center justify-end gap-1 px-1.5 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
       >
-        {icon}
-      </span>
-      <span className="text-[11px] font-bold tracking-wider text-white leading-none font-['Roboto',sans-serif]">{label}</span>
-    </button>
-  );
+        <span
+          className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors ${
+            active
+              ? "bg-[#C04F17] group-hover:bg-[#C04F17]/90"
+              : isMedia
+                ? "bg-white/10 ring-1 ring-white/30 backdrop-blur-sm group-hover:bg-white/20"
+                : "bg-black/60 group-hover:bg-black/75"
+          }`}
+        >
+          {icon}
+        </span>
+        <span className={`text-[11px] font-bold tracking-wider leading-none font-['Roboto',sans-serif] ${isMedia ? "text-white/70" : "text-white"}`}>{label}</span>
+      </button>
+    );
+  };
 
   // Render play/mute cells from the typed videoControls prop
   const renderVideoCells = (): ReactNode => {
@@ -149,6 +156,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       return (
         <>
           <Cell
+            variant="media"
             icon={paused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
             label={paused ? "Play" : "Pause"}
             ariaLabel={paused ? "Play" : "Pause"}
@@ -159,6 +167,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             }}
           />
           <Cell
+            variant="media"
             icon={muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             label={muted ? "Sound" : "Mute"}
             ariaLabel={muted ? "Unmute" : "Mute"}
@@ -170,6 +179,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
               v.muted = next;
             }}
           />
+          <span className="self-center mx-1 h-8 w-px bg-white/20" aria-hidden="true" />
         </>
       );
     }
@@ -177,6 +187,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
     return (
       <>
         <Cell
+          variant="media"
           icon={playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
           label={playing ? "Pause" : "Play"}
           ariaLabel={playing ? "Pause" : "Play"}
@@ -189,6 +200,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
           }}
         />
         <Cell
+          variant="media"
           icon={muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
           label={muted ? "Sound" : "Mute"}
           ariaLabel={muted ? "Unmute" : "Mute"}
@@ -200,6 +212,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             onMutedChange(!muted);
           }}
         />
+        <span className="self-center mx-1 h-8 w-px bg-white/20" aria-hidden="true" />
       </>
     );
   };
