@@ -304,12 +304,13 @@ const DestinationVideosPanelTab = () => {
   useEffect(() => { setSelectedDest(ALL); }, [selectedCity]);
 
   const filteredVideos = useMemo(() => {
-    let result = cityFilteredVideos;
-    if (selectedDest !== ALL) {
-      result = result.filter(v => v.destination_id === selectedDest);
-    }
+    // When a destination is selected, show ALL its videos regardless of the city filter.
+    // The city filter only narrows the destination dropdown choices.
+    const result = selectedDest !== ALL
+      ? videos.filter(v => v.destination_id === selectedDest)
+      : cityFilteredVideos;
     return [...result].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-  }, [cityFilteredVideos, selectedDest]);
+  }, [videos, cityFilteredVideos, selectedDest]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
