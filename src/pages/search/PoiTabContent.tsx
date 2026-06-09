@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Map as MapIcon, X, SlidersHorizontal } from "lucide-react";
+import { Map as MapIcon, X, SlidersHorizontal, Navigation } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import PoiSection from "@/components/PoiSection";
 import PoiGoogleMap from "@/components/PoiGoogleMap";
@@ -7,6 +7,7 @@ import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import { haversineKm } from "@/lib/haversine";
 
 interface PoiTabContentProps {
   selectedCity: string;
