@@ -40,10 +40,26 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     touchStartY.current = null;
     touchStartX.current = null;
-    if (Math.abs(dy) < 50 || Math.abs(dx) > Math.abs(dy)) return;
-    // Swipe down → next (older), swipe up → previous (newer)
-    goToOffset(dy < 0 ? -1 : 1);
-  }, [goToOffset]);
+    const isSwipe = Math.abs(dy) >= 50 && Math.abs(dy) > Math.abs(dx);
+    if (isSwipe) {
+      // Swipe down → next (older), swipe up → previous (newer)
+      goToOffset(dy < 0 ? -1 : 1);
+      return;
+    }
+    // Tap → toggle play/pause via YouTube IFrame API (native controls are hidden under this overlay on mobile)
+    if (isPlaying) {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "pauseVideo", args: [] }),
+        "*"
+      );
+    } else {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "playVideo", args: [] }),
+        "*"
+      );
+    }
+    setIsPlaying((p) => !p);
+  }, [goToOffset, isPlaying]);
 
   const postCmd = useCallback((func: string, args: unknown[] = []) => {
     iframeRef.current?.contentWindow?.postMessage(
