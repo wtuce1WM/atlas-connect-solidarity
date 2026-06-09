@@ -852,23 +852,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
               {/* Bottom tabs */}
               {!flipped && (() => {
-                const hasCityVideosTab = cityVideos.length > 0;
                  const tabs: BottomTabConfig[] = [];
 
-                 if (hasCityVideosTab) tabs.push({
-                   id: "cityVideos",
-                   label: language === "en" ? "Videos" : "Vidéos",
-                   renderContent: (animate, animCls) => (
-                     <TabScrollRail>
-                       {cityVideos.map((cv, index) => {
-                         const info = getVideoInfo(cv.url);
-                         return (
-                           <TabVideoCard key={index} thumbnailUrl={cv.thumbnailUrl} platformThumbnailUrl={info.thumbnail} label={cv.name || cv.ownerName || `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`} onClick={() => setFullscreenVideo(cv.url)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
-                         );
-                       })}
-                     </TabScrollRail>
-                   ),
-                 });
+
 
 
                 for (const ft of frontTabs) {
