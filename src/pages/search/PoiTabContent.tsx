@@ -226,34 +226,78 @@ const PoiTabContent = ({
             fitToMarkers
             userLocation={userCoords ?? null}
           />
-          {subcatCounts.length > 0 && (
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60]">
-              <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcat ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
-                    >
-                      <SlidersHorizontal className="h-3.5 w-3.5" />
-                      {poiSubcat ?? "Attractions"}
-                      {poiSubcat && <span className="ml-0.5 opacity-70">{filteredPois.length}</span>}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" className="z-[210] max-h-80 overflow-y-auto">
-                    {poiSubcat && (
-                      <DropdownMenuItem onSelect={() => setPoiSubcat(null)}>
-                        Toutes les attractions <span className="ml-1 opacity-60">({allPois.length})</span>
-                      </DropdownMenuItem>
-                    )}
-                    {subcatCounts.map(([name, count]) => (
-                      <DropdownMenuItem key={name} onSelect={() => setPoiSubcat(name)}>
-                        {name} <span className="ml-1 opacity-60">({count})</span>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+          {(subcatCounts.length > 0 || proxHasAny) && (
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60] flex flex-wrap items-center justify-center gap-2">
+              {subcatCounts.length > 0 && (
+                <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcat ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
+                      >
+                        <SlidersHorizontal className="h-3.5 w-3.5" />
+                        {poiSubcat ?? "Attractions"}
+                        {poiSubcat && <span className="ml-0.5 opacity-70">{filteredPois.length}</span>}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="z-[210] max-h-80 overflow-y-auto">
+                      {poiSubcat && (
+                        <DropdownMenuItem onSelect={() => setPoiSubcat(null)}>
+                          Toutes les attractions <span className="ml-1 opacity-60">({allPois.length})</span>
+                        </DropdownMenuItem>
+                      )}
+                      {subcatCounts.map(([name, count]) => (
+                        <DropdownMenuItem key={name} onSelect={() => setPoiSubcat(name)}>
+                          {name} <span className="ml-1 opacity-60">({count})</span>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
+              {proxHasAny && (
+                <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
+                      >
+                        <Navigation className="h-3.5 w-3.5" />
+                        {proxActiveOpt ? proxActiveOpt.label : "À proximité"}
+                        {proximityActive && (
+                          <span className="ml-0.5 opacity-70">{proxCountsByKm[poiProximityKm!] ?? 0}</span>
+                        )}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="z-[210]">
+                      {poiProximityKm != null && (
+                        <DropdownMenuItem onSelect={() => setPoiProximityKm(null)}>
+                          Toutes distances
+                        </DropdownMenuItem>
+                      )}
+                      {proxOpts.map(o => {
+                        const count = proxCountsByKm[o.km] ?? 0;
+                        const disabled = count === 0;
+                        return (
+                          <DropdownMenuItem
+                            key={o.km}
+                            disabled={disabled}
+                            onSelect={(e) => {
+                              if (disabled) { e.preventDefault(); return; }
+                              setPoiProximityKm(o.km);
+                            }}
+                            className={disabled ? "opacity-40 pointer-events-none" : ""}
+                          >
+                            {o.label} <span className="ml-1 opacity-60">({count})</span>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
             </div>
           )}
           <PanelSearchBar
