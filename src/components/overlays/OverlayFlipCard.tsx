@@ -13,6 +13,8 @@ export interface HighlightItem {
   description: string;
   image_url: string | null;
   sort_order: number;
+  metric_title?: string | null;
+  metric_value?: string | null;
 }
 
 interface FlipCardProps {
