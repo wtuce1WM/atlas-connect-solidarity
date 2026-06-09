@@ -123,8 +123,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
   const isBlack = iconVariant === "black";
 
   // Single cell used inside the unified dock pill: round icon + small label below
-  const Cell = ({ icon, label, onClick, ariaLabel, active, variant }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media" }) => {
-    const isMedia = variant === "media";
+  const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media" }) => {
     return (
       <button
         type="button"
@@ -136,14 +135,12 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
           className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
             active
               ? "bg-[#C04F17] text-white group-hover:bg-[#C04F17]/90"
-              : isMedia
-                ? "bg-white/90 text-black ring-1 ring-white shadow-[0_2px_10px_rgba(0,0,0,0.35)] backdrop-blur-md group-hover:bg-white"
-                : "bg-black/60 text-white group-hover:bg-black/75"
+              : "bg-black/60 text-white group-hover:bg-black/75"
           }`}
         >
           {icon}
         </span>
-        <span className={`text-[11px] font-bold tracking-wider leading-none font-['Roboto',sans-serif] ${isMedia ? "text-white/80 uppercase" : "text-white"}`}>{label}</span>
+        <span className="text-[11px] font-bold tracking-wider leading-none font-['Roboto',sans-serif] text-white">{label}</span>
       </button>
     );
   };
