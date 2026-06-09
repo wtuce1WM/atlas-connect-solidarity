@@ -17,6 +17,7 @@ import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 
 import HomeCityTabs from "@/components/home/HomeCityTabs";
+import FooterCityDestinations from "@/components/home/FooterCityDestinations";
 import HomeCityToolbar from "@/components/home/HomeCityToolbar";
 import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";
 const HomeVideoSlidePanel = lazy(
@@ -2392,6 +2393,18 @@ const Home = () => {
             </div>
             );
           })()}
+
+          <FooterCityDestinations
+            city={city}
+            cityRowId={cityRowId}
+            onCityChange={(c) => {
+              setCity(c);
+              cityResolvedRef.current = true;
+              const sp = new URLSearchParams(searchParams);
+              sp.set("city", c);
+              setSearchParams(sp, { replace: true });
+            }}
+          />
         </main>
       </div>
 
