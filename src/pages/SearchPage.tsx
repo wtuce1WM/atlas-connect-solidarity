@@ -4365,7 +4365,7 @@ const SearchPage = () => {
                     </div>
                   </div>
                   {(() => {
-                    const total = totalCount ?? filteredBusinesses.length;
+                    const total = fsFilteredList?.length ?? totalCount ?? filteredBusinesses.length;
                     if (total <= 20) return null;
                     return (
                       <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2">
@@ -4868,7 +4868,7 @@ const SearchPage = () => {
               </div>
               {(() => {
                 const activeFsTab = mobileFsTabId ? mobileFrontTabs.find(t => t.id === mobileFsTabId) : null;
-                const total = mobileFsTabId === null ? (totalCount ?? filteredBusinesses.length) : fsMatchingCount;
+                const total = mobileFsTabId === null ? (fsFilteredList?.length ?? totalCount ?? filteredBusinesses.length) : fsMatchingCount;
                 const showToggle = total > 20 || !!mobileFsSubId;
                 const subs = activeFsTab?.subcategories ?? [];
                 const activeSubName = mobileFsSubId
