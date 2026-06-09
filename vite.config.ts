@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
+import { prerenderOgPlugin } from "./scripts/prerender-og";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -21,6 +22,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     // Bundle analyzer — only when ANALYZE=1 is set. Generates dist/stats.html.
     process.env.ANALYZE === "1" && (visualizer({ filename: "dist/stats.html", template: "treemap", gzipSize: true, brotliSize: false }) as any),
+    prerenderOgPlugin(),
   ].filter(Boolean),
   resolve: {
     alias: {
