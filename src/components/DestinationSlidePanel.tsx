@@ -297,7 +297,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       const [docsRes, gvLinksRes] = await Promise.all([
         supabase
           .from("business_documents")
-          .select("url, name, thumbnail_url, business_id, sort_order")
+          .select("id, url, name, thumbnail_url, business_id, sort_order")
           .eq("type", "video")
           .eq("business_is_active", true)
           .eq("destination_id", destinationId),
