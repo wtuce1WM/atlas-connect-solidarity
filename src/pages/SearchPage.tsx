@@ -327,6 +327,9 @@ const SearchPage = () => {
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
   const [fsFilterServices, setFsFilterServices] = useState<Set<string> | null>(null);
+  // True quand l'utilisateur a explicitement choisi un filtre via l'overlay Filtres.
+  // Permet de bypasser le garde "ne filtre pas la grille quand l'URL porte des subcats".
+  const [fsUserOverride, setFsUserOverride] = useState(false);
   const [mobileFsTabId, setMobileFsTabId] = useState<string | null>(null);
   const [mobileFsSubId, setMobileFsSubId] = useState<string | null>(null);
   const [mobileFsServices, setMobileFsServices] = useState<string[]>([]);
@@ -337,6 +340,7 @@ const SearchPage = () => {
   useEffect(() => {
     setFsFilterSubcategories(null);
     setFsFilterServices(null);
+    setFsUserOverride(false);
     setMobileFsTabId(null);
     setMobileFsSubId(null);
     setMobileFsServices([]);
