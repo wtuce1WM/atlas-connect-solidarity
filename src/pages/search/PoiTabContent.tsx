@@ -226,7 +226,7 @@ const PoiTabContent = ({
             fitToMarkers
             userLocation={userCoords ?? null}
           />
-          {(subcatCounts.length > 0 || proxHasAny) && (
+          {(subcatCounts.length > 0 || !!userCoords) && (
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60] flex flex-wrap items-center justify-center gap-2">
               {subcatCounts.length > 0 && (
                 <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
@@ -256,7 +256,7 @@ const PoiTabContent = ({
                   </DropdownMenu>
                 </div>
               )}
-              {proxHasAny && (
+              {!!userCoords && (
                 <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

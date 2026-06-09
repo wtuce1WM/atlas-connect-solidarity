@@ -5085,7 +5085,7 @@ const SearchPage = () => {
                     if (d <= 10) poiProxCounts[10]++;
                   }
                 }
-                const poiProxHasAny = !!uc && (poiProxCounts[10] ?? 0) > 0;
+                const poiProxHasAny = !!uc;
                 const poiProxActiveOpt = poiProxOpts.find(o => o.km === mobilePoiProximityKm);
                 const poiProximityActive = !!(uc && mobilePoiProximityKm);
                 if (entries.length === 0 && !poiProxHasAny) return null;
