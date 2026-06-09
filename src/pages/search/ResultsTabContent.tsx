@@ -258,6 +258,7 @@ export default function ResultsTabContent({
     setActiveFsSubId(null);
     setActiveFsServices([]);
     onFrontStructureServicesFilter?.(null);
+    onFrontStructureUserOverride?.(!!tabId);
     if (!tabId) {
       onFrontStructureFilter?.(allFsNames.size > 0 ? allFsNames : null);
     } else {
