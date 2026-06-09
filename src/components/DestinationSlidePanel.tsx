@@ -853,7 +853,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
               {/* CTA itinéraire — visuel aligné sur BookOnlineSlidePanel/CtaBar */}
               {destination.latitude && destination.longitude && (
-                  <div className="shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto">
+                  <div className="shrink-0 pt-6 pb-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto">
                     <div className="w-1/2 md:w-3/4 md:px-0 pointer-events-auto flex justify-center gap-2">
                     <div className="flex-1 md:flex-none md:w-1/3">
                       <button
