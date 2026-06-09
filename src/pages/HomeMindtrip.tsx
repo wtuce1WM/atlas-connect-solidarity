@@ -216,19 +216,31 @@ const HomeMindtrip = () => {
   const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
-    const onScroll = () => {
+    // Cache vh/maxX/total to stay stable when Android Chrome's URL bar
+    // collapses/expands during scroll (otherwise the horizontal track jitters).
+    let cachedVh = window.innerHeight;
+    let cachedVw = window.innerWidth;
+    let cachedTotal = 0;
+    let cachedMaxX = 0;
+
+    const recomputeMetrics = () => {
       const container = horizontalRef.current;
       const track = trackRef.current;
       if (!container || !track) return;
-      const rect = container.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const total = container.offsetHeight - vh;
-      if (total <= 0) return;
-      const progress = Math.min(1, Math.max(0, -rect.top / total));
-      const maxX = Math.max(0, track.scrollWidth - window.innerWidth);
-      setTrackX(progress * maxX);
+      cachedVh = window.innerHeight;
+      cachedVw = window.innerWidth;
+      cachedTotal = container.offsetHeight - cachedVh;
+      cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
+    };
 
-      const centerX = window.innerWidth / 2;
+    const onScroll = () => {
+      const container = horizontalRef.current;
+      if (!container || cachedTotal <= 0) return;
+      const rect = container.getBoundingClientRect();
+      const progress = Math.min(1, Math.max(0, -rect.top / cachedTotal));
+      setTrackX(progress * cachedMaxX);
+
+      const centerX = cachedVw / 2;
       let bestIdx = 0;
       let bestDist = Infinity;
       cardRefs.current.forEach((el, idx) => {
@@ -239,12 +251,18 @@ const HomeMindtrip = () => {
       });
       setActiveStep(bestIdx);
     };
+
+    const onResize = () => { recomputeMetrics(); onScroll(); };
+
+    recomputeMetrics();
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
     };
   }, []);
 
