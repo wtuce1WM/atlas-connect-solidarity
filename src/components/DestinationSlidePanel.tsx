@@ -854,7 +854,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
               {/* CTA itinéraire */}
               {destination.latitude && destination.longitude && (
-                <div className="shrink-0 flex justify-center py-1.5 pointer-events-auto">
+                <div className="shrink-0 flex justify-center pt-1.5 pb-[88px] pointer-events-auto">
                   <div className="w-1/2 md:w-3/4 flex justify-center gap-2">
                     <div className="flex-1 md:flex-none md:w-1/3">
                       <button
