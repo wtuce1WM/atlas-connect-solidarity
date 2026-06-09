@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, BookMarked, CheckCircle2, Palette, Mic, Pin, Users } from "lucide-react";
+import { Building2, BookMarked, CheckCircle2, Palette, Mic, Pin, Users, Globe } from "lucide-react";
 
 import architectureMd from "@/content/kb/architecture.md?raw";
 import glossaireMd from "@/content/kb/glossaire.md?raw";
@@ -11,6 +11,7 @@ import conventionsMd from "@/content/kb/conventions-ui.md?raw";
 import rechercheVocaleMd from "@/content/kb/recherche-vocale.md?raw";
 import modePinIdsMd from "@/content/kb/mode-pinids.md?raw";
 import collaborationMultiPostesMd from "@/content/kb/collaboration-multi-postes.md?raw";
+import domaineDnsMd from "@/content/kb/domaine-dns.md?raw";
 
 const SECTIONS = [
   { id: "architecture", label: "Règles d'architecture", icon: Building2, content: architectureMd },
@@ -20,6 +21,7 @@ const SECTIONS = [
   { id: "recherche-vocale", label: "Recherche vocale", icon: Mic, content: rechercheVocaleMd },
   { id: "mode-pinids", label: "Mode pinIds (Search)", icon: Pin, content: modePinIdsMd },
   { id: "collaboration-multi-postes", label: "Multi-postes", icon: Users, content: collaborationMultiPostesMd },
+  { id: "domaine-dns", label: "Domaine & DNS", icon: Globe, content: domaineDnsMd },
 ];
 
 
