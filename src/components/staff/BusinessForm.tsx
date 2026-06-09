@@ -4865,33 +4865,45 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 className="shrink-0"
               />
               {/* Image upload thumbnail */}
-              <label className="shrink-0 cursor-pointer relative group">
-                {doc.image_url ? (
-                  <img src={doc.image_url} alt="" className="h-9 w-9 object-cover rounded border border-input" />
-                ) : (
-                  <div className="h-9 w-9 rounded border border-dashed border-input flex items-center justify-center bg-muted/50 hover:bg-muted">
-                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                  </div>
+              <div className="shrink-0 relative group">
+                <label className="cursor-pointer block">
+                  {doc.image_url ? (
+                    <img src={doc.image_url} alt="" className="h-9 w-9 object-cover rounded border border-input" />
+                  ) : (
+                    <div className="h-9 w-9 rounded border border-dashed border-input flex items-center justify-center bg-muted/50 hover:bg-muted">
+                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+                      const path = `external-links/${crypto.randomUUID()}.${ext}`;
+                      const { error } = await supabase.storage.from("external-link-images").upload(path, file);
+                      if (error) {
+                        toast({ title: "Erreur upload image", variant: "destructive" });
+                        return;
+                      }
+                      const { data: urlData } = supabase.storage.from("external-link-images").getPublicUrl(path);
+                      setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, image_url: urlData.publicUrl } : d));
+                    }}
+                  />
+                </label>
+                {doc.image_url && (
+                  <button
+                    type="button"
+                    onClick={() => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, image_url: "" } : d))}
+                    className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Supprimer l'image"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-                    const path = `external-links/${crypto.randomUUID()}.${ext}`;
-                    const { error } = await supabase.storage.from("external-link-images").upload(path, file);
-                    if (error) {
-                      toast({ title: "Erreur upload image", variant: "destructive" });
-                      return;
-                    }
-                    const { data: urlData } = supabase.storage.from("external-link-images").getPublicUrl(path);
-                    setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, image_url: urlData.publicUrl } : d));
-                  }}
-                />
-              </label>
+              </div>
               <Input
                 value={doc.name}
                 onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
