@@ -137,6 +137,7 @@ const PoiTabContent = ({
                     neighborhood: p.neighborhood,
                     avgOn20,
                     totalReviews,
+                    subcategories: p.categories ?? null,
                   };
                 })
               )
