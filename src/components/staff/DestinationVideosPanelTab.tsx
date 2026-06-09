@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, GripVertical, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ interface DestVideo {
   thumbnail_url: string | null;
   sort_order: number;
   business_id: string;
+  link_id?: string | null;
   business_name: string;
   destination_id: string;
   destination_name: string;
@@ -116,6 +117,7 @@ const DestinationVideosPanelTab = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const pendingOrderRef = useRef<DestVideo[] | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -157,7 +159,8 @@ const DestinationVideosPanelTab = () => {
     // Fetch generic videos linked to destinations
     const { data: gvdLinks } = await supabase
       .from("generic_video_destinations" as any)
-      .select("generic_video_id, destination_id, sort_order") as any;
+      .select("id, generic_video_id, destination_id, sort_order")
+      .order("sort_order", { ascending: true }) as any;
 
     const genericVideoIds = [...new Set((gvdLinks || []).map((l: any) => l.generic_video_id))] as string[];
     const genericVideosMap = new Map<string, any>();
@@ -179,6 +182,7 @@ const DestinationVideosPanelTab = () => {
         thumbnail_url: gv.thumbnail_url,
         sort_order: link.sort_order ?? 0,
         business_id: link.generic_video_id,
+        link_id: link.id,
         destination_id: link.destination_id,
         city: gv.city || null,
         neighborhood: gv.neighborhood || null,
@@ -263,6 +267,7 @@ const DestinationVideosPanelTab = () => {
         thumbnail_url: d.thumbnail_url,
         sort_order: d.sort_order,
         business_id: d.business_id,
+        link_id: d.link_id || null,
         business_name: d._source === "generic" ? "Générique" : (bizMap.get(d.business_id) || "—"),
         destination_id: d.destination_id,
         destination_name: destMap.get(d.destination_id) || "—",
@@ -308,13 +313,15 @@ const DestinationVideosPanelTab = () => {
 
   useEffect(() => { setSelectedDest(ALL); }, [selectedCity]);
 
+  useEffect(() => { pendingOrderRef.current = null; }, [selectedDest]);
+
   const filteredVideos = useMemo(() => {
     // When a destination is selected, show ALL its videos regardless of the city filter.
     // The city filter only narrows the destination dropdown choices.
     const result = selectedDest !== ALL
       ? videos.filter(v => v.destination_id === selectedDest)
       : cityFilteredVideos;
-    return [...result].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    return [...result].sort((a, b) => ((a.sort_order ?? 0) - (b.sort_order ?? 0)) || a.id.localeCompare(b.id));
   }, [videos, cityFilteredVideos, selectedDest]);
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -323,7 +330,8 @@ const DestinationVideosPanelTab = () => {
     const oldIndex = filteredVideos.findIndex(v => v.id === active.id);
     const newIndex = filteredVideos.findIndex(v => v.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
-    const reordered = arrayMove(filteredVideos, oldIndex, newIndex);
+    const reordered = arrayMove(filteredVideos, oldIndex, newIndex).map((v, i) => ({ ...v, sort_order: i }));
+    pendingOrderRef.current = reordered;
     const newOrder = new Map(reordered.map((v, i) => [v.id, i]));
     setVideos(prev => prev.map(v => newOrder.has(v.id) ? { ...v, sort_order: newOrder.get(v.id)! } : v));
   };
@@ -336,14 +344,18 @@ const DestinationVideosPanelTab = () => {
     }
     setSaving(true);
     try {
-      const results = await Promise.all(filteredVideos.map((v, i) => {
+      const orderToSave = pendingOrderRef.current?.every(v => v.destination_id === selectedDest)
+        ? pendingOrderRef.current
+        : filteredVideos;
+      const results = await Promise.all(orderToSave.map((v, i) => {
         if (v.source === "generic") {
-          return supabase
+          const query = supabase
             .from("generic_video_destinations" as any)
             .update({ sort_order: i } as any)
-            .eq("generic_video_id", v.business_id)
-            .eq("destination_id", v.destination_id)
-            .select("id");
+          return (v.link_id
+            ? query.eq("id", v.link_id)
+            : query.eq("generic_video_id", v.business_id).eq("destination_id", v.destination_id)
+          ).select("id");
         }
         return supabase
           .from("business_documents")
@@ -361,6 +373,7 @@ const DestinationVideosPanelTab = () => {
         toast.error(`${empties.length} ligne(s) non mises à jour (RLS ?)`);
       } else {
         toast.success(`Ordre sauvegardé (${results.length})`);
+        pendingOrderRef.current = null;
         await load();
       }
     } catch (e: any) {
