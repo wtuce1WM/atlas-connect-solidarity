@@ -4365,7 +4365,7 @@ const SearchPage = () => {
                     </div>
                   </div>
                   {(() => {
-                    const total = totalCount ?? filteredBusinesses.length;
+                    const total = fsFilteredList?.length ?? totalCount ?? filteredBusinesses.length;
                     if (total <= 20) return null;
                     return (
                       <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2">
