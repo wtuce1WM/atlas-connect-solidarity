@@ -5175,6 +5175,12 @@ const SearchPage = () => {
                   base = base.filter(p => ((p as any).subcategories as string[] | null | undefined)?.[0] === mobilePoiSubcat);
                 }
                 const uc = geo.isEnabled && geo.coords ? geo.coords : null;
+                if (activeTab === "poi" && uc && mobilePoiProximityKm) {
+                  base = base.filter(p => {
+                    if (p.latitude == null || p.longitude == null) return false;
+                    return haversineKm(uc.lat, uc.lng, p.latitude, p.longitude) <= mobilePoiProximityKm;
+                  });
+                }
                 if (activeTab !== "suggestions" || !uc || !mobileProximityKm) return base;
                 return base.filter(p => {
                   if (p.latitude == null || p.longitude == null) return false;
