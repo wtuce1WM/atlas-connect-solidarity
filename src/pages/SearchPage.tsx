@@ -335,6 +335,7 @@ const SearchPage = () => {
   const [mobileFsServices, setMobileFsServices] = useState<string[]>([]);
   const [showAllSearchMarkers, setShowAllSearchMarkers] = useState(false);
   const [mobileProximityKm, setMobileProximityKm] = useState<number | null>(null);
+  const [mobilePoiSubcat, setMobilePoiSubcat] = useState<string | null>(null);
   const autoMobileFsLabelKeyRef = useRef<string | null>(null);
 
   // Reset front structure filter when search query changes
