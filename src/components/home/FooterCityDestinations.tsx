@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CITIES, type City } from "@/lib/homeHelpers";
 import { TabScrollRail, TabVideoCard } from "@/components/BottomTabsCarousel";
-import { n as getVideoInfo } from "@/lib/overlayConstants";
+import { getVideoInfo } from "@/lib/overlayConstants";
 import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
 
 interface Props {
