@@ -34,7 +34,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash, Heart, Bot, Send, Play, Pause } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash, Heart, Bot, Send, Play, Pause, Navigation } from "lucide-react";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 import ShareButton from "@/components/ShareButton";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
@@ -334,6 +334,7 @@ const SearchPage = () => {
   const [mobileFsSubId, setMobileFsSubId] = useState<string | null>(null);
   const [mobileFsServices, setMobileFsServices] = useState<string[]>([]);
   const [showAllSearchMarkers, setShowAllSearchMarkers] = useState(false);
+  const [mobileProximityKm, setMobileProximityKm] = useState<number | null>(null);
   const autoMobileFsLabelKeyRef = useRef<string | null>(null);
 
   // Reset front structure filter when search query changes
@@ -345,6 +346,7 @@ const SearchPage = () => {
     setMobileFsSubId(null);
     setMobileFsServices([]);
     setShowAllSearchMarkers(false);
+    setMobileProximityKm(null);
   }, [searchQuery]);
 
   // Default to "Top 20" whenever the FS subcategory filter changes
@@ -4893,9 +4895,42 @@ const SearchPage = () => {
                     setFsFilterSubcategories(new Set(sub?.names || activeFsTab.subcategoryNames));
                   }
                 };
-                if (!showToggle && subs.length === 0) return null;
+                const applyTab = (tabId: string) => {
+                  const tab = mobileFrontTabs.find(t => t.id === tabId);
+                  if (!tab) return;
+                  setMobileFsTabId(tabId);
+                  setMobileFsSubId(null);
+                  setMobileFsServices([]);
+                  setFsFilterSubcategories(new Set(tab.subcategoryNames));
+                  setFsFilterServices(null);
+                };
+
+                const userCoords = geo.isEnabled && geo.coords ? geo.coords : null;
+                const proxOpts: { km: number; label: string }[] = [
+                  { km: 0.5, label: "Moins de 500 m" },
+                  { km: 1, label: "Moins de 1 km" },
+                  { km: 5, label: "Moins de 5 km" },
+                  { km: 10, label: "Moins de 10 km" },
+                ];
+                const proxActiveOpt = proxOpts.find(o => o.km === mobileProximityKm);
+                const proximityActive = !!(userCoords && mobileProximityKm);
+                const proxCountsByKm: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
+                if (userCoords) {
+                  for (const p of mobileMapPoiItemsFinal) {
+                    if (p.latitude == null || p.longitude == null) continue;
+                    const d = haversineKm(userCoords.lat, userCoords.lng, p.latitude, p.longitude);
+                    if (d <= 0.5) proxCountsByKm[0.5]++;
+                    if (d <= 1) proxCountsByKm[1]++;
+                    if (d <= 5) proxCountsByKm[5]++;
+                    if (d <= 10) proxCountsByKm[10]++;
+                  }
+                }
+                const proxHasAny = userCoords && (proxCountsByKm[10] ?? 0) > 0;
+
+                const showCatFallback = !activeFsTab && mobileFrontTabs.length > 0;
+                if (!showToggle && subs.length === 0 && !showCatFallback && !proxHasAny) return null;
                 return (
-                  <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2">
+                  <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2 flex-wrap">
                     {showToggle && (
                       <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                         <button
@@ -4941,6 +4976,70 @@ const SearchPage = () => {
                         </DropdownMenu>
                       </div>
                     )}
+                    {showCatFallback && (
+                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors text-white/80 hover:text-white"
+                            >
+                              <SlidersHorizontal className="h-3.5 w-3.5" />
+                              Catégorie
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="z-[210] max-h-80 overflow-y-auto">
+                            {mobileFrontTabs.map((ft) => (
+                              <DropdownMenuItem key={ft.id} onSelect={() => applyTab(ft.id)}>
+                                {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
+                    {proxHasAny && (
+                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                            >
+                              <Navigation className="h-3.5 w-3.5" />
+                              {proxActiveOpt ? proxActiveOpt.label : "À proximité"}
+                              {proximityActive && (
+                                <span className="ml-0.5 opacity-70">{proxCountsByKm[mobileProximityKm!] ?? 0}</span>
+                              )}
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="z-[210]">
+                            {mobileProximityKm != null && (
+                              <DropdownMenuItem onSelect={() => setMobileProximityKm(null)}>
+                                Toutes distances
+                              </DropdownMenuItem>
+                            )}
+                            {proxOpts.map(o => {
+                              const count = proxCountsByKm[o.km] ?? 0;
+                              const disabled = count === 0;
+                              return (
+                                <DropdownMenuItem
+                                  key={o.km}
+                                  disabled={disabled}
+                                  onSelect={(e) => {
+                                    if (disabled) { e.preventDefault(); return; }
+                                    setMobileProximityKm(o.km);
+                                  }}
+                                  className={disabled ? "opacity-40 pointer-events-none" : ""}
+                                >
+                                  {o.label} <span className="ml-1 opacity-60">({count})</span>
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
@@ -4957,7 +5056,15 @@ const SearchPage = () => {
           {/* Map — full height */}
           <div className="w-full h-full relative">
             <PoiGoogleMap
-              pois={activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItemsFinal}
+              pois={(() => {
+                const base = activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItemsFinal;
+                const uc = geo.isEnabled && geo.coords ? geo.coords : null;
+                if (activeTab !== "suggestions" || !uc || !mobileProximityKm) return base;
+                return base.filter(p => {
+                  if (p.latitude == null || p.longitude == null) return false;
+                  return haversineKm(uc.lat, uc.lng, p.latitude, p.longitude) <= mobileProximityKm;
+                });
+              })()}
               selectedPoiId={activeTab === "poi" ? (hoveredPoiId || null) : activeTab === "destinations" ? (hoveredDestId || null) : (hoveredResultId || compactPanelBusiness?.id || fsTopBusinessId || null)}
               onPoiClick={(poiId) => {
                 if (activeTab === "poi" || activeTab === "destinations") {
