@@ -62,7 +62,8 @@ const PoiTabContent = ({
   useEffect(() => { onPanelOpenChange?.(!!poiSelectedBusinessId); }, [poiSelectedBusinessId, onPanelOpenChange]);
   const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
   const [poiSubcat, setPoiSubcat] = useState<string | null>(null);
-  useEffect(() => { setPoiSubcat(null); }, [poiCity]);
+  const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
+  useEffect(() => { setPoiSubcat(null); setPoiProximityKm(null); }, [poiCity]);
 
   const subcatCounts = useMemo(() => {
     const m = new Map<string, number>();
@@ -75,10 +76,45 @@ const PoiTabContent = ({
     return Array.from(m.entries()).sort((a, b) => a[0].localeCompare(b[0], "fr"));
   }, [allPois]);
 
+  const proxOpts = useMemo(
+    () => [
+      { km: 0.5, label: "Moins de 500 m" },
+      { km: 1, label: "Moins de 1 km" },
+      { km: 5, label: "Moins de 5 km" },
+      { km: 10, label: "Moins de 10 km" },
+    ],
+    []
+  );
+  const proxCountsByKm = useMemo(() => {
+    const counts: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
+    if (!userCoords) return counts;
+    for (const p of allPois) {
+      if (p.latitude == null || p.longitude == null) continue;
+      const d = haversineKm(userCoords.lat, userCoords.lng, p.latitude, p.longitude);
+      if (d <= 0.5) counts[0.5]++;
+      if (d <= 1) counts[1]++;
+      if (d <= 5) counts[5]++;
+      if (d <= 10) counts[10]++;
+    }
+    return counts;
+  }, [allPois, userCoords]);
+  const proxHasAny = !!userCoords && (proxCountsByKm[10] ?? 0) > 0;
+  const proxActiveOpt = proxOpts.find(o => o.km === poiProximityKm);
+  const proximityActive = !!(userCoords && poiProximityKm);
+
   const filteredPois = useMemo(() => {
-    if (!poiSubcat) return allPois;
-    return allPois.filter((p) => ((p as any).subcategories as string[] | null | undefined)?.[0] === poiSubcat);
-  }, [allPois, poiSubcat]);
+    let list = allPois;
+    if (poiSubcat) {
+      list = list.filter((p) => ((p as any).subcategories as string[] | null | undefined)?.[0] === poiSubcat);
+    }
+    if (userCoords && poiProximityKm) {
+      list = list.filter((p) => {
+        if (p.latitude == null || p.longitude == null) return false;
+        return haversineKm(userCoords.lat, userCoords.lng, p.latitude, p.longitude) <= poiProximityKm;
+      });
+    }
+    return list;
+  }, [allPois, poiSubcat, poiProximityKm, userCoords]);
 
   const [poiMapBusiness, setPoiMapBusiness] = useState<{
     name: string;
