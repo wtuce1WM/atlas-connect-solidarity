@@ -335,6 +335,7 @@ const SearchPage = () => {
   const [mobileFsServices, setMobileFsServices] = useState<string[]>([]);
   const [showAllSearchMarkers, setShowAllSearchMarkers] = useState(false);
   const [mobileProximityKm, setMobileProximityKm] = useState<number | null>(null);
+  const [mobilePoiSubcat, setMobilePoiSubcat] = useState<string | null>(null);
   const autoMobileFsLabelKeyRef = useRef<string | null>(null);
 
   // Reset front structure filter when search query changes
@@ -5046,18 +5047,70 @@ const SearchPage = () => {
             </div>
 
           ) : (
-            <button
-              onClick={() => setShowMobileMap(false)}
-              className="absolute top-3 left-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <>
+              <button
+                onClick={() => setShowMobileMap(false)}
+                className="absolute top-3 left-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              {activeTab === "poi" && (() => {
+                const counts = new globalThis.Map<string, number>();
+                for (const p of allPois) {
+                  const subs = (p as any).subcategories as string[] | null | undefined;
+                  if (!subs) continue;
+                  for (const s of subs) {
+                    const k = (s ?? "").trim();
+                    if (!k) continue;
+                    counts.set(k, (counts.get(k) ?? 0) + 1);
+                  }
+                }
+                const entries = Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "fr"));
+                if (entries.length === 0) return null;
+                const filteredCount = mobilePoiSubcat
+                  ? allPois.filter(p => ((p as any).subcategories as string[] | null | undefined)?.includes(mobilePoiSubcat)).length
+                  : allPois.length;
+                return (
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60]">
+                    <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${mobilePoiSubcat ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
+                          >
+                            <SlidersHorizontal className="h-3.5 w-3.5" />
+                            {mobilePoiSubcat ?? "Attractions"}
+                            {mobilePoiSubcat && <span className="ml-0.5 opacity-70">{filteredCount}</span>}
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="center" className="z-[210] max-h-80 overflow-y-auto">
+                          {mobilePoiSubcat && (
+                            <DropdownMenuItem onSelect={() => setMobilePoiSubcat(null)}>
+                              Toutes les attractions <span className="ml-1 opacity-60">({allPois.length})</span>
+                            </DropdownMenuItem>
+                          )}
+                          {entries.map(([name, count]) => (
+                            <DropdownMenuItem key={name} onSelect={() => setMobilePoiSubcat(name)}>
+                              {name} <span className="ml-1 opacity-60">({count})</span>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                );
+              })()}
+            </>
           )}
           {/* Map — full height */}
           <div className="w-full h-full relative">
             <PoiGoogleMap
               pois={(() => {
-                const base = activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItemsFinal;
+                let base = activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItemsFinal;
+                if (activeTab === "poi" && mobilePoiSubcat) {
+                  base = base.filter(p => ((p as any).subcategories as string[] | null | undefined)?.includes(mobilePoiSubcat));
+                }
                 const uc = geo.isEnabled && geo.coords ? geo.coords : null;
                 if (activeTab !== "suggestions" || !uc || !mobileProximityKm) return base;
                 return base.filter(p => {

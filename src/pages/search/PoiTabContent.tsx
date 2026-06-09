@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Map, X } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Map as MapIcon, X, SlidersHorizontal } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import PoiSection from "@/components/PoiSection";
 import PoiGoogleMap from "@/components/PoiGoogleMap";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
@@ -59,6 +60,28 @@ const PoiTabContent = ({
   const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
   useEffect(() => { onPanelOpenChange?.(!!poiSelectedBusinessId); }, [poiSelectedBusinessId, onPanelOpenChange]);
   const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
+  const [poiSubcat, setPoiSubcat] = useState<string | null>(null);
+  useEffect(() => { setPoiSubcat(null); }, [poiCity]);
+
+  const subcatCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of allPois) {
+      const subs = (p as any).subcategories as string[] | null | undefined;
+      if (!subs) continue;
+      for (const s of subs) {
+        const k = (s ?? "").trim();
+        if (!k) continue;
+        m.set(k, (m.get(k) ?? 0) + 1);
+      }
+    }
+    return Array.from(m.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "fr"));
+  }, [allPois]);
+
+  const filteredPois = useMemo(() => {
+    if (!poiSubcat) return allPois;
+    return allPois.filter((p) => ((p as any).subcategories as string[] | null | undefined)?.includes(poiSubcat));
+  }, [allPois, poiSubcat]);
+
   const [poiMapBusiness, setPoiMapBusiness] = useState<{
     name: string;
     latitude: number | null;
@@ -90,7 +113,7 @@ const PoiTabContent = ({
                 onClick={() => setShowMobileMap(true)}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
               >
-                <Map className="h-4 w-4" />
+                <MapIcon className="h-4 w-4" />
                 {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
               </button>
             )}
@@ -136,6 +159,7 @@ const PoiTabContent = ({
                     neighborhood: p.neighborhood,
                     avgOn20,
                     totalReviews,
+                    subcategories: p.categories ?? null,
                   };
                 })
               )
@@ -157,7 +181,7 @@ const PoiTabContent = ({
             <X className="h-4 w-4" />
           </button>
           <PoiGoogleMap
-            pois={allPois}
+            pois={filteredPois}
             selectedPoiId={null}
             hoveredPoiId={hoveredPoiId || null}
             onPoiClick={(poiId) => {
@@ -168,6 +192,36 @@ const PoiTabContent = ({
             fitToMarkers
             userLocation={userCoords ?? null}
           />
+          {subcatCounts.length > 0 && (
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60]">
+              <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcat ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
+                    >
+                      <SlidersHorizontal className="h-3.5 w-3.5" />
+                      {poiSubcat ?? "Attractions"}
+                      {poiSubcat && <span className="ml-0.5 opacity-70">{filteredPois.length}</span>}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="z-[210] max-h-80 overflow-y-auto">
+                    {poiSubcat && (
+                      <DropdownMenuItem onSelect={() => setPoiSubcat(null)}>
+                        Toutes les attractions <span className="ml-1 opacity-60">({allPois.length})</span>
+                      </DropdownMenuItem>
+                    )}
+                    {subcatCounts.map(([name, count]) => (
+                      <DropdownMenuItem key={name} onSelect={() => setPoiSubcat(name)}>
+                        {name} <span className="ml-1 opacity-60">({count})</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          )}
           <PanelSearchBar
             onSearch={onSearchNavigate}
             onBusinessSelect={onBusinessSelect}
