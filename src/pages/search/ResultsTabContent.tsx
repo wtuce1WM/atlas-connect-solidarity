@@ -75,6 +75,7 @@ export interface ResultsTabContentProps {
   effectiveCity?: string | null;
   onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
   onFrontStructureServicesFilter?: (services: Set<string> | null) => void;
+  onFrontStructureUserOverride?: (active: boolean) => void;
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
   allSearchMapBusinesses?: Business[];
@@ -132,6 +133,7 @@ export default function ResultsTabContent({
   effectiveCity,
   onFrontStructureFilter,
   onFrontStructureServicesFilter,
+  onFrontStructureUserOverride,
   fsTopBusinessId,
   allCityMapBusinesses,
   allSearchMapBusinesses,
@@ -256,6 +258,7 @@ export default function ResultsTabContent({
     setActiveFsSubId(null);
     setActiveFsServices([]);
     onFrontStructureServicesFilter?.(null);
+    onFrontStructureUserOverride?.(!!tabId);
     if (!tabId) {
       onFrontStructureFilter?.(allFsNames.size > 0 ? allFsNames : null);
     } else {
@@ -279,6 +282,7 @@ export default function ResultsTabContent({
     setActiveFsSubId(subId);
     setActiveFsServices([]);
     onFrontStructureServicesFilter?.(null);
+    onFrontStructureUserOverride?.(!!subId || !!activeFsTabId);
     const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
     if (!tab) return;
     if (!subId) {
@@ -302,6 +306,7 @@ export default function ResultsTabContent({
   const handleFsServicesChange = (svcs: string[]) => {
     setActiveFsServices(svcs);
     onFrontStructureServicesFilter?.(svcs.length > 0 ? new Set(svcs) : null);
+    onFrontStructureUserOverride?.(svcs.length > 0 || !!activeFsTabId || !!activeFsSubId);
     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
 
@@ -311,6 +316,7 @@ export default function ResultsTabContent({
     setActiveFsSubId(null);
     setActiveFsServices([]);
     onFrontStructureServicesFilter?.(null);
+    onFrontStructureUserOverride?.(false);
   }, [effectiveCity, searchQuery]);
 
   // Always constrain browse results to the front_structure scope when no specific

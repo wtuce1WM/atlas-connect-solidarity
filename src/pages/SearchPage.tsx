@@ -327,6 +327,9 @@ const SearchPage = () => {
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
   const [fsFilterServices, setFsFilterServices] = useState<Set<string> | null>(null);
+  // True quand l'utilisateur a explicitement choisi un filtre via l'overlay Filtres.
+  // Permet de bypasser le garde "ne filtre pas la grille quand l'URL porte des subcats".
+  const [fsUserOverride, setFsUserOverride] = useState(false);
   const [mobileFsTabId, setMobileFsTabId] = useState<string | null>(null);
   const [mobileFsSubId, setMobileFsSubId] = useState<string | null>(null);
   const [mobileFsServices, setMobileFsServices] = useState<string[]>([]);
@@ -337,6 +340,7 @@ const SearchPage = () => {
   useEffect(() => {
     setFsFilterSubcategories(null);
     setFsFilterServices(null);
+    setFsUserOverride(false);
     setMobileFsTabId(null);
     setMobileFsSubId(null);
     setMobileFsServices([]);
@@ -3332,7 +3336,7 @@ const SearchPage = () => {
   // applying a client-side FS filter on the loaded page would shrink the count
   // to the page size.
   const fsFilteredList = useMemo(() => {
-    if (subcategoryNamesFromUrl.length > 0) return null;
+    if (subcategoryNamesFromUrl.length > 0 && !fsUserOverride) return null;
     if (!fsFilterSubcategories && (!fsFilterServices || fsFilterServices.size === 0)) return null;
     // In pinIds mode, restrict FS filter to the pinned set and preserve pinIds order
     // (no re-sort). This keeps the grid in sync with the map toolbar pills.
@@ -3351,7 +3355,7 @@ const SearchPage = () => {
       businessMatchesFsServices(b)
     );
     return [...matches].sort(sortWtuceAndRating);
-  }, [subcategoryNamesFromUrl, pinIdsParam, fsFilterSubcategories, fsFilterServices, frontStructurePool, filteredBusinesses]);
+  }, [subcategoryNamesFromUrl, pinIdsParam, fsFilterSubcategories, fsFilterServices, fsUserOverride, frontStructurePool, filteredBusinesses]);
   const resultsFilteredBusinesses = fsFilteredList ?? filteredBusinesses;
   const fsTotalPages = fsFilteredList ? Math.max(1, Math.ceil(fsFilteredList.length / ITEMS_PER_PAGE)) : 1;
   const fsPageStart = fsFilteredList ? (currentPage - 1) * ITEMS_PER_PAGE : 0;
@@ -4812,6 +4816,7 @@ const SearchPage = () => {
               }
             }}
             onFrontStructureServicesFilter={(svcs) => setFsFilterServices(svcs)}
+            onFrontStructureUserOverride={(on) => setFsUserOverride(on)}
             fsTopBusinessId={fsTopBusinessId}
             hideAiSuggestion={false}
             allCityMapBusinesses={allCityMapBusinesses}
