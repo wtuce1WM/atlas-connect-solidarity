@@ -5064,38 +5064,103 @@ const SearchPage = () => {
                   counts.set(k, (counts.get(k) ?? 0) + 1);
                 }
                 const entries = Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0], "fr"));
-                if (entries.length === 0) return null;
                 const filteredCount = mobilePoiSubcat
                   ? allPois.filter(p => ((p as any).subcategories as string[] | null | undefined)?.[0] === mobilePoiSubcat).length
                   : allPois.length;
+                const uc = geo.isEnabled && geo.coords ? geo.coords : null;
+                const poiProxOpts = [
+                  { km: 0.5, label: "Moins de 500 m" },
+                  { km: 1, label: "Moins de 1 km" },
+                  { km: 5, label: "Moins de 5 km" },
+                  { km: 10, label: "Moins de 10 km" },
+                ];
+                const poiProxCounts: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
+                if (uc) {
+                  for (const p of allPois) {
+                    if (p.latitude == null || p.longitude == null) continue;
+                    const d = haversineKm(uc.lat, uc.lng, p.latitude, p.longitude);
+                    if (d <= 0.5) poiProxCounts[0.5]++;
+                    if (d <= 1) poiProxCounts[1]++;
+                    if (d <= 5) poiProxCounts[5]++;
+                    if (d <= 10) poiProxCounts[10]++;
+                  }
+                }
+                const poiProxHasAny = !!uc && (poiProxCounts[10] ?? 0) > 0;
+                const poiProxActiveOpt = poiProxOpts.find(o => o.km === mobilePoiProximityKm);
+                const poiProximityActive = !!(uc && mobilePoiProximityKm);
+                if (entries.length === 0 && !poiProxHasAny) return null;
                 return (
-                  <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60]">
-                    <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button
-                            type="button"
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${mobilePoiSubcat ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
-                          >
-                            <SlidersHorizontal className="h-3.5 w-3.5" />
-                            {mobilePoiSubcat ?? "Attractions"}
-                            {mobilePoiSubcat && <span className="ml-0.5 opacity-70">{filteredCount}</span>}
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="center" className="z-[210] max-h-80 overflow-y-auto">
-                          {mobilePoiSubcat && (
-                            <DropdownMenuItem onSelect={() => setMobilePoiSubcat(null)}>
-                              Toutes les attractions <span className="ml-1 opacity-60">({allPois.length})</span>
-                            </DropdownMenuItem>
-                          )}
-                          {entries.map(([name, count]) => (
-                            <DropdownMenuItem key={name} onSelect={() => setMobilePoiSubcat(name)}>
-                              {name} <span className="ml-1 opacity-60">({count})</span>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60] flex flex-wrap items-center justify-center gap-2">
+                    {entries.length > 0 && (
+                      <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${mobilePoiSubcat ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
+                            >
+                              <SlidersHorizontal className="h-3.5 w-3.5" />
+                              {mobilePoiSubcat ?? "Attractions"}
+                              {mobilePoiSubcat && <span className="ml-0.5 opacity-70">{filteredCount}</span>}
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="center" className="z-[210] max-h-80 overflow-y-auto">
+                            {mobilePoiSubcat && (
+                              <DropdownMenuItem onSelect={() => setMobilePoiSubcat(null)}>
+                                Toutes les attractions <span className="ml-1 opacity-60">({allPois.length})</span>
+                              </DropdownMenuItem>
+                            )}
+                            {entries.map(([name, count]) => (
+                              <DropdownMenuItem key={name} onSelect={() => setMobilePoiSubcat(name)}>
+                                {name} <span className="ml-1 opacity-60">({count})</span>
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
+                    {poiProxHasAny && (
+                      <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityActive ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
+                            >
+                              <Navigation className="h-3.5 w-3.5" />
+                              {poiProxActiveOpt ? poiProxActiveOpt.label : "À proximité"}
+                              {poiProximityActive && (
+                                <span className="ml-0.5 opacity-70">{poiProxCounts[mobilePoiProximityKm!] ?? 0}</span>
+                              )}
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="center" className="z-[210]">
+                            {mobilePoiProximityKm != null && (
+                              <DropdownMenuItem onSelect={() => setMobilePoiProximityKm(null)}>
+                                Toutes distances
+                              </DropdownMenuItem>
+                            )}
+                            {poiProxOpts.map(o => {
+                              const count = poiProxCounts[o.km] ?? 0;
+                              const disabled = count === 0;
+                              return (
+                                <DropdownMenuItem
+                                  key={o.km}
+                                  disabled={disabled}
+                                  onSelect={(e) => {
+                                    if (disabled) { e.preventDefault(); return; }
+                                    setMobilePoiProximityKm(o.km);
+                                  }}
+                                  className={disabled ? "opacity-40 pointer-events-none" : ""}
+                                >
+                                  {o.label} <span className="ml-1 opacity-60">({count})</span>
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
