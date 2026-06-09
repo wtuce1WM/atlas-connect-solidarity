@@ -19,8 +19,6 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [allVideos, setAllVideos] = useState<YouTubeVideo[]>([]);
-  const touchStartY = useRef<number | null>(null);
-  const touchStartX = useRef<number | null>(null);
 
   const goToOffset = useCallback((offset: number) => {
     if (!activeVideo || allVideos.length === 0) return;
@@ -30,36 +28,6 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
     if (next) onSelectVideo(next);
   }, [activeVideo, allVideos, onSelectVideo]);
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-    touchStartX.current = e.touches[0].clientX;
-  }, []);
-  const onTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (touchStartY.current === null || touchStartX.current === null) return;
-    const dy = e.changedTouches[0].clientY - touchStartY.current;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    touchStartY.current = null;
-    touchStartX.current = null;
-    const isSwipe = Math.abs(dy) >= 50 && Math.abs(dy) > Math.abs(dx);
-    if (isSwipe) {
-      // Swipe down → next (older), swipe up → previous (newer)
-      goToOffset(dy < 0 ? -1 : 1);
-      return;
-    }
-    // Tap → toggle play/pause via YouTube IFrame API (native controls are hidden under this overlay on mobile)
-    if (isPlaying) {
-      iframeRef.current?.contentWindow?.postMessage(
-        JSON.stringify({ event: "command", func: "pauseVideo", args: [] }),
-        "*"
-      );
-    } else {
-      iframeRef.current?.contentWindow?.postMessage(
-        JSON.stringify({ event: "command", func: "playVideo", args: [] }),
-        "*"
-      );
-    }
-    setIsPlaying((p) => !p);
-  }, [goToOffset, isPlaying]);
 
   const postCmd = useCallback((func: string, args: unknown[] = []) => {
     iframeRef.current?.contentWindow?.postMessage(
