@@ -190,13 +190,15 @@ const DestinationVideosPanelTab = () => {
       });
     });
 
-    // Deduplicate: 1 entité = 1 vignette.
-    // - business_documents: dedup par id (déjà unique)
-    // - generic_videos: dedup par generic_video_id (peut être lié à plusieurs destinations)
+    // Deduplicate par (entité, destination) : ici chaque assignation à une destination
+    // est une ligne distincte avec son propre sort_order, on ne doit PAS fusionner
+    // les destinations d'une même vidéo générique.
     const combinedRaw = [...allDocs.map(d => ({ ...d, _source: "document" as const })), ...genericDocs];
     const seenKeys = new Set<string>();
     const combined = combinedRaw.filter(d => {
-      const key = d._source === "generic" ? `gv-${d.business_id}` : `doc-${d.id}`;
+      const key = d._source === "generic"
+        ? `gv-${d.business_id}-${d.destination_id}`
+        : `doc-${d.id}`;
       if (seenKeys.has(key)) return false;
       seenKeys.add(key);
       return true;
