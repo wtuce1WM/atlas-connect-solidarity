@@ -21,6 +21,8 @@
     <meta name="twitter:title" content="Villa Maya – Essaouira | ONE WORLD MOROCCO" />
     <meta name="twitter:description" content="Découvrez Villa Maya, une somptueuse propriété en pierre qui saura vous charmer. Entièrement rénovée, cette villa dispose de 11 chambres et se situe près des ma" />
     <meta name="twitter:image" content="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6ca0d188-d61b-4ca7-b6ba-ff78058bc1a1-1780949294074-l0mah.webp" />
+
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"Villa Maya","url":"https://oneworldmorocco.com/villa-maya","image":"https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6ca0d188-d61b-4ca7-b6ba-ff78058bc1a1-1780949294074-l0mah.webp","description":"Découvrez Villa Maya, une somptueuse propriété en pierre qui saura vous charmer. Entièrement rénovée, cette villa dispose de 11 chambres et se situe près des ma","sameAs":["https://www.villamayasidikaouki.com/"],"geo":{"@type":"GeoCoordinates","latitude":31.3638916,"longitude":-9.7398138},"aggregateRating":{"@type":"AggregateRating","ratingValue":4.9,"bestRating":5,"reviewCount":75}}</script>
   </head>
   <body style="background-color:#faf8f5;margin:0">
     <script>
@@ -28,7 +30,16 @@
         var ua = navigator.userAgent || "";
         var isPreviewBot = /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Pinterest|Discordbot|Googlebot|bingbot/i.test(ua);
         if (isPreviewBot) return;
-        window.location.replace("/search?openBusiness=6ca0d188-d61b-4ca7-b6ba-ff78058bc1a1&pinIds=6ca0d188-d61b-4ca7-b6ba-ff78058bc1a1&q=Villa%20Maya&t=Essaouira");
+        fetch("/index.html", { cache: "no-store" })
+          .then(function (response) { return response.text(); })
+          .then(function (html) {
+            document.open();
+            document.write(html);
+            document.close();
+          })
+          .catch(function () {
+            window.location.replace("/search?openBusiness=6ca0d188-d61b-4ca7-b6ba-ff78058bc1a1&pinIds=6ca0d188-d61b-4ca7-b6ba-ff78058bc1a1&q=Villa%20Maya&t=Essaouira");
+          });
       })();
     </script>
     <noscript>
