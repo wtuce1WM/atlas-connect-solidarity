@@ -271,12 +271,12 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
           const isActive = activeVideoId === video.videoId;
           const isMatchTabs = size === "match-tabs";
           const thumbClass = isMatchTabs
-            ? (isShort ? "w-44 h-[10rem] md:h-[13rem] lg:h-[17rem]" : "w-60 md:w-72 lg:w-80 h-[7.5rem] md:h-[10rem] lg:h-[11.5rem]")
-            : (isShort ? "w-40 h-[6rem] md:h-[9rem] lg:h-[13rem]" : "w-52 md:w-60 lg:w-64 h-[6rem] md:h-[8rem] lg:h-[9rem]");
+            ? (isShort ? "w-32 md:w-44 h-[10rem] md:h-[13rem] lg:h-[17rem]" : "w-60 md:w-72 lg:w-80 h-[7.5rem] md:h-[10rem] lg:h-[11.5rem]")
+            : (isShort ? "w-28 md:w-40 h-[6rem] md:h-[9rem] lg:h-[13rem]" : "w-52 md:w-60 lg:w-64 h-[6rem] md:h-[8rem] lg:h-[9rem]");
           return (
               <div
                 key={video.videoId}
-                className={`flex-shrink-0 cursor-pointer group/card ${isMatchTabs ? (isShort ? "w-44" : "w-60 md:w-72 lg:w-80") : ""}`}
+                className={`flex-shrink-0 cursor-pointer group/card ${isMatchTabs ? (isShort ? "w-32 md:w-44" : "w-60 md:w-72 lg:w-80") : ""}`}
                 onClick={() => onPlay(video)}
               >
                 <div className={`rounded-xl overflow-hidden relative transition-all ${thumbClass} ${isActive ? "ring-2 ring-offset-1 ring-offset-black ring-red-500" : ""}`}>
