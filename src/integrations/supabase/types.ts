@@ -2894,6 +2894,8 @@ export type Database = {
           icon: string
           id: string
           image_url: string | null
+          metric_title: string | null
+          metric_value: string | null
           section_intro: string | null
           section_title: string | null
           sort_order: number
@@ -2907,6 +2909,8 @@ export type Database = {
           icon?: string
           id?: string
           image_url?: string | null
+          metric_title?: string | null
+          metric_value?: string | null
           section_intro?: string | null
           section_title?: string | null
           sort_order?: number
@@ -2920,6 +2924,8 @@ export type Database = {
           icon?: string
           id?: string
           image_url?: string | null
+          metric_title?: string | null
+          metric_value?: string | null
           section_intro?: string | null
           section_title?: string | null
           sort_order?: number
