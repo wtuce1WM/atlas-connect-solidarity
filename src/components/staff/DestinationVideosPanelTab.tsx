@@ -308,19 +308,20 @@ const DestinationVideosPanelTab = () => {
     if (selectedDest !== ALL) {
       result = result.filter(v => v.destination_id === selectedDest);
     }
-    return result;
+    return [...result].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   }, [cityFilteredVideos, selectedDest]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    setVideos(prev => {
-      const oldIndex = prev.findIndex(v => v.id === active.id);
-      const newIndex = prev.findIndex(v => v.id === over.id);
-      if (oldIndex < 0 || newIndex < 0) return prev;
-      return arrayMove(prev, oldIndex, newIndex);
-    });
+    const oldIndex = filteredVideos.findIndex(v => v.id === active.id);
+    const newIndex = filteredVideos.findIndex(v => v.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const reordered = arrayMove(filteredVideos, oldIndex, newIndex);
+    const newOrder = new Map(reordered.map((v, i) => [v.id, i]));
+    setVideos(prev => prev.map(v => newOrder.has(v.id) ? { ...v, sort_order: newOrder.get(v.id)! } : v));
   };
+
 
   const saveOrder = async () => {
     if (selectedDest === ALL) {
