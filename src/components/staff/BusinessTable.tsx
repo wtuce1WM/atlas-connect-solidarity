@@ -314,6 +314,18 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                     >
                       Fiche <ExternalLink className="h-3 w-3" />
                     </a>
+                    {(vanityMap[business.id] || []).map((slug) => (
+                      <a
+                        key={slug}
+                        href={`/${slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`Vanity URL: /${slug}`}
+                        className="text-[11px] text-muted-foreground hover:text-primary hover:underline inline-flex items-center gap-1 leading-tight"
+                      >
+                        /{slug}
+                      </a>
+                    ))}
                   </div>
                 </TableCell>
                 <TableCell>
