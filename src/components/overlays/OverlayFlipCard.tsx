@@ -167,10 +167,21 @@ const OverlayFlipCard = ({
                             </h4>
                           )}
                         </div>
+                        {(h.metric_title || h.metric_value) && (
+                          <div className="flex items-baseline gap-2">
+                            {h.metric_value && (
+                              <span className="text-lg font-bold text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{h.metric_value}</span>
+                            )}
+                            {h.metric_title && (
+                              <span className="text-[10px] uppercase tracking-[0.1em] text-white/70">{h.metric_title}</span>
+                            )}
+                          </div>
+                        )}
                         {h.description && (
-                          <p className="text-xs text-white/80 leading-relaxed font-['Roboto',sans-serif]">
-                            {h.description}
-                          </p>
+                          <div
+                            className="text-xs text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-xs max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
+                            dangerouslySetInnerHTML={{ __html: h.description }}
+                          />
                         )}
                       </div>
                     ))}
