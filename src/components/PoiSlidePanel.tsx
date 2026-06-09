@@ -153,7 +153,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
     (async () => {
       const { data } = await supabase
         .from("front_highlights")
-        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro")
+        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro, metric_title, metric_value")
         .eq("business_id", businessId)
         .order("sort_order");
       if (cancelled || !data) return;
@@ -161,6 +161,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
       setHighlights(rows.map(r => ({
         id: r.id, icon: r.icon, title: r.title || "", description: r.description || "",
         image_url: r.image_url, sort_order: r.sort_order,
+        metric_title: r.metric_title || null, metric_value: r.metric_value || null,
       })));
       setHighlightsSection({
         title: rows[0]?.section_title || null,
