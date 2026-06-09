@@ -71,7 +71,7 @@ const PoiTabContent = ({
       if (!k) continue;
       m.set(k, (m.get(k) ?? 0) + 1);
     }
-    return Array.from(m.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "fr"));
+    return Array.from(m.entries()).sort((a, b) => a[0].localeCompare(b[0], "fr"));
   }, [allPois]);
 
   const filteredPois = useMemo(() => {

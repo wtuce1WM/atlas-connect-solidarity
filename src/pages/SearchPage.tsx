@@ -5062,7 +5062,7 @@ const SearchPage = () => {
                   if (!k) continue;
                   counts.set(k, (counts.get(k) ?? 0) + 1);
                 }
-                const entries = Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "fr"));
+                const entries = Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0], "fr"));
                 if (entries.length === 0) return null;
                 const filteredCount = mobilePoiSubcat
                   ? allPois.filter(p => ((p as any).subcategories as string[] | null | undefined)?.[0] === mobilePoiSubcat).length
