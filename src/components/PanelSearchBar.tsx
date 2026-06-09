@@ -133,17 +133,17 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
         className="group shrink-0 flex flex-col items-center justify-end gap-1 px-1.5 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
       >
         <span
-          className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors ${
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
             active
-              ? "bg-[#C04F17] group-hover:bg-[#C04F17]/90"
+              ? "bg-[#C04F17] text-white group-hover:bg-[#C04F17]/90"
               : isMedia
-                ? "bg-white/10 ring-1 ring-white/30 backdrop-blur-sm group-hover:bg-white/20"
-                : "bg-black/60 group-hover:bg-black/75"
+                ? "bg-white/90 text-black ring-1 ring-white shadow-[0_2px_10px_rgba(0,0,0,0.35)] backdrop-blur-md group-hover:bg-white"
+                : "bg-black/60 text-white group-hover:bg-black/75"
           }`}
         >
           {icon}
         </span>
-        <span className={`text-[11px] font-bold tracking-wider leading-none font-['Roboto',sans-serif] ${isMedia ? "text-white/70" : "text-white"}`}>{label}</span>
+        <span className={`text-[11px] font-bold tracking-wider leading-none font-['Roboto',sans-serif] ${isMedia ? "text-white/80 uppercase" : "text-white"}`}>{label}</span>
       </button>
     );
   };
