@@ -202,6 +202,9 @@ const DestinationsTabContent = ({
               destinationId={selectedDestination.id}
               onClose={() => setSelectedDestination(null)}
               slideFrom="right"
+              showSearchBar
+              onSearch={onSearchNavigate}
+              onSearchBusinessSelect={onBusinessSelect}
               hasPrevDestination={hasPrev}
               hasNextDestination={hasNext}
               onPrevDestination={hasPrev ? () => setSelectedDestination(allDestItems[idx - 1]) : undefined}
