@@ -1,0 +1,1 @@
+ALTER TABLE public.front_highlights ADD COLUMN IF NOT EXISTS metric_title text, ADD COLUMN IF NOT EXISTS metric_value text;

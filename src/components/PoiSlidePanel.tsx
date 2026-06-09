@@ -103,7 +103,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
-  const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null; sort_order: number }[]>([]);
+  const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null; sort_order: number; metric_title: string | null; metric_value: string | null }[]>([]);
   const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null }>({ title: null, intro: null });
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -153,7 +153,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
     (async () => {
       const { data } = await supabase
         .from("front_highlights")
-        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro")
+        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro, metric_title, metric_value")
         .eq("business_id", businessId)
         .order("sort_order");
       if (cancelled || !data) return;
@@ -161,6 +161,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
       setHighlights(rows.map(r => ({
         id: r.id, icon: r.icon, title: r.title || "", description: r.description || "",
         image_url: r.image_url, sort_order: r.sort_order,
+        metric_title: r.metric_title || null, metric_value: r.metric_value || null,
       })));
       setHighlightsSection({
         title: rows[0]?.section_title || null,

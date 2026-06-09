@@ -2,12 +2,12 @@ import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "re
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Loader2, Sparkles, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import IconPicker from "./IconPicker";
 import DynamicIcon from "@/components/DynamicIcon";
+import RichTextEditor from "./RichTextEditor";
 
 interface Highlight {
   id: string;
@@ -19,6 +19,8 @@ interface Highlight {
   section_title: string | null;
   section_intro: string | null;
   image_url: string | null;
+  metric_title: string | null;
+  metric_value: string | null;
 }
 
 interface FrontHighlightsEditorProps {
@@ -31,6 +33,11 @@ export interface FrontHighlightsEditorHandle {
 
 const TOTAL_BLOCKS = 6;
 const DEFAULT_ICONS = ["Sparkles", "Star", "Heart", "MapPin", "Award", "Gem"];
+const MAX_RICH = 1000;
+const MAX_METRIC = 50;
+
+const plainLen = (html: string) =>
+  (html || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim().length;
 
 const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighlightsEditorProps>(
   ({ businessId }, ref) => {
@@ -134,16 +141,20 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
         .update({
           icon: h.icon,
           title: h.title,
-          description: h.description.slice(0, 500),
+          description: h.description || "",
           section_title: sectionTitle,
-          section_intro: sectionIntro.slice(0, 500),
+          section_intro: sectionIntro,
           image_url: h.image_url,
-        })
+          metric_title: (h.metric_title || "").slice(0, MAX_METRIC) || null,
+          metric_value: (h.metric_value || "").slice(0, MAX_METRIC) || null,
+        } as any)
         .eq("id", h.id);
     }
   };
 
   useImperativeHandle(ref, () => ({ save: handleSave }), [highlights, sectionTitle, sectionIntro]);
+
+  const introLen = plainLen(sectionIntro);
 
   return (
     <Card>
@@ -178,24 +189,26 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
 
               <div className="space-y-2">
                 <label className="text-xs font-medium text-muted-foreground">
-                  Texte d'introduction ({sectionIntro.length}/500)
+                  Texte d'introduction
                 </label>
-                <Textarea
-                  value={sectionIntro}
-                  onChange={(e) => {
-                    if (e.target.value.length <= 500) setSectionIntro(e.target.value);
-                  }}
-                  placeholder="Texte d'introduction (max 500 caractères)"
-                  className="text-sm min-h-[80px] resize-none"
-                  maxLength={500}
+                <RichTextEditor
+                  content={sectionIntro}
+                  onChange={setSectionIntro}
+                  placeholder="Texte d'introduction (max 1000 caractères)"
+                  maxHeight="300px"
                 />
+                <p className={`text-xs text-right ${introLen > MAX_RICH ? "text-destructive font-bold" : "text-muted-foreground"}`}>
+                  {introLen}/{MAX_RICH}{introLen > MAX_RICH && " ⚠ Limite dépassée"}
+                </p>
               </div>
 
               <p className="text-sm text-muted-foreground">
                 Configurez jusqu'à {TOTAL_BLOCKS} blocs mettant en avant les points forts de cette fiche.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {highlights.map((h, i) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {highlights.map((h, i) => {
+                  const descLen = plainLen(h.description || "");
+                  return (
                   <div key={h.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground font-medium">#{i + 1}</span>
@@ -263,22 +276,50 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
                       />
                     </div>
 
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                          Titre métrique ({(h.metric_title || "").length}/{MAX_METRIC})
+                        </label>
+                        <Input
+                          value={h.metric_title || ""}
+                          onChange={(e) => updateField(i, "metric_title", e.target.value.slice(0, MAX_METRIC))}
+                          placeholder="Ex: Satisfaction"
+                          className="h-8 text-sm"
+                          maxLength={MAX_METRIC}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                          Valeur ({(h.metric_value || "").length}/{MAX_METRIC})
+                        </label>
+                        <Input
+                          value={h.metric_value || ""}
+                          onChange={(e) => updateField(i, "metric_value", e.target.value.slice(0, MAX_METRIC))}
+                          placeholder="Ex: 98%"
+                          className="h-8 text-sm"
+                          maxLength={MAX_METRIC}
+                        />
+                      </div>
+                    </div>
+
                     <div>
                       <label className="text-xs font-medium text-muted-foreground mb-1 block">
-                        Texte ({h.description?.length || 0}/500)
+                        Texte
                       </label>
-                      <Textarea
-                        value={h.description || ""}
-                        onChange={(e) => {
-                          if (e.target.value.length <= 500) updateField(i, "description", e.target.value);
-                        }}
-                        placeholder="Description (max 500 caractères)"
-                        className="text-sm min-h-[100px] resize-none"
-                        maxLength={500}
+                      <RichTextEditor
+                        content={h.description || ""}
+                        onChange={(html) => updateField(i, "description", html)}
+                        placeholder="Description (max 1000 caractères)"
+                        maxHeight="280px"
                       />
+                      <p className={`text-xs text-right ${descLen > MAX_RICH ? "text-destructive font-bold" : "text-muted-foreground"}`}>
+                        {descLen}/{MAX_RICH}{descLen > MAX_RICH && " ⚠ Limite dépassée"}
+                      </p>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

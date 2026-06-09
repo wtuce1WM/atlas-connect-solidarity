@@ -337,7 +337,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [showExternalVideosOverlay, setShowExternalVideosOverlay] = useState(false);
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
-  const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null }[]>([]);
+  const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null }[]>([]);
   const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null }>({ title: null, intro: null });
 
   useEffect(() => {
@@ -346,12 +346,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     (async () => {
       const { data } = await supabase
         .from("front_highlights")
-        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro")
+        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro, metric_title, metric_value")
         .eq("business_id", businessId)
         .order("sort_order");
       if (cancelled || !data) return;
       const rows = data as any[];
-      setHighlights(rows.map(r => ({ id: r.id, icon: r.icon, title: r.title || "", description: r.description || "", image_url: r.image_url })));
+      setHighlights(rows.map(r => ({ id: r.id, icon: r.icon, title: r.title || "", description: r.description || "", image_url: r.image_url, metric_title: r.metric_title || null, metric_value: r.metric_value || null })));
       setHighlightsSection({ title: rows[0]?.section_title || null, intro: rows[0]?.section_intro || null });
     })();
     return () => { cancelled = true; };
@@ -1868,9 +1868,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                               </h3>
                             )}
                             {highlightsSection.intro && (
-                              <p className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif]">
-                                {highlightsSection.intro}
-                              </p>
+                              <div
+                                className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
+                                dangerouslySetInnerHTML={{ __html: highlightsSection.intro }}
+                              />
                             )}
                           </div>
                         )}
@@ -1890,10 +1891,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                                   </h4>
                                 )}
                               </div>
+                              {(h.metric_title || h.metric_value) && (
+                                <div className="flex items-baseline gap-2">
+                                  {h.metric_value && (
+                                    <span className="text-lg font-bold text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{h.metric_value}</span>
+                                  )}
+                                  {h.metric_title && (
+                                    <span className="text-[10px] uppercase tracking-[0.1em] text-white/70">{h.metric_title}</span>
+                                  )}
+                                </div>
+                              )}
                               {h.description && (
-                                <p className="text-xs text-white/80 leading-relaxed font-['Roboto',sans-serif]">
-                                  {h.description}
-                                </p>
+                                <div
+                                  className="text-xs text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-xs max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
+                                  dangerouslySetInnerHTML={{ __html: h.description }}
+                                />
                               )}
                             </div>
                           ))}
