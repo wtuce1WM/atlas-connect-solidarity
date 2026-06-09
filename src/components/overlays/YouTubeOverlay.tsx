@@ -40,10 +40,26 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     touchStartY.current = null;
     touchStartX.current = null;
-    if (Math.abs(dy) < 50 || Math.abs(dx) > Math.abs(dy)) return;
-    // Swipe down → next (older), swipe up → previous (newer)
-    goToOffset(dy < 0 ? -1 : 1);
-  }, [goToOffset]);
+    const isSwipe = Math.abs(dy) >= 50 && Math.abs(dy) > Math.abs(dx);
+    if (isSwipe) {
+      // Swipe down → next (older), swipe up → previous (newer)
+      goToOffset(dy < 0 ? -1 : 1);
+      return;
+    }
+    // Tap → toggle play/pause via YouTube IFrame API (native controls are hidden under this overlay on mobile)
+    if (isPlaying) {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "pauseVideo", args: [] }),
+        "*"
+      );
+    } else {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "playVideo", args: [] }),
+        "*"
+      );
+    }
+    setIsPlaying((p) => !p);
+  }, [goToOffset, isPlaying]);
 
   const postCmd = useCallback((func: string, args: unknown[] = []) => {
     iframeRef.current?.contentWindow?.postMessage(
@@ -111,6 +127,28 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
       >
         <X className="h-5 w-5 text-black" />
       </button>
+
+      {/* Mute toggle (mobile/tablet only — native YT controls are under the swipe overlay) */}
+      <button
+        type="button"
+        onClick={toggleMute}
+        className="absolute left-16 top-3 lg:hidden z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
+        aria-label={isMuted ? "Unmute" : "Mute"}
+      >
+        {isMuted ? <VolumeX className="h-5 w-5 text-black" /> : <Volume2 className="h-5 w-5 text-black" />}
+      </button>
+
+      {/* Play/Pause toggle (mobile/tablet only) */}
+      <button
+        type="button"
+        onClick={togglePlay}
+        className="absolute left-28 top-3 lg:hidden z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
+        aria-label={isPlaying ? "Pause" : "Play"}
+      >
+        {isPlaying ? <Pause className="h-5 w-5 text-black" /> : <Play className="h-5 w-5 text-black" />}
+      </button>
+
+
 
       {showVideoNavigation && (
         <div className="fixed top-1/2 -translate-y-1/2 right-4 z-[260] flex flex-col gap-2 pointer-events-none">
