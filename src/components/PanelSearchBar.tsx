@@ -179,7 +179,6 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
               v.muted = next;
             }}
           />
-          <span className="self-center mx-1 h-8 w-px bg-white/20" aria-hidden="true" />
         </>
       );
     }
