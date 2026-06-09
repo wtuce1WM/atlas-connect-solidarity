@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Map, X } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Map, X, SlidersHorizontal } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import PoiSection from "@/components/PoiSection";
 import PoiGoogleMap from "@/components/PoiGoogleMap";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
