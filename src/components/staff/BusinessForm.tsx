@@ -1094,6 +1094,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [newIntentCategory, setNewIntentCategory] = useState("");
   const [newServiceName, setNewServiceName] = useState("");
   const [creatingService, setCreatingService] = useState(false);
+  const [vanityUrls, setVanityUrls] = useState<string[]>([]);
+  useEffect(() => {
+    if (!business?.id) { setVanityUrls([]); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("vanity_urls")
+        .select("slug")
+        .eq("target_type", "business")
+        .eq("target_id", business.id);
+      if (!cancelled) setVanityUrls((data || []).map((r: any) => r.slug));
+    })();
+    return () => { cancelled = true; };
+  }, [business?.id]);
   useEffect(() => {
     const fetchTaxonomy = async () => {
       const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes, badgesRes, badgeSubcatsRes, destRes, poiRes, eventsRes] = await Promise.all([
