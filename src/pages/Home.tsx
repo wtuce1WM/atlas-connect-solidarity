@@ -2392,6 +2392,18 @@ const Home = () => {
             </div>
             );
           })()}
+
+          <FooterCityDestinations
+            city={city}
+            cityRowId={cityRowId}
+            onCityChange={(c) => {
+              setCity(c);
+              cityResolvedRef.current = true;
+              const sp = new URLSearchParams(searchParams);
+              sp.set("city", c);
+              setSearchParams(sp, { replace: true });
+            }}
+          />
         </main>
       </div>
 
