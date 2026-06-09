@@ -4,7 +4,6 @@ import OverlayShell from "@/components/overlays/OverlayShell";
 import { businessUrl } from "@/lib/businessUrl";
 import { MapPin, ChevronUp, ChevronDown, X, Navigation, Minimize2, Star, Heart } from "lucide-react";
 import ShareButton from "@/components/ShareButton";
-import VideoControls from "@/components/VideoControls";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabYouTubeCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
@@ -775,7 +774,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
         {/* Overlaid content */}
         <div
-          className={`relative z-10 flex flex-col h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[88px] md:pb-[92px]' : ''}`}
+          className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-16 md:p-6 md:pt-20 lg:pt-16 ${cardsHidden ? 'pb-0' : showSearchBar ? 'pb-[95px] md:pb-[95px]' : 'pb-8'} scrollbar-hide-mobile`}
           style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
           onTouchStart={onDragTouchStart} onTouchMove={onDragTouchMove} onTouchEnd={onDragTouchEnd}
         >
@@ -854,15 +853,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
               {/* CTA itinéraire — visuel aligné sur BookOnlineSlidePanel/CtaBar */}
               {destination.latitude && destination.longitude && (
-                <div className="shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto">
-                  <div className="w-1/2 md:w-3/4 md:px-0 flex justify-center gap-2">
+                  <div className="shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto">
+                    <div className="w-1/2 md:w-3/4 md:px-0 pointer-events-auto flex justify-center gap-2">
                     <div className="flex-1 md:flex-none md:w-1/3">
                       <button
                         onClick={() => setShowDirections(true)}
                         className="relative overflow-hidden flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-1px_0_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.28)] before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none before:bg-gradient-to-b before:from-white/25 before:via-transparent before:to-white/5 after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-[inherit] after:pointer-events-none after:bg-gradient-to-b after:from-white/25 after:to-transparent after:blur-[1px] [&>*]:relative [&>*]:z-10"
                         style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
                       >
-                        <Navigation className="h-4 w-4 hidden md:block" />
+                        <MapPin className="h-4 w-4 hidden md:block" />
                         <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
                       </button>
                     </div>
@@ -887,6 +886,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </div>
       </div>
 
+      {showSearchBar && !showDescriptionOverlay && !showDirections && !showLocationMap && !showYoutubeOverlay && !activeBusinessId && (
       <PanelSearchBar
         onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
         iconVariant="black"
@@ -894,17 +894,16 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         compact
         onSearch={onSearch}
         onBusinessSelect={onSearchBusinessSelect}
-        leadingControls={
-          currentMedia?.kind === "video" ? (
-            <VideoControls
-              type="file"
-              videoRef={videoRef as React.RefObject<HTMLVideoElement>}
-              paused={videoPaused}
-              muted={videoMuted}
-            />
-          ) : undefined
+        videoControls={
+          currentMedia?.kind === "video" ? {
+            type: "file",
+            videoRef: videoRef as React.RefObject<HTMLVideoElement>,
+            paused: videoPaused,
+            muted: videoMuted,
+          } : undefined
         }
       />
+      )}
 
       {/* Full Description Overlay */}
       {showDescriptionOverlay && description && (
