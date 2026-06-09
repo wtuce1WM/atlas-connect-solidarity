@@ -5106,7 +5106,7 @@ const SearchPage = () => {
               pois={(() => {
                 let base = activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItemsFinal;
                 if (activeTab === "poi" && mobilePoiSubcat) {
-                  base = base.filter(p => ((p as any).subcategories as string[] | null | undefined)?.includes(mobilePoiSubcat));
+                  base = base.filter(p => ((p as any).subcategories as string[] | null | undefined)?.[0] === mobilePoiSubcat);
                 }
                 const uc = geo.isEnabled && geo.coords ? geo.coords : null;
                 if (activeTab !== "suggestions" || !uc || !mobileProximityKm) return base;
