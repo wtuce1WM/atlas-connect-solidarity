@@ -120,6 +120,11 @@ function pcm16Base64FromFloat32(input: Float32Array): string {
   return base64FromBytes(new Uint8Array(buffer));
 }
 
+// Skip the first N ms of mic audio on iOS: AGC/AEC + AudioContext need time to
+// calibrate, and the very first PCM frames are noisy/under-leveled — which
+// destroys the beginning of the first Scribe transcription of the session.
+const MIC_WARMUP_MS = 700;
+
 async function setupScribeMicrophoneFromStream(
   stream: MediaStream,
   audioContext: AudioContext,
@@ -135,7 +140,19 @@ async function setupScribeMicrophoneFromStream(
   const silentGain = audioContext.createGain();
   silentGain.gain.value = 0;
 
+  const warmupUntil = (typeof performance !== "undefined" ? performance.now() : Date.now()) + MIC_WARMUP_MS;
+  let warmupLogged = false;
+
   processor.onaudioprocess = (event) => {
+    const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+    if (now < warmupUntil) {
+      // Drop frames during AGC/AEC warm-up — don't ship noisy audio to Scribe.
+      return;
+    }
+    if (!warmupLogged) {
+      console.log("[Scribe] mic warm-up done, streaming audio");
+      warmupLogged = true;
+    }
     const input = event.inputBuffer.getChannelData(0);
     const resampled = resampleAudio(input, audioContext.sampleRate, SCRIBE_SAMPLE_RATE);
     onAudioData(pcm16Base64FromFloat32(resampled));
