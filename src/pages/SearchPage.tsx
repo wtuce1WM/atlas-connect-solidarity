@@ -3336,7 +3336,7 @@ const SearchPage = () => {
   // applying a client-side FS filter on the loaded page would shrink the count
   // to the page size.
   const fsFilteredList = useMemo(() => {
-    if (subcategoryNamesFromUrl.length > 0) return null;
+    if (subcategoryNamesFromUrl.length > 0 && !fsUserOverride) return null;
     if (!fsFilterSubcategories && (!fsFilterServices || fsFilterServices.size === 0)) return null;
     // In pinIds mode, restrict FS filter to the pinned set and preserve pinIds order
     // (no re-sort). This keeps the grid in sync with the map toolbar pills.
