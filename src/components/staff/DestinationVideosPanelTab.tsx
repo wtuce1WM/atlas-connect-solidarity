@@ -313,13 +313,15 @@ const DestinationVideosPanelTab = () => {
 
   useEffect(() => { setSelectedDest(ALL); }, [selectedCity]);
 
+  useEffect(() => { pendingOrderRef.current = null; }, [selectedDest]);
+
   const filteredVideos = useMemo(() => {
     // When a destination is selected, show ALL its videos regardless of the city filter.
     // The city filter only narrows the destination dropdown choices.
     const result = selectedDest !== ALL
       ? videos.filter(v => v.destination_id === selectedDest)
       : cityFilteredVideos;
-    return [...result].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    return [...result].sort((a, b) => ((a.sort_order ?? 0) - (b.sort_order ?? 0)) || a.id.localeCompare(b.id));
   }, [videos, cityFilteredVideos, selectedDest]);
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -328,7 +330,8 @@ const DestinationVideosPanelTab = () => {
     const oldIndex = filteredVideos.findIndex(v => v.id === active.id);
     const newIndex = filteredVideos.findIndex(v => v.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
-    const reordered = arrayMove(filteredVideos, oldIndex, newIndex);
+    const reordered = arrayMove(filteredVideos, oldIndex, newIndex).map((v, i) => ({ ...v, sort_order: i }));
+    pendingOrderRef.current = reordered;
     const newOrder = new Map(reordered.map((v, i) => [v.id, i]));
     setVideos(prev => prev.map(v => newOrder.has(v.id) ? { ...v, sort_order: newOrder.get(v.id)! } : v));
   };
@@ -341,14 +344,18 @@ const DestinationVideosPanelTab = () => {
     }
     setSaving(true);
     try {
-      const results = await Promise.all(filteredVideos.map((v, i) => {
+      const orderToSave = pendingOrderRef.current?.every(v => v.destination_id === selectedDest)
+        ? pendingOrderRef.current
+        : filteredVideos;
+      const results = await Promise.all(orderToSave.map((v, i) => {
         if (v.source === "generic") {
-          return supabase
+          const query = supabase
             .from("generic_video_destinations" as any)
             .update({ sort_order: i } as any)
-            .eq("generic_video_id", v.business_id)
-            .eq("destination_id", v.destination_id)
-            .select("id");
+          return (v.link_id
+            ? query.eq("id", v.link_id)
+            : query.eq("generic_video_id", v.business_id).eq("destination_id", v.destination_id)
+          ).select("id");
         }
         return supabase
           .from("business_documents")
@@ -366,6 +373,7 @@ const DestinationVideosPanelTab = () => {
         toast.error(`${empties.length} ligne(s) non mises à jour (RLS ?)`);
       } else {
         toast.success(`Ordre sauvegardé (${results.length})`);
+        pendingOrderRef.current = null;
         await load();
       }
     } catch (e: any) {
