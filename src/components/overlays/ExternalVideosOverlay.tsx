@@ -162,43 +162,47 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
                 ? "w-40 h-[7.5rem] md:h-[10rem] lg:h-[14rem]"
                 : "w-52 md:w-60 lg:w-64 h-[6rem] md:h-[8rem] lg:h-[9rem]";
               return (
-                <button
-                  key={`thumb-${v.url}-${i}`}
-                  data-thumb-idx={i}
-                  onClick={() => goTo(i)}
-                  className={`flex-shrink-0 rounded-xl overflow-hidden relative cursor-pointer group/card transition-all ${sizeClass} ${
-                    isActive ? "ring-2 ring-offset-1 ring-offset-black ring-red-500" : ""
-                  }`}
-                  aria-label={`${language === "en" ? "Go to video" : "Aller à la vidéo"} ${i + 1}`}
-                >
-                  {thumb ? (
-                    <img src={thumb} alt={v.name || `video-${i}`} className="absolute inset-0 w-full h-full object-cover scale-[1.35]" />
-                  ) : (
-                    <div className="absolute inset-0 bg-white/10" />
-                  )}
-                  <div className={`absolute inset-0 flex items-center justify-center transition-colors ${
-                    isActive ? "bg-black/50" : "bg-black/20 group-hover/card:bg-black/40"
-                  }`}>
-                    {isActive ? (
-                      <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                        <div className="flex gap-0.5">
-                          <span className="w-1 h-4 bg-white rounded-full animate-pulse" />
-                          <span className="w-1 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: "0.15s" }} />
-                          <span className="w-1 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: "0.3s" }} />
-                        </div>
-                      </div>
+                <div key={`thumb-${v.url}-${i}`} className="flex-shrink-0 flex flex-col">
+                  <button
+                    data-thumb-idx={i}
+                    onClick={() => goTo(i)}
+                    className={`rounded-xl overflow-hidden relative cursor-pointer group/card transition-all ${sizeClass} ${
+                      isActive ? "ring-2 ring-offset-1 ring-offset-black ring-red-500" : ""
+                    }`}
+                    aria-label={`${language === "en" ? "Go to video" : "Aller à la vidéo"} ${i + 1}`}
+                  >
+                    {thumb ? (
+                      <img src={thumb} alt={v.name || `video-${i}`} className="absolute inset-0 w-full h-full object-cover scale-[1.35]" />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
-                        <Play className="h-5 w-5 text-white fill-white ml-0.5" />
-                      </div>
+                      <div className="absolute inset-0 bg-white/10" />
                     )}
-                  </div>
+                    <div className={`absolute inset-0 flex items-center justify-center transition-colors ${
+                      isActive ? "bg-black/50" : "bg-black/20 group-hover/card:bg-black/40"
+                    }`}>
+                      {isActive ? (
+                        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                          <div className="flex gap-0.5">
+                            <span className="w-1 h-4 bg-white rounded-full animate-pulse" />
+                            <span className="w-1 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: "0.15s" }} />
+                            <span className="w-1 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: "0.3s" }} />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+                          <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
                   {v.name && (
-                    <p className="absolute bottom-0 left-0 right-0 px-2 py-1 text-[10px] leading-tight text-white font-medium bg-gradient-to-t from-black/80 to-transparent line-clamp-2">
+                    <p
+                      className={`mt-1.5 px-1 text-[11px] leading-tight font-medium line-clamp-2 ${vertical ? "w-40" : "w-52 md:w-60 lg:w-64"} ${isActive ? "text-white" : "text-white/80"}`}
+                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    >
                       {v.name}
                     </p>
                   )}
-                </button>
+                </div>
               );
             })}
           </div>
