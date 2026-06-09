@@ -21,7 +21,7 @@ interface Props {
 const SITE_BASE = "https://oneworldmorocco.com";
 
 function buildUrl(b: BusinessLite) {
-  return `${SITE_BASE}/fiche/${b.slug || b.id}`;
+  return b.slug ? `${SITE_BASE}/${b.slug}` : `${SITE_BASE}/fiche/${b.id}`;
 }
 
 export default function QRCodeManagement({ businesses }: Props) {
