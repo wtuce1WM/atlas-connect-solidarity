@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -62,6 +63,30 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const { brokenFilesMap } = useBusinessBrokenFiles(businesses);
+
+  const [vanityMap, setVanityMap] = useState<Record<string, string[]>>({});
+  useEffect(() => {
+    const ids = businesses.map((b) => b.id);
+    if (ids.length === 0) { setVanityMap({}); return; }
+    let cancelled = false;
+    (async () => {
+      const map: Record<string, string[]> = {};
+      const chunk = 500;
+      for (let i = 0; i < ids.length; i += chunk) {
+        const slice = ids.slice(i, i + chunk);
+        const { data } = await supabase
+          .from("vanity_urls")
+          .select("slug, target_id")
+          .eq("target_type", "business")
+          .in("target_id", slice);
+        for (const row of (data as any[]) || []) {
+          (map[row.target_id] ||= []).push(row.slug);
+        }
+      }
+      if (!cancelled) setVanityMap(map);
+    })();
+    return () => { cancelled = true; };
+  }, [businesses]);
 
   const getBusinessRating = (b: Business): number | null => {
     if (b.rating != null) return Number(b.rating);
@@ -289,6 +314,18 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                     >
                       Fiche <ExternalLink className="h-3 w-3" />
                     </a>
+                    {(vanityMap[business.id] || []).map((slug) => (
+                      <a
+                        key={slug}
+                        href={`/${slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`Vanity URL: /${slug}`}
+                        className="text-[11px] text-muted-foreground hover:text-primary hover:underline inline-flex items-center gap-1 leading-tight"
+                      >
+                        /{slug}
+                      </a>
+                    ))}
                   </div>
                 </TableCell>
                 <TableCell>
