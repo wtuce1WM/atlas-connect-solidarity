@@ -64,6 +64,30 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const { brokenFilesMap } = useBusinessBrokenFiles(businesses);
 
+  const [vanityMap, setVanityMap] = useState<Record<string, string[]>>({});
+  useEffect(() => {
+    const ids = businesses.map((b) => b.id);
+    if (ids.length === 0) { setVanityMap({}); return; }
+    let cancelled = false;
+    (async () => {
+      const map: Record<string, string[]> = {};
+      const chunk = 500;
+      for (let i = 0; i < ids.length; i += chunk) {
+        const slice = ids.slice(i, i + chunk);
+        const { data } = await supabase
+          .from("vanity_urls")
+          .select("slug, target_id")
+          .eq("target_type", "business")
+          .in("target_id", slice);
+        for (const row of (data as any[]) || []) {
+          (map[row.target_id] ||= []).push(row.slug);
+        }
+      }
+      if (!cancelled) setVanityMap(map);
+    })();
+    return () => { cancelled = true; };
+  }, [businesses]);
+
   const getBusinessRating = (b: Business): number | null => {
     if (b.rating != null) return Number(b.rating);
     return computeWeightedRatingOn20(collectRatingSources(b));
