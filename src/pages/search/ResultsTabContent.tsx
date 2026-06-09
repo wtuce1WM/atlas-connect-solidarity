@@ -306,6 +306,7 @@ export default function ResultsTabContent({
   const handleFsServicesChange = (svcs: string[]) => {
     setActiveFsServices(svcs);
     onFrontStructureServicesFilter?.(svcs.length > 0 ? new Set(svcs) : null);
+    onFrontStructureUserOverride?.(svcs.length > 0 || !!activeFsTabId || !!activeFsSubId);
     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
 
@@ -315,6 +316,7 @@ export default function ResultsTabContent({
     setActiveFsSubId(null);
     setActiveFsServices([]);
     onFrontStructureServicesFilter?.(null);
+    onFrontStructureUserOverride?.(false);
   }, [effectiveCity, searchQuery]);
 
   // Always constrain browse results to the front_structure scope when no specific
