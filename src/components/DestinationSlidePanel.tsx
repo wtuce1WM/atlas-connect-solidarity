@@ -464,10 +464,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
   const mediaItems: MediaItem[] = useMemo(() => [
-    ...cityFileVideos.map((cv) => ({ kind: "video" as const, url: cv.url })),
     ...fileVideos.map((v) => ({ kind: "video" as const, url: v })),
     ...allImages.map((i) => ({ kind: "image" as const, url: i })),
-  ], [cityFileVideos, fileVideos, allImages]);
+  ], [fileVideos, allImages]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
