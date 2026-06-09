@@ -156,7 +156,7 @@ const FooterCityDestinations = ({ city, cityRowId, onCityChange }: Props) => {
       </div>
 
       {selectedDestId && destVideos.length > 0 && (
-        <div className="max-w-5xl mx-auto mt-6">
+        <div className="w-full mt-6 -mx-4">
           <TabScrollRail>
             {destVideos.map((cv, index) => {
               const info = getVideoInfo(cv.url);
