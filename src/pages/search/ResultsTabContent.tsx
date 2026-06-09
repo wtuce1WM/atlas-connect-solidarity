@@ -282,6 +282,7 @@ export default function ResultsTabContent({
     setActiveFsSubId(subId);
     setActiveFsServices([]);
     onFrontStructureServicesFilter?.(null);
+    onFrontStructureUserOverride?.(!!subId || !!activeFsTabId);
     const tab = activeFsTabId ? frontTabs.find(t => t.id === activeFsTabId) : null;
     if (!tab) return;
     if (!subId) {
