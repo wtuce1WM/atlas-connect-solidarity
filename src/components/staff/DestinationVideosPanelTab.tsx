@@ -190,12 +190,15 @@ const DestinationVideosPanelTab = () => {
       });
     });
 
-    // Deduplicate by id (generic videos can appear multiple times via different link rows)
+    // Deduplicate: 1 entité = 1 vignette.
+    // - business_documents: dedup par id (déjà unique)
+    // - generic_videos: dedup par generic_video_id (peut être lié à plusieurs destinations)
     const combinedRaw = [...allDocs.map(d => ({ ...d, _source: "document" as const })), ...genericDocs];
-    const seenIds = new Set<string>();
+    const seenKeys = new Set<string>();
     const combined = combinedRaw.filter(d => {
-      if (seenIds.has(d.id)) return false;
-      seenIds.add(d.id);
+      const key = d._source === "generic" ? `gv-${d.business_id}` : `doc-${d.id}`;
+      if (seenKeys.has(key)) return false;
+      seenKeys.add(key);
       return true;
     });
 
