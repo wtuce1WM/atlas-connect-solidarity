@@ -1868,9 +1868,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                               </h3>
                             )}
                             {highlightsSection.intro && (
-                              <p className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif]">
-                                {highlightsSection.intro}
-                              </p>
+                              <div
+                                className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
+                                dangerouslySetInnerHTML={{ __html: highlightsSection.intro }}
+                              />
                             )}
                           </div>
                         )}
