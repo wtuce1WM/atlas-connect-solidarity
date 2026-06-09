@@ -4816,6 +4816,7 @@ const SearchPage = () => {
               }
             }}
             onFrontStructureServicesFilter={(svcs) => setFsFilterServices(svcs)}
+            onFrontStructureUserOverride={(on) => setFsUserOverride(on)}
             fsTopBusinessId={fsTopBusinessId}
             hideAiSuggestion={false}
             allCityMapBusinesses={allCityMapBusinesses}
