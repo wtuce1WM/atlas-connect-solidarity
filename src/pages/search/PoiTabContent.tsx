@@ -113,7 +113,7 @@ const PoiTabContent = ({
                 onClick={() => setShowMobileMap(true)}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
               >
-                <Map className="h-4 w-4" />
+                <MapIcon className="h-4 w-4" />
                 {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
               </button>
             )}
