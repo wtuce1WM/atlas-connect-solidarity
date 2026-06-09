@@ -156,6 +156,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       return (
         <>
           <Cell
+            variant="media"
             icon={paused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
             label={paused ? "Play" : "Pause"}
             ariaLabel={paused ? "Play" : "Pause"}
@@ -166,6 +167,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             }}
           />
           <Cell
+            variant="media"
             icon={muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             label={muted ? "Sound" : "Mute"}
             ariaLabel={muted ? "Unmute" : "Mute"}
@@ -177,6 +179,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
               v.muted = next;
             }}
           />
+          <span className="self-center mx-1 h-8 w-px bg-white/20" aria-hidden="true" />
         </>
       );
     }
@@ -184,6 +187,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
     return (
       <>
         <Cell
+          variant="media"
           icon={playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
           label={playing ? "Pause" : "Play"}
           ariaLabel={playing ? "Pause" : "Play"}
@@ -196,6 +200,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
           }}
         />
         <Cell
+          variant="media"
           icon={muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
           label={muted ? "Sound" : "Mute"}
           ariaLabel={muted ? "Unmute" : "Mute"}
@@ -207,6 +212,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             onMutedChange(!muted);
           }}
         />
+        <span className="self-center mx-1 h-8 w-px bg-white/20" aria-hidden="true" />
       </>
     );
   };
