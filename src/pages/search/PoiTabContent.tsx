@@ -67,19 +67,16 @@ const PoiTabContent = ({
     const m = new Map<string, number>();
     for (const p of allPois) {
       const subs = (p as any).subcategories as string[] | null | undefined;
-      if (!subs) continue;
-      for (const s of subs) {
-        const k = (s ?? "").trim();
-        if (!k) continue;
-        m.set(k, (m.get(k) ?? 0) + 1);
-      }
+      const k = (subs?.[0] ?? "").trim();
+      if (!k) continue;
+      m.set(k, (m.get(k) ?? 0) + 1);
     }
     return Array.from(m.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "fr"));
   }, [allPois]);
 
   const filteredPois = useMemo(() => {
     if (!poiSubcat) return allPois;
-    return allPois.filter((p) => ((p as any).subcategories as string[] | null | undefined)?.includes(poiSubcat));
+    return allPois.filter((p) => ((p as any).subcategories as string[] | null | undefined)?.[0] === poiSubcat);
   }, [allPois, poiSubcat]);
 
   const [poiMapBusiness, setPoiMapBusiness] = useState<{
