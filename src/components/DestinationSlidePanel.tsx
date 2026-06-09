@@ -297,7 +297,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       const [docsRes, gvLinksRes] = await Promise.all([
         supabase
           .from("business_documents")
-          .select("url, name, thumbnail_url, business_id, sort_order")
+          .select("id, url, name, thumbnail_url, business_id, sort_order")
           .eq("type", "video")
           .eq("business_is_active", true)
           .eq("destination_id", destinationId),
@@ -338,6 +338,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           ownerLogo: owner?.logo_url || null,
           ownerSlug: owner?.slug || null,
           sortOrder: (d.sort_order as number | null) ?? 0,
+          tieKey: `doc-${d.id}`,
         };
       });
 
@@ -354,12 +355,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             ownerLogo: null,
             ownerSlug: null,
             sortOrder: l.sort_order ?? 0,
+            tieKey: `gv-${l.generic_video_id}`,
           };
         })
         .filter(Boolean) as typeof docItems;
 
-      const merged = [...docItems, ...gvItems].sort((a, b) => a.sortOrder - b.sortOrder);
-      setCityVideos(merged.map(({ sortOrder, ...rest }) => rest));
+      const merged = [...docItems, ...gvItems].sort(
+        (a, b) => (a.sortOrder - b.sortOrder) || a.tieKey.localeCompare(b.tieKey),
+      );
+      setCityVideos(merged.map(({ sortOrder, tieKey, ...rest }) => rest));
     };
     fetchDestVideos();
     return () => { cancelled = true; };
