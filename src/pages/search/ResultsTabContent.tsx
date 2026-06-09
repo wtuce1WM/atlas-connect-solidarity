@@ -75,6 +75,7 @@ export interface ResultsTabContentProps {
   effectiveCity?: string | null;
   onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
   onFrontStructureServicesFilter?: (services: Set<string> | null) => void;
+  onFrontStructureUserOverride?: (active: boolean) => void;
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
   allSearchMapBusinesses?: Business[];
