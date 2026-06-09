@@ -850,40 +850,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
 
 
-              {/* Bottom tabs */}
-              {!flipped && (() => {
-                 const tabs: BottomTabConfig[] = [];
-
-
-
-
-                for (const ft of frontTabs) {
-                  tabs.push({
-                    id: `fs-${ft.id}`,
-                    label: ft.name,
-                    renderContent: (animate, animCls) => (
-                      <TabScrollRail>
-                        {ft.businesses.map((biz, index) => {
-                          const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                          const ratingValue = biz.computed_rating ?? biz.rating ?? null;
-                          const ratingBadge = ratingValue ? (
-                            <span className="absolute top-1.5 right-1.5 bg-gold text-black text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-md leading-tight flex items-center gap-0.5">
-                              <Star className="h-2.5 w-2.5" style={{ color: "#C04F17" }} />
-                              {(Math.round(Number(ratingValue) * 10) / 10).toFixed(1)}
-                            </span>
-                          ) : null;
-                          return (
-                            <TabCard key={biz.id} imageUrl={bizImg} label={biz.name} onClick={() => setActiveBusinessId(biz.id)} animate={animate} animationClass={animCls} animationDelay={index * 120} imageOverlay={ratingBadge} />
-                          );
-                        })}
-                      </TabScrollRail>
-                    ),
-                  });
-                }
-
-                if (tabs.length === 0) return null;
-                return <BottomTabsCarousel tabs={tabs} activeTab={activeBottomTab} onTabChange={(id) => { bottomTabInitialRef.current = false; setActiveBottomTab(id); }} />;
-              })()}
+              {/* Bottom tabs removed — kept only on /videos footer */}
 
               {/* CTA itinéraire */}
               {destination.latitude && destination.longitude && (
