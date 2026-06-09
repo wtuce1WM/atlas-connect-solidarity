@@ -128,25 +128,8 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
         <X className="h-5 w-5 text-black" />
       </button>
 
-      {/* Mute toggle (mobile/tablet only — native YT controls are under the swipe overlay) */}
-      <button
-        type="button"
-        onClick={toggleMute}
-        className="absolute left-16 top-3 lg:hidden z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
-        aria-label={isMuted ? "Unmute" : "Mute"}
-      >
-        {isMuted ? <VolumeX className="h-5 w-5 text-black" /> : <Volume2 className="h-5 w-5 text-black" />}
-      </button>
 
-      {/* Play/Pause toggle (mobile/tablet only) */}
-      <button
-        type="button"
-        onClick={togglePlay}
-        className="absolute left-28 top-3 lg:hidden z-[100] w-9 h-9 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg pointer-events-auto"
-        aria-label={isPlaying ? "Pause" : "Play"}
-      >
-        {isPlaying ? <Pause className="h-5 w-5 text-black" /> : <Play className="h-5 w-5 text-black" />}
-      </button>
+
 
 
 
