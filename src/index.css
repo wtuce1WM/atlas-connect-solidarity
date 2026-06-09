@@ -9,7 +9,7 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Moroccan-inspired color palette */
-    --background: 0 0% 100%;
+    --background: 0 0% 94.5%; /* #F1F1F1 */
     --foreground: 0 0% 5%;
 
     --card: 0 0% 100%;
