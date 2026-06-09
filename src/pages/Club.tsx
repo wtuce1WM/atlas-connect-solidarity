@@ -418,28 +418,17 @@ const Club = () => {
 
 
 
-        <section className={`${user ? "w-full pt-20" : "max-w-3xl mx-auto py-12"} px-4 ${user ? "pb-12" : ""}`}>
+        <section className={`${user ? "w-full pt-20 pb-12" : "max-w-3xl mx-auto pt-6 pb-12"} px-4`}>
           {user ? (
             /* ===== Logged-in: Dashboard ===== */
             <div className="w-full">
               <ClubDashboard user={user} onLogout={handleLogout} />
             </div>
           ) : (
-            /* ===== Not logged-in: Benefits + Registration ===== */
+            /* ===== Not logged-in: Login form first, then benefits ===== */
             <>
-              <p className="text-muted-foreground text-center text-lg leading-relaxed mb-10">{t.desc}</p>
-
-              <h2 className="text-2xl font-bold text-center mb-6 !font-sans !not-italic">{t.benefits}</h2>
-              <div className="grid sm:grid-cols-2 gap-4 mb-12">
-                {benefits.map((b, i) => (
-                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border shadow-sm">
-                    <Crown className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-card-foreground">{b}</span>
-                  </div>
-                ))}
-              </div>
-
               <div className="max-w-lg mx-auto">
+
                 {/* Tabs */}
                 <div className="flex bg-muted rounded-lg p-1 mb-6">
                   <button
