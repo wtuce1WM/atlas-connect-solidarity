@@ -5056,7 +5056,15 @@ const SearchPage = () => {
           {/* Map — full height */}
           <div className="w-full h-full relative">
             <PoiGoogleMap
-              pois={activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItemsFinal}
+              pois={(() => {
+                const base = activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItemsFinal;
+                const uc = geo.isEnabled && geo.coords ? geo.coords : null;
+                if (activeTab !== "suggestions" || !uc || !mobileProximityKm) return base;
+                return base.filter(p => {
+                  if (p.latitude == null || p.longitude == null) return false;
+                  return haversineKm(uc.lat, uc.lng, p.latitude, p.longitude) <= mobileProximityKm;
+                });
+              })()}
               selectedPoiId={activeTab === "poi" ? (hoveredPoiId || null) : activeTab === "destinations" ? (hoveredDestId || null) : (hoveredResultId || compactPanelBusiness?.id || fsTopBusinessId || null)}
               onPoiClick={(poiId) => {
                 if (activeTab === "poi" || activeTab === "destinations") {
