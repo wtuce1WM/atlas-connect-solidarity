@@ -330,21 +330,35 @@ const DestinationVideosPanelTab = () => {
     }
     setSaving(true);
     try {
-      await Promise.all(filteredVideos.map((v, i) => {
+      const results = await Promise.all(filteredVideos.map((v, i) => {
         if (v.source === "generic") {
           return supabase
             .from("generic_video_destinations" as any)
             .update({ sort_order: i } as any)
             .eq("generic_video_id", v.business_id)
-            .eq("destination_id", v.destination_id);
+            .eq("destination_id", v.destination_id)
+            .select("id");
         }
         return supabase
           .from("business_documents")
           .update({ sort_order: i } as any)
-          .eq("id", v.id);
+          .eq("id", v.id)
+          .select("id");
       }));
-      toast.success("Ordre sauvegardé");
-    } catch {
+      const errors = results.filter((r: any) => r.error);
+      const empties = results.filter((r: any) => !r.error && (!r.data || r.data.length === 0));
+      if (errors.length > 0) {
+        console.error("[saveOrder] errors:", errors.map((r: any) => r.error));
+        toast.error(`Erreur: ${errors[0].error?.message || "RLS ?"}`);
+      } else if (empties.length > 0) {
+        console.warn("[saveOrder] empty updates (no row matched / RLS):", empties.length);
+        toast.error(`${empties.length} ligne(s) non mises à jour (RLS ?)`);
+      } else {
+        toast.success(`Ordre sauvegardé (${results.length})`);
+        await load();
+      }
+    } catch (e: any) {
+      console.error("[saveOrder] exception:", e);
       toast.error("Erreur lors de la sauvegarde");
     }
     setSaving(false);
