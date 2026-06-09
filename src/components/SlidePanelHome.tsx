@@ -635,7 +635,7 @@ const SlidePanelHome = ({
           return (
             <div className="absolute top-40 md:top-40 lg:top-44 left-4 right-4 z-[60] pointer-events-none flex flex-col items-center gap-1 text-center">
               <p
-                className="text-sm md:text-base font-bold text-white line-clamp-3 cursor-pointer pointer-events-auto"
+                className="text-sm md:text-base font-bold text-white line-clamp-2 cursor-pointer pointer-events-auto"
                 style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: "0.02em", textShadow }}
                 onClick={() => {
                   if (videoId) {
