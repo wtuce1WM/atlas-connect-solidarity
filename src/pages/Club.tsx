@@ -629,6 +629,18 @@ const Club = () => {
                   </div>
                 )}
               </div>
+
+              {/* Bénéfices affichés sous le formulaire pour ne pas masquer la demande de connexion */}
+              <p className="text-muted-foreground text-center text-base leading-relaxed mt-12 mb-6">{t.desc}</p>
+              <h2 className="text-xl font-bold text-center mb-4 !font-sans !not-italic">{t.benefits}</h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {benefits.map((b, i) => (
+                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border shadow-sm">
+                    <Crown className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                    <span className="text-card-foreground">{b}</span>
+                  </div>
+                ))}
+              </div>
             </>
           )}
         </section>
