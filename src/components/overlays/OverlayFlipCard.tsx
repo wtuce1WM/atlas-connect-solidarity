@@ -138,9 +138,10 @@ const OverlayFlipCard = ({
                         </h3>
                       )}
                       {highlightsSectionIntro && (
-                        <p className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif]">
-                          {highlightsSectionIntro}
-                        </p>
+                        <div
+                          className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
+                          dangerouslySetInnerHTML={{ __html: highlightsSectionIntro }}
+                        />
                       )}
                     </div>
                   )}
