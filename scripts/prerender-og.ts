@@ -92,7 +92,7 @@ export function prerenderOgPlugin(): Plugin {
         const url = `${SUPABASE_URL}/rest/v1/businesses?select=id,slug,name,city,description,hook_fr,images&is_active=eq.true&order=id&limit=${PAGE}&offset=${offset}`;
         const r = await fetch(url, { headers });
         if (!r.ok) throw new Error(`[prerender-og] businesses fetch failed: ${r.status}`);
-        const rows: BizRow[] = await r.json();
+        const rows = (await r.json()) as BizRow[];
         businesses.push(...rows);
         if (rows.length < PAGE) break;
       }
@@ -103,7 +103,7 @@ export function prerenderOgPlugin(): Plugin {
         const url = `${SUPABASE_URL}/rest/v1/vanity_urls?select=slug,target_id&target_type=eq.business&order=target_id&limit=${PAGE}&offset=${offset}`;
         const r = await fetch(url, { headers });
         if (!r.ok) throw new Error(`[prerender-og] vanity fetch failed: ${r.status}`);
-        const rows: VanityRow[] = await r.json();
+        const rows = (await r.json()) as VanityRow[];
         vanity.push(...rows);
         if (rows.length < PAGE) break;
       }

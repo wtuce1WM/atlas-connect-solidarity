@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     // Bundle analyzer — only when ANALYZE=1 is set. Generates dist/stats.html.
     process.env.ANALYZE === "1" && (visualizer({ filename: "dist/stats.html", template: "treemap", gzipSize: true, brotliSize: false }) as any),
+    prerenderOgPlugin(),
   ].filter(Boolean),
   resolve: {
     alias: {
