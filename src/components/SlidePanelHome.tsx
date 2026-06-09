@@ -911,24 +911,19 @@ const SlidePanelHome = ({
                   navigate(`/search?${sp.toString()}`);
                 }}
                 onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-                leadingControls={
-                  embed.type === "file" ? (
-                    <VideoControls
-                      type="file"
-                      videoRef={videoRef}
-                      paused={filePaused}
-                      muted={fileMuted}
-                    />
-                  ) : embed.type === "youtube" ? (
-                    <VideoControls
-                      type="youtube"
-                      iframeRef={iframeRef}
-                      playing={ytPlaying}
-                      muted={ytMuted}
-                      onPlayingChange={setYtPlaying}
-                      onMutedChange={(m) => { setYtMuted(m); setSoundOn(!m); }}
-                    />
-                  ) : undefined
+                videoControls={
+                  embed.type === "file"
+                    ? { type: "file", videoRef, paused: filePaused, muted: fileMuted }
+                    : embed.type === "youtube"
+                      ? {
+                          type: "youtube",
+                          iframeRef,
+                          playing: ytPlaying,
+                          muted: ytMuted,
+                          onPlayingChange: setYtPlaying,
+                          onMutedChange: (m) => { setYtMuted(m); setSoundOn(!m); },
+                        }
+                      : undefined
                 }
               />
             </div>
