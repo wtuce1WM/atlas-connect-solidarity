@@ -317,13 +317,13 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                     {(vanityMap[business.id] || []).map((slug) => (
                       <a
                         key={slug}
-                        href={`/${slug}`}
+                        href={`https://oneworldmorocco.com/${slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title={`Vanity URL: /${slug}`}
-                        className="text-[11px] text-muted-foreground hover:text-primary hover:underline inline-flex items-center gap-1 leading-tight"
+                        title={`Vanity URL: https://oneworldmorocco.com/${slug}`}
+                        className="text-[11px] text-muted-foreground hover:text-primary hover:underline inline-flex items-center gap-1 leading-tight break-all"
                       >
-                        /{slug}
+                        https://oneworldmorocco.com/{slug}
                       </a>
                     ))}
                   </div>
