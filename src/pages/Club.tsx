@@ -398,20 +398,18 @@ const Club = () => {
       )}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
 
-      {/* Hero — masqué une fois connecté */}
+      {/* Hero — masqué une fois connecté ; compact en mode déconnecté pour que le formulaire reste visible above the fold */}
       {!user && (
-        <section className="club-hero relative overflow-hidden text-primary-foreground min-h-[80vh] flex items-center justify-center px-4">
+        <section className="club-hero relative overflow-hidden text-primary-foreground flex items-center justify-center px-4 pt-24 pb-8">
           <div
             className="club-hero-bg absolute inset-[-6%] bg-cover bg-center"
             style={{ backgroundImage: "url('/hero_magical_realism_v2.jpg')" }}
           />
-          <div className="club-hero-halo absolute pointer-events-none" />
-          <div className="club-hero-ember absolute pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-black/70 pointer-events-none" />
-          <div className="club-hero-inner relative z-10 max-w-3xl mx-auto text-center py-20 pt-32">
-            <Crown className="h-12 w-12 mx-auto mb-4 opacity-90 drop-shadow-lg" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-3 drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]">{t.title}</h1>
-            <p className="text-lg opacity-95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">{t.subtitle}</p>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/70 pointer-events-none" />
+          <div className="relative z-10 max-w-3xl mx-auto text-center py-6">
+            <Crown className="h-10 w-10 mx-auto mb-2 opacity-90 drop-shadow-lg" />
+            <h1 className="text-2xl md:text-3xl font-bold mb-1 drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]">{t.title}</h1>
+            <p className="text-sm md:text-base opacity-95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">{t.subtitle}</p>
           </div>
         </section>
       )}
@@ -420,28 +418,17 @@ const Club = () => {
 
 
 
-        <section className={`${user ? "w-full pt-20" : "max-w-3xl mx-auto py-12"} px-4 ${user ? "pb-12" : ""}`}>
+        <section className={`${user ? "w-full pt-20 pb-12" : "max-w-3xl mx-auto pt-6 pb-12"} px-4`}>
           {user ? (
             /* ===== Logged-in: Dashboard ===== */
             <div className="w-full">
               <ClubDashboard user={user} onLogout={handleLogout} />
             </div>
           ) : (
-            /* ===== Not logged-in: Benefits + Registration ===== */
+            /* ===== Not logged-in: Login form first, then benefits ===== */
             <>
-              <p className="text-muted-foreground text-center text-lg leading-relaxed mb-10">{t.desc}</p>
-
-              <h2 className="text-2xl font-bold text-center mb-6 !font-sans !not-italic">{t.benefits}</h2>
-              <div className="grid sm:grid-cols-2 gap-4 mb-12">
-                {benefits.map((b, i) => (
-                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border shadow-sm">
-                    <Crown className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-card-foreground">{b}</span>
-                  </div>
-                ))}
-              </div>
-
               <div className="max-w-lg mx-auto">
+
                 {/* Tabs */}
                 <div className="flex bg-muted rounded-lg p-1 mb-6">
                   <button
@@ -641,6 +628,18 @@ const Club = () => {
                     </form>
                   </div>
                 )}
+              </div>
+
+              {/* Bénéfices affichés sous le formulaire pour ne pas masquer la demande de connexion */}
+              <p className="text-muted-foreground text-center text-base leading-relaxed mt-12 mb-6">{t.desc}</p>
+              <h2 className="text-xl font-bold text-center mb-4 !font-sans !not-italic">{t.benefits}</h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {benefits.map((b, i) => (
+                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border shadow-sm">
+                    <Crown className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                    <span className="text-card-foreground">{b}</span>
+                  </div>
+                ))}
               </div>
             </>
           )}
