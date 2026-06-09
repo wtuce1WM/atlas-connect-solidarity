@@ -146,6 +146,9 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
         aria-label={isPlaying ? "Pause" : "Play"}
       >
         {isPlaying ? <Pause className="h-5 w-5 text-black" /> : <Play className="h-5 w-5 text-black" />}
+      </button>
+
+
 
       {showVideoNavigation && (
         <div className="fixed top-1/2 -translate-y-1/2 right-4 z-[260] flex flex-col gap-2 pointer-events-none">
