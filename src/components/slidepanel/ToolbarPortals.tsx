@@ -163,8 +163,9 @@ export function ToolbarPortals({
               type="button"
               onClick={onHeartClick}
               disabled={isLoggedIn && !likeTarget.id}
-              className={`relative h-9 w-9 flex items-center justify-center rounded-full bg-white shadow-2xl transition-all shrink-0 ${
-                isLoggedIn && !likeTarget.id ? "opacity-50 cursor-not-allowed" : "hover:bg-white/90 active:scale-90"
+              style={{ backgroundColor: "#CDBFA4" }}
+              className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 ${
+                isLoggedIn && !likeTarget.id ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 active:scale-90"
               }`}
               title={!isLoggedIn ? "Connectez-vous pour liker" : likeTarget.id ? (isLiked ? "Retirer le like" : "Liker") : "Indisponible"}
               aria-label="Liker la vidéo"
