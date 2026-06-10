@@ -244,7 +244,7 @@ const PublicClubProfile = () => {
           </div>
 
           <div className="mt-12 text-xs text-neutral-500">
-            <a href="/" className="hover:text-neutral-300">oneworldmorocco.com</a>
+            <a href="/" className="hover:text-neutral-300"></a>
           </div>
         </div>
       </div>
