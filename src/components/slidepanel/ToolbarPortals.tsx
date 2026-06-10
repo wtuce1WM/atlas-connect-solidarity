@@ -8,6 +8,7 @@ import { whatsappUrl } from "@/lib/phoneUtils";
 import { buildOgShareUrl } from "@/lib/businessUrl";
 import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import { useVideoLike } from "@/hooks/useVideoLike";
+import { useBookmark } from "@/hooks/useBookmark";
 
 interface ToolbarPortalsProps {
   business: any;
