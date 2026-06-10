@@ -830,8 +830,10 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                 {description && (
                   <button
                     type="button"
-                    onClick={() => setShowDescriptionOverlay(true)}
-                    className="pointer-events-auto group flex flex-col items-center gap-2"
+                    onClick={(e) => { e.stopPropagation(); setShowDescriptionOverlay(true); }}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setShowDescriptionOverlay(true); }}
+                    className="pointer-events-auto group flex flex-col items-center gap-2 touch-manipulation"
                     aria-label={language === "en" ? "Read more" : "Lire la suite"}
                   >
                     <div
