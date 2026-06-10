@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Share2, X, Check, Copy, Link as LinkIcon } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Share2, X, Check, Copy, Link as LinkIcon, QrCode, Download } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { FacebookIcon, TwitterIcon, WhatsAppIcon, LinkedInIcon } from "@/components/staff/SocialMediaIcons";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
@@ -20,6 +21,8 @@ interface ShareButtonProps {
 const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", className = "", buttonClassName = "" }: ShareButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
+  const qrRef = useRef<HTMLDivElement>(null);
 
   const rawUrl = shareUrl || (typeof window !== "undefined" ? window.location.href : "");
   // Strip internal cache-buster _t from shared URLs ; route public pages via the
@@ -198,7 +201,7 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
             </div>
 
             {/* Share targets */}
-            <div className="grid grid-cols-5 gap-3 mb-2">
+            <div className="grid grid-cols-6 gap-3 mb-2">
               <button
                 onClick={handleCopy}
                 className="flex flex-col items-center gap-1.5 group"
@@ -208,6 +211,17 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
                   {copied ? <Check className="h-5 w-5 text-green-600" /> : <LinkIcon className="h-5 w-5" />}
                 </span>
                 <span className="text-[11px] text-foreground/70">{copied ? "Copié" : "Copier"}</span>
+              </button>
+
+              <button
+                onClick={() => setQrOpen(true)}
+                className="flex flex-col items-center gap-1.5 group"
+                title="QR Code"
+              >
+                <span className="h-12 w-12 rounded-full bg-muted text-foreground flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                  <QrCode className="h-5 w-5" />
+                </span>
+                <span className="text-[11px] text-foreground/70">QR Code</span>
               </button>
 
               {shareLinks.map((link) => (
@@ -230,7 +244,62 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
           </div>
         </div>
       )}
+
+      {qrOpen && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in-0"
+          onClick={() => setQrOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="QR Code"
+        >
+          <div
+            className="relative w-full max-w-sm rounded-3xl bg-white text-black shadow-2xl p-6 animate-in zoom-in-95 fade-in-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Scanner pour ouvrir</h2>
+              <button
+                onClick={() => setQrOpen(false)}
+                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors"
+                aria-label="Fermer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div ref={qrRef} className="bg-white p-4 rounded-2xl flex items-center justify-center">
+              <QRCodeSVG value={currentUrl} size={280} level="M" />
+            </div>
+            <div className="mt-3 text-xs text-black/60 break-all text-center line-clamp-2">{displayUrl}</div>
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => {
+                  const svg = qrRef.current?.querySelector("svg");
+                  if (!svg) return;
+                  const blob = new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `qr-${(shareTitle || "lien").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.svg`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="flex-1 h-10 rounded-full bg-black text-white flex items-center justify-center gap-2 text-sm font-medium hover:bg-black/85 transition-colors"
+              >
+                <Download className="h-4 w-4" /> Télécharger
+              </button>
+              <button
+                onClick={handleCopy}
+                className="flex-1 h-10 rounded-full bg-muted text-foreground flex items-center justify-center gap-2 text-sm font-medium hover:bg-muted/80 transition-colors"
+              >
+                {copied ? <><Check className="h-4 w-4 text-green-600" /> Copié</> : <><Copy className="h-4 w-4" /> Copier le lien</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
+
   );
 };
 
