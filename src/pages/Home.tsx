@@ -1869,7 +1869,7 @@ const Home = () => {
       .from("businesses")
       .select("id, name, slug, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, priority_score")
       .in("id", ids)
-      .eq("city", clickedCity)
+      .in("city", getCityAliases(clickedCity))
       .eq("is_active", true);
     // Same ranking as SearchPage: WTUCE verified first (priority_score desc),
     // then non-verified by priority_score, then by effective rating ignoring <10 reviews.
