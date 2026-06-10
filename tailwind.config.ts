@@ -145,6 +145,15 @@ export default {
           "0%": { transform: "scale(0.3)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
+        "heart-pop": {
+          "0%": { transform: "scale(1)" },
+          "40%": { transform: "scale(1.4)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "heart-fly": {
+          "0%": { transform: "translate(0,0) scale(1)", opacity: "1" },
+          "100%": { transform: "translate(0,-40px) scale(1.8)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
