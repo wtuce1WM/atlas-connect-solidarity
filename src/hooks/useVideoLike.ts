@@ -45,6 +45,13 @@ export const useVideoLike = (
     }
   }, [videoId, source, userId]);
 
+  // Reset immediately when the target video changes so the button doesn't
+  // briefly show the previous video's state during the async refresh.
+  useEffect(() => {
+    setIsLiked(false);
+    setCount(0);
+  }, [videoId, source]);
+
   useEffect(() => { refresh(); }, [refresh]);
 
   const toggle = useCallback(async () => {
