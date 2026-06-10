@@ -156,7 +156,7 @@ const PublicClubProfile = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-neutral-950 flex items-center justify-center py-6 px-3 sm:py-10">
+    <div className="min-h-screen w-full flex items-center justify-center py-6 px-3 sm:py-10" style={{ backgroundColor: "#CDBFA4" }}>
       <div className="relative w-full max-w-[420px] min-h-[85vh] rounded-[2.5rem] bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 shadow-2xl ring-1 ring-white/10 overflow-hidden">
         {/* Top bar */}
         <div className="absolute top-4 right-4 z-10">
