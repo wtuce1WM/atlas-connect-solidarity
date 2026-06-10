@@ -2755,14 +2755,8 @@ const SearchPage = () => {
                 .eq("business_is_active", true);
               (data || []).forEach((r: any) => r.business_id && validBizIds.add(r.business_id));
             }
-            if (ytIds.length) {
-              const { data } = await supabase
-                .from("business_youtube_videos")
-                .select("business_id")
-                .in("id", ytIds)
-                .eq("business_is_active", true);
-              (data || []).forEach((r: any) => r.business_id && validBizIds.add(r.business_id));
-            }
+            // YouTube-badged businesses intentionally excluded from Résultats overlay
+            // (they remain visible in the dedicated YouTube tab).
             if (validBizIds.size > 0) {
               const existing = orderedIds.filter(id => validBizIds.has(id));
               const missing = Array.from(validBizIds).filter(id => !orderedIds.includes(id));
