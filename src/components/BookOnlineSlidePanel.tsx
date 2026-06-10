@@ -1921,7 +1921,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                               )}
                               {h.description && (
                                 <div
-                                  className="text-xs text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-xs max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
+                                  className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
                                   dangerouslySetInnerHTML={{ __html: h.description }}
                                 />
                               )}
