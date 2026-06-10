@@ -33,7 +33,8 @@ const SlidePanelHeader = ({
     ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
     : closeVariant === "inverse"
     ? "bg-black text-white shadow-2xl hover:bg-black/90 transition-colors"
-    : "bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity";
+    : "text-black shadow-2xl hover:opacity-90 transition-opacity";
+  const closeStyle = closeVariant === "dark" ? { backgroundColor: "#CDBFA4" } : undefined;
 
   const baseClass = alwaysDark
     ? "absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-transparent z-[75] overflow-visible"
@@ -52,6 +53,7 @@ const SlidePanelHeader = ({
             onClose();
           }}
           className={`h-9 w-9 flex items-center justify-center rounded-full touch-manipulation ${closeClass}`}
+          style={closeStyle}
           title="Fermer"
           aria-label="Fermer le panneau"
         >
