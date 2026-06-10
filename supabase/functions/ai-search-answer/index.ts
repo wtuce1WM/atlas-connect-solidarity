@@ -174,7 +174,7 @@ serve(async (req) => {
           .eq("is_hidden", false)
           .not("text", "is", null)
           .order("published_at", { ascending: false })
-          .limit(businessIds.length * 4),
+          .limit(businessIds.length * 8),
       ]);
       const fmtHours = (oh: any, is24: boolean | null, show: boolean | null): string | undefined => {
         if (show === false) return undefined;
