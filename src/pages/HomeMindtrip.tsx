@@ -210,8 +210,6 @@ const HomeMindtrip = () => {
   const horizontalRef = useRef<HTMLDivElement>(null);
   const stickyHorizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const [trackX, setTrackX] = useState(0);
-  const [horizontalSectionHeight, setHorizontalSectionHeight] = useState<number | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
@@ -221,29 +219,24 @@ const HomeMindtrip = () => {
     let cachedVw = window.innerWidth;
     let cachedTotal = 1;
     let cachedMaxX = 0;
-    let cachedStickyTop = 0;
-    let cachedStickyHeight = 1;
 
     const recomputeMetrics = () => {
       const container = horizontalRef.current;
-      const sticky = stickyHorizontalRef.current;
       const track = trackRef.current;
-      if (!container || !sticky || !track) return;
+      if (!container || !track) return;
       cachedVw = window.innerWidth;
-      cachedStickyTop = parseFloat(window.getComputedStyle(sticky).top) || 0;
-      cachedStickyHeight = sticky.offsetHeight;
       cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
-      const nextHeight = Math.ceil(cachedStickyHeight + cachedStickyTop + cachedMaxX);
-      if (container.offsetHeight !== nextHeight) setHorizontalSectionHeight(nextHeight);
-      cachedTotal = Math.max(1, nextHeight - cachedStickyHeight - cachedStickyTop);
+      cachedTotal = Math.max(1, cachedMaxX);
+      container.style.height = `${Math.ceil(window.innerHeight + cachedTotal)}px`;
     };
 
     const onScroll = () => {
       const container = horizontalRef.current;
-      if (!container) return;
+      const track = trackRef.current;
+      if (!container || !track) return;
       const rect = container.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, (cachedStickyTop - rect.top) / cachedTotal));
-      setTrackX(progress * cachedMaxX);
+      const progress = Math.min(1, Math.max(0, -rect.top / cachedTotal));
+      track.style.transform = `translate3d(${-progress * cachedMaxX}px, 0, 0)`;
 
       const centerX = cachedVw / 2;
       let bestIdx = 0;
