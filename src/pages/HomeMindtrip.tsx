@@ -211,33 +211,34 @@ const HomeMindtrip = () => {
   const stickyHorizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [trackX, setTrackX] = useState(0);
+  const [horizontalSectionHeight, setHorizontalSectionHeight] = useState<number | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
   const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
-    // Cache vh/maxX/total to stay stable when Android Chrome's URL bar
-    // collapses/expands during scroll (otherwise the horizontal track jitters).
     let cachedVw = window.innerWidth;
-    let cachedTotal = 0;
     let cachedMaxX = 0;
+    let cachedStickyTop = 0;
 
     const recomputeMetrics = () => {
-      const container = horizontalRef.current;
       const sticky = stickyHorizontalRef.current;
       const track = trackRef.current;
-      if (!container || !sticky || !track) return;
+      if (!sticky || !track) return;
       cachedVw = window.innerWidth;
+      cachedStickyTop = parseFloat(window.getComputedStyle(sticky).top) || 0;
       cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
-      cachedTotal = Math.max(1, container.offsetHeight - window.innerHeight);
+      setHorizontalSectionHeight(Math.ceil(sticky.offsetHeight + cachedMaxX));
     };
 
     const onScroll = () => {
       const container = horizontalRef.current;
-      if (!container || cachedTotal <= 0) return;
+      if (!container) return;
       const rect = container.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, -rect.top / cachedTotal));
+      const progress = cachedMaxX > 0
+        ? Math.min(1, Math.max(0, (cachedStickyTop - rect.top) / cachedMaxX))
+        : 0;
       setTrackX(progress * cachedMaxX);
 
       const centerX = cachedVw / 2;
@@ -256,10 +257,16 @@ const HomeMindtrip = () => {
 
     recomputeMetrics();
     onScroll();
+    const resizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
+    if (resizeObserver) {
+      if (stickyHorizontalRef.current) resizeObserver.observe(stickyHorizontalRef.current);
+      if (trackRef.current) resizeObserver.observe(trackRef.current);
+    }
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onResize);
     return () => {
+      resizeObserver?.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
