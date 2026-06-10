@@ -138,7 +138,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
           aria-label="Le Club OWM"
           title="Le Club OWM"
         >
-          <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+          <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
         </button>
       </div>
 
