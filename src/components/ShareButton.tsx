@@ -8,12 +8,14 @@ interface ShareButtonProps {
   title?: string;
   /** Optional custom URL to share (e.g. OG proxy URL). Defaults to window.location.href */
   shareUrl?: string;
+  /** Optional preview image shown in the share modal (instead of the OWM logo) */
+  previewImage?: string | null;
   /** Button color variant */
   variant?: "light" | "dark" | "gold";
   className?: string;
 }
 
-const ShareButton = ({ title, shareUrl, variant = "gold", className = "" }: ShareButtonProps) => {
+const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", className = "" }: ShareButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
