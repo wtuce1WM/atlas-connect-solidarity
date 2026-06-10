@@ -1,6 +1,7 @@
 import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award, Bookmark } from "lucide-react";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
+import { useBookmark } from "@/hooks/useBookmark";
 
 export interface SearchResultBusiness {
   id: string;
@@ -100,6 +101,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
   const certifications = engs.filter(e => e.startsWith("Certification:")).map(e => e.replace("Certification:", "").trim());
   const logistics = engs.filter(e => e.startsWith("Logistique:")).map(e => e.replace("Logistique:", "").trim());
   const hasEngagements = standards.length > 0 || logistics.length > 0 || certifications.length > 0;
+  const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(business.id);
 
   return (
     <div
@@ -133,13 +135,19 @@ export default function SearchResultCard({ business, index, labelLogos, distance
 
       <div className="absolute top-2 right-2 z-[20]" onClick={(e) => e.stopPropagation()}>
         <button
-          onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+          onClick={async () => {
+            if (!isBookmarkLoggedIn) {
+              window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+              return;
+            }
+            await toggleBookmark();
+          }}
           className="h-9 w-9 flex items-center justify-center rounded-full glass-toolbar-btn text-black hover:opacity-90 transition-opacity"
           style={{ backgroundColor: "#F1F1F1" }}
-          aria-label="Le Club OWM"
-          title="Le Club OWM"
+          aria-label={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
+          title={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
         >
-          <Bookmark className="h-4 w-4" strokeWidth={2.5} />
+          <Bookmark className="h-4 w-4" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
         </button>
       </div>
 
