@@ -189,10 +189,16 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
 
             {/* Preview card */}
             <div
-              className="relative aspect-square w-full rounded-2xl overflow-hidden text-white p-6 flex flex-col items-center justify-end text-center mb-5 bg-neutral-900"
-              style={previewImage ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+              className="relative aspect-square w-full rounded-2xl overflow-hidden text-white p-6 flex flex-col items-center justify-end text-center mb-5"
+              style={
+                avatarImage
+                  ? { backgroundColor: "#3B3B3B" }
+                  : previewImage
+                  ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" }
+                  : { backgroundColor: "#171717" }
+              }
             >
-              {previewImage && <div className="absolute inset-0 bg-black/45" aria-hidden="true" />}
+              {previewImage && !avatarImage && <div className="absolute inset-0 bg-black/45" aria-hidden="true" />}
               {avatarImage ? (
                 <div className="relative h-20 w-20 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden mb-3 ring-2 ring-white/40 shadow-xl">
                   <img src={avatarImage} alt="" className="h-full w-full object-cover" />
