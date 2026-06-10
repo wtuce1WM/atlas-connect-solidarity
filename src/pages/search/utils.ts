@@ -98,8 +98,8 @@ export const AI_CHAT_MAX_TURNS = 4;
 // Supabase paging when fetching all map businesses for a city.
 export const MAP_FETCH_PAGE_SIZE = 1000;
 
-// pinIds mode: page 1 shows 23 businesses (AI suggestion card takes slot #4 → 24 cards total).
-export const PIN_PAGE1_SIZE = ITEMS_PER_PAGE + 3;
+// pinIds mode: paginate par 20 comme le reste de Search.
+export const PIN_PAGE1_SIZE = ITEMS_PER_PAGE;
 
 // Stopwords used by the AI refinement AND-filter tokenizer.
 export const REFINEMENT_STOPWORDS = new Set([
