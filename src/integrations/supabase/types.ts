@@ -5345,6 +5345,30 @@ export type Database = {
         }
         Relationships: []
       }
+      video_likes: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+          video_id: string
+          video_source: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+          video_id: string
+          video_source: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+          video_id?: string
+          video_source?: string
+        }
+        Relationships: []
+      }
       voice_intent_rules: {
         Row: {
           created_at: string
