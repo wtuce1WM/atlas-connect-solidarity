@@ -216,6 +216,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   // UI state
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
+  // Seed the initial media index from a pinned video (initialVideoUrl) without
+  // mutating the grid order. Runs once per (businessId, initialVideoUrl).
+  const seededPinRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!initialVideoUrl) return;
+    const key = `${businessId || ""}::${initialVideoUrl}`;
+    if (seededPinRef.current === key) return;
+    if (!mediaItems || mediaItems.length === 0) return;
+    const idx = mediaItems.findIndex((m) => m.kind === "video" && m.url === initialVideoUrl);
+    if (idx >= 0) {
+      setCurrentMediaIndex(idx);
+      seededPinRef.current = key;
+    }
+  }, [initialVideoUrl, businessId, mediaItems]);
+
   const [matterportPinnedInHiddenMode, setMatterportPinnedInHiddenMode] = useState(true);
   const [descExpanded, setDescExpanded] = useState(true);
   const [showDirections, setShowDirections] = useState(false);
