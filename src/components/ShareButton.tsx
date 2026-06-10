@@ -21,6 +21,8 @@ interface ShareButtonProps {
 const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", className = "", buttonClassName = "" }: ShareButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
+  const qrRef = useRef<HTMLDivElement>(null);
 
   const rawUrl = shareUrl || (typeof window !== "undefined" ? window.location.href : "");
   // Strip internal cache-buster _t from shared URLs ; route public pages via the
