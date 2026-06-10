@@ -701,6 +701,7 @@ const Home = () => {
           .from("events")
           .select("id, name, type, hook, images, videos, default_business_id, start_date, end_date, days_of_week, start_time, end_time")
           .in("id", ids)
+          .order("sort_order", { ascending: true, nullsFirst: false })
           .order("start_date", { ascending: true });
 
         // Keep events that have either an image OR a video (used as media for the card)
