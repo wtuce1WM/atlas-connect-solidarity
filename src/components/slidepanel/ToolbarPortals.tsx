@@ -34,7 +34,8 @@ interface ToolbarPortalsProps {
   openBadgeInfo?: { text: string; isOpen: boolean } | null;
   /** When true, hides all toolbar buttons (e.g. when description overlay is open) */
   hideToolbarButtons?: boolean;
-}
+  /** Currently visible YouTube short in the panel — drives the Heart "like" action */
+  activeYoutubeVideo?: YouTubeVideo | null;
 
 export function ToolbarPortals({
   business,
