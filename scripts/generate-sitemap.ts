@@ -48,7 +48,7 @@ async function fetchDynamicEntries(): Promise<SitemapEntry[]> {
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const entries: SitemapEntry[] = [];
 
-  // Businesses actifs (canonical = /business/:slug, qui redirige vers /fiche/:slug)
+  // Businesses actifs — vanity URL `/<slug>` (canonique, résolue par VanityResolver)
   const businesses: { slug: string | null; updated_at: string | null }[] = [];
   const PAGE = 1000;
   let from = 0;
@@ -69,10 +69,10 @@ async function fetchDynamicEntries(): Promise<SitemapEntry[]> {
   for (const b of businesses) {
     if (!b.slug) continue;
     entries.push({
-      path: `/business/${encodeURIComponent(b.slug)}`,
+      path: `/${encodeURIComponent(b.slug)}`,
       lastmod: toIsoDate(b.updated_at),
       changefreq: "weekly",
-      priority: "0.7",
+      priority: "0.8",
     });
   }
 
