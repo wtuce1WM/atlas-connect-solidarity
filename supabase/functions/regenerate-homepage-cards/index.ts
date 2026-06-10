@@ -14,9 +14,16 @@ function deriveThumbnail(url: string): string | null {
   return null;
 }
 
+const CITY_ALIASES: Record<string, string[]> = {
+  Marrakech: ["Marrakech", "Agafay"],
+  Essaouira: ["Essaouira"],
+};
+const getCityAliases = (c: string): string[] => CITY_ALIASES[c] || [c];
+
 async function buildSnapshot(supabase: any, city: string) {
-  const [cityRowRes, entriesRes, linksRes, overridesRes, badgesRes, extraRes, orderRes, subcatRes] = await Promise.all([
-    supabase.from("cities").select("id").eq("name_fr", city).maybeSingle(),
+  const aliasNames = getCityAliases(city);
+  const [cityRowsRes, entriesRes, linksRes, overridesRes, badgesRes, extraRes, orderRes, subcatRes] = await Promise.all([
+    supabase.from("cities").select("id").in("name_fr", aliasNames),
     supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
     supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
     supabase.from("front_structure_homepage_overrides").select("front_structure_id, business_id").eq("city", city),
@@ -37,9 +44,10 @@ async function buildSnapshot(supabase: any, city: string) {
     ((subcatRes.data as any[]) || []).map((s) => [s.id, s.name_fr])
   );
 
-  const cityRowId = (cityRowRes.data as any)?.id || null;
-  const linkedDocIdsRes = cityRowId
-    ? await supabase.from("business_document_cities").select("document_id").eq("city_id", cityRowId)
+  const aliasCityIds = ((cityRowsRes.data as any[]) || []).map((r) => r.id);
+  const cityRowId = aliasCityIds[0] || null;
+  const linkedDocIdsRes = aliasCityIds.length > 0
+    ? await supabase.from("business_document_cities").select("document_id").in("city_id", aliasCityIds)
     : { data: [] as any[] };
   const linkedDocIds = new Set(((linkedDocIdsRes.data as any[]) || []).map((r) => r.document_id));
 

@@ -42,6 +42,7 @@ import {
   isDifferentDisplayedBusinessSocial,
   copyTextSilently,
   cityMatches,
+  getCityAliases,
 } from "@/lib/homeHelpers";
 import { fetchDocBadgesByDocId, fetchYtBadgesByVideoId, fetchBusinessesByIds, DOC_VIDEO_COLS } from "@/lib/homeFetchHelpers";
 import {
@@ -543,17 +544,27 @@ const Home = () => {
     return () => { cancelled = true; };
   }, [city]);
 
-  // Document ids assigned to this city via business_document_cities (multi-city)
+  // Document ids assigned to this city via business_document_cities (multi-city).
+  // Includes city aliases (e.g. Marrakech also pulls Agafay's docs).
   // Paginate to bypass PostgREST 1000-row limit. SWR-cached per city.
   useEffect(() => {
     if (!cityRowId) { setExtraCityDocIds(new Set()); return; }
-    const key = `home:extraCityDocIds:${cityRowId}`;
+    const key = `home:extraCityDocIds:${city}`;
     const cached = getCached<string[]>(key);
     if (cached) setExtraCityDocIds(new Set(cached));
     let cancelled = false;
     revalidate<string[]>(
       key,
       async () => {
+        // Resolve all alias city ids (e.g. Marrakech + Agafay)
+        const aliases = getCityAliases(city);
+        const { data: cityRows } = await supabase
+          .from("cities")
+          .select("id")
+          .in("name_fr", aliases);
+        const aliasIds = ((cityRows as any[]) || []).map((r) => r.id);
+        const ids = aliasIds.length > 0 ? aliasIds : [cityRowId];
+
         const all: string[] = [];
         const PAGE = 1000;
         let offset = 0;
@@ -561,7 +572,7 @@ const Home = () => {
           const { data } = await supabase
             .from("business_document_cities")
             .select("document_id")
-            .eq("city_id", cityRowId)
+            .in("city_id", ids)
             .order("document_id", { ascending: true })
             .range(offset, offset + PAGE - 1);
           const rows = (data as any[]) || [];
@@ -574,7 +585,8 @@ const Home = () => {
       (fresh) => { if (!cancelled) setExtraCityDocIds(new Set(fresh)); }
     );
     return () => { cancelled = true; };
-  }, [cityRowId]);
+  }, [cityRowId, city]);
+
 
   useEffect(() => {
     setLoading(true);
@@ -1205,7 +1217,7 @@ const Home = () => {
         const cityBiz = await supabase
           .from("businesses")
           .select("id")
-          .eq("city", city);
+          .in("city", getCityAliases(city));
         const bizIds = (cityBiz.data || []).map((b: any) => b.id);
         if (bizIds.length === 0) {
           safeSetVideos([]);
@@ -1857,7 +1869,7 @@ const Home = () => {
       .from("businesses")
       .select("id, name, slug, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, priority_score")
       .in("id", ids)
-      .eq("city", clickedCity)
+      .in("city", getCityAliases(clickedCity))
       .eq("is_active", true);
     // Same ranking as SearchPage: WTUCE verified first (priority_score desc),
     // then non-verified by priority_score, then by effective rating ignoring <10 reviews.
