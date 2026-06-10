@@ -219,7 +219,13 @@ export function ToolbarPortals({
           >
             <Bookmark className="h-4 w-4" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
           </button>
-          <ShareButton title={business.name} variant="dark" className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black" shareUrl={business.slug ? buildOgShareUrl(business.slug) : undefined} />
+          <ShareButton
+            title={business.name}
+            variant="dark"
+            className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black"
+            shareUrl={business.slug ? `https://oneworldmorocco.com/${business.slug}` : undefined}
+            previewImage={images?.[0] || business?.images?.[0] || null}
+          />
         </div>,
         toolbarPortal
       )}
