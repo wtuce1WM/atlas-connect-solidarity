@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play } from "lucide-react";
@@ -211,6 +211,7 @@ const HomeMindtrip = () => {
   const stickyHorizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [trackX, setTrackX] = useState(0);
+  const [horizontalSectionHeight, setHorizontalSectionHeight] = useState<number | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
