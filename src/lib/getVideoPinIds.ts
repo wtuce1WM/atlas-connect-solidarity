@@ -64,13 +64,13 @@ export async function getBusinessIdsFromBadgeAndCity(
     ytIds.length
       ? supabase
           .from("business_youtube_videos")
-          .select("business_id, front_sort_order, sort_order")
+          .select("business_id, sort_order")
           .in("id", ytIds)
           .eq("business_is_active", true)
       : Promise.resolve({ data: [] as any[] }),
   ]);
 
-  type Row = { business_id: string | null; front_sort_order: number | null; sort_order: number | null };
+  type Row = { business_id: string | null; front_sort_order?: number | null; sort_order: number | null };
   const all: Row[] = [
     ...((docsRes.data as Row[]) || []),
     ...((ytsRes.data as Row[]) || []),
