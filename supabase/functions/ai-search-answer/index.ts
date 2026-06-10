@@ -362,9 +362,9 @@ serve(async (req) => {
           if (enr?.price) parts.push(`— Prix: ${enr.price}`);
           if (enr?.opening_hours) parts.push(`— Horaires: ${enr.opening_hours}`);
           if (enr?.images_count) parts.push(`— Photos: ${enr.images_count}`);
-          if (enr?.ratings) parts.push(`— Notes: ${enr.ratings}`);
-          if (enr?.ai_review_summary) parts.push(`— Résumé avis: ${enr.ai_review_summary}`);
-          if (enr?.reviews?.length) parts.push(`— Avis clients: ${enr.reviews.join(" | ")}`);
+          if (enr?.ratings && !(b.id && reviewsDisabled.has(b.id))) parts.push(`— Notes: ${enr.ratings}`);
+          if (enr?.ai_review_summary && !(b.id && reviewsDisabled.has(b.id))) parts.push(`— Résumé avis: ${enr.ai_review_summary}`);
+          if (enr?.reviews?.length && !(b.id && reviewsDisabled.has(b.id))) parts.push(`— Avis clients: ${enr.reviews.join(" | ")}`);
           return parts.join(" ");
         }).join("\n")
       : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)";
