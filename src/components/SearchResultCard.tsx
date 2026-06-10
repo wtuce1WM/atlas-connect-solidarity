@@ -1,4 +1,4 @@
-import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award, Heart } from "lucide-react";
+import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award, Bookmark } from "lucide-react";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 
