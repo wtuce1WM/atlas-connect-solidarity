@@ -32,7 +32,7 @@ export interface FrontHighlightsEditorHandle {
 }
 
 const TOTAL_BLOCKS = 6;
-const DEFAULT_ICONS = ["Sparkles", "Star", "Heart", "MapPin", "Award", "Gem"];
+const DEFAULT_ICONS: string[] = [];
 const MAX_RICH = 1000;
 const MAX_METRIC = 50;
 
@@ -72,7 +72,7 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
       if (!existingOrders.has(i)) {
         toInsert.push({
           business_id: businessId,
-          icon: DEFAULT_ICONS[i] || "Star",
+          icon: DEFAULT_ICONS[i] || "",
           title: "",
           description: "",
           sort_order: i,
@@ -212,7 +212,7 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
                   <div key={h.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground font-medium">#{i + 1}</span>
-                      <DynamicIcon name={h.icon} className="h-5 w-5 text-primary" />
+                      {h.icon && <DynamicIcon name={h.icon} className="h-5 w-5 text-primary" />}
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
