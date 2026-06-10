@@ -221,6 +221,7 @@ const HomeMindtrip = () => {
     let cachedVw = window.innerWidth;
     let cachedTotal = 1;
     let cachedMaxX = 0;
+    let cachedStickyTop = 0;
     let cachedStickyHeight = 1;
 
     const recomputeMetrics = () => {
@@ -229,22 +230,19 @@ const HomeMindtrip = () => {
       const track = trackRef.current;
       if (!container || !sticky || !track) return;
       cachedVw = window.innerWidth;
+      cachedStickyTop = parseFloat(window.getComputedStyle(sticky).top) || 0;
       cachedStickyHeight = sticky.offsetHeight;
-      const first = cardRefs.current[0];
-      const last = cardRefs.current[STEPS.slice(1).length - 1];
-      const firstCenter = first ? first.offsetLeft + first.offsetWidth / 2 : cachedVw / 2;
-      const lastCenter = last ? last.offsetLeft + last.offsetWidth / 2 : track.scrollWidth - cachedVw / 2;
-      cachedMaxX = Math.max(0, lastCenter - cachedVw / 2, firstCenter - cachedVw / 2);
-      const nextHeight = Math.ceil(cachedStickyHeight + cachedMaxX);
+      cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
+      const nextHeight = Math.ceil(cachedStickyHeight + cachedStickyTop + cachedMaxX);
       if (container.offsetHeight !== nextHeight) setHorizontalSectionHeight(nextHeight);
-      cachedTotal = Math.max(1, nextHeight - window.innerHeight);
+      cachedTotal = Math.max(1, nextHeight - cachedStickyHeight - cachedStickyTop);
     };
 
     const onScroll = () => {
       const container = horizontalRef.current;
       if (!container) return;
       const rect = container.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, -rect.top / cachedTotal));
+      const progress = Math.min(1, Math.max(0, (cachedStickyTop - rect.top) / cachedTotal));
       setTrackX(progress * cachedMaxX);
 
       const centerX = cachedVw / 2;
