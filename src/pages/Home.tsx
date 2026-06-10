@@ -1217,7 +1217,7 @@ const Home = () => {
         const cityBiz = await supabase
           .from("businesses")
           .select("id")
-          .eq("city", city);
+          .in("city", getCityAliases(city));
         const bizIds = (cityBiz.data || []).map((b: any) => b.id);
         if (bizIds.length === 0) {
           safeSetVideos([]);
