@@ -624,7 +624,7 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     /* Use dynamic viewport height when available (mobile browsers + PWA) */
     min-height: 100dvh;
     /* Prevent accidental horizontal scroll on iOS Safari */
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
   }
 
