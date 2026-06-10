@@ -161,6 +161,7 @@ serve(async (req) => {
       engagements?: string[];
       badges?: string[];
       video_badges?: string[];
+      videos?: string[];
       description?: string;
       ai_review_summary?: string;
       opening_hours?: any;
