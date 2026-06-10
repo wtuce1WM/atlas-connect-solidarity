@@ -1687,7 +1687,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     videoFallbackUrl: isHostedFile ? vid.url : undefined,
                     label: vid.name || undefined,
                     playIcon: true,
-                    onClick: () => setActiveVideoOverlay({ id: vid.id, url: vid.url, name: vid.name, description: vid.description }),
+                    onClick: () => setActiveVideoOverlay({ id: vid.url, url: vid.url, name: vid.name, description: vid.description }),
                   } as GridItem;
                 });
               } else if (descGridSection === "poi") {
