@@ -290,6 +290,21 @@ serve(async (req) => {
         const arr = (enrichment[r.business_id].video_badges = enrichment[r.business_id].video_badges || []);
         names.forEach((n: string) => { if (!arr.includes(n)) arr.push(n); });
       });
+      const pushVideo = (bid: string, label: string) => {
+        const t = (label || "").toString().replace(/\s+/g, " ").trim();
+        if (!t) return;
+        enrichment[bid] = enrichment[bid] || {};
+        const arr = (enrichment[bid].videos = enrichment[bid].videos || []);
+        const snippet = t.length > 160 ? t.slice(0, 160) + "…" : t;
+        if (arr.length < 12 && !arr.includes(snippet)) arr.push(snippet);
+      };
+      (ytTitleRows?.data || []).forEach((r: any) => pushVideo(r.business_id, r.title));
+      (genericVideoRows?.data || []).forEach((r: any) => {
+        const g = r.generic_videos;
+        if (!g) return;
+        const label = [g.title || g.name, g.description].filter(Boolean).join(" — ");
+        pushVideo(r.business_id, label);
+      });
       const pushReview = (r: any, cap: number) => {
         const txt = (r.text_fr || r.text || "").toString().replace(/\s+/g, " ").trim();
         if (!txt) return;
