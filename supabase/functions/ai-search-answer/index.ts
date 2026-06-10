@@ -431,6 +431,8 @@ serve(async (req) => {
           if (enr?.badges?.length) parts.push(`— Badges: ${enr.badges.slice(0, 15).join(", ")}`);
           if (enr?.video_badges?.length) parts.push(`— Badges vidéos: ${enr.video_badges.slice(0, 15).join(", ")}`);
           if (enr?.videos?.length) parts.push(`— Vidéos: ${enr.videos.join(" | ")}`);
+          if (enr?.menus?.length) parts.push(`— Menus: ${enr.menus.join(" | ")}`);
+          if (enr?.blog?.length) parts.push(`— Blog: ${enr.blog.join(" | ")}`);
           if (enr?.price) parts.push(`— Prix: ${enr.price}`);
           if (enr?.opening_hours) parts.push(`— Horaires: ${enr.opening_hours}`);
           if (enr?.images_count) parts.push(`— Photos: ${enr.images_count}`);
