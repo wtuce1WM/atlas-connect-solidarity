@@ -685,6 +685,7 @@ const EventManagement = () => {
     const { data, error } = await supabase
       .from("events")
       .select("*")
+      .order("sort_order", { ascending: true, nullsFirst: false })
       .order("updated_at", { ascending: false });
     if (!error && data) {
       setEvents(data as unknown as EventRow[]);
