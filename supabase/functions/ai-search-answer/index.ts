@@ -193,7 +193,7 @@ serve(async (req) => {
             .limit(focusedArr.length * 40),
         );
       }
-      const [bizRows, badgeLinks, videoRows, reviewsStatusRows, reviewRows, focusedReviewRows] = await Promise.all([
+      const [bizRows, badgeLinks, videoRows, ytTitleRows, genericVideoRows, reviewsStatusRows, reviewRows, focusedReviewRows] = await Promise.all([
         sb.from("businesses")
           .select("id, services, engagements, description, ai_review_summary, opening_hours, show_opening_hours, is_open_24h, min_price, manual_price_range, avg_price_range, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, trustpilot_rating, trustpilot_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, tourradar_rating, tourradar_review_count")
           .in("id", businessIds),
@@ -202,6 +202,16 @@ serve(async (req) => {
           .select("business_id, business_youtube_video_badges(badges(name_fr))")
           .in("business_id", businessIds)
           .eq("is_visible", true),
+        sb.from("business_youtube_videos")
+          .select("business_id, title")
+          .in("business_id", businessIds)
+          .eq("is_visible", true)
+          .not("title", "is", null)
+          .limit(businessIds.length * 10),
+        sb.from("generic_video_businesses")
+          .select("business_id, generic_videos(title, name, description)")
+          .in("business_id", businessIds)
+          .limit(businessIds.length * 10),
         sb.from("reviews").select("business_id, is_hidden").in("business_id", businessIds),
         ...reviewsPromises,
       ]);
