@@ -38,6 +38,8 @@ interface ToolbarPortalsProps {
   hideToolbarButtons?: boolean;
   /** Currently visible YouTube short in the panel — drives the Heart "like" action */
   activeYoutubeVideo?: YouTubeVideo | null;
+  /** Currently visible internal video in the panel — drives the Heart "like" action */
+  activeInternalVideoId?: string | null;
 }
 
 
@@ -63,6 +65,7 @@ export function ToolbarPortals({
   openBadgeInfo,
   hideToolbarButtons,
   activeYoutubeVideo,
+  activeInternalVideoId,
 }: ToolbarPortalsProps) {
   const pfx = toolbarPortalPrefix ? `${toolbarPortalPrefix}-` : "";
   const toolbarPortal = document.getElementById(`${pfx}slide-panel-toolbar`);
@@ -71,12 +74,14 @@ export function ToolbarPortals({
 
   const shouldHide = !!selectedKpBusinessId || !!selectedPoiBusinessId || showMosaic || !!hideToolbarButtons;
 
-  // Like target: active YT short if any, otherwise fall back to the business itself
+  // Like target: active video if any, otherwise fall back to the business itself
   const likeTarget = activeYoutubeVideo?.videoId
     ? { id: activeYoutubeVideo.videoId, source: "youtube" as const }
-    : business?.id
-      ? { id: String(business.id), source: "business" as const }
-      : { id: null, source: "business" as const };
+    : activeInternalVideoId
+      ? { id: activeInternalVideoId, source: "business" as const }
+      : business?.id
+        ? { id: String(business.id), source: "business" as const }
+        : { id: null, source: "business" as const };
   const { isLiked, count: likeCount, isLoggedIn, toggle: toggleLike } = useVideoLike(likeTarget.id, likeTarget.source);
   // Log a view each time a YouTube short becomes active in the panel
   useVideoView(activeYoutubeVideo?.videoId ?? null, "youtube", { autoLog: true });
