@@ -164,7 +164,8 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
           aria-label="Partager"
         >
           <div
-            className="relative w-full max-w-md rounded-3xl bg-white text-foreground shadow-2xl p-6 animate-in zoom-in-95 fade-in-0"
+            className="relative w-full max-w-md rounded-3xl text-foreground shadow-2xl p-6 animate-in zoom-in-95 fade-in-0"
+            style={{ backgroundColor: "#CDBFA4" }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -181,7 +182,7 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
 
             {/* Preview card */}
             <div
-              className="relative rounded-2xl overflow-hidden text-white p-6 flex flex-col items-center text-center mb-5 bg-neutral-900"
+              className="relative aspect-square w-full rounded-2xl overflow-hidden text-white p-6 flex flex-col items-center justify-end text-center mb-5 bg-neutral-900"
               style={previewImage ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
             >
               {previewImage && <div className="absolute inset-0 bg-black/45" aria-hidden="true" />}
