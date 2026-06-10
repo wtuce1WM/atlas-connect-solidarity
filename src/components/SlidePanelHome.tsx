@@ -16,6 +16,7 @@ import { businessUrl, buildOgShareUrl } from "@/lib/businessUrl";
 import { formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
 import { buildKpSearchUrl } from "@/lib/buildKpSearchUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import { useVideoView } from "@/hooks/useVideoView";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import ShareButton from "@/components/ShareButton";
