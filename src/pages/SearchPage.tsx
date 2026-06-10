@@ -75,6 +75,7 @@ import ResultsTabContent from "@/pages/search/ResultsTabContent";
 import HashtagTabContent from "@/pages/search/HashtagTabContent";
 import YouTubeChannelsTabContent from "@/pages/search/YouTubeChannelsTabContent";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
+import { getCityAliases } from "@/lib/homeHelpers";
 import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE, AI_CHAT_MAX_TURNS, MAP_FETCH_PAGE_SIZE, PIN_PAGE1_SIZE, REFINEMENT_STOPWORDS, NEARBY_ENTITY_RE, NEAR_OF_ENTITY_RE, GENERIC_NEARBY_TERMS } from "@/pages/search/utils";
 
 import type { Business, SearchResult } from "@/pages/search/types";
@@ -194,14 +195,13 @@ const SearchPage = () => {
         .limit(1)
         .maybeSingle();
       if (!extraCard) { if (!cancelled) setPinThumbMap({}); return; }
-      const { data: cityRow } = await supabase
+      const cityAliases = getCityAliases(cityFromUrlForThumbs);
+      const { data: cityRows } = await supabase
         .from("cities")
         .select("id")
-        .or(`name_fr.ilike.${cityFromUrlForThumbs},name_en.ilike.${cityFromUrlForThumbs},name_ar.ilike.${cityFromUrlForThumbs}`)
-        .limit(1)
-        .maybeSingle();
-      const cityId = (cityRow as any)?.id;
-      if (!cityId) { if (!cancelled) setPinThumbMap({}); return; }
+        .in("name_fr", cityAliases);
+      const cityIds = ((cityRows as any[]) || []).map((r) => r.id).filter(Boolean);
+      if (cityIds.length === 0) { if (!cancelled) setPinThumbMap({}); return; }
       const { data: badgeDocs } = await supabase
         .from("business_document_badges")
         .select("document_id")
@@ -211,7 +211,7 @@ const SearchPage = () => {
       const { data: cityDocs } = await supabase
         .from("business_document_cities")
         .select("document_id")
-        .eq("city_id", cityId)
+        .in("city_id", cityIds)
         .in("document_id", docIds);
       const cityDocIds = (cityDocs || []).map((r: any) => r.document_id);
       if (!cityDocIds.length) { if (!cancelled) setPinThumbMap({}); return; }
