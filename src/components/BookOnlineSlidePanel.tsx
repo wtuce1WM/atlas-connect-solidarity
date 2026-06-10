@@ -1911,11 +1911,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                               </div>
                               {(h.metric_title || h.metric_value) && (
                                 <div className="flex items-baseline gap-2">
-                                  {h.metric_value && (
-                                    <span className="text-lg font-bold text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{h.metric_value}</span>
-                                  )}
                                   {h.metric_title && (
                                     <span className="text-[10px] uppercase tracking-[0.1em] text-white/70">{h.metric_title}</span>
+                                  )}
+                                  {h.metric_value && (
+                                    <span className="text-lg font-bold text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{h.metric_value}</span>
                                   )}
                                 </div>
                               )}
