@@ -53,6 +53,7 @@ const SlidePanelHeader = ({
             onClose();
           }}
           className={`h-9 w-9 flex items-center justify-center rounded-full touch-manipulation ${closeClass}`}
+          style={closeStyle}
           title="Fermer"
           aria-label="Fermer le panneau"
         >
