@@ -2711,15 +2711,14 @@ const SearchPage = () => {
         const contextBadgeId = await resolvePinContextBadgeId();
         const contextCity = searchParams.get("city") || "";
         if (contextBadgeId && contextCity) {
-          const { data: cityRow } = await supabase
+          const cityAliases = getCityAliases(contextCity);
+          const { data: cityRows } = await supabase
             .from("cities")
             .select("id")
-            .or(`name_fr.ilike.${contextCity},name_en.ilike.${contextCity},name_ar.ilike.${contextCity}`)
-            .limit(1)
-            .maybeSingle();
-          const cityId = (cityRow as any)?.id || null;
+            .in("name_fr", cityAliases);
+          const cityIds = ((cityRows as any[]) || []).map((r) => r.id).filter(Boolean);
 
-          if (cityId) {
+          if (cityIds.length > 0) {
             const [docBadgeRes, ytBadgeRes] = await Promise.all([
               supabase.from("business_document_badges").select("document_id").eq("badge_id", contextBadgeId),
               supabase.from("business_youtube_video_badges").select("youtube_video_id").eq("badge_id", contextBadgeId),
@@ -2729,10 +2728,10 @@ const SearchPage = () => {
 
             const [docCityRes, ytCityRes] = await Promise.all([
               docIds.length
-                ? supabase.from("business_document_cities").select("document_id").eq("city_id", cityId).in("document_id", docIds)
+                ? supabase.from("business_document_cities").select("document_id").in("city_id", cityIds).in("document_id", docIds)
                 : Promise.resolve({ data: [] as any[] }),
               ytIds.length
-                ? supabase.from("business_youtube_video_cities").select("youtube_video_id").eq("city_id", cityId).in("youtube_video_id", ytIds)
+                ? supabase.from("business_youtube_video_cities").select("youtube_video_id").in("city_id", cityIds).in("youtube_video_id", ytIds)
                 : Promise.resolve({ data: [] as any[] }),
             ]);
             docIds = (docCityRes.data || []).map((r: any) => r.document_id);
