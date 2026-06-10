@@ -11,6 +11,8 @@ interface ShareButtonProps {
   shareUrl?: string;
   /** Optional preview image shown in the share modal (instead of the OWM logo) */
   previewImage?: string | null;
+  /** Optional avatar image rendered in the round overlay on top of previewImage */
+  avatarImage?: string | null;
   /** Button color variant */
   variant?: "light" | "dark" | "gold";
   className?: string;
@@ -18,7 +20,7 @@ interface ShareButtonProps {
   buttonClassName?: string;
 }
 
-const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", className = "", buttonClassName = "" }: ShareButtonProps) => {
+const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "gold", className = "", buttonClassName = "" }: ShareButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
