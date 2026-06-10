@@ -312,6 +312,44 @@ serve(async (req) => {
         const label = [g.title || g.name, g.description].filter(Boolean).join(" — ");
         pushVideo(r.business_id, label);
       });
+      (menuRows?.data || []).forEach((r: any) => {
+        const parts = [r.title, r.content, r.price_details].filter(Boolean).map((s: any) => String(s).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+        const t = parts.join(" — ").trim();
+        if (!t) return;
+        enrichment[r.business_id] = enrichment[r.business_id] || {};
+        const arr = (enrichment[r.business_id].menus = enrichment[r.business_id].menus || []);
+        const snippet = t.length > 400 ? t.slice(0, 400) + "…" : t;
+        if (arr.length < 6) arr.push(snippet);
+      });
+      // Blog posts mentioning the business name
+      const bizNames = (effectiveBusinesses as any[])
+        .filter((b: any) => b.id && businessIds.includes(b.id) && b.name && b.name.length >= 4)
+        .map((b: any) => ({ id: b.id, name: b.name }));
+      if (bizNames.length > 0) {
+        const orFilters = bizNames
+          .map((b) => {
+            const esc = b.name.replace(/[%,()]/g, " ").trim();
+            return `title_fr.ilike.%${esc}%,content_fr.ilike.%${esc}%`;
+          })
+          .join(",");
+        const { data: blogRows } = await sb
+          .from("blog_posts")
+          .select("title_fr, excerpt_fr, content_fr")
+          .eq("is_published", true)
+          .or(orFilters)
+          .limit(20);
+        (blogRows || []).forEach((p: any) => {
+          const hay = `${p.title_fr || ""} ${p.content_fr || ""}`.toLowerCase();
+          bizNames.forEach((b) => {
+            if (!hay.includes(b.name.toLowerCase())) return;
+            const excerpt = (p.excerpt_fr || p.content_fr || "").toString().replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+            const snippet = excerpt.length > 220 ? excerpt.slice(0, 220) + "…" : excerpt;
+            enrichment[b.id] = enrichment[b.id] || {};
+            const arr = (enrichment[b.id].blog = enrichment[b.id].blog || []);
+            if (arr.length < 4) arr.push(`"${p.title_fr}"${snippet ? ` — ${snippet}` : ""}`);
+          });
+        });
+      }
       const pushReview = (r: any, cap: number) => {
         const txt = (r.text_fr || r.text || "").toString().replace(/\s+/g, " ").trim();
         if (!txt) return;
