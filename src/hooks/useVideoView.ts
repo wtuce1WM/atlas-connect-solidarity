@@ -1,0 +1,52 @@
+import { useEffect, useRef, useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+export type VideoViewSource = "youtube" | "business" | "generic";
+
+/**
+ * Log one view per (videoId, source) mount and expose the current total view count.
+ * Anonymous views are allowed.
+ */
+export const useVideoView = (
+  videoId: string | null | undefined,
+  source: VideoViewSource,
+  options: { autoLog?: boolean } = {}
+) => {
+  const { autoLog = true } = options;
+  const [count, setCount] = useState(0);
+  const loggedKey = useRef<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    if (!videoId) { setCount(0); return; }
+    const { count: c } = await supabase
+      .from("video_views" as any)
+      .select("id", { count: "exact", head: true })
+      .eq("video_id", videoId)
+      .eq("video_source", source);
+    setCount(c ?? 0);
+  }, [videoId, source]);
+
+  const logView = useCallback(async () => {
+    if (!videoId) return;
+    const key = `${source}:${videoId}`;
+    if (loggedKey.current === key) return;
+    loggedKey.current = key;
+    const { data: { session } } = await supabase.auth.getSession();
+    await supabase
+      .from("video_views" as any)
+      .insert({
+        video_id: videoId,
+        video_source: source,
+        user_id: session?.user?.id ?? null,
+      } as any);
+    setCount((c) => c + 1);
+  }, [videoId, source]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  useEffect(() => {
+    if (autoLog && videoId) logView();
+  }, [autoLog, videoId, logView]);
+
+  return { count, logView, refresh };
+};
