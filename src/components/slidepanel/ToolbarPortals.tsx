@@ -147,9 +147,46 @@ export function ToolbarPortals({
         toolbarCenterPortal
       )}
 
-      {/* Right portal: Heart (Le Club) + Share */}
+      {/* Right portal: Heart (like video) + Bookmark (Le Club) + Share */}
       {toolbarPortal && !shouldHide && createPortal(
         <div className="flex items-center gap-2">
+          {/* Heart — likes the currently visible YouTube short */}
+          <div className="relative flex flex-col items-center">
+            <button
+              type="button"
+              onClick={onHeartClick}
+              disabled={!activeVideoId}
+              className={`relative h-9 w-9 flex items-center justify-center rounded-full bg-white shadow-2xl transition-all shrink-0 ${
+                activeVideoId ? "hover:bg-white/90 active:scale-90" : "opacity-50 cursor-not-allowed"
+              }`}
+              title={activeVideoId ? (isLiked ? "Retirer le like" : "Liker la vidéo") : "Aucune vidéo active"}
+              aria-label="Liker la vidéo"
+            >
+              <Heart
+                key={`h-${burst}`}
+                className={`h-4 w-4 transition-transform ${isLiked ? "text-red-500 animate-[heart-pop_0.4s_ease-out]" : "text-black"}`}
+                fill={isLiked ? "currentColor" : "none"}
+                strokeWidth={2.5}
+              />
+              {burst > 0 && isLiked && (
+                <Heart
+                  key={`fly-${burst}`}
+                  className="pointer-events-none absolute h-4 w-4 text-red-500 animate-[heart-fly_0.8s_ease-out_forwards]"
+                  fill="currentColor"
+                  strokeWidth={0}
+                />
+              )}
+            </button>
+            {likeCount > 0 && (
+              <span
+                className="absolute -bottom-4 text-[10px] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] tabular-nums"
+                style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+              >
+                {likeCount}
+              </span>
+            )}
+          </div>
+          {/* Bookmark — opens Club popup / saves business (former Heart role) */}
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
@@ -157,7 +194,7 @@ export function ToolbarPortals({
             title="Le Club OWM"
             aria-label="Le Club OWM"
           >
-            <Heart className="h-4 w-4" />
+            <Bookmark className="h-4 w-4" strokeWidth={2.5} />
           </button>
           <ShareButton title={business.name} variant="dark" className="shrink-0" shareUrl={business.slug ? buildOgShareUrl(business.slug) : undefined} />
         </div>,
