@@ -34,7 +34,7 @@ const SlidePanelHeader = ({
     : closeVariant === "inverse"
     ? "bg-black text-white shadow-2xl hover:bg-black/90 transition-colors"
     : "text-black shadow-2xl hover:opacity-90 transition-opacity";
-  const closeStyle = closeVariant === "dark" ? { backgroundColor: "#CDBFA4" } : undefined;
+  const closeStyle = closeVariant === "dark" ? { backgroundColor: "#F1F1F1" } : undefined;
 
   const baseClass = alwaysDark
     ? "absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-transparent z-[75] overflow-visible"
