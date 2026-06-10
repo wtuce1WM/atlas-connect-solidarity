@@ -208,6 +208,7 @@ const HomeMindtrip = () => {
   };
 
   const horizontalRef = useRef<HTMLDivElement>(null);
+  const stickyHorizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [trackX, setTrackX] = useState(0);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -220,16 +221,19 @@ const HomeMindtrip = () => {
     // collapses/expands during scroll (otherwise the horizontal track jitters).
     let cachedVh = window.innerHeight;
     let cachedVw = window.innerWidth;
+    let cachedStickyTop = 0;
     let cachedTotal = 0;
     let cachedMaxX = 0;
 
     const recomputeMetrics = () => {
       const container = horizontalRef.current;
+      const sticky = stickyHorizontalRef.current;
       const track = trackRef.current;
-      if (!container || !track) return;
+      if (!container || !sticky || !track) return;
       cachedVh = window.innerHeight;
       cachedVw = window.innerWidth;
-      cachedTotal = container.offsetHeight - cachedVh;
+      cachedStickyTop = Number.parseFloat(window.getComputedStyle(sticky).top || "0") || 0;
+      cachedTotal = Math.max(1, container.offsetHeight - sticky.offsetHeight);
       cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
     };
 
@@ -237,7 +241,7 @@ const HomeMindtrip = () => {
       const container = horizontalRef.current;
       if (!container || cachedTotal <= 0) return;
       const rect = container.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, -rect.top / cachedTotal));
+      const progress = Math.min(1, Math.max(0, (cachedStickyTop - rect.top) / cachedTotal));
       setTrackX(progress * cachedMaxX);
 
       const centerX = cachedVw / 2;
@@ -565,7 +569,7 @@ const HomeMindtrip = () => {
 
       {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
       <section ref={horizontalRef} className="relative bg-background mt-8 md:mt-0" style={{ height: "400vh" }}>
-        <div className="sticky top-16 md:top-28 flex h-[82svh] md:h-[78vh] items-center overflow-hidden">
+        <div ref={stickyHorizontalRef} className="sticky top-16 md:top-28 flex h-[82svh] md:h-[78vh] items-center overflow-hidden">
 
           <div
             ref={trackRef}
