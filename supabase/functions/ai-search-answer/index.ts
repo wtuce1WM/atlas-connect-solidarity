@@ -143,22 +143,90 @@ serve(async (req) => {
 
 
 
-    // Enrich businesses with services, engagements, badges and video badges (server-side)
-    // so the model can filter on real criteria (services, RSE, certifications, video tags…).
-    const enrichment: Record<string, { services?: string[]; engagements?: string[]; badges?: string[]; video_badges?: string[] }> = {};
+    // Enrich businesses with services, engagements, badges, video badges,
+    // plus description, opening hours, prices, photos count, ratings and review snippets.
+    const enrichment: Record<string, {
+      services?: string[];
+      engagements?: string[];
+      badges?: string[];
+      video_badges?: string[];
+      description?: string;
+      ai_review_summary?: string;
+      opening_hours?: any;
+      price?: string;
+      images_count?: number;
+      ratings?: string;
+      reviews?: string[];
+    }> = {};
     if (businessIds.length > 0) {
-      const [bizRows, badgeLinks, videoRows] = await Promise.all([
-        sb.from("businesses").select("id, services, engagements").in("id", businessIds),
+      const [bizRows, badgeLinks, videoRows, reviewRows] = await Promise.all([
+        sb.from("businesses")
+          .select("id, services, engagements, description, ai_review_summary, opening_hours, show_opening_hours, is_open_24h, min_price, manual_price_range, avg_price_range, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, trustpilot_rating, trustpilot_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, tourradar_rating, tourradar_review_count")
+          .in("id", businessIds),
         sb.from("business_badges").select("business_id, badges(name_fr)").in("business_id", businessIds),
         sb.from("business_youtube_videos")
           .select("business_id, business_youtube_video_badges(badges(name_fr))")
           .in("business_id", businessIds)
           .eq("is_visible", true),
+        sb.from("reviews")
+          .select("business_id, source, rating, text_fr, text, language")
+          .in("business_id", businessIds)
+          .eq("is_hidden", false)
+          .not("text", "is", null)
+          .order("published_at", { ascending: false })
+          .limit(businessIds.length * 4),
       ]);
+      const fmtHours = (oh: any, is24: boolean | null, show: boolean | null): string | undefined => {
+        if (show === false) return undefined;
+        if (is24) return "Ouvert 24h/24";
+        if (!oh || typeof oh !== "object") return undefined;
+        const days = ["mon","tue","wed","thu","fri","sat","sun"];
+        const labels: Record<string,string> = { mon:"Lun", tue:"Mar", wed:"Mer", thu:"Jeu", fri:"Ven", sat:"Sam", sun:"Dim" };
+        const out: string[] = [];
+        for (const d of days) {
+          const e: any = (oh as any)[d];
+          if (!e) continue;
+          if (e.closed) out.push(`${labels[d]}: fermé`);
+          else if (e.continuous) out.push(`${labels[d]}: 24h`);
+          else if (e.open && e.close) out.push(`${labels[d]}: ${e.open}-${e.close}`);
+        }
+        return out.length ? out.join(", ") : undefined;
+      };
+      const fmtPrice = (r: any): string | undefined => {
+        if (r.manual_price_range) return String(r.manual_price_range);
+        if (r.min_price) return `à partir de ${r.min_price} MAD`;
+        if (r.avg_price_range) return String(r.avg_price_range);
+        return undefined;
+      };
+      const fmtRatings = (r: any): string | undefined => {
+        const sources: [string, any, any][] = [
+          ["Google", r.google_rating, r.google_review_count],
+          ["TripAdvisor", r.tripadvisor_rating, r.tripadvisor_review_count],
+          ["RestaurantGuru", r.restaurant_guru_rating, r.restaurant_guru_review_count],
+          ["Trustpilot", r.trustpilot_rating, r.trustpilot_review_count],
+          ["GetYourGuide", r.getyourguide_rating, r.getyourguide_review_count],
+          ["Viator", r.viator_rating, r.viator_review_count],
+          ["AvisVérifiés", r.avis_verifies_rating, r.avis_verifies_review_count],
+          ["TourRadar", r.tourradar_rating, r.tourradar_review_count],
+        ];
+        const parts = sources
+          .filter(([, rat]) => rat != null)
+          .map(([name, rat, cnt]) => `${name} ${rat}/5${cnt ? ` (${cnt})` : ""}`);
+        return parts.length ? parts.join(", ") : undefined;
+      };
       (bizRows.data || []).forEach((r: any) => {
-        enrichment[r.id] = enrichment[r.id] || {};
-        enrichment[r.id].services = Array.isArray(r.services) ? r.services.filter(Boolean) : [];
-        enrichment[r.id].engagements = Array.isArray(r.engagements) ? r.engagements.filter(Boolean) : [];
+        const e = enrichment[r.id] = enrichment[r.id] || {};
+        e.services = Array.isArray(r.services) ? r.services.filter(Boolean) : [];
+        e.engagements = Array.isArray(r.engagements) ? r.engagements.filter(Boolean) : [];
+        if (r.description) e.description = String(r.description).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 400);
+        if (r.ai_review_summary) e.ai_review_summary = String(r.ai_review_summary).slice(0, 400);
+        const hours = fmtHours(r.opening_hours, r.is_open_24h, r.show_opening_hours);
+        if (hours) e.opening_hours = hours;
+        const price = fmtPrice(r);
+        if (price) e.price = price;
+        if (Array.isArray(r.images)) e.images_count = r.images.filter(Boolean).length;
+        const ratings = fmtRatings(r);
+        if (ratings) e.ratings = ratings;
       });
       (badgeLinks.data || []).forEach((r: any) => {
         const name = r.badges?.name_fr;
@@ -172,6 +240,15 @@ serve(async (req) => {
         enrichment[r.business_id] = enrichment[r.business_id] || {};
         const arr = (enrichment[r.business_id].video_badges = enrichment[r.business_id].video_badges || []);
         names.forEach((n: string) => { if (!arr.includes(n)) arr.push(n); });
+      });
+      (reviewRows.data || []).forEach((r: any) => {
+        const txt = (r.text_fr || r.text || "").toString().replace(/\s+/g, " ").trim();
+        if (!txt) return;
+        enrichment[r.business_id] = enrichment[r.business_id] || {};
+        const arr = (enrichment[r.business_id].reviews = enrichment[r.business_id].reviews || []);
+        if (arr.length >= 2) return;
+        const snippet = txt.length > 220 ? txt.slice(0, 220) + "…" : txt;
+        arr.push(`${r.source || "source"}${r.rating != null ? ` ${r.rating}/5` : ""}: "${snippet}"`);
       });
     }
 
@@ -230,10 +307,17 @@ serve(async (req) => {
           if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
           if (b.categories?.length) parts.push(`— Sous-catégories: ${b.categories.join(", ")}`);
           const enr = b.id ? enrichment[b.id] : undefined;
+          if (enr?.description) parts.push(`— Description: ${enr.description}`);
           if (enr?.services?.length) parts.push(`— Services: ${enr.services.slice(0, 30).join(", ")}`);
           if (enr?.engagements?.length) parts.push(`— Engagements: ${enr.engagements.slice(0, 20).join(", ")}`);
           if (enr?.badges?.length) parts.push(`— Badges: ${enr.badges.slice(0, 15).join(", ")}`);
           if (enr?.video_badges?.length) parts.push(`— Badges vidéos: ${enr.video_badges.slice(0, 15).join(", ")}`);
+          if (enr?.price) parts.push(`— Prix: ${enr.price}`);
+          if (enr?.opening_hours) parts.push(`— Horaires: ${enr.opening_hours}`);
+          if (enr?.images_count) parts.push(`— Photos: ${enr.images_count}`);
+          if (enr?.ratings) parts.push(`— Notes: ${enr.ratings}`);
+          if (enr?.ai_review_summary) parts.push(`— Résumé avis: ${enr.ai_review_summary}`);
+          if (enr?.reviews?.length) parts.push(`— Avis clients: ${enr.reviews.join(" | ")}`);
           return parts.join(" ");
         }).join("\n")
       : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)";
