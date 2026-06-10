@@ -307,10 +307,17 @@ serve(async (req) => {
           if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
           if (b.categories?.length) parts.push(`— Sous-catégories: ${b.categories.join(", ")}`);
           const enr = b.id ? enrichment[b.id] : undefined;
+          if (enr?.description) parts.push(`— Description: ${enr.description}`);
           if (enr?.services?.length) parts.push(`— Services: ${enr.services.slice(0, 30).join(", ")}`);
           if (enr?.engagements?.length) parts.push(`— Engagements: ${enr.engagements.slice(0, 20).join(", ")}`);
           if (enr?.badges?.length) parts.push(`— Badges: ${enr.badges.slice(0, 15).join(", ")}`);
           if (enr?.video_badges?.length) parts.push(`— Badges vidéos: ${enr.video_badges.slice(0, 15).join(", ")}`);
+          if (enr?.price) parts.push(`— Prix: ${enr.price}`);
+          if (enr?.opening_hours) parts.push(`— Horaires: ${enr.opening_hours}`);
+          if (enr?.images_count) parts.push(`— Photos: ${enr.images_count}`);
+          if (enr?.ratings) parts.push(`— Notes: ${enr.ratings}`);
+          if (enr?.ai_review_summary) parts.push(`— Résumé avis: ${enr.ai_review_summary}`);
+          if (enr?.reviews?.length) parts.push(`— Avis clients: ${enr.reviews.join(" | ")}`);
           return parts.join(" ");
         }).join("\n")
       : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)";
