@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Share2, X, Check, Copy, Link as LinkIcon } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Share2, X, Check, Copy, Link as LinkIcon, QrCode, Download } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { FacebookIcon, TwitterIcon, WhatsAppIcon, LinkedInIcon } from "@/components/staff/SocialMediaIcons";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
