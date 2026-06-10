@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type VideoLikeSource = "youtube" | "business" | "generic";
@@ -11,6 +11,8 @@ export const useVideoLike = (
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const latestTargetRef = useRef({ videoId, source, userId });
+  latestTargetRef.current = { videoId, source, userId };
 
   useEffect(() => {
     let mounted = true;
@@ -24,21 +26,30 @@ export const useVideoLike = (
   }, []);
 
   const refresh = useCallback(async () => {
-    if (!videoId) { setCount(0); setIsLiked(false); return; }
+    const requestedVideoId = videoId;
+    const requestedSource = source;
+    const requestedUserId = userId;
+    if (!requestedVideoId) { setCount(0); setIsLiked(false); return; }
     const { count: c } = await supabase
       .from("video_likes" as any)
       .select("id", { count: "exact", head: true })
-      .eq("video_id", videoId)
-      .eq("video_source", source);
+      .eq("video_id", requestedVideoId)
+      .eq("video_source", requestedSource);
+    if (latestTargetRef.current.videoId !== requestedVideoId || latestTargetRef.current.source !== requestedSource) return;
     setCount(c ?? 0);
-    if (userId) {
+    if (requestedUserId) {
       const { data } = await supabase
         .from("video_likes" as any)
         .select("id")
-        .eq("user_id", userId)
-        .eq("video_id", videoId)
-        .eq("video_source", source)
+        .eq("user_id", requestedUserId)
+        .eq("video_id", requestedVideoId)
+        .eq("video_source", requestedSource)
         .maybeSingle();
+      if (
+        latestTargetRef.current.videoId !== requestedVideoId ||
+        latestTargetRef.current.source !== requestedSource ||
+        latestTargetRef.current.userId !== requestedUserId
+      ) return;
       setIsLiked(!!data);
     } else {
       setIsLiked(false);
