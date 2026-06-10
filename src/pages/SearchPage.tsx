@@ -2767,7 +2767,9 @@ const SearchPage = () => {
               (data || []).forEach((r: any) => r.business_id && validBizIds.add(r.business_id));
             }
             if (validBizIds.size > 0) {
-              effectiveOrderedIds = orderedIds.filter(id => validBizIds.has(id));
+              const existing = orderedIds.filter(id => validBizIds.has(id));
+              const missing = Array.from(validBizIds).filter(id => !orderedIds.includes(id));
+              effectiveOrderedIds = [...existing, ...missing];
             }
           }
         }
