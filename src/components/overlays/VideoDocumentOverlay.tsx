@@ -44,6 +44,10 @@ const VideoDocumentOverlay = ({
 }: VideoDocumentOverlayProps) => {
   // User's persisted sound preference takes precedence over the per-business default.
   const { soundOn, setSoundOn } = useVideoSoundPreference();
+
+  // Log a view each time a new internal/business video becomes active.
+  useVideoView(activeVideo?.url ?? null, "business", { autoLog: true });
+
   const [descExpanded, setDescExpanded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(!soundOn);
