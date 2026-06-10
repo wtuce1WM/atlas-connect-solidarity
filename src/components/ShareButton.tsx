@@ -185,13 +185,11 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
               style={previewImage ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
             >
               {previewImage && <div className="absolute inset-0 bg-black/45" aria-hidden="true" />}
-              <div className="relative h-20 w-20 rounded-full bg-white flex items-center justify-center overflow-hidden mb-3">
-                {previewImage ? (
-                  <img src={previewImage} alt="" className="h-full w-full object-cover" />
-                ) : (
+              {!previewImage && (
+                <div className="relative h-20 w-20 rounded-full bg-white flex items-center justify-center overflow-hidden mb-3">
                   <img src={logoGold} alt="" className="h-16 w-16 object-contain" />
-                )}
-              </div>
+                </div>
+              )}
               <div className="relative font-semibold text-base line-clamp-2 drop-shadow">{shareTitle}</div>
               <div className="relative text-xs text-white/80 mt-1 break-all line-clamp-1 drop-shadow">{displayUrl}</div>
             </div>
