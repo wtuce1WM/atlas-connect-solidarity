@@ -195,7 +195,7 @@ serve(async (req) => {
             .limit(focusedArr.length * 40),
         );
       }
-      const [bizRows, badgeLinks, videoRows, ytTitleRows, genericVideoRows, reviewsStatusRows, reviewRows, focusedReviewRows] = await Promise.all([
+      const [bizRows, badgeLinks, videoRows, ytTitleRows, genericVideoRows, menuRows, reviewsStatusRows, reviewRows, focusedReviewRows] = await Promise.all([
         sb.from("businesses")
           .select("id, services, engagements, description, ai_review_summary, opening_hours, show_opening_hours, is_open_24h, min_price, manual_price_range, avg_price_range, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, trustpilot_rating, trustpilot_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, tourradar_rating, tourradar_review_count")
           .in("id", businessIds),
