@@ -1897,7 +1897,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                           {visible.map((h) => (
                             <div key={h.id} className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-3 flex flex-col gap-2">
                               {h.image_url && (
-                                <div className="w-full h-28 rounded-lg overflow-hidden bg-white/5">
+                                <div className="w-full h-44 md:h-52 rounded-lg overflow-hidden bg-white/5">
                                   <img src={h.image_url} alt={h.title} className="w-full h-full object-cover" loading="lazy" />
                                 </div>
                               )}
