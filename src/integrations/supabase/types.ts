@@ -5345,6 +5345,30 @@ export type Database = {
         }
         Relationships: []
       }
+      video_bookmarks: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+          video_id: string
+          video_source: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+          video_id: string
+          video_source: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+          video_id?: string
+          video_source?: string
+        }
+        Relationships: []
+      }
       video_likes: {
         Row: {
           created_at: string
@@ -5366,6 +5390,30 @@ export type Database = {
           user_id?: string
           video_id?: string
           video_source?: string
+        }
+        Relationships: []
+      }
+      video_views: {
+        Row: {
+          id: string
+          user_id: string | null
+          video_id: string
+          video_source: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          video_id: string
+          video_source: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          video_id?: string
+          video_source?: string
+          viewed_at?: string
         }
         Relationships: []
       }
