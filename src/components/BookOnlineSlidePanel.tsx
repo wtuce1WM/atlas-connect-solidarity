@@ -243,12 +243,23 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [bookingOverlayLoaded, setBookingOverlayLoaded] = useState(false);
   const [bookingOverlayHideContact, setBookingOverlayHideContact] = useState(false);
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+  const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const welcomePopupShownRef = useRef<string | null>(null);
   useEffect(() => {
     const url = (business as any)?.popup_image_url;
     if (business?.id && url && welcomePopupShownRef.current !== business.id) {
       welcomePopupShownRef.current = business.id;
       setShowWelcomePopup(true);
+      setPopupMeta({ title: null, description: null });
+      supabase
+        .from("business_image_titles")
+        .select("title, description")
+        .eq("business_id", business.id)
+        .eq("image_url", url)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) setPopupMeta({ title: (data as any).title ?? null, description: (data as any).description ?? null });
+        });
     }
   }, [business?.id, (business as any)?.popup_image_url]);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
