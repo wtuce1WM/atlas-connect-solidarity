@@ -267,14 +267,23 @@ serve(async (req) => {
         const arr = (enrichment[r.business_id].video_badges = enrichment[r.business_id].video_badges || []);
         names.forEach((n: string) => { if (!arr.includes(n)) arr.push(n); });
       });
-      (reviewRows.data || []).forEach((r: any) => {
+      const pushReview = (r: any, cap: number) => {
         const txt = (r.text_fr || r.text || "").toString().replace(/\s+/g, " ").trim();
         if (!txt) return;
         enrichment[r.business_id] = enrichment[r.business_id] || {};
         const arr = (enrichment[r.business_id].reviews = enrichment[r.business_id].reviews || []);
-        if (arr.length >= 6) return;
+        if (arr.length >= cap) return;
         const snippet = txt.length > 220 ? txt.slice(0, 220) + "…" : txt;
         arr.push(`${r.source || "source"}${r.rating != null ? ` ${r.rating}/5` : ""}: "${snippet}"`);
+      };
+      // Focused businesses first → fill up to 30 reviews each.
+      if (focusedReviewRows?.data) {
+        (focusedReviewRows.data as any[]).forEach((r) => pushReview(r, 30));
+      }
+      // Then the general pool → up to 6 reviews for non-focused businesses.
+      (reviewRows.data || []).forEach((r: any) => {
+        const cap = focusedIds.has(r.business_id) ? 30 : 6;
+        pushReview(r, cap);
       });
     }
 
