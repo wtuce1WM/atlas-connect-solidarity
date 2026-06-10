@@ -2567,7 +2567,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim())
             .map((d, i) => ({ id: d.id || null, type: "external_link", url: d.url.trim() || "", name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i, description: d.description || "presse", popup: false, force_external: d.force_external || false, show_on_front: false, front_sort_order: 0 })),
-          ...videoDocsWithThumbs.map((d, i) => ({ id: d.id || null, type: "video", url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, front_sort_order: d._original_front_sort_order ?? 0, show_on_front: d._show_on_front ?? false, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city === "" ? "" : (d.city || null), city_ids: d.city_ids || [], neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, hide_logo: d.hide_logo || false, force_external: false, event_id: d.event_id || null, instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null })),
+          ...videoDocsWithThumbs.map((d, i) => ({ id: d.id || null, type: "video", url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, front_sort_order: d._original_front_sort_order ?? 0, show_on_front: d._show_on_front ?? false, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city === "" ? "" : (d.city || null), city_ids: d.city_ids || [], neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, thumbnail_locked: !!d.thumbnail_locked, popup: d.popup || false, hide_logo: d.hide_logo || false, force_external: false, event_id: d.event_id || null, instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null })),
         ];
 
         // Atomic replace: delete + insert in a single transaction
@@ -5065,7 +5065,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   let data: any = null;
                   const { data: bizDoc } = await supabase
                     .from("business_documents" as any)
-                    .select("url, name, poi_id, destination_id, linked_business_id, subcategory_id, service_id, city, neighborhood, description, price, price_type, thumbnail_url, popup, event_id, sort_order, front_sort_order, show_on_front, hide_logo")
+                    .select("url, name, poi_id, destination_id, linked_business_id, subcategory_id, service_id, city, neighborhood, description, price, price_type, thumbnail_url, thumbnail_locked, popup, event_id, sort_order, front_sort_order, show_on_front, hide_logo")
                     .eq("id", docId)
                     .eq("type", "video")
                     .maybeSingle();
@@ -5097,6 +5097,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       price: (data as any).price || null,
                       price_type: (data as any).price_type || null,
                       thumbnail_url: (data as any).thumbnail_url || null,
+                      thumbnail_locked: !!(data as any).thumbnail_locked,
                       popup: (data as any).popup || false,
                       hide_logo: (data as any).hide_logo || false,
                       event_id: null,
