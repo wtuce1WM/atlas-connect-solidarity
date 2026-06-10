@@ -543,17 +543,27 @@ const Home = () => {
     return () => { cancelled = true; };
   }, [city]);
 
-  // Document ids assigned to this city via business_document_cities (multi-city)
+  // Document ids assigned to this city via business_document_cities (multi-city).
+  // Includes city aliases (e.g. Marrakech also pulls Agafay's docs).
   // Paginate to bypass PostgREST 1000-row limit. SWR-cached per city.
   useEffect(() => {
     if (!cityRowId) { setExtraCityDocIds(new Set()); return; }
-    const key = `home:extraCityDocIds:${cityRowId}`;
+    const key = `home:extraCityDocIds:${city}`;
     const cached = getCached<string[]>(key);
     if (cached) setExtraCityDocIds(new Set(cached));
     let cancelled = false;
     revalidate<string[]>(
       key,
       async () => {
+        // Resolve all alias city ids (e.g. Marrakech + Agafay)
+        const aliases = getCityAliases(city);
+        const { data: cityRows } = await supabase
+          .from("cities")
+          .select("id")
+          .in("name_fr", aliases);
+        const aliasIds = ((cityRows as any[]) || []).map((r) => r.id);
+        const ids = aliasIds.length > 0 ? aliasIds : [cityRowId];
+
         const all: string[] = [];
         const PAGE = 1000;
         let offset = 0;
@@ -561,7 +571,7 @@ const Home = () => {
           const { data } = await supabase
             .from("business_document_cities")
             .select("document_id")
-            .eq("city_id", cityRowId)
+            .in("city_id", ids)
             .order("document_id", { ascending: true })
             .range(offset, offset + PAGE - 1);
           const rows = (data as any[]) || [];
@@ -574,7 +584,8 @@ const Home = () => {
       (fresh) => { if (!cancelled) setExtraCityDocIds(new Set(fresh)); }
     );
     return () => { cancelled = true; };
-  }, [cityRowId]);
+  }, [cityRowId, city]);
+
 
   useEffect(() => {
     setLoading(true);
