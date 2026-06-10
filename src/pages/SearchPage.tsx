@@ -4412,6 +4412,7 @@ const SearchPage = () => {
               <SlidePanelHeader
                 onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
                 alwaysDark
+                glassClose
                 toolbarCenterId="overlay-slide-panel-toolbar-center"
                 toolbarRightId="overlay-slide-panel-toolbar"
               />
