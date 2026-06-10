@@ -163,6 +163,7 @@ const PublicClubProfile = () => {
           <ShareButton
             variant="dark"
             title={`${displayName} — One World Morocco`}
+            shareUrl={`https://oneworldmorocco.com/u/${profile.nickname}`}
             previewImage="/hero_magical_realism_v1.jpg"
             avatarImage={profile.avatar_url || null}
           />
