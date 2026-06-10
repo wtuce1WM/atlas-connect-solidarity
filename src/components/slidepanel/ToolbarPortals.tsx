@@ -69,7 +69,7 @@ export function ToolbarPortals({
 
   const shouldHide = !!selectedKpBusinessId || !!selectedPoiBusinessId || showMosaic || !!hideToolbarButtons;
 
-  const activeVideoId = activeYoutubeVideo?.id ?? null;
+  const activeVideoId = activeYoutubeVideo?.videoId ?? null;
   const { isLiked, count: likeCount, isLoggedIn, toggle: toggleLike } = useVideoLike(activeVideoId, "youtube");
   const [burst, setBurst] = React.useState(0);
 
