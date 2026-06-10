@@ -182,7 +182,7 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
 
             {/* Preview card */}
             <div
-              className="relative rounded-2xl overflow-hidden text-white p-6 flex flex-col items-center text-center mb-5 bg-neutral-900"
+              className="relative aspect-square w-full rounded-2xl overflow-hidden text-white p-6 flex flex-col items-center justify-end text-center mb-5 bg-neutral-900"
               style={previewImage ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
             >
               {previewImage && <div className="absolute inset-0 bg-black/45" aria-hidden="true" />}
