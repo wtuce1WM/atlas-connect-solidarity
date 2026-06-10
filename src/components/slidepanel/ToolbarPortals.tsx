@@ -222,7 +222,8 @@ export function ToolbarPortals({
           <ShareButton
             title={business.name}
             variant="dark"
-            className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black [&>button]:glass-toolbar-btn"
+            className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black"
+            buttonClassName="glass-toolbar-btn"
             shareUrl={business.slug ? `https://oneworldmorocco.com/${business.slug}` : undefined}
             previewImage={images?.[0] || business?.images?.[0] || null}
           />
