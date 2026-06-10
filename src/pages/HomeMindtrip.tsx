@@ -233,8 +233,8 @@ const HomeMindtrip = () => {
       cachedVw = window.innerWidth;
       cachedStickyTop = Number.parseFloat(window.getComputedStyle(sticky).top || "0") || 0;
       cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
-      const nextHeight = Math.ceil(sticky.offsetHeight + cachedStickyTop + cachedMaxX);
-      cachedTotal = Math.max(1, nextHeight - sticky.offsetHeight - cachedStickyTop);
+      const nextHeight = Math.ceil(sticky.offsetHeight + cachedMaxX);
+      cachedTotal = Math.max(1, nextHeight - sticky.offsetHeight);
       setHorizontalSectionHeight((current) => Math.abs((current || 0) - nextHeight) > 1 ? nextHeight : current);
     };
 
