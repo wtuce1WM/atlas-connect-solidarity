@@ -213,7 +213,7 @@ export function ToolbarPortals({
               await toggleBookmark();
             }}
             style={{ backgroundColor: "#F1F1F1" }}
-            className="h-9 w-9 flex items-center justify-center rounded-full text-black shadow-2xl hover:opacity-90 transition-opacity shrink-0"
+            className="h-9 w-9 flex items-center justify-center rounded-full text-black shadow-2xl hover:opacity-90 transition-opacity shrink-0 glass-toolbar-btn"
             title={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
             aria-label="Le Club OWM"
           >
@@ -222,7 +222,7 @@ export function ToolbarPortals({
           <ShareButton
             title={business.name}
             variant="dark"
-            className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black"
+            className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black [&>button]:glass-toolbar-btn"
             shareUrl={business.slug ? `https://oneworldmorocco.com/${business.slug}` : undefined}
             previewImage={images?.[0] || business?.images?.[0] || null}
           />
