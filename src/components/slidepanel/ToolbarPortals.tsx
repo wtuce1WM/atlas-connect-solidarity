@@ -60,6 +60,7 @@ export function ToolbarPortals({
   toolbarPortalPrefix,
   openBadgeInfo,
   hideToolbarButtons,
+  activeYoutubeVideo,
 }: ToolbarPortalsProps) {
   const pfx = toolbarPortalPrefix ? `${toolbarPortalPrefix}-` : "";
   const toolbarPortal = document.getElementById(`${pfx}slide-panel-toolbar`);
@@ -67,6 +68,21 @@ export function ToolbarPortals({
   const toolbarLeftPortal = document.getElementById(`${pfx}slide-panel-toolbar-left`);
 
   const shouldHide = !!selectedKpBusinessId || !!selectedPoiBusinessId || showMosaic || !!hideToolbarButtons;
+
+  const activeVideoId = activeYoutubeVideo?.id ?? null;
+  const { isLiked, count: likeCount, isLoggedIn, toggle: toggleLike } = useVideoLike(activeVideoId, "youtube");
+  const [burst, setBurst] = React.useState(0);
+
+  const onHeartClick = async () => {
+    if (!activeVideoId) return;
+    if (!isLoggedIn) {
+      window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+      return;
+    }
+    setBurst((b) => b + 1);
+    await toggleLike();
+  };
+
 
   return (
     <>
