@@ -11,6 +11,8 @@ interface ShareButtonProps {
   shareUrl?: string;
   /** Optional preview image shown in the share modal (instead of the OWM logo) */
   previewImage?: string | null;
+  /** Optional avatar image rendered in the round overlay on top of previewImage */
+  avatarImage?: string | null;
   /** Button color variant */
   variant?: "light" | "dark" | "gold";
   className?: string;
@@ -18,7 +20,7 @@ interface ShareButtonProps {
   buttonClassName?: string;
 }
 
-const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", className = "", buttonClassName = "" }: ShareButtonProps) => {
+const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "gold", className = "", buttonClassName = "" }: ShareButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
@@ -191,7 +193,11 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
               style={previewImage ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
             >
               {previewImage && <div className="absolute inset-0 bg-black/45" aria-hidden="true" />}
-              {!previewImage && (
+              {avatarImage ? (
+                <div className="relative h-20 w-20 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden mb-3 ring-2 ring-white/40 shadow-xl">
+                  <img src={avatarImage} alt="" className="h-full w-full object-cover" />
+                </div>
+              ) : !previewImage && (
                 <div className="relative h-20 w-20 rounded-full bg-white flex items-center justify-center overflow-hidden mb-3">
                   <img src={logoGold} alt="" className="h-16 w-16 object-contain" />
                 </div>

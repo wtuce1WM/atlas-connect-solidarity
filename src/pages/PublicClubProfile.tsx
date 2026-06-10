@@ -160,7 +160,12 @@ const PublicClubProfile = () => {
       <div className="relative w-full max-w-[420px] min-h-[85vh] rounded-[2.5rem] bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 shadow-2xl ring-1 ring-white/10 overflow-hidden">
         {/* Top bar */}
         <div className="absolute top-4 right-4 z-10">
-          <ShareButton variant="dark" title={`${displayName} — One World Morocco`} />
+          <ShareButton
+            variant="dark"
+            title={`${displayName} — One World Morocco`}
+            previewImage="/hero_magical_realism_v1.jpg"
+            avatarImage={profile.avatar_url || null}
+          />
         </div>
 
         {/* Decorative top gradient */}
