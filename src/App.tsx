@@ -8,7 +8,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate, useParams } from "
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 const FloatingSearchBar = lazy(() => import("@/components/FloatingSearchBar"));
 const StaffRouteGuard = lazy(() => import("@/components/StaffRouteGuard"));
-const FloatingClubButton = lazy(() => import("@/components/FloatingClubButton"));
+
 const FloatingWhatsAppButton = lazy(() => import("@/components/FloatingWhatsAppButton"));
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
@@ -113,14 +113,11 @@ const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "c
   if (location.pathname.startsWith("/staff/")) return null;
   const isHome = location.pathname === "/";
   const noFloating = ["/corporate", "/club", "/install"].includes(location.pathname);
-  const isBlog = location.pathname.startsWith("/blog");
-  const hideClub = location.pathname === "/test" || location.pathname === "/videos" || location.pathname === "/search" || isHome || noFloating || isBlog;
   const hideWhatsapp = isHome || noFloating;
-  if (hideClub && hideWhatsapp) return null;
+  if (hideWhatsapp) return null;
   return (
     <Suspense fallback={null}>
-      {!hideClub && <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />}
-      {!hideWhatsapp && <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />}
+      <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />
     </Suspense>
   );
 };
