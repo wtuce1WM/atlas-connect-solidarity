@@ -1480,62 +1480,38 @@ const EventManagement = () => {
       ) : filteredEvents.length === 0 ? (
         <p className="text-muted-foreground text-sm text-center py-8">Aucun événement.</p>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-10"></TableHead>
-              <TableHead>Nom</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Ville</TableHead>
-              <TableHead>Établissements</TableHead>
-              <TableHead>Récurrence</TableHead>
-              <TableHead>Début</TableHead>
-              <TableHead>Fin</TableHead>
-              <TableHead className="w-12"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredEvents.map(ev => (
-              <TableRow key={ev.id}>
-                <TableCell>
-                  <Button size="icon" variant="ghost" onClick={() => openEdit(ev)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-                <TableCell className="font-medium">{ev.name}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">{ev.type || "—"}</TableCell>
-                <TableCell className="text-sm">{ev.city_id ? (cities.find(c => c.id === ev.city_id)?.name_fr || "—") : "—"}</TableCell>
-                <TableCell className="text-sm whitespace-normal">{eventBizNames[ev.id]?.join(", ") || "—"}</TableCell>
-                <TableCell className="text-sm">{ev.recurrence || "—"}</TableCell>
-                <TableCell className="text-sm">{ev.start_date || "—"}</TableCell>
-                <TableCell className="text-sm">{ev.end_date || "—"}</TableCell>
-                <TableCell>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="icon" variant="ghost">
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Supprimer cet événement ?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          L'événement « {ev.name} » sera supprimé définitivement. Cette action est irréversible.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(ev.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Supprimer
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </TableCell>
+        <DndContext sensors={listSensors} collisionDetection={closestCenter} onDragEnd={handleListDragEnd}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-8"></TableHead>
+                <TableHead className="w-10"></TableHead>
+                <TableHead>Nom</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Ville</TableHead>
+                <TableHead>Établissements</TableHead>
+                <TableHead>Récurrence</TableHead>
+                <TableHead>Début</TableHead>
+                <TableHead>Fin</TableHead>
+                <TableHead className="w-12"></TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              <SortableContext items={filteredEvents.map(e => e.id)} strategy={verticalListSortingStrategy}>
+                {filteredEvents.map(ev => (
+                  <SortableEventListRow
+                    key={ev.id}
+                    ev={ev}
+                    cities={cities}
+                    eventBizNames={eventBizNames}
+                    openEdit={openEdit}
+                    handleDelete={handleDelete}
+                  />
+                ))}
+              </SortableContext>
+            </TableBody>
+          </Table>
+        </DndContext>
       );
       })()}
     </div>
