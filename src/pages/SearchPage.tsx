@@ -2100,10 +2100,7 @@ const SearchPage = () => {
       return { ...b, images: [entry.thumb, ...rest], videoUrl: entry.videoUrl ?? undefined } as Business;
     };
     if (pinIdsParam && pinnedBusinesses.length > 0) {
-      const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
-      const byId: Record<string, Business> = {};
-      for (const b of pinnedBusinesses) byId[b.id] = b;
-      return orderedIds.map(id => byId[id]).filter(Boolean).map(applyPinThumb) as Business[];
+      return pinnedBusinesses.map(applyPinThumb) as Business[];
     }
 
     const isServerPaginatedResults = totalCount !== null;
