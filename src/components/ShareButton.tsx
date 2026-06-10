@@ -191,9 +191,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
             <div
               className="relative aspect-square w-full rounded-2xl overflow-hidden text-white p-6 flex flex-col items-center justify-end text-center mb-5"
               style={
-                avatarImage
-                  ? { backgroundColor: "#3B3B3B" }
-                  : previewImage
+                previewImage
                   ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" }
                   : { backgroundColor: "#171717" }
               }
