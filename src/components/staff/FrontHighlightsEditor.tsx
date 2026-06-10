@@ -279,24 +279,24 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="text-xs font-medium text-muted-foreground mb-1 block">
-                          Titre métrique ({(h.metric_title || "").length}/{MAX_METRIC})
-                        </label>
-                        <Input
-                          value={h.metric_title || ""}
-                          onChange={(e) => updateField(i, "metric_title", e.target.value.slice(0, MAX_METRIC))}
-                          placeholder="Ex: Satisfaction"
-                          className="h-8 text-sm"
-                          maxLength={MAX_METRIC}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground mb-1 block">
                           Valeur ({(h.metric_value || "").length}/{MAX_METRIC})
                         </label>
                         <Input
                           value={h.metric_value || ""}
                           onChange={(e) => updateField(i, "metric_value", e.target.value.slice(0, MAX_METRIC))}
                           placeholder="Ex: 98%"
+                          className="h-8 text-sm"
+                          maxLength={MAX_METRIC}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                          Titre métrique ({(h.metric_title || "").length}/{MAX_METRIC})
+                        </label>
+                        <Input
+                          value={h.metric_title || ""}
+                          onChange={(e) => updateField(i, "metric_title", e.target.value.slice(0, MAX_METRIC))}
+                          placeholder="Ex: Satisfaction"
                           className="h-8 text-sm"
                           maxLength={MAX_METRIC}
                         />
