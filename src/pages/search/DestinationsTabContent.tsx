@@ -244,7 +244,7 @@ const DestinationsTabContent = ({
       {destMapItem && !selectedDestination && (
         <div
           className="fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-up-from-bottom lg:w-1/2 lg:left-auto lg:border-l lg:border-border"
-          style={{ height: "100vh" }}
+          style={{ height: "100dvh" }}
         >
           <SlidePanelHeader
             onClose={() => setDestMapItem(null)}
