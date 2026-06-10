@@ -211,7 +211,6 @@ const HomeMindtrip = () => {
   const stickyHorizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [trackX, setTrackX] = useState(0);
-  const [horizontalSectionHeight, setHorizontalSectionHeight] = useState<number | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
@@ -221,7 +220,6 @@ const HomeMindtrip = () => {
     // Cache vh/maxX/total to stay stable when Android Chrome's URL bar
     // collapses/expands during scroll (otherwise the horizontal track jitters).
     let cachedVw = window.innerWidth;
-    let cachedStickyTop = 0;
     let cachedTotal = 0;
     let cachedMaxX = 0;
 
@@ -231,18 +229,15 @@ const HomeMindtrip = () => {
       const track = trackRef.current;
       if (!container || !sticky || !track) return;
       cachedVw = window.innerWidth;
-      cachedStickyTop = Number.parseFloat(window.getComputedStyle(sticky).top || "0") || 0;
       cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
-      const nextHeight = Math.ceil(sticky.offsetHeight + cachedMaxX);
-      cachedTotal = Math.max(1, nextHeight - sticky.offsetHeight);
-      setHorizontalSectionHeight((current) => Math.abs((current || 0) - nextHeight) > 1 ? nextHeight : current);
+      cachedTotal = Math.max(1, container.offsetHeight - window.innerHeight);
     };
 
     const onScroll = () => {
       const container = horizontalRef.current;
       if (!container || cachedTotal <= 0) return;
       const rect = container.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, (cachedStickyTop - rect.top) / cachedTotal));
+      const progress = Math.min(1, Math.max(0, -rect.top / cachedTotal));
       setTrackX(progress * cachedMaxX);
 
       const centerX = cachedVw / 2;
@@ -569,8 +564,8 @@ const HomeMindtrip = () => {
       </section>
 
       {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
-      <section ref={horizontalRef} className="relative bg-background mt-8 md:mt-0" style={{ height: horizontalSectionHeight ? `${horizontalSectionHeight}px` : "400vh" }}>
-        <div ref={stickyHorizontalRef} className="sticky top-16 md:top-28 flex h-[82svh] md:h-[78vh] items-center overflow-hidden">
+      <section ref={horizontalRef} className="relative bg-background mt-8 md:mt-0" style={{ height: `${STEPS.slice(1).length * 100}vh` }}>
+        <div ref={stickyHorizontalRef} className="sticky top-0 flex h-svh md:h-screen items-center overflow-hidden">
 
           <div
             ref={trackRef}
