@@ -32,7 +32,7 @@ export interface FrontHighlightsEditorHandle {
 }
 
 const TOTAL_BLOCKS = 6;
-const DEFAULT_ICONS = ["Sparkles", "Star", "Heart", "MapPin", "Award", "Gem"];
+const DEFAULT_ICONS: string[] = [];
 const MAX_RICH = 1000;
 const MAX_METRIC = 50;
 
