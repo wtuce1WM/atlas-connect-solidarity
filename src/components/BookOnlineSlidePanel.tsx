@@ -307,7 +307,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
    const [descGridPage, setDescGridPage] = useState(0);
    const [sidebarOpenGroup, setSidebarOpenGroup] = useState<string | null>(null);
    const [descOverlayContent, setDescOverlayContent] = useState<{ html: string; title: string; priceDetails?: string | null; avgPriceRange?: unknown } | null>(null);
-  const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
+  const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ id?: string | null; url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [overlayControlsApi, setOverlayControlsApi] = useState<import("@/components/overlays/VideoDocumentOverlay").VideoOverlayControlsApi | null>(null);
    // initialVideoUrl is consumed by the videoDocs reorder (above) so that the
@@ -1084,6 +1084,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         openBadgeInfo={openBadgeInfo}
         hideToolbarButtons={showDescriptionOverlay}
         activeYoutubeVideo={activeYoutubeVideo}
+        activeInternalVideoId={activeVideoOverlay?.id || activeVideoOverlay?.url || null}
       />
 
       {/* ClubLoginPopup is mounted globally (SearchPage). Avoid duplicate instance here. */}
@@ -1686,7 +1687,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     videoFallbackUrl: isHostedFile ? vid.url : undefined,
                     label: vid.name || undefined,
                     playIcon: true,
-                    onClick: () => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description }),
+                    onClick: () => setActiveVideoOverlay({ id: vid.id, url: vid.url, name: vid.name, description: vid.description }),
                   } as GridItem;
                 });
               } else if (descGridSection === "poi") {
