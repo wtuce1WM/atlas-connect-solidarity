@@ -1,37 +1,31 @@
 import { supabase } from "@/integrations/supabase/client";
+import { getCityAliases } from "@/lib/homeHelpers";
 
 /**
  * Source of truth: résout la liste ordonnée des `business_id` correspondant
  * aux vidéos (business_documents + business_youtube_videos) portant un badge
  * donné dans une ville donnée.
  *
- * Utilisé à la fois par :
- *  - le clic sur une carte manuelle de la Homepage (→ URL /search?pinIds=...)
- *  - le back-office (preview équivalent de ce qui sera épinglé côté front)
- *
  * Règles :
  *  - Filtre badge sur `business_document_badges` + `business_youtube_video_badges`.
- *  - Filtre ville (si fournie) sur les tables multi-cities (source de vérité).
- *  - Ne garde que les vidéos dont `business_is_active = true` (cf. trigger
- *    propagate_business_is_active).
- *  - Ordre : par `front_sort_order` (puis `sort_order`) des vidéos, dedupliqué
- *    sur business_id (1ʳᵉ occurrence gagne) — même ordre que les panels
- *    back-office Présentation → Vidéos.
+ *  - Filtre ville (si fournie) sur les tables multi-cities (source de vérité),
+ *    en incluant les alias homepage (ex: Marrakech ⇢ [Marrakech, Agafay]).
+ *  - Ne garde que les vidéos dont `business_is_active = true`.
+ *  - Ordre : par `front_sort_order` (puis `sort_order`), dedupliqué sur business_id.
  */
 export async function getBusinessIdsFromBadgeAndCity(
   badgeId: string,
   cityName: string | null | undefined
 ): Promise<string[]> {
-  // 1) Résoudre city_id depuis le nom
-  let cityId: string | null = null;
+  // 1) Résoudre les city_id (ville + alias homepage) depuis le nom
+  let cityIds: string[] = [];
   if (cityName) {
-    const { data: cityRow } = await supabase
+    const aliasNames = getCityAliases(cityName);
+    const { data: cityRows } = await supabase
       .from("cities")
       .select("id")
-      .or(`name_fr.ilike.${cityName},name_en.ilike.${cityName},name_ar.ilike.${cityName}`)
-      .limit(1)
-      .maybeSingle();
-    cityId = (cityRow as any)?.id || null;
+      .in("name_fr", aliasNames);
+    cityIds = ((cityRows as any[]) || []).map((r) => r.id);
   }
 
   // 2) IDs vidéos portant le badge
@@ -42,14 +36,14 @@ export async function getBusinessIdsFromBadgeAndCity(
   let docIds = (docBadgeRes.data || []).map((r: any) => r.document_id);
   let ytIds = (ytBadgeRes.data || []).map((r: any) => r.youtube_video_id);
 
-  // 3) Filtrage ville (source de vérité = tables multi-cities)
-  if (cityId) {
+  // 3) Filtrage ville (source de vérité = tables multi-cities, alias inclus)
+  if (cityIds.length > 0) {
     const [docCityRes, ytCityRes] = await Promise.all([
       docIds.length
-        ? supabase.from("business_document_cities").select("document_id").eq("city_id", cityId).in("document_id", docIds)
+        ? supabase.from("business_document_cities").select("document_id").in("city_id", cityIds).in("document_id", docIds)
         : Promise.resolve({ data: [] as any[] }),
       ytIds.length
-        ? supabase.from("business_youtube_video_cities").select("youtube_video_id").eq("city_id", cityId).in("youtube_video_id", ytIds)
+        ? supabase.from("business_youtube_video_cities").select("youtube_video_id").in("city_id", cityIds).in("youtube_video_id", ytIds)
         : Promise.resolve({ data: [] as any[] }),
     ]);
     docIds = (docCityRes.data || []).map((r: any) => r.document_id);
