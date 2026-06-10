@@ -16,6 +16,7 @@ import { businessUrl, buildOgShareUrl } from "@/lib/businessUrl";
 import { formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
 import { buildKpSearchUrl } from "@/lib/buildKpSearchUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import { useVideoView } from "@/hooks/useVideoView";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import ShareButton from "@/components/ShareButton";
@@ -358,6 +359,14 @@ const SlidePanelHome = ({
   }, [open, agendaCity]);
 
   const { soundOn, setSoundOn } = useVideoSoundPreference();
+
+  // Log a view whenever a video becomes active in the panel.
+  // Generic videos have an id; for business "internal" videos we fall back to the URL.
+  useVideoView(
+    open ? (videoId || videoUrl || null) : null,
+    isGeneric ? "generic" : "business",
+    { autoLog: true },
+  );
   const [filePaused, setFilePaused] = useState(true);
   const [fileMuted, setFileMuted] = useState(!soundOn);
   const [ytPlaying, setYtPlaying] = useState(true);

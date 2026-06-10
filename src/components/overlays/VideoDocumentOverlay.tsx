@@ -4,6 +4,7 @@ import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import type { VideoDoc } from "@/hooks/useBookOnlineData";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import { useVideoView } from "@/hooks/useVideoView";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface VideoOverlayControlsApi {
@@ -43,6 +44,10 @@ const VideoDocumentOverlay = ({
 }: VideoDocumentOverlayProps) => {
   // User's persisted sound preference takes precedence over the per-business default.
   const { soundOn, setSoundOn } = useVideoSoundPreference();
+
+  // Log a view each time a new internal/business video becomes active.
+  useVideoView(activeVideo?.url ?? null, "business", { autoLog: true });
+
   const [descExpanded, setDescExpanded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(!soundOn);
