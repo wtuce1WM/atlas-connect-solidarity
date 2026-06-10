@@ -77,6 +77,7 @@ export function ToolbarPortals({
       ? { id: String(business.id), source: "business" as const }
       : { id: null, source: "business" as const };
   const { isLiked, count: likeCount, isLoggedIn, toggle: toggleLike } = useVideoLike(likeTarget.id, likeTarget.source);
+  const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(business?.id ? String(business.id) : undefined);
   const [burst, setBurst] = React.useState(0);
 
   const onHeartClick = async () => {
