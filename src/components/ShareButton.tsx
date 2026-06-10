@@ -181,8 +181,12 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
 
             {/* Preview card */}
             <div className="rounded-2xl bg-neutral-900 text-white p-6 flex flex-col items-center text-center mb-5">
-              <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center overflow-hidden mb-3">
-                <img src={logoGold} alt="" className="h-16 w-16 object-contain" />
+              <div className={`h-20 w-20 rounded-full bg-white flex items-center justify-center overflow-hidden mb-3 ${previewImage ? "" : ""}`}>
+                {previewImage ? (
+                  <img src={previewImage} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <img src={logoGold} alt="" className="h-16 w-16 object-contain" />
+                )}
               </div>
               <div className="font-semibold text-base line-clamp-2">{shareTitle}</div>
               <div className="text-xs text-white/70 mt-1 break-all line-clamp-1">{displayUrl}</div>
