@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play } from "lucide-react";
@@ -211,17 +211,18 @@ const HomeMindtrip = () => {
   const stickyHorizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [trackX, setTrackX] = useState(0);
+  const [horizontalSectionHeight, setHorizontalSectionHeight] = useState<number | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
   const [activeStep, setActiveStep] = useState(0);
 
-  useEffect(() => {
-    // Cache vh/maxX/total to stay stable when Android Chrome's URL bar
-    // collapses/expands during scroll (otherwise the horizontal track jitters).
+  useLayoutEffect(() => {
     let cachedVw = window.innerWidth;
-    let cachedTotal = 0;
+    let cachedTotal = 1;
     let cachedMaxX = 0;
+    let cachedStickyTop = 0;
+    let cachedStickyHeight = 1;
 
     const recomputeMetrics = () => {
       const container = horizontalRef.current;
@@ -229,15 +230,19 @@ const HomeMindtrip = () => {
       const track = trackRef.current;
       if (!container || !sticky || !track) return;
       cachedVw = window.innerWidth;
+      cachedStickyTop = parseFloat(window.getComputedStyle(sticky).top) || 0;
+      cachedStickyHeight = sticky.offsetHeight;
       cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
-      cachedTotal = Math.max(1, container.offsetHeight - window.innerHeight);
+      const nextHeight = Math.ceil(cachedStickyHeight + cachedStickyTop + cachedMaxX);
+      if (container.offsetHeight !== nextHeight) setHorizontalSectionHeight(nextHeight);
+      cachedTotal = Math.max(1, nextHeight - cachedStickyHeight - cachedStickyTop);
     };
 
     const onScroll = () => {
       const container = horizontalRef.current;
-      if (!container || cachedTotal <= 0) return;
+      if (!container) return;
       const rect = container.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, -rect.top / cachedTotal));
+      const progress = Math.min(1, Math.max(0, (cachedStickyTop - rect.top) / cachedTotal));
       setTrackX(progress * cachedMaxX);
 
       const centerX = cachedVw / 2;
@@ -563,9 +568,13 @@ const HomeMindtrip = () => {
         </div>
       </section>
 
-      {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
-      <section ref={horizontalRef} className="relative bg-background mt-8 md:mt-0" style={{ height: `${STEPS.slice(1).length * 100}vh` }}>
-        <div ref={stickyHorizontalRef} className="sticky top-0 flex h-svh md:h-screen items-center overflow-hidden">
+      {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2-6) */}
+      <section
+        ref={horizontalRef}
+        className="relative bg-background mt-8 md:mt-0"
+        style={{ height: horizontalSectionHeight ? `${horizontalSectionHeight}px` : "500vh" }}
+      >
+        <div ref={stickyHorizontalRef} className="sticky top-16 md:top-28 flex h-[82svh] md:h-[78vh] items-center overflow-hidden">
 
           <div
             ref={trackRef}
