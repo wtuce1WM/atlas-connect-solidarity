@@ -36,6 +36,8 @@ interface ToolbarPortalsProps {
   hideToolbarButtons?: boolean;
   /** Currently visible YouTube short in the panel — drives the Heart "like" action */
   activeYoutubeVideo?: YouTubeVideo | null;
+}
+
 
 export function ToolbarPortals({
   business,
