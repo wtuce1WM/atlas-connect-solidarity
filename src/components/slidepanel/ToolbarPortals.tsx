@@ -8,6 +8,7 @@ import { whatsappUrl } from "@/lib/phoneUtils";
 import { buildOgShareUrl } from "@/lib/businessUrl";
 import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import { useVideoLike } from "@/hooks/useVideoLike";
+import { useBookmark } from "@/hooks/useBookmark";
 
 interface ToolbarPortalsProps {
   business: any;
@@ -76,6 +77,7 @@ export function ToolbarPortals({
       ? { id: String(business.id), source: "business" as const }
       : { id: null, source: "business" as const };
   const { isLiked, count: likeCount, isLoggedIn, toggle: toggleLike } = useVideoLike(likeTarget.id, likeTarget.source);
+  const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(business?.id ? String(business.id) : undefined);
   const [burst, setBurst] = React.useState(0);
 
   const onHeartClick = async () => {
@@ -194,12 +196,18 @@ export function ToolbarPortals({
           {/* Bookmark — opens Club popup / saves business (former Heart role) */}
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+            onClick={async () => {
+              if (!isBookmarkLoggedIn) {
+                window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+                return;
+              }
+              await toggleBookmark();
+            }}
             className="h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity shrink-0"
-            title="Le Club OWM"
+            title={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
             aria-label="Le Club OWM"
           >
-            <Bookmark className="h-4 w-4" strokeWidth={2.5} />
+            <Bookmark className="h-4 w-4" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
           </button>
           <ShareButton title={business.name} variant="dark" className="shrink-0" shareUrl={business.slug ? buildOgShareUrl(business.slug) : undefined} />
         </div>,
