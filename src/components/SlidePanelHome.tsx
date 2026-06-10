@@ -359,6 +359,14 @@ const SlidePanelHome = ({
   }, [open, agendaCity]);
 
   const { soundOn, setSoundOn } = useVideoSoundPreference();
+
+  // Log a view whenever a video becomes active in the panel.
+  // Generic videos have an id; for business "internal" videos we fall back to the URL.
+  useVideoView(
+    open ? (videoId || videoUrl || null) : null,
+    isGeneric ? "generic" : "business",
+    { autoLog: true },
+  );
   const [filePaused, setFilePaused] = useState(true);
   const [fileMuted, setFileMuted] = useState(!soundOn);
   const [ytPlaying, setYtPlaying] = useState(true);
