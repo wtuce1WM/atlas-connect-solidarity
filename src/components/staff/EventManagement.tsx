@@ -548,7 +548,80 @@ interface EventRow {
   city_id: string | null;
   created_at: string;
   updated_at: string;
+  sort_order: number;
 }
+
+// Sortable row for the events list (drag & drop reordering)
+const SortableEventListRow = ({
+  ev,
+  cities,
+  eventBizNames,
+  openEdit,
+  handleDelete,
+}: {
+  ev: EventRow;
+  cities: Array<{ id: string; name_fr: string }>;
+  eventBizNames: Record<string, string[]>;
+  openEdit: (ev: EventRow) => void;
+  handleDelete: (id: string) => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: ev.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+  return (
+    <TableRow ref={setNodeRef} style={style}>
+      <TableCell>
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground"
+          title="Glisser pour réordonner"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+      </TableCell>
+      <TableCell>
+        <Button size="icon" variant="ghost" onClick={() => openEdit(ev)}>
+          <Edit className="h-4 w-4" />
+        </Button>
+      </TableCell>
+      <TableCell className="font-medium">{ev.name}</TableCell>
+      <TableCell className="text-sm text-muted-foreground">{ev.type || "—"}</TableCell>
+      <TableCell className="text-sm">{ev.city_id ? (cities.find(c => c.id === ev.city_id)?.name_fr || "—") : "—"}</TableCell>
+      <TableCell className="text-sm whitespace-normal">{eventBizNames[ev.id]?.join(", ") || "—"}</TableCell>
+      <TableCell className="text-sm">{ev.recurrence || "—"}</TableCell>
+      <TableCell className="text-sm">{ev.start_date || "—"}</TableCell>
+      <TableCell className="text-sm">{ev.end_date || "—"}</TableCell>
+      <TableCell>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button size="icon" variant="ghost">
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer cet événement ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                L'événement « {ev.name} » sera supprimé définitivement. Cette action est irréversible.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction onClick={() => handleDelete(ev.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Supprimer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </TableCell>
+    </TableRow>
+  );
+};
 
 const EventManagement = () => {
   const { toast } = useToast();
