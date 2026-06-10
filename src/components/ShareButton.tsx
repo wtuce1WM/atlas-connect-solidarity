@@ -298,10 +298,8 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
           </div>
         </div>
       )}
-          </div>
-        </div>
-      )}
     </>
+
   );
 };
 
