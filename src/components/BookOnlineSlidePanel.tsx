@@ -191,9 +191,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     return () => { cancelled = true; };
   }, [businessId]);
 
-  // When opened from a pinned context (manual homepage card), force the matching
-  // video to be first so it plays in the slide-panel background instead of the
-  // default sort-order #1.
+  // Keep the grid in internal sort_order. The pin (initialVideoUrl) is honored
+  // via currentMediaIndex below — it selects which video plays first without
+  // mutating the grid ordering.
   const orderedVideoUrls = useMemo(() => {
     const ytIdOf = (u: string) => {
       const m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
@@ -204,12 +204,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       const id = ytIdOf(u);
       return !id || !ytIds.has(id);
     });
-    let merged = [...nonYt, ...ytOrderedUrls];
-    if (initialVideoUrl && merged.includes(initialVideoUrl)) {
-      merged = [initialVideoUrl, ...merged.filter((u) => u !== initialVideoUrl)];
-    }
-    return merged;
-  }, [allVideoUrls, ytOrderedUrls, initialVideoUrl]);
+    return [...nonYt, ...ytOrderedUrls];
+  }, [allVideoUrls, ytOrderedUrls]);
+
   const { images, videos, mediaItems, totalMedia, matterportIndex, matterportItem, lightboxItems } = useMediaItems(business, orderedVideoUrls, videoDocs);
 
   const ctaConfig = useCtaConfig(business, language);
