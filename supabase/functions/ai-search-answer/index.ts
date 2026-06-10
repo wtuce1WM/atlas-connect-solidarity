@@ -246,7 +246,7 @@ serve(async (req) => {
         if (!txt) return;
         enrichment[r.business_id] = enrichment[r.business_id] || {};
         const arr = (enrichment[r.business_id].reviews = enrichment[r.business_id].reviews || []);
-        if (arr.length >= 2) return;
+        if (arr.length >= 6) return;
         const snippet = txt.length > 220 ? txt.slice(0, 220) + "…" : txt;
         arr.push(`${r.source || "source"}${r.rating != null ? ` ${r.rating}/5` : ""}: "${snippet}"`);
       });
