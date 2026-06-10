@@ -210,8 +210,6 @@ const HomeMindtrip = () => {
   const horizontalRef = useRef<HTMLDivElement>(null);
   const stickyHorizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const [trackX, setTrackX] = useState(0);
-  const [horizontalSectionHeight, setHorizontalSectionHeight] = useState<number | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
@@ -221,29 +219,24 @@ const HomeMindtrip = () => {
     let cachedVw = window.innerWidth;
     let cachedTotal = 1;
     let cachedMaxX = 0;
-    let cachedStickyTop = 0;
-    let cachedStickyHeight = 1;
 
     const recomputeMetrics = () => {
       const container = horizontalRef.current;
-      const sticky = stickyHorizontalRef.current;
       const track = trackRef.current;
-      if (!container || !sticky || !track) return;
+      if (!container || !track) return;
       cachedVw = window.innerWidth;
-      cachedStickyTop = parseFloat(window.getComputedStyle(sticky).top) || 0;
-      cachedStickyHeight = sticky.offsetHeight;
       cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
-      const nextHeight = Math.ceil(cachedStickyHeight + cachedStickyTop + cachedMaxX);
-      if (container.offsetHeight !== nextHeight) setHorizontalSectionHeight(nextHeight);
-      cachedTotal = Math.max(1, nextHeight - cachedStickyHeight - cachedStickyTop);
+      cachedTotal = Math.max(1, cachedMaxX);
+      container.style.height = `${Math.ceil(window.innerHeight + cachedTotal)}px`;
     };
 
     const onScroll = () => {
       const container = horizontalRef.current;
-      if (!container) return;
+      const track = trackRef.current;
+      if (!container || !track) return;
       const rect = container.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, (cachedStickyTop - rect.top) / cachedTotal));
-      setTrackX(progress * cachedMaxX);
+      const progress = Math.min(1, Math.max(0, -rect.top / cachedTotal));
+      track.style.transform = `translate3d(${-progress * cachedMaxX}px, 0, 0)`;
 
       const centerX = cachedVw / 2;
       let bestIdx = 0;
@@ -572,14 +565,14 @@ const HomeMindtrip = () => {
       <section
         ref={horizontalRef}
         className="relative bg-background mt-8 md:mt-0"
-        style={{ height: horizontalSectionHeight ? `${horizontalSectionHeight}px` : "500vh" }}
+        style={{ height: "500vh" }}
       >
-        <div ref={stickyHorizontalRef} className="sticky top-16 md:top-28 flex h-[82svh] md:h-[78vh] items-center overflow-hidden">
+        <div ref={stickyHorizontalRef} className="sticky top-0 flex h-svh md:h-screen items-center overflow-hidden">
 
           <div
             ref={trackRef}
             className="flex gap-4 md:gap-8 will-change-transform pl-[7.5vw] pr-[7.5vw] md:pl-[max(3rem,calc((100vw-672px)/2))] md:pr-[max(3rem,calc((100vw-672px)/2))]"
-            style={{ transform: `translate3d(${-trackX}px, 0, 0)` }}
+            style={{ transform: "translate3d(0, 0, 0)" }}
           >
             {STEPS.slice(1).map((s, idx) => {
               const i = idx + 1;
