@@ -2373,6 +2373,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 title={business?.name || (language === "en" ? "Nearby" : "À proximité")}
                 variant="dark"
                 className="shrink-0"
+                previewImage={business?.images?.[0] || null}
+                shareUrl={business?.slug ? `https://oneworldmorocco.com/${business.slug}` : undefined}
               />
             </div>
             {(business?.name || activeFrontTab) && (
