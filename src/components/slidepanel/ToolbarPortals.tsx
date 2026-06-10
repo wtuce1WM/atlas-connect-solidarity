@@ -74,11 +74,11 @@ export function ToolbarPortals({
   const [burst, setBurst] = React.useState(0);
 
   const onHeartClick = async () => {
-    if (!activeVideoId) return;
     if (!isLoggedIn) {
       window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
       return;
     }
+    if (!activeVideoId) return;
     setBurst((b) => b + 1);
     await toggleLike();
   };
