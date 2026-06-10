@@ -942,6 +942,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   // Video info via extracted hook
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
+  const activeInternalVideoLikeId = activeVideoOverlay?.url || (
+    effectiveMedia?.kind === "video" && videoInfo?.type !== "youtube" ? effectiveMedia.url : null
+  );
   const setYoutubeOverlayOpen = useCallback((open: boolean) => {
     if (open) setGlobalSoundOn(true);
     setShowYoutubeOverlay(open);
@@ -1084,7 +1087,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         openBadgeInfo={openBadgeInfo}
         hideToolbarButtons={showDescriptionOverlay}
         activeYoutubeVideo={activeYoutubeVideo}
-        activeInternalVideoId={activeVideoOverlay?.url || null}
+        activeInternalVideoId={activeInternalVideoLikeId}
       />
 
       {/* ClubLoginPopup is mounted globally (SearchPage). Avoid duplicate instance here. */}
