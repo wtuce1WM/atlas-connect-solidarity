@@ -570,9 +570,13 @@ const HomeMindtrip = () => {
         </div>
       </section>
 
-      {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
-      <section ref={horizontalRef} className="relative bg-background mt-8 md:mt-0" style={{ height: `${STEPS.slice(1).length * 100}vh` }}>
-        <div ref={stickyHorizontalRef} className="sticky top-0 flex h-svh md:h-screen items-center overflow-hidden">
+      {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2-6) */}
+      <section
+        ref={horizontalRef}
+        className="relative bg-background mt-8 md:mt-0"
+        style={{ height: horizontalSectionHeight ? `${horizontalSectionHeight}px` : "500vh" }}
+      >
+        <div ref={stickyHorizontalRef} className="sticky top-16 md:top-28 flex h-[82svh] md:h-[78vh] items-center overflow-hidden">
 
           <div
             ref={trackRef}
