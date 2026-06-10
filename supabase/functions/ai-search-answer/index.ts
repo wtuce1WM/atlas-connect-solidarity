@@ -169,6 +169,8 @@ serve(async (req) => {
       images_count?: number;
       ratings?: string;
       reviews?: string[];
+      menus?: string[];
+      blog?: string[];
     }> = {};
     const reviewsDisabled = new Set<string>();
     if (businessIds.length > 0) {
