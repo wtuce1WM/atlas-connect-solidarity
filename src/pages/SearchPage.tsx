@@ -166,6 +166,18 @@ const SearchPage = () => {
     const label = (labelFromUrl || badgeLabelParam || "").replace(/^#+/, "").trim();
     if (!label) return "";
 
+    if (cityFromUrlForThumbs) {
+      const { data: extraCard } = await supabase
+        .from("front_structure_homepage_extra_cards")
+        .select("badge_id")
+        .ilike("city", cityFromUrlForThumbs)
+        .ilike("title", label)
+        .not("badge_id", "is", null)
+        .limit(1)
+        .maybeSingle();
+      if ((extraCard as any)?.badge_id) return (extraCard as any).badge_id;
+    }
+
     const { data } = await supabase.from("badges").select("id, name_fr");
     const target = normalizeText(label);
     const stripS = (s: string) => s.replace(/s$/, "");
@@ -174,7 +186,7 @@ const SearchPage = () => {
       const n = normalizeText(badge.name_fr || "");
       return n === target || n === targetSingular || stripS(n) === target || stripS(n) === targetSingular;
     })?.id || "";
-  }, [pinBadgeParam, badgeIdParam, labelFromUrl, badgeLabelParam]);
+  }, [pinBadgeParam, badgeIdParam, labelFromUrl, badgeLabelParam, cityFromUrlForThumbs]);
 
   useEffect(() => {
     const ids = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
@@ -2755,7 +2767,9 @@ const SearchPage = () => {
               (data || []).forEach((r: any) => r.business_id && validBizIds.add(r.business_id));
             }
             if (validBizIds.size > 0) {
-              effectiveOrderedIds = orderedIds.filter(id => validBizIds.has(id));
+              const existing = orderedIds.filter(id => validBizIds.has(id));
+              const missing = Array.from(validBizIds).filter(id => !orderedIds.includes(id));
+              effectiveOrderedIds = [...existing, ...missing];
             }
           }
         }
