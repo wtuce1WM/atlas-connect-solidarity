@@ -639,6 +639,32 @@ const EventManagement = () => {
   const [newTypeInput, setNewTypeInput] = useState("");
   const [showNewType, setShowNewType] = useState(false);
 
+  // Drag & drop reordering of the events list
+  const listSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const handleListDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const visible = filterCityId === "all" ? events : events.filter(ev => ev.city_id === filterCityId);
+    const oldIndex = visible.findIndex(e => e.id === active.id);
+    const newIndex = visible.findIndex(e => e.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const reorderedVisible = arrayMove(visible, oldIndex, newIndex);
+    // Renumber visible rows 10,20,30... while keeping others in place
+    const updates = reorderedVisible.map((ev, i) => ({ id: ev.id, sort_order: (i + 1) * 10 }));
+    const updateMap = new Map(updates.map(u => [u.id, u.sort_order]));
+    setEvents(prev => {
+      const next = prev.map(ev => updateMap.has(ev.id) ? { ...ev, sort_order: updateMap.get(ev.id)! } : ev);
+      return [...next].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    });
+    const results = await Promise.all(
+      updates.map(u => supabase.from("events").update({ sort_order: u.sort_order }).eq("id", u.id))
+    );
+    if (results.some(r => r.error)) {
+      toast({ variant: "destructive", title: "Erreur", description: "Le nouvel ordre n'a pas pu être enregistré." });
+      fetchEvents();
+    }
+  };
+
   // Linked businesses
   const [linkedBusinessIds, setLinkedBusinessIds] = useState<string[]>([]);
   const [linkedBusinesses, setLinkedBusinesses] = useState<{ id: string; name: string; city: string | null }[]>([]);
