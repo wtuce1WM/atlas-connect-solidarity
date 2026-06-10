@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses DROP COLUMN IF EXISTS popup_title, DROP COLUMN IF EXISTS popup_text;
