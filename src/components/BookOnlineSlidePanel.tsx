@@ -2286,6 +2286,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <SlidePanelHeader
             onClose={() => { setSelectedKpBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); }}
             alwaysDark
+            glassClose
             toolbarLeftId="kp-slide-panel-toolbar-left"
             toolbarCenterId="kp-slide-panel-toolbar-center"
             toolbarRightId="kp-slide-panel-toolbar"
