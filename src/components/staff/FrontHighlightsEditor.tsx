@@ -212,7 +212,7 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
                   <div key={h.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground font-medium">#{i + 1}</span>
-                      <DynamicIcon name={h.icon} className="h-5 w-5 text-primary" />
+                      {h.icon && <DynamicIcon name={h.icon} className="h-5 w-5 text-primary" />}
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
