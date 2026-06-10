@@ -2643,7 +2643,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </OverlayShell>
       )}
       {/* Search bar */}
-      {showSearchBar && !docOverlay && !cardsHidden && !showDescriptionOverlay && !showBookingOverlay && !showYoutubeOverlay && !selectedPoiBusinessId && (
+      {showSearchBar && !docOverlay && !showDescriptionOverlay && !showBookingOverlay && !showYoutubeOverlay && !selectedPoiBusinessId && (
         <PanelSearchBar
           onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
           iconVariant="black"
