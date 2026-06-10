@@ -13,9 +13,11 @@ interface ShareButtonProps {
   /** Button color variant */
   variant?: "light" | "dark" | "gold";
   className?: string;
+  /** Extra classes applied to the trigger button itself */
+  buttonClassName?: string;
 }
 
-const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", className = "" }: ShareButtonProps) => {
+const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", className = "", buttonClassName = "" }: ShareButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -147,7 +149,7 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
       <div className={`relative inline-flex ${className}`}>
         <button
           onClick={() => setIsOpen(true)}
-          className={`h-9 w-9 flex items-center justify-center rounded-full bg-muted transition-colors ${buttonColor}`}
+          className={`h-9 w-9 flex items-center justify-center rounded-full bg-muted transition-colors ${buttonColor} ${buttonClassName}`}
           aria-label="Partager"
           title="Partager"
         >

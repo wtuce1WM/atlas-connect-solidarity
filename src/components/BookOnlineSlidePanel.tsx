@@ -2259,6 +2259,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
             alwaysDark
             closeVariant="inverse"
+            glassClose
             toolbarLeftId="poi-slide-panel-toolbar-left"
             toolbarCenterId="poi-slide-panel-toolbar-center"
             toolbarRightId="poi-slide-panel-toolbar"
@@ -2285,6 +2286,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <SlidePanelHeader
             onClose={() => { setSelectedKpBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); }}
             alwaysDark
+            glassClose
             toolbarLeftId="kp-slide-panel-toolbar-left"
             toolbarCenterId="kp-slide-panel-toolbar-center"
             toolbarRightId="kp-slide-panel-toolbar"

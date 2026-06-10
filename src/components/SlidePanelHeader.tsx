@@ -16,6 +16,8 @@ interface SlidePanelHeaderProps {
   alwaysDark?: boolean;
   /** Extra classes on the close-button container (e.g. to shift it right to align over a logo) */
   closeButtonContainerClassName?: string;
+  /** Apply glassmorphism effect on the close button (matches phone/whatsapp toolbar buttons) */
+  glassClose?: boolean;
 }
 
 const SlidePanelHeader = ({
@@ -28,6 +30,7 @@ const SlidePanelHeader = ({
   mobileTransparent = false,
   alwaysDark = false,
   closeButtonContainerClassName = "",
+  glassClose = false,
 }: SlidePanelHeaderProps) => {
   const closeClass = closeVariant === "destructive"
     ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
@@ -52,7 +55,7 @@ const SlidePanelHeader = ({
             e.stopPropagation();
             onClose();
           }}
-          className={`h-9 w-9 flex items-center justify-center rounded-full touch-manipulation ${closeClass}`}
+          className={`h-9 w-9 flex items-center justify-center rounded-full touch-manipulation ${closeClass} ${glassClose ? "glass-toolbar-btn" : ""}`}
           style={closeStyle}
           title="Fermer"
           aria-label="Fermer le panneau"

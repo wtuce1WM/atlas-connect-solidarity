@@ -4412,6 +4412,7 @@ const SearchPage = () => {
               <SlidePanelHeader
                 onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
                 alwaysDark
+                glassClose
                 toolbarCenterId="overlay-slide-panel-toolbar-center"
                 toolbarRightId="overlay-slide-panel-toolbar"
               />
@@ -5488,6 +5489,7 @@ const SearchPage = () => {
               <SlidePanelHeader
                 onClose={handleCompactPanelClose}
                 alwaysDark
+                glassClose
               />
             )}
             <div className="flex-1 min-h-0 overflow-visible">

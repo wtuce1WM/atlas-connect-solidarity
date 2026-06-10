@@ -172,7 +172,7 @@ export function ToolbarPortals({
               onClick={onHeartClick}
               disabled={isLoggedIn && !likeTarget.id}
               style={{ backgroundColor: "#F1F1F1" }}
-              className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 ${
+              className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 glass-toolbar-btn ${
                 isLoggedIn && !likeTarget.id ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 active:scale-90"
               }`}
               title={!isLoggedIn ? "Connectez-vous pour liker" : likeTarget.id ? (isLiked ? "Retirer le like" : "Liker") : "Indisponible"}
@@ -213,7 +213,7 @@ export function ToolbarPortals({
               await toggleBookmark();
             }}
             style={{ backgroundColor: "#F1F1F1" }}
-            className="h-9 w-9 flex items-center justify-center rounded-full text-black shadow-2xl hover:opacity-90 transition-opacity shrink-0"
+            className="h-9 w-9 flex items-center justify-center rounded-full text-black shadow-2xl hover:opacity-90 transition-opacity shrink-0 glass-toolbar-btn"
             title={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
             aria-label="Le Club OWM"
           >
@@ -223,6 +223,7 @@ export function ToolbarPortals({
             title={business.name}
             variant="dark"
             className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black"
+            buttonClassName="glass-toolbar-btn"
             shareUrl={business.slug ? `https://oneworldmorocco.com/${business.slug}` : undefined}
             previewImage={images?.[0] || business?.images?.[0] || null}
           />
