@@ -69,8 +69,13 @@ export function ToolbarPortals({
 
   const shouldHide = !!selectedKpBusinessId || !!selectedPoiBusinessId || showMosaic || !!hideToolbarButtons;
 
-  const activeVideoId = activeYoutubeVideo?.videoId ?? null;
-  const { isLiked, count: likeCount, isLoggedIn, toggle: toggleLike } = useVideoLike(activeVideoId, "youtube");
+  // Like target: active YT short if any, otherwise fall back to the business itself
+  const likeTarget = activeYoutubeVideo?.videoId
+    ? { id: activeYoutubeVideo.videoId, source: "youtube" as const }
+    : business?.id
+      ? { id: String(business.id), source: "business" as const }
+      : { id: null, source: "business" as const };
+  const { isLiked, count: likeCount, isLoggedIn, toggle: toggleLike } = useVideoLike(likeTarget.id, likeTarget.source);
   const [burst, setBurst] = React.useState(0);
 
   const onHeartClick = async () => {
@@ -78,7 +83,7 @@ export function ToolbarPortals({
       window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
       return;
     }
-    if (!activeVideoId) return;
+    if (!likeTarget.id) return;
     setBurst((b) => b + 1);
     await toggleLike();
   };
@@ -155,11 +160,11 @@ export function ToolbarPortals({
             <button
               type="button"
               onClick={onHeartClick}
-              disabled={isLoggedIn && !activeVideoId}
+              disabled={isLoggedIn && !likeTarget.id}
               className={`relative h-9 w-9 flex items-center justify-center rounded-full bg-white shadow-2xl transition-all shrink-0 ${
-                isLoggedIn && !activeVideoId ? "opacity-50 cursor-not-allowed" : "hover:bg-white/90 active:scale-90"
+                isLoggedIn && !likeTarget.id ? "opacity-50 cursor-not-allowed" : "hover:bg-white/90 active:scale-90"
               }`}
-              title={!isLoggedIn ? "Connectez-vous pour liker" : activeVideoId ? (isLiked ? "Retirer le like" : "Liker la vidéo") : "Aucune vidéo active"}
+              title={!isLoggedIn ? "Connectez-vous pour liker" : likeTarget.id ? (isLiked ? "Retirer le like" : "Liker") : "Indisponible"}
               aria-label="Liker la vidéo"
             >
               <Heart
