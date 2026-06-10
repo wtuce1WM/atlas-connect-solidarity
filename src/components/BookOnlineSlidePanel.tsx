@@ -242,6 +242,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [docOverlayLoaded, setDocOverlayLoaded] = useState(false);
   const [bookingOverlayLoaded, setBookingOverlayLoaded] = useState(false);
   const [bookingOverlayHideContact, setBookingOverlayHideContact] = useState(false);
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+  const welcomePopupShownRef = useRef<string | null>(null);
+  useEffect(() => {
+    const url = (business as any)?.popup_image_url;
+    if (business?.id && url && welcomePopupShownRef.current !== business.id) {
+      welcomePopupShownRef.current = business.id;
+      setShowWelcomePopup(true);
+    }
+  }, [business?.id, (business as any)?.popup_image_url]);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
