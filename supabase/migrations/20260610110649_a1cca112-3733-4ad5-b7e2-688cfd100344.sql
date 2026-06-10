@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS popup_title text, ADD COLUMN IF NOT EXISTS popup_text text;
