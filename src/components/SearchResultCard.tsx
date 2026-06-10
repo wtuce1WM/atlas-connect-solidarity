@@ -1,4 +1,4 @@
-import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award, Heart } from "lucide-react";
+import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award, Bookmark } from "lucide-react";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 
@@ -138,7 +138,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
           aria-label="Le Club OWM"
           title="Le Club OWM"
         >
-          <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+          <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
         </button>
       </div>
 
