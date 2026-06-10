@@ -114,7 +114,7 @@ const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "c
   const isHome = location.pathname === "/";
   const noFloating = ["/corporate", "/club", "/install"].includes(location.pathname);
   const isBlog = location.pathname.startsWith("/blog");
-  const hideClub = location.pathname === "/test" || location.pathname === "/videos" || isHome || noFloating || isBlog;
+  const hideClub = location.pathname === "/test" || location.pathname === "/videos" || location.pathname === "/search" || isHome || noFloating || isBlog;
   const hideWhatsapp = isHome || noFloating;
   if (hideClub && hideWhatsapp) return null;
   return (
