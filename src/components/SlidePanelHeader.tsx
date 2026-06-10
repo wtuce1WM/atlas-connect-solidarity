@@ -16,6 +16,8 @@ interface SlidePanelHeaderProps {
   alwaysDark?: boolean;
   /** Extra classes on the close-button container (e.g. to shift it right to align over a logo) */
   closeButtonContainerClassName?: string;
+  /** Apply glassmorphism effect on the close button (matches phone/whatsapp toolbar buttons) */
+  glassClose?: boolean;
 }
 
 const SlidePanelHeader = ({
