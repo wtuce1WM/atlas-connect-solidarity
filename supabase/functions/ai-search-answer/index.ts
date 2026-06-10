@@ -169,6 +169,7 @@ serve(async (req) => {
       ratings?: string;
       reviews?: string[];
     }> = {};
+    const reviewsDisabled = new Set<string>();
     if (businessIds.length > 0) {
       const focusedArr = Array.from(focusedIds);
       const reviewsPromises: any[] = [
@@ -191,7 +192,7 @@ serve(async (req) => {
             .limit(focusedArr.length * 40),
         );
       }
-      const [bizRows, badgeLinks, videoRows, reviewRows, focusedReviewRows] = await Promise.all([
+      const [bizRows, badgeLinks, videoRows, reviewsStatusRows, reviewRows, focusedReviewRows] = await Promise.all([
         sb.from("businesses")
           .select("id, services, engagements, description, ai_review_summary, opening_hours, show_opening_hours, is_open_24h, min_price, manual_price_range, avg_price_range, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, trustpilot_rating, trustpilot_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, tourradar_rating, tourradar_review_count")
           .in("id", businessIds),
@@ -200,8 +201,19 @@ serve(async (req) => {
           .select("business_id, business_youtube_video_badges(badges(name_fr))")
           .in("business_id", businessIds)
           .eq("is_visible", true),
+        sb.from("reviews").select("business_id, is_hidden").in("business_id", businessIds),
         ...reviewsPromises,
       ]);
+      // Avis désactivés : business dont TOUS les avis existants sont masqués (is_hidden=true).
+      const byBiz: Record<string, { total: number; hidden: number }> = {};
+      (reviewsStatusRows.data || []).forEach((r: any) => {
+        const s = byBiz[r.business_id] = byBiz[r.business_id] || { total: 0, hidden: 0 };
+        s.total++;
+        if (r.is_hidden) s.hidden++;
+      });
+      Object.entries(byBiz).forEach(([bid, s]) => {
+        if (s.total > 0 && s.hidden === s.total) reviewsDisabled.add(bid);
+      });
       const fmtHours = (oh: any, is24: boolean | null, show: boolean | null): string | undefined => {
         if (show === false) return undefined;
         if (is24) return "Ouvert 24h/24";
@@ -350,9 +362,9 @@ serve(async (req) => {
           if (enr?.price) parts.push(`— Prix: ${enr.price}`);
           if (enr?.opening_hours) parts.push(`— Horaires: ${enr.opening_hours}`);
           if (enr?.images_count) parts.push(`— Photos: ${enr.images_count}`);
-          if (enr?.ratings) parts.push(`— Notes: ${enr.ratings}`);
-          if (enr?.ai_review_summary) parts.push(`— Résumé avis: ${enr.ai_review_summary}`);
-          if (enr?.reviews?.length) parts.push(`— Avis clients: ${enr.reviews.join(" | ")}`);
+          if (enr?.ratings && !(b.id && reviewsDisabled.has(b.id))) parts.push(`— Notes: ${enr.ratings}`);
+          if (enr?.ai_review_summary && !(b.id && reviewsDisabled.has(b.id))) parts.push(`— Résumé avis: ${enr.ai_review_summary}`);
+          if (enr?.reviews?.length && !(b.id && reviewsDisabled.has(b.id))) parts.push(`— Avis clients: ${enr.reviews.join(" | ")}`);
           return parts.join(" ");
         }).join("\n")
       : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)";
