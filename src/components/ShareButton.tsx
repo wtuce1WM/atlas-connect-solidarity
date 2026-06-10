@@ -149,7 +149,7 @@ const ShareButton = ({ title, shareUrl, previewImage, variant = "gold", classNam
       <div className={`relative inline-flex ${className}`}>
         <button
           onClick={() => setIsOpen(true)}
-          className={`h-9 w-9 flex items-center justify-center rounded-full bg-muted transition-colors ${buttonColor}`}
+          className={`h-9 w-9 flex items-center justify-center rounded-full bg-muted transition-colors ${buttonColor} ${buttonClassName}`}
           aria-label="Partager"
           title="Partager"
         >
