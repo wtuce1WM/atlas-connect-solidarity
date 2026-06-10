@@ -101,6 +101,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
   const certifications = engs.filter(e => e.startsWith("Certification:")).map(e => e.replace("Certification:", "").trim());
   const logistics = engs.filter(e => e.startsWith("Logistique:")).map(e => e.replace("Logistique:", "").trim());
   const hasEngagements = standards.length > 0 || logistics.length > 0 || certifications.length > 0;
+  const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(business.id);
 
   return (
     <div
