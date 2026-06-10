@@ -2790,6 +2790,7 @@ export type Database = {
           name: string
           neighborhood_id: string | null
           recurrence: string | null
+          sort_order: number
           start_date: string | null
           start_time: string | null
           type: string | null
@@ -2818,6 +2819,7 @@ export type Database = {
           name: string
           neighborhood_id?: string | null
           recurrence?: string | null
+          sort_order?: number
           start_date?: string | null
           start_time?: string | null
           type?: string | null
@@ -2846,6 +2848,7 @@ export type Database = {
           name?: string
           neighborhood_id?: string | null
           recurrence?: string | null
+          sort_order?: number
           start_date?: string | null
           start_time?: string | null
           type?: string | null
