@@ -220,7 +220,6 @@ const HomeMindtrip = () => {
   useEffect(() => {
     // Cache vh/maxX/total to stay stable when Android Chrome's URL bar
     // collapses/expands during scroll (otherwise the horizontal track jitters).
-    let cachedVh = window.innerHeight;
     let cachedVw = window.innerWidth;
     let cachedStickyTop = 0;
     let cachedTotal = 0;
@@ -231,7 +230,6 @@ const HomeMindtrip = () => {
       const sticky = stickyHorizontalRef.current;
       const track = trackRef.current;
       if (!container || !sticky || !track) return;
-      cachedVh = window.innerHeight;
       cachedVw = window.innerWidth;
       cachedStickyTop = Number.parseFloat(window.getComputedStyle(sticky).top || "0") || 0;
       cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
