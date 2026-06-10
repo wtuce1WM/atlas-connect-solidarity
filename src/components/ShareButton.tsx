@@ -119,7 +119,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
     {
       name: "WhatsApp",
       icon: <WhatsAppIcon className="h-6 w-6" />,
-      url: `https://wa.me/?text=${encodeURIComponent(shareTitle + " " + currentUrl)}`,
+      url: `https://wa.me/?text=${encodeURIComponent(shareTitle.toUpperCase() + "\n" + currentUrl)}`,
       bg: "bg-[#25D366] text-white",
     },
     {
