@@ -134,11 +134,12 @@ export default function SearchResultCard({ business, index, labelLogos, distance
       <div className="absolute top-2 right-2 z-[20]" onClick={(e) => e.stopPropagation()}>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
-          className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+          className="h-9 w-9 flex items-center justify-center rounded-full glass-toolbar-btn text-black hover:opacity-90 transition-opacity"
+          style={{ backgroundColor: "#F1F1F1" }}
           aria-label="Le Club OWM"
           title="Le Club OWM"
         >
-          <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+          <Bookmark className="h-4 w-4" strokeWidth={2.5} />
         </button>
       </div>
 
