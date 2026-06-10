@@ -72,7 +72,7 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
       if (!existingOrders.has(i)) {
         toInsert.push({
           business_id: businessId,
-          icon: DEFAULT_ICONS[i] || "Star",
+          icon: DEFAULT_ICONS[i] || "",
           title: "",
           description: "",
           sort_order: i,
