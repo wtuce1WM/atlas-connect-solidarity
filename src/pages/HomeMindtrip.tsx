@@ -217,10 +217,11 @@ const HomeMindtrip = () => {
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
   const [activeStep, setActiveStep] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let cachedVw = window.innerWidth;
     let cachedTotal = 1;
     let cachedMaxX = 0;
+    let cachedStickyHeight = 1;
 
     const recomputeMetrics = () => {
       const container = horizontalRef.current;
@@ -228,8 +229,15 @@ const HomeMindtrip = () => {
       const track = trackRef.current;
       if (!container || !sticky || !track) return;
       cachedVw = window.innerWidth;
-      cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
-      cachedTotal = Math.max(1, container.offsetHeight - window.innerHeight);
+      cachedStickyHeight = sticky.offsetHeight;
+      const first = cardRefs.current[0];
+      const last = cardRefs.current[STEPS.slice(1).length - 1];
+      const firstCenter = first ? first.offsetLeft + first.offsetWidth / 2 : cachedVw / 2;
+      const lastCenter = last ? last.offsetLeft + last.offsetWidth / 2 : track.scrollWidth - cachedVw / 2;
+      cachedMaxX = Math.max(0, lastCenter - cachedVw / 2, firstCenter - cachedVw / 2);
+      const nextHeight = Math.ceil(cachedStickyHeight + cachedMaxX);
+      if (container.offsetHeight !== nextHeight) setHorizontalSectionHeight(nextHeight);
+      cachedTotal = Math.max(1, nextHeight - window.innerHeight);
     };
 
     const onScroll = () => {
