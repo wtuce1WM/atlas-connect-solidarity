@@ -1,12 +1,13 @@
 import React from "react";
 import { createPortal } from "react-dom";
-import { ChevronLeft, Minimize2, Phone, Heart } from "lucide-react";
+import { ChevronLeft, Minimize2, Phone, Heart, Bookmark } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import ShareButton from "@/components/ShareButton";
 import { whatsappUrl } from "@/lib/phoneUtils";
 import { buildOgShareUrl } from "@/lib/businessUrl";
 import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
+import { useVideoLike } from "@/hooks/useVideoLike";
 
 interface ToolbarPortalsProps {
   business: any;
