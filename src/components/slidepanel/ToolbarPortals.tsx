@@ -75,10 +75,10 @@ export function ToolbarPortals({
   const shouldHide = !!selectedKpBusinessId || !!selectedPoiBusinessId || showMosaic || !!hideToolbarButtons;
 
   // Like target: active video if any, otherwise fall back to the business itself
-  const likeTarget = activeYoutubeVideo?.videoId
-    ? { id: activeYoutubeVideo.videoId, source: "youtube" as const }
-    : activeInternalVideoId
-      ? { id: activeInternalVideoId, source: "business" as const }
+  const likeTarget = activeInternalVideoId
+    ? { id: activeInternalVideoId, source: "business" as const }
+    : activeYoutubeVideo?.videoId
+      ? { id: activeYoutubeVideo.videoId, source: "youtube" as const }
       : business?.id
         ? { id: String(business.id), source: "business" as const }
         : { id: null, source: "business" as const };
