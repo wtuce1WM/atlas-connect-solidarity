@@ -141,7 +141,18 @@ serve(async (req) => {
     const effectiveHasResults = effectiveBusinesses.length > 0;
     const businessIds = effectiveBusinesses.map((b: any) => b.id).filter(Boolean);
 
-
+    // Detect businesses explicitly named in the user query → unlock full reviews for them.
+    const normTxt = (s: string) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const qNorm = ` ${normTxt(query)} `;
+    const focusedIds = new Set<string>(
+      effectiveBusinesses
+        .filter((b: any) => {
+          const n = normTxt(b.name);
+          return n.length >= 4 && qNorm.includes(` ${n} `);
+        })
+        .map((b: any) => b.id)
+        .filter(Boolean),
+    );
 
     // Enrich businesses with services, engagements, badges, video badges,
     // plus description, opening hours, prices, photos count, ratings and review snippets.
@@ -159,7 +170,28 @@ serve(async (req) => {
       reviews?: string[];
     }> = {};
     if (businessIds.length > 0) {
-      const [bizRows, badgeLinks, videoRows, reviewRows] = await Promise.all([
+      const focusedArr = Array.from(focusedIds);
+      const reviewsPromises: any[] = [
+        sb.from("reviews")
+          .select("business_id, source, rating, text_fr, text, language")
+          .in("business_id", businessIds)
+          .eq("is_hidden", false)
+          .not("text", "is", null)
+          .order("published_at", { ascending: false })
+          .limit(businessIds.length * 8),
+      ];
+      if (focusedArr.length > 0) {
+        reviewsPromises.push(
+          sb.from("reviews")
+            .select("business_id, source, rating, text_fr, text, language")
+            .in("business_id", focusedArr)
+            .eq("is_hidden", false)
+            .not("text", "is", null)
+            .order("published_at", { ascending: false })
+            .limit(focusedArr.length * 40),
+        );
+      }
+      const [bizRows, badgeLinks, videoRows, reviewRows, focusedReviewRows] = await Promise.all([
         sb.from("businesses")
           .select("id, services, engagements, description, ai_review_summary, opening_hours, show_opening_hours, is_open_24h, min_price, manual_price_range, avg_price_range, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, trustpilot_rating, trustpilot_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, tourradar_rating, tourradar_review_count")
           .in("id", businessIds),
@@ -168,13 +200,7 @@ serve(async (req) => {
           .select("business_id, business_youtube_video_badges(badges(name_fr))")
           .in("business_id", businessIds)
           .eq("is_visible", true),
-        sb.from("reviews")
-          .select("business_id, source, rating, text_fr, text, language")
-          .in("business_id", businessIds)
-          .eq("is_hidden", false)
-          .not("text", "is", null)
-          .order("published_at", { ascending: false })
-          .limit(businessIds.length * 8),
+        ...reviewsPromises,
       ]);
       const fmtHours = (oh: any, is24: boolean | null, show: boolean | null): string | undefined => {
         if (show === false) return undefined;
