@@ -565,14 +565,14 @@ const HomeMindtrip = () => {
       <section
         ref={horizontalRef}
         className="relative bg-background mt-8 md:mt-0"
-        style={{ height: horizontalSectionHeight ? `${horizontalSectionHeight}px` : "500vh" }}
+        style={{ height: "500vh" }}
       >
-        <div ref={stickyHorizontalRef} className="sticky top-16 md:top-28 flex h-[82svh] md:h-[78vh] items-center overflow-hidden">
+        <div ref={stickyHorizontalRef} className="sticky top-0 flex h-svh md:h-screen items-center overflow-hidden">
 
           <div
             ref={trackRef}
             className="flex gap-4 md:gap-8 will-change-transform pl-[7.5vw] pr-[7.5vw] md:pl-[max(3rem,calc((100vw-672px)/2))] md:pr-[max(3rem,calc((100vw-672px)/2))]"
-            style={{ transform: `translate3d(${-trackX}px, 0, 0)` }}
+            style={{ transform: "translate3d(0, 0, 0)" }}
           >
             {STEPS.slice(1).map((s, idx) => {
               const i = idx + 1;
