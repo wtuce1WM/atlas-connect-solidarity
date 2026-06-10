@@ -172,7 +172,7 @@ export function ToolbarPortals({
               onClick={onHeartClick}
               disabled={isLoggedIn && !likeTarget.id}
               style={{ backgroundColor: "#F1F1F1" }}
-              className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 ${
+              className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 glass-toolbar-btn ${
                 isLoggedIn && !likeTarget.id ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 active:scale-90"
               }`}
               title={!isLoggedIn ? "Connectez-vous pour liker" : likeTarget.id ? (isLiked ? "Retirer le like" : "Liker") : "Indisponible"}
