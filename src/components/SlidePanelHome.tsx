@@ -315,6 +315,7 @@ const SlidePanelHome = ({
         .select("id, name, start_date, end_date, hook, logo_url")
         .eq("city_id", cityRow.id)
         .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}),and(start_date.is.null,end_date.is.null)`)
+        .order("sort_order", { ascending: true, nullsFirst: false })
         .order("start_date", { ascending: true, nullsFirst: false });
       if (cancelled) return;
       const rows = (data as any[]) || [];
