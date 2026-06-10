@@ -8,6 +8,7 @@ import { whatsappUrl } from "@/lib/phoneUtils";
 import { buildOgShareUrl } from "@/lib/businessUrl";
 import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import { useVideoLike } from "@/hooks/useVideoLike";
+import { useVideoView } from "@/hooks/useVideoView";
 import { useBookmark } from "@/hooks/useBookmark";
 
 interface ToolbarPortalsProps {
@@ -77,6 +78,8 @@ export function ToolbarPortals({
       ? { id: String(business.id), source: "business" as const }
       : { id: null, source: "business" as const };
   const { isLiked, count: likeCount, isLoggedIn, toggle: toggleLike } = useVideoLike(likeTarget.id, likeTarget.source);
+  // Log a view each time a YouTube short becomes active in the panel
+  useVideoView(activeYoutubeVideo?.videoId ?? null, "youtube", { autoLog: true });
   const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(business?.id ? String(business.id) : undefined);
   const [burst, setBurst] = React.useState(0);
 
