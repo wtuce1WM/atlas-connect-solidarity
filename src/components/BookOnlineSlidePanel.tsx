@@ -2738,29 +2738,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
             <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-              {(() => {
-                const title = (business as any)?.popup_title || business?.name;
-                return title ? (
-                  <h3 className="text-2xl font-bold leading-tight mb-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                    {title}
-                  </h3>
-                ) : null;
-              })()}
-              {(() => {
-                const html = (business as any)?.popup_text;
-                if (html) {
-                  return (
-                    <div
-                      className="text-sm leading-snug text-white/90 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h3]:font-semibold [&_h3]:mt-2 [&_p]:m-0"
-                      dangerouslySetInnerHTML={{ __html: html }}
-                    />
-                  );
-                }
-                const txt = (language === "en" ? (business as any)?.hook_en : language === "ar" ? (business as any)?.hook_ar : (business as any)?.hook_fr) || (business as any)?.description;
-                return txt ? (
-                  <p className="text-sm leading-snug text-white/90 line-clamp-4">{txt}</p>
-                ) : null;
-              })()}
+              {popupMeta.title && (
+                <h3 className="text-2xl font-bold leading-tight mb-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  {popupMeta.title}
+                </h3>
+              )}
+              {popupMeta.description && (
+                <p className="text-sm leading-snug text-white/90 whitespace-pre-line">
+                  {popupMeta.description}
+                </p>
+              )}
             </div>
             <button
               onClick={() => setShowWelcomePopup(false)}
