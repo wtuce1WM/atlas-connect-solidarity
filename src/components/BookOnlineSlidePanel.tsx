@@ -242,6 +242,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [docOverlayLoaded, setDocOverlayLoaded] = useState(false);
   const [bookingOverlayLoaded, setBookingOverlayLoaded] = useState(false);
   const [bookingOverlayHideContact, setBookingOverlayHideContact] = useState(false);
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+  const welcomePopupShownRef = useRef<string | null>(null);
+  useEffect(() => {
+    const url = (business as any)?.popup_image_url;
+    if (business?.id && url && welcomePopupShownRef.current !== business.id) {
+      welcomePopupShownRef.current = business.id;
+      setShowWelcomePopup(true);
+    }
+  }, [business?.id, (business as any)?.popup_image_url]);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
@@ -2700,6 +2709,45 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           }
 
         />
+      )}
+
+      {showWelcomePopup && (business as any)?.popup_image_url && (
+        <div
+          className="absolute inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in"
+          onClick={() => setShowWelcomePopup(false)}
+        >
+          <div
+            className="relative w-[88%] max-w-md rounded-2xl overflow-hidden shadow-2xl animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={(business as any).popup_image_url}
+              alt={business?.name || ""}
+              className="w-full h-auto block"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+              {business?.name && (
+                <h3 className="text-2xl font-bold leading-tight mb-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  {business.name}
+                </h3>
+              )}
+              {(() => {
+                const txt = (language === "en" ? (business as any)?.hook_en : language === "ar" ? (business as any)?.hook_ar : (business as any)?.hook_fr) || (business as any)?.description;
+                return txt ? (
+                  <p className="text-sm leading-snug text-white/90 line-clamp-4">{txt}</p>
+                ) : null;
+              })()}
+            </div>
+            <button
+              onClick={() => setShowWelcomePopup(false)}
+              className="absolute top-2 right-2 h-9 w-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
       )}
 
     </div>
