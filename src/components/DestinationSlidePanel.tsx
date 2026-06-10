@@ -863,8 +863,11 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                     <div className="w-1/2 md:w-3/4 md:px-0 pointer-events-auto flex justify-center gap-2">
                     <div className="flex-1 md:flex-none md:w-1/3">
                       <button
-                        onClick={() => setShowDirections(true)}
-                        className="relative overflow-hidden flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-1px_0_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.28)] before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none before:bg-gradient-to-b before:from-white/25 before:via-transparent before:to-white/5 after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-[inherit] after:pointer-events-none after:bg-gradient-to-b after:from-white/25 after:to-transparent after:blur-[1px] [&>*]:relative [&>*]:z-10"
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setShowDirections(true); }}
+                        onTouchStart={(e) => e.stopPropagation()}
+                        onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setShowDirections(true); }}
+                        className="relative overflow-hidden flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left touch-manipulation shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-1px_0_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.28)] before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none before:bg-gradient-to-b before:from-white/25 before:via-transparent before:to-white/5 after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-[inherit] after:pointer-events-none after:bg-gradient-to-b after:from-white/25 after:to-transparent after:blur-[1px] [&>*]:relative [&>*]:z-10"
                         style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
                       >
                         <MapPin className="h-4 w-4 hidden md:block" />
