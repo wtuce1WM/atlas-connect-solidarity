@@ -163,7 +163,7 @@ export function ToolbarPortals({
               type="button"
               onClick={onHeartClick}
               disabled={isLoggedIn && !likeTarget.id}
-              style={{ backgroundColor: "#CDBFA4" }}
+              style={{ backgroundColor: "#F1F1F1" }}
               className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 ${
                 isLoggedIn && !likeTarget.id ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 active:scale-90"
               }`}
@@ -204,14 +204,14 @@ export function ToolbarPortals({
               }
               await toggleBookmark();
             }}
-            style={{ backgroundColor: "#CDBFA4" }}
+            style={{ backgroundColor: "#F1F1F1" }}
             className="h-9 w-9 flex items-center justify-center rounded-full text-black shadow-2xl hover:opacity-90 transition-opacity shrink-0"
             title={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
             aria-label="Le Club OWM"
           >
             <Bookmark className="h-4 w-4" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
           </button>
-          <ShareButton title={business.name} variant="dark" className="shrink-0 [&>button]:!bg-[#CDBFA4] [&>button]:!text-black" shareUrl={business.slug ? buildOgShareUrl(business.slug) : undefined} />
+          <ShareButton title={business.name} variant="dark" className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black" shareUrl={business.slug ? buildOgShareUrl(business.slug) : undefined} />
         </div>,
         toolbarPortal
       )}
