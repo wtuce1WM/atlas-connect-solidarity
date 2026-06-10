@@ -214,6 +214,11 @@ serve(async (req) => {
           .select("business_id, generic_videos(title, name, description)")
           .in("business_id", businessIds)
           .limit(businessIds.length * 10),
+        sb.from("business_menu_summaries")
+          .select("business_id, title, content, price_details")
+          .in("business_id", businessIds)
+          .order("sort_order", { ascending: true })
+          .limit(businessIds.length * 6),
         sb.from("reviews").select("business_id, is_hidden").in("business_id", businessIds),
         ...reviewsPromises,
       ]);
