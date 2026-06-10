@@ -169,6 +169,8 @@ serve(async (req) => {
       images_count?: number;
       ratings?: string;
       reviews?: string[];
+      menus?: string[];
+      blog?: string[];
     }> = {};
     const reviewsDisabled = new Set<string>();
     if (businessIds.length > 0) {
@@ -193,7 +195,7 @@ serve(async (req) => {
             .limit(focusedArr.length * 40),
         );
       }
-      const [bizRows, badgeLinks, videoRows, ytTitleRows, genericVideoRows, reviewsStatusRows, reviewRows, focusedReviewRows] = await Promise.all([
+      const [bizRows, badgeLinks, videoRows, ytTitleRows, genericVideoRows, menuRows, reviewsStatusRows, reviewRows, focusedReviewRows] = await Promise.all([
         sb.from("businesses")
           .select("id, services, engagements, description, ai_review_summary, opening_hours, show_opening_hours, is_open_24h, min_price, manual_price_range, avg_price_range, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, trustpilot_rating, trustpilot_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, tourradar_rating, tourradar_review_count")
           .in("id", businessIds),
@@ -212,6 +214,11 @@ serve(async (req) => {
           .select("business_id, generic_videos(title, name, description)")
           .in("business_id", businessIds)
           .limit(businessIds.length * 10),
+        sb.from("business_menu_summaries")
+          .select("business_id, title, content, price_details")
+          .in("business_id", businessIds)
+          .order("sort_order", { ascending: true })
+          .limit(businessIds.length * 6),
         sb.from("reviews").select("business_id, is_hidden").in("business_id", businessIds),
         ...reviewsPromises,
       ]);
@@ -305,6 +312,44 @@ serve(async (req) => {
         const label = [g.title || g.name, g.description].filter(Boolean).join(" — ");
         pushVideo(r.business_id, label);
       });
+      (menuRows?.data || []).forEach((r: any) => {
+        const parts = [r.title, r.content, r.price_details].filter(Boolean).map((s: any) => String(s).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+        const t = parts.join(" — ").trim();
+        if (!t) return;
+        enrichment[r.business_id] = enrichment[r.business_id] || {};
+        const arr = (enrichment[r.business_id].menus = enrichment[r.business_id].menus || []);
+        const snippet = t.length > 400 ? t.slice(0, 400) + "…" : t;
+        if (arr.length < 6) arr.push(snippet);
+      });
+      // Blog posts mentioning the business name
+      const bizNames = (effectiveBusinesses as any[])
+        .filter((b: any) => b.id && businessIds.includes(b.id) && b.name && b.name.length >= 4)
+        .map((b: any) => ({ id: b.id, name: b.name }));
+      if (bizNames.length > 0) {
+        const orFilters = bizNames
+          .map((b) => {
+            const esc = b.name.replace(/[%,()]/g, " ").trim();
+            return `title_fr.ilike.%${esc}%,content_fr.ilike.%${esc}%`;
+          })
+          .join(",");
+        const { data: blogRows } = await sb
+          .from("blog_posts")
+          .select("title_fr, excerpt_fr, content_fr")
+          .eq("is_published", true)
+          .or(orFilters)
+          .limit(20);
+        (blogRows || []).forEach((p: any) => {
+          const hay = `${p.title_fr || ""} ${p.content_fr || ""}`.toLowerCase();
+          bizNames.forEach((b) => {
+            if (!hay.includes(b.name.toLowerCase())) return;
+            const excerpt = (p.excerpt_fr || p.content_fr || "").toString().replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+            const snippet = excerpt.length > 220 ? excerpt.slice(0, 220) + "…" : excerpt;
+            enrichment[b.id] = enrichment[b.id] || {};
+            const arr = (enrichment[b.id].blog = enrichment[b.id].blog || []);
+            if (arr.length < 4) arr.push(`"${p.title_fr}"${snippet ? ` — ${snippet}` : ""}`);
+          });
+        });
+      }
       const pushReview = (r: any, cap: number) => {
         const txt = (r.text_fr || r.text || "").toString().replace(/\s+/g, " ").trim();
         if (!txt) return;
@@ -386,6 +431,8 @@ serve(async (req) => {
           if (enr?.badges?.length) parts.push(`— Badges: ${enr.badges.slice(0, 15).join(", ")}`);
           if (enr?.video_badges?.length) parts.push(`— Badges vidéos: ${enr.video_badges.slice(0, 15).join(", ")}`);
           if (enr?.videos?.length) parts.push(`— Vidéos: ${enr.videos.join(" | ")}`);
+          if (enr?.menus?.length) parts.push(`— Menus: ${enr.menus.join(" | ")}`);
+          if (enr?.blog?.length) parts.push(`— Blog: ${enr.blog.join(" | ")}`);
           if (enr?.price) parts.push(`— Prix: ${enr.price}`);
           if (enr?.opening_hours) parts.push(`— Horaires: ${enr.opening_hours}`);
           if (enr?.images_count) parts.push(`— Photos: ${enr.images_count}`);
