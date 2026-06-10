@@ -211,6 +211,7 @@ const HomeMindtrip = () => {
   const stickyHorizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [trackX, setTrackX] = useState(0);
+  const [horizontalSectionHeight, setHorizontalSectionHeight] = useState<number | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
@@ -233,8 +234,10 @@ const HomeMindtrip = () => {
       cachedVh = window.innerHeight;
       cachedVw = window.innerWidth;
       cachedStickyTop = Number.parseFloat(window.getComputedStyle(sticky).top || "0") || 0;
-      cachedTotal = Math.max(1, container.offsetHeight - sticky.offsetHeight);
       cachedMaxX = Math.max(0, track.scrollWidth - cachedVw);
+      const nextHeight = Math.ceil(sticky.offsetHeight + cachedStickyTop + cachedMaxX);
+      cachedTotal = Math.max(1, nextHeight - sticky.offsetHeight - cachedStickyTop);
+      setHorizontalSectionHeight((current) => Math.abs((current || 0) - nextHeight) > 1 ? nextHeight : current);
     };
 
     const onScroll = () => {
@@ -568,7 +571,7 @@ const HomeMindtrip = () => {
       </section>
 
       {/* HOW IT WORKS — HORIZONTAL PINNED (steps 2,3,4) */}
-      <section ref={horizontalRef} className="relative bg-background mt-8 md:mt-0" style={{ height: "400vh" }}>
+      <section ref={horizontalRef} className="relative bg-background mt-8 md:mt-0" style={{ height: horizontalSectionHeight ? `${horizontalSectionHeight}px` : "400vh" }}>
         <div ref={stickyHorizontalRef} className="sticky top-16 md:top-28 flex h-[82svh] md:h-[78vh] items-center overflow-hidden">
 
           <div
