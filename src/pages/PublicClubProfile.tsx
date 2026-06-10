@@ -131,7 +131,7 @@ const PublicClubProfile = () => {
   });
 
   if (loading) {
-    return <div className="min-h-screen bg-gradient-to-b from-amber-50 to-amber-100" />;
+    return <div className="min-h-screen" style={{ backgroundColor: "#CDBFA4" }} />;
   }
   if (!profile) return <NotFound />;
 
