@@ -57,7 +57,7 @@ const StaffB2B = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/staff/backoffice")} className="text-background/60 hover:text-background hover:bg-background/10">
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <img src={logoGold} alt="WTUCE Logo" className="h-10 w-10 object-contain" />
+            <img src="/logo-gold.webp" alt="WTUCE Logo" className="h-10 w-10 object-contain" />
             <div>
               <span className="font-serif text-lg font-bold">
                 <span className="text-gold">ONE WORLD</span>{" "}
