@@ -150,6 +150,7 @@ const Join = () => {
         <div className="hero-inner">
           <div className="hero-badge">★ Partenaires locaux</div>
           <h1>Rejoignez le premier écosystème numérique <span className="hl">éthique & solidaire</span> au Maroc.</h1>
+          <p className="hero-sub">Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.</p>
           <p className="hero-sub">Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.</p>
           <a href="/devenir-affilie" className="hero-cta">Rejoindre gratuitement →</a>
           <div className="hero-checks">
