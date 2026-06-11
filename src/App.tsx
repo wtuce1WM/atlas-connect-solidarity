@@ -51,6 +51,7 @@ const LogoEffectsDemo = lazy(() => import("./pages/LogoEffectsDemo"));
 const AIEffectsDemo = lazy(() => import("./pages/AIEffectsDemo"));
 const CGF = lazy(() => import("./pages/CGF"));
 const Corporate = lazy(() => import("./pages/Corporate"));
+const Join = lazy(() => import("./pages/Join"));
 const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
@@ -198,6 +199,7 @@ const AppContent = () => {
               <Route path="/test" element={renderLazyRoute(<Test />)} />
               <Route path="/install" element={renderLazyRoute(<Install />)} />
               <Route path="/corporate" element={renderLazyRoute(<Corporate />)} />
+              <Route path="/join" element={renderLazyRoute(<Join />)} />
               <Route path="/y/:slug" element={renderLazyRoute(<YouTubeChannelResolver />)} />
               <Route path="/u/:pseudo" element={renderLazyRoute(<PublicClubProfile />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
