@@ -69,6 +69,17 @@ const CSS = `
   .join-page .way .tag{margin-top:26px;padding-top:22px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:15px}
   .join-page .way.green .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.orange .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
+  .join-page .hiw-head{text-align:center;max-width:820px;margin:0 auto 56px}
+  .join-page .hiw-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
+  .join-page .hiw-head p{color:var(--muted);font-size:17px}
+  .join-page .hiw{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  @media (max-width:980px){.join-page .hiw{grid-template-columns:1fr}}
+  .join-page .hiw-step{background:#fff;border:1px solid var(--line);border-radius:24px;padding:36px 28px;text-align:center;position:relative;transition:transform .25s,box-shadow .25s}
+  .join-page .hiw-step:hover{transform:translateY(-4px);box-shadow:0 18px 40px -20px rgba(0,0,0,.18)}
+  .join-page .hiw-step .hiw-num{width:56px;height:56px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:24px;margin:0 auto 22px}
+  .join-page .hiw-step h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:20px;margin-bottom:12px;line-height:1.25}
+  .join-page .hiw-step p{color:var(--muted);font-size:15px;line-height:1.55}
+  .join-page .hiw-cta{display:flex;justify-content:center;margin-top:48px}
 `;
 
 const Check = ({ color }: { color: string }) => (
@@ -145,6 +156,37 @@ const Join = () => {
               <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Votre carte. Votre QR. Plus de clients sur place.</div>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="how-it-works">
+        <div className="wrap">
+          <div className="hiw-head">
+            <h2>Comment fonctionne le programme de remises pour les voyageurs ?</h2>
+            <p>Trois étapes simples pour attirer plus de clients, sans commissions ni intermédiaires.</p>
+          </div>
+
+          <div className="hiw">
+            <article className="hiw-step">
+              <div className="hiw-num">1</div>
+              <h3>Inscrivez-vous et définissez la remise que vous souhaitez offrir</h3>
+              <p>Choisissez librement le pourcentage de remise accordé aux voyageurs. Ajustable à tout moment depuis votre espace partenaire.</p>
+            </article>
+            <article className="hiw-step">
+              <div className="hiw-num">2</div>
+              <h3>Nos abonnés voient votre offre dans le catalogue</h3>
+              <p>Votre entreprise gagne en visibilité auprès des voyageurs et habitants qui explorent One World Morocco partout au Maroc.</p>
+            </article>
+            <article className="hiw-step">
+              <div className="hiw-num">3</div>
+              <h3>Les clients viennent directement chez vous, sans commissions ni frais d'agence</h3>
+              <p>Réservations en direct, tarifs transparents : vous gardez 100% de vos revenus, sans intermédiaire.</p>
+            </article>
+          </div>
+
+          <div className="hiw-cta">
+            <a className="btn-primary" href="/devenir-affilie">S'inscrire</a>
           </div>
         </div>
       </section>
