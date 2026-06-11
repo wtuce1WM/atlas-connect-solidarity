@@ -171,7 +171,30 @@ const Join = () => {
 
           <div className="hiw">
             <article className="hiw-step">
-              <div className="hiw-num">1</div>
+              <div className="hiw-illu" aria-hidden="true">
+                <svg width="100%" height="100%" viewBox="0 0 327 196" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g filter="url(#hd0)">
+                    <rect x="196.896" y="40.8579" width="106.075" height="106.075" rx="18.8578" transform="rotate(10 196.896 40.8579)" fill="#D1F2EB"/>
+                    <rect x="197.852" y="42.2233" width="103.718" height="103.718" rx="17.6792" transform="rotate(10 197.852 42.2233)" stroke="white" strokeWidth="2.35722"/>
+                  </g>
+                  <text x="244" y="112" textAnchor="middle" fontFamily="Josefin Sans, sans-serif" fontWeight="700" fontSize="42" fill="#00BFA6" transform="rotate(10 244 112)">3</text>
+                  <g filter="url(#hd1)">
+                    <rect x="25.9977" y="59.2777" width="106.075" height="106.075" rx="18.8578" transform="rotate(-10 25.9977 59.2777)" fill="#FFF2CE"/>
+                    <rect x="27.363" y="60.2338" width="103.718" height="103.718" rx="17.6792" transform="rotate(-10 27.363 60.2338)" stroke="white" strokeWidth="2.35722"/>
+                  </g>
+                  <text x="82" y="118" textAnchor="middle" fontFamily="Josefin Sans, sans-serif" fontWeight="700" fontSize="42" fill="#FFC008" transform="rotate(-10 82 118)">2</text>
+                  <g filter="url(#hd2)">
+                    <rect x="103.785" y="22.0002" width="117.861" height="117.861" rx="18.8578" fill="#FFDDD3"/>
+                    <rect x="104.964" y="23.1789" width="115.504" height="115.504" rx="17.6792" stroke="white" strokeWidth="2.35722"/>
+                  </g>
+                  <text x="162.7" y="100" textAnchor="middle" fontFamily="Josefin Sans, sans-serif" fontWeight="700" fontSize="56" fill="#FF5722">1</text>
+                  <defs>
+                    <filter id="hd0" x="153" y="22" width="174" height="174" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="14"/><feOffset dy="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0"/><feBlend in="SourceGraphic"/></filter>
+                    <filter id="hd1" x="0" y="22" width="174" height="174" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="14"/><feOffset dy="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0"/><feBlend in="SourceGraphic"/></filter>
+                    <filter id="hd2" x="28" y="-53" width="269" height="269" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="14"/><feOffset dy="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.12 0"/><feBlend in="SourceGraphic"/></filter>
+                  </defs>
+                </svg>
+              </div>
               <h3>Inscrivez-vous et définissez la remise que vous souhaitez offrir</h3>
               <p>Choisissez librement le pourcentage de remise accordé aux utilisateurs. Ajustable à tout moment depuis votre espace partenaire.</p>
             </article>
