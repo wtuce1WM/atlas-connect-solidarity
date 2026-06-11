@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import hiwStep2Mockup from "@/assets/hiw-step2-app-mockup.png";
+import hiwStep2Mockup from "@/assets/hiw-step2-app-mockup.webp";
 
 const CSS = `
   .join-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
