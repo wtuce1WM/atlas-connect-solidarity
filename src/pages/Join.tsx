@@ -326,48 +326,6 @@ const Join = () => {
         </div>
       </section>
 
-      <section id="testimonials">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 className="subtitle">Ce que disent nos partenaires</h2>
-            <p className="lead">
-              Boostez votre entreprise avec One World Morocco. Découvrez comment nos partenaires bénéficient d'une meilleure
-              visibilité, de plus de clients directs et de revenus plus élevés, sans frais marketing supplémentaires.
-            </p>
-          </div>
-
-          <div className="t-grid">
-            <article className="t-card">
-              <img src="https://partners.tourist.com/imgs/testimonials/apartment1.webp" alt="Hôtel partenaire" loading="lazy" />
-              <div className="t-badge"><strong>+43%</strong><span>réservations</span></div>
-              <div className="t-body">
-                <p>« Nous avons rejoint la plateforme il y a trois mois et avons déjà constaté une augmentation de notre clientèle. Excellent service ! »</p>
-                <div className="t-meta"><h4>Riad « Sunny Beach »</h4><span>Marrakech</span></div>
-              </div>
-            </article>
-            <article className="t-card">
-              <img src="https://partners.tourist.com/imgs/testimonials/restaurant1.webp" alt="Restaurant partenaire" loading="lazy" />
-              <div className="t-badge"><strong>+51%</strong><span>nouveaux visiteurs</span></div>
-              <div className="t-body">
-                <p>« Grâce à ce service, nous accueillons plus de clients internationaux. C'est pratique et sans commission ! »</p>
-                <div className="t-meta"><h4>Trattoria « La Dolce Vita »</h4><span>Casablanca</span></div>
-              </div>
-            </article>
-            <article className="t-card">
-              <img src="https://partners.tourist.com/imgs/testimonials/excursion1.webp" alt="Activité partenaire" loading="lazy" />
-              <div className="t-badge"><strong>80%</strong><span>avis positifs</span></div>
-              <div className="t-body">
-                <p>« Gratuit à rejoindre, sans frais cachés : nous définissons notre offre et les clients arrivent directement. »</p>
-                <div className="t-meta"><h4>Excursions « Atlas Tours »</h4><span>Essaouira</span></div>
-              </div>
-            </article>
-          </div>
-
-          <div className="cta-row">
-            <a className="btn-primary" href="/devenir-affilie">Devenir partenaire</a>
-          </div>
-        </div>
-      </section>
 
       <footer>
         <div className="wrap">© One World Morocco — <a href="/">Retour à l'accueil</a></div>
