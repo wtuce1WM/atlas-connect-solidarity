@@ -114,7 +114,7 @@ const Join = () => {
                 Soyez référencé dans notre catalogue et touchez les voyageurs et habitants qui découvrent des entreprises locales partout au Maroc.
               </p>
               <ul>
-                <li><Check color="#3e8e7e" />Soyez découvert par les voyageurs &amp;<br/>habitants&nbsp;<br/>de votre région</li>
+                <li><Check color="#3e8e7e" />Soyez découvert par les voyageurs &amp; habitants&nbsp;de votre région</li>
                 <li><Check color="#3e8e7e" />Référencé dans le catalogue<br/><strong>&nbsp;oneworldmorocco.com/entreprise</strong></li>
                 <li><Check color="#3e8e7e" />Plus de trafic et de réservations directes</li>
                 <li><Check color="#3e8e7e" />Mis en avant dans la recherche et dans l'agent IA</li>
