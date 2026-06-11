@@ -410,6 +410,8 @@ const Join = () => {
               </thead>
               <tbody>
                 <tr><td>Commission + Avis Clients + Réseau social</td><td className="us">0 %</td><td>15–25 %</td><td>20–30 %</td></tr>
+                <tr><td>Avis Clients</td><td className="us">✓ Inclus</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
+                <tr><td>Réseau social</td><td className="us">✓ Inclus</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Votre QR code</td><td className="us">✓ Oui</td><td>✗ Non</td><td>✗ Non</td></tr>
                 <tr><td>Contact direct</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Carte business digitale</td><td className="us">✓ Gratuit</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
