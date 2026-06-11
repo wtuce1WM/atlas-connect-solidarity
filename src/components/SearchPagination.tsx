@@ -22,9 +22,18 @@ export default function SearchPagination({
   className = "",
 }: SearchPaginationProps) {
   if (totalPages <= 1) return null;
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const handlePageChange = (page: number) => {
     onPageChange(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    requestAnimationFrame(() => {
+      const grid = wrapperRef.current?.previousElementSibling as HTMLElement | null;
+      const target = grid ?? wrapperRef.current;
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      const headerOffset = 80;
+      const top = window.scrollY + rect.top - headerOffset;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
   };
   const startResult = (currentPage - 1) * pageSize + 1;
   const endResult = Math.min(startResult + pageSize - 1, totalCount);
