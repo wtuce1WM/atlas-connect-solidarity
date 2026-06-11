@@ -136,11 +136,11 @@ const Join = () => {
                 Obtenez votre page personnelle et votre code QR. Quand les voyageurs sont devant vous, partagez-le et convertissez instantanément.
               </p>
               <ul>
-                <li><Check color="#e85a26" />Toutes vos offres au même endroit</li>
-                <li><Check color="#e85a26" />URL courte personnalisée comme <strong>&nbsp;oneworldmorocco.com/votrenom</strong></li>
-                <li><Check color="#e85a26" />Partagez par code QR ou lien en un tap</li>
-                <li><Check color="#e85a26" />Mettez à jour offres, contacts et photos à tout moment</li>
-                <li><Check color="#e85a26" />Profil vérifié inspire confiance aux clients</li>
+                <li><Check color="#ffffff" />Toutes vos offres au même endroit</li>
+                <li><Check color="#ffffff" />URL courte personnalisée comme <strong>&nbsp;oneworldmorocco.com/votrenom</strong></li>
+                <li><Check color="#ffffff" />Partagez par code QR ou lien en un tap</li>
+                <li><Check color="#ffffff" />Mettez à jour offres, contacts et photos à tout moment</li>
+                <li><Check color="#ffffff" />Profil vérifié inspire confiance aux clients</li>
               </ul>
               <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Votre carte. Votre QR. Plus de clients sur place.</div>
