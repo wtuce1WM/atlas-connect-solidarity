@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 
 interface SearchPaginationProps {
