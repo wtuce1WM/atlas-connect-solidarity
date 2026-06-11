@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const CSS = `
-  .join-page{--bg:#ffffff;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .join-page{--bg:#CDBFA4;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
   .join-page *{box-sizing:border-box}
   .join-page .wrap{max-width:1240px;margin:0 auto;padding:0 24px}
   .join-page header.nav{position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--line);z-index:10}
