@@ -157,7 +157,7 @@ const Join = () => {
       <header className="nav">
         <div className="wrap">
           <a href="/" className="brand">ONE WORLD MOROCCO</a>
-          <a href="/devenir-affilie" className="nav-cta">S'INSCRIRE →</a>
+          
         </div>
       </header>
 
