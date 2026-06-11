@@ -48,24 +48,27 @@ const CSS = `
   @media (max-width:980px){.join-page .ways{grid-template-columns:1fr}}
   .join-page .way{border-radius:28px;padding:44px 44px 36px;position:relative;overflow:hidden}
   .join-page .way.green{background:#194CFF;color:#fff}
-  .join-page .way.orange{background:#fde4d3}
+  .join-page .way.orange{background:#8F7950;color:#fff}
   .join-page .way .badge{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:24px;color:#194CFF;background:#fff;margin-bottom:22px}
-  .join-page .way.orange .badge{background:var(--orange);color:#fff}
+  .join-page .way.orange .badge{background:#fff;color:#8F7950}
   .join-page .way h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin-bottom:18px;color:#111}
   .join-page .way.green h3{color:#fff}
+  .join-page .way.orange h3{color:#fff}
   .join-page .way > p.intro{color:#3a3a3a;font-size:16px;line-height:1.6;margin-bottom:26px;max-width:520px}
   .join-page .way.green > p.intro{color:rgba(255,255,255,.92)}
+  .join-page .way.orange > p.intro{color:rgba(255,255,255,.92)}
   .join-page .way ul{list-style:none;padding:0;margin:0 0 28px;display:flex;flex-direction:column;gap:14px}
   .join-page .way li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:#222;line-height:1.45}
   .join-page .way.green li{color:#fff}
+  .join-page .way.orange li{color:#fff}
   .join-page .way li svg{flex:0 0 22px;margin-top:1px}
   .join-page .way .way-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 28px;border-radius:999px;color:#fff;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.04em;transition:transform .2s,filter .2s}
   .join-page .way .way-cta:hover{transform:translateY(-2px);filter:brightness(1.05)}
   .join-page .way.green .way-cta{background:#fff;color:#194CFF}
-  .join-page .way.orange .way-cta{background:var(--orange)}
+  .join-page .way.orange .way-cta{background:#fff;color:#8F7950}
   .join-page .way .tag{margin-top:26px;padding-top:22px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:15px}
   .join-page .way.green .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
-  .join-page .way.orange .tag{color:#b14a1a}
+  .join-page .way.orange .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
 `;
 
 const Check = ({ color }: { color: string }) => (
@@ -133,11 +136,11 @@ const Join = () => {
                 Obtenez votre page personnelle et votre code QR. Quand les voyageurs sont devant vous, partagez-le et convertissez instantanément.
               </p>
               <ul>
-                <li><Check color="#e85a26" />Toutes vos offres au même endroit</li>
-                <li><Check color="#e85a26" />URL courte personnalisée comme <strong>&nbsp;oneworldmorocco.com/votrenom</strong></li>
-                <li><Check color="#e85a26" />Partagez par code QR ou lien en un tap</li>
-                <li><Check color="#e85a26" />Mettez à jour offres, contacts et photos à tout moment</li>
-                <li><Check color="#e85a26" />Profil vérifié inspire confiance aux clients</li>
+                <li><Check color="#ffffff" />Toutes vos offres au même endroit</li>
+                <li><Check color="#ffffff" />URL courte personnalisée comme <strong>&nbsp;oneworldmorocco.com/votrenom</strong></li>
+                <li><Check color="#ffffff" />Partagez par code QR ou lien en un tap</li>
+                <li><Check color="#ffffff" />Mettez à jour offres, contacts et photos à tout moment</li>
+                <li><Check color="#ffffff" />Profil vérifié inspire confiance aux clients</li>
               </ul>
               <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Votre carte. Votre QR. Plus de clients sur place.</div>
