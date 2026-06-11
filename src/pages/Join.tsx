@@ -233,7 +233,7 @@ const Join = () => {
               </p>
               <ul>
                 <li><Check color="#ffffff" />Toutes vos canaux digitaux au même endroit</li>
-                <li><Check color="#ffffff" />URL courte  personnalisée <br/><br/><strong> oneworldmorocco.com/votrenom</strong></li>
+                <li><Check color="#ffffff" />URL courte  personnalisée<br /><br /><br /><br /><strong> oneworldmorocco.com/votrenom</strong></li>
                 <li><Check color="#ffffff" />Partagez par code QR ou lien en un tap</li>
                 <li><Check color="#ffffff" />Mettez à jour offres, évènements, vidéos et photos à tout moment</li>
                 <li><Check color="#ffffff" />Profil vérifié inspire confiance aux clients</li>
@@ -261,7 +261,7 @@ const Join = () => {
 
             <article className="way purple">
               <div className="badge">4</div>
-              <h3>Réseau social</h3>
+              <h3>Réseau social, engagez avec votre communauté.</h3>
               <p className="intro">
                 Entretenez la relation avec vos clients, prospects et followers, poussez votre offre, actualité et évènements dans leur interface.
               </p>
