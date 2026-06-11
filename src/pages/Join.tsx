@@ -56,12 +56,12 @@ const CSS = `
   .join-page .hiw-illu svg{width:100%;height:auto;display:block}
   .join-page .way.green{background:#194CFF;color:#fff}
   .join-page .way.orange{background:#8F7950;color:#fff}
-  .join-page .way.teal{background:#00a896;color:#fff}
-  .join-page .way.purple{background:#6B4E9B;color:#fff}
+  .join-page .way.teal{background:#C04F17;color:#fff}
+  .join-page .way.purple{background:#3B3B3B;color:#fff}
   .join-page .way .badge{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:24px;color:#194CFF;background:#fff;margin-bottom:22px}
   .join-page .way.orange .badge{background:#fff;color:#8F7950}
-  .join-page .way.teal .badge{background:#fff;color:#00a896}
-  .join-page .way.purple .badge{background:#fff;color:#6B4E9B}
+  .join-page .way.teal .badge{background:#fff;color:#C04F17}
+  .join-page .way.purple .badge{background:#fff;color:#3B3B3B}
   .join-page .way h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin-bottom:18px;color:#111}
   .join-page .way.green h3{color:#fff}
   .join-page .way.orange h3{color:#fff}
@@ -83,8 +83,8 @@ const CSS = `
   .join-page .way .way-cta:hover{transform:translateY(-2px);filter:brightness(1.05)}
   .join-page .way.green .way-cta{background:#fff;color:#194CFF}
   .join-page .way.orange .way-cta{background:#fff;color:#8F7950}
-  .join-page .way.teal .way-cta{background:#fff;color:#00a896}
-  .join-page .way.purple .way-cta{background:#fff;color:#6B4E9B}
+  .join-page .way.teal .way-cta{background:#fff;color:#C04F17}
+  .join-page .way.purple .way-cta{background:#fff;color:#3B3B3B}
   .join-page .way .tag{margin-top:26px;padding-top:22px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:15px}
   .join-page .way.green .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.orange .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
