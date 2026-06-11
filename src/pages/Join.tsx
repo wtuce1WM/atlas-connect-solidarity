@@ -48,33 +48,40 @@ const CSS = `
   .join-page .ways-head{text-align:center;max-width:780px;margin:0 auto 56px}
   .join-page .ways-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .ways-head p{color:var(--muted);font-size:17px}
-  .join-page .ways{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .join-page .ways{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
   @media (max-width:980px){.join-page .ways{grid-template-columns:1fr}}
   .join-page .way{border-radius:28px;padding:44px 44px 36px;position:relative;overflow:hidden}
   .join-page .hiw-illu{margin:0 auto 22px;max-width:240px}
   .join-page .hiw-illu svg{width:100%;height:auto;display:block}
   .join-page .way.green{background:#194CFF;color:#fff}
   .join-page .way.orange{background:#8F7950;color:#fff}
+  .join-page .way.teal{background:#00a896;color:#fff}
   .join-page .way .badge{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:24px;color:#194CFF;background:#fff;margin-bottom:22px}
   .join-page .way.orange .badge{background:#fff;color:#8F7950}
+  .join-page .way.teal .badge{background:#fff;color:#00a896}
   .join-page .way h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin-bottom:18px;color:#111}
   .join-page .way.green h3{color:#fff}
   .join-page .way.orange h3{color:#fff}
+  .join-page .way.teal h3{color:#fff}
   .join-page .way > p.intro{color:#3a3a3a;font-size:16px;line-height:1.6;margin-bottom:26px;max-width:520px}
   .join-page .way.green > p.intro{color:rgba(255,255,255,.92)}
   .join-page .way.orange > p.intro{color:rgba(255,255,255,.92)}
+  .join-page .way.teal > p.intro{color:rgba(255,255,255,.92)}
   .join-page .way ul{list-style:none;padding:0;margin:0 0 28px;display:flex;flex-direction:column;gap:14px}
   .join-page .way li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:#222;line-height:1.45}
   .join-page .way.green li{color:#fff}
   .join-page .way.orange li{color:#fff}
+  .join-page .way.teal li{color:#fff}
   .join-page .way li svg{flex:0 0 22px;margin-top:1px}
   .join-page .way .way-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 28px;border-radius:999px;color:#fff;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.04em;transition:transform .2s,filter .2s}
   .join-page .way .way-cta:hover{transform:translateY(-2px);filter:brightness(1.05)}
   .join-page .way.green .way-cta{background:#fff;color:#194CFF}
   .join-page .way.orange .way-cta{background:#fff;color:#8F7950}
+  .join-page .way.teal .way-cta{background:#fff;color:#00a896}
   .join-page .way .tag{margin-top:26px;padding-top:22px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:15px}
   .join-page .way.green .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.orange .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
+  .join-page .way.teal .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .hiw-head{text-align:center;max-width:820px;margin:0 auto 56px}
   .join-page .hiw-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .hiw-head p{color:var(--muted);font-size:17px}
@@ -226,6 +233,23 @@ const Join = () => {
               </ul>
               <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Votre carte. Votre QR. Plus de clients sur place.</div>
+            </article>
+
+            <article className="way teal">
+              <div className="badge">3</div>
+              <h3>Votre assistant IA sur votre site web</h3>
+              <p className="intro">
+                Intégrez un assistant IA directement sur votre site pour répondre aux visiteurs 24/7, qualifier leurs demandes et booster vos conversions.
+              </p>
+              <ul>
+                <li><Check color="#ffffff" />Disponible 24/7 pour répondre à vos visiteurs</li>
+                <li><Check color="#ffffff" />Répond en plusieurs langues automatiquement</li>
+                <li><Check color="#ffffff" />Qualifie les demandes et capture les leads</li>
+                <li><Check color="#ffffff" />Connaît vos offres, horaires et tarifs</li>
+                <li><Check color="#ffffff" />Intégration simple en quelques minutes</li>
+              </ul>
+              <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
+              <div className="tag">Votre IA. Vos réponses. Plus de conversions.</div>
             </article>
           </div>
         </div>
