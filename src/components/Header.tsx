@@ -168,14 +168,14 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
   const defaultLeft = (
     <Link
       to="/"
-      className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors"
+      className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors overflow-hidden"
       aria-label="Accueil"
       onClick={(event) => {
         event.preventDefault();
         window.location.assign("/");
       }}
     >
-      <Home className="h-5 w-5 text-foreground" />
+      <img src="/logo-gold.webp" alt="Logo" className="h-7 w-7 object-contain" />
     </Link>
   );
 
