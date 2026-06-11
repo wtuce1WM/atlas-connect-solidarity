@@ -112,6 +112,23 @@ const CSS = `
   .join-page .hero-stats div{padding:6px 22px;display:inline-flex;align-items:center;gap:8px;color:#fff;border-right:1px solid rgba(255,255,255,.18)}
   .join-page .hero-stats div:last-child{border-right:none}
   @media (max-width:700px){.join-page .hero-inner{padding:90px 20px 80px}.join-page .hero-stats{font-size:12px}.join-page .hero-stats div{padding:6px 14px}}
+  .join-page .why-head{text-align:center;max-width:900px;margin:0 auto 48px}
+  .join-page .why-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:16px;text-transform:uppercase}
+  .join-page .why-head p{color:var(--muted);font-size:17px;max-width:620px;margin:0 auto}
+  .join-page .why-wrap{background:#D8F2EA;border-radius:32px;padding:32px}
+  .join-page .cmp{width:100%;background:#fff;border-radius:20px;overflow:hidden;border-collapse:separate;border-spacing:0;font-size:15px}
+  .join-page .cmp th,.join-page .cmp td{padding:18px 22px;text-align:center;border-bottom:1px solid #eef2f0;vertical-align:middle}
+  .join-page .cmp th:first-child,.join-page .cmp td:first-child{text-align:left;color:#444;font-weight:500}
+  .join-page .cmp thead th{font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:16px;color:#1a1a1a;padding:24px 22px;background:#fff;border-bottom:1px solid #eef2f0}
+  .join-page .cmp thead th.us{background:#1FB28A;color:#fff;position:relative;padding-top:42px}
+  .join-page .cmp thead th.us .reco{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#C04F17;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;padding:4px 12px;border-radius:999px;white-space:nowrap}
+  .join-page .cmp tbody td.us{background:#EAFBF3;color:#0d8a66;font-weight:700}
+  .join-page .cmp tbody tr:last-child td{border-bottom:none}
+  .join-page .cmp .wow{display:inline-block;margin-left:8px;background:#FF6B35;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:999px;vertical-align:middle}
+  .join-page .cmp .x{color:#9aa3a0}
+  .join-page .why-cta{display:flex;justify-content:center;margin-top:40px}
+  @media (max-width:760px){.join-page .why-wrap{padding:14px;border-radius:22px}.join-page .cmp{font-size:13px}.join-page .cmp th,.join-page .cmp td{padding:12px 10px}.join-page .cmp thead th{font-size:14px}}
+
 `;
 
 const Check = ({ color }: { color: string }) => (
@@ -325,6 +342,44 @@ const Join = () => {
           </div>
         </div>
       </section>
+
+      <section id="why-us">
+        <div className="wrap">
+          <div className="why-head">
+            <h2>Pourquoi les partenaires choisissent One World Morocco</h2>
+            <p>Une offre plus équitable que les OTA classiques — sans commission, sans intermédiaire.</p>
+          </div>
+
+          <div className="why-wrap">
+            <table className="cmp">
+              <thead>
+                <tr>
+                  <th>Fonctionnalité</th>
+                  <th className="us"><span className="reco">★ RECOMMANDÉ</span>One World Morocco</th>
+                  <th>Booking.com</th>
+                  <th>GetYourGuide</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Commission</td><td className="us">0 %</td><td>15–25 %</td><td>20–30 %</td></tr>
+                <tr><td>Temps de configuration</td><td className="us">2 min</td><td>1 jour</td><td>Jours</td></tr>
+                <tr><td>Contact direct</td><td className="us">✓ Oui <span className="wow">WOW</span></td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
+                <tr><td>Carte business digitale</td><td className="us">✓ Gratuit <span className="wow">WOW</span></td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
+                <tr><td>Outils marketing</td><td className="us">✓ Suite complète</td><td>Limité</td><td>Limité</td></tr>
+                <tr><td>Vitesse de paiement</td><td className="us">Instantané</td><td>30–60 jours</td><td>2–4 semaines</td></tr>
+                <tr><td>Vous possédez les données client</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
+                <tr><td>Liberté tarifaire</td><td className="us">✓ Pas de parité tarifaire <span className="wow">WOW</span></td><td>Parité tarifaire</td><td>Parité tarifaire</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="why-cta">
+            <a className="btn-primary" href="/devenir-affilie">Démarrez gratuitement en 2 min</a>
+          </div>
+        </div>
+      </section>
+
+
 
 
       <footer>
