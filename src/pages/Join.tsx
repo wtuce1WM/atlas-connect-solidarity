@@ -76,7 +76,7 @@ const CSS = `
   .join-page .hiw-head{text-align:center;max-width:820px;margin:0 auto 56px}
   .join-page .hiw-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .hiw-head p{color:var(--muted);font-size:17px}
-  .join-page .hiw{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;gap:18px;align-items:center}
+  .join-page .hiw{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;gap:18px;align-items:stretch}
   .join-page .hiw-arrow{display:flex;align-items:center;justify-content:center;color:var(--orange)}
   .join-page .hiw-arrow svg{width:40px;height:40px;animation:hiwArrowSlide 1.6s ease-in-out infinite}
   @keyframes hiwArrowSlide{0%,100%{transform:translateX(-6px);opacity:.55}50%{transform:translateX(6px);opacity:1}}
