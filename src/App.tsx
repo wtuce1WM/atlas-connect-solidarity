@@ -98,7 +98,7 @@ const renderLazyRoute = (page: JSX.Element) => <Suspense fallback={<RouteFallbac
 
 const BusinessRedirect = () => {
   const { slug } = useParams();
-  return <Navigate to={`/fiche/${slug}`} replace />;
+  return <Navigate to={`/${slug}`} replace />;
 };
 
 const GlobalFloatingSearchBar = () => {
