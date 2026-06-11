@@ -48,7 +48,7 @@ const CSS = `
   .join-page .ways-head{text-align:center;max-width:780px;margin:0 auto 56px}
   .join-page .ways-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .ways-head p{color:var(--muted);font-size:17px}
-  .join-page .ways{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .join-page .ways{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
   @media (max-width:980px){.join-page .ways{grid-template-columns:1fr}}
   .join-page .way{border-radius:28px;padding:44px 44px 36px;position:relative;overflow:hidden}
   .join-page .hiw-illu{margin:0 auto 22px;max-width:240px}
