@@ -176,7 +176,7 @@ const Join = () => {
       <section id="how-it-works">
         <div className="wrap">
           <div className="hiw-head">
-            <h2>Comment fonctionne le programme de remises pour les utilisateurs ?</h2>
+            <h2>Comment fonctionne le programme de remises pour les utilisateurs de l'App ?</h2>
             <p>Trois étapes simples pour attirer plus de clients, sans commissions ni intermédiaires.</p>
           </div>
 
