@@ -111,14 +111,14 @@ const Join = () => {
               <div className="badge">1</div>
               <h3>Publiez vos offres sur One World Morocco</h3>
               <p className="intro">
-                Soyez référencé dans notre catalogue et touchez les voyageurs qui découvrent des entreprises locales partout au Maroc.
+                Soyez référencé dans notre catalogue et touchez les voyageurs et habitants qui découvrent des entreprises locales partout au Maroc.
               </p>
               <ul>
-                <li><Check color="#3e8e7e" />Soyez découvert par les voyageurs de votre région</li>
-                <li><Check color="#3e8e7e" />Référencé dans le catalogue <strong>&nbsp;oneworldmorocco.com</strong></li>
+                <li><Check color="#3e8e7e" />Soyez découvert par les voyageurs &amp;<br/>habitants&nbsp;<br/>de votre région</li>
+                <li><Check color="#3e8e7e" />Référencé dans le catalogue<br/><strong>&nbsp;oneworldmorocco.com/entreprise</strong></li>
                 <li><Check color="#3e8e7e" />Plus de trafic et de réservations directes</li>
-                <li><Check color="#3e8e7e" />Mis en avant dans la recherche et les pages catégories</li>
-                <li><Check color="#3e8e7e" />100 % gratuit — aucune commission sur les réservations</li>
+                <li><Check color="#3e8e7e" />Mis en avant dans la recherche et dans l'agent IA</li>
+                <li><Check color="#3e8e7e" />Aucune commission sur les réservations</li>
               </ul>
               <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Vos offres. Notre audience. Plus de réservations.</div>
