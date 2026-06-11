@@ -66,25 +66,30 @@ const CSS = `
   .join-page .way.green h3{color:#fff}
   .join-page .way.orange h3{color:#fff}
   .join-page .way.teal h3{color:#fff}
+  .join-page .way.purple h3{color:#fff}
   .join-page .way > p.intro{color:#3a3a3a;font-size:16px;line-height:1.6;margin-bottom:26px;max-width:520px}
   .join-page .way.green > p.intro{color:rgba(255,255,255,.92)}
   .join-page .way.orange > p.intro{color:rgba(255,255,255,.92)}
   .join-page .way.teal > p.intro{color:rgba(255,255,255,.92)}
+  .join-page .way.purple > p.intro{color:rgba(255,255,255,.92)}
   .join-page .way ul{list-style:none;padding:0;margin:0 0 28px;display:flex;flex-direction:column;gap:14px}
   .join-page .way li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:#222;line-height:1.45}
   .join-page .way.green li{color:#fff}
   .join-page .way.orange li{color:#fff}
   .join-page .way.teal li{color:#fff}
+  .join-page .way.purple li{color:#fff}
   .join-page .way li svg{flex:0 0 22px;margin-top:1px}
   .join-page .way .way-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 28px;border-radius:999px;color:#fff;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.04em;transition:transform .2s,filter .2s}
   .join-page .way .way-cta:hover{transform:translateY(-2px);filter:brightness(1.05)}
   .join-page .way.green .way-cta{background:#fff;color:#194CFF}
   .join-page .way.orange .way-cta{background:#fff;color:#8F7950}
   .join-page .way.teal .way-cta{background:#fff;color:#00a896}
+  .join-page .way.purple .way-cta{background:#fff;color:#6B4E9B}
   .join-page .way .tag{margin-top:26px;padding-top:22px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:15px}
   .join-page .way.green .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.orange .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.teal .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
+  .join-page .way.purple .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .hiw-head{text-align:center;max-width:820px;margin:0 auto 56px}
   .join-page .hiw-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .hiw-head p{color:var(--muted);font-size:17px}
