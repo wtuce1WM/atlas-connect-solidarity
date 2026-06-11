@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import joinHero from "@/assets/join-hero.jpg";
+import joinHeroAsset from "@/assets/join-hero.jpg.asset.json";
+const joinHero = joinHeroAsset.url;
 import hiwStep2Mockup from "@/assets/hiw-step2-app-mockup.webp";
 import hiwStep3Tourist from "@/assets/hiw-step3-tourist.png";
 
