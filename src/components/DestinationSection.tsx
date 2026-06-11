@@ -191,7 +191,6 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
         pageSize={ITEMS_PER_PAGE}
         onPageChange={(p) => {
           setCurrentPage(p);
-          try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch {}
         }}
         language={language}
       />
