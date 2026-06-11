@@ -120,7 +120,7 @@ const Join = () => {
               </p>
               <ul>
                 <li><Check color="#ffffff" />Soyez découvert par les voyageurs &amp; habitants&nbsp;de votre région</li>
-                <li><Check color="#ffffff" />Référencé dans le catalogue<br/><strong>&nbsp;oneworldmorocco.com/entreprise</strong></li>
+                <li><Check color="#ffffff" />Référencé dans le catalogue<br/><strong>&nbsp;oneworldmorocco.com/votrenom</strong></li>
                 <li><Check color="#ffffff" />Plus de trafic et de réservations directes</li>
                 <li><Check color="#ffffff" />Mis en avant dans la recherche et dans l'agent IA</li>
                 <li><Check color="#ffffff" />Aucune commission sur les réservations</li>
