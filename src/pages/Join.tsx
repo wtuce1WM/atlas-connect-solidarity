@@ -157,7 +157,7 @@ const Join = () => {
       <header className="nav">
         <div className="wrap">
           <a href="/" className="brand">ONE WORLD MOROCCO</a>
-          <a href="/devenir-affilie" className="nav-cta">S'inscrire maintenant →</a>
+          <a href="/devenir-affilie" className="nav-cta">S'INSCRIRE →</a>
         </div>
       </header>
 
@@ -169,7 +169,7 @@ const Join = () => {
           <h1>Rejoignez le premier écosystème numérique <span className="hl">éthique & solidaire</span> au Maroc.</h1>
           <p className="hero-sub">Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.</p>
           <p className="hero-sub">Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.</p>
-          <a href="/devenir-affilie" className="hero-cta">Rejoindre gratuitement →</a>
+          <a href="/devenir-affilie" className="hero-cta">REJOINDRE →</a>
           <div className="hero-checks">
             <span><Check color="#00a896" />Consommez local</span>
             <span><Check color="#00a896" />Voyagez autrement</span>
@@ -290,7 +290,7 @@ const Join = () => {
           </div>
 
           <div className="hiw-cta">
-            <a className="btn-primary" href="/devenir-affilie">S'inscrire</a>
+            <a className="btn-primary" href="/devenir-affilie">S'INSCRIRE</a>
           </div>
         </div>
       </section>
@@ -338,7 +338,7 @@ const Join = () => {
           </div>
 
           <div className="cta-row">
-            <a className="btn-primary" href="/devenir-affilie">S'inscrire maintenant</a>
+            <a className="btn-primary" href="/devenir-affilie">S'INSCRIRE</a>
           </div>
         </div>
       </section>
@@ -362,19 +362,19 @@ const Join = () => {
               </thead>
               <tbody>
                 <tr><td>Commission</td><td className="us">0 %</td><td>15–25 %</td><td>20–30 %</td></tr>
-                <tr><td>Temps de configuration</td><td className="us">2 min</td><td>1 jour</td><td>Jours</td></tr>
+                <tr><td>Votre QR code</td><td className="us">✓ Oui</td><td>✗ Non</td><td>✗ Non</td></tr>
                 <tr><td>Contact direct</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Carte business digitale</td><td className="us">✓ Gratuit</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Outils marketing</td><td className="us">✓ Suite complète</td><td>Limité</td><td>Limité</td></tr>
+                <tr><td>Votre assistant IA sur votre site web</td><td className="us">✓ Optionnel</td><td>✗ Non</td><td>✗ Non</td></tr>
                 <tr><td>Vitesse de paiement</td><td className="us">Instantané</td><td>30–60 jours</td><td>2–4 semaines</td></tr>
                 <tr><td>Vous possédez les données client</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Liberté tarifaire</td><td className="us">✓ Pas de parité tarifaire</td><td>Parité tarifaire</td><td>Parité tarifaire</td></tr>
+                <tr><td>Liberté tarifaire</td><td className="us">✓ Oui</td><td>✗ Non</td><td>✗ Non</td></tr>
               </tbody>
             </table>
           </div>
 
           <div className="why-cta">
-            <a className="btn-primary" href="/devenir-affilie">Démarrez gratuitement en 2 min</a>
+            <a className="btn-primary" href="/devenir-affilie">S'INSCRIRE</a>
           </div>
         </div>
       </section>
