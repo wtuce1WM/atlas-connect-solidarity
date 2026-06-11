@@ -26,8 +26,8 @@ const CSS = `
   .join-page .step h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:22px;margin-bottom:10px;position:relative;z-index:1}
   .join-page .step p{color:var(--muted);font-size:15px;position:relative;z-index:1}
   .join-page .cta-row{display:flex;justify-content:center;margin-top:56px}
-  .join-page .btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--orange);color:#fff;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(255,107,53,.6);transition:transform .2s,background .2s}
-  .join-page .btn-primary:hover{background:var(--orange-deep);transform:translateY(-2px)}
+  .join-page .btn-primary{display:inline-flex;align-items:center;gap:10px;background:#C04F17;color:#fff;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(192,79,23,.6);transition:transform .2s,background .2s}
+  .join-page .btn-primary:hover{background:#a84313;transform:translateY(-2px)}
   .join-page .t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
   @media (max-width:980px){.join-page .t-grid{grid-template-columns:1fr}}
   .join-page .t-card{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/5;background:#222}
