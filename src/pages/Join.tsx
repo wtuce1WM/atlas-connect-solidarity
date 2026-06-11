@@ -416,6 +416,7 @@ const Join = () => {
                 <tr><td>Contact direct</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Carte business digitale</td><td className="us">✓ Gratuit</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Votre assistant IA sur votre site web</td><td className="us">✓ Optionnel</td><td>✗ Non</td><td>✗ Non</td></tr>
+                <tr><td>Recherche & réponse vocale</td><td className="us">✓ Inclus</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Vitesse de paiement / Système de paiement</td><td className="us">Instantané</td><td>30–60 jours</td><td>2–4 semaines</td></tr>
                 <tr><td>Vous possédez les données client</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Liberté tarifaire</td><td className="us">✓ Oui</td><td>✗ Non</td><td>✗ Non</td></tr>
