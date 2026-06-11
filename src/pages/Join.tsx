@@ -363,12 +363,12 @@ const Join = () => {
               <tbody>
                 <tr><td>Commission</td><td className="us">0 %</td><td>15–25 %</td><td>20–30 %</td></tr>
                 <tr><td>Temps de configuration</td><td className="us">2 min</td><td>1 jour</td><td>Jours</td></tr>
-                <tr><td>Contact direct</td><td className="us">✓ Oui <span className="wow">OW</span></td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Carte business digitale</td><td className="us">✓ Gratuit <span className="wow">OW</span></td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
+                <tr><td>Contact direct</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
+                <tr><td>Carte business digitale</td><td className="us">✓ Gratuit</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Outils marketing</td><td className="us">✓ Suite complète</td><td>Limité</td><td>Limité</td></tr>
                 <tr><td>Vitesse de paiement</td><td className="us">Instantané</td><td>30–60 jours</td><td>2–4 semaines</td></tr>
                 <tr><td>Vous possédez les données client</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Liberté tarifaire</td><td className="us">✓ Pas de parité tarifaire <span className="wow">OW</span></td><td>Parité tarifaire</td><td>Parité tarifaire</td></tr>
+                <tr><td>Liberté tarifaire</td><td className="us">✓ Pas de parité tarifaire</td><td>Parité tarifaire</td><td>Parité tarifaire</td></tr>
               </tbody>
             </table>
           </div>
