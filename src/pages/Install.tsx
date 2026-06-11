@@ -89,7 +89,6 @@ const Install = () => {
       setInstalled(true);
       setInstallEvent(null);
       delete (window as WindowWithInstallPrompt).__owmInstallPromptEvent;
-      redirectStandaloneToHome();
     };
 
     readCapturedInstallPrompt();
@@ -102,10 +101,6 @@ const Install = () => {
   }, []);
 
   const handleIconClick = async () => {
-    if (installed) {
-      redirectStandaloneToHome();
-      return;
-    }
     if (installEvent) {
       await installEvent.prompt();
       const { outcome } = await installEvent.userChoice;
@@ -113,11 +108,10 @@ const Install = () => {
         setInstalled(true);
         setInstallEvent(null);
         delete (window as WindowWithInstallPrompt).__owmInstallPromptEvent;
-        redirectStandaloneToHome();
       }
       return;
     }
-    // Fallback: scroll to platform-specific guide
+    // Fallback or installed: scroll to platform-specific guide
     guideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
