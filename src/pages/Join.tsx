@@ -215,13 +215,12 @@ const Join = () => {
                 Soyez référencé dans notre catalogue et touchez les voyageurs et habitants qui découvrent des entreprises locales partout au Maroc.
               </p>
               <ul>
-                <li><Check color="#ffffff" />Soyez découvert par les voyageurs &amp; habitants&nbsp;de votre région</li>
+                <li><Check color="#ffffff" />Soyez découvert by les voyageurs &amp; habitants&nbsp;de votre région</li>
                 <li><Check color="#ffffff" />Référencé dans le catalogue<br/><strong>&nbsp;oneworldmorocco.com/votrenom</strong></li>
                 <li><Check color="#ffffff" />Plus de trafic et de réservations directes</li>
                 <li><Check color="#ffffff" />Mis en avant dans la recherche et dans l'agent IA</li>
                 <li><Check color="#ffffff" />Aucune commission sur les réservations</li>
               </ul>
-              <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Vos offres. Notre audience. Plus de réservations.</div>
             </article>
 
@@ -238,7 +237,6 @@ const Join = () => {
                 <li><Check color="#ffffff" />Mettez à jour offres, évènements, vidéos et photos à tout moment</li>
                 <li><Check color="#ffffff" />Profil vérifié inspire confiance aux clients</li>
               </ul>
-              <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Votre carte. Votre QR. Plus de clients sur place.</div>
             </article>
 
@@ -255,7 +253,6 @@ const Join = () => {
                 <li><Check color="#ffffff" />Connaît vos offres, horaires et tarifs</li>
                 <li><Check color="#ffffff" />Intégration simple en quelques minutes</li>
               </ul>
-              <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Votre IA. Vos réponses. Plus de conversions.</div>
             </article>
 
@@ -266,13 +263,12 @@ const Join = () => {
                 Entretenez la relation avec vos clients, prospects et followers, poussez votre offre, actualité et évènements dans leur interface.
               </p>
               <ul>
-                <li><Check color="#ffffff" />Gardez le lien avec vos clients et followers</li>
+                <li><Check color="#ffffff" />Gardez le lien avec vos clients and followers</li>
                 <li><Check color="#ffffff" />Poussez offres, actualités et évènements</li>
                 <li><Check color="#ffffff" />Diffusez directement dans leur interface</li>
                 <li><Check color="#ffffff" />Fidélisez et engagez votre communauté</li>
                 <li><Check color="#ffffff" />Transformez vos followers en clients</li>
               </ul>
-              <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Votre communauté. Vos messages. Plus d'engagement.</div>
             </article>
           </div>
