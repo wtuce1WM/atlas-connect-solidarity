@@ -259,6 +259,23 @@ const Join = () => {
               <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Votre IA. Vos réponses. Plus de conversions.</div>
             </article>
+
+            <article className="way purple">
+              <div className="badge">4</div>
+              <h3>Réseau social</h3>
+              <p className="intro">
+                Entretenez la relation avec vos clients, prospects et followers, poussez votre offre, actualité et évènements dans leur interface.
+              </p>
+              <ul>
+                <li><Check color="#ffffff" />Gardez le lien avec vos clients et followers</li>
+                <li><Check color="#ffffff" />Poussez offres, actualités et évènements</li>
+                <li><Check color="#ffffff" />Diffusez directement dans leur interface</li>
+                <li><Check color="#ffffff" />Fidélisez et engagez votre communauté</li>
+                <li><Check color="#ffffff" />Transformez vos followers en clients</li>
+              </ul>
+              <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
+              <div className="tag">Votre communauté. Vos messages. Plus d'engagement.</div>
+            </article>
           </div>
         </div>
       </section>
