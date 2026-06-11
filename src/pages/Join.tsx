@@ -115,14 +115,14 @@ const CSS = `
   .join-page .why-head{text-align:center;max-width:900px;margin:0 auto 48px}
   .join-page .why-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:16px;text-transform:uppercase}
   .join-page .why-head p{color:var(--muted);font-size:17px;max-width:620px;margin:0 auto}
-  .join-page .why-wrap{background:#D8F2EA;border-radius:32px;padding:32px}
+  .join-page .why-wrap{background:#BED1FF;border-radius:32px;padding:32px}
   .join-page .cmp{width:100%;background:#fff;border-radius:20px;overflow:hidden;border-collapse:separate;border-spacing:0;font-size:15px}
   .join-page .cmp th,.join-page .cmp td{padding:18px 22px;text-align:center;border-bottom:1px solid #eef2f0;vertical-align:middle}
   .join-page .cmp th:first-child,.join-page .cmp td:first-child{text-align:left;color:#444;font-weight:500}
   .join-page .cmp thead th{font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:16px;color:#1a1a1a;padding:24px 22px;background:#fff;border-bottom:1px solid #eef2f0}
-  .join-page .cmp thead th.us{background:#1FB28A;color:#fff;position:relative;padding-top:42px}
+  .join-page .cmp thead th.us{background:#194CFF;color:#fff;position:relative;padding-top:42px}
   .join-page .cmp thead th.us .reco{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#C04F17;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;padding:4px 12px;border-radius:999px;white-space:nowrap}
-  .join-page .cmp tbody td.us{background:#EAFBF3;color:#0d8a66;font-weight:700}
+  .join-page .cmp tbody td.us{background:#BED1FF;color:#194CFF;font-weight:700}
   .join-page .cmp tbody tr:last-child td{border-bottom:none}
   .join-page .cmp .wow{display:inline-block;margin-left:8px;background:#FF6B35;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:999px;vertical-align:middle}
   .join-page .cmp .x{color:#9aa3a0}
