@@ -192,7 +192,7 @@ const Install = () => {
             }
           >
             <img
-              src="/app-icon-512.png"
+              src="/logo-gold.webp"
               alt="ONE WORLD MOROCCO"
               className={`h-24 w-24 rounded-3xl shadow-xl transition-transform group-hover:scale-105 group-active:scale-95 cursor-pointer`}
             />
