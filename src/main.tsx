@@ -32,9 +32,62 @@ if (typeof window !== "undefined") {
 
   if ("serviceWorker" in navigator && !isInIframe && !isPreviewHost && window.location.protocol === "https:") {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch((error) => {
-        console.warn("[PWA] Service worker registration failed", error);
-      });
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          const promptUpdate = (worker: ServiceWorker) => {
+            // Lazy-load sonner to avoid blocking the initial render.
+            import("sonner").then(({ toast }) => {
+              toast("Une mise à jour est disponible", {
+                description: "Recharge l'app pour profiter de la dernière version.",
+                duration: Infinity,
+                action: {
+                  label: "Mettre à jour",
+                  onClick: () => worker.postMessage({ type: "SKIP_WAITING" }),
+                },
+              });
+            }).catch(() => {
+              // Fallback: reload directly if toast can't load.
+              worker.postMessage({ type: "SKIP_WAITING" });
+            });
+          };
+
+          // A waiting worker was found at registration time (user reopened the app).
+          if (registration.waiting && navigator.serviceWorker.controller) {
+            promptUpdate(registration.waiting);
+          }
+
+          // A new worker is being installed.
+          registration.addEventListener("updatefound", () => {
+            const newWorker = registration.installing;
+            if (!newWorker) return;
+            newWorker.addEventListener("statechange", () => {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                promptUpdate(newWorker);
+              }
+            });
+          });
+
+          // When the new SW takes over, reload to pick up the fresh assets.
+          let reloading = false;
+          navigator.serviceWorker.addEventListener("controllerchange", () => {
+            if (reloading) return;
+            reloading = true;
+            window.location.reload();
+          });
+
+          // Check for updates on focus / visibility regain.
+          const checkForUpdate = () => {
+            registration.update().catch(() => {});
+          };
+          window.addEventListener("focus", checkForUpdate);
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") checkForUpdate();
+          });
+        })
+        .catch((error) => {
+          console.warn("[PWA] Service worker registration failed", error);
+        });
     });
   } else if ("serviceWorker" in navigator && (isInIframe || isPreviewHost)) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
