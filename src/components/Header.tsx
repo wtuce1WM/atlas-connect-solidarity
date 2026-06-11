@@ -170,6 +170,10 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
       to="/"
       className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors"
       aria-label="Accueil"
+      onClick={(event) => {
+        event.preventDefault();
+        window.location.assign("/");
+      }}
     >
       <Home className="h-5 w-5 text-foreground" />
     </Link>
