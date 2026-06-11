@@ -76,8 +76,17 @@ const CSS = `
   .join-page .hiw-head{text-align:center;max-width:820px;margin:0 auto 56px}
   .join-page .hiw-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .hiw-head p{color:var(--muted);font-size:17px}
-  .join-page .hiw{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
-  @media (max-width:980px){.join-page .hiw{grid-template-columns:1fr}}
+  .join-page .hiw{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;gap:18px;align-items:center}
+  .join-page .hiw-arrow{display:flex;align-items:center;justify-content:center;color:var(--orange)}
+  .join-page .hiw-arrow svg{width:40px;height:40px;animation:hiwArrowSlide 1.6s ease-in-out infinite}
+  @keyframes hiwArrowSlide{0%,100%{transform:translateX(-6px);opacity:.55}50%{transform:translateX(6px);opacity:1}}
+  @media (prefers-reduced-motion:reduce){.join-page .hiw-arrow svg{animation:none}}
+  @media (max-width:980px){
+    .join-page .hiw{grid-template-columns:1fr;gap:28px}
+    .join-page .hiw-arrow{transform:rotate(90deg);margin:-6px 0}
+    .join-page .hiw-arrow svg{animation:hiwArrowSlideV 1.6s ease-in-out infinite}
+    @keyframes hiwArrowSlideV{0%,100%{transform:translateX(-6px);opacity:.55}50%{transform:translateX(6px);opacity:1}}
+  }
   .join-page .hiw-step{background:#fff;border:1px solid var(--line);border-radius:24px;padding:36px 28px;text-align:center;position:relative;transition:transform .25s,box-shadow .25s}
   .join-page .hiw-step:hover{transform:translateY(-4px);box-shadow:0 18px 40px -20px rgba(0,0,0,.18)}
   .join-page .hiw-step .hiw-num{width:56px;height:56px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:24px;margin:0 auto 22px}
@@ -200,6 +209,9 @@ const Join = () => {
               <h3>Inscrivez-vous et définissez la remise que vous souhaitez offrir</h3>
               <p>Choisissez librement le pourcentage de remise accordé aux utilisateurs. Ajustable à tout moment depuis votre espace partenaire.</p>
             </article>
+            <div className="hiw-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+            </div>
             <article className="hiw-step">
               <div className="hiw-illu" aria-hidden="true">
                 <img src={hiwStep2Mockup} alt="" loading="lazy" width={512} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
@@ -207,6 +219,9 @@ const Join = () => {
               <h3>Nos abonnés voient votre offre dans l'application</h3>
               <p>Votre entreprise gagne en visibilité auprès des voyageurs et habitants qui explorent One World Morocco partout au Maroc.</p>
             </article>
+            <div className="hiw-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+            </div>
             <article className="hiw-step">
               <div className="hiw-illu" aria-hidden="true">
                 <img src={hiwStep3Tourist} alt="" loading="lazy" width={512} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
