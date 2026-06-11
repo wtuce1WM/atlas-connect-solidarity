@@ -47,8 +47,8 @@ const CSS = `
   .join-page .ways{display:grid;grid-template-columns:1fr 1fr;gap:28px}
   @media (max-width:980px){.join-page .ways{grid-template-columns:1fr}}
   .join-page .way{border-radius:28px;padding:44px 44px 36px;position:relative;overflow:hidden}
-  .join-page .way-illu{margin:8px 0 26px;display:flex;justify-content:center;max-width:340px}
-  .join-page .way-illu svg{width:100%;height:auto;display:block}
+  .join-page .hiw-illu{margin:0 auto 22px;max-width:240px}
+  .join-page .hiw-illu svg{width:100%;height:auto;display:block}
   .join-page .way.green{background:#194CFF;color:#fff}
   .join-page .way.orange{background:#8F7950;color:#fff}
   .join-page .way .badge{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:24px;color:#194CFF;background:#fff;margin-bottom:22px}
