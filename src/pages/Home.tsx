@@ -1928,11 +1928,11 @@ const Home = () => {
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
-            className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors overflow-hidden"
             aria-label="Menu Structure"
             aria-expanded={menuOpen}
           >
-            <MenuIcon className="h-5 w-5 text-foreground" />
+            <img src="/logo-gold.webp" alt="Logo" className="h-7 w-7 object-contain" />
           </button>
         }
         rightContent={
