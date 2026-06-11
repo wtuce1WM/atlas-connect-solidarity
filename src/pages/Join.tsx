@@ -152,9 +152,9 @@ const Join = () => {
       <section id="join">
         <div className="wrap">
           <div className="section-head">
-            <h1 className="subtitle">Rejoindre en tant que partenaire, c'est facile !</h1>
+            <h1 className="subtitle">REJOINDRE EN TANT QUE PARTENAIRE.</h1>
             <p className="lead">
-              Associez-vous à One World Morocco en quelques étapes : enregistrez votre entreprise, définissez votre offre
+              Abonnez-vous à One World Morocco en quelques étapes : enregistrez votre entreprise, définissez votre offre
               et commencez à attirer de nouveaux clients instantanément, sans frais cachés ni intermédiaires.
             </p>
           </div>
