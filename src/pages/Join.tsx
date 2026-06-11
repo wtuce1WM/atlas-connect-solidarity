@@ -116,11 +116,11 @@ const Join = () => {
                 Soyez référencé dans notre catalogue et touchez les voyageurs et habitants qui découvrent des entreprises locales partout au Maroc.
               </p>
               <ul>
-                <li><Check color="#3e8e7e" />Soyez découvert par les voyageurs &amp; habitants&nbsp;de votre région</li>
-                <li><Check color="#3e8e7e" />Référencé dans le catalogue<br/><strong>&nbsp;oneworldmorocco.com/entreprise</strong></li>
-                <li><Check color="#3e8e7e" />Plus de trafic et de réservations directes</li>
-                <li><Check color="#3e8e7e" />Mis en avant dans la recherche et dans l'agent IA</li>
-                <li><Check color="#3e8e7e" />Aucune commission sur les réservations</li>
+                <li><Check color="#ffffff" />Soyez découvert par les voyageurs &amp; habitants&nbsp;de votre région</li>
+                <li><Check color="#ffffff" />Référencé dans le catalogue<br/><strong>&nbsp;oneworldmorocco.com/entreprise</strong></li>
+                <li><Check color="#ffffff" />Plus de trafic et de réservations directes</li>
+                <li><Check color="#ffffff" />Mis en avant dans la recherche et dans l'agent IA</li>
+                <li><Check color="#ffffff" />Aucune commission sur les réservations</li>
               </ul>
               <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Vos offres. Notre audience. Plus de réservations.</div>
