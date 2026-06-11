@@ -226,7 +226,7 @@ const Join = () => {
               </p>
               <ul>
                 <li><Check color="#ffffff" />Toutes vos canaux digitaux au même endroit</li>
-                <li><Check color="#ffffff" />URL courte personnalisée&nbsp;<br/><strong>&nbsp;oneworldmorocco.com/votrenom</strong></li>
+                <li><Check color="#ffffff" />URL courte  personnalisée <br/><br/><strong> oneworldmorocco.com/votrenom</strong></li>
                 <li><Check color="#ffffff" />Partagez par code QR ou lien en un tap</li>
                 <li><Check color="#ffffff" />Mettez à jour offres, évènements, vidéos et photos à tout moment</li>
                 <li><Check color="#ffffff" />Profil vérifié inspire confiance aux clients</li>
