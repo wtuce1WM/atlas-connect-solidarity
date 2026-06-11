@@ -219,6 +219,9 @@ const Join = () => {
               <h3>Nos abonnés voient votre offre dans l'application</h3>
               <p>Votre entreprise gagne en visibilité auprès des voyageurs et habitants qui explorent One World Morocco partout au Maroc.</p>
             </article>
+            <div className="hiw-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+            </div>
             <article className="hiw-step">
               <div className="hiw-illu" aria-hidden="true">
                 <img src={hiwStep3Tourist} alt="" loading="lazy" width={512} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
