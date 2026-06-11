@@ -48,10 +48,10 @@ const CSS = `
   .join-page .ways-head{text-align:center;max-width:780px;margin:0 auto 56px}
   .join-page .ways-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .ways-head p{color:var(--muted);font-size:17px}
-  .join-page .ways{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
-  @media (max-width:1180px){.join-page .ways{grid-template-columns:repeat(2,1fr)}}
+  .join-page .ways{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;max-width:980px;margin:0 auto}
   @media (max-width:680px){.join-page .ways{grid-template-columns:1fr}}
-  .join-page .way{border-radius:28px;padding:44px 44px 36px;position:relative;overflow:hidden}
+  .join-page .way{border-radius:28px;padding:44px 44px 36px;position:relative;overflow:hidden;aspect-ratio:1/1;display:flex;flex-direction:column}
+  @media (max-width:680px){.join-page .way{aspect-ratio:auto}}
   .join-page .hiw-illu{margin:0 auto 22px;max-width:240px}
   .join-page .hiw-illu svg{width:100%;height:auto;display:block}
   .join-page .way.green{background:#194CFF;color:#fff}
