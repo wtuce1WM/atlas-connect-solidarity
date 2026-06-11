@@ -190,7 +190,7 @@ const StaffHub = () => {
       <header className="bg-foreground">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logoGold} alt="WTUCE Logo" className="h-10 w-10 object-contain" />
+            <img src="/logo-gold.webp" alt="WTUCE Logo" className="h-10 w-10 object-contain" />
             <div>
               <span className="font-serif text-lg font-bold">
                 <span className="text-gold">ONE WORLD</span>{" "}

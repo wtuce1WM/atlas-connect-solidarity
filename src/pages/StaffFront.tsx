@@ -372,7 +372,7 @@ const StaffFront = () => {
       <header className="bg-foreground">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logoGold} alt="Logo" className="h-10 w-10 object-contain" />
+            <img src="/logo-gold.webp" alt="Logo" className="h-10 w-10 object-contain" />
             <span className="font-serif text-lg font-bold text-background">Présentation</span>
           </div>
           <Button variant="ghost" size="sm" className="text-background hover:text-gold" onClick={() => navigate("/staff/backoffice")}>
