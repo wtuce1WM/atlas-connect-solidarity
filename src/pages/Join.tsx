@@ -163,7 +163,7 @@ const Join = () => {
       <section id="how-it-works">
         <div className="wrap">
           <div className="hiw-head">
-            <h2>Comment fonctionne le programme de remises pour les voyageurs ?</h2>
+            <h2>Comment fonctionne le programme de remises pour les utilisateurs ?</h2>
             <p>Trois étapes simples pour attirer plus de clients, sans commissions ni intermédiaires.</p>
           </div>
 
@@ -171,16 +171,16 @@ const Join = () => {
             <article className="hiw-step">
               <div className="hiw-num">1</div>
               <h3>Inscrivez-vous et définissez la remise que vous souhaitez offrir</h3>
-              <p>Choisissez librement le pourcentage de remise accordé aux voyageurs. Ajustable à tout moment depuis votre espace partenaire.</p>
+              <p>Choisissez librement le pourcentage de remise accordé aux utilisateurs. Ajustable à tout moment depuis votre espace partenaire.</p>
             </article>
             <article className="hiw-step">
               <div className="hiw-num">2</div>
-              <h3>Nos abonnés voient votre offre dans le catalogue</h3>
+              <h3>Nos abonnés voient votre offre dans l'application</h3>
               <p>Votre entreprise gagne en visibilité auprès des voyageurs et habitants qui explorent One World Morocco partout au Maroc.</p>
             </article>
             <article className="hiw-step">
               <div className="hiw-num">3</div>
-              <h3>Les clients viennent directement chez vous, sans commissions ni frais d'agence</h3>
+              <h3>Les clients viennent directement chez vous, sans commissions</h3>
               <p>Réservations en direct, tarifs transparents : vous gardez 100% de vos revenus, sans intermédiaire.</p>
             </article>
           </div>
