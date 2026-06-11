@@ -149,13 +149,13 @@ const Join = () => {
         <div className="hero-overlay" aria-hidden="true" />
         <div className="hero-inner">
           <div className="hero-badge">★ Partenaires locaux</div>
-          <h1>Rejoignez les partenaires qui attirent <span className="hl">plus de clients</span> au Maroc.</h1>
-          <p className="hero-sub">Ajoutez votre offre en 2 minutes. Gagnez en visibilité auprès des voyageurs et habitants. Sans commission, pour toujours.</p>
+          <h1>Rejoignez le premier écosystème numérique <span className="hl">éthique & solidaire</span> au Maroc.</h1>
+          <p className="hero-sub">Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.</p>
           <a href="/devenir-affilie" className="hero-cta">Rejoindre gratuitement →</a>
           <div className="hero-checks">
-            <span><Check color="#00a896" />Gratuit pour toujours</span>
-            <span><Check color="#00a896" />Sans carte bancaire</span>
-            <span><Check color="#00a896" />Configuré en 2 min</span>
+            <span><Check color="#00a896" />Consommez local</span>
+            <span><Check color="#00a896" />Voyagez autrement</span>
+            <span><Check color="#00a896" />Agissez pour tous</span>
           </div>
           <div className="hero-stats">
             <div>🌍 Tout le Maroc</div>
