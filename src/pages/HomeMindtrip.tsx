@@ -855,7 +855,7 @@ const STEPS = [
     icon: PlayCircle,
   },
   {
-    title: "Dialoguez avec votre assistant IA personnalisé",
+    title: "Votre assistant IA sur votre site web.",
     desc: "",
     cta: "Explorer le catalogue",
     href: "/search",
