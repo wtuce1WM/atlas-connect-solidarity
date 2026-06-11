@@ -1,6 +1,8 @@
 import { useEffect } from "react";
+import joinHero from "@/assets/join-hero.jpg";
 import hiwStep2Mockup from "@/assets/hiw-step2-app-mockup.webp";
 import hiwStep3Tourist from "@/assets/hiw-step3-tourist.png";
+
 
 const CSS = `
   .join-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -93,6 +95,23 @@ const CSS = `
   .join-page .hiw-step h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:20px;margin-bottom:12px;line-height:1.25}
   .join-page .hiw-step p{color:var(--muted);font-size:15px;line-height:1.55}
   .join-page .hiw-cta{display:flex;justify-content:center;margin-top:48px}
+  .join-page .hero{position:relative;padding:0;border-bottom:1px solid var(--line);overflow:hidden}
+  .join-page .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .join-page .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.35) 40%,rgba(0,0,0,.65) 100%)}
+  .join-page .hero-inner{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:120px 24px 110px;text-align:center;color:#fff}
+  .join-page .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);color:#fff;padding:8px 18px;border-radius:999px;font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:28px;border:1px solid rgba(255,255,255,.18)}
+  .join-page .hero h1{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(36px,5.4vw,68px);line-height:1.05;letter-spacing:-.01em;margin:0 auto 22px;max-width:980px}
+  .join-page .hero h1 .hl{color:#ffc008}
+  .join-page .hero .hero-sub{font-size:clamp(16px,1.4vw,19px);color:rgba(255,255,255,.92);max-width:680px;margin:0 auto 34px;line-height:1.5}
+  .join-page .hero .hero-cta{display:inline-flex;align-items:center;gap:10px;background:#C04F17;color:#fff;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(192,79,23,.7);transition:transform .2s,background .2s}
+  .join-page .hero .hero-cta:hover{background:#a84313;transform:translateY(-2px)}
+  .join-page .hero-checks{display:flex;flex-wrap:wrap;justify-content:center;gap:22px;margin-top:22px;font-size:14px;color:rgba(255,255,255,.95)}
+  .join-page .hero-checks span{display:inline-flex;align-items:center;gap:8px}
+  .join-page .hero-checks svg{color:var(--green)}
+  .join-page .hero-stats{margin-top:38px;display:inline-flex;flex-wrap:wrap;justify-content:center;gap:0;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:10px 8px;font-size:13px}
+  .join-page .hero-stats div{padding:6px 22px;display:inline-flex;align-items:center;gap:8px;color:#fff;border-right:1px solid rgba(255,255,255,.18)}
+  .join-page .hero-stats div:last-child{border-right:none}
+  @media (max-width:700px){.join-page .hero-inner{padding:90px 20px 80px}.join-page .hero-stats{font-size:12px}.join-page .hero-stats div{padding:6px 14px}}
 `;
 
 const Check = ({ color }: { color: string }) => (
@@ -124,6 +143,27 @@ const Join = () => {
           <a href="/devenir-affilie" className="nav-cta">S'inscrire maintenant →</a>
         </div>
       </header>
+
+      <section className="hero" aria-label="Rejoindre One World Morocco">
+        <img className="hero-img" src={joinHero} alt="" width={1920} height={1080} />
+        <div className="hero-overlay" aria-hidden="true" />
+        <div className="hero-inner">
+          <div className="hero-badge">★ Partenaires locaux</div>
+          <h1>Rejoignez les partenaires qui attirent <span className="hl">plus de clients</span> au Maroc.</h1>
+          <p className="hero-sub">Ajoutez votre offre en 2 minutes. Gagnez en visibilité auprès des voyageurs et habitants. Sans commission, pour toujours.</p>
+          <a href="/devenir-affilie" className="hero-cta">Rejoindre gratuitement →</a>
+          <div className="hero-checks">
+            <span><Check color="#00a896" />Gratuit pour toujours</span>
+            <span><Check color="#00a896" />Sans carte bancaire</span>
+            <span><Check color="#00a896" />Configuré en 2 min</span>
+          </div>
+          <div className="hero-stats">
+            <div>🌍 Tout le Maroc</div>
+            <div>🤝 Partenaires locaux</div>
+            <div>✓ 0% de commission</div>
+          </div>
+        </div>
+      </section>
 
       <section id="ways">
         <div className="wrap">
