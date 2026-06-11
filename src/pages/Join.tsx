@@ -171,7 +171,10 @@ const Join = () => {
 
       <header className="nav">
         <div className="wrap">
-          <a href="/" className="brand">ONE WORLD MOROCCO</a>
+          <a href="/" className="brand" style={{display:'inline-flex',alignItems:'center',gap:10}}>
+            <img src="/logo-gold.webp" alt="" width={32} height={32} style={{display:'block',objectFit:'contain'}} />
+            ONE WORLD MOROCCO
+          </a>
           
         </div>
       </header>
