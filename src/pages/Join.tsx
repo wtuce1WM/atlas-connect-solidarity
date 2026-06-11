@@ -201,7 +201,7 @@ const Join = () => {
       <section id="ways">
         <div className="wrap">
           <div className="ways-head">
-            <h2>Quatre moyens puissants d'attirer plus de clients</h2>
+            <h2>dans la section "Quatre moyens puissants d'attirer plus de clients", </h2>
             <p>
               Soyez référencé dans notre catalogue&nbsp;et obtenez votre carte business avec QR code.
               Deux outils complémentaires pour convertir les utilisateurs en clients.
