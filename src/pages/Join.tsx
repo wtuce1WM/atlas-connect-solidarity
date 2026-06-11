@@ -234,6 +234,23 @@ const Join = () => {
               <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Votre carte. Votre QR. Plus de clients sur place.</div>
             </article>
+
+            <article className="way teal">
+              <div className="badge">3</div>
+              <h3>Votre assistant IA sur votre site web</h3>
+              <p className="intro">
+                Intégrez un assistant IA directement sur votre site pour répondre aux visiteurs 24/7, qualifier leurs demandes et booster vos conversions.
+              </p>
+              <ul>
+                <li><Check color="#ffffff" />Disponible 24/7 pour répondre à vos visiteurs</li>
+                <li><Check color="#ffffff" />Répond en plusieurs langues automatiquement</li>
+                <li><Check color="#ffffff" />Qualifie les demandes et capture les leads</li>
+                <li><Check color="#ffffff" />Connaît vos offres, horaires et tarifs</li>
+                <li><Check color="#ffffff" />Intégration simple en quelques minutes</li>
+              </ul>
+              <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
+              <div className="tag">Votre IA. Vos réponses. Plus de conversions.</div>
+            </article>
           </div>
         </div>
       </section>
