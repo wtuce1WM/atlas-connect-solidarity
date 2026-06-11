@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 
 interface SearchPaginationProps {
@@ -21,9 +22,18 @@ export default function SearchPagination({
   className = "",
 }: SearchPaginationProps) {
   if (totalPages <= 1) return null;
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const handlePageChange = (page: number) => {
     onPageChange(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    requestAnimationFrame(() => {
+      const grid = wrapperRef.current?.previousElementSibling as HTMLElement | null;
+      const target = grid ?? wrapperRef.current;
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      const headerOffset = 80;
+      const top = window.scrollY + rect.top - headerOffset;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
   };
   const startResult = (currentPage - 1) * pageSize + 1;
   const endResult = Math.min(startResult + pageSize - 1, totalCount);
@@ -36,7 +46,7 @@ export default function SearchPagination({
   const next = language === "en" ? "Next" : language === "ar" ? "التالي" : "Suivant";
 
   return (
-    <div className={`mb-20 pb-4 flex flex-col items-center gap-1 ${className}`}>
+    <div ref={wrapperRef} className={`mb-20 pb-4 flex flex-col items-center gap-1 ${className}`}>
       <p className="text-sm text-muted-foreground">
         {showing} {startResult} {to} {endResult} {onWord} {totalCount} {results}
       </p>
