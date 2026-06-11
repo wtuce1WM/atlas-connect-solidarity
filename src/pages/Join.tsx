@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import hiwStep2Mockup from "@/assets/hiw-step2-app-mockup.png";
 
 const CSS = `
   .join-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -199,7 +200,9 @@ const Join = () => {
               <p>Choisissez librement le pourcentage de remise accordé aux utilisateurs. Ajustable à tout moment depuis votre espace partenaire.</p>
             </article>
             <article className="hiw-step">
-              <div className="hiw-num">2</div>
+              <div className="hiw-illu" aria-hidden="true">
+                <img src={hiwStep2Mockup} alt="" loading="lazy" width={512} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
+              </div>
               <h3>Nos abonnés voient votre offre dans l'application</h3>
               <p>Votre entreprise gagne en visibilité auprès des voyageurs et habitants qui explorent One World Morocco partout au Maroc.</p>
             </article>
