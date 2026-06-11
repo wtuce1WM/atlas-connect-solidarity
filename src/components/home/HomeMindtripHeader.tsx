@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import logoHamsa from "@/assets/logo-hamsa-gold.png";
+
 
 interface Props {
   alwaysWhite?: boolean;
@@ -37,7 +37,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
         <Link to="/" aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
           <img
-            src={logoHamsa}
+            src="/logo-gold.webp"
             alt="One World Morocco"
             className={`w-auto transition-all duration-500 ${scrolled ? "h-8 md:h-9" : "h-10 md:h-11"}`}
           />
