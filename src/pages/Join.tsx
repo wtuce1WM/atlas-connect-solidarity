@@ -48,40 +48,48 @@ const CSS = `
   .join-page .ways-head{text-align:center;max-width:780px;margin:0 auto 56px}
   .join-page .ways-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .ways-head p{color:var(--muted);font-size:17px}
-  .join-page .ways{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
-  @media (max-width:980px){.join-page .ways{grid-template-columns:1fr}}
+  .join-page .ways{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+  @media (max-width:1180px){.join-page .ways{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:680px){.join-page .ways{grid-template-columns:1fr}}
   .join-page .way{border-radius:28px;padding:44px 44px 36px;position:relative;overflow:hidden}
   .join-page .hiw-illu{margin:0 auto 22px;max-width:240px}
   .join-page .hiw-illu svg{width:100%;height:auto;display:block}
   .join-page .way.green{background:#194CFF;color:#fff}
   .join-page .way.orange{background:#8F7950;color:#fff}
   .join-page .way.teal{background:#00a896;color:#fff}
+  .join-page .way.purple{background:#6B4E9B;color:#fff}
   .join-page .way .badge{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:24px;color:#194CFF;background:#fff;margin-bottom:22px}
   .join-page .way.orange .badge{background:#fff;color:#8F7950}
   .join-page .way.teal .badge{background:#fff;color:#00a896}
+  .join-page .way.purple .badge{background:#fff;color:#6B4E9B}
   .join-page .way h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin-bottom:18px;color:#111}
   .join-page .way.green h3{color:#fff}
   .join-page .way.orange h3{color:#fff}
   .join-page .way.teal h3{color:#fff}
+  .join-page .way.purple h3{color:#fff}
   .join-page .way > p.intro{color:#3a3a3a;font-size:16px;line-height:1.6;margin-bottom:26px;max-width:520px}
   .join-page .way.green > p.intro{color:rgba(255,255,255,.92)}
   .join-page .way.orange > p.intro{color:rgba(255,255,255,.92)}
   .join-page .way.teal > p.intro{color:rgba(255,255,255,.92)}
+  .join-page .way.purple > p.intro{color:rgba(255,255,255,.92)}
   .join-page .way ul{list-style:none;padding:0;margin:0 0 28px;display:flex;flex-direction:column;gap:14px}
   .join-page .way li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:#222;line-height:1.45}
   .join-page .way.green li{color:#fff}
   .join-page .way.orange li{color:#fff}
   .join-page .way.teal li{color:#fff}
+  .join-page .way.purple li{color:#fff}
   .join-page .way li svg{flex:0 0 22px;margin-top:1px}
   .join-page .way .way-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 28px;border-radius:999px;color:#fff;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.04em;transition:transform .2s,filter .2s}
   .join-page .way .way-cta:hover{transform:translateY(-2px);filter:brightness(1.05)}
   .join-page .way.green .way-cta{background:#fff;color:#194CFF}
   .join-page .way.orange .way-cta{background:#fff;color:#8F7950}
   .join-page .way.teal .way-cta{background:#fff;color:#00a896}
+  .join-page .way.purple .way-cta{background:#fff;color:#6B4E9B}
   .join-page .way .tag{margin-top:26px;padding-top:22px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:15px}
   .join-page .way.green .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.orange .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.teal .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
+  .join-page .way.purple .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .hiw-head{text-align:center;max-width:820px;margin:0 auto 56px}
   .join-page .hiw-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .hiw-head p{color:var(--muted);font-size:17px}
@@ -193,7 +201,7 @@ const Join = () => {
       <section id="ways">
         <div className="wrap">
           <div className="ways-head">
-            <h2>Trois moyens puissants d'attirer plus de clients</h2>
+            <h2>Quatre moyens puissants d'attirer plus de clients</h2>
             <p>
               Soyez référencé dans notre catalogue&nbsp;et obtenez votre carte business avec QR code.
               Deux outils complémentaires pour convertir les utilisateurs en clients.
@@ -250,6 +258,23 @@ const Join = () => {
               </ul>
               <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
               <div className="tag">Votre IA. Vos réponses. Plus de conversions.</div>
+            </article>
+
+            <article className="way purple">
+              <div className="badge">4</div>
+              <h3>Réseau social</h3>
+              <p className="intro">
+                Entretenez la relation avec vos clients, prospects et followers, poussez votre offre, actualité et évènements dans leur interface.
+              </p>
+              <ul>
+                <li><Check color="#ffffff" />Gardez le lien avec vos clients et followers</li>
+                <li><Check color="#ffffff" />Poussez offres, actualités et évènements</li>
+                <li><Check color="#ffffff" />Diffusez directement dans leur interface</li>
+                <li><Check color="#ffffff" />Fidélisez et engagez votre communauté</li>
+                <li><Check color="#ffffff" />Transformez vos followers en clients</li>
+              </ul>
+              <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
+              <div className="tag">Votre communauté. Vos messages. Plus d'engagement.</div>
             </article>
           </div>
         </div>
