@@ -51,6 +51,7 @@ const LogoEffectsDemo = lazy(() => import("./pages/LogoEffectsDemo"));
 const AIEffectsDemo = lazy(() => import("./pages/AIEffectsDemo"));
 const CGF = lazy(() => import("./pages/CGF"));
 const Corporate = lazy(() => import("./pages/Corporate"));
+const Join = lazy(() => import("./pages/Join"));
 const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
