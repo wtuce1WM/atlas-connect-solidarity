@@ -106,8 +106,8 @@ const Join = () => {
           <div className="ways-head">
             <h2>Deux moyens puissants d'attirer plus de clients</h2>
             <p>
-              Soyez référencé dans notre catalogue mondial <strong>et</strong> obtenez votre carte business avec QR code.
-              Deux outils complémentaires pour convertir les voyageurs en clients.
+              Soyez référencé dans notre catalogue&nbsp;et obtenez votre carte business avec QR code.
+              Deux outils complémentaires pour convertir les utilisateurs en clients.
             </p>
           </div>
 
@@ -136,10 +136,10 @@ const Join = () => {
                 Obtenez votre page personnelle et votre code QR. Quand les voyageurs sont devant vous, partagez-le et convertissez instantanément.
               </p>
               <ul>
-                <li><Check color="#ffffff" />Toutes vos offres au même endroit</li>
-                <li><Check color="#ffffff" />URL courte personnalisée comme <strong>&nbsp;oneworldmorocco.com/votrenom</strong></li>
+                <li><Check color="#ffffff" />Toutes vos canaux digitaux au même endroit</li>
+                <li><Check color="#ffffff" />URL courte personnalisée&nbsp;<br/><strong>&nbsp;oneworldmorocco.com/votrenom</strong></li>
                 <li><Check color="#ffffff" />Partagez par code QR ou lien en un tap</li>
-                <li><Check color="#ffffff" />Mettez à jour offres, contacts et photos à tout moment</li>
+                <li><Check color="#ffffff" />Mettez à jour offres, évènements, vidéos et photos à tout moment</li>
                 <li><Check color="#ffffff" />Profil vérifié inspire confiance aux clients</li>
               </ul>
               <a href="/devenir-affilie" className="way-cta">En savoir plus →</a>
