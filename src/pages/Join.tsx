@@ -200,7 +200,7 @@ const Join = () => {
       <section id="ways">
         <div className="wrap">
           <div className="ways-head">
-            <h2>Quatre moyens puissants d'attirer plus de clients</h2>
+            <h2>Quatre moyens puissants d'attirer plus de clients sans intermédiaire.</h2>
             <p>
               Soyez référencé dans notre catalogue&nbsp;et obtenez votre carte business avec QR code.
               Deux outils complémentaires pour convertir les utilisateurs en clients.
@@ -232,7 +232,7 @@ const Join = () => {
               </p>
               <ul>
                 <li><Check color="#ffffff" />Toutes vos canaux digitaux au même endroit</li>
-                <li><Check color="#ffffff" />URL courte  personnalisée<br /><br /><br /><br /><strong> oneworldmorocco.com/votrenom</strong></li>
+                <li><Check color="#ffffff" />URL courte  personnalisée<br /><br /><strong> oneworldmorocco.com/votrenom</strong></li>
                 <li><Check color="#ffffff" />Partagez par code QR ou lien en un tap</li>
                 <li><Check color="#ffffff" />Mettez à jour offres, évènements, vidéos et photos à tout moment</li>
                 <li><Check color="#ffffff" />Profil vérifié inspire confiance aux clients</li>
