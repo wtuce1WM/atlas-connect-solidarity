@@ -83,8 +83,8 @@ const CSS = `
   .join-page .way .way-cta:hover{transform:translateY(-2px);filter:brightness(1.05)}
   .join-page .way.green .way-cta{background:#fff;color:#194CFF}
   .join-page .way.orange .way-cta{background:#fff;color:#8F7950}
-  .join-page .way.teal .way-cta{background:#fff;color:#00a896}
-  .join-page .way.purple .way-cta{background:#fff;color:#6B4E9B}
+  .join-page .way.teal .way-cta{background:#fff;color:#C04F17}
+  .join-page .way.purple .way-cta{background:#fff;color:#3B3B3B}
   .join-page .way .tag{margin-top:26px;padding-top:22px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:15px}
   .join-page .way.green .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.orange .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
