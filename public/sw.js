@@ -35,8 +35,15 @@ self.addEventListener("install", (event) => {
         } catch {}
       }));
     } catch {}
-    await self.skipWaiting();
+    // Do NOT skipWaiting automatically — we wait for the user to confirm
+    // the update via the in-app prompt (see SKIP_WAITING message below).
   })());
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", (event) => {
