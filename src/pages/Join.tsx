@@ -199,7 +199,9 @@ const Join = () => {
               <p>Choisissez librement le pourcentage de remise accordé aux utilisateurs. Ajustable à tout moment depuis votre espace partenaire.</p>
             </article>
             <article className="hiw-step">
-              <div className="hiw-num">2</div>
+              <div className="hiw-illu" aria-hidden="true">
+                <img src={hiwStep2Mockup} alt="" loading="lazy" width={512} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
+              </div>
               <h3>Nos abonnés voient votre offre dans l'application</h3>
               <p>Votre entreprise gagne en visibilité auprès des voyageurs et habitants qui explorent One World Morocco partout au Maroc.</p>
             </article>
