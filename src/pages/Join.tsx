@@ -248,7 +248,7 @@ const Join = () => {
 
             <article className="way teal">
               <div className="badge">3</div>
-              <h3>Votre assistant IA sur votre site web</h3>
+              <h3>Votre assistant IA</h3>
               <p className="intro">
                 Intégrez un assistant IA directement sur votre site pour répondre aux visiteurs 24/7, qualifier leurs demandes et booster vos conversions.
               </p>
@@ -418,7 +418,7 @@ const Join = () => {
                 <tr><td>Votre QR code</td><td className="us">✓ Oui</td><td>✗ Non</td><td>✗ Non</td></tr>
                 <tr><td>Contact direct</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Carte business digitale</td><td className="us">✓ Gratuit</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Votre assistant IA sur votre site web</td><td className="us">✓ Optionnel</td><td>✗ Non</td><td>✗ Non</td></tr>
+                <tr><td>Votre assistant IA</td><td className="us">✓ Optionnel</td><td>✗ Non</td><td>✗ Non</td></tr>
                 <tr><td>URL courte personnalisée (oneworldmorocco.com/votrenom)</td><td className="us">✓ Inclus</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Recherche & réponse vocale</td><td className="us">✓ Inclus</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
                 <tr><td>Vitesse de paiement</td><td className="us">Instantané</td><td>30–60 jours</td><td>2–4 semaines</td></tr>
