@@ -200,7 +200,7 @@ export function HotelAvailabilityResult({
                   {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
                 </p>
                 <p className="text-[12px] md:text-[16px] text-white/80 mt-1.5 underline underline-offset-2">
-                  {language === "en" ? "View other available hotels" : "Consulter les autres établissements avec de la disponibilité"}
+                  {language === "en" ? "View other available hotels" : "Consulter les autres établissements"}
                 </p>
               </div>
             )}
