@@ -589,15 +589,20 @@ const HomeMindtrip = () => {
                   )}
                   {i === 2 && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <video
-                        ref={(el) => { videoRefs.current[idx] = el; }}
-                        src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4"
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        className="h-full w-auto aspect-[9/16] object-cover"
-                      />
+                      <div className="relative h-[65%] md:h-[75%] aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+                        {/* Dynamic Island / Notch */}
+                        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+                        
+                        <video
+                          ref={(el) => { videoRefs.current[idx] = el; }}
+                          src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4"
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          className="h-full w-full object-cover rounded-[1.3rem] md:rounded-[1.7rem]"
+                        />
+                      </div>
                     </div>
                   )}
                   {i === 3 && (
