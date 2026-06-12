@@ -74,8 +74,7 @@ export function HotelAvailabilityResult({
               onClick: () => window.open(whatsappUrl(business.whatsapp!), "_blank"),
               color: "#25D366",
             });
-          }
-          if (business.phone) {
+          } else if (business.phone) {
             actionCards.push({
               icon: <span className="text-lg">📞</span>,
               label: language === "en" ? "Call" : "Téléphone",
