@@ -643,7 +643,7 @@ const HomeMindtrip = () => {
                             <img src="/logo-gold.webp" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl object-contain" />
                           </div>
                         )}
-                        <span className={`font-josefin text-xs uppercase tracking-[0.3em] text-white ${i === 2 ? "hidden md:inline-flex" : "inline-flex"} items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]`} style={{ backgroundColor: "#C04F17" }}>
+                        <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
                           Étape {i + 1}
                         </span>
 
