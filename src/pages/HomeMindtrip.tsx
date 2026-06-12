@@ -588,7 +588,11 @@ const HomeMindtrip = () => {
                     </>
                   )}
                   {i === 2 && (
-                    <div className="mt-4 md:mt-0 md:absolute md:inset-y-0 md:right-8 flex items-center justify-center pointer-events-none order-2 md:order-none">
+                    <div className="mt-4 md:mt-0 md:absolute md:inset-y-0 md:right-8 flex flex-col items-center justify-center pointer-events-none order-2 md:order-none">
+                      {/* Mobile-only Step Badge above mockup */}
+                      <span className="md:hidden mb-3 font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
+                        Étape {i + 1}
+                      </span>
                       <div className="relative h-[280px] md:h-[65%] aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mx-auto">
                         {/* Dynamic Island / Notch */}
                         <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-neutral-900 rounded-full z-20 pointer-events-none" />
