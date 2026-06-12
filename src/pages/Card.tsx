@@ -132,9 +132,9 @@ const Card = () => {
               Le QR n'est qu'une façon parmi d'autres de le partager.
             </p>
             <ul className="bullets">
-              <li><span className="check">✓</span>URL courte et mémorable : <strong style={{marginLeft:4}}>oneworldmorocco.com/yourname</strong></li>
-              <li><span className="check">✓</span>Hébergé sur un domaine de voyage en lequel les voyageurs ont confiance</li>
-              <li><span className="check">✓</span>Toutes vos offres, contacts et photos en un seul endroit</li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>URL courte et mémorisable :<br/><strong>oneworldmorocco.com/yourname</strong></div></li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>Tous vos canaux numériques rassemblés au même endroit</div></li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>Un profil type Linktree partageable</div></li>
               <li><span className="check">✓</span>Partagez par lien, QR, NFC ou carte imprimée</li>
               <li><span className="check">✓</span>Mettez à jour à tout moment — le lien reste le même</li>
             </ul>
