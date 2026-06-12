@@ -288,10 +288,9 @@ const Card = () => {
         </div>
       </section>
 
-      <footer>
-        © {new Date().getFullYear()} One World Morocco · <Link to="/">Accueil</Link> · <Link to="/join">Rejoindre</Link>
-      </footer>
-    </div>
+      </div>
+      <Footer variant="verified" />
+    </>
   );
 };
 
