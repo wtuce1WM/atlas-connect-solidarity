@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play } from "lucide-react";
+import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play, Percent } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import SearchInput from "@/components/SearchInput";
@@ -272,7 +272,7 @@ const HomeMindtrip = () => {
     });
     const yt = ytIframeRef.current?.contentWindow;
     if (yt) {
-      const cmd = activeStep === 3 ? "playVideo" : "pauseVideo";
+      const cmd = activeStep === 4 ? "playVideo" : "pauseVideo";
       yt.postMessage(JSON.stringify({ event: "command", func: cmd, args: [] }), "*");
     }
   }, [activeStep]);
@@ -580,7 +580,7 @@ const HomeMindtrip = () => {
                 <div
                   key={s.title}
                   ref={(el) => { cardRefs.current[idx] = el; }}
-                  className={`relative overflow-hidden w-[85vw] md:w-[85vw] max-w-2xl shrink-0 rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${i === 2 || i === 4 ? "md:aspect-square" : ""}`}
+                  className={`relative overflow-hidden w-[85vw] md:w-[85vw] max-w-2xl shrink-0 rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${i === 2 || i === 5 ? "md:aspect-square" : ""}`}
                 >
                   {i === 1 && (
                     <>
@@ -619,7 +619,7 @@ const HomeMindtrip = () => {
                   {i === 3 && (
                     <video
                       ref={(el) => { videoRefs.current[idx] = el; }}
-                      src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/6eab7b31-bda9-43d5-8c8b-4f972e5bb8bd-1774600396740-3cbxw.mp4"
+                      src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779805631225-iregbn.mp4"
                       autoPlay
                       muted
                       loop
@@ -628,6 +628,17 @@ const HomeMindtrip = () => {
                     />
                   )}
                   {i === 4 && (
+                    <video
+                      ref={(el) => { videoRefs.current[idx] = el; }}
+                      src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/6eab7b31-bda9-43d5-8c8b-4f972e5bb8bd-1774600396740-3cbxw.mp4"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  )}
+                  {i === 5 && (
                     <>
                       {/* Mobile-only header: badge + title above mockup */}
                       <div className="md:hidden mb-4">
@@ -657,7 +668,7 @@ const HomeMindtrip = () => {
                     </>
                   )}
 
-                  <div className={`relative z-10 ${i === 5 ? "text-center" : ""} ${i === 2 || i === 4 ? "md:max-w-[55%]" : ""}`}>
+                  <div className={`relative z-10 ${i === 6 ? "text-center" : ""} ${i === 2 || i === 5 ? "md:max-w-[55%]" : ""}`}>
                     {i === 1 ? (
                       <Step2AssistantBlock
                         stepLabel={`Étape ${i + 1}`}
@@ -667,26 +678,26 @@ const HomeMindtrip = () => {
                       />
                     ) : (
                       <>
-                        {i === 5 && (
+                        {i === 6 && (
                           <div className="mx-auto mb-6 h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)]">
                             <img src="/logo-gold.webp" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl object-contain" />
                           </div>
                         )}
-                        <span className={`font-josefin text-xs uppercase tracking-[0.3em] text-white ${i === 2 || i === 4 ? "hidden md:inline-flex" : "inline-flex"} items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]`} style={{ backgroundColor: "#C04F17" }}>
+                        <span className={`font-josefin text-xs uppercase tracking-[0.3em] text-white ${i === 2 || i === 5 ? "hidden md:inline-flex" : "inline-flex"} items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]`} style={{ backgroundColor: "#C04F17" }}>
                           Étape {i + 1}
                         </span>
 
-                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl ${i === 2 || i === 4 ? "hidden md:block" : ""} ${i === 5 ? "text-black" : i === 2 || i === 4 ? "text-black" : i >= 2 ? "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground"}`}>
+                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl ${i === 2 || i === 5 ? "hidden md:block" : ""} ${i === 6 ? "text-black" : i === 2 || i === 5 ? "text-black" : i >= 2 ? "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground"}`}>
                           {s.title}
                         </h3>
-                        <p className={`mt-3 md:mt-4 ${i === 5 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 5 ? "text-black/80" : i === 2 || i === 4 ? "text-black/90 font-bold" : i >= 2 ? "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground/70"}`}>{s.desc}</p>
-                        {i === 3 ? (
+                        <p className={`mt-3 md:mt-4 ${i === 6 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 6 ? "text-black/80" : i === 2 || i === 5 ? "text-black/90 font-bold" : i >= 2 ? "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground/70"}`}>{s.desc}</p>
+                        {i === 4 ? (
                           <HotelAvailabilityWidget />
-                        ) : i === 5 ? (
+                        ) : i === 6 ? (
                           <Link
-                            to={s.href}
-                            style={{ backgroundColor: "#C04F17" }}
-                            className="mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:opacity-90 transition-opacity md:mt-6 md:px-6 md:py-3 md:text-sm"
+                             to={s.href}
+                             style={{ backgroundColor: "#C04F17" }}
+                             className="mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:opacity-90 transition-opacity md:mt-6 md:px-6 md:py-3 md:text-sm"
                           >
                             {s.cta} →
                           </Link>
@@ -694,7 +705,7 @@ const HomeMindtrip = () => {
                           <Link
                             to={s.href}
                             className={
-                              i === 2 || i === 4
+                              i === 2 || i === 5
                                 ? "mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:mt-6 md:px-6 md:py-3 md:text-sm"
                                 : "mt-4 inline-flex font-josefin text-xs uppercase tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm"
                             }
@@ -898,6 +909,13 @@ const STEPS = [
     cta: "Inscrivez-vous",
     href: "/club",
     icon: Compass,
+  },
+  {
+    title: "Offres sélectionnées. Prix locaux.",
+    desc: "Jusqu'à 20 % de réduction sur séjours, visites, restaurants, commerces, services et plus. Uniquement avec des commerces locaux.",
+    cta: "Voir les offres",
+    href: "/search?badge=reduction",
+    icon: Percent,
   },
   {
     title: "Réservez l'esprit léger, participez à l'économie direct-to-local",
