@@ -65,7 +65,7 @@ export function HotelAvailabilityResult({
         })();
         const totalMinPrice = minPrice ? minPrice * nightsCount : null;
 
-        const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string; textColor?: string }[] = [];
+        const actionCards: { icon: React.ReactNode; label: string; mobileLabel?: string; onClick: () => void; color: string; textColor?: string }[] = [];
         if (hasAvailability && business) {
           if (business.whatsapp) {
             actionCards.push({
@@ -88,6 +88,7 @@ export function HotelAvailabilityResult({
             actionCards.push({
               icon: <CalendarCheck className="h-5 w-5" />,
               label: CTA_MODE_LABELS[business.presentation_mode]?.[language === "en" ? "en" : "fr"] || (language === "en" ? "Book online" : "Réservez en ligne"),
+              mobileLabel: language === "en" ? "Book" : "Réserver",
               onClick: () => {
                 if (isExternal) {
                   window.open(business.reserve_now_url!, "_blank");
@@ -106,6 +107,7 @@ export function HotelAvailabilityResult({
             actionCards.push({
               icon: <MapPin className="h-5 w-5" />,
               label: language === "en" ? "Directions" : "Vous rendre sur place",
+              mobileLabel: language === "en" ? "Route" : "Itinéraire",
               onClick: () => setShowDirections(true),
               color: "#C04F17",
             });
@@ -175,16 +177,17 @@ export function HotelAvailabilityResult({
             </div>
 
             {actionCards.length > 0 && (
-              <div className="flex flex-col items-center gap-2 mt-3" style={{ width: 'fit-content' }}>
+              <div className="flex flex-row md:flex-col items-stretch md:items-center justify-center gap-2 mt-3 w-full md:w-auto">
                 {actionCards.map((card, i) => (
                   <button
                     key={i}
                     onClick={card.onClick}
-                    className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal whitespace-nowrap w-full"
+                    className="flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal whitespace-nowrap flex-1 md:flex-initial md:w-full min-w-0"
                     style={{ backgroundColor: card.color, color: card.textColor || "#FFFFFF", height: '40px' }}
                   >
                     {card.icon}
-                    <span>{card.label}</span>
+                    <span className="md:hidden truncate">{card.mobileLabel || card.label}</span>
+                    <span className="hidden md:inline">{card.label}</span>
                   </button>
                 ))}
               </div>
