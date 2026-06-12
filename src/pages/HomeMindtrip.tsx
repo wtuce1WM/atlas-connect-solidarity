@@ -856,7 +856,7 @@ const STEPS = [
   },
   {
     title: "Votre assistant IA",
-    desc: "",
+    desc: "Dialoguez avec notre Agent IA pour affiner vos recherches avec vos propres critères, sauvegardez les résultats, partagez les avec vos proches.",
     cta: "Explorer le catalogue",
     href: "/search",
     icon: Sparkles,
