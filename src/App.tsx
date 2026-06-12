@@ -186,6 +186,7 @@ const AppContent = () => {
               <Route path="/install" element={renderLazyRoute(<Install />)} />
               <Route path="/corporate" element={renderLazyRoute(<Corporate />)} />
               <Route path="/join" element={renderLazyRoute(<Join />)} />
+              <Route path="/card" element={renderLazyRoute(<Card />)} />
               <Route path="/y/:slug" element={renderLazyRoute(<YouTubeChannelResolver />)} />
               <Route path="/u/:pseudo" element={renderLazyRoute(<PublicClubProfile />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
