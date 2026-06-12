@@ -489,6 +489,8 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     accumulatedTranscriptRef.current = "";
     setLiveTranscript("");
     clearSilenceTimer();
+    // Indicate immediately we're starting so UI shows feedback during warm-up
+    setStatus("recording");
 
     const recognition = new SpeechRecognitionAPI();
     recognition.lang = lang;
@@ -575,7 +577,36 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
+
+    // Warm-up the mic pipeline (AGC / noise suppression) BEFORE starting
+    // recognition. Without this, the first ~500-800 ms of audio on a fresh
+    // session are noisy/under-leveled and the first words get mangled
+    // (especially proper nouns). We open a temporary stream, hold it for
+    // MIC_WARMUP_MS, then close it and start SpeechRecognition — which then
+    // opens its own stream against an already-calibrated audio path.
+    const startNow = () => {
+      try {
+        recognition.start();
+      } catch (e) {
+        console.error("[VoiceSearch] recognition.start failed:", e);
+        recognitionRef.current = null;
+        setStatus("idle");
+        onErrorRef.current?.("Erreur vocale: démarrage impossible.");
+      }
+    };
+
+    navigator.mediaDevices
+      ?.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } })
+      .then((stream) => {
+        setTimeout(() => {
+          stream.getTracks().forEach((t) => t.stop());
+          startNow();
+        }, MIC_WARMUP_MS);
+      })
+      .catch(() => {
+        // No permission / not supported: fall back to direct start
+        startNow();
+      });
   }, [lang, clearSilenceTimer, processTranscript, status, useScribePath, startScribeRecording]);
 
   const stopRecording = useCallback(() => {
