@@ -76,6 +76,7 @@ const VanityResolver = lazy(() => import("./pages/VanityResolver"));
 const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 const YouTubeChannelResolver = lazy(() => import("./pages/YouTubeChannelResolver"));
 const PublicClubProfile = lazy(() => import("./pages/PublicClubProfile"));
+const Card = lazy(() => import("./pages/Card"));
 
 const queryClient = new QueryClient();
 
