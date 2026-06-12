@@ -588,8 +588,8 @@ const HomeMindtrip = () => {
                     </>
                   )}
                   {i === 2 && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative h-[65%] md:h-[75%] aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <div className="absolute inset-y-0 right-4 md:right-8 flex items-center justify-center pointer-events-none">
+                      <div className="relative h-[60%] md:h-[80%] aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
                         {/* Dynamic Island / Notch */}
                         <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-neutral-900 rounded-full z-20 pointer-events-none" />
                         
