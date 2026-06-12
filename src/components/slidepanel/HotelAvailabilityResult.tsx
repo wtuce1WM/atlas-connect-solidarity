@@ -45,7 +45,7 @@ export function HotelAvailabilityResult({
   if (!cardsHidden) return null;
 
   return (
-    <div className={`flex-1 w-full flex flex-col justify-start gap-3 px-0 md:px-8 pt-4 md:pt-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" || externalVideoInteractiveMode ? "pointer-events-none" : "pointer-events-auto"}`}>
+    <div className={`flex-1 w-full flex flex-col justify-start gap-3 px-0 md:px-8 pt-4 md:pt-8 pb-32 md:pb-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" || externalVideoInteractiveMode ? "pointer-events-none" : "pointer-events-auto"}`}>
       {hotelSearchLoading && (
         <div className="flex items-center justify-center gap-2 text-white/80">
           <Loader2 className="h-5 w-5 animate-spin" />
@@ -197,7 +197,7 @@ export function HotelAvailabilityResult({
                 onClick={() => { onClosePanel?.(); }}
                 onTouchEnd={(e) => { e.preventDefault(); onClosePanel?.(); }}
                 style={{ WebkitTapHighlightColor: 'rgba(255,255,255,0.1)', touchAction: 'manipulation' }}
-                className="block text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-2 md:px-5 py-1.5 md:py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 active:bg-black/60 transition-colors w-full md:w-auto select-none"
+                className="block text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-2 md:px-5 py-1.5 md:py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] normal-case tracking-normal cursor-pointer hover:bg-black/50 active:bg-black/60 transition-colors w-full md:w-auto select-none"
               >
                 <p className="text-[14px] md:text-[20px] font-medium mb-0.5 md:mb-1 pointer-events-none">
                   {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length} {language === "en" ? "available hotels" : "hôtels disponibles"}
