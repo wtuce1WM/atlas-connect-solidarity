@@ -254,6 +254,7 @@ const Join = () => {
               </p>
               <ul>
                 <li><Check color="#ffffff" />Disponible 24/7 pour répondre à vos visiteurs</li>
+                <li><Check color="#ffffff" />Recherche & réponse vocale</li>
                 <li><Check color="#ffffff" />Répond en plusieurs langues automatiquement</li>
                 <li><Check color="#ffffff" />Qualifie les demandes et capture les leads</li>
                 <li><Check color="#ffffff" />Connaît vos offres, horaires et tarifs</li>
