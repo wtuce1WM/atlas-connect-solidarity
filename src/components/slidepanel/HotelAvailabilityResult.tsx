@@ -177,16 +177,17 @@ export function HotelAvailabilityResult({
             </div>
 
             {actionCards.length > 0 && (
-              <div className="flex flex-col items-center gap-2 mt-3" style={{ width: 'fit-content' }}>
+              <div className="flex flex-row md:flex-col items-stretch md:items-center justify-center gap-2 mt-3 w-full md:w-auto">
                 {actionCards.map((card, i) => (
                   <button
                     key={i}
                     onClick={card.onClick}
-                    className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal whitespace-nowrap w-full"
+                    className="flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal whitespace-nowrap flex-1 md:flex-initial md:w-full min-w-0"
                     style={{ backgroundColor: card.color, color: card.textColor || "#FFFFFF", height: '40px' }}
                   >
                     {card.icon}
-                    <span>{card.label}</span>
+                    <span className="md:hidden truncate">{card.mobileLabel || card.label}</span>
+                    <span className="hidden md:inline">{card.label}</span>
                   </button>
                 ))}
               </div>
