@@ -248,7 +248,7 @@ const Join = () => {
 
             <article className="way teal">
               <div className="badge">3</div>
-              <h3>Votre assistant IA sur votre site web / Recherche & réponse vocale</h3>
+              <h3>Votre assistant IA sur votre site web</h3>
               <p className="intro">
                 Intégrez un assistant IA directement sur votre site pour répondre aux visiteurs 24/7, qualifier leurs demandes et booster vos conversions.
               </p>
@@ -265,7 +265,7 @@ const Join = () => {
 
             <article className="way purple">
               <div className="badge">4</div>
-              <h3>Réseau social, engagez avec votre communauté.</h3>
+              <h3>Réseau social, engagez avec votre communauté</h3>
               <p className="intro">
                 Entretenez la relation avec vos clients, prospects et followers, poussez votre offre, actualité et évènements dans leur interface.
               </p>
