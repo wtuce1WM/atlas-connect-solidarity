@@ -242,7 +242,7 @@ const Join = () => {
                 <li><Check color="#ffffff" />Mettez à jour offres, évènements, vidéos et photos à tout moment</li>
                 <li><Check color="#ffffff" />Profil vérifié inspire confiance aux clients</li>
               </ul>
-              <Link to="/card" className="way-cta" style={{ alignSelf: "flex-start", marginTop: 4, marginBottom: 14 }}>En savoir +</Link>
+              <Link to="/card" className="way-cta" style={{ alignSelf: "center", marginTop: 4, marginBottom: 14 }}>En savoir +</Link>
               <div className="tag">Votre carte. Votre QR. Plus de clients sur place.</div>
             </article>
 
