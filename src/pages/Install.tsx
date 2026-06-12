@@ -298,6 +298,8 @@ const Install = () => {
         </footer>
       </div>
     </main>
+    <Footer variant="verified" />
+    </>
   );
 };
 

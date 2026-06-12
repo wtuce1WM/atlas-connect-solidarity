@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Crown, Loader2, Mail, Eye, EyeOff, Home } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -371,7 +370,7 @@ const Club = () => {
         <main className="pt-24 pb-16 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
-        <Footer />
+        <Footer variant="verified" />
       </div>
     );
   }
@@ -645,7 +644,7 @@ const Club = () => {
           )}
         </section>
       </main>
-      <Footer />
+      <Footer variant="verified" />
     </div>
   );
 };
