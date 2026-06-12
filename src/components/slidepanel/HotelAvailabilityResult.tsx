@@ -88,6 +88,7 @@ export function HotelAvailabilityResult({
             actionCards.push({
               icon: <CalendarCheck className="h-5 w-5" />,
               label: CTA_MODE_LABELS[business.presentation_mode]?.[language === "en" ? "en" : "fr"] || (language === "en" ? "Book online" : "Réservez en ligne"),
+              mobileLabel: language === "en" ? "Book" : "Réserver",
               onClick: () => {
                 if (isExternal) {
                   window.open(business.reserve_now_url!, "_blank");
@@ -106,6 +107,7 @@ export function HotelAvailabilityResult({
             actionCards.push({
               icon: <MapPin className="h-5 w-5" />,
               label: language === "en" ? "Directions" : "Vous rendre sur place",
+              mobileLabel: language === "en" ? "Route" : "Itinéraire",
               onClick: () => setShowDirections(true),
               color: "#C04F17",
             });
