@@ -640,10 +640,10 @@ const HomeMindtrip = () => {
                           Étape {i + 1}
                         </span>
 
-                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl ${i === 5 ? "text-black" : i >= 2 ? "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground"}`}>
+                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl ${i === 5 ? "text-black" : i === 2 ? "text-black" : i >= 2 ? "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground"}`}>
                           {s.title}
                         </h3>
-                        <p className={`mt-3 md:mt-4 ${i === 5 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 5 ? "text-black/80" : i >= 2 ? "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground/70"}`}>{s.desc}</p>
+                        <p className={`mt-3 md:mt-4 ${i === 5 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 5 ? "text-black/80" : i === 2 ? "text-black/90 font-bold" : i >= 2 ? "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground/70"}`}>{s.desc}</p>
                         {i === 3 ? (
                           <HotelAvailabilityWidget />
                         ) : i === 5 ? (
@@ -658,9 +658,11 @@ const HomeMindtrip = () => {
                           <Link
                             to={s.href}
                             className={
-                              i === 2 || i === 4
-                                ? "mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-white/20 transition-colors md:mt-6 md:px-6 md:py-3 md:text-sm"
-                                : "mt-4 inline-flex font-josefin text-xs uppercase tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm"
+                              i === 2
+                                ? "mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:mt-6 md:px-6 md:py-3 md:text-sm"
+                                : i === 4
+                                  ? "mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-white/20 transition-colors md:mt-6 md:px-6 md:py-3 md:text-sm"
+                                  : "mt-4 inline-flex font-josefin text-xs uppercase tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm"
                             }
                           >
                             {s.cta} →
