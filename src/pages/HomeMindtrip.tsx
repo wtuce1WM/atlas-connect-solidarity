@@ -654,11 +654,11 @@ const HomeMindtrip = () => {
                             <img src="/logo-gold.webp" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl object-contain" />
                           </div>
                         )}
-                        <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
+                        <span className={`font-josefin text-xs uppercase tracking-[0.3em] text-white ${i === 2 ? "hidden md:inline-flex" : "inline-flex"} items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]`} style={{ backgroundColor: "#C04F17" }}>
                           Étape {i + 1}
                         </span>
 
-                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl ${i === 5 ? "text-black" : i === 2 ? "text-black" : i >= 2 ? "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground"}`}>
+                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl ${i === 2 ? "hidden md:block" : ""} ${i === 5 ? "text-black" : i === 2 ? "text-black" : i >= 2 ? "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground"}`}>
                           {s.title}
                         </h3>
                         <p className={`mt-3 md:mt-4 ${i === 5 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 5 ? "text-black/80" : i === 2 ? "text-black/90 font-bold" : i >= 2 ? "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground/70"}`}>{s.desc}</p>
