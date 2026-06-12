@@ -195,7 +195,7 @@ const Card = () => {
             <div className="step">
               <span className="num">1</span>
               <h3>Réclamez votre lien</h3>
-              <p>Choisissez votre identifiant. Votre carte numérique vit à l'adresse <strong>oneworldmorocco.com/yourname</strong> — courte, mémorable, sur un domaine de voyage de confiance.</p>
+              <p>Choisissez votre identifiant. Votre carte numérique vit à l'adresse <strong>oneworldmorocco.com/yourname</strong> — courte, mémorisable, sur un domaine de confiance.</p>
             </div>
             <div className="step">
               <span className="num">2</span>
