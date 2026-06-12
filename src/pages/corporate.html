@@ -322,7 +322,7 @@
 <div class="grain"></div>
 
 <header id="hdr">
-  <a href="/" class="brand" aria-label="One World Morocco — Accueil" onclick="event.preventDefault();(window.top||window.parent).location.href='/';">
+  <a href="/" class="brand" aria-label="One World Morocco — Accueil" onclick="event.preventDefault();window.parent.postMessage({type:'owm-nav',to:'/'},'*');">
     <img src="/logo-gold.webp" alt="One World Morocco" class="brand-logo" />
     <span class="brand-name">ONE WORLD MOROCCO</span>
   </a>
@@ -335,9 +335,9 @@
     </nav>
     <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="navPanel"><span></span></button>
     <div class="nav-panel" id="navPanel">
-      <a href="/" onclick="event.preventDefault();(window.top||window.parent).location.href='/';">Page d'accueil</a>
-      <a href="/club" onclick="event.preventDefault();(window.top||window.parent).location.href='/club';">Le club OWM</a>
-      <a href="/install" onclick="event.preventDefault();(window.top||window.parent).location.href='/install';">Application</a>
+      <a href="/" onclick="event.preventDefault();window.parent.postMessage({type:'owm-nav',to:'/'},'*');">Page d'accueil</a>
+      <a href="/club" onclick="event.preventDefault();window.parent.postMessage({type:'owm-nav',to:'/club'},'*');">Le club OWM</a>
+      <a href="/install" onclick="event.preventDefault();window.parent.postMessage({type:'owm-nav',to:'/install'},'*');">Application</a>
     </div>
   </div>
 </header>
