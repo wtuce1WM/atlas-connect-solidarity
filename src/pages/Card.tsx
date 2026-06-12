@@ -216,7 +216,7 @@ const Card = () => {
         <div className="wrap">
           <div className="section-head">
             <div className="kicker">Gratuit pour les pros du tourisme</div>
-            <h2>Un lien sur lequel les voyageurs <span style={{color:"var(--terracotta)"}}>cliquent vraiment</span></h2>
+            <h2>UN LIEN SUR LEQUEL LES UTILISATEURS <span style={{color:"var(--terracotta)"}}>CLIQUENT VRAIMENT</span></h2>
             <p>Ajoutez <strong>oneworldmorocco.com/yourname</strong> à Instagram, TikTok, votre signature e-mail — et même à votre carte de visite imprimée.</p>
           </div>
           <div className="steps">
