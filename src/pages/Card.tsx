@@ -132,14 +132,14 @@ const Card = () => {
               Le QR n'est qu'une façon parmi d'autres de le partager.
             </p>
             <ul className="bullets">
-              <li><span className="check">✓</span>URL courte et mémorable : <strong style={{marginLeft:4}}>oneworldmorocco.com/yourname</strong></li>
-              <li><span className="check">✓</span>Hébergé sur un domaine de voyage en lequel les voyageurs ont confiance</li>
-              <li><span className="check">✓</span>Toutes vos offres, contacts et photos en un seul endroit</li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>URL courte et mémorisable :<br/><strong>oneworldmorocco.com/yourname</strong></div></li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>Tous vos canaux numériques rassemblés au même endroit</div></li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>Un profil type Linktree partageable</div></li>
               <li><span className="check">✓</span>Partagez par lien, QR, NFC ou carte imprimée</li>
               <li><span className="check">✓</span>Mettez à jour à tout moment — le lien reste le même</li>
             </ul>
             <div className="btn-row">
-              <Link to="/join" className="btn-primary">Créez votre page — gratuit →</Link>
+              <Link to="/join" className="btn-primary">CRÉEZ VOTRE PAGE →</Link>
               <a href="#avantages" className="btn-ghost">Voir les avantages ↓</a>
             </div>
           </div>
@@ -195,7 +195,7 @@ const Card = () => {
             <div className="step">
               <span className="num">1</span>
               <h3>Réclamez votre lien</h3>
-              <p>Choisissez votre identifiant. Votre carte numérique vit à l'adresse <strong>oneworldmorocco.com/yourname</strong> — courte, mémorable, sur un domaine de voyage de confiance.</p>
+              <p>Choisissez votre identifiant. Votre carte numérique vit à l'adresse <strong>oneworldmorocco.com/yourname</strong> — courte, mémorisable, sur un domaine de confiance.</p>
             </div>
             <div className="step">
               <span className="num">2</span>
@@ -216,7 +216,7 @@ const Card = () => {
         <div className="wrap">
           <div className="section-head">
             <div className="kicker">Gratuit pour les pros du tourisme</div>
-            <h2>Un lien sur lequel les voyageurs <span style={{color:"var(--terracotta)"}}>cliquent vraiment</span></h2>
+            <h2>UN LIEN SUR LEQUEL LES UTILISATEURS <span style={{color:"var(--terracotta)"}}>CLIQUENT VRAIMENT</span></h2>
             <p>Ajoutez <strong>oneworldmorocco.com/yourname</strong> à Instagram, TikTok, votre signature e-mail — et même à votre carte de visite imprimée.</p>
           </div>
           <div className="steps">
