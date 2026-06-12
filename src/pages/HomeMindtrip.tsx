@@ -272,7 +272,7 @@ const HomeMindtrip = () => {
     });
     const yt = ytIframeRef.current?.contentWindow;
     if (yt) {
-      const cmd = activeStep === 3 ? "playVideo" : "pauseVideo";
+      const cmd = activeStep === 4 ? "playVideo" : "pauseVideo";
       yt.postMessage(JSON.stringify({ event: "command", func: cmd, args: [] }), "*");
     }
   }, [activeStep]);
