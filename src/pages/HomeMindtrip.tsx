@@ -960,6 +960,13 @@ const STEPS = [
     icon: Percent,
   },
   {
+    title: "Pépites cachées, expériences inoubliables",
+    desc: "Découvrez des adresses d'exception, épinglez-les, visitez-les.",
+    cta: "Explorer",
+    href: "/search",
+    icon: Sparkles,
+  },
+  {
     title: "Réservez l'esprit léger, participez à l'économie direct-to-local",
     desc: "Réservez directement vos hôtels, restaurants et activités auprès de partenaires de confiance.",
     cta: "Voir les hôtels",
