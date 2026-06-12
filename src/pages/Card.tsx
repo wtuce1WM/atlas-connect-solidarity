@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import Footer from "@/components/Footer";
+
 
 const CSS = `
   .card-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--terracotta:#C04F17;--terracotta-deep:#a84313;--whatsapp:#25D366;--gold:#D4AF37;background:var(--bg);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
   .card-page *{box-sizing:border-box}
   .card-page .wrap{max-width:1240px;margin:0 auto;padding:0 24px}
-  .card-page header.nav{position:sticky;top:0;background:#ECD6B8;border-bottom:1px solid var(--line);z-index:10}
-  .card-page header.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
-  .card-page .brand{font-family:'Josefin Sans',sans-serif;font-weight:700;letter-spacing:.12em;font-size:14px;text-decoration:none;color:var(--ink)}
-  .card-page .nav-cta{display:inline-flex;align-items:center;gap:8px;background:var(--terracotta);color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none;font-weight:600;font-size:14px;transition:background .2s}
-  .card-page .nav-cta:hover{background:var(--terracotta-deep)}
+
+
 
   .card-page .hero{padding:72px 0 96px}
   .card-page .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
