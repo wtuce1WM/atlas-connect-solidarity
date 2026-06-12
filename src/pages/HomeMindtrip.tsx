@@ -580,7 +580,7 @@ const HomeMindtrip = () => {
                 <div
                   key={s.title}
                   ref={(el) => { cardRefs.current[idx] = el; }}
-                  className={`relative overflow-hidden w-[85vw] md:w-[85vw] max-w-2xl shrink-0 rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${i === 2 || i === 3 || i === 5 ? "md:aspect-square" : ""}`}
+                  className={`relative overflow-hidden w-[85vw] md:w-[85vw] max-w-2xl shrink-0 rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${i === 2 || i === 3 || i === 4 || i === 6 ? "md:aspect-square" : ""}`}
                 >
                   {i === 1 && (
                     <>
@@ -641,6 +641,35 @@ const HomeMindtrip = () => {
                     </>
                   )}
                   {i === 4 && (
+                    <>
+                      {/* Mobile-only header: badge + title above mockup */}
+                      <div className="md:hidden mb-4">
+                        <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
+                          Étape {i + 1}
+                        </span>
+                        <h3 className="mt-3 font-josefin text-2xl font-bold tracking-tight text-black">
+                          {s.title}
+                        </h3>
+                      </div>
+                      <div className="mt-4 md:mt-0 md:absolute md:inset-y-0 md:right-8 flex items-center justify-center pointer-events-none">
+                        <div className="relative h-[280px] md:h-[65%] aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mx-auto">
+                          {/* Dynamic Island / Notch */}
+                          <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+
+                          <video
+                            ref={(el) => { videoRefs.current[idx] = el; }}
+                            src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/1d4cd6cb-e735-432a-a333-af74d8f12d15-1781249602424-uzaggr.mp4"
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            className="h-full w-full object-cover rounded-[1.3rem] md:rounded-[1.7rem]"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {i === 5 && (
                     <video
                       ref={(el) => { videoRefs.current[idx] = el; }}
                       src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/6eab7b31-bda9-43d5-8c8b-4f972e5bb8bd-1774600396740-3cbxw.mp4"
@@ -651,7 +680,7 @@ const HomeMindtrip = () => {
                       className="absolute inset-0 h-full w-full object-cover"
                     />
                   )}
-                  {i === 5 && (
+                  {i === 6 && (
                     <>
                       {/* Mobile-only header: badge + title above mockup */}
                       <div className="md:hidden mb-4">
@@ -681,7 +710,7 @@ const HomeMindtrip = () => {
                     </>
                   )}
 
-                  <div className={`relative z-10 ${i === 6 ? "text-center" : ""} ${i === 2 || i === 3 || i === 5 ? "md:max-w-[55%]" : ""}`}>
+                  <div className={`relative z-10 ${i === 7 ? "text-center" : ""} ${i === 2 || i === 3 || i === 4 || i === 6 ? "md:max-w-[55%]" : ""}`}>
                     {i === 1 ? (
                       <Step2AssistantBlock
                         stepLabel={`Étape ${i + 1}`}
@@ -691,22 +720,22 @@ const HomeMindtrip = () => {
                       />
                     ) : (
                       <>
-                        {i === 6 && (
+                        {i === 7 && (
                           <div className="mx-auto mb-6 h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)]">
                             <img src="/logo-gold.webp" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl object-contain" />
                           </div>
                         )}
-                        <span className={`font-josefin text-xs uppercase tracking-[0.3em] text-white ${i === 2 || i === 3 || i === 5 ? "hidden md:inline-flex" : "inline-flex"} items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]`} style={{ backgroundColor: "#C04F17" }}>
+                        <span className={`font-josefin text-xs uppercase tracking-[0.3em] text-white ${i === 2 || i === 3 || i === 4 || i === 6 ? "hidden md:inline-flex" : "inline-flex"} items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]`} style={{ backgroundColor: "#C04F17" }}>
                           Étape {i + 1}
                         </span>
 
-                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl ${i === 2 || i === 3 || i === 5 ? "hidden md:block" : ""} ${i === 6 ? "text-black" : i === 2 || i === 3 || i === 5 ? "text-black" : i >= 2 ? "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground"}`}>
+                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl ${i === 2 || i === 3 || i === 4 || i === 6 ? "hidden md:block" : ""} ${i === 7 ? "text-black" : i === 2 || i === 3 || i === 4 || i === 6 ? "text-black" : i >= 2 ? "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground"}`}>
                           {s.title}
                         </h3>
-                        <p className={`mt-3 md:mt-4 ${i === 6 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 6 ? "text-black/80" : i === 2 || i === 3 || i === 5 ? "text-black/90 font-bold" : i >= 2 ? "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground/70"}`}>{s.desc}</p>
-                        {i === 4 ? (
+                        <p className={`mt-3 md:mt-4 ${i === 7 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 7 ? "text-black/80" : i === 2 || i === 3 || i === 4 || i === 6 ? "text-black/90 font-bold" : i >= 2 ? "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]" : "text-foreground/70"}`}>{s.desc}</p>
+                        {i === 5 ? (
                           <HotelAvailabilityWidget />
-                        ) : i === 6 ? (
+                        ) : i === 7 ? (
                           <Link
                              to={s.href}
                              style={{ backgroundColor: "#C04F17" }}
@@ -718,7 +747,7 @@ const HomeMindtrip = () => {
                           <Link
                             to={s.href}
                             className={
-                              i === 2 || i === 3 || i === 5
+                              i === 2 || i === 3 || i === 4 || i === 6
                                 ? "mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:mt-6 md:px-6 md:py-3 md:text-sm"
                                 : "mt-4 inline-flex font-josefin text-xs uppercase tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm"
                             }
