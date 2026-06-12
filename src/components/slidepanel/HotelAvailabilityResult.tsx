@@ -192,17 +192,23 @@ export function HotelAvailabilityResult({
             )}
 
             {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length > 0 && (
-              <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-2 md:px-5 py-1.5 md:py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 transition-colors w-full md:w-auto" onClick={() => { onClosePanel?.(); }}>
-                <p className="text-[14px] md:text-[20px] font-medium mb-0.5 md:mb-1">
+              <button
+                type="button"
+                onClick={() => { onClosePanel?.(); }}
+                onTouchEnd={(e) => { e.preventDefault(); onClosePanel?.(); }}
+                style={{ WebkitTapHighlightColor: 'rgba(255,255,255,0.1)', touchAction: 'manipulation' }}
+                className="block text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-2 md:px-5 py-1.5 md:py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 active:bg-black/60 transition-colors w-full md:w-auto select-none"
+              >
+                <p className="text-[14px] md:text-[20px] font-medium mb-0.5 md:mb-1 pointer-events-none">
                   {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length} {language === "en" ? "available hotels" : "hôtels disponibles"}
                 </p>
-                <p className="text-[12px] md:text-[16px] text-white/60">
+                <p className="text-[12px] md:text-[16px] text-white/60 pointer-events-none">
                   {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
                 </p>
-                <p className="text-[12px] md:text-[16px] text-white/80 mt-0.5 md:mt-1.5 underline underline-offset-2">
+                <p className="text-[12px] md:text-[16px] text-white/80 mt-0.5 md:mt-1.5 underline underline-offset-2 pointer-events-none">
                   {language === "en" ? "View other available hotels" : "Consulter les autres établissements"}
                 </p>
-              </div>
+              </button>
             )}
           </div>
         );
