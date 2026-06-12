@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Crown, Loader2, Mail, Eye, EyeOff, Home } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
