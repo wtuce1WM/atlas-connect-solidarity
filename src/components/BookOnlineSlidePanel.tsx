@@ -983,7 +983,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setShowYoutubeOverlay(open);
   }, [setGlobalSoundOn]);
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
-  const availabilityConfirmationShown = cardsHidden && !hotelSearchLoading && !!fallbackPanelData && !!fallbackPanelData.hotels.find((h: any) => h.isCurrentHotel);
+  const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData);
 
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
