@@ -628,7 +628,7 @@ const HomeMindtrip = () => {
                     />
                   )}
 
-                  <div className={`relative z-10 ${i === 5 ? "text-center" : ""} ${i === 2 ? "max-w-[50%] md:max-w-[55%]" : ""}`}>
+                  <div className={`relative z-10 ${i === 5 ? "text-center" : ""} ${i === 2 ? "md:max-w-[55%]" : ""}`}>
                     {i === 1 ? (
                       <Step2AssistantBlock
                         stepLabel={`Étape ${i + 1}`}
