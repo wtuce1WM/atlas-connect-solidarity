@@ -956,8 +956,8 @@ const STEPS = [
     icon: Sparkles,
   },
   {
-    title: "Construisez votre itinéraire",
-    desc: "Marrakech, Essaouira, suivez les établissements qui vous intéressent, gardez les points d'intérêts dans votre compte Le Club OWM, soyez informé des bons plans, agenda, annonces...",
+    title: "Composez votre voyage",
+    desc: "Construisez votre itinéraire, suivez les établissements qui vous intéressent, gardez les points d'intérêts dans votre compte, soyez informé des bons plans, agenda, annonces...",
     cta: "Inscrivez-vous",
     href: "/club",
     icon: Compass,
@@ -971,7 +971,7 @@ const STEPS = [
   },
   {
     title: "Pépites cachées, expériences inoubliables",
-    desc: "Découvrez des adresses d'exception, épinglez-les, visitez-les.",
+    desc: "Découvrez des adresses d'exception, épinglez-les, visitez-les. Soyez informé des bons plans, agenda, annonces...",
     cta: "Explorer",
     href: "/search",
     icon: Sparkles,
