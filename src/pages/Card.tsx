@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import Footer from "@/components/Footer";
+
 
 const CSS = `
   .card-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--terracotta:#C04F17;--terracotta-deep:#a84313;--whatsapp:#25D366;--gold:#D4AF37;background:var(--bg);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
   .card-page *{box-sizing:border-box}
   .card-page .wrap{max-width:1240px;margin:0 auto;padding:0 24px}
-  .card-page header.nav{position:sticky;top:0;background:#ECD6B8;border-bottom:1px solid var(--line);z-index:10}
-  .card-page header.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
-  .card-page .brand{font-family:'Josefin Sans',sans-serif;font-weight:700;letter-spacing:.12em;font-size:14px;text-decoration:none;color:var(--ink)}
-  .card-page .nav-cta{display:inline-flex;align-items:center;gap:8px;background:var(--terracotta);color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none;font-weight:600;font-size:14px;transition:background .2s}
-  .card-page .nav-cta:hover{background:var(--terracotta-deep)}
+
+
 
   .card-page .hero{padding:72px 0 96px}
   .card-page .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
@@ -91,8 +91,6 @@ const CSS = `
   .card-page .final p{color:#3a3a3a;font-size:18px;max-width:620px;margin:0 auto 36px}
   .card-page .final code{background:#fff;padding:4px 12px;border-radius:8px;color:var(--terracotta);font-weight:700;font-family:inherit}
 
-  .card-page footer{padding:36px 0;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid rgba(0,0,0,.08)}
-  .card-page footer a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
 `;
 
 const Card = () => {
@@ -110,14 +108,11 @@ const Card = () => {
   }, []);
 
   return (
-    <div className="card-page">
-      <style>{CSS}</style>
+    <>
+      <HomeMindtripHeader />
+      <div className="card-page" style={{ paddingTop: 72 }}>
+        <style>{CSS}</style>
 
-      <header className="nav">
-        <div className="wrap">
-          <Link to="/" className="brand">ONE WORLD MOROCCO</Link>
-        </div>
-      </header>
 
       {/* HERO */}
       <section className="hero">
@@ -293,10 +288,9 @@ const Card = () => {
         </div>
       </section>
 
-      <footer>
-        © {new Date().getFullYear()} One World Morocco · <Link to="/">Accueil</Link> · <Link to="/join">Rejoindre</Link>
-      </footer>
-    </div>
+      </div>
+      <Footer variant="verified" />
+    </>
   );
 };
 

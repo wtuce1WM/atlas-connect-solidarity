@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import Footer from "@/components/Footer";
 import { resolveHomepageCity } from "@/lib/cityHomepage";
 
 type Platform = "ios" | "android" | "mac" | "windows";
@@ -168,6 +169,7 @@ const Install = () => {
   const guide = guides[platform];
 
   return (
+    <>
     <main className="min-h-dvh bg-background text-foreground">
       <HomeMindtripHeader />
       <div className="mx-auto max-w-2xl px-6 pt-24 pb-12 md:pt-28">
@@ -298,6 +300,8 @@ const Install = () => {
         </footer>
       </div>
     </main>
+    <Footer variant="verified" />
+    </>
   );
 };
 

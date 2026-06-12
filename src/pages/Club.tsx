@@ -371,7 +371,7 @@ const Club = () => {
         <main className="pt-24 pb-16 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
-        <Footer />
+        <Footer variant="verified" />
       </div>
     );
   }
@@ -645,7 +645,7 @@ const Club = () => {
           )}
         </section>
       </main>
-      <Footer />
+      <Footer variant="verified" />
     </div>
   );
 };

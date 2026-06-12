@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import Footer from "@/components/Footer";
 import joinHeroAsset from "@/assets/join-hero.webp.asset.json";
 const joinHero = joinHeroAsset.url;
 import hiwStep2Mockup from "@/assets/hiw-step2-app-mockup.webp";
@@ -10,11 +12,6 @@ const CSS = `
   .join-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
   .join-page *{box-sizing:border-box}
   .join-page .wrap{max-width:1240px;margin:0 auto;padding:0 24px}
-  .join-page header.nav{position:sticky;top:0;background:#ECD6B8;border-bottom:1px solid var(--line);z-index:10}
-  .join-page header.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
-  .join-page .brand{font-family:'Josefin Sans',sans-serif;font-weight:700;letter-spacing:.12em;font-size:14px;text-decoration:none;color:var(--ink)}
-  .join-page .nav-cta{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none;font-weight:600;font-size:14px;transition:background .2s}
-  .join-page .nav-cta:hover{background:var(--orange-deep)}
   .join-page section{padding:80px 0;border-bottom:1px solid var(--line)}
   .join-page .section-head{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:end;margin-bottom:56px}
   .join-page .subtitle{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(34px,5vw,64px);line-height:1;letter-spacing:-.01em;text-transform:uppercase}
@@ -45,8 +42,6 @@ const CSS = `
   .join-page .t-body p{font-size:15px;line-height:1.5;margin-bottom:14px}
   .join-page .t-meta h4{font-family:'Josefin Sans',sans-serif;font-size:16px;font-weight:600;margin-bottom:2px}
   .join-page .t-meta span{font-size:12px;opacity:.85;letter-spacing:.1em;text-transform:uppercase}
-  .join-page footer{padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
-  .join-page footer a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
   .join-page .ways-head{text-align:center;max-width:780px;margin:0 auto 56px}
   .join-page .ways-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .ways-head p{color:var(--muted);font-size:17px}
@@ -167,18 +162,11 @@ const Join = () => {
   }, []);
 
   return (
-    <div className="join-page">
-      <style>{CSS}</style>
+    <>
+      <HomeMindtripHeader />
+      <div className="join-page" style={{ paddingTop: 72 }}>
+        <style>{CSS}</style>
 
-      <header className="nav">
-        <div className="wrap">
-          <Link to="/" className="brand" style={{display:'inline-flex',alignItems:'center',gap:10}}>
-            <img src="/logo-gold.webp" alt="" width={32} height={32} style={{display:'block',objectFit:'contain'}} />
-            ONE WORLD MOROCCO
-          </Link>
-          
-        </div>
-      </header>
 
       <section className="hero" aria-label="Rejoindre One World Morocco">
         <img className="hero-img" src={joinHero} alt="" width={1920} height={1080} />
@@ -438,10 +426,9 @@ const Join = () => {
 
 
 
-      <footer>
-        <div className="wrap">© One World Morocco — <Link to="/">Retour à l'accueil</Link></div>
-      </footer>
-    </div>
+      </div>
+      <Footer variant="verified" />
+    </>
   );
 };
 
