@@ -911,6 +911,13 @@ const STEPS = [
     icon: Compass,
   },
   {
+    title: "Offres sélectionnées. Prix locaux.",
+    desc: "Jusqu'à 20 % de réduction sur séjours, visites, restaurants, commerces, services et plus. Uniquement avec des commerces locaux.",
+    cta: "Voir les offres",
+    href: "/search?badge=reduction",
+    icon: Percent,
+  },
+  {
     title: "Réservez l'esprit léger, participez à l'économie direct-to-local",
     desc: "Réservez directement vos hôtels, restaurants et activités auprès de partenaires de confiance.",
     cta: "Voir les hôtels",
