@@ -628,15 +628,33 @@ const HomeMindtrip = () => {
                     />
                   )}
                   {i === 4 && (
-                    <video
-                      ref={(el) => { videoRefs.current[idx] = el; }}
-                      src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
+                    <>
+                      {/* Mobile-only header: badge + title above mockup */}
+                      <div className="md:hidden mb-4">
+                        <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
+                          Étape {i + 1}
+                        </span>
+                        <h3 className="mt-3 font-josefin text-2xl font-bold tracking-tight text-black">
+                          {s.title}
+                        </h3>
+                      </div>
+                      <div className="mt-4 md:mt-0 md:absolute md:inset-y-0 md:right-8 flex items-center justify-center pointer-events-none">
+                        <div className="relative h-[280px] md:h-[65%] aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mx-auto">
+                          {/* Dynamic Island / Notch */}
+                          <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+
+                          <video
+                            ref={(el) => { videoRefs.current[idx] = el; }}
+                            src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4"
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            className="h-full w-full object-cover rounded-[1.3rem] md:rounded-[1.7rem]"
+                          />
+                        </div>
+                      </div>
+                    </>
                   )}
 
                   <div className={`relative z-10 ${i === 5 ? "text-center" : ""} ${i === 2 ? "md:max-w-[55%]" : ""}`}>
