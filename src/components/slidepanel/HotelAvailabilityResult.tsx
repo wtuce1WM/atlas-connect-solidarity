@@ -197,7 +197,7 @@ export function HotelAvailabilityResult({
                 onClick={() => { onClosePanel?.(); }}
                 onTouchEnd={(e) => { e.preventDefault(); onClosePanel?.(); }}
                 style={{ WebkitTapHighlightColor: 'rgba(255,255,255,0.1)', touchAction: 'manipulation' }}
-                className="block text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-0 md:px-5 py-1.5 md:py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] normal-case tracking-normal cursor-pointer hover:bg-black/50 active:bg-black/60 transition-colors w-[calc(100%+2rem)] -mx-4 md:w-auto md:mx-0 select-none"
+                className="block text-center text-white bg-black/40 backdrop-blur-sm rounded-2xl px-1 md:px-5 py-1.5 md:py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] normal-case tracking-normal cursor-pointer hover:bg-black/50 active:bg-black/60 transition-colors w-full md:w-auto select-none"
               >
                 <p className="text-[14px] md:text-[20px] font-medium mb-0.5 md:mb-1 pointer-events-none">
                   {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length} {language === "en" ? "available hotels" : "hôtels disponibles"}
