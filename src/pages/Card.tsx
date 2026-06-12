@@ -139,7 +139,7 @@ const Card = () => {
               <li><span className="check">✓</span>Mettez à jour à tout moment — le lien reste le même</li>
             </ul>
             <div className="btn-row">
-              <Link to="/join" className="btn-primary">Créez votre page — gratuit →</Link>
+              <Link to="/join" className="btn-primary">CRÉEZ VOTRE PAGE →</Link>
               <a href="#avantages" className="btn-ghost">Voir les avantages ↓</a>
             </div>
           </div>
