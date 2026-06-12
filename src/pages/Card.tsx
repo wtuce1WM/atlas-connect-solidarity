@@ -116,7 +116,6 @@ const Card = () => {
       <header className="nav">
         <div className="wrap">
           <Link to="/" className="brand">ONE WORLD MOROCCO</Link>
-          <Link to="/join" className="nav-cta">Inscription gratuite →</Link>
         </div>
       </header>
 
