@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import joinHeroAsset from "@/assets/join-hero.webp.asset.json";
 const joinHero = joinHeroAsset.url;
 import hiwStep2Mockup from "@/assets/hiw-step2-app-mockup.webp";
@@ -171,10 +172,10 @@ const Join = () => {
 
       <header className="nav">
         <div className="wrap">
-          <a href="/" className="brand" style={{display:'inline-flex',alignItems:'center',gap:10}}>
+          <Link to="/" className="brand" style={{display:'inline-flex',alignItems:'center',gap:10}}>
             <img src="/logo-gold.webp" alt="" width={32} height={32} style={{display:'block',objectFit:'contain'}} />
             ONE WORLD MOROCCO
-          </a>
+          </Link>
           
         </div>
       </header>
@@ -187,7 +188,7 @@ const Join = () => {
           <h1>Rejoignez le premier écosystème numérique <span className="hl">éthique & solidaire</span> au Maroc.</h1>
           <p className="hero-sub">Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.</p>
           <p className="hero-sub">Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.</p>
-          <a href="/devenir-affilie" className="hero-cta">REJOINDRE →</a>
+          <Link to="/devenir-affilie" className="hero-cta">REJOINDRE →</Link>
           <div className="hero-checks">
             <span><Check color="#00a896" />Consommez local</span>
             <span><Check color="#00a896" />Voyagez autrement</span>
@@ -338,7 +339,7 @@ const Join = () => {
           </div>
 
           <div className="hiw-cta">
-            <a className="btn-primary" href="/devenir-affilie">S'INSCRIRE</a>
+            <Link className="btn-primary" to="/devenir-affilie">S'INSCRIRE</Link>
           </div>
         </div>
       </section>
@@ -386,7 +387,7 @@ const Join = () => {
           </div>
 
           <div className="cta-row">
-            <a className="btn-primary" href="/devenir-affilie">S'INSCRIRE</a>
+            <Link className="btn-primary" to="/devenir-affilie">S'INSCRIRE</Link>
           </div>
         </div>
       </section>
@@ -427,7 +428,7 @@ const Join = () => {
           </div>
 
           <div className="why-cta">
-            <a className="btn-primary" href="/devenir-affilie">S'INSCRIRE</a>
+            <Link className="btn-primary" to="/devenir-affilie">S'INSCRIRE</Link>
           </div>
         </div>
       </section>
@@ -436,7 +437,7 @@ const Join = () => {
 
 
       <footer>
-        <div className="wrap">© One World Morocco — <a href="/">Retour à l'accueil</a></div>
+        <div className="wrap">© One World Morocco — <Link to="/">Retour à l'accueil</Link></div>
       </footer>
     </div>
   );

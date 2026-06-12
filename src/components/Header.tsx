@@ -170,10 +170,6 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
       to="/"
       className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors overflow-hidden"
       aria-label="Accueil"
-      onClick={(event) => {
-        event.preventDefault();
-        window.location.assign("/");
-      }}
     >
       <img src="/logo-gold.webp" alt="Logo" className="h-7 w-7 object-contain" />
     </Link>
