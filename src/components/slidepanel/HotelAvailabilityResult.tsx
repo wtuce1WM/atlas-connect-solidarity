@@ -65,7 +65,7 @@ export function HotelAvailabilityResult({
         })();
         const totalMinPrice = minPrice ? minPrice * nightsCount : null;
 
-        const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string; textColor?: string }[] = [];
+        const actionCards: { icon: React.ReactNode; label: string; mobileLabel?: string; onClick: () => void; color: string; textColor?: string }[] = [];
         if (hasAvailability && business) {
           if (business.whatsapp) {
             actionCards.push({
