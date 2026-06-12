@@ -91,8 +91,6 @@ const CSS = `
   .card-page .final p{color:#3a3a3a;font-size:18px;max-width:620px;margin:0 auto 36px}
   .card-page .final code{background:#fff;padding:4px 12px;border-radius:8px;color:var(--terracotta);font-weight:700;font-family:inherit}
 
-  .card-page footer{padding:36px 0;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid rgba(0,0,0,.08)}
-  .card-page footer a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
 `;
 
 const Card = () => {
@@ -110,14 +108,11 @@ const Card = () => {
   }, []);
 
   return (
-    <div className="card-page">
-      <style>{CSS}</style>
+    <>
+      <HomeMindtripHeader />
+      <div className="card-page" style={{ paddingTop: 72 }}>
+        <style>{CSS}</style>
 
-      <header className="nav">
-        <div className="wrap">
-          <Link to="/" className="brand">ONE WORLD MOROCCO</Link>
-        </div>
-      </header>
 
       {/* HERO */}
       <section className="hero">
