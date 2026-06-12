@@ -588,15 +588,17 @@ const HomeMindtrip = () => {
                     </>
                   )}
                   {i === 2 && (
-                    <video
-                      ref={(el) => { videoRefs.current[idx] = el; }}
-                      src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <video
+                        ref={(el) => { videoRefs.current[idx] = el; }}
+                        src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="h-full w-auto aspect-[9/16] object-cover"
+                      />
+                    </div>
                   )}
                   {i === 3 && (
                     <video
@@ -606,7 +608,7 @@ const HomeMindtrip = () => {
                       muted
                       loop
                       playsInline
-                      className="absolute inset-0 h-full w-full object-contain"
+                      className="absolute inset-0 h-full w-full object-cover"
                     />
                   )}
                   {i === 4 && (
