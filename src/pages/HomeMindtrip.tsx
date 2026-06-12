@@ -606,7 +606,7 @@ const HomeMindtrip = () => {
                       muted
                       loop
                       playsInline
-                      className="absolute inset-0 h-full w-full object-cover"
+                      className="absolute inset-0 h-full w-full object-contain"
                     />
                   )}
                   {i === 4 && (
