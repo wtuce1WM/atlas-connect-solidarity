@@ -222,13 +222,32 @@ const FermesPedagogiquesMarrakech = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
         <div className="absolute inset-0 flex flex-col justify-end pb-12">
           <div className="container mx-auto px-4">
-            <button
-              onClick={() => navigate("/blog")}
-              className="inline-flex items-center gap-2 text-white/60 hover:text-gold mb-4 transition-colors text-sm"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Retour au blog
-            </button>
+            <div className="flex items-center justify-between mb-4 gap-3">
+              <button
+                onClick={() => navigate("/blog")}
+                className="inline-flex items-center gap-2 text-white/60 hover:text-gold transition-colors text-sm"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Retour au blog
+              </button>
+              <button
+                onClick={handleSaveArticle}
+                disabled={bmLoading}
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                  isBookmarked
+                    ? "bg-gold text-black border-gold"
+                    : "bg-black/40 text-white/90 border-white/30 hover:border-gold hover:text-gold"
+                }`}
+                aria-label={isBookmarked ? "Retirer de mon Club OWM" : "Sauvegarder dans mon Club OWM"}
+              >
+                <Bookmark
+                  className="h-4 w-4"
+                  fill={isBookmarked ? "currentColor" : "none"}
+                />
+                {isBookmarked ? "Sauvegardé" : "Sauvegarder"}
+              </button>
+            </div>
+
             <h1 className="text-3xl md:text-5xl font-bold text-white font-['Playfair_Display'] italic leading-tight">
               Les fermes pédagogiques
               <br />
