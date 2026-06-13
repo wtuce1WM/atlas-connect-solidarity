@@ -140,6 +140,12 @@ const FERMES: {
 ];
 
 const ALL_IDS = FERMES.flatMap((f) => [f.id, ...(f.extraIds ?? [])]);
+const SITE_URL = "https://oneworldmorocco.com";
+const ARTICLE_PATH = "/blog/fermes-pedagogiques-marrakech";
+const ARTICLE_TITLE = "Les fermes pédagogiques à Marrakech";
+const ARTICLE_DESCRIPTION =
+  "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-image.jpg`;
 
 const FermesPedagogiquesMarrakech = () => {
   const navigate = useNavigate();
@@ -152,6 +158,11 @@ const FermesPedagogiquesMarrakech = () => {
   const { isBookmarked, isLoading: bmLoading, isLoggedIn, toggle: toggleBookmark } =
     useArticleBookmark("fermes-pedagogiques-marrakech");
   const { toast } = useToast();
+
+  const heroImage =
+    businesses[FERMES[0].id]?.images?.[0] ||
+    businesses[FERMES[1].id]?.images?.[0] ||
+    DEFAULT_OG_IMAGE;
 
   const handleSaveArticle = async () => {
     if (!isLoggedIn) {
@@ -172,10 +183,28 @@ const FermesPedagogiquesMarrakech = () => {
 
 
   useSEO({
-    title: "Les fermes pédagogiques à Marrakech",
-    description:
-      "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
-    canonical: "/blog/fermes-pedagogiques-marrakech",
+    title: ARTICLE_TITLE,
+    description: ARTICLE_DESCRIPTION,
+    canonical: ARTICLE_PATH,
+    ogImage: heroImage,
+    ogUrl: ARTICLE_PATH,
+    ogType: "article",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: ARTICLE_TITLE,
+      description: ARTICLE_DESCRIPTION,
+      image: [heroImage],
+      datePublished: "2026-06-12T08:00:00+01:00",
+      dateModified: "2026-06-13T08:00:00+01:00",
+      author: { "@type": "Organization", name: "ONE WORLD MOROCCO", url: SITE_URL },
+      publisher: {
+        "@type": "Organization",
+        name: "ONE WORLD MOROCCO",
+        logo: { "@type": "ImageObject", url: DEFAULT_OG_IMAGE },
+      },
+      mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${ARTICLE_PATH}` },
+    },
   });
 
   useEffect(() => {
@@ -211,13 +240,6 @@ const FermesPedagogiquesMarrakech = () => {
       if (el) el.scrollIntoView({ behavior: "auto", block: "center" });
     });
   }, [isLoading]);
-
-
-
-  const heroImage =
-    businesses[FERMES[0].id]?.images?.[0] ||
-    businesses[FERMES[1].id]?.images?.[0];
-
   return (
     <div className="min-h-screen bg-background">
       <HomeMindtripHeader alwaysWhite />
