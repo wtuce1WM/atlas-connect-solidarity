@@ -38,6 +38,49 @@ const CATEGORY_TO_SCHEMA: Record<string, string> = {
   "Shopping": "Store",
 };
 
+const STATIC_ARTICLES = [
+  {
+    path: "blog/fermes-pedagogiques-marrakech",
+    title: `Les fermes pédagogiques à Marrakech — ${SITE_NAME}`,
+    description:
+      "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
+    publishedAt: "2026-06-12T08:00:00+01:00",
+    modifiedAt: "2026-06-13T08:00:00+01:00",
+  },
+  {
+    path: "blog/activites-enfants-marrakech",
+    title: `Activités pour les enfants à Marrakech — ${SITE_NAME}`,
+    description:
+      "Notre sélection d'activités et d'adresses pour les enfants à Marrakech : parcs aquatiques, ateliers, kids clubs, restaurants familiaux et plus.",
+    publishedAt: "2026-06-12T08:00:00+01:00",
+    modifiedAt: "2026-06-13T08:00:00+01:00",
+  },
+  {
+    path: "blog/galeries-art-marrakech",
+    title: `Les galeries d'art à Marrakech — ${SITE_NAME}`,
+    description:
+      "Notre sélection de 24 galeries d'art à Marrakech : Guéliz, Médina, Sidi Ghanem et au-delà. Art contemporain, design, photographie et scène picturale marocaine.",
+    publishedAt: "2026-06-12T08:00:00+01:00",
+    modifiedAt: "2026-06-13T08:00:00+01:00",
+  },
+  {
+    path: "blog/5-jours-marrakech-artisanat",
+    title: `5 jours à Marrakech pour découvrir l'artisanat marocain — ${SITE_NAME}`,
+    description:
+      "Itinéraire de 5 jours à Marrakech : 44 adresses sélectionnées (Guéliz, Médina, Sidi Ghanem) pour découvrir le meilleur de l'artisanat marocain.",
+    publishedAt: "2026-06-12T08:00:00+01:00",
+    modifiedAt: "2026-06-13T08:00:00+01:00",
+  },
+  {
+    path: "blog/essaouira-vue-mer",
+    title: `Les adresses avec vue sur mer à Essaouira — ${SITE_NAME}`,
+    description:
+      "Notre sélection des meilleures adresses face à l'océan à Essaouira : hôtels, restaurants, cafés et rooftops pour profiter de la brise atlantique.",
+    publishedAt: "2026-06-12T08:00:00+01:00",
+    modifiedAt: "2026-06-13T08:00:00+01:00",
+  },
+];
+
 function escapeHtml(s: string): string {
   return String(s)
     .replace(/&/g, "&amp;")
@@ -183,6 +226,79 @@ function buildHtml(slug: string, biz: Biz): string {
 </html>`;
 }
 
+function buildArticleHtml(article: (typeof STATIC_ARTICLES)[number]): string {
+  const title = article.title;
+  const description = stripHtml(article.description).substring(0, 200);
+  const image = `${BASE_URL}/og-install-app.jpg`;
+  const url = `${BASE_URL}/${article.path}`;
+  const cleanTitle = title.replace(` — ${SITE_NAME}`, "");
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: cleanTitle,
+    description,
+    image: [image],
+    datePublished: article.publishedAt,
+    dateModified: article.modifiedAt,
+    author: { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
+    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: `${BASE_URL}/favicon.webp` } },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+  };
+  const e = {
+    title: escapeHtml(title),
+    description: escapeHtml(description),
+    image: escapeHtml(image),
+    url: escapeHtml(url),
+  };
+
+  return `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>${e.title}</title>
+    <meta name="description" content="${e.description}" />
+    <link rel="canonical" href="${e.url}" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="${e.title}" />
+    <meta property="og:description" content="${e.description}" />
+    <meta property="og:url" content="${e.url}" />
+    <meta property="og:image" content="${e.image}" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${e.title}" />
+    <meta name="twitter:description" content="${e.description}" />
+    <meta name="twitter:image" content="${e.image}" />
+
+    <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>
+  </head>
+  <body style="background-color:#faf8f5;margin:0">
+    <script>
+      (function () {
+        var ua = navigator.userAgent || "";
+        var isPreviewBot = /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Pinterest|Discordbot|Googlebot|Google-InspectionTool|GoogleOther|bingbot/i.test(ua);
+        if (isPreviewBot) return;
+        fetch("/index.html", { cache: "no-store" })
+          .then(function (response) { return response.text(); })
+          .then(function (html) {
+            document.open();
+            document.write(html);
+            document.close();
+          })
+          .catch(function () {});
+      })();
+    </script>
+    <noscript>
+      <h1>${e.title}</h1>
+      <p>${e.description}</p>
+    </noscript>
+  </body>
+</html>`;
+}
+
 async function cleanPreviouslyGenerated() {
   if (!existsSync(PUBLIC_DIR)) return;
   for (const entry of readdirSync(PUBLIC_DIR)) {
@@ -219,7 +335,6 @@ async function main() {
   }
   if (vanities.length === 0) {
     console.log("[og-pages] Aucune vanity URL business trouvée.");
-    return;
   }
 
   // 2) Récupère les fiches associées (actives uniquement)
@@ -257,7 +372,17 @@ async function main() {
     writeFileSync(join(dir, MARKER_FILE), "", "utf8");
     written++;
   }
-  console.log(`[og-pages] ${written} fichiers générés (${skipped} ignorés).`);
+
+  const blogDir = join(PUBLIC_DIR, "blog");
+  mkdirSync(blogDir, { recursive: true });
+  writeFileSync(join(blogDir, MARKER_FILE), "", "utf8");
+  for (const article of STATIC_ARTICLES) {
+    const dir = join(PUBLIC_DIR, article.path);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "index.html"), buildArticleHtml(article), "utf8");
+  }
+
+  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${STATIC_ARTICLES.length} articles.`);
 }
 
 main().catch((err) => {
