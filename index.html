@@ -11,46 +11,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="OneWorld" />
     <meta name="google-site-verification" content="Iwacaf2KeMCQhYFDoOvqpNq4ANQ6ik4g86vRi7NOc4o" />
-    <script>
-      (function () {
-        var base = "https://oneworldmorocco.com";
-        var defaults = {
-          title: "ONE WORLD MOROCCO – Adresses sélectionnées au Maroc",
-          description: "Découvrez les meilleures adresses au Maroc : hôtels, restaurants, activités et services sélectionnés par ONE WORLD MOROCCO.",
-          url: base + "/"
-        };
-        var pages = {
-          "/blog/fermes-pedagogiques-marrakech": {
-            title: "Les fermes pédagogiques à Marrakech — ONE WORLD MOROCCO",
-            description: "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques."
-          },
-          "/blog/activites-enfants-marrakech": {
-            title: "Activités pour les enfants à Marrakech — ONE WORLD MOROCCO",
-            description: "Notre sélection d'activités et d'adresses pour les enfants à Marrakech : parcs aquatiques, ateliers, kids clubs, restaurants familiaux et plus."
-          },
-          "/blog/galeries-art-marrakech": {
-            title: "Les galeries d'art à Marrakech — ONE WORLD MOROCCO",
-            description: "Notre sélection de 24 galeries d'art à Marrakech : Guéliz, Médina, Sidi Ghanem et au-delà. Art contemporain, design, photographie et scène picturale marocaine."
-          },
-          "/blog/5-jours-marrakech-artisanat": {
-            title: "5 jours à Marrakech pour découvrir l'artisanat marocain — ONE WORLD MOROCCO",
-            description: "Itinéraire de 5 jours à Marrakech : 44 adresses sélectionnées (Guéliz, Médina, Sidi Ghanem) pour découvrir le meilleur de l'artisanat marocain."
-          },
-          "/blog/essaouira-vue-mer": {
-            title: "Les adresses avec vue sur mer à Essaouira — ONE WORLD MOROCCO",
-            description: "Notre sélection des meilleures adresses face à l'océan à Essaouira : hôtels, restaurants, cafés et rooftops pour profiter de la brise atlantique."
-          }
-        };
-        var path = location.pathname.replace(/\/$/, "") || "/";
-        var meta = pages[path] || defaults;
-        meta.url = meta.url || base + path;
-        var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;"); };
-        document.write('<link rel="canonical" href="' + esc(meta.url) + '" />');
-        document.write('<title>' + esc(meta.title) + '</title>');
-        document.write('<meta name="description" content="' + esc(meta.description) + '" />');
-        window.__OWM_EARLY_META__ = meta;
-      })();
-    </script>
+    <link rel="canonical" href="https://oneworldmorocco.com/" />
+    <title>ONE WORLD MOROCCO – Adresses sélectionnées au Maroc</title>
+    <meta name="description" content="Découvrez les meilleures adresses au Maroc : hôtels, restaurants, activités et services sélectionnés par ONE WORLD MOROCCO." />
     <meta name="author" content="ONE WORLD MOROCCO" />
     
     <!-- Preconnect to Supabase Storage (LCP image origin) -->
