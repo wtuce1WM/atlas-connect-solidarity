@@ -247,7 +247,7 @@ const MarrakechGaleriesArt = () => {
             return (
               <section
                 key={section.title}
-                className={`py-14 ${isDark ? "bg-black" : "bg-background"}`}
+                className={`py-14 ${isDark ? "bg-[#3B3B3B]" : "bg-background"}`}
               >
                 <div className="container mx-auto px-4">
                   <h2

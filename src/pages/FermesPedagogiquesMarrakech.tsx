@@ -346,7 +346,7 @@ const FermesPedagogiquesMarrakech = () => {
             return (
               <section
                 key={ferme.id}
-                className={`py-16 ${isDark ? "bg-black" : "bg-background"}`}
+                className={`py-16 ${isDark ? "bg-[#3B3B3B]" : "bg-background"}`}
               >
                 <div className="container mx-auto px-4 max-w-5xl">
                   <p
