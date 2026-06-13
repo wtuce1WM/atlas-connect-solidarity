@@ -174,10 +174,10 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">font-roboto</code>
               <p className="font-roboto text-2xl mt-3 text-foreground">
-                Roboto — utilitaire Tailwind
+                Avenir — utilitaire Tailwind
               </p>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                tailwind.config.ts: fontFamily.roboto = ['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif, 'sans-serif']
+                tailwind.config.ts: fontFamily.roboto = ['Avenir Next','Avenir','Nunito Sans','system-ui','sans-serif']
               </div>
             </div>
 
