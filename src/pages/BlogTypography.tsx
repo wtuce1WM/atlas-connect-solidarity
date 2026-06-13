@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const sampleText = "One World Morocco — Découvrez les meilleures adresses au Maroc";
 const sampleArabic = "اكتشف أفضل العناوين في المغرب";
-const lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.";
+const lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
 const BlogTypography = () => {
   const navigate = useNavigate();
@@ -22,10 +22,10 @@ const BlogTypography = () => {
             <ArrowLeft className="h-4 w-4" />
             Retour au blog
           </button>
-          <h1 className="text-3xl md:text-4xl font-bold text-white font-['Playfair_Display'] italic">
+          <h1 className="text-3xl md:text-4xl font-bold text-white" style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 300, letterSpacing: "0.08em" }}>
             Guide Typographique
           </h1>
-          <p className="text-white/60 mt-2">Référence des polices et balises utilisées sur le site</p>
+          <p className="text-white/60 mt-2">Référence des polices et balises réellement utilisées sur le site</p>
         </div>
       </div>
 
@@ -33,7 +33,10 @@ const BlogTypography = () => {
 
         {/* ── Section 1: Fonts chargées ── */}
         <section>
-          <h2 className="text-2xl font-bold text-foreground mb-6">1. Polices chargées (Google Fonts)</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-3">1. Polices chargées (Google Fonts)</h2>
+          <p className="text-muted-foreground mb-6 text-sm">
+            Déclarées dans <code className="bg-muted px-1.5 py-0.5 rounded text-xs">index.html</code> et exposées via Tailwind dans <code className="bg-muted px-1.5 py-0.5 rounded text-xs">tailwind.config.ts</code>.
+          </p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
               <thead className="bg-muted">
@@ -46,33 +49,27 @@ const BlogTypography = () => {
               </thead>
               <tbody className="divide-y divide-border">
                 <tr>
-                  <td className="p-3 font-medium text-foreground">Playfair Display</td>
-                  <td className="p-3 text-muted-foreground">Titres <code className="bg-muted px-1 rounded text-xs">&lt;h2&gt;</code></td>
-                  <td className="p-3 text-muted-foreground">400, 600, 700</td>
-                  <td className="p-3 font-['Playfair_Display'] italic text-lg text-foreground">Marrakech</td>
+                  <td className="p-3 font-medium text-foreground">Josefin Sans</td>
+                  <td className="p-3 text-muted-foreground">Navigation, boutons, labels, CTA, noms de fiches, headings prose</td>
+                  <td className="p-3 text-muted-foreground">300, 400, 600</td>
+                  <td className="p-3 font-josefin text-lg text-foreground" style={{ letterSpacing: "0.08em" }}>Marrakech</td>
                 </tr>
                 <tr>
-                  <td className="p-3 font-medium text-foreground">Raleway</td>
-                  <td className="p-3 text-muted-foreground">Sous-titres <code className="bg-muted px-1 rounded text-xs">&lt;h3&gt;</code></td>
-                  <td className="p-3 text-muted-foreground">600</td>
-                  <td className="p-3 font-['Raleway'] font-semibold text-lg text-foreground">Essaouira</td>
-                </tr>
-                <tr>
-                  <td className="p-3 font-medium text-foreground">Cormorant Garamond</td>
-                  <td className="p-3 text-muted-foreground">Texte éditorial / élégant</td>
-                  <td className="p-3 text-muted-foreground">400, 600, 400i, 600i</td>
-                  <td className="p-3 font-['Cormorant_Garamond'] text-lg text-foreground">Fès la Spirituelle</td>
+                  <td className="p-3 font-medium text-foreground">Roboto</td>
+                  <td className="p-3 text-muted-foreground">Corps de texte (<code className="bg-muted px-1 rounded text-xs">body</code>) + titres globaux <code className="bg-muted px-1 rounded text-xs">h1/h2/h3</code></td>
+                  <td className="p-3 text-muted-foreground">300, 400, 500, 700, 400i</td>
+                  <td className="p-3 font-roboto text-lg text-foreground">Essaouira la Mogador</td>
                 </tr>
                 <tr>
                   <td className="p-3 font-medium text-foreground">Amiri</td>
-                  <td className="p-3 text-muted-foreground">Titres arabes / oriental</td>
+                  <td className="p-3 text-muted-foreground">Titres et citations arabes</td>
                   <td className="p-3 text-muted-foreground">400, 700</td>
-                  <td className="p-3 font-['Amiri'] text-lg text-foreground" dir="rtl">{sampleArabic}</td>
+                  <td className="p-3 text-lg text-foreground" style={{ fontFamily: "'Amiri', serif" }} dir="rtl">{sampleArabic}</td>
                 </tr>
                 <tr>
-                  <td className="p-3 font-medium text-foreground">Noto Sans Arabic</td>
-                  <td className="p-3 text-muted-foreground">Corps de texte arabe <code className="bg-muted px-1 rounded text-xs">.font-arabic</code></td>
-                  <td className="p-3 text-muted-foreground">Variable</td>
+                  <td className="p-3 font-medium text-foreground">Noto Sans Arabic <span className="text-xs text-muted-foreground">(système)</span></td>
+                  <td className="p-3 text-muted-foreground">Corps de texte arabe via <code className="bg-muted px-1 rounded text-xs">.font-arabic</code></td>
+                  <td className="p-3 text-muted-foreground">Fallback système</td>
                   <td className="p-3 font-arabic text-lg text-foreground" dir="rtl">{sampleArabic}</td>
                 </tr>
               </tbody>
@@ -83,53 +80,22 @@ const BlogTypography = () => {
         {/* ── Section 2: Balises HTML globales ── */}
         <section>
           <h2 className="text-2xl font-bold text-foreground mb-6">2. Balises HTML — Styles globaux (index.css)</h2>
-          <p className="text-muted-foreground mb-6">
-            Ces styles sont définis globalement dans <code className="bg-muted px-1.5 py-0.5 rounded text-xs text-foreground">index.css</code> et s'appliquent automatiquement.
+          <p className="text-muted-foreground mb-6 text-sm">
+            Règles appliquées automatiquement à toutes les balises du site.
           </p>
 
           <div className="space-y-8">
-            {/* h1 */}
+            {/* h1, h2, h3 */}
             <div className="border border-border rounded-lg p-6">
               <div className="flex items-baseline justify-between mb-3">
-                <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;h1&gt;</code>
-                <span className="text-xs text-muted-foreground">Pas de style global — stylé via classes Tailwind</span>
+                <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;h1&gt; &lt;h2&gt; &lt;h3&gt;</code>
+                <span className="text-xs text-muted-foreground">font-family: 'Roboto', sans-serif · font-weight: 500</span>
               </div>
-              <h1 className="text-4xl font-bold text-foreground">
-                {sampleText}
-              </h1>
+              <h1 className="text-4xl text-foreground mb-2">H1 — {sampleText}</h1>
+              <h2 className="text-3xl text-foreground mb-2">H2 — {sampleText}</h2>
+              <h3 className="text-2xl text-foreground">H3 — {sampleText}</h3>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                font: hérite du body (sans-serif système)<br/>
-                usage: titre principal de page, souvent avec classes manuelles
-              </div>
-            </div>
-
-            {/* h2 */}
-            <div className="border border-border rounded-lg p-6">
-              <div className="flex items-baseline justify-between mb-3">
-                <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;h2&gt;</code>
-                <span className="text-xs text-muted-foreground">font-family: 'Playfair Display', serif · font-style: italic</span>
-              </div>
-              <h2 className="text-3xl font-bold text-foreground">
-                {sampleText}
-              </h2>
-              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                CSS global: h2 {"{"} font-family: 'Playfair Display', serif; font-style: italic; {"}"}<br/>
-                usage: titres de sections, titres de cartes
-              </div>
-            </div>
-
-            {/* h3 */}
-            <div className="border border-border rounded-lg p-6">
-              <div className="flex items-baseline justify-between mb-3">
-                <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;h3&gt;</code>
-                <span className="text-xs text-muted-foreground">font-family: 'Raleway', sans-serif</span>
-              </div>
-              <h3 className="text-2xl font-semibold text-foreground">
-                {sampleText}
-              </h3>
-              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                CSS global: h3 {"{"} font-family: 'Raleway', sans-serif; {"}"}<br/>
-                usage: sous-titres, noms de catégories
+                h1, h2, h3 {"{"} font-family: 'Roboto', sans-serif; font-weight: 500; {"}"}
               </div>
             </div>
 
@@ -137,40 +103,54 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <div className="flex items-baseline justify-between mb-3">
                 <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;h4&gt; &lt;h5&gt; &lt;h6&gt;</code>
-                <span className="text-xs text-muted-foreground">Pas de style global</span>
+                <span className="text-xs text-muted-foreground">Pas de style global — héritent du body (Roboto)</span>
               </div>
               <h4 className="text-xl font-semibold text-foreground mb-1">H4 — {sampleText}</h4>
               <h5 className="text-lg font-semibold text-foreground mb-1">H5 — {sampleText}</h5>
               <h6 className="text-base font-semibold text-foreground">H6 — {sampleText}</h6>
-              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                hérite du body (sans-serif système)<br/>
-                usage: titres tertiaires, labels
-              </div>
             </div>
 
-            {/* p */}
+            {/* body / p */}
             <div className="border border-border rounded-lg p-6">
               <div className="flex items-baseline justify-between mb-3">
-                <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;p&gt;</code>
-                <span className="text-xs text-muted-foreground">Sans-serif système (Tailwind default)</span>
+                <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;body&gt; &lt;p&gt;</code>
+                <span className="text-xs text-muted-foreground">font-family: 'Roboto', sans-serif · letter-spacing: 0.02em</span>
               </div>
               <p className="text-foreground">{lorem}</p>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                font: sans-serif système via Tailwind<br/>
-                usage: paragraphes, descriptions
+                body {"{"} font-family: 'Roboto', sans-serif; letter-spacing: 0.02em; {"}"}
               </div>
             </div>
 
-            {/* span, small, strong, em */}
+            {/* nav, button, label */}
             <div className="border border-border rounded-lg p-6">
               <div className="flex items-baseline justify-between mb-3">
-                <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;span&gt; &lt;strong&gt; &lt;em&gt; &lt;small&gt;</code>
+                <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;nav&gt; &lt;button&gt; &lt;label&gt; .uppercase</code>
+                <span className="text-xs text-muted-foreground">Josefin Sans 300 · uppercase · tracking 0.12em</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-4">
+                <nav className="text-foreground">Recherche</nav>
+                <button type="button" className="text-foreground border border-border rounded px-3 py-1.5">Découvrir</button>
+                <label className="text-foreground">Email</label>
+                <span className="uppercase text-foreground">Nouveau</span>
+              </div>
+              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
+                nav, button, [role="button"], label, .uppercase {"{"}<br/>
+                &nbsp;&nbsp;font-family: 'Josefin Sans', sans-serif;<br/>
+                &nbsp;&nbsp;font-weight: 300; text-transform: uppercase; letter-spacing: 0.12em;<br/>
+                {"}"}
+              </div>
+            </div>
+
+            {/* strong, em */}
+            <div className="border border-border rounded-lg p-6">
+              <div className="flex items-baseline justify-between mb-3">
+                <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;strong&gt; &lt;em&gt; &lt;small&gt;</code>
               </div>
               <div className="space-y-2 text-foreground">
-                <p><span>span — texte normal inline</span></p>
                 <p><strong>strong — texte en gras</strong></p>
-                <p><em>em — texte en italique</em></p>
-                <p><small className="text-muted-foreground">small — texte réduit, souvent pour les métadonnées</small></p>
+                <p><em>em — texte en italique (Roboto italic 400i chargé)</em></p>
+                <p><small className="text-muted-foreground">small — métadonnées</small></p>
               </div>
             </div>
           </div>
@@ -182,42 +162,53 @@ const BlogTypography = () => {
           <div className="space-y-6">
 
             <div className="border border-border rounded-lg p-6">
+              <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">font-josefin</code>
+              <p className="font-josefin text-2xl mt-3 text-foreground">
+                Josefin Sans — utilitaire Tailwind
+              </p>
+              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
+                tailwind.config.ts: fontFamily.josefin = ['Josefin Sans', 'sans-serif']
+              </div>
+            </div>
+
+            <div className="border border-border rounded-lg p-6">
+              <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">font-roboto</code>
+              <p className="font-roboto text-2xl mt-3 text-foreground">
+                Roboto — utilitaire Tailwind
+              </p>
+              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
+                tailwind.config.ts: fontFamily.roboto = ['Roboto', 'sans-serif']
+              </div>
+            </div>
+
+            <div className="border border-border rounded-lg p-6">
+              <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">.josefin-headings</code>
+              <div className="josefin-headings mt-3">
+                <h3 className="text-2xl text-foreground">Titre injecté en Josefin Sans (non-uppercase)</h3>
+              </div>
+              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
+                Force Josefin Sans sur h1-h6 dans du HTML injecté · letter-spacing: 0.02em
+              </div>
+            </div>
+
+            <div className="border border-border rounded-lg p-6">
+              <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">.prose-josefin-headings</code>
+              <div className="prose-josefin-headings mt-3">
+                <h2 className="text-2xl text-foreground">Section en Josefin (uppercase)</h2>
+                <h3 className="text-xl text-foreground mt-2">Sous-section en Josefin</h3>
+              </div>
+              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
+                Utilisé dans les blocs de description riche (h2 = uppercase, h3 = casse normale)
+              </div>
+            </div>
+
+            <div className="border border-border rounded-lg p-6">
               <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">.font-arabic</code>
               <p className="font-arabic text-lg mt-3 text-foreground" dir="rtl">
-                {sampleArabic} — Noto Sans Arabic, Segoe UI, Tahoma
+                {sampleArabic}
               </p>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                CSS: .font-arabic {"{"} font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, sans-serif; {"}"}
-              </div>
-            </div>
-
-            <div className="border border-border rounded-lg p-6">
-              <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">font-['Playfair_Display']</code>
-              <p className="font-['Playfair_Display'] italic text-2xl mt-3 text-foreground">
-                Classe Tailwind arbitraire pour Playfair Display
-              </p>
-              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                usage: quand on veut Playfair Display sur une balise autre que h2
-              </div>
-            </div>
-
-            <div className="border border-border rounded-lg p-6">
-              <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">font-['Cormorant_Garamond']</code>
-              <p className="font-['Cormorant_Garamond'] text-2xl mt-3 text-foreground">
-                Classe Tailwind arbitraire pour Cormorant Garamond
-              </p>
-              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                usage: textes éditoriaux, citations
-              </div>
-            </div>
-
-            <div className="border border-border rounded-lg p-6">
-              <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">font-['Amiri']</code>
-              <p className="font-['Amiri'] text-2xl mt-3 text-foreground">
-                Classe Tailwind arbitraire pour Amiri — style oriental
-              </p>
-              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                usage: titres orientaux, citations arabes
+                .font-arabic {"{"} font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, sans-serif; {"}"}
               </div>
             </div>
           </div>
@@ -249,6 +240,9 @@ const BlogTypography = () => {
         {/* ── Section 5: Poids ── */}
         <section>
           <h2 className="text-2xl font-bold text-foreground mb-6">5. Poids de police (font-weight)</h2>
+          <p className="text-muted-foreground mb-4 text-sm">
+            Josefin Sans n'est chargée qu'en 300/400/600 — Roboto en 300/400/500/700.
+          </p>
           <div className="space-y-3">
             {[
               { cls: "font-light", label: "font-light (300)" },
@@ -256,7 +250,6 @@ const BlogTypography = () => {
               { cls: "font-medium", label: "font-medium (500)" },
               { cls: "font-semibold", label: "font-semibold (600)" },
               { cls: "font-bold", label: "font-bold (700)" },
-              { cls: "font-extrabold", label: "font-extrabold (800)" },
             ].map(({ cls, label }) => (
               <div key={cls} className="flex items-baseline gap-4 border-b border-border pb-2">
                 <code className="bg-muted px-2 py-0.5 rounded text-xs text-foreground shrink-0 w-52">{label}</code>
@@ -273,24 +266,20 @@ const BlogTypography = () => {
 
             <div className="border border-border rounded-lg p-6">
               <span className="text-xs text-muted-foreground mb-2 block">Header — Logo</span>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold tracking-tight">
-                  <span className="text-gold">ONE WORLD</span>{" "}
-                  <span className="text-foreground">MOROCCO</span>
-                </span>
-              </div>
+              <span className="text-lg font-bold tracking-tight">
+                <span className="text-gold">ONE WORLD</span>{" "}
+                <span className="text-foreground">MOROCCO</span>
+              </span>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
                 text-lg font-bold tracking-tight · text-gold + text-foreground
               </div>
             </div>
 
             <div className="border border-border rounded-lg p-6">
-              <span className="text-xs text-muted-foreground mb-2 block">Hero — Titre principal</span>
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground font-['Playfair_Display'] italic">
-                Découvrez le Maroc
-              </h1>
+              <span className="text-xs text-muted-foreground mb-2 block">Navigation — Lien menu</span>
+              <nav className="text-foreground hover:text-gold cursor-pointer inline-block">Recherche</nav>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                text-4xl md:text-6xl font-bold font-['Playfair_Display'] italic
+                &lt;nav&gt; auto: Josefin Sans 300 uppercase, tracking 0.12em
               </div>
             </div>
 
@@ -300,7 +289,7 @@ const BlogTypography = () => {
                 Les meilleures adresses
               </h2>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                h2 auto: Playfair Display italic · text-2xl md:text-3xl font-bold
+                h2 auto: Roboto 500 · tailles via classes Tailwind
               </div>
             </div>
 
@@ -309,39 +298,27 @@ const BlogTypography = () => {
               <h3 className="text-lg font-semibold text-foreground">Restaurant Le Jardin</h3>
               <p className="text-sm text-muted-foreground mt-1">Marrakech · Gastronomie</p>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                h3 auto: Raleway sans-serif · text-lg font-semibold<br/>
-                p: text-sm text-muted-foreground
-              </div>
-            </div>
-
-            <div className="border border-border rounded-lg p-6">
-              <span className="text-xs text-muted-foreground mb-2 block">Blog — Titre article</span>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground font-['Playfair_Display'] italic">
-                Essaouira, perle de l'Atlantique
-              </h1>
-              <p className="text-muted-foreground mt-2">Démonstration des styles éditoriaux</p>
-              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                text-3xl md:text-4xl font-bold font-['Playfair_Display'] italic
-              </div>
-            </div>
-
-            <div className="border border-border rounded-lg p-6">
-              <span className="text-xs text-muted-foreground mb-2 block">Navigation — Lien menu</span>
-              <span className="text-foreground transition-colors hover:text-gold cursor-pointer">
-                Recherche
-              </span>
-              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                text-foreground hover:text-gold · sans-serif système
+                h3 auto: Roboto 500 · p: Roboto · text-sm text-muted-foreground
               </div>
             </div>
 
             <div className="border border-border rounded-lg p-6">
               <span className="text-xs text-muted-foreground mb-2 block">CTA — Bouton doré</span>
-              <span className="inline-block rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground cursor-pointer">
+              <button type="button" className="inline-block rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground">
                 Devenir affilié
-              </span>
+              </button>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground
+                &lt;button&gt; auto: Josefin Sans 300 uppercase · bg-gold text-gold-foreground
+              </div>
+            </div>
+
+            <div className="border border-border rounded-lg p-6">
+              <span className="text-xs text-muted-foreground mb-2 block">Citation arabe</span>
+              <p className="text-2xl text-foreground" style={{ fontFamily: "'Amiri', serif" }} dir="rtl">
+                {sampleArabic}
+              </p>
+              <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
+                font-family: 'Amiri', serif · dir="rtl"
               </div>
             </div>
           </div>
@@ -355,9 +332,7 @@ const BlogTypography = () => {
               { cls: "text-foreground", label: "text-foreground", desc: "Texte principal" },
               { cls: "text-muted-foreground", label: "text-muted-foreground", desc: "Texte secondaire / atténué" },
               { cls: "text-primary", label: "text-primary", desc: "Terracotta" },
-              { cls: "text-secondary", label: "text-secondary", desc: "Majorelle Blue" },
               { cls: "text-gold", label: "text-gold", desc: "Or / Gold accent" },
-              { cls: "text-atlas", label: "text-atlas", desc: "Atlas Green" },
               { cls: "text-destructive", label: "text-destructive", desc: "Erreur / destructif" },
             ].map(({ cls, label, desc }) => (
               <div key={cls} className="flex items-baseline gap-4 border-b border-border pb-2">
