@@ -29,7 +29,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string; artisanat?: string; streetfood?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string; artisanat?: string; streetfood?: string; fashion?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -137,6 +137,14 @@ const Blog = () => {
         .maybeSingle();
       const sfImg = (sfRow as any)?.images?.[0];
 
+      // Hero shopping fashion Guéliz : même 1ʳᵉ fiche que le hero de l'article
+      const { data: fashionRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "7924a190-679d-4981-a12a-b56c257cd680")
+        .maybeSingle();
+      const fashionImg = (fashionRow as any)?.images?.[0];
+
       setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -145,6 +153,7 @@ const Blog = () => {
         fermes: (fermesRes.data as any)?.images?.[0],
         artisanat: (artisanatRes.data as any)?.images?.[0],
         streetfood: sfImg,
+        fashion: fashionImg,
       });
     };
     fetchStaticHeroes();
@@ -484,6 +493,44 @@ const Blog = () => {
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 text-primary font-medium">
                             <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
+              // Carte Shopping fashion Guéliz
+              items.push({
+                key: "static-shopping-fashion-gueliz",
+                date: "2026-06-13T03:00:00Z",
+                node: (
+                  <Link key="static-shopping-fashion-gueliz" to="/blog/shopping-fashion-gueliz">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.fashion ? (
+                          <img
+                            src={staticHeroes.fashion}
+                            alt="Shopping fashion à Guéliz, Marrakech"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Shopping fashion à Guéliz, Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Vingt-trois boutiques mode à Guéliz : créateurs marocains, concept-stores pointus, marques internationales et adresses confidentielles dans l'épicentre fashion de Marrakech.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Guéliz, Marrakech
                           </span>
                           <ArrowRight className="h-4 w-4 text-primary" />
                         </div>

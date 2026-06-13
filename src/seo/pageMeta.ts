@@ -85,6 +85,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Trente-six adresses incontournables pour goûter la street food à Marrakech — du sandwich minute aux burgers gourmets, des kefta bsmen aux glaces maison, du shawarma au rooftop afro-berbère.",
   },
+  "/blog/shopping-fashion-gueliz": {
+    title: `Shopping fashion à Guéliz, Marrakech — ${BRAND}`,
+    description:
+      "Vingt-trois boutiques mode à Guéliz : créateurs marocains, concept-stores, marques internationales et adresses confidentielles dans l'épicentre fashion de Marrakech.",
+  },
   "/blog/ancien-accueil": {
     title: `Ancienne page d'accueil — ${BRAND}`,
     description: "Archive de l'ancienne page d'accueil One World Morocco.",
