@@ -243,6 +243,54 @@ const FermesPedagogiquesMarrakech = () => {
             </div>
           </section>
 
+          {/* Map of all 8 farms */}
+          <section className="pb-14 bg-background">
+            <div className="container mx-auto px-4 max-w-5xl">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-['Playfair_Display'] italic">
+                Les huit adresses sur la carte
+              </h2>
+              <div className="relative w-full h-[480px] rounded-xl overflow-hidden border border-border/50 shadow-sm">
+                {(() => {
+                  const pois: PoiMapItem[] = Object.values(businesses)
+                    .filter((b) => b.latitude != null && b.longitude != null)
+                    .map((b) => ({
+                      id: b.id,
+                      name: b.name,
+                      latitude: b.latitude,
+                      longitude: b.longitude,
+                      images: b.images,
+                      city: b.city,
+                      neighborhood: b.neighborhood,
+                      rating: b.rating,
+                    }));
+                  return (
+                    <PoiGoogleMap
+                      pois={pois}
+                      selectedPoiId={null}
+                      fitToMarkers
+                      userLocation={userLocation}
+                      onPoiClick={(id) => {
+                        const b = businesses[id];
+                        if (b) {
+                          try {
+                            sessionStorage.setItem(
+                              "returnToBlogPath",
+                              "/blog/fermes-pedagogiques-marrakech"
+                            );
+                            sessionStorage.setItem("returnToBlogEntryId", b.id);
+                          } catch {}
+                          navigate(businessUrl(b));
+                        }
+                      }}
+                    />
+                  );
+                })()}
+              </div>
+            </div>
+          </section>
+
+
+
           {FERMES.map((ferme, idx) => {
             const isDark = idx % 2 === 0;
             return (
