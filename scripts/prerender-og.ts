@@ -159,21 +159,46 @@ export function prerenderOgPlugin(): Plugin {
       ];
 
       let articlesWritten = 0;
-      for (const a of staticArticles) {
-        const url = `${BASE}/${a.path}`;
+      const writeArticle = async (slugPath: string, title: string, description: string, image?: string) => {
+        const url = `${BASE}/${slugPath}`;
         const html = rewriteHead(template, {
-          title: a.title,
-          description: a.description.substring(0, 200),
-          image: a.image || DEFAULT_IMG,
+          title,
+          description: stripHtml(description).substring(0, 200),
+          image: image || DEFAULT_IMG,
           url,
         });
-        const dir = path.join(distDir, a.path);
+        const dir = path.join(distDir, slugPath);
         await mkdir(dir, { recursive: true });
         await writeFile(path.join(dir, "index.html"), html, "utf8");
         articlesWritten++;
+      };
+
+      for (const a of staticArticles) {
+        await writeArticle(a.path, a.title, a.description, a.image);
       }
 
-      console.log(`[prerender-og] Wrote ${written} business OG shells + ${articlesWritten} blog article shells.`);
+      // DB-backed blog posts — fully dynamic, no code edit needed when a new article is published.
+      const blogPosts: BlogRow[] = [];
+      for (let offset = 0; ; offset += PAGE) {
+        const url = `${SUPABASE_URL}/rest/v1/blog_posts?select=slug,title_fr,excerpt_fr,content_fr,cover_image_url&is_published=eq.true&order=slug&limit=${PAGE}&offset=${offset}`;
+        const r = await fetch(url, { headers });
+        if (!r.ok) { console.warn(`[prerender-og] blog_posts fetch failed: ${r.status}`); break; }
+        const rows = (await r.json()) as BlogRow[];
+        blogPosts.push(...rows);
+        if (rows.length < PAGE) break;
+      }
+      const staticSlugs = new Set(staticArticles.map((a) => a.path.replace(/^blog\//, "")));
+      for (const post of blogPosts) {
+        if (!post.slug || staticSlugs.has(post.slug)) continue; // custom React page wins
+        const title = `${post.title_fr || "Article"} — ${SITE}`;
+        const description =
+          post.excerpt_fr ||
+          (post.content_fr ? stripHtml(post.content_fr).substring(0, 200) : `Article du blog ${SITE}.`);
+        await writeArticle(`blog/${post.slug}`, title, description, post.cover_image_url || undefined);
+      }
+
+      console.log(`[prerender-og] Wrote ${written} business OG shells + ${articlesWritten} blog article shells (${staticArticles.length} static + ${blogPosts.length} from DB).`);
+
 
     },
   };
