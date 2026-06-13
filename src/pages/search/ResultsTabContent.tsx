@@ -409,7 +409,7 @@ export default function ResultsTabContent({
   return (
     <section
       ref={resultsRef}
-      className={`bg-white pb-6 lg:pb-4 [overflow-anchor:none] ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
+      className={`bg-background pb-6 lg:pb-4 [overflow-anchor:none] ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
     >
         <div className={hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "flex gap-0" : ""}>
           <div className={`pt-4 ${hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "w-1/2 overflow-visible" : "w-full"} mx-auto px-4 max-w-full`}>
@@ -437,7 +437,7 @@ export default function ResultsTabContent({
             <>
               {/* Hotel availability search header */}
               {resolvedHotelSearchInfo && (
-                <div className="sticky z-[21] -mx-4 mb-4 bg-white px-4 py-2 shadow-sm top-[53px] lg:top-[53px] lg:pt-[17px]">
+                <div className="sticky z-[21] -mx-4 mb-4 bg-background px-4 py-2 shadow-sm top-[53px] lg:top-[53px] lg:pt-[17px]">
                   <p className="mx-auto max-w-screen-2xl text-base font-semibold leading-snug text-neutral-900">
                     <span className="text-black mr-1">{filteredBusinesses.length}</span>
                     {language === "en" ? "Hotels available in" : `Hôtel${filteredBusinesses.length > 1 ? 's' : ''} disponible${filteredBusinesses.length > 1 ? 's' : ''} à`} {resolvedHotelSearchInfo.city}.<br className="sm:hidden" /> <span>{resolvedHotelSearchInfo.checkIn} → {resolvedHotelSearchInfo.checkOut} · {resolvedHotelSearchInfo.adults} {language === "en" ? "adult(s)" : "adulte(s)"}</span>
@@ -445,7 +445,7 @@ export default function ResultsTabContent({
                 </div>
               )}
               {/* Bar: Results count + Carte — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className={`sticky z-[25] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-2 md:py-2 md:min-h-[40px] lg:py-1.5 lg:min-h-[40px] ${resolvedHotelSearchInfo ? 'top-[101px] md:top-[91px]' : 'top-[53px] md:top-[60px]'}`}>
+              <div ref={resultsBarRef} data-results-bar className={`sticky z-[25] bg-background lg:bg-background flex items-center justify-center px-4 gap-2 relative py-4 sm:py-2 md:py-2 md:min-h-[40px] lg:py-1.5 lg:min-h-[40px] ${resolvedHotelSearchInfo ? 'top-[101px] md:top-[91px]' : 'top-[53px] md:top-[60px]'}`}>
                 <button
                   onClick={() => {
                     setShowFiltersOverlay(false);
