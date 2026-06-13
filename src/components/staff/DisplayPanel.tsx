@@ -54,9 +54,9 @@ const DisplayPanel = () => (
                   <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Logo / Branding</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <DisplayParam label="Balise" value='<a href="/"> → <span>' />
-                    <DisplayParam label="Texte normal" value='"ONE WORLD MOROCCO"' preview={<span className="font-bold" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>ONE WORLD MOROCCO</span>} />
-                    <DisplayParam label="Texte compact" value='"1WM" (prop compact=true)' preview={<span className="font-bold" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>1WM</span>} />
-                    <DisplayParam label="Police" value="text-lg font-bold tracking-tight, Josefin Sans" />
+                    <DisplayParam label="Texte normal" value='"ONE WORLD MOROCCO"' preview={<span className="font-bold" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>ONE WORLD MOROCCO</span>} />
+                    <DisplayParam label="Texte compact" value='"1WM" (prop compact=true)' preview={<span className="font-bold" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>1WM</span>} />
+                    <DisplayParam label="Police" value="text-lg font-bold tracking-tight, Montserrat" />
                     <DisplayParam label="Couleur texte" value="text-foreground (unifié)" />
                     <DisplayParam label="Responsive compact" value='hidden md:flex (logo masqué mobile si compact)' />
                   </div>
@@ -129,7 +129,7 @@ const DisplayPanel = () => (
                 <div>
                   <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Polices chargées (Google Fonts)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <DisplayParam label="Josefin Sans (→ Venus)" value="300, 400, 600" preview={<span style={{ fontFamily: "'Josefin Sans', sans-serif", fontSize: 18, letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Marrakech</span>} />
+                    <DisplayParam label="Montserrat (→ Venus)" value="300, 400, 600" preview={<span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 18, letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Marrakech</span>} />
                     <DisplayParam label="Libre Baskerville (→ Freight)" value="400, 700, 400 italic" preview={<span style={{ fontFamily: "'Libre Baskerville', serif", fontSize: 16 }}>Au cœur de la Médina</span>} />
                     <DisplayParam label="Amiri" value="400, 700 (arabe)" preview={<span style={{ fontFamily: "'Amiri', serif", fontSize: 18 }}>عربي</span>} />
                   </div>
@@ -155,21 +155,21 @@ const DisplayPanel = () => (
                         </tr>
                         <tr>
                           <td className="py-2 pr-4 font-mono text-xs">&lt;h1&gt;</td>
-                          <td className="py-2 pr-4">Josefin Sans, sans-serif</td>
+                          <td className="py-2 pr-4">Montserrat, sans-serif</td>
                           <td className="py-2 pr-4 text-xs">weight: 300, uppercase, tracking: 0.20em</td>
-                          <td className="py-2"><span style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 300, textTransform: "uppercase" as const, letterSpacing: "0.20em", fontSize: 14 }}>MARRAKECH</span></td>
+                          <td className="py-2"><span style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, textTransform: "uppercase" as const, letterSpacing: "0.20em", fontSize: 14 }}>MARRAKECH</span></td>
                         </tr>
                         <tr>
                           <td className="py-2 pr-4 font-mono text-xs">&lt;h2&gt;</td>
-                          <td className="py-2 pr-4">Josefin Sans, sans-serif</td>
+                          <td className="py-2 pr-4">Montserrat, sans-serif</td>
                           <td className="py-2 pr-4 text-xs">weight: 300, uppercase, tracking: 0.15em</td>
-                          <td className="py-2"><span style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 300, textTransform: "uppercase" as const, letterSpacing: "0.15em", fontSize: 14 }}>HÉBERGEMENTS</span></td>
+                          <td className="py-2"><span style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, textTransform: "uppercase" as const, letterSpacing: "0.15em", fontSize: 14 }}>HÉBERGEMENTS</span></td>
                         </tr>
                         <tr>
                           <td className="py-2 pr-4 font-mono text-xs">&lt;h3&gt;</td>
-                          <td className="py-2 pr-4">Josefin Sans, sans-serif</td>
+                          <td className="py-2 pr-4">Montserrat, sans-serif</td>
                           <td className="py-2 pr-4 text-xs">weight: 300, uppercase, tracking: 0.12em</td>
-                          <td className="py-2"><span style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 300, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontSize: 14 }}>SOUS-TITRE</span></td>
+                          <td className="py-2"><span style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontSize: 14 }}>SOUS-TITRE</span></td>
                         </tr>
                         <tr>
                           <td className="py-2 pr-4 font-mono text-xs">.font-arabic</td>

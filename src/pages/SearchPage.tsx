@@ -4046,7 +4046,7 @@ const SearchPage = () => {
                     <div className="px-1 mb-2">
                       <span
                         className="inline-flex items-center rounded-full bg-gold text-black px-3 py-1 text-xs font-semibold"
-                        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
                       >
                         {badgeLabel}
                       </span>
@@ -4414,7 +4414,7 @@ const SearchPage = () => {
                     if (total <= 20) return null;
                     return (
                       <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2">
-                        <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                           <button
                             type="button"
                             onClick={() => { if (showAllSearchMarkers) setShowAllSearchMarkers(false); }}
@@ -4969,7 +4969,7 @@ const SearchPage = () => {
                 return (
                   <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2 flex-wrap">
                     {showToggle && (
-                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         <button
                           type="button"
                           onClick={() => { if (mobileFsSubId) applySub(null); if (showAllSearchMarkers) setShowAllSearchMarkers(false); }}
@@ -4987,7 +4987,7 @@ const SearchPage = () => {
                       </div>
                     )}
                     {subs.length > 0 && (
-                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button
@@ -5014,7 +5014,7 @@ const SearchPage = () => {
                       </div>
                     )}
                     {showCatFallback && (
-                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button
@@ -5036,7 +5036,7 @@ const SearchPage = () => {
                       </div>
                     )}
                     {proxHasAny && (
-                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button
@@ -5127,7 +5127,7 @@ const SearchPage = () => {
                 return (
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60] flex flex-wrap items-center justify-center gap-2">
                     {entries.length > 0 && (
-                      <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button
@@ -5155,7 +5155,7 @@ const SearchPage = () => {
                       </div>
                     )}
                     {poiProxHasAny && (
-                      <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button

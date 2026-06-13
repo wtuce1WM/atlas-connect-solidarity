@@ -196,7 +196,7 @@ export function ToolbarPortals({
             {likeCount > 0 && (
               <span
                 className="absolute -bottom-4 text-[10px] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] tabular-nums"
-                style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
                 {likeCount}
               </span>

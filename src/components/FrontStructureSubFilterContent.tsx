@@ -92,7 +92,7 @@ export default function FrontStructureSubFilterContent({
       )}
       <span
         className={`flex-1 text-sm text-black ${selected ? "font-semibold" : ""}`}
-        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+        style={{ fontFamily: "'Montserrat', sans-serif" }}
       >
         {label}
       </span>

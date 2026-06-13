@@ -40,7 +40,7 @@ export default function FrontStructureNavBar({ tabs, activeTabId, onTabClick }: 
             ? "bg-[#D4AF37] text-black"
             : "bg-black/50 text-white hover:bg-black/70"
         }`}
-        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+        style={{ fontFamily: "'Montserrat', sans-serif" }}
       >
         Votre recherche
       </button>
@@ -54,7 +54,7 @@ export default function FrontStructureNavBar({ tabs, activeTabId, onTabClick }: 
               ? "bg-[#D4AF37] text-black"
               : "bg-black/50 text-white hover:bg-black/70"
           }`}
-          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+          style={{ fontFamily: "'Montserrat', sans-serif" }}
         >
           {tab.name}
           <span className="ml-1 opacity-70">{tab.count}</span>

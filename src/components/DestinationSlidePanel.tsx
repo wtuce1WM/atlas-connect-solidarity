@@ -761,13 +761,13 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
               {hasLoc && (
                 <div onClick={() => setShowLocationMap(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-                  <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Localisation</span>
+                  <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Localisation</span>
                   <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
                 </div>
               )}
               {hasYoutube && (
                 <div onClick={() => setShowYoutubeOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-                  <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">YouTube</span>
+                  <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">YouTube</span>
                   <YouTubeIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300 text-red-600" />
                 </div>
               )}
@@ -788,7 +788,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               <h2
                 className="text-base md:text-xl font-bold uppercase text-center"
                 style={{
-                  fontFamily: "'Josefin Sans', sans-serif",
+                  fontFamily: "'Montserrat', sans-serif",
                   letterSpacing: '0.12em',
                   WebkitTextStroke: '0.8px currentColor',
                   textShadow: '0 0 0 currentColor',
@@ -822,7 +822,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                 {destination.hook && (
                   <p
                     className="hidden md:block absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-[85vw] md:w-xl max-w-xl text-lg md:text-xl text-white/90 font-bold text-center leading-relaxed pointer-events-none [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
-                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
                     {destination.hook}
                   </p>
@@ -868,7 +868,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                         onTouchStart={(e) => e.stopPropagation()}
                         onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setShowDirections(true); }}
                         className="relative overflow-hidden flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left touch-manipulation shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-1px_0_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.28)] before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none before:bg-gradient-to-b before:from-white/25 before:via-transparent before:to-white/5 after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-[inherit] after:pointer-events-none after:bg-gradient-to-b after:from-white/25 after:to-transparent after:blur-[1px] [&>*]:relative [&>*]:z-10"
-                        style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
+                        style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}
                       >
                         <MapPin className="h-4 w-4 hidden md:block" />
                         <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
@@ -935,12 +935,12 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             >
               <X className="h-4 w-4" />
             </button>
-            <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{destName}</h2>
+            <h2 className="text-sm font-bold uppercase font-['Montserrat',sans-serif] truncate text-white flex-1">{destName}</h2>
           </div>
           <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain">
             <div className="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-4 md:pr-6">
               <div
-                className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_img]:max-w-full [&_img]:rounded-md [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic prose-strong:!text-white"
+                className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_img]:max-w-full [&_img]:rounded-md [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic prose-strong:!text-white"
                 dangerouslySetInnerHTML={{ __html: description }}
               />
             </div>

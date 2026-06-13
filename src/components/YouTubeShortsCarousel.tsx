@@ -195,7 +195,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
       {!hideHeader && (
         <div className="flex items-center gap-2">
           <YouTubeIcon className="h-5 w-5 text-red-600" />
-          <h3 className="text-sm font-semibold text-white tracking-wide" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+          <h3 className="text-sm font-semibold text-white tracking-wide" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             {language === "en" ? "Latest Videos" : "Dernières vidéos"}
           </h3>
         </div>
@@ -309,7 +309,7 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
                   )}
                 </div>
                 {isMatchTabs && (
-                  <p className="mt-1.5 px-1 text-[11px] leading-tight text-white font-medium line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <p className="mt-1.5 px-1 text-[11px] leading-tight text-white font-medium line-clamp-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     {video.title}
                   </p>
                 )}

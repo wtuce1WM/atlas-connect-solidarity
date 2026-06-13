@@ -49,7 +49,7 @@ export function HotelAvailabilityResult({
       {hotelSearchLoading && (
         <div className="flex items-center justify-center gap-2 text-white/80">
           <Loader2 className="h-5 w-5 animate-spin" />
-          <span className="text-sm font-['Roboto',sans-serif]">{language === "en" ? "Searching availability..." : "Recherche de disponibilité..."}</span>
+          <span className="text-sm font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif]">{language === "en" ? "Searching availability..." : "Recherche de disponibilité..."}</span>
         </div>
       )}
       {fallbackPanelData && !hotelSearchLoading && (() => {
@@ -117,7 +117,7 @@ export function HotelAvailabilityResult({
         return (
           <div className="flex flex-col items-center justify-start w-full">
             <div className="text-left text-white bg-black/40 backdrop-blur-sm rounded-xl px-4 md:px-5 py-4 border border-white/10 w-full md:w-auto">
-              <div className="text-[14px] md:text-[20px] font-['Roboto',sans-serif] leading-relaxed space-y-2">
+              <div className="text-[14px] md:text-[20px] font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] leading-relaxed space-y-2">
                 {hasAvailability ? (
                   <>
                     <p>
@@ -165,7 +165,7 @@ export function HotelAvailabilityResult({
                     <div className="flex justify-center mt-2">
                       <button
                         onClick={showCards}
-                        className="px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity bg-gold text-black"
+                        className="px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Montserrat',sans-serif] shadow-lg hover:opacity-90 transition-opacity bg-gold text-black"
                         style={{ height: '40px' }}
                       >
                         {language === "en" ? "Change dates" : "Modifier les dates"}
@@ -182,7 +182,7 @@ export function HotelAvailabilityResult({
                   <button
                     key={i}
                     onClick={card.onClick}
-                    className="flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal whitespace-nowrap flex-1 md:flex-initial md:w-full min-w-0"
+                    className="flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Montserrat',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal whitespace-nowrap flex-1 md:flex-initial md:w-full min-w-0"
                     style={{ backgroundColor: card.color, color: card.textColor || "#FFFFFF", height: '40px' }}
                   >
                     {card.icon}
@@ -199,7 +199,7 @@ export function HotelAvailabilityResult({
                 onClick={() => { onClosePanel?.(); }}
                 onTouchEnd={(e) => { e.preventDefault(); onClosePanel?.(); }}
                 style={{ WebkitTapHighlightColor: 'rgba(255,255,255,0.1)', touchAction: 'manipulation' }}
-                className="block text-center text-white bg-black/40 backdrop-blur-sm rounded-2xl px-1 md:px-5 py-1.5 md:py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] normal-case tracking-normal cursor-pointer hover:bg-black/50 active:bg-black/60 transition-colors w-full md:w-auto select-none"
+                className="block text-center text-white bg-black/40 backdrop-blur-sm rounded-2xl px-1 md:px-5 py-1.5 md:py-3 border border-white/10 mt-3 font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] normal-case tracking-normal cursor-pointer hover:bg-black/50 active:bg-black/60 transition-colors w-full md:w-auto select-none"
               >
                 <p className="text-[14px] md:text-[20px] font-medium mb-0.5 md:mb-1 pointer-events-none">
                   {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length} {language === "en" ? "available hotels" : "hôtels disponibles"}

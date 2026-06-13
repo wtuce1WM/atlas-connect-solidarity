@@ -83,7 +83,7 @@ const TypewriterHook = ({ text }: { text: string }) => {
   return (
     <p
       className="hidden md:block text-lg md:text-xl text-white/90 font-bold text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
-      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+      style={{ fontFamily: "'Montserrat', sans-serif" }}
     >
       {text}
     </p>
@@ -1177,7 +1177,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
           {languages.length > 1 && (
           <div className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Nous parlons</span>
+            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Nous parlons</span>
             <span
               className="relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 group-hover:ml-2 transition-[margin] duration-300 cursor-help [&:hover>span]:opacity-100"
               aria-label="Nous parlons français"
@@ -1212,7 +1212,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           )}
           {isHotelWithPrice ? (
             <div onClick={() => setShowAvailabilitySearch(true)} className="flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pl-4 pr-4 gap-2 cursor-pointer">
-              <span className="text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Disponibilité</span>
+              <span className="text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Disponibilité</span>
               <CalendarCheck className="h-[22px] w-[22px] shrink-0" />
             </div>
           ) : hasOpeningHours && !business?.is_open_24h ? (
@@ -1221,12 +1221,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               className={`group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pl-4 pr-4 gap-2 cursor-pointer transition-colors ${openBadgeInfo?.isOpen ? 'bg-[#25D366] hover:bg-[#1fb958]' : 'backdrop-blur-md bg-black/80 hover:bg-black/90'}`}
             >
               <Clock className="h-[22px] w-[22px] shrink-0" />
-              <span className="text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">{openBadgeInfo?.isOpen ? 'Ouvert' : 'Horaires'}</span>
+              <span className="text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{openBadgeInfo?.isOpen ? 'Ouvert' : 'Horaires'}</span>
             </div>
           ) : null}
           {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
             <div onClick={() => setShowPoiMapOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Localisation</span>
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Localisation</span>
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
@@ -1241,19 +1241,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 setShowExternalVideosOverlay(true);
               }
             }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">YouTube</span>
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">YouTube</span>
               <YouTubeIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300 text-red-600" />
             </div>
           )}
           {hasDestCarousel && (
             <div onClick={() => { setDescGridSection("dest"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Destinations</span>
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Destinations</span>
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
           {hasKpCarousel && (
             <div onClick={() => { setDescGridSection("kp"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">{kpGroupTitle || (language === "en" ? "Other establishments" : "Autres établissements")}</span>
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{kpGroupTitle || (language === "en" ? "Other establishments" : "Autres établissements")}</span>
               <Landmark className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
@@ -1270,7 +1270,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             })();
             return (
               <div onClick={() => { setExtLinksOrigin('carousel'); setShowExtLinksOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-                <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">{extLabel}</span>
+                <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{extLabel}</span>
                 {isPresse
                   ? <Newspaper className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
                   : <ExternalLink className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />}
@@ -1320,7 +1320,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   onTouchStart={(e) => e.stopPropagation()}
                 >
                   <ChevronUp className="h-3.5 w-3.5" />
-                  <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Afficher</span>
+                  <span className="text-xs font-medium" style={{ fontFamily: "'Montserrat', sans-serif" }}>Afficher</span>
                   <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
                 </button>
                 <div className="min-w-0" />
@@ -1359,7 +1359,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               middleSlot={hookText ? (
                 <p
                   className="md:hidden text-base text-white/90 font-bold text-center max-w-[95%] md:max-w-[85%] leading-relaxed pointer-events-none pl-8 pr-0 md:px-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
-                  style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
                   {hookText}
                 </p>
@@ -1450,11 +1450,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
                       <div className="flex items-center gap-1.5 md:gap-2.5">
                         <Star className="h-5 w-5 md:h-7 md:w-7 text-gold fill-gold" />
-                        <span className="text-2xl md:text-4xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <span className="text-2xl md:text-4xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                           {avgOn20}<span className="text-sm md:text-xl font-semibold text-white/60">/20</span>
                         </span>
                       </div>
-                      <span className="text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      <span className="text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
                       </span>
                     </div>
@@ -1688,7 +1688,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <button onClick={() => { if (descGridSection && !descOverlayDirect) { setDescGridSection(null); setDescGridPage(0); } else if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); } else { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); setDescGridSection(null); setDescGridPage(0); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
               <X className="h-4 w-4" />
             </button>
-            <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{business?.name}</h2>
+            <h2 className="text-sm font-bold uppercase font-['Montserrat',sans-serif] truncate text-white flex-1">{business?.name}</h2>
           </div>
           )}
           <div className="relative z-10 flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
@@ -1788,7 +1788,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       >
                         <ChevronLeft className="h-5 w-5" />
                       </button>
-                      <span className="text-white text-xs font-medium font-['Josefin_Sans',sans-serif] min-w-[2rem] text-center">
+                      <span className="text-white text-xs font-medium font-['Montserrat',sans-serif] min-w-[2rem] text-center">
                         {descGridPage + 1} / {totalGridPages}
                       </span>
                       <button
@@ -1836,7 +1836,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                                 )}
                                 {item.label && (
                                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5 pointer-events-none">
-                                    <p className="text-[11px] font-medium text-white truncate font-['Josefin_Sans',sans-serif]">
+                                    <p className="text-[11px] font-medium text-white truncate font-['Montserrat',sans-serif]">
                                       {item.masterStar && <span className="text-gold mr-1">★</span>}
                                       {item.label}
                                     </p>
@@ -1859,7 +1859,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       {!(descOverlayContent.title?.toLowerCase().startsWith("avis") || descOverlayContent.title?.toLowerCase().startsWith("customer")) && (
                         <div className="flex items-center gap-2 mb-4">
                           <Sparkles className="h-4 w-4 text-gold shrink-0" />
-                          <h3 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] text-white">{descOverlayContent.title}</h3>
+                          <h3 className="text-sm font-bold uppercase font-['Montserrat',sans-serif] text-white">{descOverlayContent.title}</h3>
                         </div>
                       )}
                       {(descOverlayContent.avgPriceRange || descOverlayContent.priceDetails) && (
@@ -1872,8 +1872,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                             if (min == null && max == null) return null;
                             return (
                               <div className="flex-1 min-w-[140px] rounded-xl border border-gold/30 backdrop-blur-md px-4 py-3" style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}>
-                                <span className="block text-[10px] font-extrabold uppercase tracking-widest text-gold/70 font-['Josefin_Sans',sans-serif] mb-1">Budget moyen / pers.</span>
-                                <span className="text-lg font-normal text-gold font-['Josefin_Sans',sans-serif]">
+                                <span className="block text-[10px] font-extrabold uppercase tracking-widest text-gold/70 font-['Montserrat',sans-serif] mb-1">Budget moyen / pers.</span>
+                                <span className="text-lg font-normal text-gold font-['Montserrat',sans-serif]">
                                   {min != null && max != null ? `${min} – ${max} ${currency}` : `${min ?? max} ${currency}`}
                                 </span>
                               </div>
@@ -1881,7 +1881,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                           })()}
                           {descOverlayContent.priceDetails && (
                             <div className="flex-1 min-w-[140px] rounded-xl border border-terracotta/20 backdrop-blur-md px-4 py-3" style={{ backgroundColor: 'rgba(255,255,255,0.80)' }}>
-                              <span className="block text-[10px] font-extrabold uppercase tracking-widest font-['Josefin_Sans',sans-serif] text-terracotta/70 mb-1">Détail des prix</span>
+                              <span className="block text-[10px] font-extrabold uppercase tracking-widest font-['Montserrat',sans-serif] text-terracotta/70 mb-1">Détail des prix</span>
                               <div className="rich-price-html text-sm font-normal leading-relaxed whitespace-pre-line text-terracotta [&_li]:text-base [&_p]:text-base" style={{ fontSize: '0.925rem' }} dangerouslySetInnerHTML={{ __html: descOverlayContent.priceDetails.replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:2em;line-height:1">$1</span>') }} />
                             </div>
                           )}
@@ -1890,7 +1890,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     </>
                   )}
                    <div
-                    className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 prose-strong:!text-white [&_.img-h2-row]:flex [&_.img-h2-row]:items-center [&_.img-h2-row]:gap-3 [&_.img-h2-row]:my-4 [&_.img-h2-row_img]:!my-0 [&_.img-h2-row_img]:h-10 [&_.img-h2-row_img]:w-10 [&_.img-h2-row_img]:object-contain [&_.img-h2-row_img]:shrink-0 [&_.img-h2-row_h2]:!my-0"
+                    className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 prose-strong:!text-white [&_.img-h2-row]:flex [&_.img-h2-row]:items-center [&_.img-h2-row]:gap-3 [&_.img-h2-row]:my-4 [&_.img-h2-row_img]:!my-0 [&_.img-h2-row_img]:h-10 [&_.img-h2-row_img]:w-10 [&_.img-h2-row_img]:object-contain [&_.img-h2-row_img]:shrink-0 [&_.img-h2-row_h2]:!my-0"
                     dangerouslySetInnerHTML={{ __html: groupImagesWithHeadings((descOverlayContent ? descOverlayContent.html : woDescription)).replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:1.6em;line-height:1;vertical-align:middle">$1</span>') }}
                   />
                   {!descOverlayContent && (() => {
@@ -1901,13 +1901,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         {(highlightsSection.title || highlightsSection.intro) && (
                           <div className="mb-4">
                             {highlightsSection.title && (
-                              <h3 className="text-base font-bold uppercase tracking-[0.12em] text-white mb-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                              <h3 className="text-base font-bold uppercase tracking-[0.12em] text-white mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                 {highlightsSection.title}
                               </h3>
                             )}
                             {highlightsSection.intro && (
                               <div
-                                className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
+                                className="text-sm text-white/80 leading-relaxed font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
                                 dangerouslySetInnerHTML={{ __html: highlightsSection.intro }}
                               />
                             )}
@@ -1924,7 +1924,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                               <div className="flex items-center gap-2">
                                 {h.icon && <DynamicIcon name={h.icon} className="h-4 w-4 text-gold shrink-0" />}
                                 {h.title && (
-                                  <h4 className="text-xs font-bold uppercase tracking-[0.1em] text-white" style={{ fontFamily: "'Josefin Sans', sans-serif", WebkitTextStroke: '0.6px currentColor', textShadow: '0 0 0 currentColor' }}>
+                                  <h4 className="text-xs font-bold uppercase tracking-[0.1em] text-white" style={{ fontFamily: "'Montserrat', sans-serif", WebkitTextStroke: '0.6px currentColor', textShadow: '0 0 0 currentColor' }}>
                                     {h.title}
                                   </h4>
                                 )}
@@ -1935,13 +1935,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                                     <span className="text-[10px] uppercase tracking-[0.1em] text-white/70">{h.metric_title}</span>
                                   )}
                                   {h.metric_value && (
-                                    <span className="text-lg font-bold text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{h.metric_value}</span>
+                                    <span className="text-lg font-bold text-gold" style={{ fontFamily: "'Montserrat', sans-serif" }}>{h.metric_value}</span>
                                   )}
                                 </div>
                               )}
                               {h.description && (
                                 <div
-                                  className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
+                                  className="text-sm text-white/80 leading-relaxed font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
                                   dangerouslySetInnerHTML={{ __html: h.description }}
                                 />
                               )}
@@ -2130,7 +2130,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }}
                         className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       >
-                        <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">Vidéos</span>
+                        <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Vidéos</span>
                       </button>
                     )}
                     {hasImagesBadge && (
@@ -2138,7 +2138,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         onClick={() => { setDescGridSection("images"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }}
                         className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       >
-                        <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">Images</span>
+                        <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Images</span>
                       </button>
                     )}
                     {menuDocs.map((doc) => (
@@ -2147,7 +2147,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         onClick={() => openDocOrBooking(doc.url, doc.name || 'Menu')}
                         className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
                       >
-                        <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
+                        <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
                       </button>
                     ))}
                   </div>
@@ -2174,7 +2174,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         className="shrink-0 h-9 flex items-center gap-1.5 rounded-full transition-colors overflow-hidden bg-white/15 hover:bg-white/30 text-white px-3"
                         title={link.name || 'Lien'}
                       >
-                        <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
+                        <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
                       </button>
                     ))}
                   </div>
@@ -2197,7 +2197,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       title={s.name}
                     >
                       {s.icon}
-                      <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{s.name}</span>
+                      <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{s.name}</span>
                     </button>
                   ))}
                   {socialItems.length > 0 && bookingItems.length > 0 && (
@@ -2214,7 +2214,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       title={item.name}
                     >
                       {!item.label && item.icon}
-                      <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{item.name}</span>
+                      <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{item.name}</span>
                     </button>
                   ))}
                 </div>
@@ -2401,7 +2401,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
             {(business?.name || activeFrontTab) && (
               <div className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
-                <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {activeFrontTab ? (
                     <>
                       {activeFrontTab.name}
@@ -2419,7 +2419,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
 
                 {showAllToggle && (
-                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     <button
                       type="button"
                       onClick={() => setPoiShowAll(false)}
@@ -2436,7 +2436,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     </button>
                   </div>
                 )}
-                <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
@@ -2462,7 +2462,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </DropdownMenu>
                 </div>
                 {showCatPill && (
-                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -2506,7 +2506,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 )}
                 {showProxPill && (
-                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -2739,7 +2739,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
             <div className="absolute inset-x-0 bottom-0 p-5 text-white">
               {popupMeta.title && (
-                <h3 className="text-2xl font-bold leading-tight mb-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <h3 className="text-2xl font-bold leading-tight mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {popupMeta.title}
                 </h3>
               )}

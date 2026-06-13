@@ -66,7 +66,7 @@ const ExternalLinksFlipCard = ({
               loading="lazy"
             />
           ) : (
-            <span className="text-xs text-white/90 text-center normal-case leading-tight line-clamp-3" style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}>
+            <span className="text-xs text-white/90 text-center normal-case leading-tight line-clamp-3" style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", letterSpacing: '0.02em' }}>
               {link.name || new URL(link.url).hostname.replace('www.', '')}
             </span>
           )}
@@ -88,7 +88,7 @@ const ExternalLinksFlipCard = ({
         >
           <div className="rounded-2xl p-4 text-white flex flex-col">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+              <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                 <ExternalLink className="w-4 h-4" />
                 {cardTitle}
               </h3>
@@ -111,7 +111,7 @@ const ExternalLinksFlipCard = ({
       >
         <div className="h-full rounded-2xl p-3 text-white flex flex-col pointer-events-none">
           <div className="flex items-center justify-between mb-1.5">
-            <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+            <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               <ExternalLink className="w-4 h-4" />
               {cardTitle}
             </h3>

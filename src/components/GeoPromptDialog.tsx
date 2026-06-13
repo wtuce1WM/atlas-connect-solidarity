@@ -39,7 +39,7 @@ const GeoPromptDialog = ({ open, onOpenChange, onAccept }: Props) => {
           <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
             <MapPin className="h-6 w-6 text-primary" />
           </div>
-          <DialogTitle className="text-center" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+          <DialogTitle className="text-center" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             {t.title}
           </DialogTitle>
           <DialogDescription className="text-center">{t.desc}</DialogDescription>

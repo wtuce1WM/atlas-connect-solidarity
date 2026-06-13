@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 
 
 const CSS = `
-  .card-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--terracotta:#C04F17;--terracotta-deep:#a84313;--whatsapp:#25D366;--gold:#D4AF37;background:var(--bg);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+  .card-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--terracotta:#C04F17;--terracotta-deep:#a84313;--whatsapp:#25D366;--gold:#D4AF37;background:var(--bg);color:var(--ink);font-family:'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif,system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
   .card-page *{box-sizing:border-box}
   .card-page .wrap{max-width:1240px;margin:0 auto;padding:0 24px}
 
@@ -15,7 +15,7 @@ const CSS = `
   .card-page .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
   @media (max-width:980px){.card-page .hero-grid{grid-template-columns:1fr;gap:48px}}
   .card-page .eyebrow{display:inline-block;background:#fff5ec;color:var(--terracotta);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;border-radius:999px;margin-bottom:22px}
-  .card-page h1{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(40px,5.6vw,68px);line-height:1.02;letter-spacing:-.01em;margin-bottom:24px}
+  .card-page h1{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(40px,5.6vw,68px);line-height:1.02;letter-spacing:-.01em;margin-bottom:24px}
   .card-page h1 .accent{color:var(--terracotta)}
   .card-page .lead{color:#3a3a3a;font-size:17px;max-width:560px;margin-bottom:28px}
   .card-page .lead code{background:#fff;padding:2px 8px;border-radius:6px;font-family:inherit;font-weight:600;color:var(--terracotta);font-size:.95em}
@@ -30,7 +30,7 @@ const CSS = `
 
   /* Phone mock */
   .card-page .phone-wrap{position:relative;display:flex;justify-content:center}
-  .card-page .url-label{position:absolute;top:-32px;right:0;color:var(--terracotta);font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em}
+  .card-page .url-label{position:absolute;top:-32px;right:0;color:var(--terracotta);font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em}
   .card-page .url-label::after{content:"";position:absolute;left:30%;bottom:-46px;width:80px;height:48px;border-left:2px dashed var(--terracotta);border-bottom:2px dashed var(--terracotta);border-bottom-left-radius:30px}
   .card-page .phone{width:320px;max-width:100%;background:#111;border-radius:48px;padding:14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.4)}
   .card-page .phone-inner{background:#fff;border-radius:36px;overflow:hidden;position:relative;padding-bottom:18px}
@@ -39,8 +39,8 @@ const CSS = `
   .card-page .phone-bar b{color:#111;font-weight:600}
   .card-page .phone-bar .slug{color:var(--terracotta);font-weight:700}
   .card-page .phone-body{padding:22px 20px 0;text-align:center}
-  .card-page .logo-circle{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#C04F17,#8F7950);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:32px;box-shadow:0 0 0 4px rgba(192,79,23,.15)}
-  .card-page .biz-name{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:22px;margin-bottom:4px}
+  .card-page .logo-circle{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#C04F17,#8F7950);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:32px;box-shadow:0 0 0 4px rgba(192,79,23,.15)}
+  .card-page .biz-name{font-family:'Montserrat',sans-serif;font-weight:700;font-size:22px;margin-bottom:4px}
   .card-page .biz-sub{font-size:13px;color:#666;margin-bottom:16px}
   .card-page .icons-row{display:flex;justify-content:center;gap:10px;margin-bottom:18px}
   .card-page .ic{width:38px;height:38px;border-radius:50%;background:#f3f3f3;display:flex;align-items:center;justify-content:center;font-size:15px}
@@ -58,15 +58,15 @@ const CSS = `
   .card-page section{padding:90px 0;border-top:1px solid rgba(0,0,0,.08)}
   .card-page .section-head{text-align:center;max-width:780px;margin:0 auto 64px}
   .card-page .section-head .kicker{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--terracotta);font-weight:700;margin-bottom:14px}
-  .card-page .section-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(32px,4.6vw,54px);line-height:1.05;letter-spacing:-.01em;margin-bottom:16px;text-transform:uppercase}
+  .card-page .section-head h2{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(32px,4.6vw,54px);line-height:1.05;letter-spacing:-.01em;margin-bottom:16px;text-transform:uppercase}
   .card-page .section-head p{color:var(--muted);font-size:17px}
 
   .card-page .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
   @media (max-width:980px){.card-page .steps{grid-template-columns:1fr}}
   .card-page .step{position:relative;border:1px solid var(--line);border-radius:24px;padding:36px 28px;background:#fff;overflow:hidden;transition:transform .25s,box-shadow .25s}
   .card-page .step:hover{transform:translateY(-4px);box-shadow:0 18px 40px -20px rgba(0,0,0,.18)}
-  .card-page .step .num{position:absolute;right:18px;top:-20px;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:170px;line-height:1;color:#f4f4f4;pointer-events:none}
-  .card-page .step h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:22px;margin-bottom:12px;position:relative}
+  .card-page .step .num{position:absolute;right:18px;top:-20px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:170px;line-height:1;color:#f4f4f4;pointer-events:none}
+  .card-page .step h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:22px;margin-bottom:12px;position:relative}
   .card-page .step p{color:var(--muted);font-size:15px;position:relative}
 
   .card-page .places{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
@@ -75,19 +75,19 @@ const CSS = `
   .card-page .place{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;transition:transform .2s,box-shadow .2s}
   .card-page .place:hover{transform:translateY(-3px);box-shadow:0 14px 30px -16px rgba(0,0,0,.18)}
   .card-page .place .ico{width:44px;height:44px;border-radius:12px;background:#fff5ec;color:var(--terracotta);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
-  .card-page .place h4{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px}
+  .card-page .place h4{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px}
   .card-page .place p{color:var(--muted);font-size:14px}
 
   .card-page .faq{max-width:820px;margin:0 auto}
   .card-page details{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px 26px;margin-bottom:14px;cursor:pointer}
   .card-page details[open]{box-shadow:0 14px 30px -16px rgba(0,0,0,.12)}
-  .card-page summary{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:18px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  .card-page summary{font-family:'Montserrat',sans-serif;font-weight:700;font-size:18px;list-style:none;display:flex;justify-content:space-between;align-items:center}
   .card-page summary::after{content:"+";color:var(--terracotta);font-size:24px;font-weight:300;transition:transform .2s}
   .card-page details[open] summary::after{content:"−"}
   .card-page details p{margin-top:14px;color:var(--muted);font-size:15px}
 
   .card-page .final{text-align:center;padding:120px 0}
-  .card-page .final h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(34px,5vw,60px);line-height:1.05;letter-spacing:-.01em;margin-bottom:20px;text-transform:uppercase;max-width:900px;margin-left:auto;margin-right:auto}
+  .card-page .final h2{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(34px,5vw,60px);line-height:1.05;letter-spacing:-.01em;margin-bottom:20px;text-transform:uppercase;max-width:900px;margin-left:auto;margin-right:auto}
   .card-page .final p{color:#3a3a3a;font-size:18px;max-width:620px;margin:0 auto 36px}
   .card-page .final code{background:#fff;padding:4px 12px;border-radius:8px;color:var(--terracotta);font-weight:700;font-family:inherit}
 

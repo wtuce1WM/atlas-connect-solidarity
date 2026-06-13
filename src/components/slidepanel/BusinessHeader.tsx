@@ -39,7 +39,7 @@ const BusinessHeader = React.memo(function BusinessHeader({
           <div className="min-w-0 text-center">
             <h2
               className="text-base md:text-xl font-bold uppercase truncate [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
-              style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em" }}
+              style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.12em" }}
             >
               {business.name}
             </h2>
@@ -59,7 +59,7 @@ const BusinessHeader = React.memo(function BusinessHeader({
       <div className="min-w-0 text-center">
         <h2
           className={`text-base md:text-xl font-bold uppercase [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] ${hasReviewsCard ? "line-clamp-2" : "line-clamp-3 md:line-clamp-2"}`}
-          style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em" }}
+          style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.12em" }}
         >
           {business.name}
         </h2>

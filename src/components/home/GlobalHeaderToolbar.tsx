@@ -108,7 +108,7 @@ const GlobalHeaderToolbar = () => {
             ? "bg-gold/20 text-gold border border-gold/40"
             : "bg-[#C04F17] text-white hover:bg-[#C04F17]/90"
         }`}
-        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+        style={{ fontFamily: "'Montserrat', sans-serif" }}
       >
         {geo.isDetecting ? (
           <Loader className="h-3.5 w-3.5 animate-spin" />

@@ -497,7 +497,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                     {doc.businessName && (
                       <p
                         className="text-[13px] font-semibold text-white line-clamp-1 tracking-wide"
-                        style={{ fontFamily: "'Josefin Sans', sans-serif", filter: textShadow }}
+                        style={{ fontFamily: "'Montserrat', sans-serif", filter: textShadow }}
                       >
                         {doc.businessName}
                       </p>
@@ -518,7 +518,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                   <div className="absolute inset-x-0 top-[14%] z-[6] flex justify-center px-3 pointer-events-none">
                     <p
                       className="text-[13px] font-bold text-white text-center line-clamp-3 normal-case tracking-normal"
-                      style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: 0, textTransform: "none", filter: textShadow }}
+                      style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", letterSpacing: 0, textTransform: "none", filter: textShadow }}
                     >
                       {doc.name}
                     </p>
@@ -560,7 +560,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
                     {doc.social.platform === "tiktok" && <SiTiktok className="w-7 h-7 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                     {doc.social.platform === "youtube" && <Youtube className="w-7 h-7 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                     <div className="flex items-center rounded-full bg-black border border-white/15 px-3 py-1.5">
-                      <span className="text-xs font-medium text-white normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: 0 }}>
+                      <span className="text-xs font-medium text-white normal-case tracking-normal" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: 0 }}>
                         Follow @{doc.social.account}
                       </span>
                     </div>

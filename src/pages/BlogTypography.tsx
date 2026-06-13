@@ -22,7 +22,7 @@ const BlogTypography = () => {
             <ArrowLeft className="h-4 w-4" />
             Retour au blog
           </button>
-          <h1 className="text-3xl md:text-4xl font-bold text-white" style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 300, letterSpacing: "0.08em" }}>
+          <h1 className="text-3xl md:text-4xl font-bold text-white" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, letterSpacing: "0.08em" }}>
             Guide Typographique
           </h1>
           <p className="text-white/60 mt-2">Référence des polices et balises réellement utilisées sur le site</p>
@@ -49,7 +49,7 @@ const BlogTypography = () => {
               </thead>
               <tbody className="divide-y divide-border">
                 <tr>
-                  <td className="p-3 font-medium text-foreground">Josefin Sans</td>
+                  <td className="p-3 font-medium text-foreground">Montserrat</td>
                   <td className="p-3 text-muted-foreground">Navigation, boutons, labels, CTA, noms de fiches, headings prose</td>
                   <td className="p-3 text-muted-foreground">300, 400, 600</td>
                   <td className="p-3 font-josefin text-lg text-foreground" style={{ letterSpacing: "0.08em" }}>Marrakech</td>
@@ -89,13 +89,13 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <div className="flex items-baseline justify-between mb-3">
                 <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;h1&gt; &lt;h2&gt; &lt;h3&gt;</code>
-                <span className="text-xs text-muted-foreground">font-family: 'Roboto', sans-serif · font-weight: 500</span>
+                <span className="text-xs text-muted-foreground">font-family: 'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif · font-weight: 500</span>
               </div>
               <h1 className="text-4xl text-foreground mb-2">H1 — {sampleText}</h1>
               <h2 className="text-3xl text-foreground mb-2">H2 — {sampleText}</h2>
               <h3 className="text-2xl text-foreground">H3 — {sampleText}</h3>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                h1, h2, h3 {"{"} font-family: 'Roboto', sans-serif; font-weight: 500; {"}"}
+                h1, h2, h3 {"{"} font-family: 'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif; font-weight: 500; {"}"}
               </div>
             </div>
 
@@ -114,11 +114,11 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <div className="flex items-baseline justify-between mb-3">
                 <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;body&gt; &lt;p&gt;</code>
-                <span className="text-xs text-muted-foreground">font-family: 'Roboto', sans-serif · letter-spacing: 0.02em</span>
+                <span className="text-xs text-muted-foreground">font-family: 'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif · letter-spacing: 0.02em</span>
               </div>
               <p className="text-foreground">{lorem}</p>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                body {"{"} font-family: 'Roboto', sans-serif; letter-spacing: 0.02em; {"}"}
+                body {"{"} font-family: 'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif; letter-spacing: 0.02em; {"}"}
               </div>
             </div>
 
@@ -126,7 +126,7 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <div className="flex items-baseline justify-between mb-3">
                 <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;nav&gt; &lt;button&gt; &lt;label&gt; .uppercase</code>
-                <span className="text-xs text-muted-foreground">Josefin Sans 300 · uppercase · tracking 0.12em</span>
+                <span className="text-xs text-muted-foreground">Montserrat 300 · uppercase · tracking 0.12em</span>
               </div>
               <div className="flex flex-wrap items-center gap-4">
                 <nav className="text-foreground">Recherche</nav>
@@ -136,7 +136,7 @@ const BlogTypography = () => {
               </div>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
                 nav, button, [role="button"], label, .uppercase {"{"}<br/>
-                &nbsp;&nbsp;font-family: 'Josefin Sans', sans-serif;<br/>
+                &nbsp;&nbsp;font-family: 'Montserrat', sans-serif;<br/>
                 &nbsp;&nbsp;font-weight: 300; text-transform: uppercase; letter-spacing: 0.12em;<br/>
                 {"}"}
               </div>
@@ -164,10 +164,10 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">font-josefin</code>
               <p className="font-josefin text-2xl mt-3 text-foreground">
-                Josefin Sans — utilitaire Tailwind
+                Montserrat — utilitaire Tailwind
               </p>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                tailwind.config.ts: fontFamily.josefin = ['Josefin Sans', 'sans-serif']
+                tailwind.config.ts: fontFamily.josefin = ['Montserrat', 'sans-serif']
               </div>
             </div>
 
@@ -177,17 +177,17 @@ const BlogTypography = () => {
                 Roboto — utilitaire Tailwind
               </p>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                tailwind.config.ts: fontFamily.roboto = ['Roboto', 'sans-serif']
+                tailwind.config.ts: fontFamily.roboto = ['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif, 'sans-serif']
               </div>
             </div>
 
             <div className="border border-border rounded-lg p-6">
               <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">.josefin-headings</code>
               <div className="josefin-headings mt-3">
-                <h3 className="text-2xl text-foreground">Titre injecté en Josefin Sans (non-uppercase)</h3>
+                <h3 className="text-2xl text-foreground">Titre injecté en Montserrat (non-uppercase)</h3>
               </div>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                Force Josefin Sans sur h1-h6 dans du HTML injecté · letter-spacing: 0.02em
+                Force Montserrat sur h1-h6 dans du HTML injecté · letter-spacing: 0.02em
               </div>
             </div>
 
@@ -241,7 +241,7 @@ const BlogTypography = () => {
         <section>
           <h2 className="text-2xl font-bold text-foreground mb-6">5. Poids de police (font-weight)</h2>
           <p className="text-muted-foreground mb-4 text-sm">
-            Josefin Sans n'est chargée qu'en 300/400/600 — Roboto en 300/400/500/700.
+            Montserrat n'est chargée qu'en 300/400/600 — Roboto en 300/400/500/700.
           </p>
           <div className="space-y-3">
             {[
@@ -279,7 +279,7 @@ const BlogTypography = () => {
               <span className="text-xs text-muted-foreground mb-2 block">Navigation — Lien menu</span>
               <nav className="text-foreground hover:text-gold cursor-pointer inline-block">Recherche</nav>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                &lt;nav&gt; auto: Josefin Sans 300 uppercase, tracking 0.12em
+                &lt;nav&gt; auto: Montserrat 300 uppercase, tracking 0.12em
               </div>
             </div>
 
@@ -308,7 +308,7 @@ const BlogTypography = () => {
                 Devenir affilié
               </button>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                &lt;button&gt; auto: Josefin Sans 300 uppercase · bg-gold text-gold-foreground
+                &lt;button&gt; auto: Montserrat 300 uppercase · bg-gold text-gold-foreground
               </div>
             </div>
 

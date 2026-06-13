@@ -205,7 +205,7 @@ export default function FiltersOverlayFlow({
         </button>
         <nav
           className="flex-1 min-w-0 px-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-white"
-          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+          style={{ fontFamily: "'Montserrat', sans-serif" }}
           aria-label="Fil d'Ariane"
         >
           <button
@@ -251,7 +251,7 @@ export default function FiltersOverlayFlow({
               key={tab.id}
               onClick={() => onTabClick(tab.id)}
               className={`${badgeBase} ${badgeIdle}`}
-              style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
               <span>{tab.name}</span>
               <span className="text-xs font-normal opacity-70">({tab.count})</span>
@@ -263,7 +263,7 @@ export default function FiltersOverlayFlow({
               key={sub.id}
               onClick={() => handleSubClick(sub.id)}
               className={`${badgeBase} ${badgeIdle}`}
-              style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
               <span>{sub.name}</span>
               <span className="text-xs font-normal opacity-70">({sub.count})</span>
@@ -284,7 +284,7 @@ export default function FiltersOverlayFlow({
 
                 }}
                 className={`${badgeBase} ${selected ? badgeSelected : badgeIdle}`}
-                style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
                 <span>{s.name_fr}</span>
                 <span className="text-xs font-normal opacity-70">({serviceCounts.get(s.name_fr) || 0})</span>

@@ -229,7 +229,7 @@ const PoiTabContent = ({
           {(subcatCounts.length > 0 || !!userCoords) && (
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60] flex flex-wrap items-center justify-center gap-2">
               {subcatCounts.length > 0 && (
-                <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
@@ -257,7 +257,7 @@ const PoiTabContent = ({
                 </div>
               )}
               {!!userCoords && (
-                <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button

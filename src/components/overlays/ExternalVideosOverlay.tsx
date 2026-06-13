@@ -95,7 +95,7 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
             </svg>
           </div>
-          <p className="text-xs text-white font-medium truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+          <p className="text-xs text-white font-medium truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             {activeVideo?.name?.trim() || businessName || (language === "en" ? "Videos" : "Vidéos")}
           </p>
           <span className="text-[11px] text-white/60 tabular-nums shrink-0">
@@ -197,7 +197,7 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
                   {v.name && (
                     <p
                       className={`mt-1.5 px-1 text-[11px] leading-tight font-medium line-clamp-2 ${vertical ? "w-40" : "w-52 md:w-60 lg:w-64"} ${isActive ? "text-white" : "text-white/80"}`}
-                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                      style={{ fontFamily: "'Montserrat', sans-serif" }}
                     >
                       {v.name}
                     </p>

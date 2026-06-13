@@ -180,7 +180,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
             ))}
           </div>
         )}
-        <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{business.name}</p>
+        <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{business.name}</p>
         {avgOn20 !== null && (
           <div className="flex items-center gap-1.5 text-xs">
             <Star className="h-3 w-3 text-gold fill-gold" />

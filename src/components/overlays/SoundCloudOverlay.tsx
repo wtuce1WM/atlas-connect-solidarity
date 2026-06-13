@@ -51,7 +51,7 @@ const SoundCloudOverlay = ({ url, businessName, language = "fr", onClose }: Soun
         <div className="flex items-center gap-2 min-w-0">
           <span
             className="text-white text-sm font-semibold tracking-wide truncate"
-            style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
           >
             {title}
             {businessName && (

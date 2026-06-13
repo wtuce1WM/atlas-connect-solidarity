@@ -17,7 +17,7 @@ const MockCard = ({ label, color }: { label: string; color: string }) => (
 
 const MockCarousel = ({ carousel }: { carousel: typeof CAROUSELS[0] }) => (
   <div>
-    <h4 className="text-sm font-semibold text-white/80 mb-2 px-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+    <h4 className="text-sm font-semibold text-white/80 mb-2 px-1" style={{ fontFamily: "'Montserrat', sans-serif" }}>
       {carousel.label}
     </h4>
     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
@@ -31,7 +31,7 @@ const MockCarousel = ({ carousel }: { carousel: typeof CAROUSELS[0] }) => (
 // --- Option 1: Scroll vertical ---
 const ScrollVerticalDemo = () => (
   <div className="bg-black/90 rounded-2xl p-4 max-w-md mx-auto">
-    <h3 className="text-white font-bold text-lg mb-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+    <h3 className="text-white font-bold text-lg mb-1" style={{ fontFamily: "'Montserrat', sans-serif" }}>
       Option 1 — Scroll vertical
     </h3>
     <p className="text-white/50 text-xs mb-4">Les carrousels s'empilent, la zone est scrollable verticalement.</p>
@@ -61,7 +61,7 @@ const TabsDemo = () => {
   const [activeTab, setActiveTab] = useState(0);
   return (
     <div className="bg-black/90 rounded-2xl p-4 max-w-md mx-auto">
-      <h3 className="text-white font-bold text-lg mb-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+      <h3 className="text-white font-bold text-lg mb-1" style={{ fontFamily: "'Montserrat', sans-serif" }}>
         Option 2 — Tabs / Onglets
       </h3>
       <p className="text-white/50 text-xs mb-4">Un seul carrousel visible à la fois, navigation par onglets.</p>
@@ -107,7 +107,7 @@ const SwipeVerticalDemo = () => {
 
   return (
     <div className="bg-black/90 rounded-2xl p-4 max-w-md mx-auto">
-      <h3 className="text-white font-bold text-lg mb-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+      <h3 className="text-white font-bold text-lg mb-1" style={{ fontFamily: "'Montserrat', sans-serif" }}>
         Option 3 — Swipe vertical (pages)
       </h3>
       <p className="text-white/50 text-xs mb-4">Un carrousel par "page", swipe vertical pour changer.</p>
@@ -170,7 +170,7 @@ const AccordionDemo = () => {
 
   return (
     <div className="bg-black/90 rounded-2xl p-4 max-w-md mx-auto">
-      <h3 className="text-white font-bold text-lg mb-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+      <h3 className="text-white font-bold text-lg mb-1" style={{ fontFamily: "'Montserrat', sans-serif" }}>
         Option 4 — Accordéon
       </h3>
       <p className="text-white/50 text-xs mb-4">Sections dépliables, ouvrir/fermer individuellement.</p>
@@ -223,7 +223,7 @@ const CarouselNavDemo = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 to-black py-10 px-4">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-white mb-2 text-center" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+        <h1 className="text-3xl font-bold text-white mb-2 text-center" style={{ fontFamily: "'Montserrat', sans-serif" }}>
           Navigation des carrousels — Comparatif
         </h1>
         <p className="text-white/50 text-center text-sm mb-10">

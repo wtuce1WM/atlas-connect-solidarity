@@ -33,7 +33,7 @@ const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeig
         )}
         <h3
           className="text-sm font-bold uppercase tracking-wide"
-          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+          style={{ fontFamily: "'Montserrat', sans-serif" }}
         >
           {summaries[0]?.title || (language === "en" ? "Menu" : language === "ar" ? "القائمة" : "La Carte")}
         </h3>
@@ -45,14 +45,14 @@ const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeig
             {idx > 0 && s.title && (
               <h4
                 className="text-sm font-bold uppercase tracking-wide text-white"
-                style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}
+                style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}
               >
                 {s.title}
               </h4>
             )}
             {s.content && (
               <div
-                className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] text-white/80 [&_*]:!text-white/80 [&_p]:mb-1.5 [&_ul]:list-disc [&_li::marker]:text-gold/60 [&_h2]:font-['Josefin_Sans',sans-serif] [&_h2]:uppercase [&_h2]:tracking-[0.12em] [&_h2]:font-bold [&_h2]:text-white [&_h2]:!text-white [&_h3]:font-['Josefin_Sans',sans-serif] [&_h3]:tracking-[0.02em] [&_h3]:font-bold [&_h3]:text-white [&_h3]:!text-white"
+                className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] text-white/80 [&_*]:!text-white/80 [&_p]:mb-1.5 [&_ul]:list-disc [&_li::marker]:text-gold/60 [&_h2]:font-['Montserrat',sans-serif] [&_h2]:uppercase [&_h2]:tracking-[0.12em] [&_h2]:font-bold [&_h2]:text-white [&_h2]:!text-white [&_h3]:font-['Montserrat',sans-serif] [&_h3]:tracking-[0.02em] [&_h3]:font-bold [&_h3]:text-white [&_h3]:!text-white"
                 style={{ WebkitTextStroke: undefined }}
                 dangerouslySetInnerHTML={{ __html: s.content }}
               />

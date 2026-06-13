@@ -261,7 +261,7 @@ const BlogBrummellTypography = () => {
               <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Remplacement de Venus (titres)</p>
               <div className="space-y-3">
                 <div>
-                  <p className="font-['Josefin_Sans'] text-2xl tracking-[0.15em] uppercase font-light">Josefin Sans</p>
+                  <p className="font-['Montserrat'] text-2xl tracking-[0.15em] uppercase font-light">Montserrat</p>
                   <p className="text-xs text-muted-foreground mt-1">Géométrique, élégante, similar tracking</p>
                 </div>
                 <div>
@@ -303,7 +303,7 @@ const BlogBrummellTypography = () => {
             <pre className="text-[#e8e0d6]/80 text-sm font-mono leading-relaxed whitespace-pre">
 {`/* ─── Venus — Titres & Navigation ─── */
 .heading-hero {
-  font-family: 'Venus', 'Josefin Sans', sans-serif;
+  font-family: 'Venus', 'Montserrat', sans-serif;
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.25em;
@@ -311,7 +311,7 @@ const BlogBrummellTypography = () => {
 }
 
 .heading-section {
-  font-family: 'Venus', 'Josefin Sans', sans-serif;
+  font-family: 'Venus', 'Montserrat', sans-serif;
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -319,7 +319,7 @@ const BlogBrummellTypography = () => {
 }
 
 .nav-link, .btn-label {
-  font-family: 'Venus', 'Josefin Sans', sans-serif;
+  font-family: 'Venus', 'Montserrat', sans-serif;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.2em;
