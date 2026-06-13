@@ -29,7 +29,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string; artisanat?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string; artisanat?: string; streetfood?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -129,6 +129,17 @@ const Blog = () => {
         kidsImg = (data || []).find((b: any) => b.images?.length)?.images?.[0];
       }
 
+      // Hero street food : 1ʳᵉ image dispo parmi les fiches Street food à Marrakech
+      const { data: sfRows } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("is_active", true)
+        .eq("city", "Marrakech")
+        .or("services.cs.{Street food},services.cs.{Street Food}")
+        .order("priority_score", { ascending: false })
+        .limit(20);
+      const sfImg = (sfRows || []).find((b: any) => b.images?.length)?.images?.[0];
+
       setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -136,6 +147,7 @@ const Blog = () => {
         galeries: (galRes.data as any)?.images?.[0],
         fermes: (fermesRes.data as any)?.images?.[0],
         artisanat: (artisanatRes.data as any)?.images?.[0],
+        streetfood: sfImg,
       });
     };
     fetchStaticHeroes();
@@ -445,6 +457,46 @@ const Blog = () => {
                   </Link>
                 ),
               });
+
+              // Carte Street Food Marrakech
+              items.push({
+                key: "static-streetfood-marrakech",
+                date: "2026-06-13T02:00:00Z",
+                node: (
+                  <Link key="static-streetfood-marrakech" to="/blog/street-food-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-red-50 to-yellow-50 dark:from-red-950/30 dark:to-yellow-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.streetfood ? (
+                          <img
+                            src={staticHeroes.streetfood}
+                            alt="Street Food à Marrakech"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Le meilleur de la Street Food à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Trente-six adresses pour arpenter Marrakech la fourchette à la main — sandwichs minute, burgers gourmets, kefta bsmen, shawarmas, glaces maison et rooftop afro-berbère.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
+
 
 
 

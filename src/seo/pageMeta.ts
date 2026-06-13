@@ -80,6 +80,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Huit ateliers et boutiques de la Médina — tapis berbères, caftans, poteries, maroquinerie, savonnerie et galerie d'art — où l'artisanat marocain se vit, se touche et se rapporte chez soi.",
   },
+  "/blog/street-food-marrakech": {
+    title: `Le meilleur de la Street Food à Marrakech — ${BRAND}`,
+    description:
+      "Trente-six adresses incontournables pour goûter la street food à Marrakech — du sandwich minute aux burgers gourmets, des kefta bsmen aux glaces maison, du shawarma au rooftop afro-berbère.",
+  },
   "/blog/ancien-accueil": {
     title: `Ancienne page d'accueil — ${BRAND}`,
     description: "Archive de l'ancienne page d'accueil One World Morocco.",
