@@ -70,6 +70,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Notre sélection des galeries d'art contemporaines et traditionnelles à Marrakech.",
   },
+  "/blog/fermes-pedagogiques-marrakech": {
+    title: `Fermes pédagogiques à Marrakech — ${BRAND}`,
+    description:
+      "Notre sélection de fermes pédagogiques autour de Marrakech : Bled Ouladi, La Ferme El Dar, Jardin Bio-Aromatique d'Ourika.",
+  },
   "/blog/ancien-accueil": {
     title: `Ancienne page d'accueil — ${BRAND}`,
     description: "Archive de l'ancienne page d'accueil One World Morocco.",
