@@ -241,7 +241,7 @@ const BlogTypography = () => {
         <section>
           <h2 className="text-2xl font-bold text-foreground mb-6">5. Poids de police (font-weight)</h2>
           <p className="text-muted-foreground mb-4 text-sm">
-            Montserrat n'est chargée qu'en 300/400/600 — Roboto en 300/400/500/700.
+            Montserrat n'est chargée qu'en 300/400/600 — Avenir s'appuie sur la stack système avec Nunito Sans (300/400/500/700) comme fallback web.
           </p>
           <div className="space-y-3">
             {[
