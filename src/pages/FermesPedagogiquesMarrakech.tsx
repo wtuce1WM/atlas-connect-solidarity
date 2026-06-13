@@ -7,6 +7,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { Loader2, ArrowLeft, MapPin, Star, Clock } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
@@ -142,7 +143,9 @@ const FermesPedagogiquesMarrakech = () => {
   const [businesses, setBusinesses] = useState<Record<string, Business>>({});
   const [isLoading, setIsLoading] = useState(true);
 
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const geo = useGeolocation();
+  const userLocation = geo.isEnabled && geo.coords ? geo.coords : null;
+
 
   useSEO({
     title: "Les fermes pédagogiques à Marrakech",
@@ -168,15 +171,8 @@ const FermesPedagogiquesMarrakech = () => {
       setIsLoading(false);
     };
     fetchBiz();
-
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => {},
-        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60_000 }
-      );
-    }
   }, []);
+
 
 
   const heroImage =
