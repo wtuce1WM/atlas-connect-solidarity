@@ -709,11 +709,11 @@ const StaffFront = () => {
                 // Fiches
                 { group: "Fiches", name: "Fiche immersive", url: "/fiche/:slug", description: "Fiche établissement immersive (partage). Redirige vers /search avec contexte." },
                 { group: "Fiches", name: "Établissement (legacy)", url: "/business/:slug", description: "Redirection legacy vers la fiche immersive." },
+                { group: "Fiches", name: "Vanity URL", url: "/:vanitySlug", description: "Alias court qui redirige vers une fiche ou une destination." },
 
                 // Profils publics
                 { group: "Profils publics", name: "Chaîne YouTube", url: "/y/:slug", description: "Page publique d'une chaîne YouTube référencée." },
                 { group: "Profils publics", name: "Profil membre club", url: "/u/:pseudo", description: "Page publique d'un membre du club OWM." },
-                { group: "Profils publics", name: "Vanity URL", url: "/:vanitySlug", description: "Alias court qui redirige vers une page cible." },
 
                 // Espace affiliés
                 { group: "Affiliés", name: "Connexion affilié", url: "/affiliates", description: "Page de connexion des affiliés." },
