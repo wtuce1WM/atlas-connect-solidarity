@@ -138,8 +138,6 @@ export function prerenderOgPlugin(): Plugin {
         const dir = path.join(distDir, slugPath);
         await mkdir(dir, { recursive: true });
         await writeFile(path.join(dir, "index.html"), html, "utf8");
-        await rm(path.join(distDir, slugPath), { force: true });
-        await writeFile(path.join(distDir, slugPath), html, "utf8");
         written++;
       };
 
