@@ -143,7 +143,9 @@ const FermesPedagogiquesMarrakech = () => {
   const [businesses, setBusinesses] = useState<Record<string, Business>>({});
   const [isLoading, setIsLoading] = useState(true);
 
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const geo = useGeolocation();
+  const userLocation = geo.isEnabled && geo.coords ? geo.coords : null;
+
 
   useSEO({
     title: "Les fermes pédagogiques à Marrakech",
