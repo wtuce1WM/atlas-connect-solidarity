@@ -377,9 +377,15 @@ async function main() {
   mkdirSync(blogDir, { recursive: true });
   writeFileSync(join(blogDir, MARKER_FILE), "", "utf8");
   for (const article of STATIC_ARTICLES) {
-    const file = join(PUBLIC_DIR, article.path);
-    if (existsSync(file)) rmSync(file, { recursive: true, force: true });
-    writeFileSync(file, buildArticleHtml(article), "utf8");
+    // Supprime un éventuel fichier sans extension (ancienne génération) qui était téléchargé
+    const legacyFile = join(PUBLIC_DIR, article.path);
+    try {
+      const st = statSync(legacyFile);
+      if (st.isFile()) rmSync(legacyFile, { force: true });
+    } catch {}
+    const articleDir = join(PUBLIC_DIR, article.path);
+    mkdirSync(articleDir, { recursive: true });
+    writeFileSync(join(articleDir, "index.html"), buildArticleHtml(article), "utf8");
   }
 
   console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${STATIC_ARTICLES.length} articles.`);
