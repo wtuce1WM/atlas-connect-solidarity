@@ -1,43 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useSEO } from "@/hooks/useSEO";
-import { businessUrl } from "@/lib/businessUrl";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
-import Footer from "@/components/Footer";
-import { Card, CardContent } from "@/components/ui/card";
-import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
-import { useGeolocation } from "@/hooks/useGeolocation";
-import { useArticleBookmark } from "@/hooks/useArticleBookmark";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark } from "lucide-react";
-import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
-import ClubLoginPopup from "@/components/club/ClubLoginPopup";
-
-interface Business {
-  id: string;
-  name: string;
-  slug: string | null;
-  neighborhood: string | null;
-  city: string | null;
-  images: string[] | null;
-  rating: number | null;
-  categories: string[] | null;
-  hook_fr: string | null;
-  wtuce_status: string | null;
-  latitude: number | null;
-  longitude: number | null;
-}
+import BlogArticleTemplate, { type BlogArticleEntry } from "@/components/blog/BlogArticleTemplate";
 
 // Texte immersif rédigé à partir des descriptions, hooks, avis clients et horaires de chaque fiche.
-const ATELIERS: {
-  id: string;
-  extraIds?: string[];
-  pretitle: string;
-  title: string;
-  hours: string;
-  paragraphs: string[];
-}[] = [
+const ATELIERS: BlogArticleEntry[] = [
   {
     id: "1621498d-403b-4ff2-baf3-db45d1e5f41e",
     pretitle: "Face à la fontaine Ben Youssef, au cœur de la Médina",
