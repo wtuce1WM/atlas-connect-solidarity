@@ -9,7 +9,7 @@ interface Props {
 
 const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
   const location = useLocation();
-  const blackHamburger = location.pathname === "/" || location.pathname === "/install";
+  const blackHamburger = location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join";
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -25,6 +25,51 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
     whiteText ? "text-white/85 hover:text-white" : "text-black hover:text-black/70"
   }`;
 
+  const getNavLinks = () => {
+    if (location.pathname === "/corporate") {
+      return [
+        { to: "/join", label: "Rejoindre" },
+        { to: "/card", label: "Votre carte de visite numérique" },
+        { to: "/devenir-affilie", label: "Devenir affilié" },
+      ];
+    } else if (location.pathname === "/join") {
+      return [
+        { to: "/card", label: "Votre carte de visite numérique" },
+        { to: "/devenir-affilie", label: "Devenir affilié" },
+      ];
+    } else {
+      return [
+        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/club", label: "Le club OWM" },
+        { to: "/install", label: "Application" },
+      ];
+    }
+  };
+
+  const getMobileLinks = () => {
+    const base = [{ to: "/", label: "Page d'accueil" }];
+    if (location.pathname === "/corporate") {
+      return [
+        ...base,
+        { to: "/join", label: "Rejoindre" },
+        { to: "/card", label: "Votre carte de visite numérique" },
+        { to: "/devenir-affilie", label: "Devenir affilié" },
+      ];
+    } else if (location.pathname === "/join") {
+      return [
+        ...base,
+        { to: "/card", label: "Votre carte de visite numérique" },
+        { to: "/devenir-affilie", label: "Devenir affilié" },
+      ];
+    } else {
+      return [
+        ...base,
+        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/club", label: "Le club OWM" },
+        { to: "/install", label: "Application" },
+      ];
+    }
+  };
 
   return (
     <nav
@@ -52,19 +97,11 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         </Link>
 
         <div className="hidden items-center gap-6 lg:flex">
-          {location.pathname === "/corporate" ? (
-            <>
-              <Link to="/join" className={linkClass}>Rejoindre</Link>
-              <Link to="/card" className={linkClass}>Votre carte de visite numérique</Link>
-              <Link to="/devenir-affilie" className={linkClass}>Devenir affilié</Link>
-            </>
-          ) : (
-            <>
-              <Link to="/corporate" className={linkClass}>Ajoutez votre entreprise</Link>
-              <Link to="/club" className={linkClass}>Le club OWM</Link>
-              <Link to="/install" className={linkClass}>Application</Link>
-            </>
-          )}
+          {getNavLinks().map((item) => (
+            <Link key={item.to} to={item.to} className={linkClass}>
+              {item.label}
+            </Link>
+          ))}
         </div>
 
         <button
@@ -83,20 +120,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       {menuOpen && (
         <div className="lg:hidden px-4 pt-3 pb-4">
           <div className="flex flex-col gap-2 rounded-2xl p-3 bg-black/60 backdrop-blur-2xl backdrop-saturate-150 border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.15)]">
-            {(location.pathname === "/corporate"
-              ? [
-                  { to: "/", label: "Page d'accueil" },
-                  { to: "/join", label: "Rejoindre" },
-                  { to: "/card", label: "Votre carte de visite numérique" },
-                  { to: "/devenir-affilie", label: "Devenir affilié" },
-                ]
-              : [
-                  { to: "/", label: "Page d'accueil" },
-                  { to: "/corporate", label: "Ajoutez votre entreprise" },
-                  { to: "/club", label: "Le club OWM" },
-                  { to: "/install", label: "Application" },
-                ]
-            )
+            {getMobileLinks()
               .filter((item) => item.to !== location.pathname)
               .map((item) => (
                 <Link
