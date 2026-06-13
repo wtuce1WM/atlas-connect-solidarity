@@ -6,6 +6,7 @@ import { businessUrl } from "@/lib/businessUrl";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
+import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { Loader2, ArrowLeft, MapPin, Star, Clock } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
@@ -20,6 +21,8 @@ interface Business {
   categories: string[] | null;
   hook_fr: string | null;
   wtuce_status: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 // Texte immersif rédigé à partir des descriptions, avis clients et horaires de chaque fiche.
