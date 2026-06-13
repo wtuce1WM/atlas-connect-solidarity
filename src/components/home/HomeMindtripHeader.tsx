@@ -9,7 +9,7 @@ interface Props {
 
 const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
   const location = useLocation();
-  const blackHamburger = location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/card";
+  const blackHamburger = location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/devenir-affilie";
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -42,6 +42,11 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         { to: "/corporate", label: "Ajoutez votre entreprise" },
         { to: "/devenir-affilie", label: "Devenir affilié" },
       ];
+    } else if (location.pathname === "/devenir-affilie") {
+      return [
+        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/join", label: "Rejoindre" },
+      ];
     } else {
       return [
         { to: "/corporate", label: "Ajoutez votre entreprise" },
@@ -71,6 +76,12 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         ...base,
         { to: "/corporate", label: "Ajoutez votre entreprise" },
         { to: "/devenir-affilie", label: "Devenir affilié" },
+      ];
+    } else if (location.pathname === "/devenir-affilie") {
+      return [
+        ...base,
+        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/join", label: "Rejoindre" },
       ];
     } else {
       return [
