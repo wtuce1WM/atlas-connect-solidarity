@@ -371,7 +371,7 @@ const StaffFront = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-muted">
+    <div className="min-h-screen bg-white">
       <header className="bg-foreground">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
