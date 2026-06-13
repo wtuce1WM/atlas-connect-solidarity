@@ -24,6 +24,9 @@ export function PageMetaOverridesLoader() {
 // after a save.
 export function usePageMetaOverridesVersion() {
   const [v, setV] = useState(0);
-  useEffect(() => subscribeOverrides(() => setV((n) => n + 1)), []);
+  useEffect(() => {
+    const unsub = subscribeOverrides(() => setV((n) => n + 1));
+    return () => { unsub(); };
+  }, []);
   return v;
 }
