@@ -198,7 +198,7 @@ const FermesPedagogiquesMarrakech = () => {
               <span className="text-gold">à Marrakech</span>
             </h1>
             <p className="mt-4 text-white/70 max-w-2xl text-lg">
-              Trois adresses à quelques minutes de la ville ocre, pour offrir
+              Huit adresses à quelques minutes de la ville ocre, pour offrir
               aux enfants — et aux parents — une vraie journée de nature, entre
               animaux, ateliers et plantes aromatiques.
             </p>
