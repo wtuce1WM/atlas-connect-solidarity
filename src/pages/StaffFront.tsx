@@ -751,9 +751,7 @@ const StaffFront = () => {
                                 <td className="p-2 font-mono text-xs text-muted-foreground">{p.url}</td>
                                 <td className="p-2 text-muted-foreground">{p.description}</td>
                                 <td className="p-2 text-muted-foreground text-xs">
-                                  {typeof document !== "undefined"
-                                    ? document.querySelector('meta[name="description"]')?.getAttribute("content") ?? "—"
-                                    : "—"}
+                                  {PAGE_META[p.url]?.description ?? "—"}
                                 </td>
                               </tr>
                             ))}
