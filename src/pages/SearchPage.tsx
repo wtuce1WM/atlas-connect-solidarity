@@ -3533,6 +3533,21 @@ const SearchPage = () => {
         }}
       />
 
+      <GeoPromptDialog
+        open={geoPromptOpen}
+        onOpenChange={(open) => {
+          setGeoPromptOpen(open);
+          if (!open) {
+            setGeoPromptDismissed(true);
+            try { sessionStorage.setItem("geo_prompt_dismissed", "1"); } catch { /* noop */ }
+          }
+        }}
+        onAccept={() => geo.accept()}
+        onChooseLocation={() => setLocationDialogOpen(true)}
+      />
+
+
+
       {/* Hidden AISearchAnswer instance — generates AI text for Sticky 4 (overlay disabled) */}
       {(() => {
         const cityForAi = searchParams.get("city") || "";
