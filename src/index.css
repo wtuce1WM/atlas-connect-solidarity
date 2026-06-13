@@ -138,17 +138,17 @@ All colors MUST be HSL.
 }
 
 /* Typography */
-/* Roboto — Titres et corps de texte */
+/* Avenir — Titres et corps de texte (fallback Nunito Sans si Avenir indisponible) */
 h1, h2, h3 {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Avenir Next', 'Avenir', 'Nunito Sans', system-ui, sans-serif;
   font-weight: 500;
   font-style: normal;
 }
 
-/* Prose H2/H3 typography: Josefin Sans headings inside rich-text blocks */
+/* Prose H2/H3 typography: Montserrat headings inside rich-text blocks */
 .prose-josefin-headings h2,
 .prose-josefin-headings h3 {
-  font-family: 'Josefin Sans', sans-serif !important;
+  font-family: 'Montserrat', sans-serif !important;
   font-weight: 300 !important;
   letter-spacing: 0.02em;
   text-transform: none;
@@ -158,16 +158,16 @@ h1, h2, h3 {
   letter-spacing: 0.12em !important;
 }
 
-/* Josefin Sans — Navigation, boutons, labels, CTA (replaces Venus) */
+/* Montserrat — Navigation, boutons, labels, CTA (replaces Venus) */
 .font-venus, nav, button, [role="button"], label,
 .uppercase {
-  font-family: 'Josefin Sans', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
 
-/* Josefin Sans for injected HTML headings (no uppercase) */
+/* Montserrat for injected HTML headings (no uppercase) */
 .josefin-headings,
 .josefin-headings h1,
 .josefin-headings h2,
@@ -175,13 +175,13 @@ h1, h2, h3 {
 .josefin-headings h4,
 .josefin-headings h5,
 .josefin-headings h6 {
-  font-family: 'Josefin Sans', sans-serif !important;
+  font-family: 'Montserrat', sans-serif !important;
   text-transform: none;
   letter-spacing: 0.02em;
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Avenir Next', 'Avenir', 'Nunito Sans', system-ui, sans-serif;
   letter-spacing: 0.02em;
 }
 
