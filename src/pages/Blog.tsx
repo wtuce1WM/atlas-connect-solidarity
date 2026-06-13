@@ -169,6 +169,14 @@ const Blog = () => {
         .maybeSingle();
       const skImg = (skRow as any)?.images?.[0];
 
+      // Hero Agafay Dream : même 1ʳᵉ fiche que le hero de l'article (Stellar Agafay Desert Camp)
+      const { data: agRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "e05a7ece-e417-4d65-b8a4-17a3ea4f96b3")
+        .maybeSingle();
+      const agImg = (agRow as any)?.images?.[0];
+
       setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -181,6 +189,7 @@ const Blog = () => {
         beachclubs: beachImg,
         hotelsessaouira: hotelsImg,
         sidikaouki: skImg,
+        agafay: agImg,
       });
     };
     fetchStaticHeroes();
