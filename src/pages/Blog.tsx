@@ -29,7 +29,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -54,7 +54,7 @@ const Blog = () => {
     // Hero images for static blog cards (same logic as their pages)
     const fetchStaticHeroes = async () => {
       const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
-      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes] = await Promise.all([
+      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes, fermesRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("images, services")
@@ -79,6 +79,11 @@ const Blog = () => {
           .from("businesses")
           .select("images")
           .eq("id", "b484d0cd-6c47-43a2-b388-8ad34f590cd8")
+          .maybeSingle(),
+        supabase
+          .from("businesses")
+          .select("images")
+          .eq("id", "2fdb1f15-4a02-40b4-b344-0ffc0c2e1abd")
           .maybeSingle(),
       ]);
       const seaKW = ["vue sur mer", "vue mer"];
@@ -124,6 +129,7 @@ const Blog = () => {
         marrakech: (mrkRes.data as any)?.images?.[0],
         kids: kidsImg,
         galeries: (galRes.data as any)?.images?.[0],
+        fermes: (fermesRes.data as any)?.images?.[0],
       });
     };
     fetchStaticHeroes();
@@ -366,7 +372,16 @@ const Blog = () => {
                   <Link key="static-fermes-marrakech" to="/blog/fermes-pedagogiques-marrakech">
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-green-50 to-lime-50 dark:from-green-950/30 dark:to-lime-950/30">
                       <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <MapPin className="h-16 w-16 text-primary" />
+                        {staticHeroes.fermes ? (
+                          <img
+                            src={staticHeroes.fermes}
+                            alt="Les fermes pédagogiques à Marrakech"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
                       </div>
                       <CardContent className="p-6">
                         <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
