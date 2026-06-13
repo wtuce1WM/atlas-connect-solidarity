@@ -1,6 +1,8 @@
 import { useLocation, matchPath } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { PAGE_META } from "./pageMeta";
+import { mergeMeta } from "./pageMetaOverrides";
+import { usePageMetaOverridesVersion } from "./usePageMetaOverrides";
 
 const SITE_URL = "https://oneworldmorocco.com";
 
@@ -44,9 +46,11 @@ export function resolveRouteMeta(pathname: string) {
 
 export default function RouteSeo() {
   const { pathname } = useLocation();
-  const { pattern, meta } = resolveRouteMeta(pathname);
-  if (!meta) return null;
+  usePageMetaOverridesVersion(); // re-render when overrides change
+  const { pattern, meta: baseMeta } = resolveRouteMeta(pathname);
+  if (!baseMeta) return null;
   if (DYNAMIC_PATTERNS.has(pattern)) return null;
+  const meta = mergeMeta(pattern, baseMeta);
 
   const url = `${SITE_URL}${pathname}`;
   const ogType = meta.ogType ?? "website";
