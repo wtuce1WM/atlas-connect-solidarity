@@ -49,6 +49,7 @@ const ShoppingFashionGueliz = lazy(() => import("./pages/ShoppingFashionGueliz")
 const BeachClubsMarrakech = lazy(() => import("./pages/BeachClubsMarrakech"));
 const HotelsRiadsVueMerEssaouira = lazy(() => import("./pages/HotelsRiadsVueMerEssaouira"));
 const HebergementsSidiKaouki = lazy(() => import("./pages/HebergementsSidiKaouki"));
+const AgafayDream = lazy(() => import("./pages/AgafayDream"));
 const BlogAnimations = lazy(() => import("./pages/BlogAnimations"));
 const BlogTypography = lazy(() => import("./pages/BlogTypography"));
 const BlogBrummellTypography = lazy(() => import("./pages/BlogBrummellTypography"));
