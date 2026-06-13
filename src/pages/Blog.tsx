@@ -29,7 +29,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -153,6 +153,14 @@ const Blog = () => {
         .maybeSingle();
       const beachImg = (beachRow as any)?.images?.[0];
 
+      // Hero hôtels & riads vue mer Essaouira : même 1ʳᵉ fiche que le hero de l'article
+      const { data: hotelsRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "4b4e42f7-d408-4c6d-989f-3922e2ed61d3")
+        .maybeSingle();
+      const hotelsImg = (hotelsRow as any)?.images?.[0];
+
       setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -163,6 +171,7 @@ const Blog = () => {
         streetfood: sfImg,
         fashion: fashionImg,
         beachclubs: beachImg,
+        hotelsessaouira: hotelsImg,
       });
     };
     fetchStaticHeroes();
@@ -578,6 +587,44 @@ const Blog = () => {
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 text-primary font-medium">
                             <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
+              // Carte Hôtels & Riads vue mer Essaouira
+              items.push({
+                key: "static-hotels-riads-vue-mer-essaouira",
+                date: "2026-06-13T10:00:00Z",
+                node: (
+                  <Link key="static-hotels-riads-vue-mer-essaouira" to="/blog/hotels-riads-vue-mer-essaouira">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-sky-950/30 dark:to-indigo-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.hotelsessaouira ? (
+                          <img
+                            src={staticHeroes.hotelsessaouira}
+                            alt="Hôtels & Riads avec vue sur mer à Essaouira"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Hôtels & Riads avec vue sur mer à Essaouira
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Trente-deux adresses face à l'Atlantique — riads de la médina, hôtels de la plage, villas de Moulay Bouzerktoun ou écolodges de Sidi Kaouki.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Essaouira
                           </span>
                           <ArrowRight className="h-4 w-4 text-primary" />
                         </div>

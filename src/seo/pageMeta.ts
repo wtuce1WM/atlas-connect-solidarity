@@ -95,6 +95,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Sept beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau.",
   },
+  "/blog/hotels-riads-vue-mer-essaouira": {
+    title: `Hôtels & Riads avec vue sur mer à Essaouira — ${BRAND}`,
+    description:
+      "Trente-deux hôtels, riads, villas et écolodges à Essaouira et autour — tous avec vue sur l'océan : médina, plage, Sidi Kaouki, Moulay Bouzerktoun ou Diabat.",
+  },
   "/blog/ancien-accueil": {
     title: `Ancienne page d'accueil — ${BRAND}`,
     description: "Archive de l'ancienne page d'accueil One World Morocco.",
