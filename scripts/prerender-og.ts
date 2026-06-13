@@ -225,10 +225,12 @@ export function prerenderOgPlugin(): Plugin {
             mainEntityOfPage: { "@type": "WebPage", "@id": url },
           },
         });
-        const file = path.join(distDir, slugPath);
-        await rm(file, { recursive: true, force: true });
-        await mkdir(path.dirname(file), { recursive: true });
-        await writeFile(file, html, "utf8");
+        // Écrit slugPath/index.html (et nettoie l'ancien fichier sans extension qui était téléchargé)
+        const legacy = path.join(distDir, slugPath);
+        await rm(legacy, { recursive: true, force: true });
+        const dir = path.join(distDir, slugPath);
+        await mkdir(dir, { recursive: true });
+        await writeFile(path.join(dir, "index.html"), html, "utf8");
         articlesWritten++;
       };
 
