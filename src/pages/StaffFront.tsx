@@ -739,7 +739,7 @@ const StaffFront = () => {
                             <tr className="border-b bg-muted/40">
                               <th className="text-left p-2 font-medium w-[22%]">Nom</th>
                               <th className="text-left p-2 font-medium w-[26%]">URL</th>
-                              <th className="text-left p-2 font-medium">Description</th>
+                              <th className="text-left p-2 font-medium">Fonction</th>
                             </tr>
                           </thead>
                           <tbody>
