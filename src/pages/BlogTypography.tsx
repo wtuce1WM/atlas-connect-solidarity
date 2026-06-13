@@ -55,9 +55,9 @@ const BlogTypography = () => {
                   <td className="p-3 font-josefin text-lg text-foreground" style={{ letterSpacing: "0.08em" }}>Marrakech</td>
                 </tr>
                 <tr>
-                  <td className="p-3 font-medium text-foreground">Roboto</td>
+                  <td className="p-3 font-medium text-foreground">Avenir <span className="text-xs text-muted-foreground">(fallback Nunito Sans)</span></td>
                   <td className="p-3 text-muted-foreground">Corps de texte (<code className="bg-muted px-1 rounded text-xs">body</code>) + titres globaux <code className="bg-muted px-1 rounded text-xs">h1/h2/h3</code></td>
-                  <td className="p-3 text-muted-foreground">300, 400, 500, 700, 400i</td>
+                  <td className="p-3 text-muted-foreground">Système / Nunito Sans 300, 400, 500, 700, 400i</td>
                   <td className="p-3 font-roboto text-lg text-foreground">Essaouira la Mogador</td>
                 </tr>
                 <tr>
