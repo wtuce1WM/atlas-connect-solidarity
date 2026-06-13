@@ -327,6 +327,7 @@ import FrontStructureVideosPanel from "@/components/staff/FrontStructureVideosPa
 import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
 import TestNoteViewer from "@/components/staff/TestNoteViewer";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
+import { PAGE_META } from "@/seo/pageMeta";
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
