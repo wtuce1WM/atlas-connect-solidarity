@@ -329,6 +329,7 @@ import TestNoteViewer from "@/components/staff/TestNoteViewer";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import { PAGE_META } from "@/seo/pageMeta";
 import PageMetaDescriptionEditor from "@/components/staff/PageMetaDescriptionEditor";
+import { DYNAMIC_PATTERNS } from "@/seo/RouteSeo";
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
