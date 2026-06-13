@@ -29,7 +29,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string; artisanat?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -54,7 +54,7 @@ const Blog = () => {
     // Hero images for static blog cards (same logic as their pages)
     const fetchStaticHeroes = async () => {
       const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
-      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes, fermesRes] = await Promise.all([
+      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes, fermesRes, artisanatRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("images, services")
@@ -84,6 +84,11 @@ const Blog = () => {
           .from("businesses")
           .select("images")
           .eq("id", "2fdb1f15-4a02-40b4-b344-0ffc0c2e1abd")
+          .maybeSingle(),
+        supabase
+          .from("businesses")
+          .select("images")
+          .eq("id", "1621498d-403b-4ff2-baf3-db45d1e5f41e")
           .maybeSingle(),
       ]);
       const seaKW = ["vue sur mer", "vue mer"];
@@ -130,6 +135,7 @@ const Blog = () => {
         kids: kidsImg,
         galeries: (galRes.data as any)?.images?.[0],
         fermes: (fermesRes.data as any)?.images?.[0],
+        artisanat: (artisanatRes.data as any)?.images?.[0],
       });
     };
     fetchStaticHeroes();
@@ -401,6 +407,46 @@ const Blog = () => {
                   </Link>
                 ),
               });
+
+              // Carte Artisanat Médina Marrakech
+              items.push({
+                key: "static-artisanat-medina-marrakech",
+                date: "2026-06-13T01:00:00Z",
+                node: (
+                  <Link key="static-artisanat-medina-marrakech" to="/blog/artisanat-medina-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.artisanat ? (
+                          <img
+                            src={staticHeroes.artisanat}
+                            alt="Artisanat marocain dans la Médina de Marrakech"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Artisanat marocain dans la Médina de Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Huit ateliers et boutiques de la Médina — tapis berbères, caftans, poteries, maroquinerie, savonnerie et galerie d'art — où l'artisanat marocain se vit encore au geste.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Médina de Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
+
 
 
               return items
