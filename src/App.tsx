@@ -130,6 +130,7 @@ const AppContent = () => {
           <Suspense fallback={null}><Sonner /></Suspense>
           <BrowserRouter>
           <ScrollToTop />
+          <RouteSeo />
           <RouteTransition>
             <Routes>
               <Route path="/" element={renderLazyRoute(<HomeMindtrip />)} />
