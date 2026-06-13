@@ -95,7 +95,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
   const footerBg = variant === "morocco" 
     ? "bg-transparent text-white" 
     : isVerified
-    ? "bg-transparent text-black"
+    ? "bg-background text-foreground"
     : "bg-background text-foreground";
 
   const textSecondary = isVerified || variant !== "morocco" ? "text-foreground/80" : "text-white/90";
