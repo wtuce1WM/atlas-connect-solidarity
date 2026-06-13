@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        josefin: ["'Josefin Sans'", "sans-serif"],
-        roboto: ["Roboto", "sans-serif"],
+        josefin: ["'Montserrat'", "sans-serif"],
+        roboto: ["'Avenir Next'", "'Avenir'", "'Nunito Sans'", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
