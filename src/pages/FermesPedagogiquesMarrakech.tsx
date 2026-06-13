@@ -8,7 +8,9 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { Loader2, ArrowLeft, MapPin, Star, Clock } from "lucide-react";
+import { useArticleBookmark } from "@/hooks/useArticleBookmark";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
 interface Business {
@@ -146,6 +148,31 @@ const FermesPedagogiquesMarrakech = () => {
   const geo = useGeolocation();
   const userLocation = geo.isEnabled && geo.coords ? geo.coords : null;
 
+  const { isBookmarked, isLoading: bmLoading, isLoggedIn, toggle: toggleBookmark } =
+    useArticleBookmark("fermes-pedagogiques-marrakech");
+  const { toast } = useToast();
+
+  const handleSaveArticle = async () => {
+    if (!isLoggedIn) {
+      toast({
+        title: "Connexion requise",
+        description: "Connectez-vous au Club OWM pour sauvegarder cet article.",
+      });
+      navigate("/club");
+      return;
+    }
+    const ok = await toggleBookmark();
+    if (ok) {
+      toast({
+        title: isBookmarked ? "Article retiré" : "Article sauvegardé",
+        description: isBookmarked
+          ? "L'article a été retiré de votre Club OWM."
+          : "Retrouvez-le dans votre compte Club OWM.",
+      });
+    }
+  };
+
+
 
   useSEO({
     title: "Les fermes pédagogiques à Marrakech",
@@ -195,13 +222,32 @@ const FermesPedagogiquesMarrakech = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
         <div className="absolute inset-0 flex flex-col justify-end pb-12">
           <div className="container mx-auto px-4">
-            <button
-              onClick={() => navigate("/blog")}
-              className="inline-flex items-center gap-2 text-white/60 hover:text-gold mb-4 transition-colors text-sm"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Retour au blog
-            </button>
+            <div className="flex items-center justify-between mb-4 gap-3">
+              <button
+                onClick={() => navigate("/blog")}
+                className="inline-flex items-center gap-2 text-white/60 hover:text-gold transition-colors text-sm"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Retour au blog
+              </button>
+              <button
+                onClick={handleSaveArticle}
+                disabled={bmLoading}
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                  isBookmarked
+                    ? "bg-gold text-black border-gold"
+                    : "bg-black/40 text-white/90 border-white/30 hover:border-gold hover:text-gold"
+                }`}
+                aria-label={isBookmarked ? "Retirer de mon Club OWM" : "Sauvegarder dans mon Club OWM"}
+              >
+                <Bookmark
+                  className="h-4 w-4"
+                  fill={isBookmarked ? "currentColor" : "none"}
+                />
+                {isBookmarked ? "Sauvegardé" : "Sauvegarder"}
+              </button>
+            </div>
+
             <h1 className="text-3xl md:text-5xl font-bold text-white font-['Playfair_Display'] italic leading-tight">
               Les fermes pédagogiques
               <br />
