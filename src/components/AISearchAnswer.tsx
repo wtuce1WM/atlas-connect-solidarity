@@ -114,7 +114,7 @@ const BusinessHoverCard = ({ business, onClickBusiness, onHoverBusiness }: { nam
           onFocus={() => onHoverBusiness?.(business)}
           onBlur={() => onHoverBusiness?.(null)}
           className="text-sm sm:text-base font-semibold text-foreground underline decoration-gold/40 underline-offset-2 hover:decoration-gold transition-colors cursor-pointer !normal-case !tracking-normal"
-          style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}
+          style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}
         >
           {business.name}
         </button>

@@ -76,7 +76,7 @@ export function buildReviewHtml(
 .rv-card-wrap{display:flex;flex-direction:column;gap:4px;width:160px}
 .rv-card{display:flex;align-items:center;gap:8px;padding:6px 10px;background:hsla(0,0%,100%,0.06);border-radius:8px;width:100%;height:44px;box-sizing:border-box;text-decoration:none;color:inherit}
 a.rv-card:hover{background:hsla(0,0%,100%,0.12)}
-.rv-leave{display:flex;align-items:center;justify-content:center;gap:4px;font-size:0.7rem;padding:4px 6px;background:#C04F17;color:#fff !important;border-radius:6px;text-decoration:none;font-weight:600;white-space:nowrap;font-family:'Josefin Sans',sans-serif}
+.rv-leave{display:flex;align-items:center;justify-content:center;gap:4px;font-size:0.7rem;padding:4px 6px;background:#C04F17;color:#fff !important;border-radius:6px;text-decoration:none;font-weight:600;white-space:nowrap;font-family:'Montserrat',sans-serif}
 .rv-leave:hover{filter:brightness(1.1)}
 .rv-logo{width:24px;height:24px;object-fit:contain;border-radius:4px;flex-shrink:0}
 .rv-card-text{display:flex;flex-direction:column;line-height:1.15;min-width:0;flex:1}
@@ -94,15 +94,15 @@ a.rv-card:hover{background:hsla(0,0%,100%,0.12)}
 
   const starSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="hsl(43,75%,55%)" stroke="hsl(43,75%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
   const reviewCountInline = totalReviewCount > 0
-    ? `<span style="font-family:'Josefin Sans',sans-serif;font-size:1rem;font-weight:500;color:rgba(255,255,255,0.6) !important;white-space:nowrap">· ${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</span>`
+    ? `<span style="font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:500;color:rgba(255,255,255,0.6) !important;white-space:nowrap">· ${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</span>`
     : "";
-  const ratingBlock = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap;justify-content:center;filter:drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))">${starSvg}<span style="font-family:'Josefin Sans',sans-serif;font-size:3rem;font-weight:900;color:hsl(43,75%,55%) !important;white-space:nowrap">${avgOn20}<span style="font-size:1.5rem;font-weight:600;color:rgba(255,255,255,0.6) !important">/20</span></span>${reviewCountInline}</div></div>`;
+  const ratingBlock = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap;justify-content:center;filter:drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))">${starSvg}<span style="font-family:'Montserrat',sans-serif;font-size:3rem;font-weight:900;color:hsl(43,75%,55%) !important;white-space:nowrap">${avgOn20}<span style="font-size:1.5rem;font-weight:600;color:rgba(255,255,255,0.6) !important">/20</span></span>${reviewCountInline}</div></div>`;
   const scoreHtml = `${responsiveCss}${ratingBlock}<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${platformListHtml}</div>`;
 
   const textsHtml = texts.length > 0
     ? texts.slice(0, 10).map((r) => {
       const displayText = (language === "en" ? r.text_en : r.text_fr) || r.text || "";
-      return `<blockquote style="margin-top:4px;font-family:'Josefin Sans',sans-serif;font-size:1rem;line-height:1.625"><p>${displayText}</p><footer style="font-family:'Roboto',sans-serif;font-size:1rem;font-style:normal">— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
+      return `<blockquote style="margin-top:4px;font-family:'Montserrat',sans-serif;font-size:1rem;line-height:1.625"><p>${displayText}</p><footer style="font-family:'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif;font-size:1rem;font-style:normal">— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
     }).join("")
     : "";
 

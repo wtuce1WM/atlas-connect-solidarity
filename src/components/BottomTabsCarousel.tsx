@@ -42,7 +42,7 @@ export function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
                   : "bg-white/70 text-black hover:bg-white/80"
             }`}
             style={{
-              fontFamily: "Josefin Sans, sans-serif",
+              fontFamily: "Montserrat, sans-serif",
               fontWeight: 500,
               letterSpacing: "0.05em",
               textTransform: "uppercase",
@@ -123,7 +123,7 @@ export function TabScrollRail({
         <span className="text-white/80 text-2xl mb-1">+{remaining}</span>
         <p
           className="text-xs font-medium text-white text-center px-2"
-          style={{ fontFamily: "Josefin Sans, sans-serif" }}
+          style={{ fontFamily: "Montserrat, sans-serif" }}
         >
           {showMoreLabel || "Voir plus"}
         </p>

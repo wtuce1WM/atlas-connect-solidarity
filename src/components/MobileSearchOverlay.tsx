@@ -241,7 +241,7 @@ const MobileSearchOverlay = ({
                     className="flex-1 flex items-center gap-3 px-3 py-2.5 text-left"
                   >
                     <Clock className="h-4 w-4 text-muted-foreground/60 shrink-0" />
-                    <span className="text-sm text-foreground font-bold capitalize" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "capitalize", letterSpacing: "0.02em" }}>{entry.query}</span>
+                    <span className="text-sm text-foreground font-bold capitalize" style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "capitalize", letterSpacing: "0.02em" }}>{entry.query}</span>
                   </button>
                   <button
                     type="button"
@@ -301,7 +301,7 @@ const MobileSearchOverlay = ({
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent rounded-b-xl px-1.5 pb-1.5 pt-4">
                     <span
                       className="block text-xs font-semibold text-white line-clamp-2 leading-tight group-hover:underline"
-                      style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}
+                      style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}
                     >
                       {biz.name}
                     </span>
@@ -336,7 +336,7 @@ const MobileSearchOverlay = ({
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors text-left"
                 >
                   <Search className="h-4 w-4 text-muted-foreground/60 shrink-0" />
-                  <span className="text-sm text-foreground font-bold capitalize" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "capitalize", letterSpacing: "0.02em" }}>{s.query}</span>
+                  <span className="text-sm text-foreground font-bold capitalize" style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "capitalize", letterSpacing: "0.02em" }}>{s.query}</span>
                 </button>
               ))}
             </div>

@@ -9,22 +9,22 @@ import hiwStep3Tourist from "@/assets/hiw-step3-tourist.png";
 
 
 const CSS = `
-  .join-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .join-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif,system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
   .join-page *{box-sizing:border-box}
   .join-page .wrap{max-width:1240px;margin:0 auto;padding:0 24px}
   .join-page section{padding:80px 0;border-bottom:1px solid var(--line)}
   .join-page .section-head{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:end;margin-bottom:56px}
-  .join-page .subtitle{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(34px,5vw,64px);line-height:1;letter-spacing:-.01em;text-transform:uppercase}
+  .join-page .subtitle{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(34px,5vw,64px);line-height:1;letter-spacing:-.01em;text-transform:uppercase}
   .join-page .lead{color:var(--muted);font-size:17px;max-width:520px}
   @media (max-width:880px){.join-page .section-head{grid-template-columns:1fr;gap:20px}}
   .join-page .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative}
   @media (max-width:980px){.join-page .steps{grid-template-columns:1fr}}
   .join-page .step{position:relative;border:1px solid var(--line);border-radius:24px;padding:32px 28px 36px;background:#fff;overflow:hidden;transition:transform .25s,box-shadow .25s}
   .join-page .step:hover{transform:translateY(-4px);box-shadow:0 18px 40px -20px rgba(0,0,0,.18)}
-  .join-page .step .num{position:absolute;right:18px;top:-10px;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:180px;line-height:1;color:#f3f3f3;pointer-events:none;user-select:none}
+  .join-page .step .num{position:absolute;right:18px;top:-10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:180px;line-height:1;color:#f3f3f3;pointer-events:none;user-select:none}
   .join-page .step .ico{width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin-bottom:46px;position:relative;z-index:1}
   .join-page .step .step-label{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;position:relative;z-index:1}
-  .join-page .step h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:22px;margin-bottom:10px;position:relative;z-index:1}
+  .join-page .step h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:22px;margin-bottom:10px;position:relative;z-index:1}
   .join-page .step p{color:var(--muted);font-size:15px;position:relative;z-index:1}
   .join-page .cta-row{display:flex;justify-content:center;margin-top:56px}
   .join-page .btn-primary{display:inline-flex;align-items:center;gap:10px;background:#C04F17;color:#fff;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(192,79,23,.6);transition:transform .2s,background .2s}
@@ -34,16 +34,16 @@ const CSS = `
   .join-page .t-card{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/5;background:#222}
   .join-page .t-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .join-page .t-card::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.35) 45%,rgba(0,0,0,0) 70%)}
-  .join-page .t-badge{position:absolute;top:24px;left:24px;color:#fff;font-family:'Josefin Sans',sans-serif;z-index:2;text-align:center;padding:10px 18px}
+  .join-page .t-badge{position:absolute;top:24px;left:24px;color:#fff;font-family:'Montserrat',sans-serif;z-index:2;text-align:center;padding:10px 18px}
   .join-page .t-badge::before{content:"";position:absolute;inset:0;border:2px solid #fff;border-radius:50%;transform:rotate(-8deg) scale(1.15);opacity:.95}
   .join-page .t-badge strong{display:block;font-size:28px;font-weight:700;line-height:1}
   .join-page .t-badge span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.9}
   .join-page .t-body{position:absolute;left:24px;right:24px;bottom:24px;color:#fff;z-index:2}
   .join-page .t-body p{font-size:15px;line-height:1.5;margin-bottom:14px}
-  .join-page .t-meta h4{font-family:'Josefin Sans',sans-serif;font-size:16px;font-weight:600;margin-bottom:2px}
+  .join-page .t-meta h4{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:600;margin-bottom:2px}
   .join-page .t-meta span{font-size:12px;opacity:.85;letter-spacing:.1em;text-transform:uppercase}
   .join-page .ways-head{text-align:center;max-width:780px;margin:0 auto 56px}
-  .join-page .ways-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
+  .join-page .ways-head h2{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .ways-head p{color:var(--muted);font-size:17px}
   .join-page .ways{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;max-width:980px;margin:0 auto}
   @media (max-width:680px){.join-page .ways{grid-template-columns:1fr}}
@@ -54,11 +54,11 @@ const CSS = `
   .join-page .way.orange{background:#8F7950;color:#fff}
   .join-page .way.teal{background:#C04F17;color:#fff}
   .join-page .way.purple{background:#3B3B3B;color:#fff}
-  .join-page .way .badge{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:24px;color:#194CFF;background:#fff;margin-bottom:22px}
+  .join-page .way .badge{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:24px;color:#194CFF;background:#fff;margin-bottom:22px}
   .join-page .way.orange .badge{background:#fff;color:#8F7950}
   .join-page .way.teal .badge{background:#fff;color:#C04F17}
   .join-page .way.purple .badge{background:#fff;color:#3B3B3B}
-  .join-page .way h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin-bottom:18px;color:#111}
+  .join-page .way h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin-bottom:18px;color:#111}
   .join-page .way.green h3{color:#fff}
   .join-page .way.orange h3{color:#fff}
   .join-page .way.teal h3{color:#fff}
@@ -81,13 +81,13 @@ const CSS = `
   .join-page .way.orange .way-cta{background:#fff;color:#8F7950}
   .join-page .way.teal .way-cta{background:#fff;color:#C04F17}
   .join-page .way.purple .way-cta{background:#fff;color:#3B3B3B}
-  .join-page .way .tag{margin-top:26px;padding-top:22px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:15px}
+  .join-page .way .tag{margin-top:26px;padding-top:22px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px}
   .join-page .way.green .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.orange .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.teal .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .way.purple .tag{color:#fff;border-top-color:rgba(255,255,255,.25)}
   .join-page .hiw-head{text-align:center;max-width:820px;margin:0 auto 56px}
-  .join-page .hiw-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
+  .join-page .hiw-head h2{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
   .join-page .hiw-head p{color:var(--muted);font-size:17px}
   .join-page .hiw{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;gap:18px;align-items:stretch}
   .join-page .hiw-arrow{display:flex;align-items:center;justify-content:center;color:var(--orange)}
@@ -102,16 +102,16 @@ const CSS = `
   }
   .join-page .hiw-step{background:#fff;border:1px solid var(--line);border-radius:24px;padding:36px 28px;text-align:center;position:relative;transition:transform .25s,box-shadow .25s}
   .join-page .hiw-step:hover{transform:translateY(-4px);box-shadow:0 18px 40px -20px rgba(0,0,0,.18)}
-  .join-page .hiw-step .hiw-num{width:56px;height:56px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:24px;margin:0 auto 22px}
-  .join-page .hiw-step h3{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:20px;margin-bottom:12px;line-height:1.25}
+  .join-page .hiw-step .hiw-num{width:56px;height:56px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:24px;margin:0 auto 22px}
+  .join-page .hiw-step h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:20px;margin-bottom:12px;line-height:1.25}
   .join-page .hiw-step p{color:var(--muted);font-size:15px;line-height:1.55}
   .join-page .hiw-cta{display:flex;justify-content:center;margin-top:48px}
   .join-page .hero{position:relative;padding:0;border-bottom:1px solid var(--line);overflow:hidden}
   .join-page .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .join-page .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.35) 40%,rgba(0,0,0,.65) 100%)}
   .join-page .hero-inner{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:120px 24px 110px;text-align:center;color:#fff}
-  .join-page .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);color:#fff;padding:8px 18px;border-radius:999px;font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:28px;border:1px solid rgba(255,255,255,.18)}
-  .join-page .hero h1{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(36px,5.4vw,68px);line-height:1.05;letter-spacing:-.01em;margin:0 auto 22px;max-width:980px}
+  .join-page .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);color:#fff;padding:8px 18px;border-radius:999px;font-family:'Montserrat',sans-serif;font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:28px;border:1px solid rgba(255,255,255,.18)}
+  .join-page .hero h1{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(36px,5.4vw,68px);line-height:1.05;letter-spacing:-.01em;margin:0 auto 22px;max-width:980px}
   .join-page .hero h1 .hl{color:#ffc008}
   .join-page .hero .hero-sub{font-size:clamp(16px,1.4vw,19px);color:rgba(255,255,255,.92);max-width:680px;margin:0 auto 34px;line-height:1.5}
   .join-page .hero .hero-cta{display:inline-flex;align-items:center;gap:10px;background:#C04F17;color:#fff;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(192,79,23,.7);transition:transform .2s,background .2s}
@@ -124,13 +124,13 @@ const CSS = `
   .join-page .hero-stats div:last-child{border-right:none}
   @media (max-width:700px){.join-page .hero-inner{padding:90px 20px 80px}.join-page .hero-stats{font-size:12px}.join-page .hero-stats div{padding:6px 14px}}
   .join-page .why-head{text-align:center;max-width:900px;margin:0 auto 48px}
-  .join-page .why-head h2{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:16px;text-transform:uppercase}
+  .join-page .why-head h2{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:16px;text-transform:uppercase}
   .join-page .why-head p{color:var(--muted);font-size:17px;max-width:620px;margin:0 auto}
   .join-page .why-wrap{background:#BED1FF;border-radius:32px;padding:32px}
   .join-page .cmp{width:100%;background:#fff;border-radius:20px;overflow:hidden;border-collapse:separate;border-spacing:0;font-size:15px}
   .join-page .cmp th,.join-page .cmp td{padding:18px 22px;text-align:center;border-bottom:1px solid #eef2f0;vertical-align:middle}
   .join-page .cmp th:first-child,.join-page .cmp td:first-child{text-align:left;color:#444;font-weight:500}
-  .join-page .cmp thead th{font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:16px;color:#1a1a1a;padding:24px 22px;background:#fff;border-bottom:1px solid #eef2f0}
+  .join-page .cmp thead th{font-family:'Montserrat',sans-serif;font-weight:600;font-size:16px;color:#1a1a1a;padding:24px 22px;background:#fff;border-bottom:1px solid #eef2f0}
   .join-page .cmp thead th.us{background:#194CFF;color:#fff;position:relative;padding-top:42px}
   .join-page .cmp thead th.us .reco{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#C04F17;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;padding:4px 12px;border-radius:999px;white-space:nowrap}
   .join-page .cmp tbody td.us{background:#BED1FF;color:#194CFF;font-weight:700}
@@ -155,7 +155,7 @@ const Join = () => {
       const l = document.createElement("link");
       l.id = "join-fonts";
       l.rel = "stylesheet";
-      l.href = "https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Roboto:wght@300;400;500;700&display=swap";
+      l.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap";
       document.head.appendChild(l);
     }
     document.title = "Rejoindre One World Morocco — Devenir partenaire";
@@ -285,17 +285,17 @@ const Join = () => {
                     <rect x="196.896" y="40.8579" width="106.075" height="106.075" rx="18.8578" transform="rotate(10 196.896 40.8579)" fill="#D1F2EB"/>
                     <rect x="197.852" y="42.2233" width="103.718" height="103.718" rx="17.6792" transform="rotate(10 197.852 42.2233)" stroke="white" strokeWidth="2.35722"/>
                   </g>
-                  <text x="244" y="105" textAnchor="middle" fontFamily="Josefin Sans, sans-serif" fontWeight="700" fontSize="22" fill="#C04F17" transform="rotate(10 244 105)">-20%</text>
+                  <text x="244" y="105" textAnchor="middle" fontFamily="Montserrat, sans-serif" fontWeight="700" fontSize="22" fill="#C04F17" transform="rotate(10 244 105)">-20%</text>
                   <g filter="url(#hd1)">
                     <rect x="25.9977" y="59.2777" width="106.075" height="106.075" rx="18.8578" transform="rotate(-10 25.9977 59.2777)" fill="#FFF2CE"/>
                     <rect x="27.363" y="60.2338" width="103.718" height="103.718" rx="17.6792" transform="rotate(-10 27.363 60.2338)" stroke="white" strokeWidth="2.35722"/>
                   </g>
-                  <text x="82" y="118" textAnchor="middle" fontFamily="Josefin Sans, sans-serif" fontWeight="700" fontSize="22" fill="#8F7950" transform="rotate(-10 82 118)">-5%</text>
+                  <text x="82" y="118" textAnchor="middle" fontFamily="Montserrat, sans-serif" fontWeight="700" fontSize="22" fill="#8F7950" transform="rotate(-10 82 118)">-5%</text>
                   <g filter="url(#hd2)">
                     <rect x="103.785" y="22.0002" width="117.861" height="117.861" rx="18.8578" fill="#FFDDD3"/>
                     <rect x="104.964" y="23.1789" width="115.504" height="115.504" rx="17.6792" stroke="white" strokeWidth="2.35722"/>
                   </g>
-                  <text x="162.7" y="95" textAnchor="middle" fontFamily="Josefin Sans, sans-serif" fontWeight="700" fontSize="32" fill="#194CFF">-10%</text>
+                  <text x="162.7" y="95" textAnchor="middle" fontFamily="Montserrat, sans-serif" fontWeight="700" fontSize="32" fill="#194CFF">-10%</text>
                   <defs>
                     <filter id="hd0" x="153" y="22" width="174" height="174" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="14"/><feOffset dy="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0"/><feBlend in="SourceGraphic"/></filter>
                     <filter id="hd1" x="0" y="22" width="174" height="174" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="14"/><feOffset dy="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0"/><feBlend in="SourceGraphic"/></filter>

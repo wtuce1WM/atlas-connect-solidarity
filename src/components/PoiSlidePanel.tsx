@@ -727,7 +727,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
               const label = CTA_MODE_LABELS[poi.presentation_mode]?.[lang] || CTA_MODE_LABELS.reserver_en_ligne[lang];
               if (poi.reserve_now_force_external) {
                 ctaItems.push(
-                  <a key="booking" href={fullUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+                  <a key="booking" href={fullUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
                     <CalendarCheck className="h-4 w-4 hidden md:block" />
                     <span className="truncate">{label}</span>
                     <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
@@ -735,7 +735,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
                 );
               } else {
                 ctaItems.push(
-                  <button key="booking" onClick={() => { setBookingOverlayUrl(fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }} className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
+                  <button key="booking" onClick={() => { setBookingOverlayUrl(fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }} className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
                     <CalendarCheck className="h-4 w-4 hidden md:block" />
                     <span className="truncate">{label}</span>
                   </button>
@@ -749,7 +749,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
               const label = CTA_MODE_LABELS[poi.online_shop_presentation_mode]?.[lang] || CTA_MODE_LABELS.acheter_en_ligne[lang];
               if (poi.online_shop_force_external) {
                 ctaItems.push(
-                  <a key="shop" href={fullUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+                  <a key="shop" href={fullUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
                     <ShoppingBag className="h-4 w-4 hidden md:block" />
                     <span className="truncate">{label}</span>
                     <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
@@ -757,7 +757,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
                 );
               } else {
                 ctaItems.push(
-                  <button key="shop" onClick={() => { setBookingOverlayUrl(fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }} className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+                  <button key="shop" onClick={() => { setBookingOverlayUrl(fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }} className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
                     <ShoppingBag className="h-4 w-4 hidden md:block" />
                     <span className="truncate">{label}</span>
                   </button>
@@ -768,7 +768,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
             // Directions CTA
             if (poi.latitude && poi.longitude) {
               ctaItems.push(
-                <button key="directions" onClick={() => setShowDirections(true)} className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+                <button key="directions" onClick={() => setShowDirections(true)} className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
                   <Navigation className="h-4 w-4 hidden md:block" />
                   <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
                 </button>

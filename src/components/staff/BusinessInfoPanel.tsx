@@ -62,7 +62,7 @@ const BusinessInfoPanel = ({ businessId }: BusinessInfoPanelProps) => {
       <div className="p-4 space-y-4">
         {/* Name + Badge */}
         <div>
-          <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+          <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             {business.name}
           </h2>
           {business.hook_fr && (

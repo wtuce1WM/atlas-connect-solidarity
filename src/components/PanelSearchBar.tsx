@@ -140,7 +140,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
         >
           {icon}
         </span>
-        <span className="text-[11px] font-bold tracking-wider leading-none font-['Roboto',sans-serif] text-white">{label}</span>
+        <span className="text-[11px] font-bold tracking-wider leading-none font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] text-white">{label}</span>
       </button>
     );
   };

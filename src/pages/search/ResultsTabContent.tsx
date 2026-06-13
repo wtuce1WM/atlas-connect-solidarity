@@ -617,7 +617,7 @@ export default function ResultsTabContent({
                   return (
                     <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2">
                       {showToggle && (
-                        <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                           <button
                             type="button"
                             onClick={() => { if (activeFsSubId) handleFsSubClick(null); if (showAllSearchMarkers) onToggleShowAllSearchMarkers?.(); }}
@@ -646,7 +646,7 @@ export default function ResultsTabContent({
                             ? (subs.find(s => s.id === activeFsSubId)?.name ?? "Sous-catégorie")
                             : "Sous-catégorie";
                           return (
-                            <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                            <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <button
@@ -675,7 +675,7 @@ export default function ResultsTabContent({
                         }
                         if (frontTabs.length === 0) return null;
                         return (
-                          <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                          <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <button
@@ -707,7 +707,7 @@ export default function ResultsTabContent({
                         ];
                         const active = opts.find(o => o.km === proximityKm);
                         return (
-                          <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                          <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <button

@@ -62,7 +62,7 @@ export default function QRCodeManagement({ businesses }: Props) {
     w.document.write(`<!doctype html><html><head><title>QR Codes</title>
       <style>
         @page { margin: 12mm; }
-        body { font-family: 'Josefin Sans', system-ui, sans-serif; margin: 0; padding: 0; color: #000; }
+        body { font-family: 'Montserrat', system-ui, sans-serif; margin: 0; padding: 0; color: #000; }
         .grid { display: grid; grid-template-columns: repeat(${perRow}, 1fr); gap: 18px; }
         .item { break-inside: avoid; page-break-inside: avoid; text-align: center; padding: 12px; border: 1px solid #eee; border-radius: 8px; }
         .item .name { font-weight: 600; margin-top: 10px; font-size: 14px; }

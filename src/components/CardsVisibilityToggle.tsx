@@ -92,7 +92,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             onTouchStart={(e) => e.stopPropagation()}
           >
             <ChevronUp className="hidden md:inline-block h-3.5 w-3.5" />
-            <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Afficher</span>
+            <span className="text-xs font-medium" style={{ fontFamily: "'Montserrat', sans-serif" }}>Afficher</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
           </button>
         ) : (
@@ -115,7 +115,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             onTouchStart={(e) => e.stopPropagation()}
           >
             <ChevronDown className="h-3.5 w-3.5" />
-            <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Masquer</span>
+            <span className="text-xs font-medium" style={{ fontFamily: "'Montserrat', sans-serif" }}>Masquer</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
           </button>
         )}
@@ -250,7 +250,7 @@ export const OwnerBadge = ({ cardsHidden, currentMediaKind, currentMediaUrl, vid
     return (
       <div className="shrink-0 flex justify-center pointer-events-none pb-4">
         <div className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 animate-cta-zoom-in">
-          <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+          <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             {currentVideoDoc.generic_video_account} <span className="text-base">©</span>
           </span>
         </div>
@@ -266,7 +266,7 @@ export const OwnerBadge = ({ cardsHidden, currentMediaKind, currentMediaUrl, vid
         onClick={() => onNavigateToOwner(currentVideoDoc.owner_business_id!)}
         className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors animate-cta-zoom-in"
       >
-        <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+        <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
           {currentVideoDoc.owner_name} <span className="text-base">©</span>
         </span>
         <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />

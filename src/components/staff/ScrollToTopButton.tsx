@@ -8,7 +8,7 @@ export const helpContent = `
 |---|---|---|
 | \`body\` | Roboto (sans-serif) | 400, line-height 1.8 |
 | \`h1, h2, h3\` | Roboto (sans-serif) | 500 |
-| \`nav, button, .font-venus\` | Josefin Sans (sans-serif) | 300, uppercase, tracking 0.12em |
+| \`nav, button, .font-venus\` | Montserrat (sans-serif) | 300, uppercase, tracking 0.12em |
 | \`.font-arabic\` | Amiri | 400, 700 |
 
 ## Classes Tailwind — Tailles de police

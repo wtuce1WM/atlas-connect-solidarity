@@ -646,7 +646,7 @@ const SlidePanelHome = ({
             <div className="absolute top-40 md:top-40 lg:top-44 left-4 right-4 z-[60] pointer-events-none flex flex-col items-center gap-1 text-center">
               <p
                 className="text-sm md:text-base font-bold text-white line-clamp-2 cursor-pointer pointer-events-auto"
-                style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: "0.02em", textShadow }}
+                style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", letterSpacing: "0.02em", textShadow }}
                 onClick={() => {
                   if (videoId) {
                     navigator.clipboard.writeText(videoId).catch(() => {});
@@ -692,7 +692,7 @@ const SlidePanelHome = ({
               onClick={() => { setShowYoutubeOverlay(true); }}
               className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4"
             >
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">YouTube</span>
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">YouTube</span>
               <YouTubeIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300 text-red-600" />
             </div>
           </div>
@@ -766,7 +766,7 @@ const SlidePanelHome = ({
               <div className="absolute inset-0 z-[20] flex justify-center px-4 py-16 bg-black/85 backdrop-blur-sm">
                 <div className="w-full max-w-md bg-black/70 backdrop-blur-md rounded-xl border border-white/15 overflow-hidden flex flex-col">
                   <div className="px-4 py-3 border-b border-white/10">
-                    <h3 className="text-white font-bold text-lg" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                    <h3 className="text-white font-bold text-lg" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                       Agenda · {agendaCity}
                     </h3>
                     <p className="text-white/60 text-xs">{agendaEvents.length} événement{agendaEvents.length > 1 ? "s" : ""} à venir</p>
@@ -803,7 +803,7 @@ const SlidePanelHome = ({
                                         navigate(url);
                                       }}
                                       className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
-                                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                                      style={{ fontFamily: "'Montserrat', sans-serif" }}
                                     >
                                       <ExternalLink className="h-3.5 w-3.5" />
                                       <span className="truncate">En savoir +</span>
@@ -814,7 +814,7 @@ const SlidePanelHome = ({
                                       type="button"
                                       onClick={() => setDirectionsBusiness(biz)}
                                       className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-gold text-gold-foreground font-medium text-xs shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal h-9"
-                                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                                      style={{ fontFamily: "'Montserrat', sans-serif" }}
                                     >
                                       <MapPin className="h-3.5 w-3.5" />
                                       <span className="truncate">Itinéraire</span>
@@ -860,7 +860,7 @@ const SlidePanelHome = ({
                         rel="noopener noreferrer"
                         className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors"
                       >
-                        <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                           Follow @{visibleSocial.account}
                         </span>
                       </a>
@@ -885,7 +885,7 @@ const SlidePanelHome = ({
                       className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors disabled:cursor-default disabled:hover:bg-black normal-case tracking-normal"
                       aria-label={`Voir la fiche de ${owner.name}`}
                     >
-                      <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         {owner.name} ©
                       </span>
                     </button>
@@ -901,7 +901,7 @@ const SlidePanelHome = ({
                       className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
                     >
                       <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto select-text">
-                        <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                           {eventName} <span className="text-base">©</span>
                         </span>
                       </div>
@@ -920,7 +920,7 @@ const SlidePanelHome = ({
                       navigate(url);
                     }}
                     className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
-                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
                     <span className="truncate">En savoir +</span>
@@ -930,7 +930,7 @@ const SlidePanelHome = ({
                       type="button"
                       onClick={() => setDirectionsBusiness(ctaBusiness)}
                       className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-gold text-gold-foreground font-medium text-xs shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal h-9"
-                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                      style={{ fontFamily: "'Montserrat', sans-serif" }}
                     >
                       <MapPin className="h-3.5 w-3.5" />
                       <span className="truncate">Itinéraire</span>
@@ -1047,12 +1047,12 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
         >
           <X className="h-4 w-4" />
         </button>
-        <h2 className="text-sm font-bold font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{businessName}</h2>
+        <h2 className="text-sm font-bold font-['Montserrat',sans-serif] truncate text-white flex-1">{businessName}</h2>
       </div>
       <div className="relative z-10 flex-1 min-h-0 order-[-1] overflow-y-auto overscroll-contain">
         <div className="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-14 md:pr-16">
           <div
-            className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_img]:max-w-full [&_img]:rounded-md prose-strong:!text-white"
+            className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_img]:max-w-full [&_img]:rounded-md prose-strong:!text-white"
             dangerouslySetInnerHTML={{ __html: groupImagesWithHeadings(html).replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:1.6em;line-height:1;vertical-align:middle">$1</span>') }}
           />
         </div>

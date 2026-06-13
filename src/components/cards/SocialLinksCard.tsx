@@ -100,7 +100,7 @@ const SocialLinksCard = ({
                 transition: `opacity 300ms ease ${(links.length + i) * 50}ms, transform 300ms ease ${(links.length + i) * 50}ms`,
               }}
             >
-              <span className="text-[10px] text-white/90 text-center whitespace-nowrap" style={{ fontFamily: "'Roboto', sans-serif" }}>
+              <span className="text-[10px] text-white/90 text-center whitespace-nowrap" style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif" }}>
                 {m.name || (language === "en" ? "Menu" : "Carte")}
               </span>
             </button>

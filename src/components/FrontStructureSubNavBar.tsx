@@ -96,7 +96,7 @@ export default function FrontStructureSubNavBar({
       )}
       <span
         className={`flex-1 text-sm ${selected ? "font-semibold text-black" : "text-black/70"}`}
-        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+        style={{ fontFamily: "'Montserrat', sans-serif" }}
       >
         {label}
       </span>
@@ -122,7 +122,7 @@ export default function FrontStructureSubNavBar({
       )}
       <span
         className={`flex-1 text-sm ${selected ? "font-semibold text-black" : "text-black/70"}`}
-        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+        style={{ fontFamily: "'Montserrat', sans-serif" }}
       >
         {label}
       </span>

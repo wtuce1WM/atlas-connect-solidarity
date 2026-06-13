@@ -278,7 +278,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
 
   if (loading) {
     return (
-      <div className="px-4 py-8 text-center text-sm text-muted-foreground" style={{ fontFamily: "'Roboto', sans-serif" }}>
+      <div className="px-4 py-8 text-center text-sm text-muted-foreground" style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif" }}>
         {language === "en" ? "Loading channels…" : "Chargement des chaînes…"}
       </div>
     );
@@ -286,7 +286,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
 
   if (groups.length === 0) {
     return (
-      <div className="px-4 py-8 text-center text-sm text-muted-foreground" style={{ fontFamily: "'Roboto', sans-serif" }}>
+      <div className="px-4 py-8 text-center text-sm text-muted-foreground" style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif" }}>
         {language === "en" ? "No YouTube channels found." : "Aucune chaîne YouTube trouvée."}
       </div>
     );
@@ -331,7 +331,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
             <AccordionTrigger className="px-4 hover:no-underline text-white font-bold [&>svg]:text-white [&>svg]:stroke-[3]">
               <div className="flex items-center gap-2">
                 <YouTubeIcon className="h-4 w-4 text-red-600" />
-                <span className="font-bold text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <span className="font-bold text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {g.themeName}
                 </span>
                 <span className="text-[11px] text-white/80 font-normal">
@@ -363,7 +363,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
                     </div>
                     <span
                       className="text-[11px] text-center text-white leading-tight break-words font-bold normal-case"
-                      style={{ fontFamily: "'Roboto', sans-serif", textTransform: "none" }}
+                      style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", textTransform: "none" }}
                     >
                       {ch.name}
                     </span>

@@ -64,7 +64,7 @@ const BadgeBusinessesGrid = ({ badgeView, businesses, loading, onClose }: Props)
                 <div className="absolute bottom-0 left-0 right-0 p-1.5 space-y-0.5 pointer-events-none">
                   <p
                     className="text-xs font-semibold text-white line-clamp-1"
-                    style={{ fontFamily: "'Josefin Sans', sans-serif", filter: "drop-shadow(0 1px 3px hsla(0,0%,0%,0.9))" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif", filter: "drop-shadow(0 1px 3px hsla(0,0%,0%,0.9))" }}
                   >
                     {b.name}
                   </p>

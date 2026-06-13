@@ -1967,7 +1967,7 @@ const Home = () => {
               const wrapper = (children: React.ReactNode) => (
                 <span
                   className="inline-flex items-center flex-wrap text-sm font-semibold text-foreground"
-                  style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: 0, textTransform: "none" }}
+                  style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", letterSpacing: 0, textTransform: "none" }}
                 >
                   {children}
                 </span>
@@ -2233,7 +2233,7 @@ const Home = () => {
                                     <p
                                       className="text-sm font-bold text-white mt-3"
                                       style={{
-                                        fontFamily: "'Roboto', sans-serif",
+                                        fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif",
                                         letterSpacing: "0.02em",
                                         filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
                                       }}
@@ -2268,7 +2268,7 @@ const Home = () => {
                                <p
                                  className="text-sm font-bold text-white"
                                  style={{
-                                   fontFamily: "'Roboto', sans-serif",
+                                   fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif",
                                    letterSpacing: "0.02em",
                                    filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
                                  }}
@@ -2343,7 +2343,7 @@ const Home = () => {
                             </div>
                             {v.social.account && (
                               <div className="flex items-center gap-1 rounded-full bg-black/80 border border-white/15 px-2 py-0.5">
-                                <span className="text-[10px] font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                                <span className="text-[10px] font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                   Follow @{v.social.account}
                                 </span>
                               </div>

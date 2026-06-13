@@ -164,7 +164,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
               )}
 
               <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
-                <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{biz.name}</p>
+                <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{biz.name}</p>
                 {avgOn20 && (
                   <div className="flex items-center gap-1.5 text-xs">
                     <Star className="h-3 w-3 text-gold fill-gold" />

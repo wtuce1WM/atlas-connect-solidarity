@@ -297,7 +297,7 @@ const VideoDocumentOverlay = ({
                   onClick={() => onOwnerClick?.(currentVideoDoc.owner_business_id!)}
                   className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors animate-cta-zoom-in"
                 >
-                  <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     {currentVideoDoc.owner_name} <span className="text-base">©</span>
                   </span>
                   <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
@@ -347,12 +347,12 @@ const VideoDocumentOverlay = ({
               <div className="flex items-center gap-3">
                 <div className="min-w-0 flex-1">
                   {activeVideo.name ? (
-                    <h2 className="text-base md:text-xl font-bold drop-shadow-lg uppercase line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
+                    <h2 className="text-base md:text-xl font-bold drop-shadow-lg uppercase line-clamp-2" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
                       {activeVideo.name}
                     </h2>
                   ) : showOwnerFallback ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-base md:text-xl font-bold drop-shadow-lg uppercase" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
+                      <span className="text-base md:text-xl font-bold drop-shadow-lg uppercase" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
                         {currentVideoDoc!.owner_name} <span className="text-lg">©</span>
                       </span>
                         {currentVideoDoc!.owner_instagram && (
@@ -368,7 +368,7 @@ const VideoDocumentOverlay = ({
                       )}
                     </div>
                   ) : (
-                    <h2 className="text-base md:text-xl font-bold drop-shadow-lg uppercase" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
+                    <h2 className="text-base md:text-xl font-bold drop-shadow-lg uppercase" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
                       {businessName || 'Détails'}
                     </h2>
                   )}
@@ -386,7 +386,7 @@ const VideoDocumentOverlay = ({
               {activeVideo.description && descExpanded && (
                 <div
                   className="mt-3 text-sm leading-relaxed pr-1 prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!no-underline [&_a]:!pointer-events-none [&_a]:!cursor-text"
-                  style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}
+                  style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", letterSpacing: '0.02em' }}
                   dangerouslySetInnerHTML={{ __html: activeVideo.description.replace(/<a\b[^>]*>/gi, '<span>').replace(/<\/a>/gi, '</span>') }}
                 />
               )}

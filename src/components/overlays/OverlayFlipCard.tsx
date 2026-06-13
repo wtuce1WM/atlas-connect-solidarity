@@ -21,7 +21,7 @@ interface FlipCardProps {
   flipped: boolean;
   onFlip: () => void;
   onUnflip: () => void;
-  /** Name displayed in the card header (uppercase Josefin Sans) */
+  /** Name displayed in the card header (uppercase Montserrat) */
   name: string;
   /** Optional hook text below the name */
   hook?: string | null;
@@ -90,7 +90,7 @@ const OverlayFlipCard = ({
         >
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-4">
-              <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg min-w-0 flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{name}</h2>
+              <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg min-w-0 flex-1" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{name}</h2>
               <div className="flex items-center gap-2 shrink-0">
                 {showMapButton && mapMarkers.length > 0 && (
                   <button
@@ -114,14 +114,14 @@ const OverlayFlipCard = ({
               </div>
             </div>
             {hook && (
-              <p className="text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{hook}</p>
+              <p className="text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90 line-clamp-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>{hook}</p>
             )}
           </div>
 
           {description && descExpanded && onToggleDesc && (
             <div className="min-h-0 overflow-y-auto overscroll-contain pr-2" style={{ maxHeight: "min(35vh, 280px)" }}>
               <div
-                className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
+                className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
                 dangerouslySetInnerHTML={{ __html: description }}
               />
 
@@ -132,14 +132,14 @@ const OverlayFlipCard = ({
                       {highlightsSectionTitle && (
                         <h3
                           className="text-base font-bold uppercase tracking-[0.12em] text-white mb-2"
-                          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                          style={{ fontFamily: "'Montserrat', sans-serif" }}
                         >
                           {highlightsSectionTitle}
                         </h3>
                       )}
                       {highlightsSectionIntro && (
                         <div
-                          className="text-sm text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
+                          className="text-sm text-white/80 leading-relaxed font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
                           dangerouslySetInnerHTML={{ __html: highlightsSectionIntro }}
                         />
                       )}
@@ -161,7 +161,7 @@ const OverlayFlipCard = ({
                           {h.title && (
                             <h4
                               className="text-xs font-bold uppercase tracking-[0.1em] text-white"
-                              style={{ fontFamily: "'Josefin Sans', sans-serif", WebkitTextStroke: '0.6px currentColor', textShadow: '0 0 0 currentColor' }}
+                              style={{ fontFamily: "'Montserrat', sans-serif", WebkitTextStroke: '0.6px currentColor', textShadow: '0 0 0 currentColor' }}
                             >
                               {h.title}
                             </h4>
@@ -170,7 +170,7 @@ const OverlayFlipCard = ({
                         {(h.metric_title || h.metric_value) && (
                           <div className="flex items-baseline gap-2">
                             {h.metric_value && (
-                              <span className="text-lg font-bold text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{h.metric_value}</span>
+                              <span className="text-lg font-bold text-gold" style={{ fontFamily: "'Montserrat', sans-serif" }}>{h.metric_value}</span>
                             )}
                             {h.metric_title && (
                               <span className="text-[10px] uppercase tracking-[0.1em] text-white/70">{h.metric_title}</span>
@@ -179,7 +179,7 @@ const OverlayFlipCard = ({
                         )}
                         {h.description && (
                           <div
-                            className="text-xs text-white/80 leading-relaxed font-['Roboto',sans-serif] prose prose-invert prose-xs max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
+                            className="text-xs text-white/80 leading-relaxed font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose prose-invert prose-xs max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
                             dangerouslySetInnerHTML={{ __html: h.description }}
                           />
                         )}

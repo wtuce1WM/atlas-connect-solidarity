@@ -151,7 +151,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
-                <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{name}</p>
+                <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{name}</p>
               </div>
             </>
           );

@@ -127,7 +127,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
       {/* Video title */}
       {activeVideo && (
         <div className="flex-shrink-0 px-16 pt-3 pb-2 flex items-center justify-center">
-          <p className="text-xs text-white font-medium text-center line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+          <p className="text-xs text-white font-medium text-center line-clamp-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             {activeVideo.title}
           </p>
         </div>
@@ -151,7 +151,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
             </div>
           </>
         ) : (
-          <p className="text-sm text-white/50 py-8" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+          <p className="text-sm text-white/50 py-8" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             {language === "en" ? "Select a video" : "Sélectionnez une vidéo"}
           </p>
         )}

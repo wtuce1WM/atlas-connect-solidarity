@@ -166,7 +166,7 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
               className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted/50 text-left"
             >
               <Search className="h-4 w-4 text-muted-foreground/60 shrink-0" />
-              <span className="text-sm text-foreground font-bold capitalize" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.02em" }}>{s.query}</span>
+              <span className="text-sm text-foreground font-bold capitalize" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.02em" }}>{s.query}</span>
             </button>
           ))}
         </div>

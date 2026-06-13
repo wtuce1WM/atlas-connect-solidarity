@@ -111,7 +111,7 @@ const HotelResultCard = ({ hotel, onSelectHotel }: { hotel: FallbackHotel; onSel
       <div className="absolute bottom-0 left-0 right-0 z-[15] p-3 space-y-1">
         <p
           className="font-semibold text-base text-white leading-tight line-clamp-2"
-          style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}
+          style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}
         >
           {name}
         </p>
