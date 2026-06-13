@@ -62,6 +62,7 @@ import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import WarningOverlay from "@/components/WarningOverlay";
+import GeoPromptDialog from "@/components/GeoPromptDialog";
 import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
 import PanelSearchBar from "@/components/PanelSearchBar";
@@ -1410,6 +1411,11 @@ const SearchPage = () => {
      // Child tab components manage their own panel state now
    };
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+   const [geoPromptOpen, setGeoPromptOpen] = useState(false);
+   const [geoPromptDismissed, setGeoPromptDismissed] = useState(() => {
+     if (typeof window === "undefined") return false;
+     return sessionStorage.getItem("geo_prompt_dismissed") === "1";
+   });
     useEffect(() => {
       const h = () => setLocationDialogOpen(true);
       window.addEventListener("open-location-picker", h);
@@ -1618,6 +1624,19 @@ const SearchPage = () => {
       setIsGeoCityAutoSelected(false);
     }
   }, [queryHasCountryScope, searchQuery]);
+
+  // Geo prompt — when search has no explicit city and geolocation isn't active, suggest enabling it
+  useEffect(() => {
+    if (geoPromptDismissed || geoPromptOpen) return;
+    if (isLoading) return;
+    if (!searchQuery) return;
+    if (queryHasExplicitCity || queryHasCountryScope) return;
+    if (geo.isEnabled || geo.detectedCity) return;
+    if (detectedCity) return;
+    if (selectedCity && selectedCity !== "all") return;
+    const timer = setTimeout(() => setGeoPromptOpen(true), 400);
+    return () => clearTimeout(timer);
+  }, [isLoading, searchQuery, queryHasExplicitCity, queryHasCountryScope, geo.isEnabled, geo.detectedCity, detectedCity, selectedCity, geoPromptDismissed, geoPromptOpen]);
 
   // Fetch neighborhood coordinates when a neighborhood is detected
   useEffect(() => {
@@ -3513,6 +3532,21 @@ const SearchPage = () => {
           geo.decline();
         }}
       />
+
+      <GeoPromptDialog
+        open={geoPromptOpen}
+        onOpenChange={(open) => {
+          setGeoPromptOpen(open);
+          if (!open) {
+            setGeoPromptDismissed(true);
+            try { sessionStorage.setItem("geo_prompt_dismissed", "1"); } catch { /* noop */ }
+          }
+        }}
+        onAccept={() => geo.accept()}
+        onChooseLocation={() => setLocationDialogOpen(true)}
+      />
+
+
 
       {/* Hidden AISearchAnswer instance — generates AI text for Sticky 4 (overlay disabled) */}
       {(() => {
