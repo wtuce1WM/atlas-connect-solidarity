@@ -149,7 +149,7 @@ const BlogTypography = () => {
               </div>
               <div className="space-y-2 text-foreground">
                 <p><strong>strong — texte en gras</strong></p>
-                <p><em>em — texte en italique (Roboto italic 400i chargé)</em></p>
+                <p><em>em — texte en italique (Avenir / Nunito Sans italic 400i)</em></p>
                 <p><small className="text-muted-foreground">small — métadonnées</small></p>
               </div>
             </div>
