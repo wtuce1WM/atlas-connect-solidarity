@@ -194,8 +194,8 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">.prose-josefin-headings</code>
               <div className="prose-josefin-headings mt-3">
-                <h2 className="text-2xl text-foreground">Section en Josefin (uppercase)</h2>
-                <h3 className="text-xl text-foreground mt-2">Sous-section en Josefin</h3>
+                <h2 className="text-2xl text-foreground">Section en Montserrat (uppercase)</h2>
+                <h3 className="text-xl text-foreground mt-2">Sous-section en Montserrat</h3>
               </div>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
                 Utilisé dans les blocs de description riche (h2 = uppercase, h3 = casse normale)
