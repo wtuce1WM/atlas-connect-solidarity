@@ -129,13 +129,13 @@ const Blog = () => {
         kidsImg = (data || []).find((b: any) => b.images?.length)?.images?.[0];
       }
 
-      // Hero street food : 1ʳᵉ image dispo parmi les fiches Street food à Marrakech
+      // Hero street food : 1ʳᵉ image dispo parmi les fiches Street Food à Marrakech
       const { data: sfRows } = await supabase
         .from("businesses")
         .select("images")
         .eq("is_active", true)
         .eq("city", "Marrakech")
-        .or("services.cs.{Street food},services.cs.{Street Food}")
+        .or("categories.cs.{\"Street Food\"},categories.cs.{\"Street food\"},services.cs.{\"Street Food\"},services.cs.{\"Street food\"}")
         .order("priority_score", { ascending: false })
         .limit(20);
       const sfImg = (sfRows || []).find((b: any) => b.images?.length)?.images?.[0];
