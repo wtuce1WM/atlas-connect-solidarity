@@ -3536,7 +3536,6 @@ const SearchPage = () => {
           setGeoPromptOpen(open);
           if (!open) {
             setGeoPromptDismissed(true);
-            try { sessionStorage.setItem("geo_prompt_dismissed", "1"); } catch { /* noop */ }
           }
         }}
         onAccept={() => setLocationDialogOpen(true)}
