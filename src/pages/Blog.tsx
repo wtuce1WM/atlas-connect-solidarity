@@ -135,6 +135,7 @@ const Blog = () => {
         kids: kidsImg,
         galeries: (galRes.data as any)?.images?.[0],
         fermes: (fermesRes.data as any)?.images?.[0],
+        artisanat: (artisanatRes.data as any)?.images?.[0],
       });
     };
     fetchStaticHeroes();
