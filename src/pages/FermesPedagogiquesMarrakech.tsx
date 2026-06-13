@@ -222,7 +222,7 @@ const FermesPedagogiquesMarrakech = () => {
                 respiration nécessaire : un terrain de jeu grandeur nature où
                 les enfants courent après les poules, donnent à manger aux
                 ânes, plongent les mains dans la terre et apprennent — sans
-                s'en rendre compte — d'où viennent les choses. Voici nos trois
+                s'en rendre compte — d'où viennent les choses. Voici nos huit
                 adresses préférées, toutes accessibles en moins d'une heure
                 depuis la médina.
               </p>
