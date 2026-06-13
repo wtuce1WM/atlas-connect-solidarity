@@ -82,7 +82,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
     ? "bg-gradient-to-b from-morocco-red to-morocco-red/80 backdrop-blur-sm"
     : variant === "city"
       ? "bg-transparent"
-      : "bg-white";
+      : "bg-background";
 
   const navLinks = (
     <>
