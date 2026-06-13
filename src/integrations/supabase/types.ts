@@ -4296,6 +4296,36 @@ export type Database = {
           },
         ]
       }
+      page_meta_overrides: {
+        Row: {
+          description: string | null
+          og_image: string | null
+          og_type: string | null
+          route_pattern: string
+          title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          og_image?: string | null
+          og_type?: string | null
+          route_pattern: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          og_image?: string | null
+          og_type?: string | null
+          route_pattern?: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       personas: {
         Row: {
           created_at: string
