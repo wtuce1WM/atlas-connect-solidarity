@@ -654,30 +654,95 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="pages">
-            <div className="rounded-lg border bg-card p-6">
-              <h2 className="text-xl font-semibold mb-4">Pages</h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                Liste des types de pages du site. À compléter — communique-moi les pages à lister (Nom, URL, Description).
-              </p>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2 font-medium">Nom</th>
-                      <th className="text-left p-2 font-medium">URL</th>
-                      <th className="text-left p-2 font-medium">Description</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td colSpan={3} className="p-4 text-center text-muted-foreground italic">
-                        Aucune page configurée pour le moment.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {(() => {
+              const pages: { group: string; name: string; url: string; description: string }[] = [
+                // Pages principales
+                { group: "Principales", name: "Homepage", url: "/", description: "Page d'accueil avec étapes inspirationnelles et sélections éditoriales." },
+                { group: "Principales", name: "Recherche", url: "/search", description: "Moteur de recherche principal (établissements, vidéos, destinations…)." },
+                { group: "Principales", name: "Carte globale", url: "/carte", description: "Carte interactive de tous les établissements actifs." },
+                { group: "Principales", name: "Hôtels", url: "/hotels", description: "Recherche d'hôtels avec disponibilités et prix." },
+                { group: "Principales", name: "Blog", url: "/blog", description: "Liste des articles éditoriaux." },
+                { group: "Principales", name: "Article blog", url: "/blog/:slug", description: "Page d'un article de blog." },
+
+                // Pages marque / corporate
+                { group: "Marque", name: "Corporate", url: "/corporate", description: "Présentation institutionnelle de One World Morocco." },
+                { group: "Marque", name: "Club OWM", url: "/club", description: "Présentation du club et de ses avantages membres." },
+                { group: "Marque", name: "Join", url: "/join", description: "Page d'adhésion / inscription au club." },
+                { group: "Marque", name: "Card", url: "/card", description: "Présentation de la carte OWM." },
+                { group: "Marque", name: "Mission", url: "/mission", description: "Page mission et valeurs." },
+                { group: "Marque", name: "Contact", url: "/contact", description: "Formulaire et coordonnées de contact." },
+                { group: "Marque", name: "Devenir affilié", url: "/devenir-affilie", description: "Présentation du programme d'affiliation et formulaire de candidature." },
+
+                // Footer / légal
+                { group: "Footer / Légal", name: "Conditions générales", url: "/conditions-generales", description: "CGU / CGV du site." },
+                { group: "Footer / Légal", name: "Désabonnement", url: "/unsubscribe", description: "Page de désabonnement aux emails." },
+                { group: "Footer / Légal", name: "Installation PWA", url: "/install", description: "Guide d'installation de l'application." },
+
+                // Taxonomies
+                { group: "Taxonomies", name: "Catégorie", url: "/category/:categoryName", description: "Page d'une catégorie (ex: Restaurants, Hôtels…)." },
+                { group: "Taxonomies", name: "Sous-catégorie", url: "/subcategory/:subcategoryName", description: "Page d'une sous-catégorie." },
+                { group: "Taxonomies", name: "Service", url: "/service/*", description: "Page d'un service (ex: Spa, Cours de cuisine…)." },
+
+                // Géographie
+                { group: "Géographie", name: "Ville", url: "/city/:city", description: "Page d'une ville (homepage ville + carte)." },
+                { group: "Géographie", name: "Quartier", url: "/neighborhood/:neighborhood", description: "Page d'un quartier." },
+                { group: "Géographie", name: "Destination", url: "/destination/:destinationName", description: "Page d'une destination touristique." },
+
+                // Fiches
+                { group: "Fiches", name: "Fiche immersive", url: "/fiche/:slug", description: "Fiche établissement immersive (partage). Redirige vers /search avec contexte." },
+                { group: "Fiches", name: "Établissement (legacy)", url: "/business/:slug", description: "Redirection legacy vers la fiche immersive." },
+
+                // Profils publics
+                { group: "Profils publics", name: "Chaîne YouTube", url: "/y/:slug", description: "Page publique d'une chaîne YouTube référencée." },
+                { group: "Profils publics", name: "Profil membre club", url: "/u/:pseudo", description: "Page publique d'un membre du club OWM." },
+                { group: "Profils publics", name: "Vanity URL", url: "/:vanitySlug", description: "Alias court qui redirige vers une page cible." },
+
+                // Espace affiliés
+                { group: "Affiliés", name: "Connexion affilié", url: "/affiliates", description: "Page de connexion des affiliés." },
+                { group: "Affiliés", name: "Reset mot de passe", url: "/affiliates/reset-password", description: "Réinitialisation du mot de passe affilié." },
+                { group: "Affiliés", name: "Dashboard affilié", url: "/affiliates/dashboard", description: "Tableau de bord de l'affilié." },
+                { group: "Affiliés", name: "Présence affilié", url: "/affiliates/presence", description: "Gestion de la présence en ligne de l'affilié." },
+
+                // Système
+                { group: "Système", name: "404", url: "*", description: "Page non trouvée." },
+              ];
+              const groups = Array.from(new Set(pages.map((p) => p.group)));
+              return (
+                <div className="rounded-lg border bg-card p-6 space-y-8">
+                  <div>
+                    <h2 className="text-xl font-semibold">Pages</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Inventaire des types de pages publiques du site.
+                    </p>
+                  </div>
+                  {groups.map((g) => (
+                    <div key={g}>
+                      <h3 className="text-base font-semibold mb-2">{g}</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm border-collapse">
+                          <thead>
+                            <tr className="border-b bg-muted/40">
+                              <th className="text-left p-2 font-medium w-[22%]">Nom</th>
+                              <th className="text-left p-2 font-medium w-[26%]">URL</th>
+                              <th className="text-left p-2 font-medium">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {pages.filter((p) => p.group === g).map((p) => (
+                              <tr key={p.url + p.name} className="border-b last:border-0 align-top">
+                                <td className="p-2 font-medium">{p.name}</td>
+                                <td className="p-2 font-mono text-xs text-muted-foreground">{p.url}</td>
+                                <td className="p-2 text-muted-foreground">{p.description}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </TabsContent>
         </Tabs>
       </main>
