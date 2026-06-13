@@ -230,7 +230,6 @@ const FermesPedagogiquesMarrakech = () => {
           </section>
 
           {FERMES.map((ferme, idx) => {
-            const b = businesses[ferme.id];
             const isDark = idx % 2 === 0;
             return (
               <section
