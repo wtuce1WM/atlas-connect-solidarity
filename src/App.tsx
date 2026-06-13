@@ -12,6 +12,7 @@ const StaffRouteGuard = lazy(() => import("@/components/StaffRouteGuard"));
 const FloatingWhatsAppButton = lazy(() => import("@/components/FloatingWhatsAppButton"));
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
+import RouteSeo from "./seo/RouteSeo";
 import HomeMindtripEager from "./pages/HomeMindtrip";
 import CorporateEager from "./pages/Corporate";
 import ClubEager from "./pages/Club";
@@ -129,6 +130,7 @@ const AppContent = () => {
           <Suspense fallback={null}><Sonner /></Suspense>
           <BrowserRouter>
           <ScrollToTop />
+          <RouteSeo />
           <RouteTransition>
             <Routes>
               <Route path="/" element={renderLazyRoute(<HomeMindtrip />)} />

@@ -327,6 +327,7 @@ import FrontStructureVideosPanel from "@/components/staff/FrontStructureVideosPa
 import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
 import TestNoteViewer from "@/components/staff/TestNoteViewer";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
+import { PAGE_META } from "@/seo/pageMeta";
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
@@ -750,9 +751,7 @@ const StaffFront = () => {
                                 <td className="p-2 font-mono text-xs text-muted-foreground">{p.url}</td>
                                 <td className="p-2 text-muted-foreground">{p.description}</td>
                                 <td className="p-2 text-muted-foreground text-xs">
-                                  {typeof document !== "undefined"
-                                    ? document.querySelector('meta[name="description"]')?.getAttribute("content") ?? "—"
-                                    : "—"}
+                                  {PAGE_META[p.url]?.description ?? "—"}
                                 </td>
                               </tr>
                             ))}
