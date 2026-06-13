@@ -129,6 +129,17 @@ const Blog = () => {
         kidsImg = (data || []).find((b: any) => b.images?.length)?.images?.[0];
       }
 
+      // Hero street food : 1ʳᵉ image dispo parmi les fiches Street food à Marrakech
+      const { data: sfRows } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("is_active", true)
+        .eq("city", "Marrakech")
+        .or("services.cs.{Street food},services.cs.{Street Food}")
+        .order("priority_score", { ascending: false })
+        .limit(20);
+      const sfImg = (sfRows || []).find((b: any) => b.images?.length)?.images?.[0];
+
       setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -136,6 +147,7 @@ const Blog = () => {
         galeries: (galRes.data as any)?.images?.[0],
         fermes: (fermesRes.data as any)?.images?.[0],
         artisanat: (artisanatRes.data as any)?.images?.[0],
+        streetfood: sfImg,
       });
     };
     fetchStaticHeroes();
