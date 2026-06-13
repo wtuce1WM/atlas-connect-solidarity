@@ -174,7 +174,7 @@ const FermesPedagogiquesMarrakech = () => {
   useSEO({
     title: "Les fermes pédagogiques à Marrakech",
     description:
-      "Notre sélection de fermes pédagogiques autour de Marrakech : Bled Ouladi, La Ferme El Dar, Jardin Bio-Aromatique d'Ourika. Ateliers, animaux, nature et plantes aromatiques en famille.",
+      "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
     canonical: "/blog/fermes-pedagogiques-marrakech",
   });
 
