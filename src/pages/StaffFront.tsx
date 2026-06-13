@@ -433,6 +433,10 @@ const StaffFront = () => {
               <Settings2 className="h-4 w-4" />
               Réseaux sociaux
             </TabsTrigger>
+            <TabsTrigger value="pages" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Pages
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="front-structure">
@@ -647,6 +651,33 @@ const StaffFront = () => {
 
           <TabsContent value="social-links">
             <SocialLinksManagement />
+          </TabsContent>
+
+          <TabsContent value="pages">
+            <div className="rounded-lg border bg-card p-6">
+              <h2 className="text-xl font-semibold mb-4">Pages</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Liste des types de pages du site. À compléter — communique-moi les pages à lister (Nom, URL, Description).
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-2 font-medium">Nom</th>
+                      <th className="text-left p-2 font-medium">URL</th>
+                      <th className="text-left p-2 font-medium">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colSpan={3} className="p-4 text-center text-muted-foreground italic">
+                        Aucune page configurée pour le moment.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
