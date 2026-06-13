@@ -298,7 +298,7 @@ const BlogTypography = () => {
               <h3 className="text-lg font-semibold text-foreground">Restaurant Le Jardin</h3>
               <p className="text-sm text-muted-foreground mt-1">Marrakech · Gastronomie</p>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                h3 auto: Roboto 500 · p: Roboto · text-sm text-muted-foreground
+                h3 auto: Avenir 500 · p: Avenir · text-sm text-muted-foreground
               </div>
             </div>
 
