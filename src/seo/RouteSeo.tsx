@@ -2,6 +2,8 @@ import { useLocation, matchPath } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { PAGE_META } from "./pageMeta";
 
+const SITE_URL = "https://oneworldmorocco.com";
+
 // Routes that manage their own SEO dynamically via useSEO (data-driven titles,
 // descriptions, OG images, JSON-LD). RouteSeo must NOT inject a generic
 // fallback for these — it would race with useSEO and clobber the real meta.
@@ -20,9 +22,6 @@ const DYNAMIC_PATTERNS = new Set([
   "/:vanitySlug",
 ]);
 
-// Ordered list of route patterns (most specific first) so /blog/typographie
-// wins over /blog/:slug, etc. We exclude the bare "*" sentinel and
-// "/:vanitySlug" from the priority list — they're tried last.
 const PRIORITY_PATTERNS = Object.keys(PAGE_META)
   .filter((p) => p !== "*" && p !== "/:vanitySlug")
   .sort((a, b) => {
@@ -37,7 +36,6 @@ export function resolveRouteMeta(pathname: string) {
       return { pattern, meta: PAGE_META[pattern] };
     }
   }
-  // Fallback: vanity slug (1 segment), else 404.
   if (matchPath({ path: "/:vanitySlug", end: true }, pathname)) {
     return { pattern: "/:vanitySlug", meta: PAGE_META["/:vanitySlug"] };
   }
@@ -48,14 +46,26 @@ export default function RouteSeo() {
   const { pathname } = useLocation();
   const { pattern, meta } = resolveRouteMeta(pathname);
   if (!meta) return null;
-  // Skip injection for routes that own their SEO dynamically (via useSEO).
   if (DYNAMIC_PATTERNS.has(pattern)) return null;
+
+  const url = `${SITE_URL}${pathname}`;
+  const ogType = meta.ogType ?? "website";
+  const ogImage = meta.ogImage;
+
   return (
     <Helmet>
       <title>{meta.title}</title>
       <meta name="description" content={meta.description} />
+      <link rel="canonical" href={url} />
       <meta property="og:title" content={meta.title} />
       <meta property="og:description" content={meta.description} />
+      <meta property="og:url" content={url} />
+      <meta property="og:type" content={ogType} />
+      <meta name="twitter:title" content={meta.title} />
+      <meta name="twitter:description" content={meta.description} />
+      {ogImage && <meta property="og:image" content={ogImage} />}
+      {ogImage && <meta name="twitter:image" content={ogImage} />}
+      {ogImage && <meta name="twitter:card" content="summary_large_image" />}
     </Helmet>
   );
 }

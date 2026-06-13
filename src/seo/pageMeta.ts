@@ -5,6 +5,8 @@
 export type PageMeta = {
   title: string;
   description: string;
+  ogType?: "website" | "article";
+  ogImage?: string;
 };
 
 const BRAND = "One World Morocco";
