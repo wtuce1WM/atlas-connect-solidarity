@@ -29,7 +29,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
