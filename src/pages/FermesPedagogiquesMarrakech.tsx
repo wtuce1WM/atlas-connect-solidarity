@@ -253,7 +253,7 @@ const FermesPedagogiquesMarrakech = () => {
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
         <div className="absolute inset-0 flex flex-col justify-end pb-12">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-4 gap-3">
