@@ -1413,6 +1413,7 @@ const SearchPage = () => {
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const [geoPromptOpen, setGeoPromptOpen] = useState(false);
    const [geoPromptDismissed, setGeoPromptDismissed] = useState(false);
+   useEffect(() => { try { sessionStorage.removeItem("geo_prompt_dismissed"); } catch {} }, []);
     useEffect(() => {
       const h = () => setLocationDialogOpen(true);
       window.addEventListener("open-location-picker", h);
