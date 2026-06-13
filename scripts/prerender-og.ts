@@ -53,12 +53,12 @@ function esc(s: string): string {
 }
 
 /** Replace OG/Twitter/title/description/canonical tags in the built index.html. */
-function rewriteHead(html: string, meta: { title: string; description: string; image: string; url: string }) {
+function rewriteHead(html: string, meta: { title: string; description: string; image: string; url: string; jsonLd?: Record<string, unknown> }) {
   const t = esc(meta.title);
   const d = esc(meta.description);
   const i = esc(meta.image);
   const u = esc(meta.url);
-  return html
+  const withMeta = html
     .replace(/<title>[^<]*<\/title>/, `<title>${t}</title>`)
     .replace(/<meta name="description"[^>]*>/, `<meta name="description" content="${d}" />`)
     .replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${u}" />`)
@@ -69,6 +69,10 @@ function rewriteHead(html: string, meta: { title: string; description: string; i
     .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${t}" />`)
     .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${d}" />`)
     .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${i}" />`);
+
+  if (!meta.jsonLd) return withMeta;
+  const jsonLd = JSON.stringify(meta.jsonLd).replace(/</g, "\\u003c");
+  return withMeta.replace(/<\/head>/, `  <script type="application/ld+json">${jsonLd}</script>\n</head>`);
 }
 
 export function prerenderOgPlugin(): Plugin {
@@ -149,23 +153,42 @@ export function prerenderOgPlugin(): Plugin {
         title: string;
         description: string;
         image?: string;
+        publishedAt: string;
+        modifiedAt: string;
       }> = [
         {
           path: "blog/fermes-pedagogiques-marrakech",
           title: `Les fermes pédagogiques à Marrakech — ${SITE}`,
           description:
             "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
+          publishedAt: "2026-06-12T08:00:00+01:00",
+          modifiedAt: "2026-06-13T08:00:00+01:00",
         },
       ];
 
       let articlesWritten = 0;
-      const writeArticle = async (slugPath: string, title: string, description: string, image?: string) => {
+      const writeArticle = async (slugPath: string, title: string, description: string, image?: string, dates?: { publishedAt?: string; modifiedAt?: string }) => {
         const url = `${BASE}/${slugPath}`;
+        const cleanTitle = title.replace(` — ${SITE}`, "").replace(` | ${SITE}`, "");
+        const cleanDescription = stripHtml(description).substring(0, 200);
+        const articleImage = image || DEFAULT_IMG;
         const html = rewriteHead(template, {
           title,
-          description: stripHtml(description).substring(0, 200),
-          image: image || DEFAULT_IMG,
+          description: cleanDescription,
+          image: articleImage,
           url,
+          jsonLd: {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: cleanTitle,
+            description: cleanDescription,
+            image: [articleImage],
+            datePublished: dates?.publishedAt || new Date().toISOString(),
+            dateModified: dates?.modifiedAt || dates?.publishedAt || new Date().toISOString(),
+            author: { "@type": "Organization", name: SITE, url: BASE },
+            publisher: { "@type": "Organization", name: SITE, logo: { "@type": "ImageObject", url: DEFAULT_IMG } },
+            mainEntityOfPage: { "@type": "WebPage", "@id": url },
+          },
         });
         const dir = path.join(distDir, slugPath);
         await mkdir(dir, { recursive: true });
@@ -174,7 +197,7 @@ export function prerenderOgPlugin(): Plugin {
       };
 
       for (const a of staticArticles) {
-        await writeArticle(a.path, a.title, a.description, a.image);
+        await writeArticle(a.path, a.title, a.description, a.image, { publishedAt: a.publishedAt, modifiedAt: a.modifiedAt });
       }
 
       // DB-backed blog posts — fully dynamic, no code edit needed when a new article is published.
