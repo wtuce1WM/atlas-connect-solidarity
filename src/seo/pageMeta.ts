@@ -90,6 +90,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Vingt-trois boutiques mode à Guéliz : créateurs marocains, concept-stores, marques internationales et adresses confidentielles dans l'épicentre fashion de Marrakech.",
   },
+  "/blog/beach-clubs-marrakech": {
+    title: `Beach Clubs à Marrakech — ${BRAND}`,
+    description:
+      "Sept beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau.",
+  },
   "/blog/ancien-accueil": {
     title: `Ancienne page d'accueil — ${BRAND}`,
     description: "Archive de l'ancienne page d'accueil One World Morocco.",
