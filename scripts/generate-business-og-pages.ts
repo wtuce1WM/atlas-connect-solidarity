@@ -377,9 +377,9 @@ async function main() {
   mkdirSync(blogDir, { recursive: true });
   writeFileSync(join(blogDir, MARKER_FILE), "", "utf8");
   for (const article of STATIC_ARTICLES) {
-    const dir = join(PUBLIC_DIR, article.path);
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, "index.html"), buildArticleHtml(article), "utf8");
+    const file = join(PUBLIC_DIR, article.path);
+    if (existsSync(file)) rmSync(file, { recursive: true, force: true });
+    writeFileSync(file, buildArticleHtml(article), "utf8");
   }
 
   console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${STATIC_ARTICLES.length} articles.`);
