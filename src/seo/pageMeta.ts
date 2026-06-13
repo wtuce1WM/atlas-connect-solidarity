@@ -71,9 +71,9 @@ export const PAGE_META: Record<string, PageMeta> = {
       "Notre sélection des galeries d'art contemporaines et traditionnelles à Marrakech.",
   },
   "/blog/fermes-pedagogiques-marrakech": {
-    title: `Fermes pédagogiques à Marrakech — ${BRAND}`,
+    title: `Les fermes pédagogiques à Marrakech — ${BRAND}`,
     description:
-      "Notre sélection de fermes pédagogiques autour de Marrakech : Bled Ouladi, La Ferme El Dar, Jardin Bio-Aromatique d'Ourika.",
+      "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
   },
   "/blog/ancien-accueil": {
     title: `Ancienne page d'accueil — ${BRAND}`,
