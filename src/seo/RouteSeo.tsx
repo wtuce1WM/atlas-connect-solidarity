@@ -9,7 +9,7 @@ const SITE_URL = "https://oneworldmorocco.com";
 // Routes that manage their own SEO dynamically via useSEO (data-driven titles,
 // descriptions, OG images, JSON-LD). RouteSeo must NOT inject a generic
 // fallback for these — it would race with useSEO and clobber the real meta.
-const DYNAMIC_PATTERNS = new Set([
+export const DYNAMIC_PATTERNS = new Set([
   "/blog/:slug",
   "/fiche/:slug",
   "/business/:slug",
