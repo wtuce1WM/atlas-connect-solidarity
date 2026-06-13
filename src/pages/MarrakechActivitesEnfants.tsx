@@ -50,13 +50,13 @@ const MarrakechActivitesEnfants = () => {
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const heroImage = businesses[0]?.images?.[0] || DEFAULT_OG_IMAGE;
+  const seoImage = businesses.find((b) => b.images?.length)?.images?.[0] || DEFAULT_OG_IMAGE;
 
   useSEO({
     title: ARTICLE_TITLE,
     description: ARTICLE_DESCRIPTION,
     canonical: ARTICLE_PATH,
-    ogImage: heroImage,
+    ogImage: seoImage,
     ogUrl: ARTICLE_PATH,
     ogType: "article",
     jsonLd: {
@@ -64,7 +64,7 @@ const MarrakechActivitesEnfants = () => {
       "@type": "BlogPosting",
       headline: ARTICLE_TITLE,
       description: ARTICLE_DESCRIPTION,
-      image: [heroImage],
+      image: [seoImage],
       datePublished: "2026-06-12T08:00:00+01:00",
       dateModified: "2026-06-13T08:00:00+01:00",
       author: { "@type": "Organization", name: "ONE WORLD MOROCCO", url: SITE_URL },
