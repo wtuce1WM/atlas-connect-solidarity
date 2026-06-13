@@ -6,10 +6,9 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAccept: () => void;
-  onChooseLocation: () => void;
 }
 
-const GeoPromptDialog = ({ open, onOpenChange, onAccept, onChooseLocation }: Props) => {
+const GeoPromptDialog = ({ open, onOpenChange, onAccept }: Props) => {
   const { language } = useLanguage();
 
   const t = {
@@ -17,21 +16,18 @@ const GeoPromptDialog = ({ open, onOpenChange, onAccept, onChooseLocation }: Pro
       title: "Affiner par votre position ?",
       desc: "Vous n'avez pas précisé de ville. Activez la géolocalisation pour voir d'abord les résultats près de vous.",
       accept: "Activer la géolocalisation",
-      manual: "Choisir une ville",
       later: "Plus tard",
     },
     en: {
       title: "Refine by your location?",
       desc: "You didn't specify a city. Enable geolocation to see results near you first.",
       accept: "Enable geolocation",
-      manual: "Choose a city",
       later: "Later",
     },
     ar: {
       title: "تحسين حسب موقعك؟",
       desc: "لم تحدد مدينة. فعّل تحديد الموقع لرؤية النتائج القريبة منك أولاً.",
       accept: "تفعيل تحديد الموقع",
-      manual: "اختر مدينة",
       later: "لاحقاً",
     },
   }[language === "en" || language === "ar" ? language : "fr"];
@@ -54,12 +50,6 @@ const GeoPromptDialog = ({ open, onOpenChange, onAccept, onChooseLocation }: Pro
             className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
           >
             {t.accept}
-          </button>
-          <button
-            onClick={() => { onChooseLocation(); onOpenChange(false); }}
-            className="w-full h-11 rounded-lg border border-border bg-card text-foreground hover:bg-muted transition-colors"
-          >
-            {t.manual}
           </button>
           <button
             onClick={() => onOpenChange(false)}
