@@ -9,7 +9,7 @@ interface Props {
 
 const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
   const location = useLocation();
-  const blackHamburger = location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join";
+  const blackHamburger = location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/card";
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
