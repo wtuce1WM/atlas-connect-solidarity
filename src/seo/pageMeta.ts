@@ -75,6 +75,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
   },
+  "/blog/artisanat-medina-marrakech": {
+    title: `Artisanat marocain dans la Médina de Marrakech — ${BRAND}`,
+    description:
+      "Huit ateliers et boutiques de la Médina — tapis berbères, caftans, poteries, maroquinerie, savonnerie et galerie d'art — où l'artisanat marocain se vit, se touche et se rapporte chez soi.",
+  },
   "/blog/ancien-accueil": {
     title: `Ancienne page d'accueil — ${BRAND}`,
     description: "Archive de l'ancienne page d'accueil One World Morocco.",
