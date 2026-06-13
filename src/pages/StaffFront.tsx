@@ -737,9 +737,10 @@ const StaffFront = () => {
                         <table className="w-full text-sm border-collapse">
                           <thead>
                             <tr className="border-b bg-muted/40">
-                              <th className="text-left p-2 font-medium w-[22%]">Nom</th>
-                              <th className="text-left p-2 font-medium w-[26%]">URL</th>
-                              <th className="text-left p-2 font-medium">Fonction</th>
+                              <th className="text-left p-2 font-medium w-[18%]">Nom</th>
+                              <th className="text-left p-2 font-medium w-[22%]">URL</th>
+                              <th className="text-left p-2 font-medium w-[28%]">Fonction</th>
+                              <th className="text-left p-2 font-medium">Description (meta)</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -748,6 +749,11 @@ const StaffFront = () => {
                                 <td className="p-2 font-medium">{p.name}</td>
                                 <td className="p-2 font-mono text-xs text-muted-foreground">{p.url}</td>
                                 <td className="p-2 text-muted-foreground">{p.description}</td>
+                                <td className="p-2 text-muted-foreground text-xs">
+                                  {typeof document !== "undefined"
+                                    ? document.querySelector('meta[name="description"]')?.getAttribute("content") ?? "—"
+                                    : "—"}
+                                </td>
                               </tr>
                             ))}
                           </tbody>
