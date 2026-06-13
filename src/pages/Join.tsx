@@ -155,7 +155,7 @@ const Join = () => {
       const l = document.createElement("link");
       l.id = "join-fonts";
       l.rel = "stylesheet";
-      l.href = "https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Roboto:wght@300;400;500;700&display=swap";
+      l.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap";
       document.head.appendChild(l);
     }
     document.title = "Rejoindre One World Morocco — Devenir partenaire";

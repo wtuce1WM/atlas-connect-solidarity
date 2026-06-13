@@ -348,7 +348,7 @@ const DirectionsOverlay = ({ business, onClose }: DirectionsOverlayProps) => {
               const wrap = document.createElement("div");
               wrap.style.cssText = `position:absolute;transform:translate(-50%,calc(-100% - 10px));pointer-events:none;z-index:${isPrimary ? 50 : 40};filter:drop-shadow(0 1px 2px rgba(0,0,0,0.25));`;
               wrap.innerHTML = `
-                <div style="background:#fff;border:1px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;font-family:Roboto,Arial,sans-serif;white-space:nowrap;">
+                <div style="background:#fff;border:1px solid rgba(0,0,0,0.2);border-radius:4px;padding:6px 10px;font-family:'Avenir Next','Avenir','Nunito Sans',Arial,sans-serif;white-space:nowrap;">
                   <div style="font-size:13px;font-weight:600;color:#202124;line-height:1.15;">${icon} ${dur}</div>
                   <div style="font-size:11px;color:#5f6368;line-height:1.15;margin-top:1px;">${dist}</div>
                 </div>
