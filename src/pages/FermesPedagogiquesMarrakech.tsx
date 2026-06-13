@@ -457,6 +457,7 @@ const FermesPedagogiquesMarrakech = () => {
       )}
 
       <Footer />
+      <ClubLoginPopup />
     </div>
   );
 };
