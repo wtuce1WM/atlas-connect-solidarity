@@ -1,39 +1,53 @@
 ## Objectif
 
-Appliquer **`HomeMindtripHeader`** (en haut) et **`Footer variant="verified"`** (en bas) de manière uniforme sur les 7 pages du parcours vitrine, en supprimant les headers/footers ad hoc.
+Mettre en place `react-helmet-async` pour gérer un `<title>` et une `<meta name="description">` propres à chaque page, et afficher ces valeurs dans le tableau Pages du back-office.
 
-## État actuel
+## Étapes
 
-| Page | Header actuel | Footer actuel | Action |
-|---|---|---|---|
-| `/` (Index) | HomeMindtrip ✅ | Footer verified ✅ | Rien |
-| `/club` | HomeMindtrip ✅ | Footer ✅ | Forcer `variant="verified"`, nettoyer import `Header` inutilisé |
-| `/devenir-affilie` | HomeMindtrip ✅ | Footer ✅ | Forcer `variant="verified"` |
-| `/install` | HomeMindtrip ✅ | ❌ aucun | Ajouter `<Footer variant="verified" />` |
-| `/join` | ❌ HTML custom (header sticky beige + footer inline) | ❌ HTML custom | Supprimer header/footer custom, wrapper avec HomeMindtripHeader + Footer |
-| `/card` | ❌ HTML custom | ❌ HTML custom | Idem |
-| `/corporate` | ❌ iframe srcDoc (607 lignes HTML) | ❌ iframe | Sortir de l'iframe : extraire le body, garder le CSS scopé, rendre en React avec header/footer partagés |
+### 1. Installation & provider
+- `bun add react-helmet-async`
+- Wrapper `<HelmetProvider>` autour de `<BrowserRouter>` dans `src/main.tsx`.
 
-## Plan d'exécution
+### 2. Source de vérité centralisée
+Créer `src/seo/pageMeta.ts` exportant un objet :
+```ts
+export const PAGE_META: Record<string, { title: string; description: string }> = {
+  "/": { title: "...", description: "..." },
+  "/search": { ... },
+  ...
+}
+```
+Une entrée par route listée dans le tableau Pages (clé = `url` du tableau, ex. `/blog/:slug`).
 
-1. **Petites pages déjà alignées** — `Club`, `BecomeAffiliate`, `Install` : ajouter/forcer `Footer variant="verified"`, retirer imports inutilisés.
-2. **Join & Card** : retirer les blocs `<header class="nav">…</header>` et le footer inline de leur HTML, ajuster le CSS (supprimer `header.nav` et règles sticky), englober le contenu dans un wrapper React `<HomeMindtripHeader /> … <Footer variant="verified" />`. Conserver tout le contenu interne (sections, CSS de page) inchangé.
-3. **Corporate** (le plus lourd) :
-   - Convertir `Corporate.tsx` pour ne plus utiliser l'iframe.
-   - Extraire le `<body>` de `corporate.html` dans une string injectée via `dangerouslySetInnerHTML` à l'intérieur d'un wrapper `<div className="corporate-scope">` (avec le `<style>` original scopé via classe), pour éviter de tout réécrire en JSX.
-   - Retirer le header/footer maison du HTML extrait.
-   - Remplacer le `postMessage` `owm-nav` par une délégation de clic React vers `navigate()` sur les liens internes.
-   - Header/footer React injectés au-dessus/au-dessous.
+### 3. Composant `<PageSeo />`
+Créer `src/seo/PageSeo.tsx` :
+- prop `routeKey` (ex. `"/blog/:slug"`)
+- props optionnelles `title` / `description` pour override dynamique (article blog, fiche…)
+- rend `<Helmet><title>…</title><meta name="description" …/></Helmet>`
 
-## Détails techniques
+### 4. Injection dans les pages
+Ajouter `<PageSeo routeKey="…" />` en haut du JSX de chaque page listée :
+- Pages statiques : valeurs prises dans `PAGE_META`.
+- Pages dynamiques (`/blog/:slug`, `/fiche/:slug`, `/category/:categoryName`, `/city/:city`, etc.) : override avec données chargées (ex. titre de l'article, nom de la catégorie).
 
-- `HomeMindtripHeader` est `position: fixed` et a un fond transparent par défaut puis sombre au scroll. Les pages `/join` et `/card` ont un fond beige clair (`#ECD6B8`) → ajouter `alwaysWhite={false}` (défaut) et un padding-top de ~80px sur le contenu pour ne pas être masqué par le header fixe. Le hamburger reste lisible (logique `blackHamburger` couvre déjà `/` et `/install` ; ajouter aussi `/join`, `/card`, `/corporate` à la condition si nécessaire).
-- `Footer variant="verified"` est sombre — cohérent avec la marque, contraste accepté même au-dessus du beige.
-- Aucun changement de logique métier, de routes, ni de SEO (les `useSEO` existants restent).
-- Aucun changement de schéma DB ni d'edge function.
+### 5. Back-office — tableau Pages
+Dans `src/pages/StaffFront.tsx`, onglet Pages :
+- importer `PAGE_META`
+- colonne « Description (meta) » : afficher `PAGE_META[p.url]?.description` (au lieu du `document.querySelector` actuel)
+- ajouter aussi (optionnel mais utile) une colonne « Title » si tu veux la voir.
 
-## Hors scope
+### 6. Cohérence avec `index.html`
+- Garder les balises statiques actuelles dans `index.html` comme fallback pour les crawlers sociaux (WhatsApp/Facebook ne lisent pas le JS — déjà documenté dans la mémoire projet « Share Previews Strategy »).
+- Supprimer `<link rel="canonical">` de `index.html` uniquement si on ajoute un canonical par route (pas dans ce lot — on reste sur title + description pour rester minimal).
 
-- Refonte visuelle du contenu interne des pages (sections, copies, illustrations).
-- Migration React complète de `corporate.html` en JSX (resterait du HTML injecté, simplement délivré sans iframe).
-- Pages back-office / search / fiche.
+## Note importante (contrainte hosting)
+
+Le site est hébergé sur Lovable sans SSR : les meta injectées par Helmet ne sont visibles que des crawlers qui exécutent le JS (Googlebot oui ; WhatsApp/Facebook/LinkedIn non). Pour les aperçus de partage, l'`index.html` statique reste la source. C'est déjà la stratégie documentée du projet.
+
+## Périmètre
+
+Lot 1 (ce plan) : infra Helmet + meta pour toutes les pages **statiques** listées dans le tableau Pages + affichage dans le back-office.
+
+Lot 2 (à faire ensuite si tu valides) : meta dynamiques pour `/blog/:slug`, `/fiche/:slug`, `/category/:categoryName`, `/city/:city`, `/neighborhood/:neighborhood`, `/destination/:destinationName`, `/u/:pseudo`, `/y/:slug` — chacune branchée sur sa source de données.
+
+Confirme et je commence par le Lot 1.
