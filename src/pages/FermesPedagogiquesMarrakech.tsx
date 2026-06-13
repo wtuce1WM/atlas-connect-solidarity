@@ -356,6 +356,7 @@ const FermesPedagogiquesMarrakech = () => {
                       return (
                         <Link
                           key={bid}
+                          id={`entry-${b.id}`}
                           to={businessUrl(b)}
                           onClick={() => {
                             try {
