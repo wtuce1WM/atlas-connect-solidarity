@@ -432,7 +432,7 @@ const Blog = () => {
                           Artisanat marocain dans la Médina de Marrakech
                         </h2>
                         <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                          Huit ateliers et boutiques de la Médina — tapis berbères, caftans, poteries, maroquinerie, savonnerie et galerie d'art — où l'artisanat marocain se vit encore au geste.
+                          Quarante ateliers et boutiques de la Médina — tapis berbères, caftans, poteries, marqueterie, maroquinerie, bijoux, savonnerie et galerie d'art — où l'artisanat marocain se vit encore au geste.
                         </p>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 text-primary font-medium">

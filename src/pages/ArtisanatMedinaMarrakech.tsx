@@ -98,6 +98,351 @@ const ATELIERS: BlogArticleEntry[] = [
       "On peut s'y arrêter trente minutes ou une heure, repartir avec un livre, un tirage signé, une affiche, ou simplement avec l'image — durable — d'avoir traversé la Médina autrement.",
     ],
   },
+  {
+    id: "073659ca-3f07-4078-97ea-2566a6f75d98",
+    pretitle: "Médina de Marrakech",
+    title: "Medina Plaster Art — un atelier de la Médina",
+    hours: "Ouvert lundi, mardi, mercredi, jeudi, vendredi, samedi, 09:00–18:00 — fermé dimanche.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Medina Plaster Art — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « ⚜️ Atelier de sculpture sur plâtre ⚜️ Décorations murales sculptées, livraison internationale ✈️ »",
+      "✨ Ateliers de sculpture sur plâtre dans la vieille médina de Marrakech ✨ Nous vous proposons une expérience inoubliable d'apprentissage et de pratique de la sculpture sur plâtre, sous la direction de l'artiste professionnel Maalem Abdelaziz, fort d'une expérience de plus de 40 ans. Cet atelier vous permettra d'apprendre à sculpter des décorations en plâtre selon des techniques traditionnelles, à l'aide d'outils manuels, et de créer vos propres sculptures uniques, un souvenir précieux de cette expérience unique et enrichissante. 😊 Découvrez le riche patrimoine artistique de la région. Nos ateliers sont flexibles et adaptés à vos disponibilités, que vous souhaitiez participer une seule fois…",
+    ],
+  },
+  {
+    id: "909cb44b-e529-4b56-94b4-49293d6a3aee",
+    pretitle: "Médina de Marrakech",
+    title: "ALMALEH ABANOS — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 08:00–20:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de ALMALEH ABANOS — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Découvrez la beauté de l'artisanat syrien et marocain ✨ Marqueterie de luxe faite main • Atelier artisanal. »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "91d2dcea-8ea8-43f7-85a5-60fbfc59bbab",
+    pretitle: "Médina de Marrakech",
+    title: "Artisan’All Marrakech — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 11:00–21:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Artisan’All Marrakech — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Espace des artisans et créateurs. »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "6e053564-c559-4aa1-b495-a5a6d4b4fd7c",
+    pretitle: "Médina de Marrakech",
+    title: "Artisanat Dar Essalam — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 08:00–19:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Artisanat Dar Essalam — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Boutique d'artisanat marocain dans un palais du XIXe siècle. »",
+      "Artisanat Dar Essalam est une boutique aménagée dans un riad palatial, située au cœur de la vieille ville de Marrakech, plus précisément dans le quartier d'El Ksour. Visiter Artisanat Dar Essalam, c'est aussi découvrir un magnifique patrimoine architectural, puisque la boutique est un palais depuis le XIXe siècle. La famille propriétaire a décidé d'ouvrir le palais au public en 1978 et, depuis, il est devenu une étape incontournable pour les touristes visitant Marrakech !",
+    ],
+  },
+  {
+    id: "b7173ce9-bbb1-4979-b068-172e07f7a36e",
+    pretitle: "Médina de Marrakech",
+    title: "Bazar Salama — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 10:00–20:30.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Bazar Salama — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "2bd3de7c-ac19-48ad-a1b4-9c25dbbde694",
+    pretitle: "Médina de Marrakech",
+    title: "Beldi Weave — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 10:00–19:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Beldi Weave — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « ♦️Tapis marocains vintage faits main et décoration intérieure. »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "4b478e0f-e089-487e-bb7b-25191946bd92",
+    pretitle: "Médina de Marrakech",
+    title: "Bijouterie El Wady — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:00–21:30.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Bijouterie El Wady — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "641ab942-63a5-499e-999a-e09915b1d02f",
+    pretitle: "Médina de Marrakech",
+    title: "Boutique El Fenn — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 11:00–22:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Boutique El Fenn — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Objets d’art, design et artisanat marocain sélectionnés avec goût dans une atmosphère bohème chic »",
+      "La Boutique El Fenn, située au cœur de l’hôtel emblématique El Fenn Marrakech, est bien plus qu’un simple espace de shopping : c’est un laboratoire de style, une curation de pièces uniques où l’art, l’artisanat et le design se rencontrent dans une harmonie subtile. Fidèle à l’esprit créatif et bohème de l’hôtel, la boutique propose une sélection raffinée d’objets soigneusement choisis pour leur authenticité, leur esthétique et leur qualité artisanale. Dès que l’on franchit la porte, on entre dans un univers visuel riche où les textures et les matières racontent une histoire : tapis berbères aux motifs vibrants, céramiques façonnées à la main, paniers tressés, objets décoratifs sculptés,…",
+    ],
+  },
+  {
+    id: "abafaa2d-2295-4a84-a5a8-9077701dc8a4",
+    pretitle: "Médina de Marrakech",
+    title: "Bouzaher Art — un atelier de la Médina",
+    hours: "Ouvert lundi, mardi, mercredi, jeudi, vendredi, samedi, 10:00–18:30 — fermé dimanche.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Bouzaher Art — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "eb7d80b3-c4b1-45f4-8125-8ae989c7913d",
+    pretitle: "Médina de Marrakech",
+    title: "Chabi Chic Outlet Médina — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 10:00–19:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Chabi Chic Outlet Médina — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'adresse secrète pour chiner autrement. Au cœur de la Médina, notre outlet dévoile ses trésors en fin de collection. Un lieu discret pour les curieux, les passionnés, les amateurs d'authenticité.",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "80a2817c-e9f9-4f4b-a907-efb18901e39c",
+    pretitle: "Médina de Marrakech",
+    title: "Chateau Des Souks — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:00–21:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Chateau Des Souks — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « 💯% Laine. Fait Main 👋 Expédition tous pays 🌍 »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "40a6fff6-8b0e-4f46-8447-e0e6ef18372e",
+    pretitle: "Médina de Marrakech",
+    title: "Chez Zouhair — un atelier de la Médina",
+    hours: "Ouvert mardi, mercredi, jeudi, vendredi, samedi, dimanche, 10:00–21:00 — fermé lundi.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Chez Zouhair — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Porter des bijoux est une façon de s'exprimer sans dire un mot. »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "b17d355a-6fa6-47e7-8a0d-572764bb4375",
+    pretitle: "Médina de Marrakech",
+    title: "Dar Bouchaib — Complexe Artisanal — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:00–20:30.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Dar Bouchaib — Complexe Artisanal — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « La maison des tapis berbères d'exception à la Kasbah de Marrakech. »",
+      "Dar Bouchaib est bien plus qu'une boutique : c'est un reflet du riche patrimoine culturel et des traditions artistiques du Maroc. Implantée dans la Kasbah de Marrakech, cette maison d'artisanat travaille en étroite collaboration avec des artisans locaux, héritiers d'un savoir-faire transmis de génération en génération. Elle propose une large sélection de tapis berbères faits main — Beni Mrirt, Boucherouite, Rabat, Azilal, Glawa — ainsi que de la poterie, de la maroquinerie, des vêtements et des parfums. La boutique en ligne propose une livraison internationale gratuite.",
+    ],
+  },
+  {
+    id: "78a55875-058a-40aa-b562-e9df6e7f9838",
+    pretitle: "Médina de Marrakech",
+    title: "Dar Haram Cheekh — un atelier de la Médina",
+    hours: "Horaires sur demande.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Dar Haram Cheekh — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Tapis, poufs, coussins et sacs marocains faits main 🇲🇦 »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "29116d9f-c61a-43b0-a3e0-e2e5b62acc30",
+    pretitle: "Médina de Marrakech",
+    title: "DIFFERENT. Medina — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 10:00–21:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de DIFFERENT. Medina — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Une sélection de vêtements uniques, d'accessoires originaux, de céramiques artisanales et de cadeaux chargés de sens. »",
+      "Née au cœur de la médina de Marrakech, notre marque fusionne influences ethniques et orientales et énergie streetwear. Nous créons des pièces uniques, des robes d'exception aux collections homme et femme soigneusement sélectionnées pour se démarquer. Au-delà de la mode, notre univers s'étend aux accessoires, bijoux et décoration d'intérieur, tous imprégnés du même esprit créatif. Après avoir débuté à Marrakech, notre marque s'est développée jusqu'à Essaouira, et un nouveau showroom est en préparation à Sidi Ghanem… ouverture prochaine.",
+    ],
+  },
+  {
+    id: "793c144f-c1c5-47db-bd51-b86b8c089735",
+    pretitle: "Médina de Marrakech",
+    title: "Dune Galerie — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:00–19:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Dune Galerie — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Spécialisé dans les tapis, les meubles, les bijoux et les céramiques anciennes. »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "7bbaf3cf-59fc-4b11-9f02-e4c9b0402f4a",
+    pretitle: "Médina de Marrakech",
+    title: "El Ghali Art Gallery — un atelier de la Médina",
+    hours: "Horaires sur demande.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de El Ghali Art Gallery — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "65f651fe-0593-4d4e-bdbf-ce0c2fcf5c7c",
+    pretitle: "Médina de Marrakech",
+    title: "Galerie Dar El Bacha — un atelier de la Médina",
+    hours: "Horaires sur demande.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Galerie Dar El Bacha — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Magasin d'ameublement et de décoration. »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "17469777-4da8-4d8f-957b-282b1c87dc7d",
+    pretitle: "Médina de Marrakech",
+    title: "Galerie Talsint - Palais Saâdien — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:00–18:30.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Galerie Talsint - Palais Saâdien — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Une galerie d'art dans un cadre architectural somptueux pour les visiteurs en quête d'authenticité culturelle. »",
+      "Avec plus de 70 ans d'expérience dans le commerce de tapis et de kilims marocains, nous proposons un large choix de produits de qualité supérieure adaptés à tous les goûts et à toutes les envies. Notre approche est très différente : nous proposons à nos clients, que nous considérons comme des invités, une visite complète afin qu'ils puissent mieux connaître tous les types de tapis marocains et comprendre les différences entre les tribus et les régions. Nous passons ensuite aux tendances en matière de design d'intérieur pour affiner le processus de sélection. Nos conseillers de vente sont parfaitement au courant de ces tendances et vous aideront à trouver la pièce qui s'harmonisera avec…",
+    ],
+  },
+  {
+    id: "a292c667-b345-423b-8f1d-404423e1c807",
+    pretitle: "Médina de Marrakech",
+    title: "IJ BELDI — un atelier de la Médina",
+    hours: "Horaires sur demande.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de IJ BELDI — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Explorez l'artisanat Marocain et laissez-vous transporter par la magie des traditions. »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "d978dd11-2ca5-4134-a519-e4bf5b880ce7",
+    pretitle: "Médina de Marrakech",
+    title: "Imad Rugs - by Imad Farah — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:30–18:30.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Imad Rugs - by Imad Farah — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "05304d1f-7019-4545-8eae-e4568d7bf7a5",
+    pretitle: "Médina de Marrakech",
+    title: "Khmissa Marrakech — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 10:00–21:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Khmissa Marrakech — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "cf96cbf3-1bda-44c3-90e2-bd193888a4a5",
+    pretitle: "Médina de Marrakech",
+    title: "La Porte d’Or — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:30–19:30.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de La Porte d’Or — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « La plus grande collection de tapis et kilims de luxe du Maroc. Un savoir-faire familial depuis 1970. »",
+      "À La Porte d'Or, nous ne vendons pas seulement des tapis, nous préservons un héritage. Depuis 1970, nous tissons un lien entre les artisans marocains et ceux qui recherchent authenticité, culture et savoir-faire. Chaque pièce que nous proposons est bien plus qu'un simple tissu et un fil ; c'est une histoire tissée avec intention, un symbole de tradition transmise de génération en génération. Nous collaborons avec les maîtres tisserands du Maroc, garantissant ainsi que chaque tapis porte l'âme de son créateur. Chaque motif reflète un savoir-faire séculaire, façonné à la main selon des techniques qui honorent l'héritage berbère. Grâce à notre sélection, nous offrons ces trésors au monde…",
+    ],
+  },
+  {
+    id: "58213f82-e29b-4f7c-84ae-82b26a006cbd",
+    pretitle: "Médina de Marrakech",
+    title: "Lahandira — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 10:00–19:30.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Lahandira — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "cba52b9c-95e7-46bf-87fe-7bd16428197e",
+    pretitle: "Médina de Marrakech",
+    title: "Layal Concept Store — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:00–21:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Layal Concept Store — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Marque de maroquinerie et de créations originales | Based in Marrakech | Handmade créations | Limited Editions »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "02a78860-40f2-452b-bb77-99016dd36925",
+    pretitle: "Médina de Marrakech",
+    title: "M Vitrine by Medina Heritage — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 12:00–23:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de M Vitrine by Medina Heritage — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Concept store proposant une vaste sélection de produits marocains artisanaux, créés par plus de 40 artisans. »",
+      "M Vitrine est un concept store proposant une vaste sélection de produits marocains artisanaux, créés par plus de 40 artisans. Vêtements, bijoux, sacs, chaussures, sandales, parfums, tapis, vaisselle, bougies et bien d'autres articles, confectionnés avec passion par des designers talentueux et renommés de Marrakech, Fès, Rabat et Casablanca. Le Maroc possède une riche tradition artisanale, à tel point que de nombreux visiteurs choisissent d'embellir leur intérieur avec des objets d'artisanat marocain, présents dans de nombreux foyers à travers le monde depuis des siècles. Venez découvrir chez M Vitrine ces merveilles et donnez une touche artistique à votre voyage ! Si vous visitez notre…",
+    ],
+  },
+  {
+    id: "77e9f1f4-7848-46b5-a8b0-e3d7e48da945",
+    pretitle: "Médina de Marrakech",
+    title: "Marie Bastide Medina — un atelier de la Médina",
+    hours: "Ouvert lundi, mardi, mercredi, jeudi, vendredi, samedi, 10:00–19:00 — fermé dimanche.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Marie Bastide Medina — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Boutique d'art et d'artisanat marocain d'exception dans la Medina. »",
+      "Depuis sa création en 2018, Marie Bastide Marrakech incarne la beauté et l'artisanat du Maroc à travers ses produits. Fière de ses racines marocaines, la marque s'engage à offrir des articles 100% locaux, reflétant l'authenticité et la richesse de la culture marocaine. Studio de design et boutique d'art à Guéliz proposant des créations originales inspirées du Maroc : photographies artistiques, illustrations, objets artisanaux, foulards en soie, bougies naturelles, arts de la table, papeterie et décoration. Entreprise familiale, indépendante et engagée dans la préservation de la production locale. LIVRAISON INTERNATIONALENous proposons la livraison dans le monde entier. Frais calculés…",
+    ],
+  },
+  {
+    id: "5a400d85-03fd-451f-a9c5-f3aa65f1d6a5",
+    pretitle: "Médina de Marrakech",
+    title: "Mustapha Blaoui — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:30–19:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Mustapha Blaoui — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « La caverne d'Alibaba du prince décorateur Mustapha Blaoui. Une boutique emblématique de la médina. »",
+      "Mustapha Blaoui Boutique est bien plus qu’une boutique : c’est une adresse culte de la médina de Marrakech, un lieu où l’artisanat marocain dialogue avec le design contemporain. Installée dans un ancien riad au charme brut, la maison propose une sélection pointue de mobilier, d’objets décoratifs et de pièces uniques issues des savoir-faire traditionnels du Maroc. Bois sculpté, zelliges, tapis berbères, céramiques, luminaires et textiles anciens se mêlent à des créations audacieuses, parfois monumentales, toujours chargées d’âme. Chaque espace est pensé comme une scénographie, invitant à la déambulation et à la découverte, entre influences berbères, andalouses et modernistes. La patine du…",
+    ],
+  },
+  {
+    id: "fe449a73-9c44-4631-9350-f8b9242a829e",
+    pretitle: "Médina de Marrakech",
+    title: "Nomads Crafts — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:30–19:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Nomads Crafts — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Des créations uniques qui racontent une histoire !  Livraison internationale. »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "ecc940a8-e306-4d31-9947-c41a135f10ab",
+    pretitle: "Médina de Marrakech",
+    title: "Palais Filali — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 09:30–20:30.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Palais Filali — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « ✨ Votre dose quotidienne de magnifiques tapis. 🚀 Livraison internationale | Vente en gros et au détail. »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
+  {
+    id: "9e0a2a43-5fc3-445b-92a8-6ffb9d9f42f2",
+    pretitle: "Médina de Marrakech",
+    title: "Soufiane Zarib — un atelier de la Médina",
+    hours: "Ouvert lundi, mardi, mercredi, jeudi, vendredi, samedi, 08:30–19:30 — fermé dimanche.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Soufiane Zarib — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Tapis Beni authentiques – Tissés à la main au Maroc »",
+      "Chez Soufiane Zarib , nous sommes spécialisés dans les authentiques tapis Beni, tissés à la main par des artisans berbères talentueux dans les montagnes de l'Atlas marocain. Chaque pièce de notre collection est une œuvre d'art unique, alliant beauté minimaliste et tradition séculaire. Nos tapis Beni Ourain sont confectionnés en laine 100 % naturelle et arborent des motifs géométriques noirs et blancs intemporels, une texture douce et une qualité durable. Que vous optiez pour un intérieur moderne ou une ambiance bohème chaleureuse, nos tapis apportent profondeur, histoire et âme à votre espace. Nous travaillons directement avec des tisserands marocains, garantissant ainsi des pratiques…",
+    ],
+  },
+  {
+    id: "b3a36472-87fb-4c73-81a5-eb3600e0d01b",
+    pretitle: "Médina de Marrakech",
+    title: "Style Berbere — un atelier de la Médina",
+    hours: "Ouvert tous les jours, 10:00–20:00.",
+    paragraphs: [
+      "Au détour d'une ruelle de la Médina, on pousse la porte de Style Berbere — une de ces adresses où l'artisanat marocain se vit encore au geste, à la main, dans la durée.",
+      "L'esprit du lieu en une phrase : « Bijoux & pierres précieuses. »",
+      "On y entre par curiosité, on s'y attarde pour la qualité du travail, et l'on en repart avec une pièce qui prolonge la Médina bien après le retour à la maison.",
+    ],
+  },
 ];
 
 const ArtisanatMedinaMarrakech = () => (
@@ -105,13 +450,13 @@ const ArtisanatMedinaMarrakech = () => (
     entries={ATELIERS}
     articlePath="/blog/artisanat-medina-marrakech"
     articleTitle="Artisanat marocain dans la Médina de Marrakech"
-    articleDescription="Huit ateliers et boutiques de la Médina — tapis berbères, caftans, poteries, maroquinerie, savonnerie et galerie d'art — où l'artisanat marocain se vit, se touche et se rapporte chez soi."
+    articleDescription="Quarante ateliers et boutiques de la Médina — tapis berbères, caftans, poteries, marqueterie, maroquinerie, bijoux, savonnerie, galerie d'art — où l'artisanat marocain se vit, se touche et se rapporte chez soi."
     bookmarkSlug="artisanat-medina-marrakech"
     heroAlt="Artisanat marocain dans la Médina de Marrakech"
     heroTitleTop="Artisanat marocain"
     heroTitleBottom="dans la Médina de Marrakech"
-    heroSubtitle="Huit ateliers et boutiques où l'artisanat marocain se vit encore au geste — tapis berbères, caftans, poteries, maroquinerie, savonnerie et galerie d'art au cœur de la Médina."
-    intro="La Médina de Marrakech, ce sont d'abord des ruelles — un labyrinthe de souks où l'on peut tout acheter et n'importe quoi. Mais derrière les vitrines à touristes se cache une autre Médina, plus discrète : celle des ateliers familiaux fondés dans les années soixante, des tisserands qui n'ont jamais arrêté leur métier à tisser, des céramistes qui mêlent argile rouge et argile blanche, des couturiers de caftans, des savonniers et des artistes contemporains qui ont fait de la vieille ville leur laboratoire. Voici nos huit adresses préférées, toutes à quelques pas les unes des autres, accessibles à pied depuis la place Jemaâ el-Fna."
+    heroSubtitle="Quarante ateliers et boutiques où l'artisanat marocain se vit encore au geste — tapis berbères, caftans, poteries, marqueterie, maroquinerie, bijoux, savonnerie et galerie d'art au cœur de la Médina."
+    intro="La Médina de Marrakech, ce sont d'abord des ruelles — un labyrinthe de souks où l'on peut tout acheter et n'importe quoi. Mais derrière les vitrines à touristes se cache une autre Médina, plus discrète : celle des ateliers familiaux fondés dans les années soixante, des tisserands qui n'ont jamais arrêté leur métier à tisser, des céramistes qui mêlent argile rouge et argile blanche, des couturiers de caftans, des savonniers et des artistes contemporains qui ont fait de la vieille ville leur laboratoire. Voici notre sélection complète, à quelques pas les unes des autres, accessibles à pied depuis la place Jemaâ el-Fna."
     datePublished="2026-06-13T08:00:00+01:00"
   />
 );
