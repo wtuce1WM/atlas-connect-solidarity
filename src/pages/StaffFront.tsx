@@ -663,6 +663,21 @@ const StaffFront = () => {
                 { group: "Principales", name: "Hôtels", url: "/hotels", description: "Recherche d'hôtels avec disponibilités et prix." },
                 { group: "Principales", name: "Blog", url: "/blog", description: "Liste des articles éditoriaux." },
                 { group: "Principales", name: "Article blog", url: "/blog/:slug", description: "Page d'un article de blog." },
+                { group: "Principales", name: "Vidéos", url: "/videos", description: "Page dédiée aux vidéos (vignettes 1 entité = 1 vignette)." },
+
+                // Articles blog dédiés (pages statiques)
+                { group: "Articles blog dédiés", name: "Essaouira vue mer", url: "/blog/essaouira-vue-mer", description: "Article dédié : hôtels avec vue mer à Essaouira." },
+                { group: "Articles blog dédiés", name: "5 jours Marrakech artisanat", url: "/blog/5-jours-marrakech-artisanat", description: "Itinéraire artisanat à Marrakech." },
+                { group: "Articles blog dédiés", name: "Activités enfants Marrakech", url: "/blog/activites-enfants-marrakech", description: "Sélection d'activités enfants à Marrakech." },
+                { group: "Articles blog dédiés", name: "Galeries d'art Marrakech", url: "/blog/galeries-art-marrakech", description: "Sélection des galeries d'art à Marrakech." },
+                { group: "Articles blog dédiés", name: "Ancien accueil", url: "/blog/ancien-accueil", description: "Archive de l'ancienne page d'accueil." },
+                { group: "Articles blog dédiés", name: "Typographie", url: "/blog/typographie", description: "Démo / article typographie." },
+                { group: "Articles blog dédiés", name: "Icon preview", url: "/blog/icon-preview", description: "Aperçu des icônes utilisées sur le site." },
+
+                // Autres
+                { group: "Autres", name: "Ancien index", url: "/ancien-index", description: "Ancienne version de la homepage (archive)." },
+                { group: "Autres", name: "Test", url: "/test", description: "Page de test interne (même composant que /videos)." },
+                { group: "Autres", name: "Search analytics", url: "/search-analytics", description: "Statistiques de recherche (accès interne)." },
 
                 // Pages marque / corporate
                 { group: "Marque", name: "Corporate", url: "/corporate", description: "Présentation institutionnelle de One World Morocco." },
