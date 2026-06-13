@@ -458,6 +458,46 @@ const Blog = () => {
                 ),
               });
 
+              // Carte Street Food Marrakech
+              items.push({
+                key: "static-streetfood-marrakech",
+                date: "2026-06-13T02:00:00Z",
+                node: (
+                  <Link key="static-streetfood-marrakech" to="/blog/street-food-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-red-50 to-yellow-50 dark:from-red-950/30 dark:to-yellow-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.streetfood ? (
+                          <img
+                            src={staticHeroes.streetfood}
+                            alt="Street Food à Marrakech"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Le meilleur de la Street Food à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Trente-six adresses pour arpenter Marrakech la fourchette à la main — sandwichs minute, burgers gourmets, kefta bsmen, shawarmas, glaces maison et rooftop afro-berbère.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
+
+
 
 
 
