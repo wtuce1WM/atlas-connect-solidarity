@@ -171,15 +171,8 @@ const FermesPedagogiquesMarrakech = () => {
       setIsLoading(false);
     };
     fetchBiz();
-
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => {},
-        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60_000 }
-      );
-    }
   }, []);
+
 
 
   const heroImage =
