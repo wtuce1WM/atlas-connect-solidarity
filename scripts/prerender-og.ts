@@ -12,7 +12,7 @@
  *   dist/fiche/<business-slug>/index.html  (legacy /fiche/:slug share URL)
  */
 import { loadEnv, type Plugin } from "vite";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
@@ -138,6 +138,8 @@ export function prerenderOgPlugin(): Plugin {
         const dir = path.join(distDir, slugPath);
         await mkdir(dir, { recursive: true });
         await writeFile(path.join(dir, "index.html"), html, "utf8");
+        await rm(path.join(distDir, slugPath), { force: true });
+        await writeFile(path.join(distDir, slugPath), html, "utf8");
         written++;
       };
 
@@ -225,9 +227,10 @@ export function prerenderOgPlugin(): Plugin {
             mainEntityOfPage: { "@type": "WebPage", "@id": url },
           },
         });
-        const dir = path.join(distDir, slugPath);
-        await mkdir(dir, { recursive: true });
-        await writeFile(path.join(dir, "index.html"), html, "utf8");
+        const file = path.join(distDir, slugPath);
+        await rm(file, { recursive: true, force: true });
+        await mkdir(path.dirname(file), { recursive: true });
+        await writeFile(file, html, "utf8");
         articlesWritten++;
       };
 
