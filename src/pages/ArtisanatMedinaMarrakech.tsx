@@ -450,13 +450,13 @@ const ArtisanatMedinaMarrakech = () => (
     entries={ATELIERS}
     articlePath="/blog/artisanat-medina-marrakech"
     articleTitle="Artisanat marocain dans la Médina de Marrakech"
-    articleDescription="Huit ateliers et boutiques de la Médina — tapis berbères, caftans, poteries, maroquinerie, savonnerie et galerie d'art — où l'artisanat marocain se vit, se touche et se rapporte chez soi."
+    articleDescription="Quarante ateliers et boutiques de la Médina — tapis berbères, caftans, poteries, marqueterie, maroquinerie, bijoux, savonnerie, galerie d'art — où l'artisanat marocain se vit, se touche et se rapporte chez soi."
     bookmarkSlug="artisanat-medina-marrakech"
     heroAlt="Artisanat marocain dans la Médina de Marrakech"
     heroTitleTop="Artisanat marocain"
     heroTitleBottom="dans la Médina de Marrakech"
-    heroSubtitle="Huit ateliers et boutiques où l'artisanat marocain se vit encore au geste — tapis berbères, caftans, poteries, maroquinerie, savonnerie et galerie d'art au cœur de la Médina."
-    intro="La Médina de Marrakech, ce sont d'abord des ruelles — un labyrinthe de souks où l'on peut tout acheter et n'importe quoi. Mais derrière les vitrines à touristes se cache une autre Médina, plus discrète : celle des ateliers familiaux fondés dans les années soixante, des tisserands qui n'ont jamais arrêté leur métier à tisser, des céramistes qui mêlent argile rouge et argile blanche, des couturiers de caftans, des savonniers et des artistes contemporains qui ont fait de la vieille ville leur laboratoire. Voici nos huit adresses préférées, toutes à quelques pas les unes des autres, accessibles à pied depuis la place Jemaâ el-Fna."
+    heroSubtitle="Quarante ateliers et boutiques où l'artisanat marocain se vit encore au geste — tapis berbères, caftans, poteries, marqueterie, maroquinerie, bijoux, savonnerie et galerie d'art au cœur de la Médina."
+    intro="La Médina de Marrakech, ce sont d'abord des ruelles — un labyrinthe de souks où l'on peut tout acheter et n'importe quoi. Mais derrière les vitrines à touristes se cache une autre Médina, plus discrète : celle des ateliers familiaux fondés dans les années soixante, des tisserands qui n'ont jamais arrêté leur métier à tisser, des céramistes qui mêlent argile rouge et argile blanche, des couturiers de caftans, des savonniers et des artistes contemporains qui ont fait de la vieille ville leur laboratoire. Voici notre sélection complète, à quelques pas les unes des autres, accessibles à pied depuis la place Jemaâ el-Fna."
     datePublished="2026-06-13T08:00:00+01:00"
   />
 );
