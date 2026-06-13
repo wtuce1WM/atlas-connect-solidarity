@@ -3543,7 +3543,6 @@ const SearchPage = () => {
           }
         }}
         onAccept={() => geo.accept()}
-        onChooseLocation={() => setLocationDialogOpen(true)}
       />
 
 
