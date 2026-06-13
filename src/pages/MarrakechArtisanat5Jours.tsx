@@ -123,6 +123,7 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
   },
 ];
 
+const ALL_IDS = DAYS.flatMap((d) => d.ids);
 const SITE_URL = "https://oneworldmorocco.com";
 const ARTICLE_PATH = "/blog/5-jours-marrakech-artisanat";
 const ARTICLE_TITLE = "5 jours à Marrakech pour découvrir l'artisanat marocain";
