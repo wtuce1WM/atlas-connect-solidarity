@@ -90,7 +90,12 @@ const SECTIONS: { title: string; subtitle: string; ids: string[] }[] = [
 ];
 
 const ALL_IDS = SECTIONS.flatMap((s) => s.ids);
-const RETURN_PATH = "/blog/galeries-art-marrakech";
+const SITE_URL = "https://oneworldmorocco.com";
+const ARTICLE_PATH = "/blog/galeries-art-marrakech";
+const ARTICLE_TITLE = "Les galeries d'art à Marrakech";
+const ARTICLE_DESCRIPTION =
+  "Notre sélection de 24 galeries d'art à Marrakech : Guéliz, Médina, Sidi Ghanem et au-delà. Art contemporain, design, photographie et scène picturale marocaine.";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-image.jpg`;
 
 const MarrakechGaleriesArt = () => {
   const navigate = useNavigate();
@@ -99,11 +104,34 @@ const MarrakechGaleriesArt = () => {
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const seoImage =
+    businesses[ALL_IDS[0]]?.images?.[0] ||
+    businesses[ALL_IDS[1]]?.images?.[0] ||
+    DEFAULT_OG_IMAGE;
+
   useSEO({
-    title: "Les galeries d'art à Marrakech",
-    description:
-      "Notre sélection de 24 galeries d'art à Marrakech : Guéliz, Médina, Sidi Ghanem et au-delà. Art contemporain, design, photographie et scène picturale marocaine.",
-    canonical: RETURN_PATH,
+    title: ARTICLE_TITLE,
+    description: ARTICLE_DESCRIPTION,
+    canonical: ARTICLE_PATH,
+    ogImage: seoImage,
+    ogUrl: ARTICLE_PATH,
+    ogType: "article",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: ARTICLE_TITLE,
+      description: ARTICLE_DESCRIPTION,
+      image: [seoImage],
+      datePublished: "2026-06-12T08:00:00+01:00",
+      dateModified: "2026-06-13T08:00:00+01:00",
+      author: { "@type": "Organization", name: "ONE WORLD MOROCCO", url: SITE_URL },
+      publisher: {
+        "@type": "Organization",
+        name: "ONE WORLD MOROCCO",
+        logo: { "@type": "ImageObject", url: DEFAULT_OG_IMAGE },
+      },
+      mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${ARTICLE_PATH}` },
+    },
   });
 
   useEffect(() => {
