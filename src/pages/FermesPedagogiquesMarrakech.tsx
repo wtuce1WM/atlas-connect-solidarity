@@ -142,6 +142,8 @@ const FermesPedagogiquesMarrakech = () => {
   const [businesses, setBusinesses] = useState<Record<string, Business>>({});
   const [isLoading, setIsLoading] = useState(true);
 
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
   useSEO({
     title: "Les fermes pédagogiques à Marrakech",
     description:
@@ -150,11 +152,11 @@ const FermesPedagogiquesMarrakech = () => {
   });
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchBiz = async () => {
       const { data } = await supabase
         .from("businesses")
         .select(
-          "id, name, slug, neighborhood, city, images, rating, categories, hook_fr, wtuce_status"
+          "id, name, slug, neighborhood, city, images, rating, categories, hook_fr, wtuce_status, latitude, longitude"
         )
         .in("id", ALL_IDS)
         .eq("is_active", true);
@@ -165,8 +167,17 @@ const FermesPedagogiquesMarrakech = () => {
       }
       setIsLoading(false);
     };
-    fetch();
+    fetchBiz();
+
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => {},
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60_000 }
+      );
+    }
   }, []);
+
 
   const heroImage =
     businesses[FERMES[0].id]?.images?.[0] ||
