@@ -51,45 +51,6 @@
         window.__OWM_EARLY_META__ = meta;
       })();
     </script>
-    <script>
-      (function () {
-        var articles = {
-          "/blog/fermes-pedagogiques-marrakech": {
-            title: "Les fermes pédagogiques à Marrakech — ONE WORLD MOROCCO",
-            description: "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
-            type: "article"
-          },
-          "/blog/activites-enfants-marrakech": {
-            title: "Activités pour les enfants à Marrakech — ONE WORLD MOROCCO",
-            description: "Notre sélection d'activités et d'adresses pour les enfants à Marrakech : parcs aquatiques, ateliers, kids clubs, restaurants familiaux et plus.",
-            type: "article"
-          },
-          "/blog/galeries-art-marrakech": {
-            title: "Les galeries d'art à Marrakech — ONE WORLD MOROCCO",
-            description: "Notre sélection de 24 galeries d'art à Marrakech : Guéliz, Médina, Sidi Ghanem et au-delà. Art contemporain, design, photographie et scène picturale marocaine.",
-            type: "article"
-          },
-          "/blog/5-jours-marrakech-artisanat": {
-            title: "5 jours à Marrakech pour découvrir l'artisanat marocain — ONE WORLD MOROCCO",
-            description: "Itinéraire de 5 jours à Marrakech : 44 adresses sélectionnées (Guéliz, Médina, Sidi Ghanem) pour découvrir le meilleur de l'artisanat marocain.",
-            type: "article"
-          },
-          "/blog/essaouira-vue-mer": {
-            title: "Les adresses avec vue sur mer à Essaouira — ONE WORLD MOROCCO",
-            description: "Notre sélection des meilleures adresses face à l'océan à Essaouira : hôtels, restaurants, cafés et rooftops pour profiter de la brise atlantique.",
-            type: "article"
-          }
-        };
-        var path = location.pathname.replace(/\/$/, "");
-        var meta = articles[path];
-        if (!meta) return;
-        document.title = meta.title;
-        var d = document.querySelector('meta[name="description"]');
-        if (d) d.setAttribute("content", meta.description);
-        var c = document.querySelector('link[rel="canonical"]');
-        if (c) c.setAttribute("href", "https://oneworldmorocco.com" + path);
-      })();
-    </script>
     <meta name="author" content="ONE WORLD MOROCCO" />
     
     <!-- Preconnect to Supabase Storage (LCP image origin) -->
