@@ -1625,6 +1625,19 @@ const SearchPage = () => {
     }
   }, [queryHasCountryScope, searchQuery]);
 
+  // Geo prompt — when search has no explicit city and geolocation isn't active, suggest enabling it
+  useEffect(() => {
+    if (geoPromptDismissed || geoPromptOpen) return;
+    if (isLoading) return;
+    if (!searchQuery) return;
+    if (queryHasExplicitCity || queryHasCountryScope) return;
+    if (geo.isEnabled || geo.detectedCity) return;
+    if (detectedCity) return;
+    if (selectedCity && selectedCity !== "all") return;
+    const timer = setTimeout(() => setGeoPromptOpen(true), 400);
+    return () => clearTimeout(timer);
+  }, [isLoading, searchQuery, queryHasExplicitCity, queryHasCountryScope, geo.isEnabled, geo.detectedCity, detectedCity, selectedCity, geoPromptDismissed, geoPromptOpen]);
+
   // Fetch neighborhood coordinates when a neighborhood is detected
   useEffect(() => {
     if (!detectedNeighborhood) {
