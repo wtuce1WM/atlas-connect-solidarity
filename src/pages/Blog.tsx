@@ -358,6 +358,36 @@ const Blog = () => {
                 ),
               });
 
+              // Carte Fermes pédagogiques Marrakech
+              items.push({
+                key: "static-fermes-marrakech",
+                date: "2026-06-13T00:00:00Z",
+                node: (
+                  <Link key="static-fermes-marrakech" to="/blog/fermes-pedagogiques-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-green-50 to-lime-50 dark:from-green-950/30 dark:to-lime-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        <MapPin className="h-16 w-16 text-primary" />
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Les fermes pédagogiques à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Trois adresses à quelques minutes de la ville ocre, pour une vraie journée de nature en famille — entre animaux, ateliers et plantes aromatiques.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
+
               return items
                 .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .map((i) => <div key={i.key}>{i.node}</div>);
