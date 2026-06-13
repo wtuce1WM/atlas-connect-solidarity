@@ -29,7 +29,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -153,6 +153,14 @@ const Blog = () => {
         .maybeSingle();
       const beachImg = (beachRow as any)?.images?.[0];
 
+      // Hero hôtels & riads vue mer Essaouira : même 1ʳᵉ fiche que le hero de l'article
+      const { data: hotelsRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "4b4e42f7-d408-4c6d-989f-3922e2ed61d3")
+        .maybeSingle();
+      const hotelsImg = (hotelsRow as any)?.images?.[0];
+
       setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -163,6 +171,7 @@ const Blog = () => {
         streetfood: sfImg,
         fashion: fashionImg,
         beachclubs: beachImg,
+        hotelsessaouira: hotelsImg,
       });
     };
     fetchStaticHeroes();
