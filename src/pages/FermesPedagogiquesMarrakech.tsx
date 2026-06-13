@@ -197,6 +197,21 @@ const FermesPedagogiquesMarrakech = () => {
     fetchBiz();
   }, []);
 
+  // Restore scroll to previously clicked entry when returning from Search slidepanel
+  useEffect(() => {
+    if (isLoading) return;
+    let scrollId: string | null = null;
+    try {
+      scrollId = sessionStorage.getItem("returnToBlogScrollId");
+      if (scrollId) sessionStorage.removeItem("returnToBlogScrollId");
+    } catch {}
+    if (!scrollId) return;
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`entry-${scrollId}`);
+      if (el) el.scrollIntoView({ behavior: "auto", block: "center" });
+    });
+  }, [isLoading]);
+
 
 
   const heroImage =
