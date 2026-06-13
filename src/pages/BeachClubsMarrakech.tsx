@@ -16,11 +16,11 @@ const BEACH_CLUBS: BlogArticleEntry[] = [
   },
   {
     id: "f31d6fbc-5eb9-48c6-b9aa-32745bf550c7",
-    pretitle: "Route d'Agadir, à la sortie de Marrakech",
-    title: "La Secret Beach — la piscine 100 % femmes au sud de la ville",
+    pretitle: "Route d'Agadir, aux portes de Marrakech",
+    title: "La Secret Beach — la piscine 100 % femmes aux portes de la ville",
     hours: "Ouvert tous les jours, de 10h30 à 18h30. Parking clients, accès PMR. Réservé aux femmes.",
     paragraphs: [
-      "« Pas de garçons, pas de stress, juste du soleil. » La signature de La Secret Beach pose le décor en une ligne : sur la route d'Agadir, à la sortie de Marrakech, ce beach club est l'un des rares de la région à proposer une piscine chauffée 100 % femmes. On y vient pour souffler, lire, nager sans regards, fêter un anniversaire, un EVJF ou un baptême dans un cadre exclusivement féminin — l'adresse se privatise aussi à la demande.",
+      "« Pas de garçons, pas de stress, juste du soleil. » La signature de La Secret Beach pose le décor en une ligne : sur la route d'Agadir, aux portes de Marrakech, ce beach club est l'un des rares de la région à proposer une piscine chauffée 100 % femmes. On y vient pour souffler, lire, nager sans regards, fêter un anniversaire, un EVJF ou un baptême dans un cadre exclusivement féminin — l'adresse se privatise aussi à la demande.",
       "Autour de la piscine, le programme s'étoffe : salades, sandwichs, plats végétariens et vegan au restaurant, et surtout un véritable service massage — relaxant, marocain, drainant, anti-stress, aux pierres chaudes, du visage, du corps ou du cuir chevelu. Pour beaucoup de Marrakchies comme de voyageuses de passage, c'est devenu le rendez-vous bien-être de la journée pass.",
       "Les avis confirment l'ambiance : « Un endroit tellement agréable ! Le service est au top, ils se sont souvenus de nos noms et se sont assurés que nous passions le meilleur moment. La nourriture est à la fois bon marché et délicieuse — je recommande le petit-déjeuner marocain au bar ! » Une cliente résume bien le concept : « J'ai conduit pendant une heure jusqu'à cette plage pour le concept réservé aux femmes et cela en valait vraiment la peine. Belle expérience, mention spéciale à Samira, elle était si douce. »",
     ],
