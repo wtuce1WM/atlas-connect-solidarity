@@ -253,84 +253,92 @@ const FermesPedagogiquesMarrakech = () => {
                     {ferme.title}
                   </h2>
 
-                  {b && (
-                    <Link
-                      to={businessUrl(b)}
-                      onClick={() => {
-                        try {
-                          sessionStorage.setItem(
-                            "returnToBlogPath",
-                            "/blog/fermes-pedagogiques-marrakech"
-                          );
-                          sessionStorage.setItem("returnToBlogEntryId", b.id);
-                        } catch {}
-                      }}
-                      className="block group mb-8"
-                    >
-                      <Card className="overflow-hidden border-border/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
-                        <div className="grid md:grid-cols-2">
-                          <div className="relative aspect-[4/3] md:aspect-auto overflow-hidden bg-muted">
-                            {b.images?.[0] ? (
-                              <img
-                                src={b.images[0]}
-                                alt={b.name}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                                {b.name}
+                  <div className="space-y-4 mb-8">
+                    {[ferme.id, ...(ferme.extraIds ?? [])].map((bid) => {
+                      const b = businesses[bid];
+                      if (!b) return null;
+                      return (
+                        <Link
+                          key={bid}
+                          to={businessUrl(b)}
+                          onClick={() => {
+                            try {
+                              sessionStorage.setItem(
+                                "returnToBlogPath",
+                                "/blog/fermes-pedagogiques-marrakech"
+                              );
+                              sessionStorage.setItem("returnToBlogEntryId", b.id);
+                            } catch {}
+                          }}
+                          className="block group"
+                        >
+                          <Card className="overflow-hidden border-border/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
+                            <div className="grid md:grid-cols-2">
+                              <div className="relative aspect-[4/3] md:aspect-auto overflow-hidden bg-muted">
+                                {b.images?.[0] ? (
+                                  <img
+                                    src={b.images[0]}
+                                    alt={b.name}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                                    {b.name}
+                                  </div>
+                                )}
+                                {b.wtuce_status === "verified" && (
+                                  <img
+                                    src={logoWatermark}
+                                    alt=""
+                                    className="absolute top-2 right-2 w-8 h-8 object-contain opacity-90 pointer-events-none"
+                                  />
+                                )}
+                                {b.rating && (
+                                  <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 rounded-full px-2 py-0.5">
+                                    <Star className="h-3 w-3 fill-gold text-gold" />
+                                    <span className="text-gold font-bold text-xs">
+                                      {b.rating}/20
+                                    </span>
+                                  </div>
+                                )}
                               </div>
-                            )}
-                            {b.wtuce_status === "verified" && (
-                              <img
-                                src={logoWatermark}
-                                alt=""
-                                className="absolute top-2 right-2 w-8 h-8 object-contain opacity-90 pointer-events-none"
-                              />
-                            )}
-                            {b.rating && (
-                              <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 rounded-full px-2 py-0.5">
-                                <Star className="h-3 w-3 fill-gold text-gold" />
-                                <span className="text-gold font-bold text-xs">
-                                  {b.rating}/20
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <CardContent className="p-6 flex flex-col justify-center">
-                            <h3 className="font-semibold text-xl text-foreground group-hover:text-primary transition-colors mb-2">
-                              {b.name}
-                            </h3>
-                            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-3">
-                              {b.categories?.slice(0, 3).map((c) => (
-                                <span
-                                  key={c}
-                                  className="bg-muted rounded-full px-2 py-0.5"
-                                >
-                                  {c}
-                                </span>
-                              ))}
-                              {(b.neighborhood || b.city) && (
-                                <span className="flex items-center gap-0.5">
-                                  <MapPin className="h-3 w-3" />
-                                  {b.neighborhood || b.city}
-                                </span>
-                              )}
+                              <CardContent className="p-6 flex flex-col justify-center">
+                                <h3 className="font-semibold text-xl text-foreground group-hover:text-primary transition-colors mb-2">
+                                  {b.name}
+                                </h3>
+                                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-3">
+                                  {b.categories?.slice(0, 3).map((c) => (
+                                    <span
+                                      key={c}
+                                      className="bg-muted rounded-full px-2 py-0.5"
+                                    >
+                                      {c}
+                                    </span>
+                                  ))}
+                                  {(b.neighborhood || b.city) && (
+                                    <span className="flex items-center gap-0.5">
+                                      <MapPin className="h-3 w-3" />
+                                      {b.neighborhood || b.city}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="flex items-start gap-2 text-sm text-muted-foreground mb-3">
+                                  <Clock className="h-4 w-4 mt-0.5 shrink-0" />
+                                  <span>{ferme.hours}</span>
+                                </p>
+                                {b.hook_fr && (
+                                  <p className="text-sm text-foreground/70 italic">
+                                    « {b.hook_fr} »
+                                  </p>
+                                )}
+                              </CardContent>
                             </div>
-                            <p className="flex items-start gap-2 text-sm text-muted-foreground mb-3">
-                              <Clock className="h-4 w-4 mt-0.5 shrink-0" />
-                              <span>{ferme.hours}</span>
-                            </p>
-                            {b.hook_fr && (
-                              <p className="text-sm text-foreground/70 italic">
-                                « {b.hook_fr} »
-                              </p>
-                            )}
-                          </CardContent>
-                        </div>
-                      </Card>
-                    </Link>
-                  )}
+                          </Card>
+                        </Link>
+                      );
+                    })}
+                  </div>
+
 
                   <div
                     className={`prose prose-lg max-w-none space-y-4 ${
