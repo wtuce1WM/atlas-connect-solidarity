@@ -372,7 +372,16 @@ const Blog = () => {
                   <Link key="static-fermes-marrakech" to="/blog/fermes-pedagogiques-marrakech">
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-green-50 to-lime-50 dark:from-green-950/30 dark:to-lime-950/30">
                       <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <MapPin className="h-16 w-16 text-primary" />
+                        {staticHeroes.fermes ? (
+                          <img
+                            src={staticHeroes.fermes}
+                            alt="Les fermes pédagogiques à Marrakech"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
                       </div>
                       <CardContent className="p-6">
                         <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
