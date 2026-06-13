@@ -289,7 +289,7 @@ const BlogTypography = () => {
                 Les meilleures adresses
               </h2>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                h2 auto: Roboto 500 · tailles via classes Tailwind
+                h2 auto: Avenir 500 · tailles via classes Tailwind
               </div>
             </div>
 
