@@ -100,6 +100,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Trente-deux hôtels, riads, villas et écolodges à Essaouira et autour — tous avec vue sur l'océan : médina, plage, Sidi Kaouki, Moulay Bouzerktoun ou Diabat.",
   },
+  "/blog/hebergements-sidi-kaouki": {
+    title: `Les meilleurs hébergements à Sidi Kaouki — ${BRAND}`,
+    description:
+      "Dix adresses pour dormir à Sidi Kaouki — éco-lodges, maisons d'hôtes en front de mer, hôtels de charme et surfhouses : notre sélection immersive du village de surf au sud d'Essaouira.",
+  },
   "/blog/ancien-accueil": {
     title: `Ancienne page d'accueil — ${BRAND}`,
     description: "Archive de l'ancienne page d'accueil One World Morocco.",
