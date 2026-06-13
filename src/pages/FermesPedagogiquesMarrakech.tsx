@@ -12,6 +12,7 @@ import { useArticleBookmark } from "@/hooks/useArticleBookmark";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
+import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 
 interface Business {
   id: string;
