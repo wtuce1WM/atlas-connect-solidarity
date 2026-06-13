@@ -8,7 +8,9 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { Loader2, ArrowLeft, MapPin, Star, Clock } from "lucide-react";
+import { useArticleBookmark } from "@/hooks/useArticleBookmark";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
 interface Business {
