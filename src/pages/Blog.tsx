@@ -54,7 +54,7 @@ const Blog = () => {
     // Hero images for static blog cards (same logic as their pages)
     const fetchStaticHeroes = async () => {
       const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
-      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes, fermesRes] = await Promise.all([
+      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes, fermesRes, artisanatRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("images, services")
@@ -84,6 +84,11 @@ const Blog = () => {
           .from("businesses")
           .select("images")
           .eq("id", "2fdb1f15-4a02-40b4-b344-0ffc0c2e1abd")
+          .maybeSingle(),
+        supabase
+          .from("businesses")
+          .select("images")
+          .eq("id", "1621498d-403b-4ff2-baf3-db45d1e5f41e")
           .maybeSingle(),
       ]);
       const seaKW = ["vue sur mer", "vue mer"];
