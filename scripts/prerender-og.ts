@@ -11,7 +11,7 @@
  *   dist/<vanity-slug>/index.html      (vanity URL — primary share URL)
  *   dist/fiche/<business-slug>/index.html  (legacy /fiche/:slug share URL)
  */
-import type { Plugin } from "vite";
+import { loadEnv, type Plugin } from "vite";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
@@ -88,8 +88,9 @@ export function prerenderOgPlugin(): Plugin {
       }
       const template = await readFile(indexPath, "utf8");
 
-      const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-      const ANON = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const env = loadEnv(process.env.NODE_ENV || "production", process.cwd(), "");
+      const SUPABASE_URL = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL;
+      const ANON = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const headers = SUPABASE_URL && ANON ? { apikey: ANON, Authorization: `Bearer ${ANON}` } : null;
 
       // Paginate businesses (active only). If backend env vars are missing,
