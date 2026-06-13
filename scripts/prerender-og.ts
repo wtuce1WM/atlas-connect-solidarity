@@ -32,6 +32,14 @@ interface BizRow {
 
 interface VanityRow { slug: string; target_id: string }
 
+interface BlogRow {
+  slug: string;
+  title_fr: string | null;
+  excerpt_fr: string | null;
+  content_fr: string | null;
+  cover_image_url: string | null;
+}
+
 function stripHtml(s: string): string {
   return String(s)
     .replace(/<[^>]+>/g, " ")
