@@ -129,6 +129,7 @@ const Blog = () => {
         marrakech: (mrkRes.data as any)?.images?.[0],
         kids: kidsImg,
         galeries: (galRes.data as any)?.images?.[0],
+        fermes: (fermesRes.data as any)?.images?.[0],
       });
     };
     fetchStaticHeroes();
