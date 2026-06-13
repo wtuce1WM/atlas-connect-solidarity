@@ -747,19 +747,33 @@ const StaffFront = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {pages.filter((p) => p.group === g).map((p) => (
-                              <tr key={p.url + p.name} className="border-b last:border-0 align-top">
-                                <td className="p-2 font-medium">{p.name}</td>
-                                <td className="p-2 font-mono text-xs text-muted-foreground">{p.url}</td>
-                                <td className="p-2 text-muted-foreground">{p.description}</td>
-                                <td className="p-2 text-muted-foreground text-xs">
-                                  <PageMetaDescriptionEditor
-                                    routePattern={p.url}
-                                    fallback={PAGE_META[p.url]?.description ?? ""}
-                                  />
-                                </td>
-                              </tr>
-                            ))}
+                            {pages.filter((p) => p.group === g).map((p) => {
+                              const isDynamic = DYNAMIC_PATTERNS.has(p.url);
+                              return (
+                                <tr key={p.url + p.name} className="border-b last:border-0 align-top">
+                                  <td className="p-2 font-medium">{p.name}</td>
+                                  <td className="p-2 font-mono text-xs text-muted-foreground">{p.url}</td>
+                                  <td className="p-2 text-muted-foreground">{p.description}</td>
+                                  <td className="p-2 text-muted-foreground text-xs">
+                                    {isDynamic ? (
+                                      <div className="space-y-1 text-muted-foreground/70 italic">
+                                        <div className="inline-block text-[9px] uppercase font-bold tracking-wider text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                                          Géré dynamiquement (SEO)
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          {PAGE_META[p.url]?.description || "Génération dynamique par le code"}
+                                        </p>
+                                      </div>
+                                    ) : (
+                                      <PageMetaDescriptionEditor
+                                        routePattern={p.url}
+                                        fallback={PAGE_META[p.url]?.description ?? ""}
+                                      />
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
