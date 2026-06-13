@@ -129,16 +129,13 @@ const Blog = () => {
         kidsImg = (data || []).find((b: any) => b.images?.length)?.images?.[0];
       }
 
-      // Hero street food : 1ʳᵉ image dispo parmi les fiches Street Food à Marrakech
-      const { data: sfRows } = await supabase
+      // Hero street food : même 1ʳᵉ fiche que le hero de l'article (1er entry)
+      const { data: sfRow } = await supabase
         .from("businesses")
         .select("images")
-        .eq("is_active", true)
-        .eq("city", "Marrakech")
-        .or("categories.cs.{\"Street Food\"},categories.cs.{\"Street food\"},services.cs.{\"Street Food\"},services.cs.{\"Street food\"}")
-        .order("priority_score", { ascending: false })
-        .limit(20);
-      const sfImg = (sfRows || []).find((b: any) => b.images?.length)?.images?.[0];
+        .eq("id", "6f48e2fa-bf01-4ce4-a51c-0e986ce17e18")
+        .maybeSingle();
+      const sfImg = (sfRow as any)?.images?.[0];
 
       setStaticHeroes({
         essaouira: essImg,
