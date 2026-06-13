@@ -154,11 +154,7 @@ const FermesPedagogiquesMarrakech = () => {
 
   const handleSaveArticle = async () => {
     if (!isLoggedIn) {
-      toast({
-        title: "Connexion requise",
-        description: "Connectez-vous au Club OWM pour sauvegarder cet article.",
-      });
-      navigate("/club");
+      window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
       return;
     }
     const ok = await toggleBookmark();
