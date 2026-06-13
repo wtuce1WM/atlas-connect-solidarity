@@ -6,6 +6,7 @@ import { businessUrl } from "@/lib/businessUrl";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
+import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { Loader2, ArrowLeft, MapPin, Star, Clock } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
@@ -20,6 +21,8 @@ interface Business {
   categories: string[] | null;
   hook_fr: string | null;
   wtuce_status: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 // Texte immersif rédigé à partir des descriptions, avis clients et horaires de chaque fiche.
@@ -139,6 +142,8 @@ const FermesPedagogiquesMarrakech = () => {
   const [businesses, setBusinesses] = useState<Record<string, Business>>({});
   const [isLoading, setIsLoading] = useState(true);
 
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
   useSEO({
     title: "Les fermes pédagogiques à Marrakech",
     description:
@@ -147,11 +152,11 @@ const FermesPedagogiquesMarrakech = () => {
   });
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchBiz = async () => {
       const { data } = await supabase
         .from("businesses")
         .select(
-          "id, name, slug, neighborhood, city, images, rating, categories, hook_fr, wtuce_status"
+          "id, name, slug, neighborhood, city, images, rating, categories, hook_fr, wtuce_status, latitude, longitude"
         )
         .in("id", ALL_IDS)
         .eq("is_active", true);
@@ -162,8 +167,17 @@ const FermesPedagogiquesMarrakech = () => {
       }
       setIsLoading(false);
     };
-    fetch();
+    fetchBiz();
+
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => {},
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60_000 }
+      );
+    }
   }, []);
+
 
   const heroImage =
     businesses[FERMES[0].id]?.images?.[0] ||
@@ -198,7 +212,7 @@ const FermesPedagogiquesMarrakech = () => {
               <span className="text-gold">à Marrakech</span>
             </h1>
             <p className="mt-4 text-white/70 max-w-2xl text-lg">
-              Trois adresses à quelques minutes de la ville ocre, pour offrir
+              Huit adresses à quelques minutes de la ville ocre, pour offrir
               aux enfants — et aux parents — une vraie journée de nature, entre
               animaux, ateliers et plantes aromatiques.
             </p>
@@ -222,12 +236,60 @@ const FermesPedagogiquesMarrakech = () => {
                 respiration nécessaire : un terrain de jeu grandeur nature où
                 les enfants courent après les poules, donnent à manger aux
                 ânes, plongent les mains dans la terre et apprennent — sans
-                s'en rendre compte — d'où viennent les choses. Voici nos trois
+                s'en rendre compte — d'où viennent les choses. Voici nos huit
                 adresses préférées, toutes accessibles en moins d'une heure
                 depuis la médina.
               </p>
             </div>
           </section>
+
+          {/* Map of all 8 farms */}
+          <section className="pb-14 bg-background">
+            <div className="container mx-auto px-4 max-w-5xl">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-['Playfair_Display'] italic">
+                Les huit adresses sur la carte
+              </h2>
+              <div className="relative w-full h-[480px] rounded-xl overflow-hidden border border-border/50 shadow-sm">
+                {(() => {
+                  const pois: PoiMapItem[] = Object.values(businesses)
+                    .filter((b) => b.latitude != null && b.longitude != null)
+                    .map((b) => ({
+                      id: b.id,
+                      name: b.name,
+                      latitude: b.latitude,
+                      longitude: b.longitude,
+                      images: b.images,
+                      city: b.city,
+                      neighborhood: b.neighborhood,
+                      rating: b.rating,
+                    }));
+                  return (
+                    <PoiGoogleMap
+                      pois={pois}
+                      selectedPoiId={null}
+                      fitToMarkers
+                      userLocation={userLocation}
+                      onPoiClick={(id) => {
+                        const b = businesses[id];
+                        if (b) {
+                          try {
+                            sessionStorage.setItem(
+                              "returnToBlogPath",
+                              "/blog/fermes-pedagogiques-marrakech"
+                            );
+                            sessionStorage.setItem("returnToBlogEntryId", b.id);
+                          } catch {}
+                          navigate(businessUrl(b));
+                        }
+                      }}
+                    />
+                  );
+                })()}
+              </div>
+            </div>
+          </section>
+
+
 
           {FERMES.map((ferme, idx) => {
             const isDark = idx % 2 === 0;
