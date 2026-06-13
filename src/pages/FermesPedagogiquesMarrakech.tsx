@@ -148,6 +148,31 @@ const FermesPedagogiquesMarrakech = () => {
   const geo = useGeolocation();
   const userLocation = geo.isEnabled && geo.coords ? geo.coords : null;
 
+  const { isBookmarked, isLoading: bmLoading, isLoggedIn, toggle: toggleBookmark } =
+    useArticleBookmark("fermes-pedagogiques-marrakech");
+  const { toast } = useToast();
+
+  const handleSaveArticle = async () => {
+    if (!isLoggedIn) {
+      toast({
+        title: "Connexion requise",
+        description: "Connectez-vous au Club OWM pour sauvegarder cet article.",
+      });
+      navigate("/club");
+      return;
+    }
+    const ok = await toggleBookmark();
+    if (ok) {
+      toast({
+        title: isBookmarked ? "Article retiré" : "Article sauvegardé",
+        description: isBookmarked
+          ? "L'article a été retiré de votre Club OWM."
+          : "Retrouvez-le dans votre compte Club OWM.",
+      });
+    }
+  };
+
+
 
   useSEO({
     title: "Les fermes pédagogiques à Marrakech",
