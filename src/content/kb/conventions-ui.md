@@ -13,8 +13,8 @@ Design system de référence. Toute nouvelle UI doit s'y conformer.
 
 ## Typographie
 
-- **Headings / noms de fiches** — Josefin Sans
-- **Body / texte courant** — Roboto
+- **Headings / noms de fiches** — Montserrat
+- **Body / texte courant** — Avenir (fallback : Avenir Next, Nunito Sans)
 - **Jamais** de serif générique.
 
 ## Composants
