@@ -72,6 +72,18 @@ const ENTRIES: BlogArticleEntry[] = [
     ],
   },
   {
+    id: "f6c99093-122e-48cd-8591-5154706838a4", // BE Agafay
+    pretitle: "Agafay — havre de paix en yourtes",
+    title: "BE Agafay — votre havre de paix au cœur du désert de pierres d'Agafay",
+    hours: "Ouvert toute l'année — séjour, déjeuner, dîner et activités sur réservation.",
+    paragraphs: [
+      "« Bienvenue à BE Agafay — votre havre de paix au cœur du désert de pierres d'Agafay ! » Le hook donne le ton : un lieu où la tranquillité rencontre des panoramas à couper le souffle, au milieu des montagnes de l'Atlas, à seulement 45 minutes de Marrakech.",
+      "L'adresse compte 10 yourtes confortables bien espacées et 6 bungalows, pour une atmosphère intime et sereine, idéale pour les couples, les amis et les familles. Le lever du soleil sur les dunes est l'un des temps forts du séjour — à ne pas manquer.",
+      "Côté journée : piscines avec vue sur les dunes pour se ressourcer, déjeuners et dîners sur la terrasse pour un vrai voyage culinaire, soins au spa, séances de yoga, ateliers de poterie ou de cuisine à partager. Côté aventure : explorations en quad ou en buggy, et balade à dos de chameau au coucher du soleil pour clore la journée.",
+      "Horaires & accueil : ouvert toute l'année — séjour, restauration et activités sur réservation.",
+    ],
+  },
+  {
     id: "f386b62b-d20e-4cea-86e6-460a802ed1b9", // The Ranch Marrakech
     pretitle: "Agafay — bien-être et nature",
     title: "The Ranch Marrakech — un lieu pensé pour le bien-être, la nature et le partage",
