@@ -161,6 +161,24 @@ const Join = () => {
     document.title = "Rejoindre One World Morocco — Devenir partenaire";
   }, []);
 
+  useEffect(() => {
+    const el = document.querySelector<HTMLElement>(".join-page .why-wrap");
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      const canScrollX = el.scrollWidth > el.clientWidth;
+      if (!canScrollX) return;
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      const atStart = el.scrollLeft <= 0 && e.deltaY < 0;
+      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1 && e.deltaY > 0;
+      if (atStart || atEnd) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
+
   return (
     <>
       <HomeMindtripHeader />
