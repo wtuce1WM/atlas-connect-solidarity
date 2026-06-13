@@ -145,6 +145,14 @@ const Blog = () => {
         .maybeSingle();
       const fashionImg = (fashionRow as any)?.images?.[0];
 
+      // Hero beach clubs Marrakech : même 1ʳᵉ fiche que le hero de l'article
+      const { data: beachRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "03dfb3bd-2021-418a-99d6-aec1fb0f7ac6")
+        .maybeSingle();
+      const beachImg = (beachRow as any)?.images?.[0];
+
       setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -154,6 +162,7 @@ const Blog = () => {
         artisanat: (artisanatRes.data as any)?.images?.[0],
         streetfood: sfImg,
         fashion: fashionImg,
+        beachclubs: beachImg,
       });
     };
     fetchStaticHeroes();
@@ -531,6 +540,44 @@ const Blog = () => {
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 text-primary font-medium">
                             <MapPin className="h-3 w-3" /> Guéliz, Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
+              // Carte Beach Clubs à Marrakech
+              items.push({
+                key: "static-beach-clubs-marrakech",
+                date: "2026-06-13T08:00:00Z",
+                node: (
+                  <Link key="static-beach-clubs-marrakech" to="/blog/beach-clubs-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/30 dark:to-blue-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.beachclubs ? (
+                          <img
+                            src={staticHeroes.beachclubs}
+                            alt="Beach Clubs à Marrakech"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Beach Clubs à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Sept beach clubs autour de la ville ocre — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
                           </span>
                           <ArrowRight className="h-4 w-4 text-primary" />
                         </div>
