@@ -1,0 +1,440 @@
+import BlogArticleTemplate, { type BlogArticleEntry } from "@/components/blog/BlogArticleTemplate";
+
+// Texte immersif rédigé à partir des hooks, descriptions, services, badges,
+// engagements/logistique, avis clients et horaires de chaque fiche.
+const HOTELS: BlogArticleEntry[] = [
+  {
+    id: "4b4e42f7-d408-4c6d-989f-3922e2ed61d3",
+    pretitle: "Medina, Essaouira",
+    title: "SALUT MAROC! Luxury Boutique Hotel — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, SALUT MAROC! Luxury Boutique Hotel fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Au cœur de médina, un riad-hôtel de luxe unique en son genre, couronné du titre d'Hôtel le plus créatif au monde. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Niché au cœur d'Essaouira, Salut Maroc est un riad-hôtel de luxe unique en son genre, couronné du titre d'Hôtel le plus créatif au monde. Alliant tradition marocaine et design contemporain, chacune de nos 10 chambres est un chef-d'œuvre, reflétant la diversité des régions et des villes du Maroc. Des motifs islamiques raffinés aux palettes de couleurs vibrantes, chaque espace est conçu avec soin par des artisans locaux et comprend des lits sur mesure, de luxueuses baignoires en cuivre et des salles de bains privatives modernes. Installé dans un magnifique riad du XVIIIe siècle, notre hôtel réinvente l'artisanat marocain classique avec une touche de modernité audacieuse, créant une atmosphère éclectique à la fois intemporelle et novatrice. Vous pourrez également vous détendre dans notre élégant restaurant offrant une vue panoramique sur la…",
+      "Côté prestations, on retient en priorité rooftop, petit-déjeuner inclus, massage, spa / hammam, vue sur mer, terrasse.",
+      "Côté retours clients, un avis résume bien l'expérience : « La nourriture était vraiment bonne et avait un goût frais. Tout est arrivé chaud et savoureux, et les portions étaient satisfaisantes. Le dessert était ma partie préférée – pas trop sucré et clairement fait avec soin. Dans l'ensemble, un excellent repas et un endroit où je reviendrais volontiers. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "5f101672-44a1-442a-8da0-854e90d9bd79",
+    pretitle: "Medina, Essaouira",
+    title: "Riad BaB Essaouira — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Riad BaB Essaouira fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « \"Le Riad Le Plus Cool d'Essaouira\". Une nouvelle vision du luxe . ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Le Riad Bab Essaouira est situé en plein cœur de l'ancienne ville fortifiée de la Médina d'Essaouira; à quelques pas des commerces, restaurants, cafés, place principale et plage. Le Riad Bab Essaouira a été récemment entièrement rénové afin d'offrir à nos clients un cadre raffiné, un mobilier confortable et de belles œuvres d'art, tous fabriqués à la main par des artisans locaux. deux terrasses sur le toit tranquilles et profitez du calme et du calme de la magnifique vue sur l'océan et la médina.Venez profiter de l'atmosphère romantique et personnalisée de notre maison d'hôtes enchanteresse et tirer profit de l'équipe plus que charmante qui se fera un plaisir de vous communiquer ses bons plans. Nous contacter sur le mail black_zitoun@yahoo.fr ou whatsap 00212661439221 pour toute demande de reservation .",
+      "Côté prestations, on retient en priorité vue sur mer, rooftop, petit-déjeuner inclus.",
+      "Côté retours clients, un avis résume bien l'expérience : « Meilleur service client au Maroc ! Les chambres étaient géniales, pleines de caractère. Le petit-déjeuner était parfait... Simo était l'hôte le plus accueillant et authentique. Je ne peux pas en dire assez de choses positives sur notre séjour au Riad Bab »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "cb169213-20b4-4318-a17d-43e7e2f9bcd5",
+    pretitle: "Plage, Essaouira",
+    title: "Hotel Coté Océan Mogador — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Plage, à Essaouira, Hotel Coté Océan Mogador fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Établissement très apprécié par les voyageurs. Hôtel en front de mer avec accès direct à la plage. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Situé à Essaouira, à 300 mètres de la plage d'Essaouira, l'Hotel Cote ocean Mogador propose un jardin, une terrasse, un salon commun et un parking privé gratuit. Cet hôtel 4 étoiles dispose également d’un restaurant. Les chambres climatisées comprennent une connexion Wi-Fi gratuite et une salle de bains privative. L’établissement est doté d’une réception ouverte 24h/24, d’un service d’étage et d’un service de change. Tous les logements sont munis d’un bureau. Chaque chambre est pourvue d'un coffre-fort. Certains hébergement s’ouvrent sur un balcon, tandis que d'autres offrent également une vue sur la ville. Les logements sont équipés d'une télévision à écran plat et d'un sèche-cheveux. Les environs sont prisés pour les balades à vélo et l’établissement assure un service de location de voitures. Vous pourrez profiter du centre d’affaires…",
+      "Côté prestations, on retient en priorité piscine, massage, vue sur mer, spa / hammam, jardin, accès plage.",
+      "Côté retours clients, un avis résume bien l'expérience : « J'ai absolument adoré cet hôtel - le meilleur dans lequel j'ai séjourné pendant les années où je suis venu à Essaouira. Charmant, emplacement parfait - et ça vaut vraiment le coup de payer pour une chambre avec vue sur la mer. Personnel serviable. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "514b8d27-cbc5-4a67-a869-c6a79531708a",
+    pretitle: "Plage, Essaouira",
+    title: "Medina Essaouira Sea & Spa — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Plage, à Essaouira, Medina Essaouira Sea & Spa fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Hôtel de luxe avec centre de thalassothérapie face à l'océan. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Hôtel-boutique plein de personnalité pour un voyage inoubliable Dans un cadre maritime raffiné aux accents marocains, le Medina Essaouira Sea & Spa propose 117 chambres et suites propices à la détente. Entre authenticité et sérénité, notre hôtel de charme offre des expériences culturelles variées : événements musicaux tels que le Festival d'Alizés ou de Gnaouas, expositions, activités sportives (centre nautique et golf), et bien-être grâce à son spa. Situé en bord de mer, l'Hôtel Le Medina Essaouira Sea & Spa vous promet détente et découvertes. Notre établissement est proche des sites touristiques d'Essaouira, la « Cité du Vent ». En une dizaine de minutes à pied, vous pourrez flâner dans les ruelles de la médina, admirer le port de pêche et la kasbah, visiter le musée Sidi Mohammed Ben Abdallah et contempler l'océan Atlantique depuis…",
+      "Côté prestations, on retient en priorité petit-déjeuner inclus, piscine, massage, vue sur mer, terrasse, accès plage. Logistique sur place : accessible aux personnes à mobilité réduite, transfert aéroport.",
+      "Côté retours clients, un avis résume bien l'expérience : « Nous avons passé un très agréable séjour au Medina Hotel & Spa à Essaouira et le recommanderions volontiers, en particulier pour son emplacement et son service. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "11fd8106-afe5-4ec6-aeec-77365988518f",
+    pretitle: "Essaouira",
+    title: "Hotel Le Golf D’Essaouira & Spa — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Essaouira, Hotel Le Golf D’Essaouira & Spa fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Profitez d'un séjour inoubliable à l'hôtel Golf Essaouira. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Bienvenue dans un univers de luxe intemporel à l'Hôtel Le Golf D'Essaouira & Spa, notre première acquisition au Maroc. Niché au cœur du domaine enchanteur de Mogador, ce refuge 5 étoiles allie tradition marocaine et élégance française, offrant des vues imprenables sur l'océan Atlantique et de luxuriants paysages de golf. Avec des hébergements raffinés, une gastronomie exquise, des installations de bien-être ultramodernes et la proximité du centre-ville animé d'Essaouira, Le Golf d'Essaouira promet une expérience inégalée de sophistication et de tranquillité, établissant une nouvelle référence en matière de luxe au Maroc.",
+      "Côté prestations, on retient en priorité vue sur mer, terrasse, piscine, hammam et soins, accès plage, bar. Logistique sur place : ouvert 24h/24, wifi, accessible aux personnes à mobilité réduite, parking clients, réservation obligatoire.",
+      "Les retours clients convergent : un service attentif, une vue qui justifie à elle seule la réservation, et cette sensation propre à Essaouira d'avoir trouvé son refuge face à l'Atlantique.",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "2d86c4ee-ed2f-4ae6-86e2-898800004eb2",
+    pretitle: "Medina, Essaouira",
+    title: "Riad Perle d'Eau — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Riad Perle d'Eau fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Blotti contre les remparts, le Riad Perle d'Eau offre une vue imprenable sur la mer depuis sa terrasse. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Vivez une expérience de luxe Découvrez le Riad Perle d'Eau, une adresse d'exception nichée au cœur de la médina d'Essaouira. Réinventé avec soin pour allier confort moderne et charme traditionnel, notre riad vous invite à vivre une expérience inoubliable. Blotti contre les remparts, notre établissement offre une vue imprenable sur la mer depuis sa terrasse et même depuis toutes les suites. Dans cet havre de paix au cœur de l'animation médinale, vous pourrez vous détendre dans notre hammam et salle de massage, et savourer des mets délicieux à notre table d'hôte, sur réservation. Tenue par des passionnés de la culture marocaine, notre maison d'hôtes se distingue par son attention aux détails et son service personnalisé. Venez découvrir l'essence même de l'hospitalité marocaine au Riad Perle d'Eau. Découvrez notre Oasis de Charme à…",
+      "Côté prestations, on retient en priorité rooftop, vue sur mer, hammam et soins. Logistique sur place : transfert aéroport.",
+      "Les retours clients convergent : un service attentif, une vue qui justifie à elle seule la réservation, et cette sensation propre à Essaouira d'avoir trouvé son refuge face à l'Atlantique.",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "4322cc34-c0c6-4303-9be4-cb72d3986617",
+    pretitle: "Medina, Essaouira",
+    title: "Les Terrasses d'Essaouira — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Les Terrasses d'Essaouira fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Votre escapade de charme au cœur d'Essaouira. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Bienvenue aux Terrasses d'Essaouira Votre havre de paix niché au cœur de la médina d’Essaouira. 15 chambres élégamment aménagées, notre riad mêle harmonieusement le charme traditionnel marocain au confort moderne. Explorez les marchés, le port et les plages à proximité, puis profitez du couché de soleil sur notre terrasse pour vous détendre. Le soir venu, vivez l’hospitalité marocaine dans les salons de notre patio en musique. Les Terrasses d'Essaouira un eldorado unique Venez bouquiner dans notre salon bibliothèque ou paresser dans les salons privés, vous réchauffer au coin du feu, discuter autour d’un verre en toute intimité sur nos terrasses au coucher de soleil. Chaque séjour promet une expérience inoubliable. Immergez-vous dans l’histoire, les traditions et la chaleur de l’hospitalité marocaine dans notre havre de paix, où chaque…",
+      "Côté prestations, on retient en priorité vue sur mer, rooftop, massage. Logistique sur place : wifi.",
+      "Côté retours clients, un avis résume bien l'expérience : « Morgan et son équipe sont tout simplement merveilleux. Le riad est éclectique et unique. Les chambres étaient belles et créatives. Il était parfaitement situé et à distance de marche de tout !! La nourriture était très bonne et copieuse !! La vue depuis le toit était charmante ! Nous avons ADORÉ notre séjour ici. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "461ade9b-e40d-4789-9fc6-4a84e81347c6",
+    pretitle: "Plage, Essaouira",
+    title: "Atlas Essaouira Riad Resort — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Plage, à Essaouira, Atlas Essaouira Riad Resort fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "La petite cité portuaire d’Essaouira et ses îles sont riches d’un passé millénaire. Elles ont accueilli les Phéniciens, les Maurétaniens, les Romains. Mais son influence se lit surtout dans son histoire plus récente, avec la création du port et de sa médina au milieu du XVIIIe siècle par le sultan alaouite Sidi Mohammed ben Abdellah. Parmi les incontournables de la ville, le port et sa sqala, tour carrée à échauguettes, et son bassin en contrebas où flottent lascivement les typiques barques de pêcheurs aux tons bleus si spécifiques ; ses remparts ; ou encore son emblématique sqala de la Kasbah et ses canons. Essaouira opère une attraction unique chez ceux qui la visitent. Cette atmosphère, ce calme, cette architecture, ces couleurs, ce port et ses mouettes, personnages essentiels de la ville au même titre que les chats dans l’enceinte de…",
+      "Côté prestations, on retient en priorité accès plage, bar, hammam et soins, piscine, terrasse, vue sur mer. Logistique sur place : accessible aux personnes à mobilité réduite, coffre-fort, transfert aéroport, wifi.",
+      "Côté retours clients, un avis résume bien l'expérience : « La vue depuis la chambre était incroyablement belle. Dans l'ensemble, l'hôtel était bien avec une variété d'endroits où manger dans l'hôtel et à proximité. Le lobby était également charmant. Le lit était confortable et j'ai apprécié la grande baignoire. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "4cd0141d-4069-4df3-a470-50b001f26996",
+    pretitle: "Ghazoua, Essaouira",
+    title: "Riad Tamayourt Guest House Ocean View — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Ghazoua, à Essaouira, Riad Tamayourt Guest House Ocean View fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Maison d'hôtes-table d'hôtes face à l'Océan à 7km d'Essaouira. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Riad Tamayourt - Guest House Ocean View, (la pleine lune en Amazigh) est une des plus anciennes maison d'hôtes d'Essaouira, installée face à la mer au sommet d'une crête dans un authentique riad fin XIXème, elle fut remaniée en villa par l'artiste souiri Moustapha Boumazzour ; aujourd'hui reprise par les équipes de Corente, décorateur en Provence et à Marrakech, elle propose à ses visiteurs un dépaysement total à seulement...7km d'Essaouira (accessible en taxi - course : 5euros la course/3 personnes) et 15' à pied du golf ! Nous vous proposons de louer tout Le Riad Tamayourt Ocean View en intégralité, pour un plus grand confort & une plus belle intimité, à savoir : un authentique riad de 500m² de 7 chambres pouvant recevoir 15 personnes ! - situation : installé face à la mer au sommet d'une crête à 7km d'Essaouira (prox. Golf), pour un…",
+      "Côté prestations, on retient en priorité piscine, terrasse, rooftop, vue sur mer. Logistique sur place : privatisation possible, parking clients, accessible aux personnes à mobilité réduite.",
+      "Les retours clients convergent : un service attentif, une vue qui justifie à elle seule la réservation, et cette sensation propre à Essaouira d'avoir trouvé son refuge face à l'Atlantique.",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "53458368-043b-4f5d-890d-cc2b3e3543c3",
+    pretitle: "Medina, Essaouira",
+    title: "L'Heure Bleue Palais — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, L'Heure Bleue Palais fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Palais du XIXe siècle transformé en hôtel de luxe, membre Relais & Châteaux. Vue imprenable sur l'océan Atlantique. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Un riad marocain plein de charme, au service personnalisé L'Heure Bleue Palais n'est pas simplement un hôtel. C'est une maison chargée d'histoire, une perle dans l'écrin d’exception de l'ancienne Mogador. Les hommes et les femmes de l’Heure Bleue Palais vous accueillent à Essaouira avec pour seul mot d’ordre le bien-être de leurs hôtes. Soyez les bienvenus dans ce superbe riad, membre de la prestigieuse association des Relais & Châteaux ! L'Heure Bleue Palais dispose de 33 chambres et suites non-fumeur. Maison de charme avant d’être un hôtel de luxe, cette demeure historique conserve une dimension humaine qui lui permet d'allier intimité et confort, et de respecter l'authenticité de l'art de recevoir marocain. L'Hôtel Heure Bleue Palais vous propose tous les jours la cuisine du Chef Ahmed Handour. Sa cuisine tournée vers la mer se…",
+      "Côté prestations, on retient en priorité rooftop, piscine, massage, vue sur mer, hammam et soins. Logistique sur place : clef verte, engagement éco-responsable, réservation obligatoire.",
+      "Côté retours clients, un avis résume bien l'expérience : « L'hôtel était propre et bien situé - très accessible à pied. Le personnel était très sympathique et accommodant. Le restaurant offrait un dîner incroyable, l'un des meilleurs de notre voyage. Et le petit-déjeuner était charmant, avec beaucoup d'options. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "550b8636-8024-4261-95d8-9e19a5ab82da",
+    pretitle: "Medina, Essaouira",
+    title: "Madada Mogador — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Madada Mogador fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Madada: Un Univers, Deux Escales. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Madada Mogador n’est pas un simple hôtel mais c’est avant tout une maison dans laquelle vous pourrez vivre une Expérience unique. Situé à l’entrée de la médina mais également à quelques mètres de la plage et du port, c’est une ambiance particulière qui y règne. Certains diront qu’il se sentent entre terre et mer, d’autres qu'ils ont un pied dans l’histoire de la vieille ville et un pied sur le sable chaud de la plage. C’est non seulement cette situation qui en fait une maison si particulière mais également les personnes qui y vivent et qui vous y reçoivent. Madada c’est une manière différente de vivre Essaouira : c’est le confort d’une maison soignée, c’est la vivacité d’une équipe dévouée, c’est la discrétion d’un lieu a taille humaine et c’est avant tout le reste, l’occasion de savourez vos meilleurs moments à Essaouira. Madada Mogador…",
+      "Côté prestations, on retient en priorité massage, rooftop, vue sur mer, hammam et soins, accès plage. Logistique sur place : wifi.",
+      "Les retours clients convergent : un service attentif, une vue qui justifie à elle seule la réservation, et cette sensation propre à Essaouira d'avoir trouvé son refuge face à l'Atlantique.",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "5a7d0e05-99b3-4f63-8119-31d93bf981ce",
+    pretitle: "Essaouira",
+    title: "Anima Ocean Lodges — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Essaouira, Anima Ocean Lodges fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Écolodge de luxe face à l'Atlantique. 8 lodges. L'océan à 50 mètres. Rien d'autre. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Un écolodge intimiste sur la côte atlantique marocaine. Pour ceux qui cherchent le silence, le grand large et le vrai luxe du rien. Un sanctuaire de 20 000 m² face à l'Atlantique 8 lodges seulement. Un domaine de 20 000 m² de nature préservée. 50 mètres de l'océan, à 20 minutes d'Essaouira. ANIMA n'est pas un hôtel — c'est un espace coupé du monde, conçu pour ceux qui savent que le vrai luxe, c'est l'espace et le silence. Deux configurations. Une même promesse : l'océan pour horizon. Chaque lodge est conçu sans vis-à-vis, avec terrasse privée face à l'Atlantique. Pour les familles ou les groupes, deux lodges adjacents peuvent être reliés pour former un espace privatisé. Niché sur un écrin de 20 000 m² en bord d'océan Atlantique, ANIMA est un écolodge d'exception construit de plain-pied, pensé pour une immersion totale dans la nature…",
+      "Côté prestations, on retient en priorité vue sur mer, accès plage, jardin, plage privée, terrasse. Logistique sur place : engagement éco-responsable, accessible aux personnes à mobilité réduite, interdit de fumer, parking clients, transfert aéroport.",
+      "Côté retours clients, un avis résume bien l'expérience : « Visité les Anima Ocean Lodges le week-end dernier et j'ai passé une expérience incroyable. Les chambres sont belles et très confortables, le service est impeccable et le personnel est incroyablement accueillant. Un merci spécial au directeur pour avoir rendu notre séjour vraiment mémorable. Je le recommande vivement ! »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "6a6e530e-77e1-4b6f-8017-5f1bd0f81067",
+    pretitle: "Medina, Essaouira",
+    title: "Mama Souiri Hotel — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Mama Souiri Hotel fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « A l'entrée de la médina, à 2 pas de la plage, l’hôtel Mama Souiri vous accueille dans une atmosphère colorée énergisante ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "On vient ici pour ce mélange singulier qui fait l'identité hôtelière d'Essaouira : une architecture qui dialogue avec l'océan, un service attentif sans être cérémonieux, et une carte de prestations qui couvre l'essentiel — rooftop, restauration sur place, terrasse, vue sur mer. L'ensemble compose une parenthèse où l'on se réinstalle vite, comme à la maison.",
+      "Côté prestations, on retient en priorité rooftop, terrasse, vue sur mer. Logistique sur place : parking clients, transfert aéroport.",
+      "Côté retours clients, un avis résume bien l'expérience : « Bon prix, comparé à d'autres hôtels au Maroc… Les réceptionnistes TOUS très aimables et serviables, y compris Saad qui a facilité notre enregistrement ! Un endroit agréable où séjourner. Il peut y avoir parfois du bruit provenant du bar à côté de l'hôtel jusque tard dans la nuit et de l'« imam » tôt le matin ! »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "6edeeef3-79ff-45db-a559-9015de450cb3",
+    pretitle: "Medina, Essaouira",
+    title: "Jack's Apartments — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Jack's Apartments fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Location d'appartement à Essaouira avec vue mer. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "On vient ici pour ce mélange singulier qui fait l'identité hôtelière d'Essaouira : une architecture qui dialogue avec l'océan, un service attentif sans être cérémonieux, et une carte de prestations qui couvre l'essentiel — vue sur mer, wifi, transferts aéroport, machine à laver. L'ensemble compose une parenthèse où l'on se réinstalle vite, comme à la maison.",
+      "Côté prestations, on retient en priorité vue sur mer. Logistique sur place : wifi, transfert aéroport, paiement cb, réservation obligatoire.",
+      "Les retours clients convergent : un service attentif, une vue qui justifie à elle seule la réservation, et cette sensation propre à Essaouira d'avoir trouvé son refuge face à l'Atlantique.",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "7903fff5-1979-49a8-bc79-0d6d8cf461ad",
+    pretitle: "Moulay Bouzerktoun, Essaouira",
+    title: "Villa Chill & Swell — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Moulay Bouzerktoun, à Essaouira, Villa Chill & Swell fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Location Villa avec piscine vue Océan à Essaouira ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "NOTRE VILLA Notre villa de style est située sur la colline surplombant le village typique de Moulay Bouzerktoune prés d’Essaouira, spot de surf, wind surf et kite surf. La villa orientée sud ouest avec sa vue exceptionnelle totalement dégagée sur l'Océan Atlantique vous permettra de profiter de fabuleux couchers du soleil depuis les chambres, le salon ou la piscine à débordement. Absolument unique par sa vue et par son architecture moderne elle a été conçue pour isoler chaque espace dans son intimité. Tadelakt, menuiseries et décoration 100% marocaine joue les contrasts avec l'architecture résolument moderne de la villa. La villa est énergétiquement autonome : chauffe – eau solaire, panneaux photovoltaïques, double vitrage et murs double épaisseur, électroménager et éclairage basse consommation. LES CHAMBRES Nos chambres vous permettront…",
+      "Côté prestations, on retient en priorité piscine privative, vue sur mer. Logistique sur place : parking clients, accessible aux personnes à mobilité réduite, transfert aéroport.",
+      "Côté retours clients, un avis résume bien l'expérience : « Villa incroyable en face du spot de windsurf de Moulay ! Encore mieux que sur les photos ! La propriétaire Ikram est super gentille et serviable pour tous les besoins. Je reviendrai, c'est sûr !!! »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "8296b6aa-ad1c-4b7f-99dc-a0765d072eae",
+    pretitle: "Medina, Essaouira",
+    title: "Villa De L'Ô — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Villa De L'Ô fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Protégée par les murs de la Médina, Villa de l'Ô est un Riad du 18ème siècle situé à quelques pas de la plage, des souks, et du parcours de Golf d'Essaouira. La subtile alchimie entre les pierres, le bois sculpté, et les tissus en coton donne à Villa de l'Ô un esprit architectural unique. La décoration raffinée de la maison allie harmonieusement le style oriental et colonial sans omettre les commodités modernes pour vous offrir un séjour inoubliable à Essaouira. Chaque chambre est un lieu unique, mêlant traditions orientales et luxe occidental. Certaines ont une vue magnifique sur l'île de Mogador, d'autres, vous plongent dans une ambiance intime et romantique. \"LÔxygène\", la terrasse solarium de la villa, est un endroit où vous pourrez vous relaxer et apprécier de magnifiques vues sur la baie d'Essaouira. Dans le patio central,…",
+      "Côté prestations, on retient en priorité hammam et soins, accès plage, vue sur mer, rooftop, bar. Logistique sur place : wifi, transfert aéroport.",
+      "Les retours clients convergent : un service attentif, une vue qui justifie à elle seule la réservation, et cette sensation propre à Essaouira d'avoir trouvé son refuge face à l'Atlantique.",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "862bdba2-6891-4ca1-84ae-ccc7e37d7011",
+    pretitle: "Moulay Bouzerktoun, Essaouira",
+    title: "La Villa’S — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Moulay Bouzerktoun, à Essaouira, La Villa’S fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Villa’S – Maison d’hôte privatisée Entre océan et campagne, la Villa’S réunit élégance et confort dans une atmosphère chaleureuse et familiale. Entièrement privatisée, elle offre une expérience unique où le design intemporel rencontre l’art de vivre marocain. Spacieuse et harmonieuse, la villa s’ouvre sur la piscine et le jardin paysager, offrant un cadre intime et exclusif. Chaque détail est pensé pour votre bien-être : lits haut de gamme, petit-déjeuner maison sur demande et services attentionnés. Située sur la route de Safi, à proximité du charmant village de Moulay Bouzerktoun, la Villa’S vous invite à profiter de la quiétude du lieu, des brises marines et des nombreuses activités alentour — balades à cheval, excursions en quad ou découverte de la médina. Services de la Villa’S Chambres & Suites Des chambres décorées avec goût,…",
+      "Côté prestations, on retient en priorité piscine, vue sur mer, jardin, terrasse. Logistique sur place : privatisation possible, transfert aéroport, réservation obligatoire, accessible aux personnes à mobilité réduite, parking clients.",
+      "Les retours clients convergent : un service attentif, une vue qui justifie à elle seule la réservation, et cette sensation propre à Essaouira d'avoir trouvé son refuge face à l'Atlantique.",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "87074cab-e582-4df3-bf94-cf7bf0eb28cb",
+    pretitle: "Diabat, Essaouira",
+    title: "Hendrix Hotel, Restaurant & Rooftop — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Diabat, à Essaouira, Hendrix Hotel, Restaurant & Rooftop fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Chambres lumineuses, certaines avec vue sur l'océan, dans un hôtel décontracté avec Wi-Fi et parking gratuits, ainsi qu'un restaurant.",
+      "Côté prestations, on retient en priorité accès plage, vue sur mer.",
+      "Côté retours clients, un avis résume bien l'expérience : « Récemment rénové et restauré. Sous une nouvelle direction. C'est moderne et cool, j'adore la décoration. Ne vous laissez pas tromper par les anciens avis. Le personnel est incroyable et parle anglais. Ils ont été très aimables et serviables avec notre famille. La nourriture était également merveilleuse. 10/10 »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "a2f63499-bfab-428a-999e-baf049d03dbf",
+    pretitle: "Medina, Essaouira",
+    title: "Mama Lova Hôtel & Spa — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Mama Lova Hôtel & Spa fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Boutique hôtel avec espace de coworking au cœur de la médina d'Essaouira. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "MAMA LOVA, une vision À travers notre quête de l’excellence une profonde volonté de vous satisfaire, de vous transmettre notre amour des belles choses. Pour que vous passiez un moment inoubliable, tout simplement. Notre ambition ? Proposer une nouvelle vision de l’hôtellerie, telle que nous l’imaginons. Nous avons rêvé d’un lieu de vie et de travail au confort optimal, où chacun trouverait son bonheur. En journée, profitez de notre espace de coworking et de notre café convivial. L’après-midi, détendez-vous avant de vivre une expérience sunset unique sur notre rooftop, idéal pour savourer un cocktail tout en admirant le coucher du soleil. Le soir venu, plongez dans le confort de notre hôtel haut de gamme pour une nuit de repos méritée. Mama Lova est un espace qui évolue et se transforme au rythme du voyageur cosmopolite moderne. Notre…",
+      "Côté prestations, on retient en priorité rooftop, petit-déjeuner inclus, massage, vue sur mer, spa / hammam.",
+      "Côté retours clients, un avis résume bien l'expérience : « Nous avons passé un séjour incroyable chez Mama Lova ! Tout était parfait. Le personnel attentionné, la nourriture incroyable, les belles chambres et l'emplacement magnifique au milieu de la Médina ! Nous reviendrons certainement ! »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "a45d8cc7-d1f6-4bfd-8407-01d8790fa97c",
+    pretitle: "Sidi Kaouki, Essaouira",
+    title: "Hotel Dar Boujdaa — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Sidi Kaouki, à Essaouira, Hotel Dar Boujdaa fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Guest house unique en front de mer pour vos vacances, toute l'année. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "On vient ici pour ce mélange singulier qui fait l'identité hôtelière d'Essaouira : une architecture qui dialogue avec l'océan, un service attentif sans être cérémonieux, et une carte de prestations qui couvre l'essentiel — maison d'hôtes, vue sur mer, accès plage, restauration sur place, jardin, terrasse, rooftop. L'ensemble compose une parenthèse où l'on se réinstalle vite, comme à la maison.",
+      "Côté prestations, on retient en priorité vue sur mer, accès plage, jardin, terrasse, rooftop. Logistique sur place : parking clients, transfert aéroport.",
+      "Côté retours clients, un avis résume bien l'expérience : « Charmante maison J'avais une chambre privée avec salle de bain et ma propre petite terrasse donnant sur la mer. Mo et l'équipe ont préparé un excellent petit-déjeuner pour un séjour détendu, merci ! »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "ab81aeb7-de3f-4096-8c64-be9bfa4b056f",
+    pretitle: "Essaouira",
+    title: "Cruiser Mogador Essaouira — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Essaouira, Cruiser Mogador Essaouira fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Une escapade sereine où l'élégance contemporaine rencontre l'authentique chaleur marocaine. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Découvrez l'élégance côtière au Cruiser Mogador Essaouira Niché sur le littoral captivant d' Essaouira , le Cruiser Mogador Essaouira offre une escapade sereine où l'élégance contemporaine rencontre l'authentique chaleur marocaine . Ici, chaque détail est pensé pour sublimer votre séjour. Imaginez-vous vous réveiller dans une suite ou un appartement spacieux et lumineux , où un décor naturel raffiné s'allie au confort moderne. Accédez à votre balcon pour respirer l'air frais de l'Atlantique et admirer la vue imprenable sur la mer ou la piscine extérieure paisible. Le cœur culinaire de l'hôtel est son café-restaurant sur le toit , qui vous invite à savourer une cuisine marocaine et internationale fraîche et savoureuse. Tout en dînant, vous pourrez admirer une vue panoramique à couper le souffle sur la baie et la ville historique,…",
+      "Côté prestations, on retient en priorité piscine, hammam et soins, rooftop, vue sur mer. Logistique sur place : accessible aux personnes à mobilité réduite, parking clients, réservation conseillée.",
+      "Côté retours clients, un avis résume bien l'expérience : « Magnifique hôtel ! Très confortable et d'une propreté impeccable. Le personnel est professionnel et toujours accueillant. La vue depuis les chambres est incroyable, surtout sur la mer. Le petit-déjeuner est délicieux et varié. Vraiment une excellente expérience que j'aimerais renouveler. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "b0470314-7266-4316-a534-2eda6622dec3",
+    pretitle: "Sidi Kaouki, Essaouira",
+    title: "Dav Mahal Eco Lodge — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Sidi Kaouki, à Essaouira, Dav Mahal Eco Lodge fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Retraite de Yoga face à l'océan à Essaouira. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Olivier acquit ce terrain composé de sable et de roches en 2011, laissant ensuite six années derrière lui pour bien s'imprégner du lieu. Il tomba immédiatement amoureux de la vue imprenable sur l'océan que lui offrait le village de Ouassen, perché sur un cap (le fameux Cap \"Sim\" bien connu des surfeurs) et balayé par les vents atlantiques. Il est vrai que le climat maritime et ensoleillé (320 jours par an...) d'Essaouira offre des températures exceptionnelles comprises entre 18 et 25 degrés toute l'année. Quoi de plus sain pour explorer les alentours sauvages du DavMahal avec un accès direct à la plage afin d'y respirer le bon air. La résidence principale a été conçue en s'inspirant de \"Richard Neutra\" sur les architectures transparentes. Elle laisse véritablement la nature imprégner la maison. Le développement du lieu ne pouvait donc…",
+      "Côté prestations, on retient en priorité vue sur mer. Logistique sur place : engagement éco-responsable, wifi.",
+      "Côté retours clients, un avis résume bien l'expérience : « Merci à tous, Rashida, Fatima, Naima, Hamid et Olivier, vous avez rendu mon séjour dans l'un des plus beaux endroits du Maroc vraiment incroyable. L'emplacement, la vue sur l'océan et les couchers de soleil spectaculaires rendent cet endroit vraiment unique. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "be4dac2c-f863-43e4-8d6c-758cb78cde01",
+    pretitle: "Medina, Essaouira",
+    title: "Hotel Emeraude Essaouira — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Hotel Emeraude Essaouira fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Charme et authenticité au cœur de la médina. L'hôtel Emeraude vous accueille dans une atmosphère chaleureuse, conviviale et authentiquement marocaine.. A seulement quelques minutes à pied du port, de la plage et des souks, l'hôtel est un point de départ idéal pour découvrir Essaouira à votre rythme, entre océan, culture et art de vivre. Un lieu calme et accueillant L'hôtel Emeraude propose 10 chambres confortables, décorées avec sobriété et élégance, pensées pour offrir repos et tranquillité après une journée de découverte Chaque matin, vous pourrez savourer un petit déjeuner généreux, apprécié des voyageurs , servi dans une ambiance paisible, sur la terrasse solarium avec une vue splendide sur les toits d'Essaouira et ses monuments historiques Le quartier Chbanate est un choix idéal pour les voyageurs qui veulent s'immerger dans la vie…",
+      "Côté prestations, on retient en priorité vue sur mer.",
+      "Côté retours clients, un avis résume bien l'expérience : « Bel endroit où séjourner à Essaouira. Dans la médina mais à quelques pas d'une porte, donc il ne faut pas longtemps pour entrer et sortir avec des bagages. De plus, à distance de marche de la plage. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "bf183804-416d-4cd5-984a-be5b97ce18f3",
+    pretitle: "Moulay Bouzerktoun, Essaouira",
+    title: "Baberrih Hotel — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Moulay Bouzerktoun, à Essaouira, Baberrih Hotel fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Évadez-vous face à l’océan à Essaouira : luxe, nature et sérénité au Baberrih Hotel. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Niché sur la plage sauvage de Tissa, à quelques minutes d’Essaouira, le Baberrih Hotel est une véritable parenthèse de calme entre océan, dunes et nature préservée. Ce boutique-hôtel écoresponsable offre une expérience unique où le confort moderne rencontre l’authenticité marocaine, dans un cadre à la fois élégant et apaisant. Composé de suites spacieuses avec terrasse ou jardin privé, l’établissement séduit par son architecture inspirée des traditions locales et son atmosphère intimiste. Chaque chambre offre une vue sur l’océan ou les jardins luxuriants, invitant à la détente et à la reconnexion. Le Baberrih Hotel est pensé comme un véritable lieu de bien-être : piscine extérieure, espace yoga dédié, massages et grands espaces naturels permettent de se ressourcer pleinement. Les amateurs d’expériences pourront profiter d’activités…",
+      "Côté prestations, on retient en priorité accès plage, vue sur mer, piscine, jardin, bar, terrasse. Logistique sur place : engagement éco-responsable, accessible aux personnes à mobilité réduite, réservation conseillée, parking clients.",
+      "Les retours clients convergent : un service attentif, une vue qui justifie à elle seule la réservation, et cette sensation propre à Essaouira d'avoir trouvé son refuge face à l'Atlantique.",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "c39fe9e7-32f2-4895-abfb-1d964f1c7a46",
+    pretitle: "Medina, Essaouira",
+    title: "Riad Mimouna — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Riad Mimouna fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Le Riad Mimouna Essaouira est l’une des plus authentiques maisons bourgeoises et un bijou de l’architecture hispano–mauresque. Situé dans un quartier résidentiel au cœur de la médina d'Essaouira, Une ancienne demeure entièrement reconstituée et restaurée avec passion et talent en respectant l'architecture et les matériaux traditionnels de la ville d'Essaouira. L’esprit ici n’est pas celui d’un hôtel mais d’une maison raffinée qui fait preuve de beaucoup d’élégance, le staff attentionné, vous accueilleront dans une ambiance familiale. Le gargouillis de la fontaine, l'authenticité des vitraux, zelliges et plâtres ciselés de Riad Mimouna Essaouira, vous enchanteront. Vous souhaitez découvrir Essaouira, son histoire, ses monuments, sa gastronomie, cette cité millénaire classée patrimoine universel, nous vous donnons rendez-vous dans notre…",
+      "Côté prestations, on retient en priorité vue sur mer, rooftop.",
+      "Côté retours clients, un avis résume bien l'expérience : « Si vous aimez le bruit de la mer, assurez-vous de réserver une chambre avec vue sur la mer. Non seulement c'est magnifique à contempler... le bruit des vagues vous berce pour dormir la nuit. Personnel très sympathique et serviable. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "ca2b9f3d-6e38-4aec-8602-27c199e98aaf",
+    pretitle: "Sidi Kaouki, Essaouira",
+    title: "Hôtel La Mouette et les Dromadaires — vue sur l'océan à Essaouira",
+    hours: "du lundi au dimanche : 12:00 – 16:00",
+    paragraphs: [
+      "À Sidi Kaouki, à Essaouira, Hôtel La Mouette et les Dromadaires fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Loin de tout et proche de l'essentiel — plage, restaurant et hôtel face à l'océan à Sidi Kaouki. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Ici, le temps ralentit, l’océan dicte le rythme et chaque instant se savoure. Au cœur de la baie de Sidi Kaouki à Essaouira, notre havre de paix vous accueille pour une parenthèse hors du temps. Entre la douceur d’un transat face aux vagues et l’effervescence d’un repas partagé sous les étoiles, La Mouette et Les Dromadaires est une invitation à la détente, aux rencontres et à la découverte. Nos chambres, Suite duplex et Maison conjuguent authenticité et confort, pour des nuits bercées par le bruit des vagues. Scène centrale de La Mouette et les Dromadaires, le restaurant est le lieu de rassemblement par excellence. À La Mouette et Les Dromadaires, votre bien être est notre priorité. Lâchez prise, nous nous occupons de tout. Que vous ayez envie d’un réveil en douceur avec un cours de yoga face à l’océan, d’une session de renforcement…",
+      "Côté prestations, on retient en priorité accès plage, vue sur mer, massage.",
+      "Côté retours clients, un avis résume bien l'expérience : « Nous avons eu un déjeuner fabuleux ici hier. Nous étions tous les 6 à penser que la nourriture, le service, l'emplacement et l'ambiance étaient charmants. Mes amis amateurs de poisson ont eu du bar et de la lotte super frais qu'ils ont adorés et j'ai eu le burger d'agneau marocain qui était superbe. »",
+      "Horaires & accueil : du lundi au dimanche : 12:00 – 16:00.",
+    ],
+  },
+  {
+    id: "d71993f4-b936-417a-8db7-5aef4c849f5b",
+    pretitle: "Medina, Essaouira",
+    title: "Le Palazzo — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Le Palazzo fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Ce Boutique Hôtel & Rooftop est un lieu chargé d’histoire. Aujourd’hui un second souffle lui est offert conjuguant authenticité et artisanat marocain plus contemporain. Cette ancienne demeure patricienne du 19ème, servant autrefois de remise au Sultan de la ville qui commerçait avec le monde entier depuis le port d’Essaouira, fut transformée en hôtel de charme au milieu du siècle dernier sous l’ancien nom « Palazzo Desdemona », hommage à Orson Welles qui y séjourna durant le tournage de son célèbre film «Othello» . Dans les étages qui abritaient jadis les appartements du maître de maison, douze chambres et suites lumineuses , aux hauteurs sous-plafond exceptionnelles, se répartissent autour de deux magnifiques patios à la végétation luxuriante. Son Rooftop, avec sa vue spectaculaire sur l’océan , les remparts, les toits de la médina, est…",
+      "Côté prestations, on retient en priorité rooftop, vue sur mer.",
+      "Côté retours clients, un avis résume bien l'expérience : « L'un des meilleurs endroits où vous pourriez séjourner à Essaouira - décor et service magnifiques »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "0104c487-d5b8-4a1c-959b-626b348e589f",
+    pretitle: "Medina, Essaouira",
+    title: "Riad Saltana — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Riad Saltana fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Le charme d’un riad aux couleurs fraîches et apaisantes avec vue panoramique sur l’Océan. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Dans l’ancienne médina d’Essaouira (Mogador), à deux pas de la Skala des remparts et idéalement situé entre le port, la plage et les souks, venez découvrir les charmes d’un riad aux couleurs fraîches et apaisantes, possédant l’une des plus belles terrasses avec vue panoramique sur l’Océan. Venez rêver devant l’écume des vagues sur les rochers, vous ressourcer dans l’ambiance intimiste d’un petit salon d’inspiration tropicale… Géraldine vous reçoit dans ce riad entièrement rénové en mai 2015 selon des critères de qualité européennes, riad possédant un excellent emplacement pour qui veut résider au calme au cœur de la ville. Le riad est une ancienne maison de charme, disposant de chambres doubles et triples confortables. Une autre terrasse à l’abri du vent vous accueille également au niveau intermédiaire. Vous y trouverez l’architecture…",
+      "Côté prestations, on retient en priorité vue sur mer, rooftop, petit-déjeuner inclus.",
+      "Côté retours clients, un avis résume bien l'expérience : « Le monsieur responsable était super accueillant et serviable. Il nous a aidés avec nos bagages et avec les indications pour notre Airbnb d'un mois. Le petit-déjeuner sur le toit était également charmant. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "ecb45006-fc29-43f3-a3ba-69899c6556c7",
+    pretitle: "Medina, Essaouira",
+    title: "Riad Diamant Blanc — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Riad Diamant Blanc fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Sols en terre cuite naturelle, murs patinés au tadelakt, , décoration finement soignée, un authentique écrin de volupté. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Au coeur de la Médina, entouré des parfums de menthe et d’orange du souk, ce riad a été restauré dans la pure tradition marocaine. Sols en terre cuite naturelle, murs patinés au tadelakt, décoration finement soignée. Le Riad Diamant Blanc est un authentique écrin de volupté. Nichée dans l'océan atlantique, fière de ses musiques et de son authenticité, Essaouira vous livre ses secrets cachés dans les vielles ruelles de la Médina, qui vous chuchotent mille et une histoires. Riad Diamant Blanc , une vraie perle avec ses particularités, est une conjugaison parfaite de ces mystères. Entre la grandeur d'un palais et le charme d'une résidence privée, notre Riad vous garantira un voyage fabuleux entre l'Ouest et l'Andalousie, entre l'Ouest et l'Orient. Vous y découvrirez le traditionnel et l'original et vous ne gagnerez en frappant à notre porte…",
+      "Côté prestations, on retient en priorité vue sur mer, rooftop, petit-déjeuner inclus.",
+      "Côté retours clients, un avis résume bien l'expérience : « Le point fort de mon voyage au Maroc a été ce Riad. Le personnel, Yosef et Koltum, m'a fait me sentir chez moi, ils m'ont gâté. C'est spacieux, propre, lumineux, et le petit-déjeuner sur le toit est la cerise sur le gâteau, merci à tous et à bientôt »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "01420667-6c35-4aa1-94b1-d296952e7f53",
+    pretitle: "Plage, Essaouira",
+    title: "Villa Quieta — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Plage, à Essaouira, Villa Quieta fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Ancien palais familial avec piscine extérieure dans un vaste jardin arboré et fleuri et accès direct à la plage. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Ancien palais familial vous enchantera par son architecture traditionnelle avec tout le confort moderne et sa piscine extérieure dans un vaste jardin arboré et fleuri. L’établissement offre une connexion wifi gratuite, un service d’étage et un parking privé gratuit. Situé à 13 km de l’aéroport d’Essaouira, région prisée par les amateurs de golf situé à 10 mn. Proche de l’océan, de ses plages à perte de vue, vous pourrez jouir de diverses activités nautiques telles que windsurf, kitesurf et surf. La décoration en fait un véritable musée des arts anciens du Maroc, vous serez émerveillés par la beauté et la rareté des œuvres anciennes exposées. Une quinzaine de grandes chambres dont 2 suites spacieuses et élégantes, toutes admirablement meublées en bois de thuya. Excellent service et accueil chaleureux des propriétaires Imane et Mourad qui…",
+      "Côté prestations, on retient en priorité piscine, accès plage, vue sur mer, jardin, terrasse. Logistique sur place : accessible aux personnes à mobilité réduite, parking clients.",
+      "Côté retours clients, un avis résume bien l'expérience : « Un endroit vraiment charmant et paisible (Villa Quieta signifie « Villa Tranquille » en italien). C'est une ancienne maison privée, magnifiquement meublée tant dans les chambres que dans les espaces communs, avec une petite piscine abritée par le vent nichée dans un joli jardin. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "048f0805-4075-45ae-abf3-6aaca9cc4882",
+    pretitle: "Medina, Essaouira",
+    title: "Villa Maroc — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Medina, à Essaouira, Villa Maroc fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Bienvenue à la Villa Maroc, un havre de paix pour nos hôtes, séjournant dans la ville côtière d'Essaouira. Imprégnés d'histoire, d'art, et d'un profond respect et d'une grande admiration pour l'artisanat marocain, nos quatre riads ont été soigneusement restaurés, alliant tradition et élégance contemporaine. Située au cœur de la médina d'Essaouira, classée au patrimoine mondial de l'UNESCO, à quelques minutes seulement de la plage. La Villa Maroc est à deux pas des principaux sites de la ville, ce qui en fait le point de départ idéal pour explorer les merveilles de la région. Nous invitons nos hôtes à découvrir les multiples facettes de la propriété : le charme unique de nos chambres, la vue imprenable depuis notre terrasse panoramique sur le toit, un soin relaxant dans notre spa oriental, ou un délicieux repas dans notre restaurant…",
+      "Côté prestations, on retient en priorité rooftop, vue sur mer.",
+      "Côté retours clients, un avis résume bien l'expérience : « Nous n'aurions pas pu rêver d'un séjour plus enchanteur et délicieux ! Villa Maroc est située en plein cœur de la Médina et offre également une vue imprenable sur l'océan. Le service était exceptionnel et la nourriture délicieuse. C'est une expérience incontournable ! »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+  {
+    id: "04e08ef3-cd54-4091-876a-6822518c84a7",
+    pretitle: "Sidi Kaouki, Essaouira",
+    title: "Mellow Beach House — vue sur l'océan à Essaouira",
+    hours: "Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    paragraphs: [
+      "À Sidi Kaouki, à Essaouira, Mellow Beach House fait partie de ces adresses où la vue sur l'océan devient le décor permanent du séjour. La signature de la maison résume bien l'esprit du lieu : « Maison d'hôtes - Restauration - Coucher de soleil - Yoga et surf - Privatisation - Événements et plus encore. ». Essaouira a cette manière d'imposer son rythme — le vent des alizés, le bruit des mouettes, la lumière qui se déplace sur la médina blanche — et les hôtels qui ont su capter ce dialogue avec l'Atlantique en sortent transformés.",
+      "Construite dans le style traditionnel « beldi » en pierre, en terre et en bois, la maison est un véritable havre de paix écologique. Électricité solaire, recyclage de l'eau, toilettes sèches et compostage font partie intégrante du confort. Avec ses 7 chambres organisées autour de deux patios, elle peut accueillir jusqu'à 22 personnes. De nombreux coins douillets invitent à la détente, au soleil ou à l'ombre, à l'intérieur comme à l'extérieur. La terrasse offre une vue imprenable sur l'océan et la campagne, et dispose de salons de jardin paisibles. Un coin feu de camp avec un canapé confortable et une petite piscine pour se rafraîchir complètent ce cadre idyllique. Et pour les adeptes d'un shopping éco-responsable, une petite boutique propose des articles locaux et recyclés. Cuisine locale Savourez une délicieuse cuisine traditionnelle,…",
+      "Côté prestations, on retient en priorité jardin, terrasse, vue sur mer. Logistique sur place : engagement éco-responsable, transfert aéroport, parking clients.",
+      "Côté retours clients, un avis résume bien l'expérience : « Nous sommes venus pour un séjour en famille en juillet dans cette maison incroyable. »",
+      "Horaires & accueil : Hôtel ouvert 24h/24, réception accessible toute la journée.",
+    ],
+  },
+];
+
+const HotelsRiadsVueMerEssaouira = () => (
+  <BlogArticleTemplate
+    entries={HOTELS}
+    articlePath="/blog/hotels-riads-vue-mer-essaouira"
+    articleTitle="Hôtels & Riads avec vue sur mer à Essaouira"
+    articleDescription="Trente-deux hôtels, riads, villas et écolodges à Essaouira et autour — tous avec vue sur l'océan : médina, plage, Sidi Kaouki, Moulay Bouzerktoun ou Diabat. Notre sélection immersive pour dormir face à l'Atlantique."
+    bookmarkSlug="hotels-riads-vue-mer-essaouira"
+    heroAlt="Hôtels & Riads avec vue sur mer à Essaouira"
+    heroTitleTop="Hôtels & Riads"
+    heroTitleBottom="avec vue sur mer à Essaouira"
+    heroSubtitle="Trente-deux adresses face à l'Atlantique — riads de la médina, hôtels de la plage, villas de Moulay Bouzerktoun ou écolodges de Sidi Kaouki, toutes avec vue sur mer."
+    intro="À Essaouira, la vue sur mer n'est pas un argument marketing : c'est le décor même de la ville. Le vent des alizés, le bleu profond de l'Atlantique, la silhouette des îles Purpuraires au loin, la médina blanche posée comme une vigie face à l'océan — l'expérience commence à la fenêtre de la chambre. Voici notre sélection de trente-deux adresses où dormir face à l'eau : riads intimistes de la médina, hôtels de la plage, villas isolées de Moulay Bouzerktoun, écolodges de Sidi Kaouki ou refuges de Ghazoua. Toutes ont en commun ce service qui change tout : la vue sur mer."
+    datePublished="2026-06-13T10:00:00+01:00"
+  />
+);
+
+export default HotelsRiadsVueMerEssaouira;
