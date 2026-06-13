@@ -185,7 +185,7 @@ const StaffHub = () => {
   const sections = allSections.filter((s) => !s.adminOnly || isAdmin);
 
   return (
-    <div className="min-h-screen bg-muted">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-foreground">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
