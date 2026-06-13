@@ -55,9 +55,9 @@ const BlogTypography = () => {
                   <td className="p-3 font-josefin text-lg text-foreground" style={{ letterSpacing: "0.08em" }}>Marrakech</td>
                 </tr>
                 <tr>
-                  <td className="p-3 font-medium text-foreground">Roboto</td>
+                  <td className="p-3 font-medium text-foreground">Avenir <span className="text-xs text-muted-foreground">(fallback Nunito Sans)</span></td>
                   <td className="p-3 text-muted-foreground">Corps de texte (<code className="bg-muted px-1 rounded text-xs">body</code>) + titres globaux <code className="bg-muted px-1 rounded text-xs">h1/h2/h3</code></td>
-                  <td className="p-3 text-muted-foreground">300, 400, 500, 700, 400i</td>
+                  <td className="p-3 text-muted-foreground">Système / Nunito Sans 300, 400, 500, 700, 400i</td>
                   <td className="p-3 font-roboto text-lg text-foreground">Essaouira la Mogador</td>
                 </tr>
                 <tr>
@@ -103,7 +103,7 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <div className="flex items-baseline justify-between mb-3">
                 <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;h4&gt; &lt;h5&gt; &lt;h6&gt;</code>
-                <span className="text-xs text-muted-foreground">Pas de style global — héritent du body (Roboto)</span>
+                <span className="text-xs text-muted-foreground">Pas de style global — héritent du body (Avenir)</span>
               </div>
               <h4 className="text-xl font-semibold text-foreground mb-1">H4 — {sampleText}</h4>
               <h5 className="text-lg font-semibold text-foreground mb-1">H5 — {sampleText}</h5>
@@ -149,7 +149,7 @@ const BlogTypography = () => {
               </div>
               <div className="space-y-2 text-foreground">
                 <p><strong>strong — texte en gras</strong></p>
-                <p><em>em — texte en italique (Roboto italic 400i chargé)</em></p>
+                <p><em>em — texte en italique (Avenir / Nunito Sans italic 400i)</em></p>
                 <p><small className="text-muted-foreground">small — métadonnées</small></p>
               </div>
             </div>
@@ -174,10 +174,10 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">font-roboto</code>
               <p className="font-roboto text-2xl mt-3 text-foreground">
-                Roboto — utilitaire Tailwind
+                Avenir — utilitaire Tailwind
               </p>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                tailwind.config.ts: fontFamily.roboto = ['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif, 'sans-serif']
+                tailwind.config.ts: fontFamily.roboto = ['Avenir Next','Avenir','Nunito Sans','system-ui','sans-serif']
               </div>
             </div>
 
@@ -194,8 +194,8 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">.prose-josefin-headings</code>
               <div className="prose-josefin-headings mt-3">
-                <h2 className="text-2xl text-foreground">Section en Josefin (uppercase)</h2>
-                <h3 className="text-xl text-foreground mt-2">Sous-section en Josefin</h3>
+                <h2 className="text-2xl text-foreground">Section en Montserrat (uppercase)</h2>
+                <h3 className="text-xl text-foreground mt-2">Sous-section en Montserrat</h3>
               </div>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
                 Utilisé dans les blocs de description riche (h2 = uppercase, h3 = casse normale)
@@ -241,7 +241,7 @@ const BlogTypography = () => {
         <section>
           <h2 className="text-2xl font-bold text-foreground mb-6">5. Poids de police (font-weight)</h2>
           <p className="text-muted-foreground mb-4 text-sm">
-            Montserrat n'est chargée qu'en 300/400/600 — Roboto en 300/400/500/700.
+            Montserrat n'est chargée qu'en 300/400/600 — Avenir s'appuie sur la stack système avec Nunito Sans (300/400/500/700) comme fallback web.
           </p>
           <div className="space-y-3">
             {[
@@ -289,7 +289,7 @@ const BlogTypography = () => {
                 Les meilleures adresses
               </h2>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                h2 auto: Roboto 500 · tailles via classes Tailwind
+                h2 auto: Avenir 500 · tailles via classes Tailwind
               </div>
             </div>
 
@@ -298,7 +298,7 @@ const BlogTypography = () => {
               <h3 className="text-lg font-semibold text-foreground">Restaurant Le Jardin</h3>
               <p className="text-sm text-muted-foreground mt-1">Marrakech · Gastronomie</p>
               <div className="mt-3 p-3 bg-muted/50 rounded text-xs font-mono text-muted-foreground">
-                h3 auto: Roboto 500 · p: Roboto · text-sm text-muted-foreground
+                h3 auto: Avenir 500 · p: Avenir · text-sm text-muted-foreground
               </div>
             </div>
 
