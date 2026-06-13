@@ -1,43 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useSEO } from "@/hooks/useSEO";
-import { businessUrl } from "@/lib/businessUrl";
-import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
-import Footer from "@/components/Footer";
-import { Card, CardContent } from "@/components/ui/card";
-import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
-import { useGeolocation } from "@/hooks/useGeolocation";
-import { useArticleBookmark } from "@/hooks/useArticleBookmark";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark } from "lucide-react";
-import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
-import ClubLoginPopup from "@/components/club/ClubLoginPopup";
-
-interface Business {
-  id: string;
-  name: string;
-  slug: string | null;
-  neighborhood: string | null;
-  city: string | null;
-  images: string[] | null;
-  rating: number | null;
-  categories: string[] | null;
-  hook_fr: string | null;
-  wtuce_status: string | null;
-  latitude: number | null;
-  longitude: number | null;
-}
+import BlogArticleTemplate, { type BlogArticleEntry } from "@/components/blog/BlogArticleTemplate";
 
 // Texte immersif rédigé à partir des descriptions, avis clients et horaires de chaque fiche.
-const FERMES: {
-  id: string;
-  extraIds?: string[];
-  pretitle: string;
-  title: string;
-  hours: string;
-  paragraphs: string[];
-}[] = [
+const FERMES: BlogArticleEntry[] = [
   {
     id: "2fdb1f15-4a02-40b4-b344-0ffc0c2e1abd",
     pretitle: "À quelques minutes de Marrakech",
