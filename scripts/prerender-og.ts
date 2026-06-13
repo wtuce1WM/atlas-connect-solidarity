@@ -80,13 +80,6 @@ export function prerenderOgPlugin(): Plugin {
     name: "prerender-og",
     apply: "build",
     async closeBundle() {
-      const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-      const ANON = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      if (!SUPABASE_URL || !ANON) {
-        console.warn("[prerender-og] Missing VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY — skipping.");
-        return;
-      }
-
       const distDir = path.resolve(process.cwd(), "dist");
       const indexPath = path.join(distDir, "index.html");
       if (!existsSync(indexPath)) {
@@ -95,29 +88,38 @@ export function prerenderOgPlugin(): Plugin {
       }
       const template = await readFile(indexPath, "utf8");
 
-      const headers = { apikey: ANON, Authorization: `Bearer ${ANON}` };
+      const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+      const ANON = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const headers = SUPABASE_URL && ANON ? { apikey: ANON, Authorization: `Bearer ${ANON}` } : null;
 
-      // Paginate businesses (active only)
+      // Paginate businesses (active only). If backend env vars are missing,
+      // still prerender static article routes below instead of skipping all SEO.
       const businesses: BizRow[] = [];
       const PAGE = 1000;
-      for (let offset = 0; ; offset += PAGE) {
-        const url = `${SUPABASE_URL}/rest/v1/businesses?select=id,slug,name,city,description,hook_fr,images&is_active=eq.true&order=id&limit=${PAGE}&offset=${offset}`;
-        const r = await fetch(url, { headers });
-        if (!r.ok) throw new Error(`[prerender-og] businesses fetch failed: ${r.status}`);
-        const rows = (await r.json()) as BizRow[];
-        businesses.push(...rows);
-        if (rows.length < PAGE) break;
+      if (SUPABASE_URL && headers) {
+        for (let offset = 0; ; offset += PAGE) {
+          const url = `${SUPABASE_URL}/rest/v1/businesses?select=id,slug,name,city,description,hook_fr,images&is_active=eq.true&order=id&limit=${PAGE}&offset=${offset}`;
+          const r = await fetch(url, { headers });
+          if (!r.ok) throw new Error(`[prerender-og] businesses fetch failed: ${r.status}`);
+          const rows = (await r.json()) as BizRow[];
+          businesses.push(...rows);
+          if (rows.length < PAGE) break;
+        }
+      } else {
+        console.warn("[prerender-og] Missing backend env vars — skipping business/DB-backed pages, keeping static article prerender.");
       }
 
       // All business vanity URLs
       const vanity: VanityRow[] = [];
-      for (let offset = 0; ; offset += PAGE) {
-        const url = `${SUPABASE_URL}/rest/v1/vanity_urls?select=slug,target_id&target_type=eq.business&order=target_id&limit=${PAGE}&offset=${offset}`;
-        const r = await fetch(url, { headers });
-        if (!r.ok) throw new Error(`[prerender-og] vanity fetch failed: ${r.status}`);
-        const rows = (await r.json()) as VanityRow[];
-        vanity.push(...rows);
-        if (rows.length < PAGE) break;
+      if (SUPABASE_URL && headers) {
+        for (let offset = 0; ; offset += PAGE) {
+          const url = `${SUPABASE_URL}/rest/v1/vanity_urls?select=slug,target_id&target_type=eq.business&order=target_id&limit=${PAGE}&offset=${offset}`;
+          const r = await fetch(url, { headers });
+          if (!r.ok) throw new Error(`[prerender-og] vanity fetch failed: ${r.status}`);
+          const rows = (await r.json()) as VanityRow[];
+          vanity.push(...rows);
+          if (rows.length < PAGE) break;
+        }
       }
 
       const byId = new Map(businesses.map((b) => [b.id, b]));
