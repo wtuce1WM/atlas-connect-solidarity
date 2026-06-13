@@ -236,13 +236,15 @@ export function prerenderOgPlugin(): Plugin {
 
       // DB-backed blog posts — fully dynamic, no code edit needed when a new article is published.
       const blogPosts: BlogRow[] = [];
-      for (let offset = 0; ; offset += PAGE) {
-        const url = `${SUPABASE_URL}/rest/v1/blog_posts?select=slug,title_fr,excerpt_fr,content_fr,cover_image_url&is_published=eq.true&order=slug&limit=${PAGE}&offset=${offset}`;
-        const r = await fetch(url, { headers });
-        if (!r.ok) { console.warn(`[prerender-og] blog_posts fetch failed: ${r.status}`); break; }
-        const rows = (await r.json()) as BlogRow[];
-        blogPosts.push(...rows);
-        if (rows.length < PAGE) break;
+      if (SUPABASE_URL && headers) {
+        for (let offset = 0; ; offset += PAGE) {
+          const url = `${SUPABASE_URL}/rest/v1/blog_posts?select=slug,title_fr,excerpt_fr,content_fr,cover_image_url&is_published=eq.true&order=slug&limit=${PAGE}&offset=${offset}`;
+          const r = await fetch(url, { headers });
+          if (!r.ok) { console.warn(`[prerender-og] blog_posts fetch failed: ${r.status}`); break; }
+          const rows = (await r.json()) as BlogRow[];
+          blogPosts.push(...rows);
+          if (rows.length < PAGE) break;
+        }
       }
       const staticSlugs = new Set(staticArticles.map((a) => a.path.replace(/^blog\//, "")));
       for (const post of blogPosts) {
