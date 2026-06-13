@@ -37,6 +37,11 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         { to: "/card", label: "Votre carte de visite numérique" },
         { to: "/devenir-affilie", label: "Devenir affilié" },
       ];
+    } else if (location.pathname === "/card") {
+      return [
+        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/devenir-affilie", label: "Devenir affilié" },
+      ];
     } else {
       return [
         { to: "/corporate", label: "Ajoutez votre entreprise" },
@@ -59,6 +64,12 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       return [
         ...base,
         { to: "/card", label: "Votre carte de visite numérique" },
+        { to: "/devenir-affilie", label: "Devenir affilié" },
+      ];
+    } else if (location.pathname === "/card") {
+      return [
+        ...base,
+        { to: "/corporate", label: "Ajoutez votre entreprise" },
         { to: "/devenir-affilie", label: "Devenir affilié" },
       ];
     } else {
