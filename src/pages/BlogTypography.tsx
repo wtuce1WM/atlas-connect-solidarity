@@ -103,7 +103,7 @@ const BlogTypography = () => {
             <div className="border border-border rounded-lg p-6">
               <div className="flex items-baseline justify-between mb-3">
                 <code className="bg-muted px-2 py-1 rounded text-xs text-foreground">&lt;h4&gt; &lt;h5&gt; &lt;h6&gt;</code>
-                <span className="text-xs text-muted-foreground">Pas de style global — héritent du body (Roboto)</span>
+                <span className="text-xs text-muted-foreground">Pas de style global — héritent du body (Avenir)</span>
               </div>
               <h4 className="text-xl font-semibold text-foreground mb-1">H4 — {sampleText}</h4>
               <h5 className="text-lg font-semibold text-foreground mb-1">H5 — {sampleText}</h5>
