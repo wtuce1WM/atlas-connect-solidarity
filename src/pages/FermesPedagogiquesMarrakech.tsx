@@ -25,6 +25,7 @@ interface Business {
 // Texte immersif rédigé à partir des descriptions, avis clients et horaires de chaque fiche.
 const FERMES: {
   id: string;
+  extraIds?: string[];
   pretitle: string;
   title: string;
   hours: string;
@@ -68,9 +69,70 @@ const FERMES: {
       "Pour les enfants, c'est une initiation parfaite à la botanique : on sent, on touche, on apprend en marchant. Pour les adultes, c'est un havre de paix, un endroit où ralentir et renouer avec ses cinq sens. À ne pas manquer en complément d'une journée dans la vallée de l'Ourika.",
     ],
   },
+  {
+    id: "4006627d-07f4-4e52-9118-134f253b9ff4",
+    pretitle: "Route de Ouarzazate, au sud-est de Marrakech",
+    title: "Sanctuary Slimane — vingt ans de permaculture sur dix hectares régénérés",
+    hours: "Visites, programmes de volontariat et résidences d'artistes sur réservation.",
+    paragraphs: [
+      "Il y a un peu plus de vingt ans, ces dix hectares au sud-est de Marrakech n'étaient que terre sèche, sol fatigué, paysage minéral. Aujourd'hui, on y entre comme on entrerait dans une cathédrale végétale : un grand eucalyptus marque l'entrée, un poivrier veille sur le pavillon central, et plus de cinq mille arbres composent un écosystème qu'on imagine difficilement avoir été désertique. Sanctuary Slimane, c'est l'œuvre patiente d'Aziz Nahas, qui depuis 2000 mène ici un travail de régénération des sols devenu une référence au Maroc.",
+      "On vient ici pour comprendre, plus que pour visiter. Jardins potagers en lasagne, irrigation goutte-à-goutte, panneaux solaires, oliveraie de 2 500 arbres qui donne une huile extra-vierge pressée à froid : chaque détail du domaine raconte une décision pensée pour économiser l'eau, nourrir la terre et faire revenir la biodiversité. Les enfants apprennent ici autrement — en observant comment un sol vivant se construit, en touchant la paille des compostières, en suivant une coccinelle plutôt qu'un écran.",
+      "Le lieu accueille aussi des volontaires venus du monde entier, des résidences d'artistes, des projets communautaires. On y croise des graphistes, des cuisiniers, des permaculteurs, qui tous repartent avec la même impression : celle d'avoir vu, sur un seul terrain, la preuve qu'il est possible de réparer ce qu'on avait perdu.",
+      "Pour une famille, c'est une parenthèse rare : moins ferme de loisirs que ferme-école, Sanctuary Slimane offre une journée vraiment dépaysante, où les enfants comprennent — sans qu'on le leur dise — que la nature n'est pas un décor, mais un système qu'on cultive.",
+    ],
+  },
+  {
+    id: "9cd7bbfd-6ba0-48ba-8975-2806f435dc8d",
+    pretitle: "Route d'Amizmiz, à 25 minutes de Marrakech",
+    title: "Jardin Ocre — cinq hectares d'immersion entre nature, animaux et ateliers",
+    hours: "Ouvert du mardi au dimanche, de 9h00 à 18h00 — fermé le lundi.",
+    paragraphs: [
+      "On quitte la palmeraie, on file plein sud sur la route d'Amizmiz, et au bout de vingt-cinq minutes seulement le paysage se transforme : champs d'oliviers, lignes de l'Atlas en arrière-plan, lumière qui se met à dorer. C'est là, sur cinq hectares d'un vert presque irréel pour la région, que s'étire le Jardin Ocre — un parc nature et pédagogie pensé comme un écrin d'authenticité marocaine.",
+      "À l'intérieur, tout est conçu pour que les enfants courent, observent, fabriquent. Une grande volière abrite des oiseaux qu'on apprend à reconnaître ; un parc animalier permet d'approcher chèvres, ânes, lapins et poules ; un mur d'escalade, une fontaine et de larges allées ombragées tracent un parcours où l'on passe d'une découverte à l'autre sans s'en rendre compte. Les ateliers ludiques, encadrés par l'équipe, prennent le relais : peinture, plantations, petits gestes du jardin qui donnent aux enfants ce sentiment précieux d'avoir fait quelque chose de leurs mains.",
+      "L'adresse a aussi son restaurant, ouvert sur le jardin, où l'on déjeune en terrasse pendant que les plus jeunes repartent jouer. Cuisine simple, marocaine, produits du potager — exactement ce qu'on espère trouver dans une journée à la campagne.",
+      "C'est l'une des sorties les plus complètes autour de Marrakech : assez grande pour qu'on y reste la journée entière, assez douce pour qu'on en reparte reposé, assez pédagogique pour que les enfants en gardent un vrai souvenir.",
+    ],
+  },
+  {
+    id: "40ce92ad-408f-4c88-9fc1-2dc2e4a39aa2",
+    extraIds: ["6641945e-871c-4c2d-a9dc-a79490037a75"],
+    pretitle: "Route de Ouarzazate, à 35 km de Marrakech",
+    title: "Domaine Sauvage — la table d'hôtes d'une ferme de permaculture médaillée",
+    hours: "Déjeuners table d'hôtes (6 à 12 personnes), cours de cuisine et balades — uniquement sur réservation.",
+    paragraphs: [
+      "À 35 kilomètres de Marrakech, la route de Ouarzazate s'élève doucement vers les premiers contreforts du Haut Atlas. C'est là, au creux des montagnes, qu'une famille venue de Paris a planté un projet qui ressemble à une déclaration d'amour à la terre : le Domaine Sauvage, dix hectares de permaculture, une oliveraie travaillée sans labour, sans machine, sans aucun produit phytosanitaire, et qui produit une huile d'olive primeur si remarquable qu'elle a décroché la médaille d'or du prestigieux concours international BIOL 2022.",
+      "La maison, construite en terre avec les matériaux du site, ressemble à un refuge de montagne. C'est là, dans une grande cuisine extérieure ouverte sur l'immensité du paysage, que se vit le cœur de l'expérience : la table d'hôtes. Par petits groupes de six à douze convives venus de tous les continents, on commence la journée par une visite du potager, on cueille soi-même les légumes du déjeuner, on apprend les gestes de la cuisine marocaine, puis l'on s'installe — face aux montagnes — devant un repas où chaque plat raconte quelque chose de la terre qu'on vient de fouler.",
+      "Les enfants ne sont pas oubliés. Balades dans les dunes, découverte du potager, contact avec les animaux : ils touchent, sentent, goûtent, et comprennent par les sens d'où viennent les ingrédients qu'on retrouve dans l'assiette. C'est une pédagogie sans cours, plus efficace que n'importe quel discours.",
+      "Le domaine prolonge même son travail jusqu'au cœur de Marrakech avec l'« Organic Market Marrakech », où ses productions sont vendues deux fois par semaine. Mais c'est ici, sur place, qu'il faut venir : pour cette journée hors du temps, à mille lieues de la médina, où l'on repart avec la sensation rare d'avoir compris ce que veut dire « manger ce que la terre donne ».",
+    ],
+  },
+  {
+    id: "4441008c-7e98-4a0f-b48d-0544772ab3e8",
+    pretitle: "Route de Ouarzazate, à 15 minutes du centre",
+    title: "La Perle aux Oiseaux — le premier refuge de faune sauvage de Marrakech",
+    hours: "Ouvert du mardi au dimanche, de 10h30 à 18h00 — fermé le lundi. Uniquement sur réservation.",
+    paragraphs: [
+      "À quinze minutes seulement du centre de Marrakech, on bifurque vers un domaine de trois hectares où le mot « zoo » ne veut plus dire la même chose. La Perle aux Oiseaux n'est pas un parc d'attractions ; c'est un refuge — le premier refuge de faune sauvage de la région — où plus d'une centaine d'espèces, toutes arrivées avec leur histoire, trouvent un cadre paisible pour se rétablir, vivre, et parfois simplement vieillir en paix.",
+      "On y entre uniquement sur réservation, et c'est tant mieux. Le rythme y est lent, respectueux, en accord avec celui des animaux convalescents. Les enfants découvrent une faune qu'ils n'auraient jamais croisée autrement : oiseaux exotiques, reptiles, mammifères de toutes tailles, présentés non comme des curiosités mais comme des êtres avec un passé. L'équipe, passionnée, prend le temps d'expliquer : d'où vient cet animal, pourquoi il est là, ce qu'on fait pour lui.",
+      "L'esprit du lieu se résume en deux mots : protection et éducation. Protéger une biodiversité fragile, éduquer le public à la comprendre — c'est la mission revendiquée du refuge, et elle se ressent à chaque étape de la visite. Aucun show, aucune mise en scène : juste une vraie rencontre, dans un cadre naturel et ressourçant.",
+      "Pour boire un café, grignoter ou rapporter un petit souvenir, un snack-bar est installé sur place — sobre, à l'image du lieu. C'est l'adresse parfaite pour une matinée ou un après-midi en famille, à la fois douce, instructive et porteuse de sens.",
+    ],
+  },
+  {
+    id: "c03e0482-f26e-4664-9165-67e2c731ca4c",
+    pretitle: "Route d'Agadir, à la sortie de Marrakech",
+    title: "Secret Family Farm — la petite ferme cachée où les enfants se dépensent",
+    hours: "Ouvert tous les jours, de 10h00 à 18h30.",
+    paragraphs: [
+      "Le nom dit tout ou presque : Secret Family Farm est l'une de ces adresses qu'on se passe entre parents, presque à voix basse, comme un bon plan qu'on aurait peur de voir s'éventer. Sur la route d'Agadir, à la sortie de Marrakech, on pousse une grille discrète et l'on découvre un coin de campagne tranquille où les enfants peuvent enfin courir, grimper, sauter, sans qu'on leur dise non.",
+      "L'idée est simple : laisser les enfants se dépenser en liberté. Chèvres, poules, lapins se promènent autour d'eux ; ils les nourrissent, les caressent, apprennent leurs noms. Un espace est aménagé pour les ateliers créatifs — petites créations qu'on emporte fièrement dans le sac de plage — et la nature, partout autour, prend la suite du programme.",
+      "Ce qu'on aime ici, c'est l'échelle : tout est petit, familial, accessible. On n'y trouve pas la débauche d'activités d'un grand parc, mais c'est précisément ce qui fait son charme. Les parents s'installent à l'ombre, les enfants évoluent dans un périmètre rassurant, et la journée file sans qu'on y pense.",
+      "Une adresse à garder pour ces dimanches où l'on cherche juste un endroit calme, vert, où poser les enfants en sachant qu'ils vont y être heureux. Le mot « secret » du nom n'est presque pas usurpé : on en repart avec l'envie d'y revenir avant de le dire à trop de monde.",
+    ],
+  },
 ];
 
-const ALL_IDS = FERMES.map((f) => f.id);
+const ALL_IDS = FERMES.flatMap((f) => [f.id, ...(f.extraIds ?? [])]);
 
 const FermesPedagogiquesMarrakech = () => {
   const navigate = useNavigate();
