@@ -3,6 +3,7 @@ import { businessUrl } from "@/lib/businessUrl";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSEO } from "@/hooks/useSEO";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Loader2, ArrowLeft, Star, MapPin, ExternalLink } from "lucide-react";
