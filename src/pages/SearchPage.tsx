@@ -1411,6 +1411,11 @@ const SearchPage = () => {
      // Child tab components manage their own panel state now
    };
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+   const [geoPromptOpen, setGeoPromptOpen] = useState(false);
+   const [geoPromptDismissed, setGeoPromptDismissed] = useState(() => {
+     if (typeof window === "undefined") return false;
+     return sessionStorage.getItem("geo_prompt_dismissed") === "1";
+   });
     useEffect(() => {
       const h = () => setLocationDialogOpen(true);
       window.addEventListener("open-location-picker", h);
