@@ -3,6 +3,7 @@ import { businessUrl } from "@/lib/businessUrl";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSEO } from "@/hooks/useSEO";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Loader2, ArrowLeft, Star, MapPin, ExternalLink } from "lucide-react";
@@ -36,12 +37,46 @@ interface Gamme {
   text_color_hex: string | null;
 }
 
+const SITE_URL = "https://oneworldmorocco.com";
+const ARTICLE_PATH = "/blog/essaouira-vue-mer";
+const ARTICLE_TITLE = "Les adresses avec vue sur mer à Essaouira";
+const ARTICLE_DESCRIPTION =
+  "Notre sélection des meilleures adresses face à l'océan à Essaouira : hôtels, restaurants, cafés et rooftops pour profiter de la brise atlantique.";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-image.jpg`;
+
 const EssaouiraSeaView = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const seoImage = businesses[0]?.images?.[0] || DEFAULT_OG_IMAGE;
+
+  useSEO({
+    title: ARTICLE_TITLE,
+    description: ARTICLE_DESCRIPTION,
+    canonical: ARTICLE_PATH,
+    ogImage: seoImage,
+    ogUrl: ARTICLE_PATH,
+    ogType: "article",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: ARTICLE_TITLE,
+      description: ARTICLE_DESCRIPTION,
+      image: [seoImage],
+      datePublished: "2026-06-12T08:00:00+01:00",
+      dateModified: "2026-06-13T08:00:00+01:00",
+      author: { "@type": "Organization", name: "ONE WORLD MOROCCO", url: SITE_URL },
+      publisher: {
+        "@type": "Organization",
+        name: "ONE WORLD MOROCCO",
+        logo: { "@type": "ImageObject", url: DEFAULT_OG_IMAGE },
+      },
+      mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${ARTICLE_PATH}` },
+    },
+  });
 
   useEffect(() => {
     const fetchData = async () => {

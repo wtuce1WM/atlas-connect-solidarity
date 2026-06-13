@@ -124,6 +124,12 @@ const DAYS: { title: string; subtitle: string; ids: string[] }[] = [
 ];
 
 const ALL_IDS = DAYS.flatMap((d) => d.ids);
+const SITE_URL = "https://oneworldmorocco.com";
+const ARTICLE_PATH = "/blog/5-jours-marrakech-artisanat";
+const ARTICLE_TITLE = "5 jours à Marrakech pour découvrir l'artisanat marocain";
+const ARTICLE_DESCRIPTION =
+  "Itinéraire de 5 jours à Marrakech : 44 adresses sélectionnées (Guéliz, Médina, Sidi Ghanem) pour découvrir le meilleur de l'artisanat marocain.";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-image.jpg`;
 
 const MarrakechArtisanat5Jours = () => {
   const navigate = useNavigate();
@@ -132,11 +138,34 @@ const MarrakechArtisanat5Jours = () => {
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const seoImage =
+    businesses[ALL_IDS[0]]?.images?.[0] ||
+    businesses[ALL_IDS[1]]?.images?.[0] ||
+    DEFAULT_OG_IMAGE;
+
   useSEO({
-    title: "5 jours à Marrakech pour découvrir l'artisanat marocain",
-    description:
-      "Itinéraire de 5 jours à Marrakech : 44 adresses sélectionnées (Guéliz, Médina, Sidi Ghanem) pour découvrir le meilleur de l'artisanat marocain.",
-    canonical: "/blog/5-jours-marrakech-artisanat",
+    title: ARTICLE_TITLE,
+    description: ARTICLE_DESCRIPTION,
+    canonical: ARTICLE_PATH,
+    ogImage: seoImage,
+    ogUrl: ARTICLE_PATH,
+    ogType: "article",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: ARTICLE_TITLE,
+      description: ARTICLE_DESCRIPTION,
+      image: [seoImage],
+      datePublished: "2026-06-12T08:00:00+01:00",
+      dateModified: "2026-06-13T08:00:00+01:00",
+      author: { "@type": "Organization", name: "ONE WORLD MOROCCO", url: SITE_URL },
+      publisher: {
+        "@type": "Organization",
+        name: "ONE WORLD MOROCCO",
+        logo: { "@type": "ImageObject", url: DEFAULT_OG_IMAGE },
+      },
+      mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${ARTICLE_PATH}` },
+    },
   });
 
   useEffect(() => {

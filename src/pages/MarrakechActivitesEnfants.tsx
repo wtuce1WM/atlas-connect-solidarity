@@ -36,6 +36,13 @@ interface Gamme {
   color_hex: string | null;
 }
 
+const SITE_URL = "https://oneworldmorocco.com";
+const ARTICLE_PATH = "/blog/activites-enfants-marrakech";
+const ARTICLE_TITLE = "Activités pour les enfants à Marrakech";
+const ARTICLE_DESCRIPTION =
+  "Notre sélection d'activités et d'adresses pour les enfants à Marrakech : parcs aquatiques, ateliers, kids clubs, restaurants familiaux et plus.";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-image.jpg`;
+
 const MarrakechActivitesEnfants = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -43,11 +50,31 @@ const MarrakechActivitesEnfants = () => {
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const seoImage = businesses.find((b) => b.images?.length)?.images?.[0] || DEFAULT_OG_IMAGE;
+
   useSEO({
-    title: "Activités pour les enfants à Marrakech",
-    description:
-      "Notre sélection d'activités et d'adresses pour les enfants à Marrakech : parcs aquatiques, ateliers, kids clubs, restaurants familiaux et plus.",
-    canonical: "/blog/activites-enfants-marrakech",
+    title: ARTICLE_TITLE,
+    description: ARTICLE_DESCRIPTION,
+    canonical: ARTICLE_PATH,
+    ogImage: seoImage,
+    ogUrl: ARTICLE_PATH,
+    ogType: "article",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: ARTICLE_TITLE,
+      description: ARTICLE_DESCRIPTION,
+      image: [seoImage],
+      datePublished: "2026-06-12T08:00:00+01:00",
+      dateModified: "2026-06-13T08:00:00+01:00",
+      author: { "@type": "Organization", name: "ONE WORLD MOROCCO", url: SITE_URL },
+      publisher: {
+        "@type": "Organization",
+        name: "ONE WORLD MOROCCO",
+        logo: { "@type": "ImageObject", url: DEFAULT_OG_IMAGE },
+      },
+      mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${ARTICLE_PATH}` },
+    },
   });
 
   useEffect(() => {
