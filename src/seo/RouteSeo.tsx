@@ -2,6 +2,24 @@ import { useLocation, matchPath } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { PAGE_META } from "./pageMeta";
 
+// Routes that manage their own SEO dynamically via useSEO (data-driven titles,
+// descriptions, OG images, JSON-LD). RouteSeo must NOT inject a generic
+// fallback for these — it would race with useSEO and clobber the real meta.
+const DYNAMIC_PATTERNS = new Set([
+  "/blog/:slug",
+  "/fiche/:slug",
+  "/business/:slug",
+  "/category/:categoryName",
+  "/subcategory/:subcategoryName",
+  "/service/*",
+  "/city/:city",
+  "/neighborhood/:neighborhood",
+  "/destination/:destinationName",
+  "/y/:slug",
+  "/u/:pseudo",
+  "/:vanitySlug",
+]);
+
 // Ordered list of route patterns (most specific first) so /blog/typographie
 // wins over /blog/:slug, etc. We exclude the bare "*" sentinel and
 // "/:vanitySlug" from the priority list — they're tried last.
@@ -28,8 +46,10 @@ export function resolveRouteMeta(pathname: string) {
 
 export default function RouteSeo() {
   const { pathname } = useLocation();
-  const { meta } = resolveRouteMeta(pathname);
+  const { pattern, meta } = resolveRouteMeta(pathname);
   if (!meta) return null;
+  // Skip injection for routes that own their SEO dynamically (via useSEO).
+  if (DYNAMIC_PATTERNS.has(pattern)) return null;
   return (
     <Helmet>
       <title>{meta.title}</title>
