@@ -16,8 +16,8 @@ const BEACH_CLUBS: BlogArticleEntry[] = [
   },
   {
     id: "f31d6fbc-5eb9-48c6-b9aa-32745bf550c7",
-    pretitle: "Route d'Agadir, à la sortie de Marrakech",
-    title: "La Secret Beach — la piscine 100 % femmes au sud de la ville",
+    pretitle: "Route d'Agadir, aux portes de Marrakech",
+    title: "La Secret Beach — la piscine 100 % femmes aux portes de la ville",
     hours: "Ouvert tous les jours, de 10h30 à 18h30. Parking clients, accès PMR. Réservé aux femmes.",
     paragraphs: [
       "« Pas de garçons, pas de stress, juste du soleil. » La signature de La Secret Beach pose le décor en une ligne : sur la route d'Agadir, à la sortie de Marrakech, ce beach club est l'un des rares de la région à proposer une piscine chauffée 100 % femmes. On y vient pour souffler, lire, nager sans regards, fêter un anniversaire, un EVJF ou un baptême dans un cadre exclusivement féminin — l'adresse se privatise aussi à la demande.",
