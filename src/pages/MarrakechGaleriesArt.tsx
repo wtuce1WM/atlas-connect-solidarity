@@ -301,7 +301,7 @@ const MarrakechGaleriesArt = () => {
                         id={`entry-${b.id}`}
                         onClick={() => {
                           try {
-                            sessionStorage.setItem("returnToBlogPath", RETURN_PATH);
+                            sessionStorage.setItem("returnToBlogPath", ARTICLE_PATH);
                             sessionStorage.setItem("returnToBlogEntryId", b.id);
                           } catch {}
                         }}
