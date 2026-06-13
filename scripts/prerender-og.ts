@@ -132,7 +132,41 @@ export function prerenderOgPlugin(): Plugin {
         if (biz.slug) await writeOne(`fiche/${biz.slug}`, biz);
       }
 
-      console.log(`[prerender-og] Wrote ${written} static OG shells for ${businesses.length} businesses.`);
+      // Static blog articles (custom React pages, not DB-backed).
+      // For each one, write a prerendered shell so social crawlers and
+      // Google's Rich Results test see the right title/description/og:image
+      // without executing JS.
+      const staticArticles: Array<{
+        path: string;
+        title: string;
+        description: string;
+        image?: string;
+      }> = [
+        {
+          path: "blog/fermes-pedagogiques-marrakech",
+          title: `Les fermes pédagogiques à Marrakech — ${SITE}`,
+          description:
+            "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
+        },
+      ];
+
+      let articlesWritten = 0;
+      for (const a of staticArticles) {
+        const url = `${BASE}/${a.path}`;
+        const html = rewriteHead(template, {
+          title: a.title,
+          description: a.description.substring(0, 200),
+          image: a.image || DEFAULT_IMG,
+          url,
+        });
+        const dir = path.join(distDir, a.path);
+        await mkdir(dir, { recursive: true });
+        await writeFile(path.join(dir, "index.html"), html, "utf8");
+        articlesWritten++;
+      }
+
+      console.log(`[prerender-og] Wrote ${written} business OG shells + ${articlesWritten} blog article shells.`);
+
     },
   };
 }
