@@ -803,9 +803,10 @@ const HomeMindtrip = () => {
             {latestPosts.map((a) => (
               <Link
                 key={a.slug}
-                to={`/blog/${a.slug}`}
+                to={a.slug}
                 className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted"
               >
+
                 {a.image ? (
                   <img
                     src={a.image}
