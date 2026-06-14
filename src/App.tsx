@@ -42,6 +42,7 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const MarrakechArtisanat5Jours = lazy(() => import("./pages/MarrakechArtisanat5Jours"));
 const MarrakechGaleriesArt = lazy(() => import("./pages/MarrakechGaleriesArt"));
 const FermesPedagogiquesMarrakech = lazy(() => import("./pages/FermesPedagogiquesMarrakech"));
+const ActivitesEnfantsMarrakech = lazy(() => import("./pages/ActivitesEnfantsMarrakech"));
 const ArtisanatMedinaMarrakech = lazy(() => import("./pages/ArtisanatMedinaMarrakech"));
 const StreetFoodMarrakech = lazy(() => import("./pages/StreetFoodMarrakech"));
 const ShoppingFashionGueliz = lazy(() => import("./pages/ShoppingFashionGueliz"));
