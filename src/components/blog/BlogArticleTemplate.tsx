@@ -177,9 +177,9 @@ const BlogArticleTemplate = ({
 
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
-        {heroImageBusiness && (
+        {(customHeroImage || heroImageBusiness) && (
           <img
-            src={heroImageBusiness}
+            src={customHeroImage || heroImageBusiness}
             alt={heroAlt}
             className="absolute inset-0 w-full h-full object-cover"
           />
