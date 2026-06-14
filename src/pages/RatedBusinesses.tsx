@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
+import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import {
   Select,
   SelectContent,
@@ -218,10 +219,7 @@ const RatedBusinesses = () => {
 
   const hasFilters = selectedCity !== "all" || selectedCategory !== "all" || selectedSubcategory !== "all" || selectedService !== "all";
 
-  const heroImage =
-    filteredBusinesses[0]?.images?.[0] ||
-    businesses[0]?.images?.[0] ||
-    "https://oneworldmorocco.com/og-install-app.webp";
+  const heroImage = ratedHeroAsset.url;
 
   return (
     <div className="min-h-screen bg-background">
