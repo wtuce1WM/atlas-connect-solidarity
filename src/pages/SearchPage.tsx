@@ -1489,6 +1489,8 @@ const SearchPage = () => {
           return /(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 1;
         };
         const getScrollable = (target: EventTarget | null) => {
+          const mainPanelScroller = el.querySelector<HTMLElement>('[data-slidepanel-scroll="true"]');
+          if (mainPanelScroller && isScrollableY(mainPanelScroller)) return mainPanelScroller;
           if (!(target instanceof HTMLElement)) return null;
           let node: HTMLElement | null = target;
           while (node && node !== el) {
