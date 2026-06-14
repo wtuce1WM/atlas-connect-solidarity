@@ -50,11 +50,6 @@ export const PAGE_META: Record<string, PageMeta> = {
   },
 
   // Articles blog dédiés
-  "/blog/essaouira-vue-mer": {
-    title: `Essaouira vue mer — ${BRAND}`,
-    description:
-      "Notre sélection d'hôtels avec vue sur l'océan à Essaouira.",
-  },
   "/blog/5-jours-marrakech-artisanat": {
     title: `5 jours à Marrakech — artisanat — ${BRAND}`,
     description:
