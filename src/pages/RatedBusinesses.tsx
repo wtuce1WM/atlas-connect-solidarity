@@ -50,6 +50,7 @@ interface RatedBusiness {
 }
 
 const RatedBusinesses = () => {
+  const navigate = useNavigate();
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<RatedBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
