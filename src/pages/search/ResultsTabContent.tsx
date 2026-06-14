@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   DropdownMenu,
@@ -89,6 +89,7 @@ export interface ResultsTabContentProps {
   labelFromUrl?: string;
   userCoords?: { lat: number; lng: number } | null;
   belowCardsSlot?: React.ReactNode;
+  onRequestResultsScroll?: () => void;
 }
 
 export default function ResultsTabContent({
@@ -147,6 +148,7 @@ export default function ResultsTabContent({
   labelFromUrl,
   userCoords,
   belowCardsSlot,
+  onRequestResultsScroll,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [, setSearchParams] = useSearchParams();
@@ -221,31 +223,7 @@ export default function ResultsTabContent({
   }, [userCoords, filteredBusinesses, allSearchMapBusinesses, getDistanceKm]);
   const proximityHasAny = (proximityCountsByKm[10] ?? 0) > 0;
 
-  const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth") => {
-    const anchorEl =
-      resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
-      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
-      resultsBarRef.current ??
-      resultsRef.current;
-
-    if (!anchorEl) {
-      window.scrollTo({ top: 0, behavior });
-      return;
-    }
-
-    const stickyBottom = ["header", "[data-tab-bar]", "[data-results-bar]"]
-      .map((selector) => document.querySelector<HTMLElement>(selector))
-      .filter((el): el is HTMLElement => !!el && el.getBoundingClientRect().height > 0)
-      .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), 0);
-    const y = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom - 8;
-    window.scrollTo({ top: Math.max(0, y), behavior });
-  }, [resultsBarRef, resultsRef]);
-
-  const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth") => {
-    requestAnimationFrame(() => scrollToResultsGridTop(behavior));
-    window.setTimeout(() => scrollToResultsGridTop(behavior), 80);
-    window.setTimeout(() => scrollToResultsGridTop(behavior), 250);
-  }, [scrollToResultsGridTop]);
+  const requestResultsScroll = () => onRequestResultsScroll?.();
 
   useEffect(() => { if (compactPanelBusiness) setShowFiltersOverlay(false); }, [compactPanelBusiness]);
   useEffect(() => {
@@ -301,7 +279,7 @@ export default function ResultsTabContent({
         }, { replace: true });
       }
     }
-    scheduleResultsGridScroll("smooth");
+    requestResultsScroll();
   };
 
   const handleFsSubClick = (subId: string | null) => {
@@ -317,7 +295,7 @@ export default function ResultsTabContent({
       const sub = tab.subcategories.find(s => s.id === subId);
       onFrontStructureFilter?.(sub?.names || tab.subcategoryNames);
     }
-    scheduleResultsGridScroll("smooth");
+    requestResultsScroll();
   };
 
 
@@ -325,7 +303,7 @@ export default function ResultsTabContent({
     setActiveFsServices(svcs);
     onFrontStructureServicesFilter?.(svcs.length > 0 ? new Set(svcs) : null);
     onFrontStructureUserOverride?.(svcs.length > 0 || !!activeFsTabId || !!activeFsSubId);
-    scheduleResultsGridScroll("smooth");
+    requestResultsScroll();
   };
 
   // Reset active tab when city or search query changes
@@ -641,7 +619,7 @@ export default function ResultsTabContent({
                             onClick={() => {
                               if (activeFsSubId) handleFsSubClick(null);
                               if (showAllSearchMarkers) onToggleShowAllSearchMarkers?.();
-                              scheduleResultsGridScroll("smooth");
+                              requestResultsScroll();
                             }}
                             className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers && !activeFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                           >
@@ -652,7 +630,7 @@ export default function ResultsTabContent({
                             onClick={() => {
                               if (activeFsSubId) handleFsSubClick(null);
                               if (!showAllSearchMarkers) onToggleShowAllSearchMarkers?.();
-                              scheduleResultsGridScroll("smooth");
+                              requestResultsScroll();
                             }}
                             className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers && !activeFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                           >
@@ -751,7 +729,7 @@ export default function ResultsTabContent({
                                 {proximityKm != null && (
                                   <DropdownMenuItem onSelect={() => {
                                     setProximityKm(null);
-                                    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+                                    requestResultsScroll();
                                   }}>
                                     Toutes distances
                                   </DropdownMenuItem>
@@ -766,7 +744,7 @@ export default function ResultsTabContent({
                                       onSelect={(e) => {
                                         if (disabled) { e.preventDefault(); return; }
                                         setProximityKm(o.km);
-                                        requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+                                        requestResultsScroll();
                                       }}
                                       className={disabled ? "opacity-40 pointer-events-none" : ""}
                                     >
