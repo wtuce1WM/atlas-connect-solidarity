@@ -341,7 +341,7 @@ const StaffHub = () => {
               </div>
             </button>
             <button
-              onClick={() => navigate("/staff/etablissements-notes")}
+              onClick={() => navigate("/blog/etablissements-notes")}
               className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
             >
               <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-blue-500/15 to-cyan-500/10">
