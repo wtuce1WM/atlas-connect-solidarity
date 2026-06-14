@@ -5084,6 +5084,7 @@ const SearchPage = () => {
             fsMatchingCount={fsMatchingCount}
             labelFromUrl={labelFromUrl}
             userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
+            onRequestResultsScroll={() => scheduleResultsGridScroll("auto", "suggestions")}
           />
         </div>
       )}
@@ -5179,7 +5180,7 @@ const SearchPage = () => {
                             if (mobileFsSubId) applySub(null);
                             if (showAllSearchMarkers) setShowAllSearchMarkers(false);
                             setShowMobileMap(false);
-                            scheduleResultsGridScroll("smooth", "suggestions");
+                            scheduleResultsGridScroll("auto", "suggestions");
                           }}
                           className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers && !mobileFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                         >
@@ -5191,7 +5192,7 @@ const SearchPage = () => {
                             if (mobileFsSubId) applySub(null);
                             if (!showAllSearchMarkers) setShowAllSearchMarkers(true);
                             setShowMobileMap(false);
-                            scheduleResultsGridScroll("smooth", "suggestions");
+                            scheduleResultsGridScroll("auto", "suggestions");
                           }}
                           className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers && !mobileFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                         >
