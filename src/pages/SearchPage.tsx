@@ -1428,23 +1428,19 @@ const SearchPage = () => {
         }
       }, [virtualPos, compactPanelBusiness?.id, openCompactPanel, posToSlot, businessIdxToPos, augmentedLength]);
 
-      // When the panel opens via direct grid click, sync virtualPos from the
-      // business id and clear any lingering injected video.
+      // When the panel opens via direct grid click (no injected video active),
+      // sync virtualPos from the business id. We do nothing while an injected
+      // video is active — goToBusinessOffset manages state explicitly there.
       useEffect(() => {
+        if (currentInjectedVideo) return;
         const list = filteredBusinessesRef.current;
         const currentId = compactPanelBusiness?.id;
         if (!currentId) {
           setVirtualPos(null);
-          setCurrentInjectedVideo(null);
           return;
         }
-        // If we just set the panel on a video's parent business, keep state as-is.
-        if (currentInjectedVideo && currentInjectedVideo.pageBusinessId === currentId) return;
         const idx = list.findIndex(b => b.id === currentId);
-        if (idx !== -1) {
-          setVirtualPos(businessIdxToPos(idx));
-          setCurrentInjectedVideo(null);
-        }
+        if (idx !== -1) setVirtualPos(businessIdxToPos(idx));
       }, [compactPanelBusiness?.id, currentInjectedVideo, businessIdxToPos]);
 
       const [navTick, setNavTick] = useState(0);
