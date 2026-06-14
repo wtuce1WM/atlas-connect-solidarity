@@ -1755,7 +1755,7 @@ const SearchPage = () => {
       setCompactPanelBusiness(null);
       setIsCompactPanelExpanded(false);
       setShowMobileMap(false);
-      scheduleResultsGridScroll("smooth");
+      scheduleResultsGridScroll("smooth", "ai");
     };
     window.addEventListener("open-ai-tab", h);
     return () => window.removeEventListener("open-ai-tab", h);
@@ -3645,15 +3645,16 @@ const SearchPage = () => {
             <button
               key={tab.key}
               data-active-tab={isActive ? "true" : undefined}
-              onClick={(e) => {
+              onClick={() => {
+                const nextTab = tab.key as SearchTabKey;
                 resetPanelStates();
                 setCompactPanelBusiness(null);
                 setIsCompactPanelExpanded(false);
                 setOverlaySelectedBusiness(null);
                 setIsOverlayPanelExpanded(false);
                 setShowAiPopup(false);
-                  setActiveTab(tab.key as any);
-                  scheduleResultsGridScroll("smooth");
+                  setActiveTab(nextTab);
+                  scheduleResultsGridScroll("smooth", nextTab);
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
