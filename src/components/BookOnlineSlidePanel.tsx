@@ -98,7 +98,9 @@ interface BookSocialInfo {
 }
 
 interface BookOnlineSlidePanelProps {
-  businessId: string;
+  businessId?: string;
+  /** Display name used when delegating to VideoSlidePanel (no business resolved) */
+  businessName?: string;
   onClose: () => void;
   externalOverlayActive?: boolean;
   forceMuted?: boolean;
