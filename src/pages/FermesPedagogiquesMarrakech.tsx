@@ -162,7 +162,7 @@ const FermesPedagogiquesMarrakech = () => (
     heroTitleTop="Les fermes pédagogiques"
     heroTitleBottom="à Marrakech"
     heroSubtitle="Douze adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques."
-    intro="Marrakech a beau être une ville d'effervescence, ses environs immédiats cachent quelques refuges de verdure où l'on respire autrement. Pour les familles, ces fermes pédagogiques sont une respiration nécessaire : un terrain de jeu grandeur nature où les enfants courent après les poules, donnent à manger aux ânes, plongent les mains dans la terre et apprennent — sans s'en rendre compte — d'où viennent les choses. Voici nos dix adresses préférées, toutes accessibles en moins d'une heure depuis la médina."
+    intro="Marrakech a beau être une ville d'effervescence, ses environs immédiats cachent quelques refuges de verdure où l'on respire autrement. Pour les familles, ces fermes pédagogiques sont une respiration nécessaire : un terrain de jeu grandeur nature où les enfants courent après les poules, donnent à manger aux ânes, plongent les mains dans la terre et apprennent — sans s'en rendre compte — d'où viennent les choses. Voici nos douze adresses préférées, toutes accessibles en moins d'une heure depuis la médina."
     datePublished="2026-06-12T08:00:00+01:00"
     dateModified="2026-06-13T08:00:00+01:00"
   />
