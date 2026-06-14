@@ -210,8 +210,6 @@ const HomeMindtrip = () => {
   const horizontalRef = useRef<HTMLDivElement>(null);
   const stickyHorizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const inspirationOuterRef = useRef<HTMLDivElement>(null);
-  const inspirationTrackRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
