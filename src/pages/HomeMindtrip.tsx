@@ -799,32 +799,30 @@ const HomeMindtrip = () => {
         </div>
         <div className="mt-8">
           <HScroll className="flex gap-4 overflow-x-auto px-6 md:px-12 pb-4 scrollbar-hide-mobile">
-            <div className="flex gap-4 will-change-transform">
-
-              {latestPosts.map((a) => (
-                <Link
-                  key={a.slug}
-                  to={a.slug}
-                  className="group relative aspect-[4/5] h-[65vh] max-h-[640px] shrink-0 overflow-hidden rounded-2xl bg-muted"
-                >
-                  {a.image ? (
-                    <img
-                      src={a.image}
-                      alt={a.title}
-                      className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
-                  )}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent p-6">
-                    <span className="font-josefin text-xl leading-tight text-background">{a.title}</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+            {latestPosts.map((a) => (
+              <Link
+                key={a.slug}
+                to={a.slug}
+                className="group relative aspect-[4/5] h-[60vh] max-h-[560px] shrink-0 overflow-hidden rounded-2xl bg-muted"
+              >
+                {a.image ? (
+                  <img
+                    src={a.image}
+                    alt={a.title}
+                    className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
+                )}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent p-6">
+                  <span className="font-josefin text-xl leading-tight text-background">{a.title}</span>
+                </div>
+              </Link>
+            ))}
+          </HScroll>
         </div>
       </section>
+
 
 
 
