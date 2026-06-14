@@ -1375,7 +1375,6 @@ const SearchPage = () => {
       const injectedVideosRef = useRef<InjectedHashtagVideo[]>([]);
       useEffect(() => { injectedVideosRef.current = injectedVideos; }, [injectedVideos]);
 
-      const [currentInjectedVideo, setCurrentInjectedVideo] = useState<InjectedHashtagVideo | null>(null);
       // Virtual position of the currently open panel item in the augmented list.
       const [virtualPos, setVirtualPos] = useState<number | null>(null);
 
