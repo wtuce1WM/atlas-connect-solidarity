@@ -5615,6 +5615,7 @@ const SearchPage = () => {
             onTouchStart={onPanelTouchStart}
             onTouchMove={onPanelTouchMove}
             onTouchEnd={onPanelTouchEnd}
+            onWheel={onPanelWheel}
           >
             {!isNestedMosaicOpen && (
               <SlidePanelHeader
