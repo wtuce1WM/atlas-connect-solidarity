@@ -80,6 +80,17 @@ const BEACH_CLUBS: BlogArticleEntry[] = [
       "Côté restaurant, l'équipe joue une carte large : gastronomie marocaine, cuisine internationale, spécialités françaises et asiatiques, sushi, pizzas, pâtes, viandes, poissons, fruits de mer, plats végétariens, cocktails signatures et milkshakes au pool bar. Une cliente résume : « Nous sommes venus fin octobre, plus calme car hors saison, mais l'ambiance était super, il y avait un DJ toute la journée. La déco est esthétique et la nourriture délicieuse — j'ai pris les pâtes à la truffe et mon ami les côtelettes d'agneau (que je recommande fortement). Quand nous reviendrons à Marrakech, nous reviendrons. »",
     ],
   },
+  {
+    id: "16403316-cc10-42ef-acdc-eccf72263453",
+    pretitle: "Route de l'Ourika, km 13 — à deux pas de Waky Marrakech",
+    title: "Beach Mama Marrakech — la piscine chauffée à 29° voisine du spot de wake",
+    hours: "Ouvert tous les jours, de 11h00 à 20h00. Piscine chauffée à 29°. Parking clients, accès PMR.",
+    paragraphs: [
+      "Au kilomètre 13 de la route de l'Ourika, juste à côté de Waky Marrakech — le célèbre cable park de ski nautique et wakeboard des Jardins de l'Atlas — Beach Mama installe sa piscine chauffée à 29° toute l'année. La proximité avec Waky n'est pas un détail : c'est l'adresse idéale pour enchaîner une session de wake le matin et un farniente bord de piscine l'après-midi, sans avoir à reprendre la route vers la ville.",
+      "L'esprit Beach Mama (« Be Alive, Be #Waky ») est celui d'un beach club décontracté et chaleureux, pensé pour la journée pass : transats au soleil, grande piscine chauffée, restaurant qui joue la carte généreuse avec burgers, salades, viandes et plats végétariens. On y vient en famille, entre amis ou en duo, pour profiter d'une vraie pause aquatique à un quart d'heure de la médina.",
+      "Le binôme avec Waky en fait l'une des combinaisons les plus efficaces de la route de l'Ourika : pour celles et ceux qui veulent un peu d'adrénaline avant la détente, le téléski nautique est littéralement de l'autre côté du portail — on traverse, on glisse, on revient s'allonger au bord de l'eau chauffée. Difficile de faire plus fluide.",
+    ],
+  },
 ];
 
 const BeachClubsMarrakech = () => (
