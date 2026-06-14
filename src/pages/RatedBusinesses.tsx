@@ -398,11 +398,13 @@ const RatedBusinesses = () => {
                               <ExternalLink className="h-3.5 w-3.5" />
                             </Button>
                           </Link>
-                          <Link to={`/staff/backoffice?edit=${b.id}`} target="_blank" rel="noopener noreferrer" title="Modifier dans le backoffice">
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <Settings className="h-3.5 w-3.5" />
-                            </Button>
-                          </Link>
+                          {isStaff && (
+                            <Link to={`/staff/backoffice?edit=${b.id}`} target="_blank" rel="noopener noreferrer" title="Modifier dans le backoffice">
+                              <Button variant="ghost" size="icon" className="h-7 w-7">
+                                <Settings className="h-3.5 w-3.5" />
+                              </Button>
+                            </Link>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
