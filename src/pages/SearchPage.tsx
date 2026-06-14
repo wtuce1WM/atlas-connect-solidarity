@@ -1706,43 +1706,36 @@ const SearchPage = () => {
   const [overlayDismissing, setOverlayDismissing] = useState(false);
    const resultsRef = useRef<HTMLDivElement>(null);
    const resultsBarRef = useRef<HTMLDivElement>(null);
-  const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth", tab: SearchTabKey = activeTab) => {
-    const scope = document.querySelector<HTMLElement>(`[data-search-tab-panel="${tab}"]`);
-    const exactAnchor =
-      scope?.querySelector<HTMLElement>("[data-results-grid='true']") ??
-      scope?.querySelector<HTMLElement>("[data-result-card='true']");
-    const anchorEl = exactAnchor ?? scope ?? resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ?? resultsBarRef.current ?? resultsRef.current;
+  const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "auto", tab: SearchTabKey = activeTab) => {
+    const panel = document.querySelector<HTMLElement>(`[data-search-tab-panel="${tab}"]`);
+    const grid = panel?.querySelector<HTMLElement>("[data-results-grid='true']") ?? null;
+    const firstGridItem = grid
+      ? Array.from(grid.children).find((child): child is HTMLElement => child instanceof HTMLElement && child.offsetParent !== null) ?? null
+      : null;
+    const anchorEl = firstGridItem ?? grid ?? panel;
 
-    if (!anchorEl) {
-      window.scrollTo({ top: 0, behavior });
-      return false;
-    }
+    if (!anchorEl) return false;
 
-    const stickyBottom = ["header", "[data-tab-bar]", "[data-results-bar]"]
+    const stickyBottom = ["header", "[data-results-bar]"]
       .map((selector) => document.querySelector<HTMLElement>(selector))
-      .filter((el): el is HTMLElement => !!el && el.getBoundingClientRect().height > 0)
+      .filter((el): el is HTMLElement => {
+        if (!el) return false;
+        const rect = el.getBoundingClientRect();
+        return rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight;
+      })
       .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), 0) + 8;
 
-    let parent = anchorEl.parentElement;
-    while (parent && parent !== document.body) {
-      const style = window.getComputedStyle(parent);
-      const canScroll = /(auto|scroll|overlay)/.test(style.overflowY) && parent.scrollHeight > parent.clientHeight + 1;
-      if (canScroll) {
-        parent.scrollTo({ top: Math.max(0, parent.scrollTop + anchorEl.getBoundingClientRect().top - stickyBottom), behavior });
-      }
-      parent = parent.parentElement;
-    }
-
-    const y = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom;
-    window.scrollTo({ top: Math.max(0, y), behavior });
-    return !!exactAnchor;
+    const top = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom;
+    window.scrollTo({ top: Math.max(0, Math.round(top)), behavior });
+    return !!grid;
   }, [activeTab]);
 
-  const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth", tab: SearchTabKey = activeTab) => {
+  const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "auto", tab: SearchTabKey = activeTab) => {
     pendingTabScrollRef.current = tab;
-    [0, 80, 250, 600, 1100, 1800].forEach((delay) => {
+    [0, 80, 200, 500, 900].forEach((delay) => {
       window.setTimeout(() => {
-        if (pendingTabScrollRef.current === tab) scrollToResultsGridTop(behavior, tab);
+        if (pendingTabScrollRef.current !== tab) return;
+        if (scrollToResultsGridTop(behavior, tab)) pendingTabScrollRef.current = null;
       }, delay);
     });
   }, [scrollToResultsGridTop]);
@@ -1751,7 +1744,7 @@ const SearchPage = () => {
     if (pendingTabScrollRef.current !== activeTab) return;
     const tab = activeTab;
     const raf = requestAnimationFrame(() => {
-      if (scrollToResultsGridTop("smooth", tab)) pendingTabScrollRef.current = null;
+      if (scrollToResultsGridTop("auto", tab)) pendingTabScrollRef.current = null;
     });
     return () => cancelAnimationFrame(raf);
   }, [activeTab, isLoading, allBusinesses.length, allPois.length, allDestItems.length, hashtagCount, scrollToResultsGridTop]);
@@ -1763,7 +1756,7 @@ const SearchPage = () => {
       setCompactPanelBusiness(null);
       setIsCompactPanelExpanded(false);
       setShowMobileMap(false);
-      scheduleResultsGridScroll("smooth", "ai");
+      scheduleResultsGridScroll("auto", "ai");
     };
     window.addEventListener("open-ai-tab", h);
     return () => window.removeEventListener("open-ai-tab", h);
