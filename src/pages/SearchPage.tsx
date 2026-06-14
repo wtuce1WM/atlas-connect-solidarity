@@ -1504,6 +1504,9 @@ const SearchPage = () => {
           const rect = el.getBoundingClientRect();
           const isOverPanel = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
           if (!isOverPanel) return;
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
           if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
           const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
           const dir = deltaY > 0 ? 1 : -1;
@@ -1512,17 +1515,11 @@ const SearchPage = () => {
             const maxTop = scrollable.scrollHeight - scrollable.clientHeight;
             const canScroll = dir > 0 ? scrollable.scrollTop < maxTop - 1 : scrollable.scrollTop > 1;
             if (canScroll) {
-              e.preventDefault();
-              e.stopPropagation();
-              e.stopImmediatePropagation();
               scrollable.scrollTop = Math.max(0, Math.min(maxTop, scrollable.scrollTop + deltaY));
               wheelAccumRef.current = 0;
               return;
             }
           }
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
           const now = Date.now();
           if (now < wheelLockUntilRef.current) {
             wheelAccumRef.current = 0;
