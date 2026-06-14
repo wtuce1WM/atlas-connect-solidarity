@@ -1474,9 +1474,8 @@ const SearchPage = () => {
         goToBusinessOffset(dy > 0 ? 1 : -1);
       }, [swipeOffsetY, goToBusinessOffset]);
 
-      // Mouse wheel anywhere in the panel → prev/next (mirrors vertical swipe).
-      // Attached natively with passive:false so we can preventDefault and avoid
-      // double-handling with the panel's internal scroll.
+      // Mouse wheel in the panel: manually scroll the panel content so wheel
+      // events never fall through to the results grid behind it.
       const wheelAccumRef = useRef(0);
       const wheelLockUntilRef = useRef(0);
       const panelWheelRef = useRef<HTMLDivElement | null>(null);
@@ -1485,21 +1484,51 @@ const SearchPage = () => {
       useEffect(() => {
         const el = panelWheelRef.current;
         if (!el) return;
+        const isScrollableY = (node: HTMLElement) => {
+          const style = window.getComputedStyle(node);
+          return /(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 1;
+        };
+        const getScrollable = (target: EventTarget | null) => {
+          if (!(target instanceof HTMLElement)) return null;
+          let node: HTMLElement | null = target;
+          while (node && node !== el) {
+            if (isScrollableY(node)) return node;
+            node = node.parentElement;
+          }
+          return Array.from(el.querySelectorAll<HTMLElement>("*"))
+            .find(isScrollableY) || null;
+        };
         const handler = (e: WheelEvent) => {
           if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+          const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+          const dir = deltaY > 0 ? 1 : -1;
+          const scrollable = getScrollable(e.target);
+          if (scrollable) {
+            const maxTop = scrollable.scrollHeight - scrollable.clientHeight;
+            const canScroll = dir > 0 ? scrollable.scrollTop < maxTop - 1 : scrollable.scrollTop > 1;
+            if (canScroll) {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+              scrollable.scrollTop = Math.max(0, Math.min(maxTop, scrollable.scrollTop + deltaY));
+              wheelAccumRef.current = 0;
+              return;
+            }
+          }
           e.preventDefault();
           e.stopPropagation();
+          e.stopImmediatePropagation();
           const now = Date.now();
           if (now < wheelLockUntilRef.current) {
             wheelAccumRef.current = 0;
             return;
           }
-          wheelAccumRef.current += e.deltaY;
+          wheelAccumRef.current += deltaY;
           if (Math.abs(wheelAccumRef.current) < 60) return;
-          const dir = wheelAccumRef.current > 0 ? 1 : -1;
+          const navDir = wheelAccumRef.current > 0 ? 1 : -1;
           wheelAccumRef.current = 0;
           wheelLockUntilRef.current = now + 450;
-          goToBusinessOffsetRef.current(dir);
+          goToBusinessOffsetRef.current(navDir);
         };
         el.addEventListener("wheel", handler, { passive: false, capture: true });
         return () => el.removeEventListener("wheel", handler, { capture: true } as any);
