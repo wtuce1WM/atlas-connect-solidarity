@@ -37,7 +37,7 @@ interface SocialInfo {
   url: string | null;
 }
 
-interface SlidePanelHomeProps {
+interface VideoSlidePanelProps {
   open: boolean;
   onClose: () => void;
   videoUrl: string | null;
@@ -127,7 +127,7 @@ const VideoSlidePanel = ({
   eventId,
   returnContext,
   compactBusinessHeader = false,
-}: SlidePanelHomeProps) => {
+}: VideoSlidePanelProps) => {
 
   const navigate = useNavigate();
   const isMobile = useIsMobile();
