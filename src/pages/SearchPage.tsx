@@ -1708,26 +1708,27 @@ const SearchPage = () => {
    const resultsBarRef = useRef<HTMLDivElement>(null);
   const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "auto", tab: SearchTabKey = activeTab) => {
     const panel = document.querySelector<HTMLElement>(`[data-search-tab-panel="${tab}"]`);
-    const grid = panel?.querySelector<HTMLElement>("[data-results-grid='true']") ?? null;
-    const firstGridItem = grid
-      ? Array.from(grid.children).find((child): child is HTMLElement => child instanceof HTMLElement && child.offsetParent !== null) ?? null
-      : null;
-    const anchorEl = firstGridItem ?? grid ?? panel;
 
-    if (!anchorEl) return false;
+    // The search page has a fixed header; at document scrollTop=0 the next
+    // tab's grid starts directly below it. Reset the real page scroller instead
+    // of chasing sticky bars whose measured position changes during tab renders.
+    window.scrollTo({ top: 0, behavior });
+    document.scrollingElement?.scrollTo({ top: 0, behavior });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
 
-    const stickyBottom = ["header", "[data-results-bar]"]
-      .map((selector) => document.querySelector<HTMLElement>(selector))
-      .filter((el): el is HTMLElement => {
-        if (!el) return false;
-        const rect = el.getBoundingClientRect();
-        return rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight;
-      })
-      .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), 0) + 8;
+    if (panel) {
+      let parent = panel.parentElement;
+      while (parent && parent !== document.body) {
+        const style = window.getComputedStyle(parent);
+        if (/(auto|scroll)/.test(style.overflowY) && parent.scrollHeight > parent.clientHeight) {
+          parent.scrollTop = 0;
+        }
+        parent = parent.parentElement;
+      }
+    }
 
-    const top = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom;
-    window.scrollTo({ top: Math.max(0, Math.round(top)), behavior });
-    return !!grid;
+    return !!panel;
   }, [activeTab]);
 
   const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "auto", tab: SearchTabKey = activeTab) => {
