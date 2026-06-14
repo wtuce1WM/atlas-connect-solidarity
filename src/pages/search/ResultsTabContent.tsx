@@ -221,6 +221,31 @@ export default function ResultsTabContent({
   }, [userCoords, filteredBusinesses, allSearchMapBusinesses, getDistanceKm]);
   const proximityHasAny = (proximityCountsByKm[10] ?? 0) > 0;
 
+  const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const anchorEl =
+      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
+      resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+      resultsBarRef.current ??
+      resultsRef.current;
+
+    if (!anchorEl) {
+      window.scrollTo({ top: 0, behavior });
+      return;
+    }
+
+    const stickyBottom = ["header", "[data-tab-bar]", "[data-results-bar]"]
+      .map((selector) => document.querySelector<HTMLElement>(selector))
+      .filter((el): el is HTMLElement => !!el && el.getBoundingClientRect().height > 0)
+      .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), 0);
+    const y = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom - 8;
+    window.scrollTo({ top: Math.max(0, y), behavior });
+  }, [resultsBarRef, resultsRef]);
+
+  const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth") => {
+    requestAnimationFrame(() => scrollToResultsGridTop(behavior));
+    window.setTimeout(() => scrollToResultsGridTop(behavior), 80);
+  }, [scrollToResultsGridTop]);
+
   useEffect(() => { if (compactPanelBusiness) setShowFiltersOverlay(false); }, [compactPanelBusiness]);
   useEffect(() => {
     const handler = () => setShowFiltersOverlay(true);
@@ -275,21 +300,7 @@ export default function ResultsTabContent({
         }, { replace: true });
       }
     }
-    requestAnimationFrame(() => {
-      const anchorEl =
-        resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
-        resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
-        resultsRef.current;
-      if (anchorEl) {
-        anchorEl.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
-        requestAnimationFrame(() => {
-          const y = anchorEl.getBoundingClientRect().top + window.scrollY - 76;
-          window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-        });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    });
+    scheduleResultsGridScroll("smooth");
   };
 
   const handleFsSubClick = (subId: string | null) => {
@@ -305,15 +316,7 @@ export default function ResultsTabContent({
       const sub = tab.subcategories.find(s => s.id === subId);
       onFrontStructureFilter?.(sub?.names || tab.subcategoryNames);
     }
-    requestAnimationFrame(() => {
-      const el = resultsBarRef.current;
-      if (el) {
-        const y = el.getBoundingClientRect().top + window.scrollY - 60;
-        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    });
+    scheduleResultsGridScroll("smooth");
   };
 
 
@@ -321,7 +324,7 @@ export default function ResultsTabContent({
     setActiveFsServices(svcs);
     onFrontStructureServicesFilter?.(svcs.length > 0 ? new Set(svcs) : null);
     onFrontStructureUserOverride?.(svcs.length > 0 || !!activeFsTabId || !!activeFsSubId);
-    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+    scheduleResultsGridScroll("smooth");
   };
 
   // Reset active tab when city or search query changes
