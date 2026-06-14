@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import "@/hooks/useRecentlyViewedBusinesses"; // register global track-business-view listener
 const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
 const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
-const TooltipProvider = lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.TooltipProvider })));
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate, useParams } from "react-router-dom";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
@@ -132,7 +132,6 @@ const AppContent = () => {
   
   return (
     <div dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "font-arabic" : ""}>
-      <Suspense fallback={null}>
         <TooltipProvider>
           <Suspense fallback={null}><Toaster /></Suspense>
           <Suspense fallback={null}><Sonner /></Suspense>
@@ -217,7 +216,6 @@ const AppContent = () => {
           <FloatingButtonsGuard activePanel={activePanel} setActivePanel={setActivePanel} />
         </BrowserRouter>
         </TooltipProvider>
-      </Suspense>
     </div>
   );
 };
