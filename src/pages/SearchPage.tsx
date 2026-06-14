@@ -1474,22 +1474,25 @@ const SearchPage = () => {
         goToBusinessOffset(dy > 0 ? 1 : -1);
       }, [swipeOffsetY, goToBusinessOffset]);
 
-      // Mouse wheel → prev/next (mirrors vertical swipe). Only triggers from the
-      // top header strip to avoid hijacking scroll inside the panel content.
+      // Mouse wheel anywhere in the panel → prev/next (mirrors vertical swipe).
       const wheelAccumRef = useRef(0);
       const wheelLockUntilRef = useRef(0);
       const onPanelWheel = useCallback((e: React.WheelEvent) => {
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        if (e.clientY - rect.top > 80) return;
+        if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
         const now = Date.now();
-        if (now < wheelLockUntilRef.current) return;
+        if (now < wheelLockUntilRef.current) {
+          e.preventDefault();
+          return;
+        }
+        e.preventDefault();
         wheelAccumRef.current += e.deltaY;
-        if (Math.abs(wheelAccumRef.current) < 80) return;
+        if (Math.abs(wheelAccumRef.current) < 60) return;
         const dir = wheelAccumRef.current > 0 ? 1 : -1;
         wheelAccumRef.current = 0;
         wheelLockUntilRef.current = now + 450;
         goToBusinessOffset(dir);
       }, [goToBusinessOffset]);
+
 
 
 
