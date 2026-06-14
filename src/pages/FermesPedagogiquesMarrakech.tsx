@@ -90,6 +90,30 @@ const FERMES: BlogArticleEntry[] = [
     ],
   },
   {
+    id: "b18e96bd-85bc-4e3d-828d-29953b40063f",
+    pretitle: "Route de l'Ourika, au cœur d'une oliveraie centenaire",
+    title: "Le Parc des Oliviers Ecolodge — une journée à la campagne entre piscine, ânes et oliviers",
+    hours: "Ouvert tous les jours pour le déjeuner et la journée détente — réservation conseillée.",
+    paragraphs: [
+      "On quitte Marrakech par la route de l'Ourika, et après quelques minutes seulement, le paysage change de costume : la palmeraie laisse place à une oliveraie centenaire, et c'est là, au creux d'un jardin de plusieurs hectares, que se cache Le Parc des Oliviers Ecolodge. L'endroit a été pensé comme une campagne marocaine idéalisée : allées de gravier, vieilles pierres, hamacs tendus entre deux troncs, et le silence — vrai luxe — partout autour.",
+      "On vient ici pour la journée comme on irait chez des amis qui auraient une grande maison à la campagne. Le programme s'organise tout seul : une matinée à la piscine, ombragée par les oliviers ; un déjeuner sous la pergola, où la cuisine marocaine se sert sans chichi avec les légumes du potager ; puis une après-midi à se promener entre les enclos, à caresser les ânes, à observer les poules, à laisser les enfants courir dans un terrain assez vaste pour qu'on ne les surveille plus que d'un œil.",
+      "L'esprit éco-lodge se sent dans chaque détail : matériaux locaux, peu de plastique, gestion sobre de l'eau, potager en permaculture. Rien n'est ostentatoire, tout est cohérent — c'est précisément ce qu'on cherche quand on veut offrir aux enfants une journée en lien avec la terre sans tomber dans la mise en scène.",
+      "On en repart en fin d'après-midi avec ce sentiment qu'on n'a finalement rien fait d'extraordinaire — et c'est exactement le compliment. Une vraie journée de campagne, à vingt minutes de la médina.",
+    ],
+  },
+  {
+    id: "1dc47b3c-028d-482a-b14e-b09dc9c48e4a",
+    pretitle: "À 20 minutes de Marrakech, entre oliveraies et Atlas",
+    title: "The Farasha Farmhouse — l'art de vivre à la ferme version maison de famille",
+    hours: "Déjeuners, journées détente et séjours — sur réservation.",
+    paragraphs: [
+      "Farasha signifie « papillon » en arabe, et le nom dit déjà beaucoup de l'esprit du lieu : léger, coloré, posé entre ciel et terre. À une vingtaine de minutes de Marrakech, dans la campagne ouverte sur l'Atlas, The Farasha Farmhouse est cette maison de famille à laquelle on rêve sans oser se l'avouer — patios tapissés de bougainvilliers, longues tables sous les arbres, intérieurs aux teintes douces, et partout cette impression que rien n'a été décoré, que tout a poussé là.",
+      "Le domaine vit comme une vraie petite ferme. Potager, animaux, vergers, ruches : on s'y promène avec les enfants pour voir d'où viennent les choses, cueillir une herbe pour la cuisine, donner à manger aux poules. La piscine, lumineuse, fait le reste du programme — on y passe la matinée, on en sort pour déjeuner, on y replonge l'après-midi.",
+      "À table, c'est une cuisine de fermette, généreuse, qui pioche dans le potager du jour : salades vives, légumes rôtis, tagines doux, desserts maison. On déjeune dehors quand le temps le permet — c'est-à-dire presque toujours — et l'on étire le repas comme on étirait ceux des vacances chez les grands-parents.",
+      "Farasha est l'une de ces adresses qu'on conseille en chuchotant : elle convient autant à une journée en famille qu'à un déjeuner entre amis ou à une parenthèse romantique. L'esprit reste le même — celui d'une maison qui vit, qui accueille, et qui rend tout simple.",
+    ],
+  },
+  {
     id: "c03e0482-f26e-4664-9165-67e2c731ca4c",
     pretitle: "Route d'Agadir, à la sortie de Marrakech",
     title: "Secret Family Farm — la petite ferme cachée où les enfants se dépensent",
