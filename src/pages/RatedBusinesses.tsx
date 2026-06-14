@@ -163,9 +163,11 @@ const RatedBusinesses = () => {
   const totalReviews = (b: RatedBusiness) =>
     (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
 
-  // Available cities sorted
+  // Available cities sorted (strictly restricted to Marrakech and Essaouira)
   const availableCities = useMemo(() => {
-    const cities = [...new Set(businesses.map((b) => b.city))].sort();
+    const cities = [...new Set(businesses.map((b) => b.city))]
+      .filter((c) => c === "Marrakech" || c === "Essaouira")
+      .sort();
     return cities;
   }, [businesses]);
 
