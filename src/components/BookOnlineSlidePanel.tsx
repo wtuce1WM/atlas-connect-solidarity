@@ -1084,14 +1084,14 @@ const BookOnlineSlidePanel = ({
     if (absX > 60 && absX > absY * 1.5) {
       goMedia(dx < 0 ? 1 : -1);
     } else if (absY > 60 && absY > absX * 1.5) {
-      if (dy < 0 && hasNextBusiness) {
-        onNextBusiness?.();
-      } else if (dy > 0 && hasPrevBusiness) {
-        onPrevBusiness?.();
+      if (dy < 0 && effectiveHasNext) {
+        effectiveOnNext?.();
+      } else if (dy > 0 && effectiveHasPrev) {
+        effectiveOnPrev?.();
       }
     }
     onTouchEnd?.();
-  }, [onTouchEnd, goMedia, hasNextBusiness, hasPrevBusiness, onNextBusiness, onPrevBusiness]);
+  }, [onTouchEnd, goMedia, effectiveHasNext, effectiveHasPrev, effectiveOnNext, effectiveOnPrev]);
 
   // Listen for YouTube "ended"
   useEffect(() => {
