@@ -1718,8 +1718,8 @@ const SearchPage = () => {
    const resultsBarRef = useRef<HTMLDivElement>(null);
   const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth") => {
     const anchorEl =
-      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
       resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
       resultsRef.current;
 
     if (!anchorEl) {
@@ -1727,8 +1727,12 @@ const SearchPage = () => {
       return;
     }
 
-    const y = anchorEl.getBoundingClientRect().top + window.scrollY - 76;
-    window.scrollTo({ top: Math.max(0, y), behavior });
+    anchorEl.scrollIntoView({ behavior, block: "start", inline: "nearest" });
+
+    requestAnimationFrame(() => {
+      const y = anchorEl.getBoundingClientRect().top + window.scrollY - 76;
+      window.scrollTo({ top: Math.max(0, y), behavior });
+    });
   }, []);
   const latestFetchIdRef = useRef(0);
 
