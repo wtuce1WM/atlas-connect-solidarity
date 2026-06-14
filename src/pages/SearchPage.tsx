@@ -1754,7 +1754,7 @@ const SearchPage = () => {
       if (scrollToResultsGridTop("smooth", tab)) pendingTabScrollRef.current = null;
     });
     return () => cancelAnimationFrame(raf);
-  }, [activeTab, isLoading, resultsPaginatedBusinesses.length, allPois.length, allDestItems.length, hashtagCount, scrollToResultsGridTop]);
+  }, [activeTab, isLoading, allBusinesses.length, allPois.length, allDestItems.length, hashtagCount, scrollToResultsGridTop]);
 
   useEffect(() => {
     const h = () => {
