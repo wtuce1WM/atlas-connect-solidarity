@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
-import VideoSlidePanel from "@/components/VideoSlidePanel";
+import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 
 
 interface Channel {
@@ -25,7 +25,7 @@ interface ThemeGroup {
 
 interface Props {
   city?: string | null;
-  /** Kept for backward compat — no longer used (YouTube tab now opens VideoSlidePanel internally). */
+  /** Kept for backward compat — no longer used (YouTube tab now opens BookOnlineSlidePanel internally). */
   onOpenBusiness?: (businessId: string) => void;
 }
 
@@ -102,7 +102,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
       window.removeEventListener("ytbg:request-state", onRequestState);
     };
   }, [bgPlaying, bgMuted]);
-  // Notify parent (SearchPage) when the VideoSlidePanel opens/closes so it can hide the bottom bar
+  // Notify parent (SearchPage) when the BookOnlineSlidePanel opens/closes so it can hide the bottom bar
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("ytbg:panel", { detail: { open: !!active } }));
     return () => {
@@ -110,7 +110,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
     };
   }, [active]);
 
-  // When VideoSlidePanel opens, force-mute AND pause the bg video; restore previous state on close
+  // When BookOnlineSlidePanel opens, force-mute AND pause the bg video; restore previous state on close
   const prevMutedRef = useRef<boolean | null>(null);
   const prevPlayingRef = useRef<boolean | null>(null);
   useEffect(() => {
@@ -377,7 +377,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
         ))}
       </Accordion>
 
-      <VideoSlidePanel
+      <BookOnlineSlidePanel
         open={!!active}
         onClose={() => { setActive(null); setActiveVideos([]); }}
         videoUrl={active?.videoUrl || null}

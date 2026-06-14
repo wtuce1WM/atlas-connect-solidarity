@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Play, Youtube } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
-import VideoSlidePanel from "@/components/VideoSlidePanel";
+import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SearchPagination from "@/components/SearchPagination";
 import { isAgendaLabel, formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
 
@@ -556,7 +556,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
 
 
 
-      <VideoSlidePanel
+      <BookOnlineSlidePanel
         open={!!activeItem}
         onClose={() => setActiveItem(null)}
         videoUrl={activeItem?.url || null}

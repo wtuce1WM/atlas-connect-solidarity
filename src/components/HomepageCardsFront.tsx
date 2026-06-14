@@ -7,7 +7,7 @@ import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { getCached, setCached } from "@/lib/swrCache";
 
 // Heavy player/overlay — never visible at first paint. Code-split out of the initial bundle.
-const VideoSlidePanel = lazy(() => import("@/components/VideoSlidePanel"));
+const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 export type HomeCardTarget = { type: "badge" | "event"; id: string } | null;
 
@@ -106,11 +106,11 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
   // No dynamic <link rel="preload"> here — it competed with the JS bundle for bandwidth
   // and degraded FCP on mobile.
 
-  // #3 Preload the VideoSlidePanel chunk after the homepage is idle, so the first
+  // #3 Preload the BookOnlineSlidePanel chunk after the homepage is idle, so the first
   // click on a card opens instantly (chunk already in cache, no network round-trip).
   useEffect(() => {
     const ric: any = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 1500));
-    const handle = ric(() => { import("@/components/VideoSlidePanel").catch(() => {}); });
+    const handle = ric(() => { import("@/components/BookOnlineSlidePanel").catch(() => {}); });
     return () => {
       const cic: any = (window as any).cancelIdleCallback;
       if (cic && typeof handle === "number") cic(handle);
@@ -127,7 +127,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
   const hasPrev = activePosInPlayable > 0;
   const hasNext = activePosInPlayable >= 0 && activePosInPlayable < playableIndices.length - 1;
 
-  // Fetch description of the active business so the green "+" overlay can render in VideoSlidePanel.
+  // Fetch description of the active business so the green "+" overlay can render in BookOnlineSlidePanel.
   useEffect(() => {
     const ownerId = activeSlot?.data.ownerId;
     if (!ownerId) { setActiveDescription(null); return; }
@@ -178,7 +178,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   // A "manual business card": ONLY manual extra cards (kind === "extra") linked to a
   // single establishment, with no badge/event filter. Clicking it should open the
-  // business slide panel on the Search page (same as "En savoir +" CTA in VideoSlidePanel).
+  // business slide panel on the Search page (same as "En savoir +" CTA in BookOnlineSlidePanel).
   // Regular video cards (kind === "entry") must keep their normal video-player behavior.
   const isDirectBusinessCard = (slot: MixedSlot) => {
     const d = slot.data;
@@ -187,7 +187,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   const handleLabelActivate = (slot: MixedSlot) => {
     if (isDirectBusinessCard(slot) && slot.data.ownerId) {
-      // Store return context exactly like the "En savoir +" CTA in VideoSlidePanel,
+      // Store return context exactly like the "En savoir +" CTA in BookOnlineSlidePanel,
       // so closing the SlidePanel on /search returns to this homepage state.
       try {
         if (slot.data.videoId) {
@@ -365,7 +365,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
       {activeSlot && (
         <Suspense fallback={null}>
-          <VideoSlidePanel
+          <BookOnlineSlidePanel
             open={activeSlot !== null}
             onClose={() => setActiveIndex(null)}
             videoUrl={activeSlot?.data.videoUrl ?? null}
