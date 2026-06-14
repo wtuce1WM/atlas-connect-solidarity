@@ -22,6 +22,8 @@ export interface BlogArticleBusiness {
   city: string | null;
   images: string[] | null;
   rating: number | null;
+  computed_rating: number | null;
+  total_review_count: number | null;
   categories: string[] | null;
   hook_fr: string | null;
   wtuce_status: string | null;
@@ -142,7 +144,7 @@ const BlogArticleTemplate = ({
       const { data } = await supabase
         .from("businesses")
         .select(
-          "id, name, slug, neighborhood, city, images, rating, categories, hook_fr, wtuce_status, latitude, longitude"
+          "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, wtuce_status, latitude, longitude"
         )
         .in("id", allIds)
         .eq("is_active", true);
@@ -337,11 +339,21 @@ const BlogArticleTemplate = ({
                                   />
                                 )}
                                 {b.rating && (
-                                  <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 rounded-full px-2 py-0.5">
-                                    <Star className="h-3 w-3 fill-gold text-gold" />
-                                    <span className="text-gold font-bold text-xs">
-                                      {b.rating}/20
-                                    </span>
+                                  <div className="absolute top-2 left-2 flex items-center justify-center gap-1 py-0.5 px-2.5 rounded-full border border-white/30 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.3)]">
+                                    <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
+                                    <span aria-hidden="true" className="pointer-events-none absolute top-0 left-1 right-1 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
+                                    <div className="relative z-10 flex items-center gap-1">
+                                      <Star className="h-3.5 w-3.5 text-gold fill-gold shrink-0" />
+                                      <span className="text-sm font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                        {b.computed_rating ?? b.rating}
+                                        <span className="text-[10px] font-semibold text-white/60">/20</span>
+                                      </span>
+                                      {b.total_review_count && b.total_review_count > 0 && (
+                                        <span className="text-[9px] text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                          · {b.total_review_count} {b.total_review_count > 1 ? "avis" : "avis"}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 )}
                               </div>
