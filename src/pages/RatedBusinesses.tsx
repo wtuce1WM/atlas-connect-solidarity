@@ -39,6 +39,7 @@ interface RatedBusiness {
   categories: string[] | null;
   main_category: string | null;
   services: string[] | null;
+  images: string[] | null;
   google_rating: number | null;
   google_review_count: number | null;
   tripadvisor_rating: number | null;
