@@ -1570,7 +1570,8 @@ const SearchPage = () => {
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
         setShowMobileMap(false);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+         setTimeout(() => scrollToResultsGridTop("smooth"), 50);
+         setTimeout(() => scrollToResultsGridTop("smooth"), 250);
       };
       window.addEventListener("open-ai-tab", h);
       return () => window.removeEventListener("open-ai-tab", h);
@@ -5429,10 +5430,8 @@ const SearchPage = () => {
                 setShowMobileMap(false);
                 setActiveTab("suggestions");
                 setCurrentPage(1);
-                setTimeout(() => {
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                  setTimeout(() => ensureResultsVisibleBelowSticky("smooth"), 350);
-                }, 50);
+                setTimeout(() => scrollToResultsGridTop("smooth"), 50);
+                setTimeout(() => scrollToResultsGridTop("smooth"), 350);
               }}
               onOpenMap={() => {
                 setActiveTab("suggestions");
@@ -5634,10 +5633,8 @@ const SearchPage = () => {
                   setShowMobileMap(false);
                   setActiveTab("suggestions");
                   setCurrentPage(1);
-                  setTimeout(() => {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                    setTimeout(() => ensureResultsVisibleBelowSticky("smooth"), 350);
-                  }, 50);
+                  setTimeout(() => scrollToResultsGridTop("smooth"), 50);
+                  setTimeout(() => scrollToResultsGridTop("smooth"), 350);
                 }}
                 onOpenMap={() => {
                   setActiveTab("suggestions");
