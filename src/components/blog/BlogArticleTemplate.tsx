@@ -277,7 +277,11 @@ const BlogArticleTemplate = ({
             </div>
           </section>
 
-          {entries.map((entry, idx) => {
+          {[...entries].sort((a, b) => {
+            const ra = businesses[a.id]?.computed_rating ?? businesses[a.id]?.rating ?? -1;
+            const rb = businesses[b.id]?.computed_rating ?? businesses[b.id]?.rating ?? -1;
+            return rb - ra;
+          }).map((entry, idx) => {
             const isDark = idx % 2 === 0;
             return (
               <section
