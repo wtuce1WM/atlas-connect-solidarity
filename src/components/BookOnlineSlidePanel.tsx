@@ -90,6 +90,13 @@ const TypewriterHook = ({ text }: { text: string }) => {
   );
 };
 
+/** Social account info (used by SlidePanelHome migration path) */
+interface BookSocialInfo {
+  platform: "instagram" | "tiktok" | "youtube";
+  account: string;
+  url: string | null;
+}
+
 interface BookOnlineSlidePanelProps {
   businessId: string;
   onClose: () => void;
@@ -115,9 +122,57 @@ interface BookOnlineSlidePanelProps {
   onNextBusiness?: () => void;
   hasPrevBusiness?: boolean;
   hasNextBusiness?: boolean;
+  // --- Aliases for SlidePanelHome migration (same as onPrev/Next Business) ---
+  onPrev?: () => void;
+  onNext?: () => void;
+  hasPrev?: boolean;
+  hasNext?: boolean;
+  // --- Video-first entry props (SlidePanelHome migration, not yet wired in render) ---
+  /** Forces this video URL as the background, regardless of business video list */
+  videoUrl?: string | null;
+  videoId?: string | null;
+  /** When true, the video is "generic" (no specific business attached) */
+  isGeneric?: boolean;
+  /** Video owner business (when video has linked_business_id) */
+  owner?: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null;
+  /** Social account behind the video (when no business attached) */
+  social?: BookSocialInfo | null;
+  showSocialBadge?: boolean;
+  /** Description shown on the "+" overlay */
+  description?: string | null;
+  /** Video title to display at the top */
+  videoName?: string | null;
+  /** When set, displays the Agenda card for this city */
+  agendaCity?: string | null;
+  /** When set, displays CTAs for the event's linked business */
+  eventId?: string | null;
+  /** Override pageBusinessName/Id when video document is on a POI page */
+  pageBusinessName?: string | null;
+  pageBusinessId?: string | null;
+  /** Compact business header (background hugs the name, centered) */
+  compactBusinessHeader?: boolean;
+  /** Serialized Test/Home page context for restoring previous state on close */
+  returnContext?: string | null;
+  /** Currently playing media time (sync between vignette and panel) */
+  currentTime?: number;
+  onTimeUpdate?: (t: number) => void;
+  /** Controls open state externally (parent unmounts when closed) */
+  open?: boolean;
 }
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl, onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({
+  businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef,
+  showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch,
+  initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults,
+  onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
+  onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
+  onPrev, onNext, hasPrev, hasNext,
+}: BookOnlineSlidePanelProps) => {
+  // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
+  const effectiveOnPrev = onPrevBusiness ?? onPrev;
+  const effectiveOnNext = onNextBusiness ?? onNext;
+  const effectiveHasPrev = hasPrevBusiness ?? hasPrev;
+  const effectiveHasNext = hasNextBusiness ?? hasNext;
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -1029,14 +1084,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     if (absX > 60 && absX > absY * 1.5) {
       goMedia(dx < 0 ? 1 : -1);
     } else if (absY > 60 && absY > absX * 1.5) {
-      if (dy < 0 && hasNextBusiness) {
-        onNextBusiness?.();
-      } else if (dy > 0 && hasPrevBusiness) {
-        onPrevBusiness?.();
+      if (dy < 0 && effectiveHasNext) {
+        effectiveOnNext?.();
+      } else if (dy > 0 && effectiveHasPrev) {
+        effectiveOnPrev?.();
       }
     }
     onTouchEnd?.();
-  }, [onTouchEnd, goMedia, hasNextBusiness, hasPrevBusiness, onNextBusiness, onPrevBusiness]);
+  }, [onTouchEnd, goMedia, effectiveHasNext, effectiveHasPrev, effectiveOnNext, effectiveOnPrev]);
 
   // Listen for YouTube "ended"
   useEffect(() => {
@@ -1146,12 +1201,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} hideOnMobile={availabilityConfirmationShown} />
 
-      {(onPrevBusiness || onNextBusiness) && (
+      {(effectiveOnPrev || effectiveOnNext) && (
         <div className={`absolute top-1/2 -translate-y-1/2 right-3 z-30 ${cardsHidden ? 'flex' : 'hidden'} ${availabilityConfirmationShown ? 'max-lg:hidden' : ''} flex-col gap-2 pointer-events-none`}>
           <button
             type="button"
-            onClick={onPrevBusiness}
-            disabled={!hasPrevBusiness}
+            onClick={effectiveOnPrev}
+            disabled={!effectiveHasPrev}
             className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
             aria-label="Établissement précédent"
           >
@@ -1161,8 +1216,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="w-9 h-9" />
           <button
             type="button"
-            onClick={onNextBusiness}
-            disabled={!hasNextBusiness}
+            onClick={effectiveOnNext}
+            disabled={!effectiveHasNext}
             className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
             aria-label="Établissement suivant"
           >
