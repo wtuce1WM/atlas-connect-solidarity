@@ -24,6 +24,7 @@ import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
+import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
 import { X } from "lucide-react";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
