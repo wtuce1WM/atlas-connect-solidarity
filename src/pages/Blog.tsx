@@ -148,7 +148,7 @@ const Blog = () => {
         .maybeSingle();
       const agImg = (agRow as any)?.images?.[0];
 
-      setStaticHeroes({
+       setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
         galeries: (galRes.data as any)?.images?.[0],
@@ -157,7 +157,7 @@ const Blog = () => {
         streetfood: sfImg,
         fashion: fashionImg,
         beachclubs: beachImg,
-        hotelsessaouira: hotelsImg,
+        hotelsessaouira: essaouiraSunsetAsset.url,
         sidikaouki: skImg,
         agafay: agImg,
         rated: ratedRes.data?.[0]?.images?.[0],
