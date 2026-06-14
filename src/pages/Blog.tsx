@@ -54,7 +54,7 @@ const Blog = () => {
     // Hero images for static blog cards (same logic as their pages)
     const fetchStaticHeroes = async () => {
       const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
-      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes, fermesRes, artisanatRes] = await Promise.all([
+      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes, fermesRes, artisanatRes, ratedRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("images, services")
@@ -90,6 +90,13 @@ const Blog = () => {
           .select("images")
           .eq("id", "1621498d-403b-4ff2-baf3-db45d1e5f41e")
           .maybeSingle(),
+        supabase
+          .from("businesses")
+          .select("images")
+          .eq("is_active", true)
+          .or("google_review_count.gt.0,tripadvisor_review_count.gt.0,restaurant_guru_review_count.gt.0,rating.not.is.null")
+          .order("priority_score", { ascending: false })
+          .limit(1),
       ]);
       const seaKW = ["vue sur mer", "vue mer"];
       const essImg = essRes.data
