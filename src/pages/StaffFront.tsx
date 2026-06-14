@@ -671,7 +671,6 @@ const StaffFront = () => {
                 // Articles blog dédiés (pages statiques)
                 
                 { group: "Articles blog dédiés", name: "5 jours Marrakech artisanat", url: "/blog/5-jours-marrakech-artisanat", description: "Itinéraire artisanat à Marrakech." },
-                { group: "Articles blog dédiés", name: "Activités enfants Marrakech", url: "/blog/activites-enfants-marrakech", description: "Sélection d'activités enfants à Marrakech." },
                 { group: "Articles blog dédiés", name: "Galeries d'art Marrakech", url: "/blog/galeries-art-marrakech", description: "Sélection des galeries d'art à Marrakech." },
                 { group: "Articles blog dédiés", name: "Ancien accueil", url: "/blog/ancien-accueil", description: "Archive de l'ancienne page d'accueil." },
                 { group: "Articles blog dédiés", name: "Typographie", url: "/blog/typographie", description: "Démo / article typographie." },

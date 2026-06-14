@@ -55,11 +55,6 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Itinéraire de 5 jours dédié à l'artisanat marrakchi : ateliers, souks et adresses authentiques.",
   },
-  "/blog/activites-enfants-marrakech": {
-    title: `Activités enfants à Marrakech — ${BRAND}`,
-    description:
-      "Sélection d'activités à faire en famille avec des enfants à Marrakech.",
-  },
   "/blog/galeries-art-marrakech": {
     title: `Galeries d'art à Marrakech — ${BRAND}`,
     description:
