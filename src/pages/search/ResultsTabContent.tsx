@@ -275,7 +275,21 @@ export default function ResultsTabContent({
         }, { replace: true });
       }
     }
-    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+    requestAnimationFrame(() => {
+      const anchorEl =
+        resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+        resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
+        resultsRef.current;
+      if (anchorEl) {
+        anchorEl.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+        requestAnimationFrame(() => {
+          const y = anchorEl.getBoundingClientRect().top + window.scrollY - 76;
+          window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+        });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
   };
 
   const handleFsSubClick = (subId: string | null) => {
@@ -478,7 +492,7 @@ export default function ResultsTabContent({
                 </button>
               </div>
               {/* Results grid */}
-              <div className={`grid gap-4 ${resolvedHotelSearchInfo ? "pt-2 lg:pt-10" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+              <div data-results-grid="true" className={`grid gap-4 ${resolvedHotelSearchInfo ? "pt-2 lg:pt-10" : "pt-10 sm:pt-4 md:pt-4 lg:pt-14"} pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {effectiveBusinesses.map((business, index) => {
                   const card = (
                     <SearchResultCard
