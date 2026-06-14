@@ -148,11 +148,20 @@ const Blog = () => {
         .maybeSingle();
       const agImg = (agRow as any)?.images?.[0];
 
+      // Hero Activités enfants Marrakech : même 1ʳᵉ fiche que le hero de l'article (Oasiria)
+      const { data: enfRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "728e90f7-3894-43a5-8c0d-9dd193fe9946")
+        .maybeSingle();
+      const enfImg = (enfRow as any)?.images?.[0];
+
        setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
         galeries: (galRes.data as any)?.images?.[0],
         fermes: (fermesRes.data as any)?.images?.[0],
+        enfants: enfImg,
         artisanat: (artisanatRes.data as any)?.images?.[0],
         streetfood: sfImg,
         fashion: fashionImg,
