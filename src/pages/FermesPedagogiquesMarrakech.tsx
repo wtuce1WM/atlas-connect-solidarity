@@ -125,6 +125,30 @@ const FERMES: BlogArticleEntry[] = [
       "Une adresse à garder pour ces dimanches où l'on cherche juste un endroit calme, vert, où poser les enfants en sachant qu'ils vont y être heureux. Le mot « secret » du nom n'est presque pas usurpé : on en repart avec l'envie d'y revenir avant de le dire à trop de monde.",
     ],
   },
+  {
+    id: "f386b62b-d20e-4cea-86e6-460a802ed1b9",
+    pretitle: "Désert d'Agafay, à 30 minutes de Marrakech",
+    title: "The Ranch Marrakech — l'esprit cowboy aux portes du désert d'Agafay",
+    hours: "Ouvert tous les jours — balades à cheval, déjeuners et activités sur réservation.",
+    paragraphs: [
+      "On roule une trentaine de minutes vers le sud-ouest, on quitte la route principale, et soudain c'est le décor lunaire du désert d'Agafay qui s'ouvre devant soi. C'est là, au milieu des collines minérales, que The Ranch Marrakech plante ses écuries, ses paddocks et ses tentes berbères. L'endroit a un parfum de Far West marocain : chevaux qui broutent au loin, selles posées sur les barrières en bois, chapeaux et bottes à l'entrée — tout évoque le grand air et la liberté.",
+      "Le cœur du Ranch, c'est le cheval. L'écurie est sérieuse, les montures sont bien tenues, et l'équipe — passionnée et pédagogue — sait adapter la balade au niveau de chacun. Les débutants partent au pas, les enfants découvrent la selle dans le manège, les cavaliers confirmés s'élancent au trot ou au galop dans les pistes du désert. Une heure, deux heures, une demi-journée : la formule se choisit à la carte.",
+      "Au retour, on déjeune sur place, dans une grande salle ouverte sur le paysage. La cuisine est simple, généreuse, parfaite après l'effort. Pour les enfants qui ne montent pas encore, le ranch propose des baptêmes poneys, des tours en charrette et un contact direct avec les animaux du domaine — chèvres, ânes, chiens qui suivent les visiteurs.",
+      "C'est l'adresse idéale pour une journée différente, à la fois sportive et dépaysante, qui combine la magie du désert d'Agafay avec l'expérience rare de monter à cheval dans un cadre aussi vaste. On en repart les jambes lourdes, le visage hâlé, et avec cette envie immédiate de revenir.",
+    ],
+  },
+  {
+    id: "ee91eb6e-2b42-4187-8107-f290f9793815",
+    pretitle: "Route de l'Ourika, à quelques minutes de Marrakech",
+    title: "Le Bled Ferme — une journée champêtre entre piscine, animaux et table marocaine",
+    hours: "Ouvert tous les jours — journées détente, déjeuners et activités sur réservation.",
+    paragraphs: [
+      "Quelques minutes sur la route de l'Ourika, et l'on bascule déjà dans la campagne marrakchie : palmiers, oliviers, montagnes en arrière-plan, et au bout d'un chemin discret, le portail du Bled Ferme. L'endroit a tout d'un domaine familial pensé pour qu'on s'y sente bien dès le premier pas — accueil chaleureux, jardins entretenus, et cette odeur de pain chaud qui flotte autour de la cuisine.",
+      "La journée s'organise sans effort. On commence par la piscine, grande et ensoleillée, bordée de transats à l'ombre des arbres. Les enfants y passent la matinée pendant que les parents savourent enfin un vrai moment de calme. À midi, on s'installe à table pour une cuisine marocaine généreuse — tagines, salades fraîches, grillades — servie sous la pergola ou en terrasse selon l'envie.",
+      "L'après-midi prend ensuite un tour pédagogique : visite des animaux de la ferme, contact avec les chevaux, poules et lapins, balades dans les allées du domaine, ateliers ludiques pour les plus jeunes. L'équipe a le sens du détail et sait occuper les enfants sans jamais bousculer le rythme des adultes — exactement ce qu'on attend d'une vraie journée à la campagne.",
+      "Le Bled Ferme, c'est cette adresse rare qui combine confort, simplicité et authenticité. On en repart en fin d'après-midi avec la sensation d'avoir vraiment fait une pause, à quelques minutes seulement de la ville ocre.",
+    ],
+  },
 ];
 
 const FermesPedagogiquesMarrakech = () => (
