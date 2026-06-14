@@ -345,17 +345,17 @@ const BlogArticleTemplate = ({
                               </div>
                               <CardContent className="p-6 flex flex-col justify-center">
                                 {(b.computed_rating ?? b.rating) && (
-                                  <div className="relative inline-flex items-center justify-center gap-1.5 py-1 px-3.5 rounded-full border border-white/30 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.3)] self-start mb-3">
+                                  <div className="relative inline-flex items-center justify-center gap-2 py-1.5 px-5 rounded-full border border-white/30 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.3)] self-start mb-4">
                                     <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
                                     <span aria-hidden="true" className="pointer-events-none absolute top-0 left-1 right-1 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
-                                    <div className="relative z-10 flex items-center gap-1.5">
-                                      <Star className="h-4 w-4 text-gold fill-gold shrink-0" />
-                                      <span className="text-base font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                    <div className="relative z-10 flex items-center gap-2">
+                                      <Star className="h-[18px] w-[18px] text-gold fill-gold shrink-0" />
+                                      <span className="text-lg font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                         {b.computed_rating ?? b.rating}
-                                        <span className="text-xs font-semibold text-white/60">/20</span>
+                                        <span className="text-sm font-semibold text-white/60">/20</span>
                                       </span>
                                       {b.total_review_count && b.total_review_count > 0 && (
-                                        <span className="text-[10.5px] text-white/60 font-semibold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                        <span className="text-xs text-white/60 font-semibold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                           · {b.total_review_count} avis
                                         </span>
                                       )}
