@@ -833,7 +833,7 @@ const HomeMindtrip = () => {
       {/* INSPIRATION — HORIZONTAL PINNED (like steps 2-6) */}
       <section
         ref={inspirationRef}
-        className="relative bg-background mt-12 md:mt-20"
+        className="relative bg-background mt-16 md:mt-6"
         style={{ height: "300vh" }}
       >
         <div className="sticky top-0 flex h-svh md:h-screen flex-col overflow-hidden">
