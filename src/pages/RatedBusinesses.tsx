@@ -51,6 +51,7 @@ const RatedBusinesses = () => {
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<RatedBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStaff, setIsStaff] = useState(false);
   const { categories: mainCategories } = useAvailableMainCategories();
 
   // Subcategories & services from DB
@@ -81,6 +82,20 @@ const RatedBusinesses = () => {
       ? <ArrowUp className="h-3 w-3 ml-1 inline text-gold" /> 
       : <ArrowDown className="h-3 w-3 ml-1 inline text-gold" />;
   };
+
+  // Check staff status
+  useEffect(() => {
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setIsStaff(false); return; }
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id);
+      setIsStaff(!!roles && roles.some((r: any) => r.role === "admin" || r.role === "staff"));
+    };
+    check();
+  }, []);
 
   // Fetch businesses with any rating data
   useEffect(() => {
@@ -383,11 +398,13 @@ const RatedBusinesses = () => {
                               <ExternalLink className="h-3.5 w-3.5" />
                             </Button>
                           </Link>
-                          <Link to={`/staff/backoffice?edit=${b.id}`} target="_blank" rel="noopener noreferrer" title="Modifier dans le backoffice">
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <Settings className="h-3.5 w-3.5" />
-                            </Button>
-                          </Link>
+                          {isStaff && (
+                            <Link to={`/staff/backoffice?edit=${b.id}`} target="_blank" rel="noopener noreferrer" title="Modifier dans le backoffice">
+                              <Button variant="ghost" size="icon" className="h-7 w-7">
+                                <Settings className="h-3.5 w-3.5" />
+                              </Button>
+                            </Link>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

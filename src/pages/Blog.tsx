@@ -698,7 +698,7 @@ const Blog = () => {
                 key: "static-etablissements-notes",
                 date: "2026-06-14T12:00:00Z",
                 node: (
-                  <Link key="static-etablissements-notes" to="/staff/etablissements-notes">
+                  <Link key="static-etablissements-notes" to="/blog/etablissements-notes">
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30">
                       <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
                         <MapPin className="h-16 w-16 text-primary" />
