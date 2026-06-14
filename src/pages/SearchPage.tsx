@@ -2612,11 +2612,25 @@ const SearchPage = () => {
   }, [fsUserOverride, hasActiveSearchContext, searchMapPool, allSearchMapBusinesses, allCityMapBusinesses, filteredBusinesses]);
 
 
-  // "Tous" tab: show search results only (desktop) — capped to 20 unless "Voir tous" is toggled
+  // Slice of the search pool matching the current pagination page.
+  const searchPagePool: Business[] = useMemo(() => {
+    const pool = allSearchMapBusinesses.length > 0 ? allSearchMapBusinesses : searchMapPool;
+    if (pinIdsParam) {
+      if (currentPage === 1) return pool.slice(0, PIN_PAGE1_SIZE);
+      const start = PIN_PAGE1_SIZE + (currentPage - 2) * ITEMS_PER_PAGE;
+      return pool.slice(start, start + ITEMS_PER_PAGE);
+    }
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return pool.slice(start, start + ITEMS_PER_PAGE);
+  }, [allSearchMapBusinesses, searchMapPool, currentPage, pinIdsParam]);
+
+  // "Tous" tab: synced with current pagination page (or full pool when "Voir tous").
   const mapPoiItemsSearch: PoiMapItem[] = useMemo(() => {
-    const items = buildMapPoiItems(searchMapPool, true);
-    return showAllSearchMarkers ? items : items.slice(0, 20);
-  }, [buildMapPoiItems, searchMapPool, showAllSearchMarkers]);
+    if (showAllSearchMarkers) {
+      return buildMapPoiItems(allSearchMapBusinesses.length > 0 ? allSearchMapBusinesses : searchMapPool, true);
+    }
+    return buildMapPoiItems(searchPagePool, true);
+  }, [buildMapPoiItems, searchMapPool, allSearchMapBusinesses, searchPagePool, showAllSearchMarkers]);
 
   // Full (un-sliced) map pool used by the proximity filter so the markers stay
   // in sync with the result cards even when "Tous" is not toggled.
@@ -2624,11 +2638,13 @@ const SearchPage = () => {
     return buildMapPoiItems(allSearchMapBusinesses.length > 0 ? allSearchMapBusinesses : searchMapPool, true);
   }, [buildMapPoiItems, allSearchMapBusinesses, searchMapPool]);
 
-  // "Tous" tab: mobile/tablet
+  // "Tous" tab: mobile/tablet — synced with current pagination page.
   const mobileMapPoiItems: PoiMapItem[] = useMemo(() => {
-    const items = buildMapPoiItems(searchMapPool, false);
-    return showAllSearchMarkers ? items : items.slice(0, 20);
-  }, [buildMapPoiItems, searchMapPool, showAllSearchMarkers]);
+    if (showAllSearchMarkers) {
+      return buildMapPoiItems(allSearchMapBusinesses.length > 0 ? allSearchMapBusinesses : searchMapPool, false);
+    }
+    return buildMapPoiItems(searchPagePool, false);
+  }, [buildMapPoiItems, searchMapPool, allSearchMapBusinesses, searchPagePool, showAllSearchMarkers]);
 
   // Helper: sort and slice for front structure category filtering
   const buildFsCategoryItems = useCallback((guardDesktop: boolean): PoiMapItem[] => {
@@ -2648,9 +2664,21 @@ const SearchPage = () => {
       const bRating = bCount >= 10 ? (b.computed_rating ?? b.rating ?? -1) : -1;
       return bRating - aRating;
     });
-    const sliced = showAllSearchMarkers ? matching : matching.slice(0, 20);
+    let sliced: Business[];
+    if (showAllSearchMarkers) {
+      sliced = matching;
+    } else if (pinIdsParam) {
+      if (currentPage === 1) sliced = matching.slice(0, PIN_PAGE1_SIZE);
+      else {
+        const start = PIN_PAGE1_SIZE + (currentPage - 2) * ITEMS_PER_PAGE;
+        sliced = matching.slice(start, start + ITEMS_PER_PAGE);
+      }
+    } else {
+      const start = (currentPage - 1) * ITEMS_PER_PAGE;
+      sliced = matching.slice(start, start + ITEMS_PER_PAGE);
+    }
     return buildMapPoiItems(sliced, guardDesktop);
-  }, [fsFilterSubcategories, fsFilterServices, frontStructurePool, buildMapPoiItems, showAllSearchMarkers]);
+  }, [fsFilterSubcategories, fsFilterServices, frontStructurePool, buildMapPoiItems, showAllSearchMarkers, currentPage, pinIdsParam]);
 
   const fsFilterMatchesUrlSubcats = useMemo(() => {
     if (!fsFilterSubcategories || subcategoryNamesFromUrl.length === 0) return false;
