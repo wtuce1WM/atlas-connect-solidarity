@@ -358,38 +358,6 @@ const Blog = () => {
                 ),
               });
 
-              // Carte Essaouira
-              items.push({
-                key: "static-essaouira",
-                date: "2025-11-01T00:00:00Z",
-                node: (
-                  <Link key="static-essaouira" to="/blog/essaouira-vue-mer">
-                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
-                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        {staticHeroes.essaouira ? (
-                          <img src={staticHeroes.essaouira} alt="Essaouira vue sur mer" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                        ) : (
-                          <MapPin className="h-16 w-16 text-primary" />
-                        )}
-                      </div>
-                      <CardContent className="p-6">
-                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                          Établissements à Essaouira avec vue sur mer
-                        </h2>
-                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                          Découvrez notre sélection des meilleurs établissements d'Essaouira offrant une vue imprenable sur l'océan Atlantique.
-                        </p>
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1 text-primary font-medium">
-                            <MapPin className="h-3 w-3" /> Essaouira
-                          </span>
-                          <ArrowRight className="h-4 w-4 text-primary" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ),
-              });
 
               // Carte Galeries d'art Marrakech
               items.push({

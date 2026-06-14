@@ -669,7 +669,7 @@ const StaffFront = () => {
                 { group: "Principales", name: "Vidéos", url: "/videos", description: "Page dédiée aux vidéos (vignettes 1 entité = 1 vignette)." },
 
                 // Articles blog dédiés (pages statiques)
-                { group: "Articles blog dédiés", name: "Essaouira vue mer", url: "/blog/essaouira-vue-mer", description: "Article dédié : hôtels avec vue mer à Essaouira." },
+                
                 { group: "Articles blog dédiés", name: "5 jours Marrakech artisanat", url: "/blog/5-jours-marrakech-artisanat", description: "Itinéraire artisanat à Marrakech." },
                 { group: "Articles blog dédiés", name: "Activités enfants Marrakech", url: "/blog/activites-enfants-marrakech", description: "Sélection d'activités enfants à Marrakech." },
                 { group: "Articles blog dédiés", name: "Galeries d'art Marrakech", url: "/blog/galeries-art-marrakech", description: "Sélection des galeries d'art à Marrakech." },
