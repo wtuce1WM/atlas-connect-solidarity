@@ -1501,6 +1501,9 @@ const SearchPage = () => {
             .find(isScrollableY) || null;
         };
         const handler = (e: WheelEvent) => {
+          const rect = el.getBoundingClientRect();
+          const isOverPanel = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+          if (!isOverPanel) return;
           if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
           const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
           const dir = deltaY > 0 ? 1 : -1;
@@ -1532,8 +1535,8 @@ const SearchPage = () => {
           wheelLockUntilRef.current = now + 450;
           goToBusinessOffsetRef.current(navDir);
         };
-        el.addEventListener("wheel", handler, { passive: false, capture: true });
-        return () => el.removeEventListener("wheel", handler, { capture: true } as any);
+        window.addEventListener("wheel", handler, { passive: false, capture: true });
+        return () => window.removeEventListener("wheel", handler, { capture: true } as any);
       }, [compactPanelBusiness?.id, currentInjectedVideo?.videoUrl]);
 
 
