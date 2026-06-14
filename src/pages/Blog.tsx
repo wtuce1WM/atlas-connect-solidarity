@@ -30,7 +30,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; kids?: string; galeries?: string; fermes?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string; sidikaouki?: string; agafay?: string; rated?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; galeries?: string; fermes?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string; sidikaouki?: string; agafay?: string; rated?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -55,7 +55,7 @@ const Blog = () => {
     // Hero images for static blog cards (same logic as their pages)
     const fetchStaticHeroes = async () => {
       const KIDS_BADGE_ID = "645463af-f0a1-41f4-90c0-b79c5c74a09f";
-      const [essRes, mrkRes, kidsDocRes, kidsYtRes, galRes, fermesRes, artisanatRes, ratedRes] = await Promise.all([
+      const [essRes, mrkRes, galRes, fermesRes, artisanatRes, ratedRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("images, services")
@@ -68,14 +68,6 @@ const Blog = () => {
           .select("images")
           .eq("id", "83d7e07e-128c-47a3-92c6-225a53e34b42")
           .maybeSingle(),
-        supabase
-          .from("business_document_badges")
-          .select("document_id")
-          .eq("badge_id", KIDS_BADGE_ID),
-        supabase
-          .from("business_youtube_video_badges")
-          .select("youtube_video_id")
-          .eq("badge_id", KIDS_BADGE_ID),
         supabase
           .from("businesses")
           .select("images")
@@ -106,36 +98,6 @@ const Blog = () => {
           b.services?.some((s: string) => seaKW.includes(s.toLowerCase()))
         )?.images?.[0];
 
-      // Hero kids : 1ʳᵉ image d'un établissement Marrakech avec badge Enfants
-      const kidsBizIds = new Set<string>();
-      const docIds = (kidsDocRes.data || []).map((r: any) => r.document_id);
-      const ytIds = (kidsYtRes.data || []).map((r: any) => r.youtube_video_id);
-      if (docIds.length) {
-        const { data } = await supabase
-          .from("business_documents")
-          .select("business_id")
-          .in("id", docIds);
-        (data || []).forEach((r: any) => r.business_id && kidsBizIds.add(r.business_id));
-      }
-      if (ytIds.length) {
-        const { data } = await supabase
-          .from("business_youtube_videos")
-          .select("business_id")
-          .in("id", ytIds);
-        (data || []).forEach((r: any) => r.business_id && kidsBizIds.add(r.business_id));
-      }
-      let kidsImg: string | undefined;
-      if (kidsBizIds.size) {
-        const { data } = await supabase
-          .from("businesses")
-          .select("images")
-          .in("id", Array.from(kidsBizIds))
-          .eq("is_active", true)
-          .eq("city", "Marrakech")
-          .order("priority_score", { ascending: false })
-          .limit(20);
-        kidsImg = (data || []).find((b: any) => b.images?.length)?.images?.[0];
-      }
 
       // Hero street food : même 1ʳᵉ fiche que le hero de l'article (1er entry)
       const { data: sfRow } = await supabase

@@ -113,7 +113,6 @@ const HomeMindtrip = () => {
         { slug: "street-food-marrakech", path: "/blog/street-food-marrakech", title: "Le meilleur de la Street Food à Marrakech", bizId: "6f48e2fa-bf01-4ce4-a51c-0e986ce17e18", date: "2026-06-13T02:00:00Z" },
         { slug: "artisanat-medina-marrakech", path: "/blog/artisanat-medina-marrakech", title: "Artisanat marocain dans la Médina de Marrakech", bizId: "1621498d-403b-4ff2-baf3-db45d1e5f41e", date: "2026-06-13T01:00:00Z" },
         { slug: "fermes-pedagogiques-marrakech", path: "/blog/fermes-pedagogiques-marrakech", title: "Les fermes pédagogiques à Marrakech", bizId: "2fdb1f15-4a02-40b4-b344-0ffc0c2e1abd", date: "2026-06-13T00:00:00Z" },
-        { slug: "activites-enfants-marrakech", path: "/blog/activites-enfants-marrakech", title: "Activités pour les enfants à Marrakech", date: "2026-05-24T00:00:00Z" },
         { slug: "galeries-art-marrakech", path: "/blog/galeries-art-marrakech", title: "Les galeries d'art à Marrakech", bizId: "b484d0cd-6c47-43a2-b388-8ad34f590cd8", date: "2026-05-24T00:00:00Z" },
         { slug: "5-jours-marrakech-artisanat", path: "/blog/5-jours-marrakech-artisanat", title: "5 jours à Marrakech pour découvrir le meilleur de l'artisanat marocain", bizId: "83d7e07e-128c-47a3-92c6-225a53e34b42", date: "2026-05-23T00:00:00Z" },
       ];
