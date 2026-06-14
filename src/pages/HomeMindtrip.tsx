@@ -107,13 +107,13 @@ const HomeMindtrip = () => {
         .order("published_at", { ascending: false, nullsFirst: false })
         .limit(3);
       if (cancelled) return;
-      const posts = (data || []).map((p: any) => ({
-        slug: p.slug,
-        title: p.title_fr,
-        image: p.cover_image_url || undefined,
-      }));
-      // Sort chronologically ascending among the 3 latest posts
-      setLatestPosts(posts.reverse());
+      setLatestPosts(
+        (data || []).map((p: any) => ({
+          slug: p.slug,
+          title: p.title_fr,
+          image: p.cover_image_url || undefined,
+        }))
+      );
     })();
     return () => { cancelled = true; };
   }, []);
