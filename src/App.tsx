@@ -40,7 +40,6 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 const MarrakechArtisanat5Jours = lazy(() => import("./pages/MarrakechArtisanat5Jours"));
-const MarrakechActivitesEnfants = lazy(() => import("./pages/MarrakechActivitesEnfants"));
 const MarrakechGaleriesArt = lazy(() => import("./pages/MarrakechGaleriesArt"));
 const FermesPedagogiquesMarrakech = lazy(() => import("./pages/FermesPedagogiquesMarrakech"));
 const ArtisanatMedinaMarrakech = lazy(() => import("./pages/ArtisanatMedinaMarrakech"));
@@ -168,7 +167,6 @@ const AppContent = () => {
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
               
               <Route path="/blog/5-jours-marrakech-artisanat" element={renderLazyRoute(<MarrakechArtisanat5Jours />)} />
-              <Route path="/blog/activites-enfants-marrakech" element={renderLazyRoute(<MarrakechActivitesEnfants />)} />
               <Route path="/blog/galeries-art-marrakech" element={renderLazyRoute(<MarrakechGaleriesArt />)} />
               <Route path="/blog/fermes-pedagogiques-marrakech" element={renderLazyRoute(<FermesPedagogiquesMarrakech />)} />
               <Route path="/blog/artisanat-medina-marrakech" element={renderLazyRoute(<ArtisanatMedinaMarrakech />)} />
