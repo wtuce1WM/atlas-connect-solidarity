@@ -1257,6 +1257,8 @@ const SearchPage = () => {
         setCompactPanelInitialVideoUrl(initVideo);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
+        // Clear any hashtag-injected video state when explicitly opening a business.
+        setCurrentInjectedVideo(null);
         // Ensure the bottom search overlay backdrop (with backdrop-blur) is closed
         // so that when the slide panel is later closed, results aren't left blurred.
         setBottomSearchOverlayOpen(false);
