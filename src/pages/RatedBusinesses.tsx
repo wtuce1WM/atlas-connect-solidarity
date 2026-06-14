@@ -83,6 +83,20 @@ const RatedBusinesses = () => {
       : <ArrowDown className="h-3 w-3 ml-1 inline text-gold" />;
   };
 
+  // Check staff status
+  useEffect(() => {
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setIsStaff(false); return; }
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id);
+      setIsStaff(!!roles && roles.some((r: any) => r.role === "admin" || r.role === "staff"));
+    };
+    check();
+  }, []);
+
   // Fetch businesses with any rating data
   useEffect(() => {
     const fetchData = async () => {
