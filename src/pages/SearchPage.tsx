@@ -3661,12 +3661,22 @@ const SearchPage = () => {
                 setOverlaySelectedBusiness(null);
                 setIsOverlayPanelExpanded(false);
                 setShowAiPopup(false);
-                  setActiveTab(nextTab);
-                  scheduleResultsGridScroll("auto", nextTab);
+                // Prevent the suggestions auto-align effect from re-scrolling
+                // after a tab change (it would override our scroll-to-top).
+                hasAutoAlignedResultsRef.current = true;
+                // Synchronous scroll BEFORE React re-renders, so the new tab
+                // mounts already at top — no race with content rendering.
+                try {
+                  document.documentElement.style.overflowAnchor = "none";
+                  window.scrollTo(0, 0);
+                  document.documentElement.scrollTop = 0;
+                  document.body.scrollTop = 0;
+                } catch {}
+                setActiveTab(nextTab);
+                scheduleResultsGridScroll("auto", nextTab);
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
-              
               }}
               className={`flex items-center gap-2 px-3 py-2 text-xs font-bold transition-colors border-b-2 whitespace-nowrap ${
                 isActive
