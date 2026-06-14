@@ -215,20 +215,41 @@ const RatedBusinesses = () => {
 
   const hasFilters = selectedCity !== "all" || selectedCategory !== "all" || selectedSubcategory !== "all" || selectedService !== "all";
 
+  const heroImage =
+    filteredBusinesses[0]?.images?.[0] ||
+    businesses[0]?.images?.[0] ||
+    "https://oneworldmorocco.com/og-install-app.webp";
+
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <HomeMindtripHeader alwaysWhite />
 
       {/* Hero */}
-      <div className="bg-black pt-28 pb-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-white flex items-center gap-3">
-            <Star className="h-8 w-8 text-gold" />
-            Établissements notés
-          </h1>
-          <p className="text-white/60 mt-2">
-            {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""} avec des avis
-          </p>
+      <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
+        <img
+          src={heroImage}
+          alt="Établissements notés au Maroc"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
+        <div className="absolute inset-0 flex flex-col justify-end pb-12">
+          <div className="container mx-auto px-4">
+            <button
+              onClick={() => navigate("/blog")}
+              className="inline-flex items-center gap-2 text-white/60 hover:text-gold mb-4 transition-colors text-sm"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Retour au blog
+            </button>
+            <h1 className="text-3xl md:text-5xl font-bold text-white font-['Playfair_Display'] italic leading-tight">
+              Établissements
+              <br />
+              <span className="text-gold">notés au Maroc</span>
+            </h1>
+            <p className="mt-4 text-white/70 max-w-2xl text-lg">
+              {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""} avec des avis vérifiés — Google, TripAdvisor et Restaurant Guru réunis dans un classement unique sur 20.
+            </p>
+          </div>
         </div>
       </div>
 
