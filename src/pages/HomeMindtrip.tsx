@@ -830,41 +830,52 @@ const HomeMindtrip = () => {
 
 
 
-      {/* INSPIRATION — horizontal scroll (mouse wheel converts to horizontal via HScroll) */}
-      <section className="relative mt-12 md:mt-20 pb-16">
-        <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
-          <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
-            Inspirez-vous
-          </h2>
-          <p className="mt-3 max-w-xl font-roboto text-foreground/70">
-            Nos derniers guides pour explorer le Maroc autrement.
-          </p>
-        </div>
-        <div className="mt-8">
-          <HScroll className="flex gap-4 overflow-x-auto px-6 md:px-12 pb-4 scrollbar-hide-mobile">
-            {latestPosts.map((a) => (
-              <Link
-                key={a.slug}
-                to={a.slug}
-                className="group relative aspect-[4/5] h-[60vh] max-h-[560px] shrink-0 overflow-hidden rounded-2xl bg-muted"
-              >
-                {a.image ? (
-                  <img
-                    src={a.image}
-                    alt={a.title}
-                    className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
-                )}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent p-6">
-                  <span className="font-josefin text-xl leading-tight text-background">{a.title}</span>
-                </div>
-              </Link>
-            ))}
-          </HScroll>
+      {/* INSPIRATION — HORIZONTAL PINNED (like steps 2-6) */}
+      <section
+        ref={inspirationRef}
+        className="relative bg-background mt-12 md:mt-20"
+        style={{ height: "300vh" }}
+      >
+        <div className="sticky top-0 flex h-svh md:h-screen flex-col overflow-hidden">
+          <div className="mx-auto w-full max-w-7xl px-6 md:px-12 pt-8 md:pt-12 shrink-0">
+            <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
+              Inspirez-vous
+            </h2>
+            <p className="mt-3 max-w-xl font-roboto text-foreground/70">
+              Nos derniers guides pour explorer le Maroc autrement.
+            </p>
+          </div>
+          <div className="flex-1 min-h-0 flex items-center overflow-hidden">
+            <div
+              ref={inspirationTrackRef}
+              className="flex gap-4 md:gap-8 will-change-transform pl-6 pr-6 md:pl-12 md:pr-12"
+              style={{ transform: "translate3d(0, 0, 0)" }}
+            >
+              {latestPosts.map((a) => (
+                <Link
+                  key={a.slug}
+                  to={a.slug}
+                  className="group relative aspect-[4/5] h-[55vh] max-h-[520px] shrink-0 overflow-hidden rounded-2xl bg-muted"
+                >
+                  {a.image ? (
+                    <img
+                      src={a.image}
+                      alt={a.title}
+                      className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent p-6">
+                    <span className="font-josefin text-xl leading-tight text-background">{a.title}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
+
 
 
 
