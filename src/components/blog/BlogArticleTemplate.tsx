@@ -85,7 +85,7 @@ const BlogArticleTemplate = ({
   const { toast } = useToast();
 
   const allIds = entries.flatMap((e) => [e.id, ...(e.extraIds ?? [])]);
-  const ogFallback = defaultOgImage || `${siteUrl}/og-install-app.jpg`;
+  const ogFallback = defaultOgImage || `${siteUrl}/og-install-app.webp`;
 
   const heroImageBusiness =
     businesses[entries[0]?.id]?.images?.[0] ||
