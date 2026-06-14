@@ -1480,24 +1480,30 @@ const SearchPage = () => {
       const wheelAccumRef = useRef(0);
       const wheelLockUntilRef = useRef(0);
       const panelWheelRef = useRef<HTMLDivElement | null>(null);
+      const goToBusinessOffsetRef = useRef(goToBusinessOffset);
+      useEffect(() => { goToBusinessOffsetRef.current = goToBusinessOffset; }, [goToBusinessOffset]);
       useEffect(() => {
         const el = panelWheelRef.current;
         if (!el) return;
         const handler = (e: WheelEvent) => {
           if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
           e.preventDefault();
+          e.stopPropagation();
           const now = Date.now();
-          if (now < wheelLockUntilRef.current) return;
+          if (now < wheelLockUntilRef.current) {
+            wheelAccumRef.current = 0;
+            return;
+          }
           wheelAccumRef.current += e.deltaY;
           if (Math.abs(wheelAccumRef.current) < 60) return;
           const dir = wheelAccumRef.current > 0 ? 1 : -1;
           wheelAccumRef.current = 0;
           wheelLockUntilRef.current = now + 450;
-          goToBusinessOffset(dir);
+          goToBusinessOffsetRef.current(dir);
         };
-        el.addEventListener("wheel", handler, { passive: false });
-        return () => el.removeEventListener("wheel", handler);
-      }, [goToBusinessOffset, compactPanelBusiness?.id]);
+        el.addEventListener("wheel", handler, { passive: false, capture: true });
+        return () => el.removeEventListener("wheel", handler, { capture: true } as any);
+      }, []);
 
 
 
