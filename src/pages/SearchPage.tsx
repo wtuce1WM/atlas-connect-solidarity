@@ -5608,6 +5608,18 @@ const SearchPage = () => {
             <div className="flex-1 min-h-0 overflow-visible">
               <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
                 <BookOnlineSlidePanel
+                  key={currentInjectedVideo ? `v:${currentInjectedVideo.videoUrl}` : `b:${compactPanelBusiness.id}`}
+                  {...(currentInjectedVideo ? {
+                    videoUrl: currentInjectedVideo.videoUrl,
+                    videoId: currentInjectedVideo.videoId,
+                    isGeneric: currentInjectedVideo.isGeneric,
+                    owner: currentInjectedVideo.owner,
+                    pageBusinessId: currentInjectedVideo.pageBusinessId,
+                    pageBusinessName: currentInjectedVideo.pageBusinessName,
+                    videoName: currentInjectedVideo.videoName,
+                    social: currentInjectedVideo.social,
+                    businessName: currentInjectedVideo.pageBusinessName || currentInjectedVideo.owner?.name || "",
+                  } : {})}
                   businessId={compactPanelBusiness.id}
                   initialVideoUrl={compactPanelInitialVideoUrl || undefined}
                   onClose={closeCompactPanel}
