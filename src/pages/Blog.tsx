@@ -705,7 +705,7 @@ const Blog = () => {
               // Carte Établissements notés
               items.push({
                 key: "static-etablissements-notes",
-                date: "2026-06-14T12:00:00Z",
+                date: "2000-01-01T00:00:00Z",
                 node: (
                   <Link key="static-etablissements-notes" to="/blog/etablissements-notes">
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30">
