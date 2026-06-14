@@ -1,4 +1,5 @@
 import BlogArticleTemplate, { type BlogArticleEntry } from "@/components/blog/BlogArticleTemplate";
+import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
 
 // Texte immersif rédigé à partir des hooks, descriptions, services, badges,
 // engagements/logistique, avis clients et horaires de chaque fiche.
@@ -434,6 +435,7 @@ const HotelsRiadsVueMerEssaouira = () => (
     heroSubtitle="Trente-deux adresses face à l'Atlantique — riads de la médina, hôtels de la plage, villas de Moulay Bouzerktoun ou écolodges de Sidi Kaouki, toutes avec vue sur mer."
     intro="À Essaouira, la vue sur mer n'est pas un argument marketing : c'est le décor même de la ville. Le vent des alizés, le bleu profond de l'Atlantique, la silhouette des îles Purpuraires au loin, la médina blanche posée comme une vigie face à l'océan — l'expérience commence à la fenêtre de la chambre. Voici notre sélection de trente-deux adresses où dormir face à l'eau : riads intimistes de la médina, hôtels de la plage, villas isolées de Moulay Bouzerktoun, écolodges de Sidi Kaouki ou refuges de Ghazoua. Toutes ont en commun ce service qui change tout : la vue sur mer."
     datePublished="2026-06-13T10:00:00+01:00"
+    customHeroImage={essaouiraSunsetAsset.url}
   />
 );
 

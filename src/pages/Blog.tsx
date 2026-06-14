@@ -10,6 +10,7 @@ import { Loader2, Calendar, User, ArrowRight, MapPin, Database } from "lucide-re
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
+import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
 
 interface BlogPost {
   id: string;
@@ -147,7 +148,7 @@ const Blog = () => {
         .maybeSingle();
       const agImg = (agRow as any)?.images?.[0];
 
-      setStaticHeroes({
+       setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
         galeries: (galRes.data as any)?.images?.[0],
@@ -156,7 +157,7 @@ const Blog = () => {
         streetfood: sfImg,
         fashion: fashionImg,
         beachclubs: beachImg,
-        hotelsessaouira: hotelsImg,
+        hotelsessaouira: essaouiraSunsetAsset.url,
         sidikaouki: skImg,
         agafay: agImg,
         rated: ratedRes.data?.[0]?.images?.[0],

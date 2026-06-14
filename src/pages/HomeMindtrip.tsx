@@ -24,6 +24,7 @@ import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
+import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
 import { X } from "lucide-react";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -131,7 +132,11 @@ const HomeMindtrip = () => {
       const staticItems = staticArticles.map((a) => ({
         slug: a.path,
         title: a.title,
-        image: a.slug === "etablissements-notes" ? ratedHeroAsset.url : (a.bizId ? imgById.get(a.bizId) : undefined),
+        image: a.slug === "etablissements-notes" 
+          ? ratedHeroAsset.url 
+          : a.slug === "hotels-riads-vue-mer-essaouira" 
+          ? essaouiraSunsetAsset.url 
+          : (a.bizId ? imgById.get(a.bizId) : undefined),
         date: a.date,
       }));
       const dbItems = (dbPosts || []).map((p: any) => ({

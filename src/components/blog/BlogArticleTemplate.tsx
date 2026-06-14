@@ -53,6 +53,7 @@ export interface BlogArticleTemplateProps {
   dateModified?: string;
   siteUrl?: string;
   defaultOgImage?: string;
+  customHeroImage?: string;
 }
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
@@ -72,6 +73,7 @@ const BlogArticleTemplate = ({
   dateModified,
   siteUrl = DEFAULT_SITE_URL,
   defaultOgImage,
+  customHeroImage,
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
@@ -91,7 +93,7 @@ const BlogArticleTemplate = ({
     businesses[entries[0]?.id]?.images?.[0] ||
     businesses[entries[1]?.id]?.images?.[0] ||
     null;
-  const heroImage = heroImageBusiness || ogFallback;
+  const heroImage = customHeroImage || heroImageBusiness || ogFallback;
 
 
   const handleSaveArticle = async () => {
@@ -175,9 +177,9 @@ const BlogArticleTemplate = ({
 
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
-        {heroImageBusiness && (
+        {(customHeroImage || heroImageBusiness) && (
           <img
-            src={heroImageBusiness}
+            src={customHeroImage || heroImageBusiness}
             alt={heroAlt}
             className="absolute inset-0 w-full h-full object-cover"
           />
