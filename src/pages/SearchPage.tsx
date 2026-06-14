@@ -5622,11 +5622,12 @@ const SearchPage = () => {
               transform: isMobile && swipeOffsetY !== 0 ? `translateY(${swipeOffsetY}px)` : undefined,
               transition: isMobile && swipeOffsetY === 0 ? "transform 0.2s ease-out" : undefined,
             }}
+            ref={panelWheelRef}
             onTouchStart={onPanelTouchStart}
             onTouchMove={onPanelTouchMove}
             onTouchEnd={onPanelTouchEnd}
-            onWheel={onPanelWheel}
           >
+
             {!isNestedMosaicOpen && (
               <SlidePanelHeader
                 onClose={handleCompactPanelClose}
