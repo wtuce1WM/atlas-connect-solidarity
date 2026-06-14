@@ -277,12 +277,15 @@ export default function ResultsTabContent({
     }
     requestAnimationFrame(() => {
       const anchorEl =
-        resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
         resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+        resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
         resultsRef.current;
       if (anchorEl) {
-        const y = anchorEl.getBoundingClientRect().top + window.scrollY - 76;
-        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+        anchorEl.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+        requestAnimationFrame(() => {
+          const y = anchorEl.getBoundingClientRect().top + window.scrollY - 76;
+          window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+        });
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
