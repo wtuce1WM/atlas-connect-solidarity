@@ -63,7 +63,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   "/blog/fermes-pedagogiques-marrakech": {
     title: `Les fermes pédagogiques à Marrakech — ${BRAND}`,
     description:
-      "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
+      "Dix adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
   },
   "/blog/artisanat-medina-marrakech": {
     title: `Artisanat marocain dans la Médina de Marrakech — ${BRAND}`,
