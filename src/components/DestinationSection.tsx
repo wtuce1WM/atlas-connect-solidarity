@@ -119,7 +119,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
 
   return (
     <>
-      <div className={`grid gap-4 pt-10 sm:pt-12 lg:pt-14 pb-6 [overflow-anchor:none] ${columns === 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+      <div data-results-grid="true" className={`grid gap-4 pt-10 sm:pt-12 lg:pt-14 pb-6 [overflow-anchor:none] ${columns === 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
         {paginatedDestinations.map((dest) => {
           const img = dest.image_url || (dest.images && dest.images.length > 0 ? dest.images[0] : null);
           const name = getName(dest);

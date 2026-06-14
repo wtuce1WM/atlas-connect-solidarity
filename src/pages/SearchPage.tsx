@@ -82,6 +82,8 @@ import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVE
 
 import type { Business, SearchResult } from "@/pages/search/types";
 
+type SearchTabKey = "suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai" | "youtube";
+
 
 
 
@@ -914,7 +916,7 @@ const SearchPage = () => {
     })();
     return () => { cancelled = true; };
   }, [aiAnswerText, totalCount, allBusinesses?.length, searchQuery, searchParams, language, categoryFromUrl]);
-   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai" | "youtube">(
+   const [activeTab, setActiveTab] = useState<SearchTabKey>(
      searchParams.get("tab") === "ai" ? "ai" : (searchParams.get("tab") === "youtube" ? "youtube" : (searchParams.get("openDestination") ? "destinations" : (searchParams.get("badgeId") ? "hashtag" : "suggestions")))
    );
    useEffect(() => {
@@ -929,6 +931,7 @@ const SearchPage = () => {
 
     // Tab bar: centering + native non-passive wheel handler for horizontal scroll
     const tabBarRef = useRef<HTMLDivElement | null>(null);
+    const pendingTabScrollRef = useRef<SearchTabKey | null>(null);
 
     const centerActiveTab = useCallback(() => {
       const el = tabBarRef.current;
@@ -1703,10 +1706,14 @@ const SearchPage = () => {
   const [overlayDismissing, setOverlayDismissing] = useState(false);
    const resultsRef = useRef<HTMLDivElement>(null);
    const resultsBarRef = useRef<HTMLDivElement>(null);
-  const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth") => {
+  const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth", tab: SearchTabKey = activeTab) => {
+    const scope = document.querySelector<HTMLElement>(`[data-search-tab-panel="${tab}"]`);
     const anchorEl =
-      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
+      scope?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+      scope?.querySelector<HTMLElement>("[data-result-card='true']") ??
+      scope ??
       resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
       resultsBarRef.current ??
       resultsRef.current;
 
@@ -1721,12 +1728,25 @@ const SearchPage = () => {
       .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), 0);
     const y = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom - 8;
     window.scrollTo({ top: Math.max(0, y), behavior });
-  }, []);
+  }, [activeTab]);
 
-  const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth") => {
-    requestAnimationFrame(() => scrollToResultsGridTop(behavior));
-    window.setTimeout(() => scrollToResultsGridTop(behavior), 80);
+  const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth", tab: SearchTabKey = activeTab) => {
+    pendingTabScrollRef.current = tab;
+    requestAnimationFrame(() => scrollToResultsGridTop(behavior, tab));
+    window.setTimeout(() => scrollToResultsGridTop(behavior, tab), 80);
+    window.setTimeout(() => scrollToResultsGridTop(behavior, tab), 250);
   }, [scrollToResultsGridTop]);
+
+  useEffect(() => {
+    if (pendingTabScrollRef.current !== activeTab) return;
+    const tab = activeTab;
+    const raf = requestAnimationFrame(() => scrollToResultsGridTop("smooth", tab));
+    const t = window.setTimeout(() => {
+      scrollToResultsGridTop("smooth", tab);
+      pendingTabScrollRef.current = null;
+    }, 120);
+    return () => { cancelAnimationFrame(raf); window.clearTimeout(t); };
+  }, [activeTab, scrollToResultsGridTop]);
 
   useEffect(() => {
     const h = () => {
@@ -1735,7 +1755,7 @@ const SearchPage = () => {
       setCompactPanelBusiness(null);
       setIsCompactPanelExpanded(false);
       setShowMobileMap(false);
-      scheduleResultsGridScroll("smooth");
+      scheduleResultsGridScroll("smooth", "ai");
     };
     window.addEventListener("open-ai-tab", h);
     return () => window.removeEventListener("open-ai-tab", h);
@@ -3625,15 +3645,16 @@ const SearchPage = () => {
             <button
               key={tab.key}
               data-active-tab={isActive ? "true" : undefined}
-              onClick={(e) => {
+              onClick={() => {
+                const nextTab = tab.key as SearchTabKey;
                 resetPanelStates();
                 setCompactPanelBusiness(null);
                 setIsCompactPanelExpanded(false);
                 setOverlaySelectedBusiness(null);
                 setIsOverlayPanelExpanded(false);
                 setShowAiPopup(false);
-                  setActiveTab(tab.key as any);
-                  scheduleResultsGridScroll("smooth");
+                  setActiveTab(nextTab);
+                  scheduleResultsGridScroll("smooth", nextTab);
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
@@ -3795,7 +3816,7 @@ const SearchPage = () => {
           }, 50);
         };
         return (
-        <div className={isInline ? "relative w-full bg-white flex" : "fixed inset-0 z-[9990] flex bg-white animate-in fade-in duration-200"}>
+        <div data-search-tab-panel="ai" className={isInline ? "relative w-full bg-white flex" : "fixed inset-0 z-[9990] flex bg-white animate-in fade-in duration-200"}>
 
 
           {/* Left panel: AI suggestion */}
@@ -4821,6 +4842,7 @@ const SearchPage = () => {
       )}
 
       {activeTab === "poi" && (
+        <div data-search-tab-panel="poi">
         <PoiTabContent
           selectedCity={selectedCity}
           detectedCity={detectedCity}
@@ -4858,9 +4880,11 @@ const SearchPage = () => {
           onPanelOpenChange={setPoiPanelOpen}
           userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
         />
+        </div>
       )}
 
       {activeTab === "destinations" && (
+        <div data-search-tab-panel="destinations">
         <DestinationsTabContent
           selectedCity={selectedCity}
           detectedCity={detectedCity}
@@ -4900,9 +4924,11 @@ const SearchPage = () => {
           userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
           openDestinationId={openDestinationParam || null}
         />
+        </div>
       )}
 
       {activeTab === "hashtag" && badgeIdParam && (
+        <div data-search-tab-panel="hashtag">
         <HashtagTabContent
           badgeId={badgeIdParam}
           badgeLabel={badgeLabelParam || "#"}
@@ -4911,9 +4937,11 @@ const SearchPage = () => {
           onOpenBusiness={(b) => openCompactPanel(b as any)}
 
         />
+        </div>
       )}
 
       {activeTab === "youtube" && (
+        <div data-search-tab-panel="youtube">
         <YouTubeChannelsTabContent
           city={cityFromUrl || null}
           onOpenBusiness={(bizId) => {
@@ -4921,6 +4949,7 @@ const SearchPage = () => {
             setIsCompactPanelExpanded(false);
           }}
         />
+        </div>
       )}
 
 
@@ -4929,7 +4958,7 @@ const SearchPage = () => {
 
 
       {activeTab === "suggestions" && (
-        <>
+        <div data-search-tab-panel="suggestions">
           <ResultsTabContent
             belowCardsSlot={(() => {
               // Carrousel vidéo en bas de l'onglet Résultats — désactivé temporairement
@@ -5049,7 +5078,7 @@ const SearchPage = () => {
             labelFromUrl={labelFromUrl}
             userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
           />
-        </>
+        </div>
       )}
 
       {/* Mobile/Tablet Map Overlay — slide-in from right */}

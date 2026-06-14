@@ -223,8 +223,8 @@ export default function ResultsTabContent({
 
   const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth") => {
     const anchorEl =
-      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
       resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
       resultsBarRef.current ??
       resultsRef.current;
 
@@ -244,6 +244,7 @@ export default function ResultsTabContent({
   const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth") => {
     requestAnimationFrame(() => scrollToResultsGridTop(behavior));
     window.setTimeout(() => scrollToResultsGridTop(behavior), 80);
+    window.setTimeout(() => scrollToResultsGridTop(behavior), 250);
   }, [scrollToResultsGridTop]);
 
   useEffect(() => { if (compactPanelBusiness) setShowFiltersOverlay(false); }, [compactPanelBusiness]);
