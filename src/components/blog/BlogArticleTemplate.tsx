@@ -87,10 +87,12 @@ const BlogArticleTemplate = ({
   const allIds = entries.flatMap((e) => [e.id, ...(e.extraIds ?? [])]);
   const ogFallback = defaultOgImage || `${siteUrl}/images/og-image.jpg`;
 
-  const heroImage =
+  const heroImageBusiness =
     businesses[entries[0]?.id]?.images?.[0] ||
     businesses[entries[1]?.id]?.images?.[0] ||
-    ogFallback;
+    null;
+  const heroImage = heroImageBusiness || ogFallback;
+
 
   const handleSaveArticle = async () => {
     if (!isLoggedIn) {
