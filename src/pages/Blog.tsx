@@ -376,6 +376,44 @@ const Blog = () => {
                 ),
               });
 
+              // Carte Activités enfants Marrakech
+              items.push({
+                key: "static-activites-enfants-marrakech",
+                date: "2026-06-14T00:00:00Z",
+                node: (
+                  <Link key="static-activites-enfants-marrakech" to="/blog/activites-enfants-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-sky-950/30 dark:to-cyan-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.enfants ? (
+                          <img
+                            src={staticHeroes.enfants}
+                            alt="Activités pour les enfants à Marrakech"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Activités pour les enfants à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Douze adresses pour occuper les enfants à Marrakech : parcs aquatiques, trampolines, escape games, mini-villes éducatives, poneys et expériences immersives en famille.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
               // Carte Artisanat Médina Marrakech
               items.push({
                 key: "static-artisanat-medina-marrakech",
