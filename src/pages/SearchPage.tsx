@@ -1474,22 +1474,32 @@ const SearchPage = () => {
         goToBusinessOffset(dy > 0 ? 1 : -1);
       }, [swipeOffsetY, goToBusinessOffset]);
 
-      // Mouse wheel → prev/next (mirrors vertical swipe). Only triggers from the
-      // top header strip to avoid hijacking scroll inside the panel content.
+      // Mouse wheel anywhere in the panel → prev/next (mirrors vertical swipe).
+      // Attached natively with passive:false so we can preventDefault and avoid
+      // double-handling with the panel's internal scroll.
       const wheelAccumRef = useRef(0);
       const wheelLockUntilRef = useRef(0);
-      const onPanelWheel = useCallback((e: React.WheelEvent) => {
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        if (e.clientY - rect.top > 80) return;
-        const now = Date.now();
-        if (now < wheelLockUntilRef.current) return;
-        wheelAccumRef.current += e.deltaY;
-        if (Math.abs(wheelAccumRef.current) < 80) return;
-        const dir = wheelAccumRef.current > 0 ? 1 : -1;
-        wheelAccumRef.current = 0;
-        wheelLockUntilRef.current = now + 450;
-        goToBusinessOffset(dir);
-      }, [goToBusinessOffset]);
+      const panelWheelRef = useRef<HTMLDivElement | null>(null);
+      useEffect(() => {
+        const el = panelWheelRef.current;
+        if (!el) return;
+        const handler = (e: WheelEvent) => {
+          if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+          e.preventDefault();
+          const now = Date.now();
+          if (now < wheelLockUntilRef.current) return;
+          wheelAccumRef.current += e.deltaY;
+          if (Math.abs(wheelAccumRef.current) < 60) return;
+          const dir = wheelAccumRef.current > 0 ? 1 : -1;
+          wheelAccumRef.current = 0;
+          wheelLockUntilRef.current = now + 450;
+          goToBusinessOffset(dir);
+        };
+        el.addEventListener("wheel", handler, { passive: false });
+        return () => el.removeEventListener("wheel", handler);
+      }, [goToBusinessOffset, compactPanelBusiness?.id]);
+
+
 
 
 
@@ -5612,11 +5622,12 @@ const SearchPage = () => {
               transform: isMobile && swipeOffsetY !== 0 ? `translateY(${swipeOffsetY}px)` : undefined,
               transition: isMobile && swipeOffsetY === 0 ? "transform 0.2s ease-out" : undefined,
             }}
+            ref={panelWheelRef}
             onTouchStart={onPanelTouchStart}
             onTouchMove={onPanelTouchMove}
             onTouchEnd={onPanelTouchEnd}
-            onWheel={onPanelWheel}
           >
+
             {!isNestedMosaicOpen && (
               <SlidePanelHeader
                 onClose={handleCompactPanelClose}
