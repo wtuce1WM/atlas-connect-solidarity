@@ -334,7 +334,7 @@ const HomeMindtrip = () => {
       window.removeEventListener("orientationchange", onResize);
       window.clearTimeout(t);
     };
-  }, []);
+  }, [latestPosts.length]);
 
 
 
