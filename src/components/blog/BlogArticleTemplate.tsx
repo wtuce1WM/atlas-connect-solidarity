@@ -342,8 +342,10 @@ const BlogArticleTemplate = ({
                                     className="absolute top-2 right-2 w-8 h-8 object-contain opacity-90 pointer-events-none"
                                   />
                                 )}
+                              </div>
+                              <CardContent className="p-6 flex flex-col justify-center">
                                 {(b.computed_rating ?? b.rating) && (
-                                  <div className="absolute top-2 left-2 flex items-center justify-center gap-1 py-0.5 px-2.5 rounded-full border border-white/30 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.3)]">
+                                  <div className="relative inline-flex items-center justify-center gap-1 py-0.5 px-2.5 rounded-full border border-white/30 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_4px_12px_rgba(0,0,0,0.3)] self-start mb-3">
                                     <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
                                     <span aria-hidden="true" className="pointer-events-none absolute top-0 left-1 right-1 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
                                     <div className="relative z-10 flex items-center gap-1">
@@ -354,14 +356,12 @@ const BlogArticleTemplate = ({
                                       </span>
                                       {b.total_review_count && b.total_review_count > 0 && (
                                         <span className="text-[9px] text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                          · {b.total_review_count} {b.total_review_count > 1 ? "avis" : "avis"}
+                                          · {b.total_review_count} avis
                                         </span>
                                       )}
                                     </div>
                                   </div>
                                 )}
-                              </div>
-                              <CardContent className="p-6 flex flex-col justify-center">
                                 <h3 className="font-semibold text-xl text-foreground group-hover:text-primary transition-colors mb-2">
                                   {b.name}
                                 </h3>
