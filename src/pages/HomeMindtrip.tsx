@@ -281,6 +281,45 @@ const HomeMindtrip = () => {
     }
   }, [activeStep]);
 
+  useLayoutEffect(() => {
+    let total = 1;
+    let maxX = 0;
+
+    const recompute = () => {
+      const container = inspirationRef.current;
+      const track = inspirationTrackRef.current;
+      if (!container || !track) return;
+      maxX = Math.max(0, track.scrollWidth - window.innerWidth);
+      total = Math.max(1, maxX);
+      container.style.height = `${Math.ceil(window.innerHeight + total)}px`;
+    };
+
+    const onScroll = () => {
+      const container = inspirationRef.current;
+      const track = inspirationTrackRef.current;
+      if (!container || !track) return;
+      const rect = container.getBoundingClientRect();
+      const progress = Math.min(1, Math.max(0, -rect.top / total));
+      track.style.transform = `translate3d(${-progress * maxX}px, 0, 0)`;
+    };
+
+    const onResize = () => { recompute(); onScroll(); };
+
+    recompute();
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+    // Recompute after images load
+    const t = window.setTimeout(onResize, 500);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+      window.clearTimeout(t);
+    };
+  }, []);
+
 
 
 
