@@ -822,7 +822,7 @@ const HomeMindtrip = () => {
 
 
       {/* INSPIRATION — sticky horizontal scroll */}
-      <section ref={inspirationOuterRef} className="relative">
+      <section ref={inspirationOuterRef} className="relative mt-12 md:mt-20">
         <div className="sticky top-0 flex h-svh md:h-screen flex-col overflow-hidden pt-6 pb-12 md:pt-10 md:pb-16">
           <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
             <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
