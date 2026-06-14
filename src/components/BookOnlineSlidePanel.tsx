@@ -162,7 +162,7 @@ interface BookOnlineSlidePanelProps {
   open?: boolean;
 }
 
-const BookOnlineSlidePanel = ({
+const BookOnlineSlidePanelInner = ({
   businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef,
   showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch,
   initialAvailabilityCheckIn, initialAvailabilityCheckOut, initialAvailabilityAdults,
