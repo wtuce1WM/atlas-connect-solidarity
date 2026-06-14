@@ -132,7 +132,7 @@ const HomeMindtrip = () => {
       const staticItems = staticArticles.map((a) => ({
         slug: a.path,
         title: a.title,
-        image: a.bizId ? imgById.get(a.bizId) : undefined,
+        image: a.slug === "etablissements-notes" ? ratedHeroAsset.url : (a.bizId ? imgById.get(a.bizId) : undefined),
         date: a.date,
       }));
       const dbItems = (dbPosts || []).map((p: any) => ({
