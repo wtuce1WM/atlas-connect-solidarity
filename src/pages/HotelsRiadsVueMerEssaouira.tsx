@@ -1,4 +1,5 @@
 import BlogArticleTemplate, { type BlogArticleEntry } from "@/components/blog/BlogArticleTemplate";
+import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
 
 // Texte immersif rédigé à partir des hooks, descriptions, services, badges,
 // engagements/logistique, avis clients et horaires de chaque fiche.
