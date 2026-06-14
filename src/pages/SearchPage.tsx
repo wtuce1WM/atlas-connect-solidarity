@@ -65,6 +65,7 @@ import WarningOverlay from "@/components/WarningOverlay";
 import GeoPromptDialog from "@/components/GeoPromptDialog";
 import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { useHashtagInjectedVideos, type InjectedHashtagVideo } from "@/hooks/useHashtagInjectedVideos";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import YtBgLeadingControls from "@/components/YtBgLeadingControls";
 import FrontStructureNavBar from "@/components/FrontStructureNavBar";
