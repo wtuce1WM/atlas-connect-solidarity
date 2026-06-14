@@ -65,6 +65,7 @@ import WarningOverlay from "@/components/WarningOverlay";
 import GeoPromptDialog from "@/components/GeoPromptDialog";
 import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { useHashtagInjectedVideos, type InjectedHashtagVideo } from "@/hooks/useHashtagInjectedVideos";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import YtBgLeadingControls from "@/components/YtBgLeadingControls";
 import FrontStructureNavBar from "@/components/FrontStructureNavBar";
@@ -1247,6 +1248,8 @@ const SearchPage = () => {
     const [isNestedMosaicOpen, setIsNestedMosaicOpen] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
     const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
+    const [currentInjectedVideo, setCurrentInjectedVideo] = useState<InjectedHashtagVideo | null>(null);
+
 
       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string; videoUrl?: string }, opts?: { initialVideoUrl?: string }) => {
         hasInteractedWithCompactPanelRef.current = true;
@@ -1256,6 +1259,8 @@ const SearchPage = () => {
         setCompactPanelInitialVideoUrl(initVideo);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
+        // Clear any hashtag-injected video state when explicitly opening a business.
+        setCurrentInjectedVideo(null);
         // Ensure the bottom search overlay backdrop (with backdrop-blur) is closed
         // so that when the slide panel is later closed, results aren't left blurred.
         setBottomSearchOverlayOpen(false);
@@ -1361,30 +1366,103 @@ const SearchPage = () => {
         const dy = e.touches[0].clientY - swipeStartYRef.current;
         setSwipeOffsetY(dy);
       }, []);
-      // Navigate to the prev/next business in the result list (dir = -1 or 1)
-      // Uses a ref-bridged list because filteredBusinesses is declared later.
+      // Navigate to the prev/next item in the result list (dir = -1 or 1).
+      // The augmented sequence interleaves an injected hashtag video at every
+      // virtual position 3, 7, 11, … (0-indexed) → i.e. after every 3 businesses.
+      // Sequence: B B B V B B B V B B B V …
       const filteredBusinessesRef = useRef<Business[]>([]);
+      const injectedVideos = useHashtagInjectedVideos();
+      const injectedVideosRef = useRef<InjectedHashtagVideo[]>([]);
+      useEffect(() => { injectedVideosRef.current = injectedVideos; }, [injectedVideos]);
+
+      // Virtual position of the currently open panel item in the augmented list.
+      const [virtualPos, setVirtualPos] = useState<number | null>(null);
+
+      // Slot resolvers
+      const posToSlot = useCallback((pos: number, businessLen: number, videoLen: number) => {
+        if ((pos + 1) % 4 === 0) {
+          const vIdx = Math.floor((pos + 1) / 4) - 1;
+          if (vIdx < videoLen) return { kind: "video" as const, idx: vIdx };
+          return null;
+        }
+        const bIdx = pos - Math.floor((pos + 1) / 4);
+        if (bIdx < 0 || bIdx >= businessLen) return null;
+        return { kind: "business" as const, idx: bIdx };
+      }, []);
+      const businessIdxToPos = useCallback((bi: number) => bi + Math.floor(bi / 3), []);
+      const augmentedLength = useCallback((businessLen: number, videoLen: number) => {
+        if (businessLen <= 0) return 0;
+        const maxVideos = Math.min(Math.floor(businessLen / 3), videoLen);
+        return businessLen + maxVideos;
+      }, []);
+
       const goToBusinessOffset = useCallback((dir: number) => {
         const list = filteredBusinessesRef.current;
+        const videos = injectedVideosRef.current;
+        if (!list.length) return;
+        const total = augmentedLength(list.length, videos.length);
+        // Resolve current virtual position if unknown (e.g. opened from grid).
+        let curPos = virtualPos;
+        if (curPos == null) {
+          const currentId = compactPanelBusiness?.id;
+          const idx = currentId ? list.findIndex(b => b.id === currentId) : -1;
+          if (idx === -1) return;
+          curPos = businessIdxToPos(idx);
+        }
+        const nextPos = curPos + dir;
+        if (nextPos < 0 || nextPos >= total) return;
+        const slot = posToSlot(nextPos, list.length, videos.length);
+        if (!slot) return;
+        if (slot.kind === "video") {
+          const v = videos[slot.idx];
+          setCurrentInjectedVideo(v);
+          setVirtualPos(nextPos);
+          // Anchor compactPanelBusiness on the video's parent business so
+          // existing rendering / URL logic stays consistent. Fallback: keep
+          // the prior business id as a sentinel.
+          if (v.pageBusinessId) {
+            setCompactPanelBusiness({ id: v.pageBusinessId, name: v.pageBusinessName || "" } as any);
+          }
+        } else {
+          const next = list[slot.idx];
+          setCurrentInjectedVideo(null);
+          setVirtualPos(nextPos);
+          openCompactPanel({ id: next.id, name: next.name || "" } as any);
+        }
+      }, [virtualPos, compactPanelBusiness?.id, openCompactPanel, posToSlot, businessIdxToPos, augmentedLength]);
+
+      // When the panel opens via direct grid click (no injected video active),
+      // sync virtualPos from the business id. We do nothing while an injected
+      // video is active — goToBusinessOffset manages state explicitly there.
+      useEffect(() => {
+        if (currentInjectedVideo) return;
+        const list = filteredBusinessesRef.current;
         const currentId = compactPanelBusiness?.id;
-        if (!list.length || !currentId) return;
+        if (!currentId) {
+          setVirtualPos(null);
+          return;
+        }
         const idx = list.findIndex(b => b.id === currentId);
-        if (idx === -1) return;
-        const nextIdx = idx + dir;
-        if (nextIdx < 0 || nextIdx >= list.length) return;
-        const next = list[nextIdx];
-        openCompactPanel({ id: next.id, name: next.name || "" } as any);
-      }, [compactPanelBusiness?.id, openCompactPanel]);
+        if (idx !== -1) setVirtualPos(businessIdxToPos(idx));
+      }, [compactPanelBusiness?.id, currentInjectedVideo, businessIdxToPos]);
+
       const [navTick, setNavTick] = useState(0);
       const businessNavInfo = useMemo(() => {
         const list = filteredBusinessesRef.current;
-        const currentId = compactPanelBusiness?.id;
-        const idx = currentId ? list.findIndex(b => b.id === currentId) : -1;
+        const videos = injectedVideosRef.current;
+        const total = augmentedLength(list.length, videos.length);
+        let pos = virtualPos;
+        if (pos == null) {
+          const currentId = compactPanelBusiness?.id;
+          const idx = currentId ? list.findIndex(b => b.id === currentId) : -1;
+          if (idx === -1) return { hasPrev: false, hasNext: false };
+          pos = businessIdxToPos(idx);
+        }
         return {
-          hasPrev: idx > 0,
-          hasNext: idx >= 0 && idx < list.length - 1,
+          hasPrev: pos > 0,
+          hasNext: pos >= 0 && pos < total - 1,
         };
-      }, [compactPanelBusiness?.id, navTick]);
+      }, [compactPanelBusiness?.id, virtualPos, navTick, augmentedLength, businessIdxToPos, injectedVideos.length]);
       const onPanelTouchEnd = useCallback(() => {
         if (!swipeActiveRef.current) return;
         const dy = swipeOffsetY;
@@ -5529,6 +5607,18 @@ const SearchPage = () => {
             <div className="flex-1 min-h-0 overflow-visible">
               <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
                 <BookOnlineSlidePanel
+                  key={currentInjectedVideo ? `v:${currentInjectedVideo.videoUrl}` : `b:${compactPanelBusiness.id}`}
+                  {...(currentInjectedVideo ? {
+                    videoUrl: currentInjectedVideo.videoUrl,
+                    videoId: currentInjectedVideo.videoId,
+                    isGeneric: currentInjectedVideo.isGeneric,
+                    owner: currentInjectedVideo.owner,
+                    pageBusinessId: currentInjectedVideo.pageBusinessId,
+                    pageBusinessName: currentInjectedVideo.pageBusinessName,
+                    videoName: currentInjectedVideo.videoName,
+                    social: currentInjectedVideo.social,
+                    businessName: currentInjectedVideo.pageBusinessName || currentInjectedVideo.owner?.name || "",
+                  } : {})}
                   businessId={compactPanelBusiness.id}
                   initialVideoUrl={compactPanelInitialVideoUrl || undefined}
                   onClose={closeCompactPanel}
