@@ -1715,6 +1715,20 @@ const SearchPage = () => {
   const [overlayDismissing, setOverlayDismissing] = useState(false);
    const resultsRef = useRef<HTMLDivElement>(null);
    const resultsBarRef = useRef<HTMLDivElement>(null);
+  const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const anchorEl =
+      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
+      resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+      resultsRef.current;
+
+    if (!anchorEl) {
+      window.scrollTo({ top: 0, behavior });
+      return;
+    }
+
+    const y = anchorEl.getBoundingClientRect().top + window.scrollY - 76;
+    window.scrollTo({ top: Math.max(0, y), behavior });
+  }, []);
   const latestFetchIdRef = useRef(0);
 
   const voiceLoopRef = useRef(false);
@@ -3608,19 +3622,9 @@ const SearchPage = () => {
                 setIsOverlayPanelExpanded(false);
                 setShowAiPopup(false);
                   setActiveTab(tab.key as any);
-                  const scrollToResultsTop = () => {
-                    const el = resultsBarRef.current;
-                    if (el) {
-                      const y = el.getBoundingClientRect().top + window.scrollY - 60;
-                      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-                    } else {
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }
-                  };
-                  // Scroll now (before unmount) and again after the new tab mounts
-                  scrollToResultsTop();
-                  setTimeout(scrollToResultsTop, 80);
-                  setTimeout(scrollToResultsTop, 250);
+                  scrollToResultsGridTop("smooth");
+                  setTimeout(() => scrollToResultsGridTop("smooth"), 80);
+                  setTimeout(() => scrollToResultsGridTop("smooth"), 250);
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
