@@ -279,38 +279,6 @@ const HomeMindtrip = () => {
     }
   }, [activeStep]);
 
-  // Sticky horizontal scroll for "Inspirez-vous": title stays pinned, cards
-  // translate horizontally as the user scrolls/wheels vertically.
-  useLayoutEffect(() => {
-    let maxX = 0;
-    let total = 1;
-
-    const recompute = () => {
-      const outer = inspirationOuterRef.current;
-      const track = inspirationTrackRef.current;
-      if (!outer || !track) return;
-      maxX = Math.max(0, track.scrollWidth - window.innerWidth);
-      total = Math.max(1, maxX);
-      outer.style.height = `${Math.ceil(window.innerHeight + total)}px`;
-    };
-    const onScroll = () => {
-      const outer = inspirationOuterRef.current;
-      const track = inspirationTrackRef.current;
-      if (!outer || !track) return;
-      const rect = outer.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, -rect.top / total));
-      track.style.transform = `translate3d(${-progress * maxX}px, 0, 0)`;
-    };
-    const onResize = () => { recompute(); onScroll(); };
-    recompute();
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
-    };
-  }, [latestPosts.length]);
 
 
 
