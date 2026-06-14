@@ -1248,6 +1248,8 @@ const SearchPage = () => {
     const [isNestedMosaicOpen, setIsNestedMosaicOpen] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
     const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
+    const [currentInjectedVideo, setCurrentInjectedVideo] = useState<InjectedHashtagVideo | null>(null);
+
 
       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string; videoUrl?: string }, opts?: { initialVideoUrl?: string }) => {
         hasInteractedWithCompactPanelRef.current = true;
