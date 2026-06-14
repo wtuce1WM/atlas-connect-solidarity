@@ -1708,45 +1708,53 @@ const SearchPage = () => {
    const resultsBarRef = useRef<HTMLDivElement>(null);
   const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth", tab: SearchTabKey = activeTab) => {
     const scope = document.querySelector<HTMLElement>(`[data-search-tab-panel="${tab}"]`);
-    const anchorEl =
+    const exactAnchor =
       scope?.querySelector<HTMLElement>("[data-results-grid='true']") ??
-      scope?.querySelector<HTMLElement>("[data-result-card='true']") ??
-      scope ??
-      resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
-      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
-      resultsBarRef.current ??
-      resultsRef.current;
+      scope?.querySelector<HTMLElement>("[data-result-card='true']");
+    const anchorEl = exactAnchor ?? scope ?? resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ?? resultsBarRef.current ?? resultsRef.current;
 
     if (!anchorEl) {
       window.scrollTo({ top: 0, behavior });
-      return;
+      return false;
     }
 
     const stickyBottom = ["header", "[data-tab-bar]", "[data-results-bar]"]
       .map((selector) => document.querySelector<HTMLElement>(selector))
       .filter((el): el is HTMLElement => !!el && el.getBoundingClientRect().height > 0)
-      .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), 0);
-    const y = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom - 8;
+      .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), 0) + 8;
+
+    let parent = anchorEl.parentElement;
+    while (parent && parent !== document.body) {
+      const style = window.getComputedStyle(parent);
+      const canScroll = /(auto|scroll|overlay)/.test(style.overflowY) && parent.scrollHeight > parent.clientHeight + 1;
+      if (canScroll) {
+        parent.scrollTo({ top: Math.max(0, parent.scrollTop + anchorEl.getBoundingClientRect().top - stickyBottom), behavior });
+      }
+      parent = parent.parentElement;
+    }
+
+    const y = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom;
     window.scrollTo({ top: Math.max(0, y), behavior });
+    return !!exactAnchor;
   }, [activeTab]);
 
   const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth", tab: SearchTabKey = activeTab) => {
     pendingTabScrollRef.current = tab;
-    requestAnimationFrame(() => scrollToResultsGridTop(behavior, tab));
-    window.setTimeout(() => scrollToResultsGridTop(behavior, tab), 80);
-    window.setTimeout(() => scrollToResultsGridTop(behavior, tab), 250);
+    [0, 80, 250, 600, 1100, 1800].forEach((delay) => {
+      window.setTimeout(() => {
+        if (pendingTabScrollRef.current === tab) scrollToResultsGridTop(behavior, tab);
+      }, delay);
+    });
   }, [scrollToResultsGridTop]);
 
   useEffect(() => {
     if (pendingTabScrollRef.current !== activeTab) return;
     const tab = activeTab;
-    const raf = requestAnimationFrame(() => scrollToResultsGridTop("smooth", tab));
-    const t = window.setTimeout(() => {
-      scrollToResultsGridTop("smooth", tab);
-      pendingTabScrollRef.current = null;
-    }, 120);
-    return () => { cancelAnimationFrame(raf); window.clearTimeout(t); };
-  }, [activeTab, scrollToResultsGridTop]);
+    const raf = requestAnimationFrame(() => {
+      if (scrollToResultsGridTop("smooth", tab)) pendingTabScrollRef.current = null;
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [activeTab, isLoading, allBusinesses.length, allPois.length, allDestItems.length, hashtagCount, scrollToResultsGridTop]);
 
   useEffect(() => {
     const h = () => {
@@ -4605,14 +4613,20 @@ const SearchPage = () => {
                         <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                           <button
                             type="button"
-                            onClick={() => { if (showAllSearchMarkers) setShowAllSearchMarkers(false); }}
+                            onClick={() => {
+                              if (showAllSearchMarkers) setShowAllSearchMarkers(false);
+                              scheduleResultsGridScroll("smooth", activeTab);
+                            }}
                             className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                           >
                             Top 20
                           </button>
                           <button
                             type="button"
-                            onClick={() => { if (!showAllSearchMarkers) setShowAllSearchMarkers(true); }}
+                            onClick={() => {
+                              if (!showAllSearchMarkers) setShowAllSearchMarkers(true);
+                              scheduleResultsGridScroll("smooth", activeTab);
+                            }}
                             className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                           >
                             Tous <span className="ml-0.5 opacity-70">{total}</span>
@@ -5168,14 +5182,24 @@ const SearchPage = () => {
                       <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         <button
                           type="button"
-                          onClick={() => { if (mobileFsSubId) applySub(null); if (showAllSearchMarkers) setShowAllSearchMarkers(false); }}
+                          onClick={() => {
+                            if (mobileFsSubId) applySub(null);
+                            if (showAllSearchMarkers) setShowAllSearchMarkers(false);
+                            setShowMobileMap(false);
+                            scheduleResultsGridScroll("smooth", "suggestions");
+                          }}
                           className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers && !mobileFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           Top 20
                         </button>
                         <button
                           type="button"
-                          onClick={() => { if (mobileFsSubId) applySub(null); if (!showAllSearchMarkers) setShowAllSearchMarkers(true); }}
+                          onClick={() => {
+                            if (mobileFsSubId) applySub(null);
+                            if (!showAllSearchMarkers) setShowAllSearchMarkers(true);
+                            setShowMobileMap(false);
+                            scheduleResultsGridScroll("smooth", "suggestions");
+                          }}
                           className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers && !mobileFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           Tous <span className="ml-0.5 opacity-70">{total}</span>
