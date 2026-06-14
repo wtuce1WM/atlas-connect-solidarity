@@ -104,16 +104,16 @@ const HomeMindtrip = () => {
         .from("blog_posts")
         .select("slug, title_fr, cover_image_url")
         .eq("is_published", true)
-        .order("published_at", { ascending: true, nullsFirst: false })
+        .order("published_at", { ascending: false, nullsFirst: false })
         .limit(3);
       if (cancelled) return;
-      setLatestPosts(
-        (data || []).map((p: any) => ({
-          slug: p.slug,
-          title: p.title_fr,
-          image: p.cover_image_url || undefined,
-        }))
-      );
+      const posts = (data || []).map((p: any) => ({
+        slug: p.slug,
+        title: p.title_fr,
+        image: p.cover_image_url || undefined,
+      }));
+      // Sort chronologically ascending among the 3 latest posts
+      setLatestPosts(posts.reverse());
     })();
     return () => { cancelled = true; };
   }, []);
