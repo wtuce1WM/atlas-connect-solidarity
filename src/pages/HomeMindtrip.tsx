@@ -781,26 +781,10 @@ const HomeMindtrip = () => {
           </div>
 
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {[
-              {
-                title: "5 jours à Marrakech pour découvrir le meilleur de l'artisanat marocain",
-                href: "/blog/5-jours-marrakech-artisanat",
-                image: blogHeroes.marrakech,
-              },
-              {
-                title: "Les galeries d'art à Marrakech",
-                href: "/blog/galeries-art-marrakech",
-                image: blogHeroes.galeries,
-              },
-              {
-                title: "Activités pour les enfants à Marrakech",
-                href: "/blog/activites-enfants-marrakech",
-                image: blogHeroes.kids,
-              },
-            ].map((a) => (
+            {latestPosts.map((a) => (
               <Link
-                key={a.href}
-                to={a.href}
+                key={a.slug}
+                to={`/blog/${a.slug}`}
                 className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted"
               >
                 {a.image ? (
