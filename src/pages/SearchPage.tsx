@@ -82,6 +82,8 @@ import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVE
 
 import type { Business, SearchResult } from "@/pages/search/types";
 
+type SearchTabKey = "suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai" | "youtube";
+
 
 
 
