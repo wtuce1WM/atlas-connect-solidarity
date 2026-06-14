@@ -108,7 +108,7 @@ const RatedBusinesses = () => {
       // Fetch rated businesses
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, city, neighborhood, categories, main_category, services, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, rating")
+        .select("id, name, city, neighborhood, categories, main_category, services, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, rating")
         .eq("is_active", true)
         .or("google_review_count.gt.0,tripadvisor_review_count.gt.0,restaurant_guru_review_count.gt.0,rating.not.is.null");
 
