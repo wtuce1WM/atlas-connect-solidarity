@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   DropdownMenu,
@@ -89,6 +89,7 @@ export interface ResultsTabContentProps {
   labelFromUrl?: string;
   userCoords?: { lat: number; lng: number } | null;
   belowCardsSlot?: React.ReactNode;
+  onRequestResultsScroll?: () => void;
 }
 
 export default function ResultsTabContent({
@@ -147,6 +148,7 @@ export default function ResultsTabContent({
   labelFromUrl,
   userCoords,
   belowCardsSlot,
+  onRequestResultsScroll,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [, setSearchParams] = useSearchParams();
@@ -221,31 +223,7 @@ export default function ResultsTabContent({
   }, [userCoords, filteredBusinesses, allSearchMapBusinesses, getDistanceKm]);
   const proximityHasAny = (proximityCountsByKm[10] ?? 0) > 0;
 
-  const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth") => {
-    const anchorEl =
-      resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
-      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
-      resultsBarRef.current ??
-      resultsRef.current;
-
-    if (!anchorEl) {
-      window.scrollTo({ top: 0, behavior });
-      return;
-    }
-
-    const stickyBottom = ["header", "[data-tab-bar]", "[data-results-bar]"]
-      .map((selector) => document.querySelector<HTMLElement>(selector))
-      .filter((el): el is HTMLElement => !!el && el.getBoundingClientRect().height > 0)
-      .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), 0);
-    const y = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom - 8;
-    window.scrollTo({ top: Math.max(0, y), behavior });
-  }, [resultsBarRef, resultsRef]);
-
-  const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth") => {
-    requestAnimationFrame(() => scrollToResultsGridTop(behavior));
-    window.setTimeout(() => scrollToResultsGridTop(behavior), 80);
-    window.setTimeout(() => scrollToResultsGridTop(behavior), 250);
-  }, [scrollToResultsGridTop]);
+  const requestResultsScroll = () => onRequestResultsScroll?.();
 
   useEffect(() => { if (compactPanelBusiness) setShowFiltersOverlay(false); }, [compactPanelBusiness]);
   useEffect(() => {
