@@ -197,6 +197,7 @@ const Blog = () => {
         hotelsessaouira: hotelsImg,
         sidikaouki: skImg,
         agafay: agImg,
+        rated: ratedRes.data?.[0]?.images?.[0],
       });
     };
     fetchStaticHeroes();
