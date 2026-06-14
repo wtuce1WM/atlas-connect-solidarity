@@ -100,22 +100,42 @@ const HomeMindtrip = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("blog_posts")
-        .select("slug, title_fr, cover_image_url")
-        .eq("is_published", true)
-        .order("published_at", { ascending: false, nullsFirst: false });
+      // Articles statiques (cf. src/pages/Blog.tsx), triés du plus récent au plus ancien
+      const staticArticles: Array<{ slug: string; path: string; title: string; bizId?: string }> = [
+        { slug: "etablissements-notes", path: "/staff/etablissements-notes", title: "Établissements notés" },
+        { slug: "agafay-dream", path: "/blog/agafay-dream", title: "Agafay Dream", bizId: "e05a7ece-e417-4d65-b8a4-17a3ea4f96b3" },
+        { slug: "hebergements-sidi-kaouki", path: "/blog/hebergements-sidi-kaouki", title: "Les meilleurs hébergements à Sidi Kaouki", bizId: "04e08ef3-cd54-4091-876a-6822518c84a7" },
+        { slug: "hotels-riads-vue-mer-essaouira", path: "/blog/hotels-riads-vue-mer-essaouira", title: "Hôtels & Riads avec vue sur mer à Essaouira", bizId: "4b4e42f7-d408-4c6d-989f-3922e2ed61d3" },
+        { slug: "beach-clubs-marrakech", path: "/blog/beach-clubs-marrakech", title: "Beach Clubs à Marrakech", bizId: "03dfb3bd-2021-418a-99d6-aec1fb0f7ac6" },
+        { slug: "shopping-fashion-gueliz", path: "/blog/shopping-fashion-gueliz", title: "Shopping fashion à Guéliz, Marrakech", bizId: "7924a190-679d-4981-a12a-b56c257cd680" },
+        { slug: "street-food-marrakech", path: "/blog/street-food-marrakech", title: "Le meilleur de la Street Food à Marrakech", bizId: "6f48e2fa-bf01-4ce4-a51c-0e986ce17e18" },
+        { slug: "artisanat-medina-marrakech", path: "/blog/artisanat-medina-marrakech", title: "Artisanat marocain dans la Médina de Marrakech", bizId: "1621498d-403b-4ff2-baf3-db45d1e5f41e" },
+        { slug: "fermes-pedagogiques-marrakech", path: "/blog/fermes-pedagogiques-marrakech", title: "Les fermes pédagogiques à Marrakech", bizId: "2fdb1f15-4a02-40b4-b344-0ffc0c2e1abd" },
+        { slug: "activites-enfants-marrakech", path: "/blog/activites-enfants-marrakech", title: "Activités pour les enfants à Marrakech" },
+        { slug: "galeries-art-marrakech", path: "/blog/galeries-art-marrakech", title: "Les galeries d'art à Marrakech", bizId: "b484d0cd-6c47-43a2-b388-8ad34f590cd8" },
+        { slug: "5-jours-marrakech-artisanat", path: "/blog/5-jours-marrakech-artisanat", title: "5 jours à Marrakech pour découvrir le meilleur de l'artisanat marocain", bizId: "83d7e07e-128c-47a3-92c6-225a53e34b42" },
+      ];
+
+      const ids = staticArticles.map((a) => a.bizId).filter(Boolean) as string[];
+      const { data: bizs } = await supabase
+        .from("businesses")
+        .select("id, images")
+        .in("id", ids);
+      const imgById = new Map<string, string | undefined>();
+      (bizs || []).forEach((b: any) => imgById.set(b.id, b.images?.[0]));
+
       if (cancelled) return;
       setLatestPosts(
-        (data || []).map((p: any) => ({
-          slug: p.slug,
-          title: p.title_fr,
-          image: p.cover_image_url || undefined,
+        staticArticles.map((a) => ({
+          slug: a.path,
+          title: a.title,
+          image: a.bizId ? imgById.get(a.bizId) : undefined,
         }))
       );
     })();
     return () => { cancelled = true; };
   }, []);
+
   
 
   useSEO({
