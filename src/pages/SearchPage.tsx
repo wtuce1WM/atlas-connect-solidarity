@@ -5485,8 +5485,7 @@ const SearchPage = () => {
                 setShowMobileMap(false);
                 setActiveTab("suggestions");
                 setCurrentPage(1);
-                setTimeout(() => scrollToResultsGridTop("smooth"), 50);
-                setTimeout(() => scrollToResultsGridTop("smooth"), 350);
+                scheduleResultsGridScroll("auto", "suggestions");
               }}
               onOpenMap={() => {
                 setActiveTab("suggestions");
@@ -5688,8 +5687,7 @@ const SearchPage = () => {
                   setShowMobileMap(false);
                   setActiveTab("suggestions");
                   setCurrentPage(1);
-                  setTimeout(() => scrollToResultsGridTop("smooth"), 50);
-                  setTimeout(() => scrollToResultsGridTop("smooth"), 350);
+                  scheduleResultsGridScroll("auto", "suggestions");
                 }}
                 onOpenMap={() => {
                   setActiveTab("suggestions");
