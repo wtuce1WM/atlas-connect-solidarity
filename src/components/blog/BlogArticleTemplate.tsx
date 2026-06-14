@@ -87,10 +87,12 @@ const BlogArticleTemplate = ({
   const allIds = entries.flatMap((e) => [e.id, ...(e.extraIds ?? [])]);
   const ogFallback = defaultOgImage || `${siteUrl}/images/og-image.jpg`;
 
-  const heroImage =
+  const heroImageBusiness =
     businesses[entries[0]?.id]?.images?.[0] ||
     businesses[entries[1]?.id]?.images?.[0] ||
-    ogFallback;
+    null;
+  const heroImage = heroImageBusiness || ogFallback;
+
 
   const handleSaveArticle = async () => {
     if (!isLoggedIn) {
@@ -173,13 +175,14 @@ const BlogArticleTemplate = ({
 
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
-        {heroImage && (
+        {heroImageBusiness && (
           <img
-            src={heroImage}
+            src={heroImageBusiness}
             alt={heroAlt}
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
+
         <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
         <div className="absolute inset-0 flex flex-col justify-end pb-12">
           <div className="container mx-auto px-4">
