@@ -84,7 +84,7 @@ const HomeMindtrip = () => {
   const [selectedCity, setSelectedCity] = useState<CityKey>("Marrakech");
   const [videos, setVideos] = useState<VideoSlot[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
-  const [blogHeroes, setBlogHeroes] = useState<{ marrakech?: string; galeries?: string; kids?: string }>({});
+  const [latestPosts, setLatestPosts] = useState<Array<{ slug: string; title: string; image?: string }>>([]);
   const [videoOpen, setVideoOpen] = useState(false);
   const { toast } = useToast();
   const heroVoice = useVoiceSearch({
