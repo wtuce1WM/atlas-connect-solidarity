@@ -216,6 +216,9 @@ const HomeMindtrip = () => {
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
   const [activeStep, setActiveStep] = useState(0);
 
+  const inspirationRef = useRef<HTMLDivElement>(null);
+  const inspirationTrackRef = useRef<HTMLDivElement>(null);
+
   useLayoutEffect(() => {
     let cachedVw = window.innerWidth;
     let cachedTotal = 1;
