@@ -916,7 +916,7 @@ const SearchPage = () => {
     })();
     return () => { cancelled = true; };
   }, [aiAnswerText, totalCount, allBusinesses?.length, searchQuery, searchParams, language, categoryFromUrl]);
-   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai" | "youtube">(
+   const [activeTab, setActiveTab] = useState<SearchTabKey>(
      searchParams.get("tab") === "ai" ? "ai" : (searchParams.get("tab") === "youtube" ? "youtube" : (searchParams.get("openDestination") ? "destinations" : (searchParams.get("badgeId") ? "hashtag" : "suggestions")))
    );
    useEffect(() => {
@@ -931,6 +931,7 @@ const SearchPage = () => {
 
     // Tab bar: centering + native non-passive wheel handler for horizontal scroll
     const tabBarRef = useRef<HTMLDivElement | null>(null);
+    const pendingTabScrollRef = useRef<SearchTabKey | null>(null);
 
     const centerActiveTab = useCallback(() => {
       const el = tabBarRef.current;
