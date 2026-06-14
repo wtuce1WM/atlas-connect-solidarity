@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play, Percent } from "lucide-react";
 
 import Footer from "@/components/Footer";
+import HScroll from "@/components/HScroll";
 import SearchInput from "@/components/SearchInput";
 import LiquidAIMoroccoBg from "@/components/LiquidAIMoroccoBg";
 import HeroInlineSearch from "@/components/HeroInlineSearch";
@@ -210,8 +211,6 @@ const HomeMindtrip = () => {
   const horizontalRef = useRef<HTMLDivElement>(null);
   const stickyHorizontalRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const inspirationOuterRef = useRef<HTMLDivElement>(null);
-  const inspirationTrackRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const ytIframeRef = useRef<HTMLIFrameElement>(null);
@@ -279,38 +278,6 @@ const HomeMindtrip = () => {
     }
   }, [activeStep]);
 
-  // Sticky horizontal scroll for "Inspirez-vous": title stays pinned, cards
-  // translate horizontally as the user scrolls/wheels vertically.
-  useLayoutEffect(() => {
-    let maxX = 0;
-    let total = 1;
-
-    const recompute = () => {
-      const outer = inspirationOuterRef.current;
-      const track = inspirationTrackRef.current;
-      if (!outer || !track) return;
-      maxX = Math.max(0, track.scrollWidth - window.innerWidth);
-      total = Math.max(1, maxX);
-      outer.style.height = `${Math.ceil(window.innerHeight + total)}px`;
-    };
-    const onScroll = () => {
-      const outer = inspirationOuterRef.current;
-      const track = inspirationTrackRef.current;
-      if (!outer || !track) return;
-      const rect = outer.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, -rect.top / total));
-      track.style.transform = `translate3d(${-progress * maxX}px, 0, 0)`;
-    };
-    const onResize = () => { recompute(); onScroll(); };
-    recompute();
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
-    };
-  }, [latestPosts.length]);
 
 
 
@@ -821,47 +788,42 @@ const HomeMindtrip = () => {
 
 
 
-      {/* INSPIRATION — sticky horizontal scroll */}
-      <section ref={inspirationOuterRef} className="relative mt-12 md:mt-20">
-        <div className="sticky top-0 flex h-svh md:h-screen flex-col overflow-hidden pt-6 pb-12 md:pt-10 md:pb-16">
-          <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
-            <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
-              Inspirez-vous
-            </h2>
-            <p className="mt-3 max-w-xl font-roboto text-foreground/70">
-              Nos derniers guides pour explorer le Maroc autrement.
-            </p>
-          </div>
-          <div className="mt-8 flex-1 min-h-0 flex items-center overflow-hidden">
-            <div
-              ref={inspirationTrackRef}
-              className="flex gap-4 pl-6 md:pl-12 pr-6 md:pr-12 will-change-transform"
-              style={{ transform: "translate3d(0,0,0)" }}
-            >
-              {latestPosts.map((a) => (
-                <Link
-                  key={a.slug}
-                  to={a.slug}
-                  className="group relative aspect-[4/5] h-[65vh] max-h-[640px] shrink-0 overflow-hidden rounded-2xl bg-muted"
-                >
-                  {a.image ? (
-                    <img
-                      src={a.image}
-                      alt={a.title}
-                      className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
-                  )}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent p-6">
-                    <span className="font-josefin text-xl leading-tight text-background">{a.title}</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+      {/* INSPIRATION — horizontal scroll (mouse wheel converts to horizontal via HScroll) */}
+      <section className="relative mt-12 md:mt-20 pb-16">
+        <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
+          <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
+            Inspirez-vous
+          </h2>
+          <p className="mt-3 max-w-xl font-roboto text-foreground/70">
+            Nos derniers guides pour explorer le Maroc autrement.
+          </p>
+        </div>
+        <div className="mt-8">
+          <HScroll className="flex gap-4 overflow-x-auto px-6 md:px-12 pb-4 scrollbar-hide-mobile">
+            {latestPosts.map((a) => (
+              <Link
+                key={a.slug}
+                to={a.slug}
+                className="group relative aspect-[4/5] h-[60vh] max-h-[560px] shrink-0 overflow-hidden rounded-2xl bg-muted"
+              >
+                {a.image ? (
+                  <img
+                    src={a.image}
+                    alt={a.title}
+                    className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
+                )}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent p-6">
+                  <span className="font-josefin text-xl leading-tight text-background">{a.title}</span>
+                </div>
+              </Link>
+            ))}
+          </HScroll>
         </div>
       </section>
+
 
 
 
