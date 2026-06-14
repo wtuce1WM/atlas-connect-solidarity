@@ -2869,4 +2869,43 @@ function HoursOverlayContent({ business, language }: { business: any; language: 
   );
 }
 
+/**
+ * Outer wrapper: delegates to VideoSlidePanel when called with a video entry
+ * (videoUrl prop provided, even null), otherwise renders the full business panel.
+ * This is the unified entry point replacing the legacy SlidePanelHome.
+ */
+const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
+  if (props.videoUrl !== undefined) {
+    return (
+      <VideoSlidePanel
+        open={props.open ?? true}
+        onClose={props.onClose}
+        videoUrl={props.videoUrl ?? null}
+        videoId={props.videoId ?? null}
+        businessName={props.businessName ?? props.owner?.name ?? ""}
+        pageBusinessName={props.pageBusinessName ?? null}
+        pageBusinessId={props.pageBusinessId ?? null}
+        isGeneric={!!props.isGeneric}
+        currentTime={props.currentTime ?? 0}
+        onTimeUpdate={props.onTimeUpdate ?? (() => {})}
+        onPrev={props.onPrev ?? props.onPrevBusiness}
+        onNext={props.onNext ?? props.onNextBusiness}
+        hasPrev={props.hasPrev ?? props.hasPrevBusiness}
+        hasNext={props.hasNext ?? props.hasNextBusiness}
+        owner={props.owner ?? null}
+        social={props.social as any}
+        showSocialBadge={props.showSocialBadge}
+        description={props.description ?? null}
+        videoName={props.videoName ?? null}
+        agendaCity={props.agendaCity ?? null}
+        eventId={props.eventId ?? null}
+        returnContext={props.returnContext ?? null}
+        compactBusinessHeader={props.compactBusinessHeader}
+      />
+    );
+  }
+  if (!props.businessId) return null;
+  return <BookOnlineSlidePanelInner {...props} businessId={props.businessId} />;
+};
+
 export default BookOnlineSlidePanel;
