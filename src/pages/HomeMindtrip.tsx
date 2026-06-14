@@ -787,23 +787,20 @@ const HomeMindtrip = () => {
 
 
 
-      {/* INSPIRATION — sticky horizontal scroll */}
-      <section ref={inspirationOuterRef} className="relative mt-12 md:mt-20">
-        <div className="sticky top-0 flex h-svh md:h-screen flex-col overflow-hidden pt-6 pb-12 md:pt-10 md:pb-16">
-          <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
-            <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
-              Inspirez-vous
-            </h2>
-            <p className="mt-3 max-w-xl font-roboto text-foreground/70">
-              Nos derniers guides pour explorer le Maroc autrement.
-            </p>
-          </div>
-          <div className="mt-8 flex-1 min-h-0 flex items-center overflow-hidden">
-            <div
-              ref={inspirationTrackRef}
-              className="flex gap-4 pl-6 md:pl-12 pr-6 md:pr-12 will-change-transform"
-              style={{ transform: "translate3d(0,0,0)" }}
-            >
+      {/* INSPIRATION — horizontal scroll (mouse wheel converts to horizontal via HScroll) */}
+      <section className="relative mt-12 md:mt-20 pb-16">
+        <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
+          <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
+            Inspirez-vous
+          </h2>
+          <p className="mt-3 max-w-xl font-roboto text-foreground/70">
+            Nos derniers guides pour explorer le Maroc autrement.
+          </p>
+        </div>
+        <div className="mt-8">
+          <HScroll className="flex gap-4 overflow-x-auto px-6 md:px-12 pb-4 scrollbar-hide-mobile">
+            <div className="flex gap-4 will-change-transform">
+
               {latestPosts.map((a) => (
                 <Link
                   key={a.slug}
