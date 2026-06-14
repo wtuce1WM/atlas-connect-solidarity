@@ -3607,16 +3607,20 @@ const SearchPage = () => {
                 setOverlaySelectedBusiness(null);
                 setIsOverlayPanelExpanded(false);
                 setShowAiPopup(false);
-                 setActiveTab(tab.key as any);
-                 requestAnimationFrame(() => {
-                   const el = resultsBarRef.current;
-                   if (el) {
-                     const y = el.getBoundingClientRect().top + window.scrollY - 60;
-                     window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-                   } else {
-                     window.scrollTo({ top: 0, behavior: "smooth" });
-                   }
-                 });
+                  setActiveTab(tab.key as any);
+                  const scrollToResultsTop = () => {
+                    const el = resultsBarRef.current;
+                    if (el) {
+                      const y = el.getBoundingClientRect().top + window.scrollY - 60;
+                      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+                    } else {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  };
+                  // Scroll now (before unmount) and again after the new tab mounts
+                  scrollToResultsTop();
+                  setTimeout(scrollToResultsTop, 80);
+                  setTimeout(scrollToResultsTop, 250);
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
