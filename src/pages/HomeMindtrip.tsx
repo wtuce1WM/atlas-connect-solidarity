@@ -863,7 +863,7 @@ const HomeMindtrip = () => {
           <div className="flex-1 min-h-0 flex items-center overflow-hidden">
             <div
               ref={inspirationTrackRef}
-              className="flex gap-4 md:gap-8 will-change-transform pl-6 pr-6 md:pl-12 md:pr-12"
+              className="flex gap-4 md:gap-8 will-change-transform pl-[calc((100vw-min(44vh,416px))/2)] pr-[calc((100vw-min(44vh,416px))/2)]"
               style={{ transform: "translate3d(0, 0, 0)" }}
             >
               {latestPosts.map((a) => (
