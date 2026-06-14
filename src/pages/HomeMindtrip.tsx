@@ -102,7 +102,7 @@ const HomeMindtrip = () => {
     (async () => {
       // Articles statiques (cf. src/pages/Blog.tsx), triés du plus récent au plus ancien
       const staticArticles: Array<{ slug: string; path: string; title: string; bizId?: string }> = [
-        { slug: "etablissements-notes", path: "/staff/etablissements-notes", title: "Établissements notés" },
+        { slug: "etablissements-notes", path: "/blog/etablissements-notes", title: "Établissements notés" },
         { slug: "agafay-dream", path: "/blog/agafay-dream", title: "Agafay Dream", bizId: "e05a7ece-e417-4d65-b8a4-17a3ea4f96b3" },
         { slug: "hebergements-sidi-kaouki", path: "/blog/hebergements-sidi-kaouki", title: "Les meilleurs hébergements à Sidi Kaouki", bizId: "04e08ef3-cd54-4091-876a-6822518c84a7" },
         { slug: "hotels-riads-vue-mer-essaouira", path: "/blog/hotels-riads-vue-mer-essaouira", title: "Hôtels & Riads avec vue sur mer à Essaouira", bizId: "4b4e42f7-d408-4c6d-989f-3922e2ed61d3" },
