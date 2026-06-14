@@ -3608,7 +3608,15 @@ const SearchPage = () => {
                 setIsOverlayPanelExpanded(false);
                 setShowAiPopup(false);
                  setActiveTab(tab.key as any);
-                 window.scrollTo({ top: 0, behavior: "smooth" });
+                 requestAnimationFrame(() => {
+                   const el = resultsBarRef.current;
+                   if (el) {
+                     const y = el.getBoundingClientRect().top + window.scrollY - 60;
+                     window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+                   } else {
+                     window.scrollTo({ top: 0, behavior: "smooth" });
+                   }
+                 });
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
