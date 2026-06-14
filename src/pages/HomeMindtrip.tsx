@@ -104,8 +104,7 @@ const HomeMindtrip = () => {
         .from("blog_posts")
         .select("slug, title_fr, cover_image_url")
         .eq("is_published", true)
-        .order("published_at", { ascending: false, nullsFirst: false })
-        .limit(3);
+        .order("published_at", { ascending: false, nullsFirst: false });
       if (cancelled) return;
       setLatestPosts(
         (data || []).map((p: any) => ({
