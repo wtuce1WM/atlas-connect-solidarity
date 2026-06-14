@@ -103,7 +103,7 @@ const formatDateRange = (start: string | null, end: string | null) => {
   return "Date à confirmer";
 };
 
-const SlidePanelHome = ({
+const VideoSlidePanel = ({
   open,
   onClose,
   videoUrl,
@@ -1061,4 +1061,4 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
   );
 };
 
-export default SlidePanelHome;
+export default VideoSlidePanel;
