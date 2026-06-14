@@ -184,7 +184,7 @@ const AppContent = () => {
               <Route path="/blog/typographie" element={renderLazyRoute(<BlogTypography />)} />
               <Route path="/staff/brummell" element={<StaffRouteGuard>{renderLazyRoute(<BlogBrummellTypography />)}</StaffRouteGuard>} />
               <Route path="/blog/:slug" element={renderLazyRoute(<BlogPost />)} />
-              <Route path="/staff/etablissements-notes" element={<StaffRouteGuard>{renderLazyRoute(<RatedBusinesses />)}</StaffRouteGuard>} />
+              <Route path="/blog/etablissements-notes" element={renderLazyRoute(<RatedBusinesses />)} />
               <Route path="/neighborhood/:neighborhood" element={renderLazyRoute(<NeighborhoodPage />)} />
               <Route path="/carte" element={renderLazyRoute(<AllBusinessesMap />)} />
               <Route path="/subcategory/:subcategoryName" element={renderLazyRoute(<SubcategoryPage />)} />
