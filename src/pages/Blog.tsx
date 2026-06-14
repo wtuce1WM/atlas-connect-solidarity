@@ -31,7 +31,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; galeries?: string; fermes?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string; sidikaouki?: string; agafay?: string; rated?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; galeries?: string; fermes?: string; enfants?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string; sidikaouki?: string; agafay?: string; rated?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -148,11 +148,20 @@ const Blog = () => {
         .maybeSingle();
       const agImg = (agRow as any)?.images?.[0];
 
+      // Hero Activités enfants Marrakech : même 1ʳᵉ fiche que le hero de l'article (Oasiria)
+      const { data: enfRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "728e90f7-3894-43a5-8c0d-9dd193fe9946")
+        .maybeSingle();
+      const enfImg = (enfRow as any)?.images?.[0];
+
        setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
         galeries: (galRes.data as any)?.images?.[0],
         fermes: (fermesRes.data as any)?.images?.[0],
+        enfants: enfImg,
         artisanat: (artisanatRes.data as any)?.images?.[0],
         streetfood: sfImg,
         fashion: fashionImg,
@@ -354,6 +363,44 @@ const Blog = () => {
                         </h2>
                         <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
                           Trois adresses à quelques minutes de la ville ocre, pour une vraie journée de nature en famille — entre animaux, ateliers et plantes aromatiques.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
+              // Carte Activités enfants Marrakech
+              items.push({
+                key: "static-activites-enfants-marrakech",
+                date: "2026-06-14T00:00:00Z",
+                node: (
+                  <Link key="static-activites-enfants-marrakech" to="/blog/activites-enfants-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-sky-950/30 dark:to-cyan-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.enfants ? (
+                          <img
+                            src={staticHeroes.enfants}
+                            alt="Activités pour les enfants à Marrakech"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Activités pour les enfants à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Douze adresses pour occuper les enfants à Marrakech : parcs aquatiques, trampolines, escape games, mini-villes éducatives, poneys et expériences immersives en famille.
                         </p>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 text-primary font-medium">
