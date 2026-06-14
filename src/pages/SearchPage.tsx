@@ -2664,9 +2664,21 @@ const SearchPage = () => {
       const bRating = bCount >= 10 ? (b.computed_rating ?? b.rating ?? -1) : -1;
       return bRating - aRating;
     });
-    const sliced = showAllSearchMarkers ? matching : matching.slice(0, 20);
+    let sliced: Business[];
+    if (showAllSearchMarkers) {
+      sliced = matching;
+    } else if (pinIdsParam) {
+      if (currentPage === 1) sliced = matching.slice(0, PIN_PAGE1_SIZE);
+      else {
+        const start = PIN_PAGE1_SIZE + (currentPage - 2) * ITEMS_PER_PAGE;
+        sliced = matching.slice(start, start + ITEMS_PER_PAGE);
+      }
+    } else {
+      const start = (currentPage - 1) * ITEMS_PER_PAGE;
+      sliced = matching.slice(start, start + ITEMS_PER_PAGE);
+    }
     return buildMapPoiItems(sliced, guardDesktop);
-  }, [fsFilterSubcategories, fsFilterServices, frontStructurePool, buildMapPoiItems, showAllSearchMarkers]);
+  }, [fsFilterSubcategories, fsFilterServices, frontStructurePool, buildMapPoiItems, showAllSearchMarkers, currentPage, pinIdsParam]);
 
   const fsFilterMatchesUrlSubcats = useMemo(() => {
     if (!fsFilterSubcategories || subcategoryNamesFromUrl.length === 0) return false;
