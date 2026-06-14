@@ -80,6 +80,17 @@ const BEACH_CLUBS: BlogArticleEntry[] = [
       "Côté restaurant, l'équipe joue une carte large : gastronomie marocaine, cuisine internationale, spécialités françaises et asiatiques, sushi, pizzas, pâtes, viandes, poissons, fruits de mer, plats végétariens, cocktails signatures et milkshakes au pool bar. Une cliente résume : « Nous sommes venus fin octobre, plus calme car hors saison, mais l'ambiance était super, il y avait un DJ toute la journée. La déco est esthétique et la nourriture délicieuse — j'ai pris les pâtes à la truffe et mon ami les côtelettes d'agneau (que je recommande fortement). Quand nous reviendrons à Marrakech, nous reviendrons. »",
     ],
   },
+  {
+    id: "16403316-cc10-42ef-acdc-eccf72263453",
+    pretitle: "Route de l'Ourika, km 13 — à deux pas de Waky Marrakech",
+    title: "Beach Mama Marrakech — la piscine chauffée à 29° voisine du spot de wake",
+    hours: "Ouvert tous les jours, de 11h00 à 20h00. Piscine chauffée à 29°. Parking clients, accès PMR.",
+    paragraphs: [
+      "Au kilomètre 13 de la route de l'Ourika, juste à côté de Waky Marrakech — le célèbre cable park de ski nautique et wakeboard des Jardins de l'Atlas — Beach Mama installe sa piscine chauffée à 29° toute l'année. La proximité avec Waky n'est pas un détail : c'est l'adresse idéale pour enchaîner une session de wake le matin et un farniente bord de piscine l'après-midi, sans avoir à reprendre la route vers la ville.",
+      "L'esprit Beach Mama (« Be Alive, Be #Waky ») est celui d'un beach club décontracté et chaleureux, pensé pour la journée pass : transats au soleil, grande piscine chauffée, restaurant qui joue la carte généreuse avec burgers, salades, viandes et plats végétariens. On y vient en famille, entre amis ou en duo, pour profiter d'une vraie pause aquatique à un quart d'heure de la médina.",
+      "Le binôme avec Waky en fait l'une des combinaisons les plus efficaces de la route de l'Ourika : pour celles et ceux qui veulent un peu d'adrénaline avant la détente, le téléski nautique est littéralement de l'autre côté du portail — on traverse, on glisse, on revient s'allonger au bord de l'eau chauffée. Difficile de faire plus fluide.",
+    ],
+  },
 ];
 
 const BeachClubsMarrakech = () => (
@@ -87,13 +98,13 @@ const BeachClubsMarrakech = () => (
     entries={BEACH_CLUBS}
     articlePath="/blog/beach-clubs-marrakech"
     articleTitle="Beach Clubs à Marrakech"
-    articleDescription="Sept beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau."
+    articleDescription="Huit beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau."
     bookmarkSlug="beach-clubs-marrakech"
     heroAlt="Beach Clubs à Marrakech"
     heroTitleTop="Les Beach Clubs"
     heroTitleBottom="de Marrakech"
-    heroSubtitle="Sept adresses autour de la ville ocre — du beldi chic au club international, de la piscine 100 % femmes à la pool party XXL — pour vivre Marrakech au bord de l'eau."
-    intro="Marrakech n'a pas la mer, mais elle a inventé son propre rapport à l'eau : à quelques minutes des remparts, sur la route de l'Ourika ou celle d'Agadir, une constellation de beach clubs prolonge la ville ocre en oasis. On y vient pour une journée pass, un déjeuner les pieds presque dans l'eau, un cocktail signé d'un mixologue, un DJ set qui monte avec le soleil — ou simplement pour souffler, à l'ombre des oliviers, loin de l'effervescence de la médina. Voici nos sept adresses, du plus intimiste au plus festif."
+    heroSubtitle="Huit adresses autour de la ville ocre — du beldi chic au club international, de la piscine 100 % femmes à la pool party XXL — pour vivre Marrakech au bord de l'eau."
+    intro="Marrakech n'a pas la mer, mais elle a inventé son propre rapport à l'eau : à quelques minutes des remparts, sur la route de l'Ourika ou celle d'Agadir, une constellation de beach clubs prolonge la ville ocre en oasis. On y vient pour une journée pass, un déjeuner les pieds presque dans l'eau, un cocktail signé d'un mixologue, un DJ set qui monte avec le soleil — ou simplement pour souffler, à l'ombre des oliviers, loin de l'effervescence de la médina. Voici nos huit adresses, du plus intimiste au plus festif."
     datePublished="2026-06-13T08:00:00+01:00"
   />
 );
