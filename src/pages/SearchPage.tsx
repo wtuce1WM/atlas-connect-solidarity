@@ -1563,19 +1563,6 @@ const SearchPage = () => {
       window.addEventListener("open-location-picker", h);
       return () => window.removeEventListener("open-location-picker", h);
     }, []);
-    useEffect(() => {
-      const h = () => {
-        setShowAiPopup(false);
-        setActiveTab("ai");
-        setCompactPanelBusiness(null);
-        setIsCompactPanelExpanded(false);
-        setShowMobileMap(false);
-         setTimeout(() => scrollToResultsGridTop("smooth"), 50);
-         setTimeout(() => scrollToResultsGridTop("smooth"), 250);
-      };
-      window.addEventListener("open-ai-tab", h);
-      return () => window.removeEventListener("open-ai-tab", h);
-    }, []);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
     // showAiPopup moved earlier (before ensureResultsVisibleBelowSticky)
@@ -1718,8 +1705,9 @@ const SearchPage = () => {
    const resultsBarRef = useRef<HTMLDivElement>(null);
   const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth") => {
     const anchorEl =
-      resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
       resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
+      resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+      resultsBarRef.current ??
       resultsRef.current;
 
     if (!anchorEl) {
@@ -1727,13 +1715,31 @@ const SearchPage = () => {
       return;
     }
 
-    anchorEl.scrollIntoView({ behavior, block: "start", inline: "nearest" });
-
-    requestAnimationFrame(() => {
-      const y = anchorEl.getBoundingClientRect().top + window.scrollY - 76;
-      window.scrollTo({ top: Math.max(0, y), behavior });
-    });
+    const stickyBottom = ["header", "[data-tab-bar]", "[data-results-bar]"]
+      .map((selector) => document.querySelector<HTMLElement>(selector))
+      .filter((el): el is HTMLElement => !!el && el.getBoundingClientRect().height > 0)
+      .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), 0);
+    const y = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom - 8;
+    window.scrollTo({ top: Math.max(0, y), behavior });
   }, []);
+
+  const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth") => {
+    requestAnimationFrame(() => scrollToResultsGridTop(behavior));
+    window.setTimeout(() => scrollToResultsGridTop(behavior), 80);
+  }, [scrollToResultsGridTop]);
+
+  useEffect(() => {
+    const h = () => {
+      setShowAiPopup(false);
+      setActiveTab("ai");
+      setCompactPanelBusiness(null);
+      setIsCompactPanelExpanded(false);
+      setShowMobileMap(false);
+      scheduleResultsGridScroll("smooth");
+    };
+    window.addEventListener("open-ai-tab", h);
+    return () => window.removeEventListener("open-ai-tab", h);
+  }, [scheduleResultsGridScroll]);
   const latestFetchIdRef = useRef(0);
 
   const voiceLoopRef = useRef(false);
@@ -3627,9 +3633,7 @@ const SearchPage = () => {
                 setIsOverlayPanelExpanded(false);
                 setShowAiPopup(false);
                   setActiveTab(tab.key as any);
-                  scrollToResultsGridTop("smooth");
-                  setTimeout(() => scrollToResultsGridTop("smooth"), 80);
-                  setTimeout(() => scrollToResultsGridTop("smooth"), 250);
+                  scheduleResultsGridScroll("smooth");
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
