@@ -866,8 +866,8 @@ const HomeMindtrip = () => {
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-muted to-foreground/20 transition group-hover:scale-105" />
                   )}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent p-6">
-                    <span className="font-josefin text-xl leading-tight text-background">{a.title}</span>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-6">
+                    <span className="font-josefin text-xl leading-tight text-white font-bold">{a.title}</span>
                   </div>
                 </Link>
               ))}
