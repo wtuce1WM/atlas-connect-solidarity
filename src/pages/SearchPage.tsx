@@ -1706,10 +1706,14 @@ const SearchPage = () => {
   const [overlayDismissing, setOverlayDismissing] = useState(false);
    const resultsRef = useRef<HTMLDivElement>(null);
    const resultsBarRef = useRef<HTMLDivElement>(null);
-  const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth") => {
+  const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "smooth", tab: SearchTabKey = activeTab) => {
+    const scope = document.querySelector<HTMLElement>(`[data-search-tab-panel="${tab}"]`);
     const anchorEl =
-      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
+      scope?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+      scope?.querySelector<HTMLElement>("[data-result-card='true']") ??
+      scope ??
       resultsRef.current?.querySelector<HTMLElement>("[data-results-grid='true']") ??
+      resultsRef.current?.querySelector<HTMLElement>("[data-result-card='true']") ??
       resultsBarRef.current ??
       resultsRef.current;
 
@@ -1724,12 +1728,25 @@ const SearchPage = () => {
       .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), 0);
     const y = anchorEl.getBoundingClientRect().top + window.scrollY - stickyBottom - 8;
     window.scrollTo({ top: Math.max(0, y), behavior });
-  }, []);
+  }, [activeTab]);
 
-  const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth") => {
-    requestAnimationFrame(() => scrollToResultsGridTop(behavior));
-    window.setTimeout(() => scrollToResultsGridTop(behavior), 80);
+  const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "smooth", tab: SearchTabKey = activeTab) => {
+    pendingTabScrollRef.current = tab;
+    requestAnimationFrame(() => scrollToResultsGridTop(behavior, tab));
+    window.setTimeout(() => scrollToResultsGridTop(behavior, tab), 80);
+    window.setTimeout(() => scrollToResultsGridTop(behavior, tab), 250);
   }, [scrollToResultsGridTop]);
+
+  useEffect(() => {
+    if (pendingTabScrollRef.current !== activeTab) return;
+    const tab = activeTab;
+    const raf = requestAnimationFrame(() => scrollToResultsGridTop("smooth", tab));
+    const t = window.setTimeout(() => {
+      scrollToResultsGridTop("smooth", tab);
+      pendingTabScrollRef.current = null;
+    }, 120);
+    return () => { cancelAnimationFrame(raf); window.clearTimeout(t); };
+  }, [activeTab, scrollToResultsGridTop]);
 
   useEffect(() => {
     const h = () => {
