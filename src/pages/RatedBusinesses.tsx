@@ -51,6 +51,7 @@ const RatedBusinesses = () => {
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<RatedBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStaff, setIsStaff] = useState(false);
   const { categories: mainCategories } = useAvailableMainCategories();
 
   // Subcategories & services from DB
