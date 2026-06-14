@@ -230,11 +230,8 @@ const Blog = () => {
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : posts.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground">
-            {t("blog.noPosts")}
-          </div>
         ) : (
+
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {(() => {
               type Item = { key: string; date: string; node: JSX.Element };
