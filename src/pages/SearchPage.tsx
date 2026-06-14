@@ -3816,7 +3816,7 @@ const SearchPage = () => {
           }, 50);
         };
         return (
-        <div className={isInline ? "relative w-full bg-white flex" : "fixed inset-0 z-[9990] flex bg-white animate-in fade-in duration-200"}>
+        <div data-search-tab-panel="ai" className={isInline ? "relative w-full bg-white flex" : "fixed inset-0 z-[9990] flex bg-white animate-in fade-in duration-200"}>
 
 
           {/* Left panel: AI suggestion */}
@@ -4842,6 +4842,7 @@ const SearchPage = () => {
       )}
 
       {activeTab === "poi" && (
+        <div data-search-tab-panel="poi">
         <PoiTabContent
           selectedCity={selectedCity}
           detectedCity={detectedCity}
@@ -4879,9 +4880,11 @@ const SearchPage = () => {
           onPanelOpenChange={setPoiPanelOpen}
           userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
         />
+        </div>
       )}
 
       {activeTab === "destinations" && (
+        <div data-search-tab-panel="destinations">
         <DestinationsTabContent
           selectedCity={selectedCity}
           detectedCity={detectedCity}
@@ -4921,9 +4924,11 @@ const SearchPage = () => {
           userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
           openDestinationId={openDestinationParam || null}
         />
+        </div>
       )}
 
       {activeTab === "hashtag" && badgeIdParam && (
+        <div data-search-tab-panel="hashtag">
         <HashtagTabContent
           badgeId={badgeIdParam}
           badgeLabel={badgeLabelParam || "#"}
@@ -4932,9 +4937,11 @@ const SearchPage = () => {
           onOpenBusiness={(b) => openCompactPanel(b as any)}
 
         />
+        </div>
       )}
 
       {activeTab === "youtube" && (
+        <div data-search-tab-panel="youtube">
         <YouTubeChannelsTabContent
           city={cityFromUrl || null}
           onOpenBusiness={(bizId) => {
@@ -4942,6 +4949,7 @@ const SearchPage = () => {
             setIsCompactPanelExpanded(false);
           }}
         />
+        </div>
       )}
 
 
@@ -4950,7 +4958,7 @@ const SearchPage = () => {
 
 
       {activeTab === "suggestions" && (
-        <>
+        <div data-search-tab-panel="suggestions">
           <ResultsTabContent
             belowCardsSlot={(() => {
               // Carrousel vidéo en bas de l'onglet Résultats — désactivé temporairement
@@ -5070,7 +5078,7 @@ const SearchPage = () => {
             labelFromUrl={labelFromUrl}
             userCoords={geo.isEnabled && geo.coords ? geo.coords : null}
           />
-        </>
+        </div>
       )}
 
       {/* Mobile/Tablet Map Overlay — slide-in from right */}
