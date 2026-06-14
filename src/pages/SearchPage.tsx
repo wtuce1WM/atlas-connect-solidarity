@@ -3655,7 +3655,7 @@ const SearchPage = () => {
                 setIsOverlayPanelExpanded(false);
                 setShowAiPopup(false);
                   setActiveTab(nextTab);
-                  scheduleResultsGridScroll("smooth", nextTab);
+                  scheduleResultsGridScroll("auto", nextTab);
                 setHideResultsMap(false);
                 setHidePoiMap(false);
                 setHideDestMap(false);
@@ -4608,7 +4608,7 @@ const SearchPage = () => {
                             type="button"
                             onClick={() => {
                               if (showAllSearchMarkers) setShowAllSearchMarkers(false);
-                              scheduleResultsGridScroll("smooth", activeTab);
+                              scheduleResultsGridScroll("auto", activeTab);
                             }}
                             className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                           >
@@ -4618,7 +4618,7 @@ const SearchPage = () => {
                             type="button"
                             onClick={() => {
                               if (!showAllSearchMarkers) setShowAllSearchMarkers(true);
-                              scheduleResultsGridScroll("smooth", activeTab);
+                              scheduleResultsGridScroll("auto", activeTab);
                             }}
                             className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                           >
