@@ -3,7 +3,7 @@ import { Play, Loader2, Star, Youtube } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SlidePanelHome from "@/components/SlidePanelHome";
+import VideoSlidePanel from "@/components/VideoSlidePanel";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 
@@ -43,7 +43,7 @@ interface Props {
   badgeIds?: string[];
   /** Optional title override. */
   title?: string;
-  /** When provided, internal videos (business_documents) open the business panel instead of SlidePanelHome. */
+  /** When provided, internal videos (business_documents) open the business panel instead of VideoSlidePanel. */
   onOpenBusiness?: (b: { id: string; name: string; videoUrl?: string }) => void;
 }
 
@@ -584,7 +584,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
       </div>
     </div>
     {panelVideo && (
-      <SlidePanelHome
+      <VideoSlidePanel
         open={!!panelVideo}
         onClose={() => setPanelVideo(null)}
         videoUrl={panelVideo.videoUrl}

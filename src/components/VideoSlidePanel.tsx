@@ -37,7 +37,7 @@ interface SocialInfo {
   url: string | null;
 }
 
-interface SlidePanelHomeProps {
+interface VideoSlidePanelProps {
   open: boolean;
   onClose: () => void;
   videoUrl: string | null;
@@ -103,7 +103,7 @@ const formatDateRange = (start: string | null, end: string | null) => {
   return "Date à confirmer";
 };
 
-const SlidePanelHome = ({
+const VideoSlidePanel = ({
   open,
   onClose,
   videoUrl,
@@ -127,7 +127,7 @@ const SlidePanelHome = ({
   eventId,
   returnContext,
   compactBusinessHeader = false,
-}: SlidePanelHomeProps) => {
+}: VideoSlidePanelProps) => {
 
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -1061,4 +1061,4 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
   );
 };
 
-export default SlidePanelHome;
+export default VideoSlidePanel;

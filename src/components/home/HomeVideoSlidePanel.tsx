@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import SlidePanelHome from "@/components/SlidePanelHome";
+import VideoSlidePanel from "@/components/VideoSlidePanel";
 
 interface VideoLike {
   id: string;
@@ -27,7 +27,7 @@ interface Props<T extends VideoLike> {
 }
 
 /**
- * Wraps SlidePanelHome with prev/next navigation logic over a list of videos.
+ * Wraps VideoSlidePanel with prev/next navigation logic over a list of videos.
  * Extracted from Home.tsx to encapsulate the four duplicated index-search callbacks.
  */
 function HomeVideoSlidePanel<T extends VideoLike>({
@@ -61,7 +61,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
     : (activeVideo?.manualCard?.eventId || null);
 
   return (
-    <SlidePanelHome
+    <VideoSlidePanel
       open={open}
       onClose={onClose}
       videoUrl={activeVideo?.url || null}
