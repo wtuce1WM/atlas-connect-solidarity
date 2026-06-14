@@ -1,6 +1,6 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import SearchInput from "@/components/SearchInput";
-import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { useEffect, useLayoutEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { useIsMobile } from "@/hooks/use-mobile";
 import HScroll from "@/components/HScroll";
@@ -1709,9 +1709,10 @@ const SearchPage = () => {
   const scrollToResultsGridTop = useCallback((behavior: ScrollBehavior = "auto", tab: SearchTabKey = activeTab) => {
     const panel = document.querySelector<HTMLElement>(`[data-search-tab-panel="${tab}"]`);
 
-    // The search page has a fixed header; at document scrollTop=0 the next
-    // tab's grid starts directly below it. Reset the real page scroller instead
-    // of chasing sticky bars whose measured position changes during tab renders.
+    // The tab contents share the document scroll. Reset the real page scroller
+    // after the new tab has rendered; do not rely on sticky/grid measurements.
+    const previousOverflowAnchor = document.documentElement.style.overflowAnchor;
+    document.documentElement.style.overflowAnchor = "none";
     window.scrollTo({ top: 0, behavior });
     document.scrollingElement?.scrollTo({ top: 0, behavior });
     document.documentElement.scrollTop = 0;
@@ -1728,24 +1729,29 @@ const SearchPage = () => {
       }
     }
 
+    window.setTimeout(() => {
+      document.documentElement.style.overflowAnchor = previousOverflowAnchor;
+    }, 0);
+
     return !!panel;
   }, [activeTab]);
 
   const scheduleResultsGridScroll = useCallback((behavior: ScrollBehavior = "auto", tab: SearchTabKey = activeTab) => {
     pendingTabScrollRef.current = tab;
-    [0, 80, 200, 500, 900].forEach((delay) => {
+    [0, 16, 50, 120, 250, 500, 900, 1400].forEach((delay, index, delays) => {
       window.setTimeout(() => {
         if (pendingTabScrollRef.current !== tab) return;
-        if (scrollToResultsGridTop(behavior, tab)) pendingTabScrollRef.current = null;
+        scrollToResultsGridTop(behavior, tab);
+        if (index === delays.length - 1) pendingTabScrollRef.current = null;
       }, delay);
     });
   }, [scrollToResultsGridTop]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (pendingTabScrollRef.current !== activeTab) return;
     const tab = activeTab;
     const raf = requestAnimationFrame(() => {
-      if (scrollToResultsGridTop("auto", tab)) pendingTabScrollRef.current = null;
+      scrollToResultsGridTop("auto", tab);
     });
     return () => cancelAnimationFrame(raf);
   }, [activeTab, isLoading, allBusinesses.length, allPois.length, allDestItems.length, hashtagCount, scrollToResultsGridTop]);
