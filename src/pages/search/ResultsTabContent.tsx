@@ -598,24 +598,28 @@ export default function ResultsTabContent({
                 fitToMarkers
                 userLocation={userCoords ?? null}
               />
-              <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col">
-                <div className="relative z-10 flex items-center gap-3 px-3 py-3">
+              <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col pointer-events-none">
+                <div className="relative h-[52px] w-full flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => setHideResultsMap(true)}
-                    className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
+                    className="absolute top-3 left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity pointer-events-auto"
+                    aria-label="Fermer"
                   >
                     <X className="h-4 w-4" />
                   </button>
-                  <span className="flex-1 text-center text-sm font-medium text-black truncate">
-                    {(spokenText || searchQuery || labelFromUrl || "").trim()}
-                  </span>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="absolute top-3 left-14 right-24 z-[10] flex justify-center w-[calc(100%-152px)]">
+                    <div className="px-3 py-1.5 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate shadow-sm pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                      {(spokenText || searchQuery || labelFromUrl || "").trim()}
+                    </div>
+                  </div>
+
+                  <div className="absolute top-3 right-3 z-[15] flex items-center gap-2 pointer-events-auto">
                     <button
                       type="button"
                       onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
                       aria-label="Le Club OWM"
                     >
                       <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
@@ -623,11 +627,12 @@ export default function ResultsTabContent({
                     <ShareButton
                       title={spokenText || searchQuery || "Recherche"}
                       variant="dark"
-                      className="shrink-0"
+                      className="shrink-0 shadow-lg"
                     />
                   </div>
                 </div>
-                {(() => {
+                <div className="pointer-events-auto w-full flex flex-col">
+                  {(() => {
                   const total = Math.max(searchResultsTotal ?? 0, fsMatchingCount ?? 0, mapPoiItems.length);
                   const showToggle = total > 20 || !!activeFsSubId || !!showAllSearchMarkers;
                   return (
@@ -780,6 +785,7 @@ export default function ResultsTabContent({
                     </div>
                   );
                 })()}
+                </div>
               </div>
               {/* Bottom floating PanelSearchBar is rendered by SearchPage (single source) to avoid duplicate FAB buttons over the map. */}
             </div>
