@@ -120,6 +120,18 @@ const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "c
   );
 };
 
+const BackofficeBodyFlag = () => {
+  const location = useLocation();
+  useEffect(() => {
+    const isBackoffice =
+      location.pathname.startsWith("/staff") ||
+      location.pathname.startsWith("/affiliates");
+    if (isBackoffice) document.body.setAttribute("data-backoffice", "true");
+    else document.body.removeAttribute("data-backoffice");
+  }, [location.pathname]);
+  return null;
+};
+
 const AppContent = () => {
   const [activePanel, setActivePanel] = useState<"club" | "whatsapp" | null>(null);
   const { isRTL } = useLanguage();
@@ -137,6 +149,7 @@ const AppContent = () => {
           <Suspense fallback={null}><Toaster /></Suspense>
           <Suspense fallback={null}><Sonner /></Suspense>
           <BrowserRouter>
+          <BackofficeBodyFlag />
           <ScrollToTop />
           <RouteSeo />
           <PageMetaOverridesLoader />

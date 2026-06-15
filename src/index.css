@@ -9,7 +9,7 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Moroccan-inspired color palette */
-    --background: 40 29% 72%; /* #CDBFA4 */
+    --background: 33 53% 83%; /* #ECD6B8 */
     --foreground: 0 0% 5%;
 
     --card: 0 0% 100%;
@@ -75,6 +75,12 @@ All colors MUST be HSL.
     --sidebar-border: 30 20% 85%;
     --sidebar-ring: 16 65% 50%;
   }
+
+  /* Backoffice (staff / affiliates): fond blanc uni */
+  body[data-backoffice="true"] {
+    --background: 0 0% 100%;
+  }
+
 
   .dark {
     --background: 0 0% 8%;
