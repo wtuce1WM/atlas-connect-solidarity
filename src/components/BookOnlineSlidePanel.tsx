@@ -557,6 +557,8 @@ const BookOnlineSlidePanelInner = ({
   const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
   const [showFallbackOverlay, setShowFallbackOverlay] = useState(false);
   const [searchOverlayActive, setSearchOverlayActive] = useState(false);
+  const [hashtagsOverlayActive, setHashtagsOverlayActive] = useState(false);
+  const [aiOverlayActive, setAiOverlayActive] = useState(false);
   const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
   const [showHoursOverlay, setShowHoursOverlay] = useState(false);
   const [showSpotifyOverlay, setShowSpotifyOverlay] = useState(false);
@@ -817,7 +819,7 @@ const BookOnlineSlidePanelInner = ({
     showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
-    showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
+    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted;
 
   // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
   // so they can disable business navigation while an overlay is open above the panel.
@@ -2774,6 +2776,8 @@ const BookOnlineSlidePanelInner = ({
           businessCategory={business?.main_category}
           businessName={business?.name}
           onOverlayChange={setSearchOverlayActive}
+          onHashtagsOverlayChange={setHashtagsOverlayActive}
+          onAiOverlayChange={setAiOverlayActive}
           darkBackground={true}
           closeTrigger={closeTrigger}
           compact
