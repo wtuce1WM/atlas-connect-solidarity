@@ -93,12 +93,37 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
       ]);
 
 
-      const ytIds = Array.from(
+      let ytIds = Array.from(
         new Set(((ytLinksRes.data as any[]) || []).map((l) => l.youtube_video_id).filter(Boolean)),
       );
-      const genIds = Array.from(
+      let genIds = Array.from(
         new Set(((genLinksRes.data as any[]) || []).map((l) => l.generic_video_id).filter(Boolean)),
       );
+
+      // 2b. Strict city scoping: keep only video ids linked to the selected city.
+      if (cityId) {
+        const [ytCityRes, genCityRes] = await Promise.all([
+          ytIds.length
+            ? supabase
+                .from("business_youtube_video_cities")
+                .select("youtube_video_id")
+                .in("youtube_video_id", ytIds)
+                .eq("city_id", cityId)
+            : Promise.resolve({ data: [] as any[] }),
+          genIds.length
+            ? supabase
+                .from("generic_video_cities" as any)
+                .select("generic_video_id")
+                .in("generic_video_id", genIds)
+                .eq("city_id", cityId)
+            : Promise.resolve({ data: [] as any[] }),
+        ]);
+        const ytAllowed = new Set(((ytCityRes.data as any[]) || []).map((r: any) => r.youtube_video_id));
+        const genAllowed = new Set(((genCityRes.data as any[]) || []).map((r: any) => r.generic_video_id));
+        ytIds = ytIds.filter((id) => ytAllowed.has(id));
+        genIds = genIds.filter((id) => genAllowed.has(id));
+      }
+
 
       const [ytRes, genRes] = await Promise.all([
         ytIds.length
