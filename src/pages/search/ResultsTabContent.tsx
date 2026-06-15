@@ -785,6 +785,7 @@ export default function ResultsTabContent({
                     </div>
                   );
                 })()}
+                </div>
               </div>
               {/* Bottom floating PanelSearchBar is rendered by SearchPage (single source) to avoid duplicate FAB buttons over the map. */}
             </div>
