@@ -223,7 +223,27 @@ export default function ResultsTabContent({
   }, [userCoords, filteredBusinesses, allSearchMapBusinesses, getDistanceKm]);
   const proximityHasAny = (proximityCountsByKm[10] ?? 0) > 0;
 
-  const requestResultsScroll = () => onRequestResultsScroll?.();
+  const requestResultsScroll = () => {
+    // Scroll directly to just above the sticky results bar so the new grid
+    // starts right under the header. We don't rely on parent scheduling
+    // because activeTab doesn't change on FS tab clicks (suggestions stays
+    // active) and the layout effect wouldn't refire.
+    const doScroll = () => {
+      const el = resultsBarRef.current;
+      if (!el) {
+        window.scrollTo({ top: 0, behavior: "auto" });
+        return;
+      }
+      const header = document.querySelector<HTMLElement>('header');
+      const headerH = header ? header.getBoundingClientRect().height : 53;
+      const y = el.getBoundingClientRect().top + window.scrollY - headerH - 4;
+      window.scrollTo({ top: Math.max(0, y), behavior: "auto" });
+    };
+    doScroll();
+    requestAnimationFrame(doScroll);
+    [60, 180, 400].forEach((d) => window.setTimeout(doScroll, d));
+    onRequestResultsScroll?.();
+  };
 
   useEffect(() => { if (compactPanelBusiness) setShowFiltersOverlay(false); }, [compactPanelBusiness]);
   useEffect(() => {
