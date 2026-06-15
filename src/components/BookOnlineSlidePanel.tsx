@@ -2634,7 +2634,7 @@ const BookOnlineSlidePanelInner = ({
                       id: `self-${business.id}`, name: business.name,
                       latitude: business.latitude, longitude: business.longitude,
                       images: business.images, city: business.city, neighborhood: business.neighborhood,
-                      markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
+                      markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
                     } as PoiMapItem] : []),
                     ...destinations.filter(d => d.latitude && d.longitude).map(d => ({
                       id: d.id, name: d.name_fr, latitude: d.latitude!, longitude: d.longitude!,
@@ -2647,7 +2647,7 @@ const BookOnlineSlidePanelInner = ({
                       id: `self-${business.id}`, name: business.name,
                       latitude: business.latitude, longitude: business.longitude,
                       images: business.images, city: business.city, neighborhood: business.neighborhood,
-                      markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
+                      markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
                     } as PoiMapItem] : []),
                     ...(displayedPoi.map(p => ({
                       id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
