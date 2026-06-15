@@ -1018,12 +1018,14 @@ export const DescriptionPlusInlineButton = ({ onOpen }: { onOpen: () => void }) 
     aria-label="Voir la description"
     style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
   >
-    <span
-      className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
-      style={{ backgroundColor: '#25D366' }}
+    <div
+      className="relative w-12 h-12 rounded-full border border-white/30 flex items-center justify-center overflow-hidden backdrop-blur-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)] transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+      style={{ backgroundColor: 'rgba(37, 211, 102, 0.55)' }}
     >
-      <span className="text-xl md:text-2xl text-white font-light leading-none">+</span>
-    </span>
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
+      <span aria-hidden="true" className="pointer-events-none absolute top-0 left-1.5 right-1.5 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
+      <span className="relative text-2xl text-white font-light leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">+</span>
+    </div>
   </button>
 );
 
