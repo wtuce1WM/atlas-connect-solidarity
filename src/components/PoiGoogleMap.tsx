@@ -297,10 +297,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       gestureHandling: "greedy",
       clickableIcons: false,
       styles: [
-        // Hide all native POIs, transit, business labels — keep map ultra clean
-        { featureType: "poi", stylers: [{ visibility: "off" }] },
+        // Show native Google POIs (icônes attractions, parcs, etc.), masquer libellés business pour rester lisible
+        { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
+        { featureType: "poi.business", elementType: "labels.icon", stylers: [{ visibility: "on" }] },
         { featureType: "poi.park", elementType: "geometry", stylers: [{ visibility: "on" }, { color: "#e8f0e3" }] },
-        { featureType: "poi.park", elementType: "labels", stylers: [{ visibility: "off" }] },
+        { featureType: "poi.park", elementType: "labels.text", stylers: [{ visibility: "on" }, { color: "#7a8a6e" }] },
         { featureType: "transit", stylers: [{ visibility: "off" }] },
         { featureType: "transit.station", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
         // Base geometry — teinte beige du front (#ECD6B8)
