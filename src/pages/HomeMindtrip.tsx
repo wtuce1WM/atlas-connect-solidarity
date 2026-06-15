@@ -464,7 +464,7 @@ const HomeMindtrip = () => {
                   <div className="min-w-0">
                     <div 
                       className="inline-flex items-center gap-1 rounded-full p-1 border border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]"
-                      style={{ backgroundColor: "#BED1FF" }}
+                      style={{ backgroundColor: "#F1F1F1" }}
                     >
                       {CITIES.map((city) => {
                         const active = selectedCity === city;
