@@ -45,12 +45,31 @@ function isYoutubeLongFormat(url: string): boolean {
  *   annonce → agenda → culture → tips → vlogs → annonce → …
  * Empty buckets are skipped automatically.
  */
-export function useHashtagInjectedVideos(): InjectedHashtagVideo[] {
+export function useHashtagInjectedVideos(cityName?: string | null): InjectedHashtagVideo[] {
   const [items, setItems] = useState<InjectedHashtagVideo[]>([]);
+  const normalizedCity = (cityName || "").trim();
+  const cityKey = normalizedCity && normalizedCity.toLowerCase() !== "all" ? normalizedCity : "";
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // 0. Resolve city id (strict city scoping). If no city → no geo filter.
+      let cityId: string | null = null;
+      if (cityKey) {
+        const { data: cityRow } = await supabase
+          .from("cities")
+          .select("id")
+          .or(`name_fr.ilike.${cityKey},name_en.ilike.${cityKey},name_ar.ilike.${cityKey}`)
+          .limit(1)
+          .maybeSingle();
+        cityId = (cityRow as any)?.id || null;
+        // If a city was requested but unknown in DB, return empty (strict mode).
+        if (!cityId) {
+          if (!cancelled) setItems([]);
+          return;
+        }
+      }
+
       // 1. Resolve badge IDs
       const { data: badges } = await supabase
         .from("badges")
@@ -73,12 +92,38 @@ export function useHashtagInjectedVideos(): InjectedHashtagVideo[] {
           .in("badge_id", allBadgeIds),
       ]);
 
-      const ytIds = Array.from(
+
+      let ytIds = Array.from(
         new Set(((ytLinksRes.data as any[]) || []).map((l) => l.youtube_video_id).filter(Boolean)),
       );
-      const genIds = Array.from(
+      let genIds = Array.from(
         new Set(((genLinksRes.data as any[]) || []).map((l) => l.generic_video_id).filter(Boolean)),
       );
+
+      // 2b. Strict city scoping: keep only video ids linked to the selected city.
+      if (cityId) {
+        const [ytCityRes, genCityRes] = await Promise.all([
+          ytIds.length
+            ? supabase
+                .from("business_youtube_video_cities")
+                .select("youtube_video_id")
+                .in("youtube_video_id", ytIds)
+                .eq("city_id", cityId)
+            : Promise.resolve({ data: [] as any[] }),
+          genIds.length
+            ? supabase
+                .from("generic_video_cities" as any)
+                .select("generic_video_id")
+                .in("generic_video_id", genIds)
+                .eq("city_id", cityId)
+            : Promise.resolve({ data: [] as any[] }),
+        ]);
+        const ytAllowed = new Set(((ytCityRes.data as any[]) || []).map((r: any) => r.youtube_video_id));
+        const genAllowed = new Set(((genCityRes.data as any[]) || []).map((r: any) => r.generic_video_id));
+        ytIds = ytIds.filter((id) => ytAllowed.has(id));
+        genIds = genIds.filter((id) => genAllowed.has(id));
+      }
+
 
       const [ytRes, genRes] = await Promise.all([
         ytIds.length
@@ -244,7 +289,7 @@ export function useHashtagInjectedVideos(): InjectedHashtagVideo[] {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [cityKey]);
 
   return items;
 }
