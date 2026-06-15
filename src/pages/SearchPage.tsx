@@ -1357,6 +1357,7 @@ const SearchPage = () => {
       const [swipeOffsetY, setSwipeOffsetY] = useState(0);
       const onPanelTouchStart = useCallback((e: React.TouchEvent) => {
         if (!isMobile) return;
+        if (document.body.dataset.slidepanelOverlayOpen === "1") return;
         const t = e.touches[0];
         // Only initiate from top 80px (header) to avoid hijacking content scroll
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -1366,9 +1367,16 @@ const SearchPage = () => {
       }, [isMobile]);
       const onPanelTouchMove = useCallback((e: React.TouchEvent) => {
         if (!swipeActiveRef.current || swipeStartYRef.current == null) return;
+        if (document.body.dataset.slidepanelOverlayOpen === "1") {
+          swipeActiveRef.current = false;
+          swipeStartYRef.current = null;
+          setSwipeOffsetY(0);
+          return;
+        }
         const dy = e.touches[0].clientY - swipeStartYRef.current;
         setSwipeOffsetY(dy);
       }, []);
+
       // Navigate to the prev/next item in the result list (dir = -1 or 1).
       // The augmented sequence interleaves an injected hashtag video at every
       // virtual position 3, 7, 11, … (0-indexed) → i.e. after every 3 businesses.
