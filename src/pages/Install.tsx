@@ -176,7 +176,7 @@ const Install = () => {
       <div className="pt-[60px] md:pt-[76px]">
         <div className="w-full relative overflow-hidden mb-12">
           <img
-            src="/og-install-app-v7.webp"
+            src="/og-install-app-v8.webp"
             alt="ONE WORLD MOROCCO — installer l'application"
             className="w-full h-auto block animate-[heroKenBurns_24s_ease-in-out_infinite]"
             loading="eager"
@@ -245,6 +245,9 @@ const Install = () => {
           <h1 className="font-josefin text-3xl md:text-4xl font-light tracking-wide mb-3">
             Installer ONE WORLD MOROCCO
           </h1>
+          <p className="font-roboto text-base md:text-lg text-foreground/80 leading-relaxed mb-3 max-w-xl mx-auto">
+            L'écosystème digital éthique &amp; solidaire dédié à l'économie locale.
+          </p>
           <p className="font-roboto text-muted-foreground text-base leading-relaxed">
             {installEvent
               ? "Touche l'icône ci-dessus pour installer l'app en un clic, ou suis les étapes ci-dessous."
