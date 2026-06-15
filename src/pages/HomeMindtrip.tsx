@@ -462,7 +462,10 @@ const HomeMindtrip = () => {
                 ) : null}
                 {i === 0 ? (
                   <div className="min-w-0">
-                    <div className="inline-flex items-center gap-1 rounded-full p-1 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
+                    <div 
+                      className="inline-flex items-center gap-1 rounded-full p-1 border border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]"
+                      style={{ backgroundColor: "#BED1FF" }}
+                    >
                       {CITIES.map((city) => {
                         const active = selectedCity === city;
                         return (
@@ -472,8 +475,8 @@ const HomeMindtrip = () => {
                             onClick={() => setSelectedCity(city)}
                             className={`relative rounded-full px-5 py-2 font-josefin text-sm uppercase tracking-[0.2em] transition-all ${
                               active
-                                ? "bg-primary text-primary-foreground border border-white/30 shadow-[0_4px_16px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
-                                : "text-foreground/70 hover:text-foreground hover:bg-white/10"
+                                ? "bg-primary text-primary-foreground border border-black/10 shadow-[0_4px_16px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
+                                : "text-black/70 hover:text-black hover:bg-black/5"
                             }`}
                           >
                             {city}
