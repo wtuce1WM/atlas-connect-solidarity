@@ -819,6 +819,16 @@ const BookOnlineSlidePanelInner = ({
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
     showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
 
+  // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
+  // so they can disable business navigation while an overlay is open above the panel.
+  useEffect(() => {
+    if (anyOverlayOpen) {
+      document.body.dataset.slidepanelOverlayOpen = "1";
+      return () => { delete document.body.dataset.slidepanelOverlayOpen; };
+    }
+  }, [anyOverlayOpen]);
+
+
   // Pause/mute background media when an overlay is open — same mute gate as the Search overlay.
   // The refs are read inside the retry loop because YouTube iframes can mount after the state flip.
   useEffect(() => {
