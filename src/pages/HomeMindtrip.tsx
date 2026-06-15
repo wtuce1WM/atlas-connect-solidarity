@@ -639,37 +639,41 @@ const HomeMindtrip = () => {
                   )}
 
                   {(i === 1 || i === 2 || i === 3 || i === 4 || i === 6) ? (
-                    <div className="relative z-10 flex flex-col md:flex-row md:items-start gap-4 md:gap-6">
-                      <div className="flex-1 md:max-w-[60%]">
-                        <p className="font-roboto text-sm md:text-base text-black/90 font-bold">
-                          {s.desc}
-                        </p>
+                    <div className="relative z-10 flex flex-col gap-4 md:gap-6">
+                      <div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-6">
+                        <div className="flex-1 md:max-w-[60%]">
+                          <p className="font-roboto text-sm md:text-base text-black/90 font-bold">
+                            {s.desc}
+                          </p>
+                        </div>
+                        <div className="flex md:block items-center justify-center md:flex-shrink-0 pointer-events-none">
+                          <div className="relative h-[220px] md:h-[260px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden">
+                            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+                            {i === 1 && (
+                              <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
+                            )}
+                            {i === 2 && (
+                              <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                            )}
+                            {i === 3 && (
+                              <img src="/__l5e/assets-v1/dcedd97c-5e12-42e9-b9d1-8dfd89e4952e/offre-popup.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
+                            )}
+                            {i === 4 && (
+                              <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/1d4cd6cb-e735-432a-a333-af74d8f12d15-1781249602424-uzaggr.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                            )}
+                            {i === 6 && (
+                              <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-start">
                         <Link
                           to={s.href}
-                          className="mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:mt-6 md:px-6 md:py-3 md:text-sm"
+                          className="inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:px-6 md:py-3 md:text-sm"
                         >
                           {s.cta} →
                         </Link>
-                      </div>
-                      <div className="flex md:block items-center justify-center md:flex-shrink-0 pointer-events-none">
-                        <div className="relative h-[220px] md:h-[260px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden">
-                          <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
-                          {i === 1 && (
-                            <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
-                          )}
-                          {i === 2 && (
-                            <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
-                          )}
-                          {i === 3 && (
-                            <img src="/__l5e/assets-v1/dcedd97c-5e12-42e9-b9d1-8dfd89e4952e/offre-popup.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
-                          )}
-                          {i === 4 && (
-                            <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/1d4cd6cb-e735-432a-a333-af74d8f12d15-1781249602424-uzaggr.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
-                          )}
-                          {i === 6 && (
-                            <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
-                          )}
-                        </div>
                       </div>
                     </div>
                   ) : (
