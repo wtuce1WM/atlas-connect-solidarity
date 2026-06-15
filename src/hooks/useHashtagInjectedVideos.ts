@@ -63,12 +63,8 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
           .limit(1)
           .maybeSingle();
         cityId = (cityRow as any)?.id || null;
-        // If a city was requested but unknown in DB, return empty (strict mode).
-        if (!cityId) {
-          if (!cancelled) setItems([]);
-          return;
-        }
       }
+
 
       // 1. Resolve badge IDs
       const { data: badges } = await supabase
