@@ -1512,13 +1512,23 @@ const SearchPage = () => {
             .find(isScrollableY) || null;
         };
         const handler = (e: WheelEvent) => {
-          if (document.body.dataset.slidepanelOverlayOpen === "1") return;
           const rect = el.getBoundingClientRect();
           const isOverPanel = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+          if (document.body.dataset.slidepanelOverlayOpen === "1") {
+            // While an overlay is open above the slidepanel, block wheel events
+            // hovering the panel/overlay so they don't scroll the results grid behind.
+            if (isOverPanel) {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+            }
+            return;
+          }
           if (!isOverPanel) return;
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
+
 
           if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
           const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
