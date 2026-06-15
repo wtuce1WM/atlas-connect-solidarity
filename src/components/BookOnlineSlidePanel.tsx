@@ -2776,6 +2776,8 @@ const BookOnlineSlidePanelInner = ({
           businessCategory={business?.main_category}
           businessName={business?.name}
           onOverlayChange={setSearchOverlayActive}
+          onHashtagsOverlayChange={setHashtagsOverlayActive}
+          onAiOverlayChange={setAiOverlayActive}
           darkBackground={true}
           closeTrigger={closeTrigger}
           compact
