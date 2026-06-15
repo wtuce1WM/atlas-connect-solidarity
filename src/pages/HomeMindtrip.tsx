@@ -464,7 +464,7 @@ const HomeMindtrip = () => {
                   <div className="min-w-0">
                     <div 
                       className="inline-flex items-center gap-1 rounded-full p-1 border border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]"
-                      style={{ backgroundColor: "#BED1FF" }}
+                      style={{ backgroundColor: "#F1F1F1" }}
                     >
                       {CITIES.map((city) => {
                         const active = selectedCity === city;
@@ -629,7 +629,7 @@ const HomeMindtrip = () => {
                 <div
                   key={s.title}
                   className="relative overflow-hidden w-full h-full rounded-2xl md:rounded-3xl p-4 md:p-10 border border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]"
-                  style={{ backgroundColor: "#BED1FF" }}
+                  style={{ backgroundColor: "#F1F1F1" }}
                 >
                   {(i === 1 || i === 2 || i === 3 || i === 4 || i === 6) && (
                     <div className="w-full mb-6 relative z-10">
