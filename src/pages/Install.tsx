@@ -172,7 +172,43 @@ const Install = () => {
     <>
     <main className="min-h-dvh bg-background text-foreground">
       <HomeMindtripHeader />
-      <div className="mx-auto max-w-2xl px-6 pt-24 pb-12 md:pt-28">
+      {/* Hero image */}
+      <div className="mx-auto max-w-5xl px-6 pt-24 md:pt-28">
+        <div className="relative overflow-hidden rounded-3xl shadow-2xl group">
+          <img
+            src="/og-install-app.webp"
+            alt="ONE WORLD MOROCCO — installer l'application"
+            className="w-full h-auto object-cover animate-[heroKenBurns_24s_ease-in-out_infinite]"
+            loading="eager"
+            fetchPriority="high"
+          />
+          {/* Gold halo pulse over the mockup area */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(circle at 32% 55%, hsl(var(--gold) / 0.18) 0%, transparent 38%)",
+              animation: "heroHalo 5s ease-in-out infinite",
+            }}
+          />
+        </div>
+        <style>{`
+          @keyframes heroKenBurns {
+            0%, 100% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.04) translate(-0.5%, -0.5%); }
+          }
+          @keyframes heroHalo {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .group img, .group div[aria-hidden] { animation: none !important; }
+          }
+        `}</style>
+      </div>
+
+      <div className="mx-auto max-w-2xl px-6 pt-10 pb-12">
         {/* Header */}
         <header className="text-center mb-10">
           <button
