@@ -180,7 +180,6 @@ const Install = () => {
             alt="ONE WORLD MOROCCO — installer l'application"
             className="w-full h-full object-cover animate-[heroKenBurns_24s_ease-in-out_infinite]"
             loading="eager"
-            fetchPriority="high"
           />
           {/* Subtle gradient to fade into background and shadow top header */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-background" />
