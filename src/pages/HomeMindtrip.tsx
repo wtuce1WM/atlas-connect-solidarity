@@ -619,13 +619,13 @@ const HomeMindtrip = () => {
 
       {/* HOW IT WORKS — VERTICAL 2-COLUMN GRID (steps 2-8) */}
       <section className="relative bg-background mt-8 md:mt-16 px-4 md:px-8 py-8 md:py-16">
-        <div className="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+        <div className="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4 md:gap-8">
             {STEPS.slice(1).map((s, idx) => {
               const i = idx + 1;
               return (
                 <div
                   key={s.title}
-                  className="relative overflow-hidden w-full rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] min-h-[480px] md:min-h-[520px]"
+                  className="relative overflow-hidden w-full h-full rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
                 >
                   {i === 1 && (
                     <>
