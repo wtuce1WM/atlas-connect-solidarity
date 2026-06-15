@@ -811,14 +811,19 @@ const BookOnlineSlidePanelInner = ({
     };
   }, [businessId, currentMediaIndex]);
 
+  // Unified flag: true when any overlay is open on top of the slidepanel.
+  // Used both to mute background media and to disable swipe/wheel navigation.
+  const anyOverlayOpen =
+    showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
+    !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
+    !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
+    showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
+
   // Pause/mute background media when an overlay is open — same mute gate as the Search overlay.
   // The refs are read inside the retry loop because YouTube iframes can mount after the state flip.
   useEffect(() => {
-    const overlayOpen =
-      showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
-      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
-      !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
-      showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
+    const overlayOpen = anyOverlayOpen;
+
 
     const ytPost = (func: string, args: any[] = []) => {
       const iframe = iframeRef.current;
@@ -1063,6 +1068,7 @@ const BookOnlineSlidePanelInner = ({
     return !!target.closest('button, a, input, textarea, select, label, [role="button"], [data-cta]');
   };
   const handleMediaTouchStart = useCallback((e: React.TouchEvent) => {
+    if (anyOverlayOpen) { swipeStartRef.current = null; return; }
     if (isInteractiveTarget(e.target)) {
       swipeStartRef.current = null;
       return;
@@ -1070,12 +1076,14 @@ const BookOnlineSlidePanelInner = ({
     const t = e.touches[0];
     swipeStartRef.current = { x: t.clientX, y: t.clientY };
     onTouchStart?.(e);
-  }, [onTouchStart]);
+  }, [onTouchStart, anyOverlayOpen]);
   const handleMediaTouchMove = useCallback((e: React.TouchEvent) => {
+    if (anyOverlayOpen) return;
     if (!swipeStartRef.current) return;
     onTouchMove?.(e);
-  }, [onTouchMove]);
+  }, [onTouchMove, anyOverlayOpen]);
   const handleMediaTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (anyOverlayOpen) { swipeStartRef.current = null; return; }
     const start = swipeStartRef.current;
     swipeStartRef.current = null;
     if (!start) return;
@@ -1094,7 +1102,8 @@ const BookOnlineSlidePanelInner = ({
       }
     }
     onTouchEnd?.();
-  }, [onTouchEnd, goMedia, effectiveHasNext, effectiveHasPrev, effectiveOnNext, effectiveOnPrev]);
+  }, [onTouchEnd, goMedia, effectiveHasNext, effectiveHasPrev, effectiveOnNext, effectiveOnPrev, anyOverlayOpen]);
+
 
   // Listen for YouTube "ended"
   useEffect(() => {
