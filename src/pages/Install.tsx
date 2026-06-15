@@ -171,17 +171,18 @@ const Install = () => {
   return (
     <>
     <main className="min-h-dvh bg-background text-foreground">
-      <HomeMindtripHeader />
-      {/* Hero image */}
-      <div className="mx-auto max-w-5xl px-6 pt-24 md:pt-28">
-        <div className="relative overflow-hidden rounded-3xl shadow-2xl group">
+      <HomeMindtripHeader alwaysWhite />
+      {/* Hero image - Full screen (edge-to-edge) */}
+      <div className="w-full relative overflow-hidden h-[55vh] md:h-[70vh] min-h-[380px] max-h-[800px] mb-12">
+        <div className="absolute inset-0 w-full h-full">
           <img
             src="/og-install-app.webp"
             alt="ONE WORLD MOROCCO — installer l'application"
-            className="w-full h-auto object-cover animate-[heroKenBurns_24s_ease-in-out_infinite]"
+            className="w-full h-full object-cover animate-[heroKenBurns_24s_ease-in-out_infinite]"
             loading="eager"
-            fetchPriority="high"
           />
+          {/* Subtle gradient to fade into background and shadow top header */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-background" />
           {/* Gold halo pulse over the mockup area */}
           <div
             aria-hidden
