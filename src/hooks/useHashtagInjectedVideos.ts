@@ -195,6 +195,15 @@ export function useHashtagInjectedVideos(): InjectedHashtagVideo[] {
           : (account
               ? { id: "", name: `@${account}`, logo_url: null, logo_bg: null }
               : null);
+
+        // Filtre anti-spam externe : si pas de business rattaché,
+        // on n'accepte que les comptes whitelistés, et on exclut les YT longs.
+        if (!ownerId) {
+          const accLower = account.toLowerCase();
+          if (!accLower || !EXTERNAL_ACCOUNT_WHITELIST.has(accLower)) return;
+          if (isYoutubeLongFormat(g.url)) return;
+        }
+
         buckets[label].push({
           videoUrl: g.url,
           videoId: null,
