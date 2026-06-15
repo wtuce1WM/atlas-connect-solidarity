@@ -2768,7 +2768,6 @@ const BookOnlineSlidePanelInner = ({
       {showSearchBar && !docOverlay && !showDescriptionOverlay && !showBookingOverlay && !showYoutubeOverlay && !selectedPoiBusinessId && (
         <PanelSearchBar
           onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
-          hideAiButton={true}
           iconVariant="black"
           onSearch={onSearch}
           onBusinessSelect={onSearchBusinessSelect}
