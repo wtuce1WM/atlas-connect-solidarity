@@ -189,7 +189,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
           </div>
         )}
         {business.city && (
-          <div className="flex items-center gap-1 text-xs text-white/60">
+          <div className="flex items-center gap-1 text-xs text-white/85">
             <MapPin className="h-3 w-3" />
             <span className="truncate">{business.neighborhood ? `${business.city}, ${business.neighborhood}` : business.city}</span>
           </div>
