@@ -639,55 +639,55 @@ const HomeMindtrip = () => {
                   )}
 
                   {i === 1 && (
-                    <div className="mt-4 md:mt-0 md:absolute md:top-40 md:bottom-8 md:right-8 flex items-center justify-center pointer-events-none">
-                      <div className="relative h-[280px] md:h-full aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mx-auto">
-                        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+                    <div className="mt-4 md:absolute md:bottom-6 md:right-6 md:h-[230px] flex items-center justify-center pointer-events-none">
+                      <div className="relative h-[200px] md:h-[230px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden mx-auto">
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
                         <img
                           src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp"
                           alt="Assistant IA One World Morocco"
-                          className="h-full w-full object-cover rounded-[1.3rem] md:rounded-[1.7rem]"
+                          className="h-full w-full object-cover rounded-[0.9rem]"
                         />
                       </div>
                     </div>
                   )}
                   {i === 2 && (
-                    <div className="mt-4 md:mt-0 md:absolute md:top-40 md:bottom-8 md:right-8 flex items-center justify-center pointer-events-none">
-                      <div className="relative h-[280px] md:h-full aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mx-auto">
-                        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+                    <div className="mt-4 md:absolute md:bottom-6 md:right-6 md:h-[230px] flex items-center justify-center pointer-events-none">
+                      <div className="relative h-[200px] md:h-[230px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden mx-auto">
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
                         <video
                           src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4"
                           autoPlay
                           muted
                           loop
                           playsInline
-                          className="h-full w-full object-cover rounded-[1.3rem] md:rounded-[1.7rem]"
+                          className="h-full w-full object-cover rounded-[0.9rem]"
                         />
                       </div>
                     </div>
                   )}
                   {i === 3 && (
-                    <div className="mt-4 md:mt-0 md:absolute md:top-40 md:bottom-8 md:right-8 flex items-center justify-center pointer-events-none">
-                      <div className="relative h-[280px] md:h-full aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mx-auto">
-                        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+                    <div className="mt-4 md:absolute md:bottom-6 md:right-6 md:h-[230px] flex items-center justify-center pointer-events-none">
+                      <div className="relative h-[200px] md:h-[230px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden mx-auto">
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
                         <img
                           src="/__l5e/assets-v1/dcedd97c-5e12-42e9-b9d1-8dfd89e4952e/offre-popup.webp"
                           alt="Offre One World Morocco"
-                          className="h-full w-full object-cover rounded-[1.3rem] md:rounded-[1.7rem]"
+                          className="h-full w-full object-cover rounded-[0.9rem]"
                         />
                       </div>
                     </div>
                   )}
                   {i === 4 && (
-                    <div className="mt-4 md:mt-0 md:absolute md:top-40 md:bottom-8 md:right-8 flex items-center justify-center pointer-events-none">
-                      <div className="relative h-[280px] md:h-full aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mx-auto">
-                        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+                    <div className="mt-4 md:absolute md:bottom-6 md:right-6 md:h-[230px] flex items-center justify-center pointer-events-none">
+                      <div className="relative h-[200px] md:h-[230px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden mx-auto">
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
                         <video
                           src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/1d4cd6cb-e735-432a-a333-af74d8f12d15-1781249602424-uzaggr.mp4"
                           autoPlay
                           muted
                           loop
                           playsInline
-                          className="h-full w-full object-cover rounded-[1.3rem] md:rounded-[1.7rem]"
+                          className="h-full w-full object-cover rounded-[0.9rem]"
                         />
                       </div>
                     </div>
@@ -703,22 +703,22 @@ const HomeMindtrip = () => {
                     />
                   )}
                   {i === 6 && (
-                    <div className="mt-4 md:mt-0 md:absolute md:top-40 md:bottom-8 md:right-8 flex items-center justify-center pointer-events-none">
-                      <div className="relative h-[280px] md:h-full aspect-[9/16] border-[6px] md:border-[8px] border-neutral-900 bg-neutral-950 rounded-[1.8rem] md:rounded-[2.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mx-auto">
-                        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-12 h-3 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+                    <div className="mt-4 md:absolute md:bottom-6 md:right-6 md:h-[230px] flex items-center justify-center pointer-events-none">
+                      <div className="relative h-[200px] md:h-[230px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden mx-auto">
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
                         <video
                           src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4"
                           autoPlay
                           muted
                           loop
                           playsInline
-                          className="h-full w-full object-cover rounded-[1.3rem] md:rounded-[1.7rem]"
+                          className="h-full w-full object-cover rounded-[0.9rem]"
                         />
                       </div>
                     </div>
                   )}
 
-                  <div className={`relative z-10 ${i === 7 ? "text-center" : ""} ${i === 1 || i === 2 || i === 3 || i === 4 || i === 6 ? "md:max-w-[55%]" : ""}`}>
+                  <div className={`relative z-10 ${i === 7 ? "text-center" : ""} ${i === 1 || i === 2 || i === 3 || i === 4 || i === 6 ? "md:max-w-[48%] md:pr-4" : ""}`}>
                     {i === 7 && (
                       <div className="mx-auto mb-6 h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
                         <img src="/logo-gold.webp" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl object-contain" />
