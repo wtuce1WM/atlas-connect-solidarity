@@ -640,14 +640,14 @@ const HomeMindtrip = () => {
 
                   {(i === 1 || i === 2 || i === 3 || i === 4 || i === 6) ? (
                     <div className="relative z-10 flex flex-col gap-4 md:gap-6">
-                      <div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-6">
-                        <div className="flex-1 md:max-w-[60%]">
+                      <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
+                        <div className="flex-1 lg:max-w-[60%]">
                           <p className="font-roboto text-sm md:text-base text-black/90 font-bold">
                             {s.desc}
                           </p>
                         </div>
-                        <div className="flex md:block items-center justify-center md:flex-shrink-0 pointer-events-none">
-                          <div className="relative h-[220px] md:h-[340px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden">
+                        <div className="flex lg:block items-center justify-center lg:flex-shrink-0 pointer-events-none">
+                          <div className="relative h-[220px] md:h-[260px] lg:h-[340px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden">
                             <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
                             {i === 1 && (
                               <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
