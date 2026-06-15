@@ -326,7 +326,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         // Administrative — soft labels
         { featureType: "administrative", elementType: "geometry", stylers: [{ visibility: "off" }] },
         { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
-        { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#bcbcbc" }] },
+        { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#1c1510" }] },
       ],
     });
     infoWindowRef.current = new gmaps.InfoWindow();
