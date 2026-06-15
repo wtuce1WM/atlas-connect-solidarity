@@ -625,7 +625,7 @@ const HomeMindtrip = () => {
               return (
                 <div
                   key={s.title}
-                  className={`relative overflow-hidden w-full rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${i === 1 || i === 2 || i === 3 || i === 4 || i === 6 ? "lg:aspect-square min-h-[420px] md:min-h-[460px] lg:min-h-0" : ""}`}
+                  className="relative overflow-hidden w-full rounded-2xl md:rounded-3xl p-4 md:p-10 bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]"
                 >
                   {i === 1 && (
                     <>
