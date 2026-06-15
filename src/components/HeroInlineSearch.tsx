@@ -102,7 +102,8 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(query); } }}
             placeholder={placeholder}
             autoComplete="off"
-            className="w-full h-12 md:h-14 px-4 pr-10 text-left text-base md:text-lg text-foreground bg-white/15 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] focus:outline-none focus:ring-2 focus:ring-primary/70 focus:border-white/50 placeholder:text-foreground/70 placeholder:text-left transition-all"
+            className="w-full h-12 md:h-14 px-4 pr-10 text-left text-base md:text-lg text-black border border-black/10 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] focus:outline-none focus:ring-2 focus:ring-primary/70 focus:border-black/30 placeholder:text-black/60 placeholder:text-left transition-all"
+            style={{ backgroundColor: "#F1F1F1" }}
           />
           {query && (
             <button
