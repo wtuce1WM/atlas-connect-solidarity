@@ -9,8 +9,13 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Moroccan-inspired color palette */
-    --background: 40 29% 72%; /* #CDBFA4 */
+    --background: 33 53% 83%; /* #ECD6B8 */
     --foreground: 0 0% 5%;
+  }
+
+  /* Backoffice: fond blanc uni */
+  body[data-backoffice="true"] {
+    --background: 0 0% 100%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 5%;
