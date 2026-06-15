@@ -171,42 +171,44 @@ const Install = () => {
   return (
     <>
     <main className="min-h-dvh bg-background text-foreground">
-      <HomeMindtripHeader alwaysWhite />
-      {/* Hero image - Full screen (edge-to-edge) */}
-      <div className="w-full relative overflow-hidden h-[55vh] md:h-[70vh] min-h-[380px] max-h-[800px] mb-12">
-        <div className="absolute inset-0 w-full h-full">
-          <img
-            src="/og-install-app.webp"
-            alt="ONE WORLD MOROCCO — installer l'application"
-            className="w-full h-full object-cover animate-[heroKenBurns_24s_ease-in-out_infinite]"
-            loading="eager"
-          />
-          {/* Subtle gradient to fade into background and shadow top header */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-background" />
-          {/* Gold halo pulse over the mockup area */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(circle at 32% 55%, hsl(var(--gold) / 0.18) 0%, transparent 38%)",
-              animation: "heroHalo 5s ease-in-out infinite",
-            }}
-          />
+      <HomeMindtripHeader />
+      {/* Hero image - Full screen (edge-to-edge) below header */}
+      <div className="pt-[60px] md:pt-[76px]">
+        <div className="w-full relative overflow-hidden h-[50vh] md:h-[65vh] min-h-[350px] max-h-[750px] mb-12">
+          <div className="absolute inset-0 w-full h-full">
+            <img
+              src="/og-install-app.webp"
+              alt="ONE WORLD MOROCCO — installer l'application"
+              className="w-full h-full object-cover animate-[heroKenBurns_24s_ease-in-out_infinite]"
+              loading="eager"
+            />
+            {/* Subtle gradient to fade into background */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40" />
+            {/* Gold halo pulse over the mockup area */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(circle at 32% 55%, hsl(var(--gold) / 0.18) 0%, transparent 38%)",
+                animation: "heroHalo 5s ease-in-out infinite",
+              }}
+            />
+          </div>
+          <style>{`
+            @keyframes heroKenBurns {
+              0%, 100% { transform: scale(1) translate(0, 0); }
+              50% { transform: scale(1.04) translate(-0.5%, -0.5%); }
+            }
+            @keyframes heroHalo {
+              0%, 100% { opacity: 0.6; }
+              50% { opacity: 1; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .group img, .group div[aria-hidden] { animation: none !important; }
+            }
+          `}</style>
         </div>
-        <style>{`
-          @keyframes heroKenBurns {
-            0%, 100% { transform: scale(1) translate(0, 0); }
-            50% { transform: scale(1.04) translate(-0.5%, -0.5%); }
-          }
-          @keyframes heroHalo {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-          }
-          @media (prefers-reduced-motion: reduce) {
-            .group img, .group div[aria-hidden] { animation: none !important; }
-          }
-        `}</style>
       </div>
 
       <div className="mx-auto max-w-2xl px-6 pt-10 pb-12">
