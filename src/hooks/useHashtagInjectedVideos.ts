@@ -289,7 +289,7 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [cityKey]);
 
   return items;
 }
