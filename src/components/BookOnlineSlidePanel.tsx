@@ -811,14 +811,19 @@ const BookOnlineSlidePanelInner = ({
     };
   }, [businessId, currentMediaIndex]);
 
+  // Unified flag: true when any overlay is open on top of the slidepanel.
+  // Used both to mute background media and to disable swipe/wheel navigation.
+  const anyOverlayOpen =
+    showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
+    !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
+    !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
+    showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
+
   // Pause/mute background media when an overlay is open — same mute gate as the Search overlay.
   // The refs are read inside the retry loop because YouTube iframes can mount after the state flip.
   useEffect(() => {
-    const overlayOpen =
-      showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
-      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
-      !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
-      showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
+    const overlayOpen = anyOverlayOpen;
+
 
     const ytPost = (func: string, args: any[] = []) => {
       const iframe = iframeRef.current;
