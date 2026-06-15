@@ -638,126 +638,84 @@ const HomeMindtrip = () => {
                     </div>
                   )}
 
-                  {i === 1 && (
-                    <div className="mt-4 md:absolute md:bottom-6 md:right-6 md:h-[230px] flex items-center justify-center pointer-events-none">
-                      <div className="relative h-[200px] md:h-[230px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden mx-auto">
-                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
-                        <img
-                          src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp"
-                          alt="Assistant IA One World Morocco"
-                          className="h-full w-full object-cover rounded-[0.9rem]"
-                        />
+                  {(i === 1 || i === 2 || i === 3 || i === 4 || i === 6) ? (
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-start gap-4 md:gap-6">
+                      <div className="flex-1 md:max-w-[60%]">
+                        <p className="font-roboto text-sm md:text-base text-black/90 font-bold">
+                          {s.desc}
+                        </p>
+                        <Link
+                          to={s.href}
+                          className="mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:mt-6 md:px-6 md:py-3 md:text-sm"
+                        >
+                          {s.cta} →
+                        </Link>
+                      </div>
+                      <div className="flex md:block items-center justify-center md:flex-shrink-0 pointer-events-none">
+                        <div className="relative h-[220px] md:h-[260px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden">
+                          <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+                          {i === 1 && (
+                            <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
+                          )}
+                          {i === 2 && (
+                            <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                          )}
+                          {i === 3 && (
+                            <img src="/__l5e/assets-v1/dcedd97c-5e12-42e9-b9d1-8dfd89e4952e/offre-popup.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
+                          )}
+                          {i === 4 && (
+                            <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/1d4cd6cb-e735-432a-a333-af74d8f12d15-1781249602424-uzaggr.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                          )}
+                          {i === 6 && (
+                            <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                          )}
+                        </div>
                       </div>
                     </div>
-                  )}
-                  {i === 2 && (
-                    <div className="mt-4 md:absolute md:bottom-6 md:right-6 md:h-[230px] flex items-center justify-center pointer-events-none">
-                      <div className="relative h-[200px] md:h-[230px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden mx-auto">
-                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+                  ) : (
+                    <>
+                      {i === 5 && (
                         <video
-                          src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4"
+                          src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/6eab7b31-bda9-43d5-8c8b-4f972e5bb8bd-1774600396740-3cbxw.mp4"
                           autoPlay
                           muted
                           loop
                           playsInline
-                          className="h-full w-full object-cover rounded-[0.9rem]"
+                          className="absolute inset-0 h-full w-full object-cover"
                         />
-                      </div>
-                    </div>
-                  )}
-                  {i === 3 && (
-                    <div className="mt-4 md:absolute md:bottom-6 md:right-6 md:h-[230px] flex items-center justify-center pointer-events-none">
-                      <div className="relative h-[200px] md:h-[230px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden mx-auto">
-                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
-                        <img
-                          src="/__l5e/assets-v1/dcedd97c-5e12-42e9-b9d1-8dfd89e4952e/offre-popup.webp"
-                          alt="Offre One World Morocco"
-                          className="h-full w-full object-cover rounded-[0.9rem]"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {i === 4 && (
-                    <div className="mt-4 md:absolute md:bottom-6 md:right-6 md:h-[230px] flex items-center justify-center pointer-events-none">
-                      <div className="relative h-[200px] md:h-[230px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden mx-auto">
-                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
-                        <video
-                          src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/1d4cd6cb-e735-432a-a333-af74d8f12d15-1781249602424-uzaggr.mp4"
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
-                          className="h-full w-full object-cover rounded-[0.9rem]"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {i === 5 && (
-                    <video
-                      src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/6eab7b31-bda9-43d5-8c8b-4f972e5bb8bd-1774600396740-3cbxw.mp4"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
-                  )}
-                  {i === 6 && (
-                    <div className="mt-4 md:absolute md:bottom-6 md:right-6 md:h-[230px] flex items-center justify-center pointer-events-none">
-                      <div className="relative h-[200px] md:h-[230px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden mx-auto">
-                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
-                        <video
-                          src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4"
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
-                          className="h-full w-full object-cover rounded-[0.9rem]"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className={`relative z-10 ${i === 7 ? "text-center" : ""} ${i === 1 || i === 2 || i === 3 || i === 4 || i === 6 ? "md:max-w-[48%] md:pr-4" : ""}`}>
-                    {i === 7 && (
-                      <div className="mx-auto mb-6 h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
-                        <img src="/logo-gold.webp" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl object-contain" />
-                      </div>
-                    )}
-                    {!(i === 1 || i === 2 || i === 3 || i === 4 || i === 6) && (
-                      <>
-                        <span className={`font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]`} style={{ backgroundColor: "#C04F17" }}>
+                      )}
+                      <div className={`relative z-10 ${i === 7 ? "text-center" : ""}`}>
+                        {i === 7 && (
+                          <div className="mx-auto mb-6 h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
+                            <img src="/logo-gold.webp" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl object-contain" />
+                          </div>
+                        )}
+                        <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
                           Étape {i + 1}
                         </span>
                         <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl ${i === 7 ? "text-black" : "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"}`}>
                           {s.title}
                         </h3>
-                      </>
-                    )}
-                    <p className={`mt-3 md:mt-4 ${i === 7 ? "mx-auto" : ""} max-w-lg font-roboto text-sm md:text-base ${i === 7 ? "text-black/80" : i === 1 || i === 2 || i === 3 || i === 4 || i === 6 ? "text-black/90 font-bold" : "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"}`}>{s.desc}</p>
-                    {i === 5 ? (
-                      <HotelAvailabilityWidget />
-                    ) : i === 7 ? (
-                      <Link
-                        to={s.href}
-                        style={{ backgroundColor: "#C04F17" }}
-                        className="mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:opacity-90 transition-opacity md:mt-6 md:px-6 md:py-3 md:text-sm"
-                      >
-                        {s.cta} →
-                      </Link>
-                    ) : (
-                      <Link
-                        to={s.href}
-                        className={
-                          i === 1 || i === 2 || i === 3 || i === 4 || i === 6
-                            ? "mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:mt-6 md:px-6 md:py-3 md:text-sm"
-                            : "mt-4 inline-flex font-josefin text-xs uppercase tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm"
-                        }
-                      >
-                        {s.cta} →
-                      </Link>
-                    )}
-                  </div>
+                        <p className={`mt-3 md:mt-4 ${i === 7 ? "mx-auto text-black/80" : "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"} max-w-lg font-roboto text-sm md:text-base`}>{s.desc}</p>
+                        {i === 5 ? (
+                          <HotelAvailabilityWidget />
+                        ) : i === 7 ? (
+                          <Link
+                            to={s.href}
+                            style={{ backgroundColor: "#C04F17" }}
+                            className="mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:opacity-90 transition-opacity md:mt-6 md:px-6 md:py-3 md:text-sm"
+                          >
+                            {s.cta} →
+                          </Link>
+                        ) : (
+                          <Link to={s.href} className="mt-4 inline-flex font-josefin text-xs uppercase tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm">
+                            {s.cta} →
+                          </Link>
+                        )}
+                      </div>
+                    </>
+                  )}
+
                 </div>
               );
             })}
