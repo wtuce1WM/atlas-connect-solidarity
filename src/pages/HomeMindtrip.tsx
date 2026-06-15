@@ -289,18 +289,8 @@ const HomeMindtrip = () => {
     };
   }, []);
 
-  useEffect(() => {
-    videoRefs.current.forEach((v, idx) => {
-      if (!v) return;
-      if (idx === activeStep) v.play().catch(() => {});
-      else v.pause();
-    });
-    const yt = ytIframeRef.current?.contentWindow;
-    if (yt) {
-      const cmd = activeStep === 4 ? "playVideo" : "pauseVideo";
-      yt.postMessage(JSON.stringify({ event: "command", func: cmd, args: [] }), "*");
-    }
-  }, [activeStep]);
+  // Videos in the steps grid keep their native autoPlay; no pause logic needed.
+
 
   useLayoutEffect(() => {
     let total = 1;
