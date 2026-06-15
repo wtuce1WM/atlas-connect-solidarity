@@ -303,20 +303,20 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         { featureType: "poi.park", elementType: "labels", stylers: [{ visibility: "off" }] },
         { featureType: "transit", stylers: [{ visibility: "off" }] },
         { featureType: "transit.station", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-        // Base geometry — near-white background
-        { elementType: "geometry", stylers: [{ color: "#fafafa" }] },
-        { elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
-        { elementType: "labels.text.stroke", stylers: [{ color: "#ffffff" }] },
+        // Base geometry — teinte beige du front (#ECD6B8)
+        { elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#8a7a63" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#ECD6B8" }] },
         // Landscape
-        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#f5f5f3" }] },
-        { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#f0f0ee" }] },
-        // Roads — very light gray, thin
-        { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
-        { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#ececec" }] },
-        { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
-        { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#e4e4e4" }] },
-        { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
-        { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#fbfbfb" }] },
+        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
+        { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#E5CDAB" }] },
+        // Roads — blanc cassé pour contraste doux sur le beige
+        { featureType: "road", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
+        { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#DCC4A1" }] },
+        { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
+        { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#D4B98F" }] },
+        { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
+        { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#F6E8D0" }] },
         { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#b5b5b5" }] },
         { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
         // Water — pale blue
