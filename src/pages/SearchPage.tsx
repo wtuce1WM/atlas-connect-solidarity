@@ -1382,7 +1382,7 @@ const SearchPage = () => {
       // virtual position 3, 7, 11, … (0-indexed) → i.e. after every 3 businesses.
       // Sequence: B B B V B B B V B B B V …
       const filteredBusinessesRef = useRef<Business[]>([]);
-      const injectedVideos = useHashtagInjectedVideos();
+      const injectedVideos = useHashtagInjectedVideos(selectedCity);
       const injectedVideosRef = useRef<InjectedHashtagVideo[]>([]);
       useEffect(() => { injectedVideosRef.current = injectedVideos; }, [injectedVideos]);
 
