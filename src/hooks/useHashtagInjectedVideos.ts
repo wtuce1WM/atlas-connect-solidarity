@@ -45,12 +45,31 @@ function isYoutubeLongFormat(url: string): boolean {
  *   annonce → agenda → culture → tips → vlogs → annonce → …
  * Empty buckets are skipped automatically.
  */
-export function useHashtagInjectedVideos(): InjectedHashtagVideo[] {
+export function useHashtagInjectedVideos(cityName?: string | null): InjectedHashtagVideo[] {
   const [items, setItems] = useState<InjectedHashtagVideo[]>([]);
+  const normalizedCity = (cityName || "").trim();
+  const cityKey = normalizedCity && normalizedCity.toLowerCase() !== "all" ? normalizedCity : "";
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // 0. Resolve city id (strict city scoping). If no city → no geo filter.
+      let cityId: string | null = null;
+      if (cityKey) {
+        const { data: cityRow } = await supabase
+          .from("cities")
+          .select("id")
+          .or(`name_fr.ilike.${cityKey},name_en.ilike.${cityKey},name_ar.ilike.${cityKey}`)
+          .limit(1)
+          .maybeSingle();
+        cityId = (cityRow as any)?.id || null;
+        // If a city was requested but unknown in DB, return empty (strict mode).
+        if (!cityId) {
+          if (!cancelled) setItems([]);
+          return;
+        }
+      }
+
       // 1. Resolve badge IDs
       const { data: badges } = await supabase
         .from("badges")
@@ -72,6 +91,7 @@ export function useHashtagInjectedVideos(): InjectedHashtagVideo[] {
           .select("badge_id, generic_video_id")
           .in("badge_id", allBadgeIds),
       ]);
+
 
       const ytIds = Array.from(
         new Set(((ytLinksRes.data as any[]) || []).map((l) => l.youtube_video_id).filter(Boolean)),
