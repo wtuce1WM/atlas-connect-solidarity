@@ -149,6 +149,7 @@ const AppContent = () => {
           <Suspense fallback={null}><Toaster /></Suspense>
           <Suspense fallback={null}><Sonner /></Suspense>
           <BrowserRouter>
+          <BackofficeBodyFlag />
           <ScrollToTop />
           <RouteSeo />
           <PageMetaOverridesLoader />
