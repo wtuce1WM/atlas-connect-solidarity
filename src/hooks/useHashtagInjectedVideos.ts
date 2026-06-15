@@ -23,6 +23,23 @@ export type InjectedHashtagVideo = {
 const HASHTAGS = ["#Annonce", "#Agenda", "#Culture", "#Tips", "#Vlogs"] as const;
 
 /**
+ * Whitelist des comptes externes autorisés à apparaître dans le feed hashtag
+ * SANS être rattachés à un business (`generic_video_businesses` vide).
+ * Tout autre compte orphelin est filtré pour éviter que le feed soit noyé
+ * par des chaînes médias / créateurs non éditorialisés.
+ * Règle complémentaire : pour ces comptes, on n'accepte QUE les Shorts
+ * (URLs hors `youtube.com/watch`). Les vidéos longues YouTube sont ignorées.
+ */
+const EXTERNAL_ACCOUNT_WHITELIST = new Set<string>([
+  "tarikbelasri",
+  "lesgourmandisesdeloubna5154",
+]);
+
+function isYoutubeLongFormat(url: string): boolean {
+  return /youtube\.com\/watch/i.test(url);
+}
+
+/**
  * Fetches videos tagged with the 5 editorial hashtags, then interleaves them
  * round-robin so the resulting array alternates badges:
  *   annonce → agenda → culture → tips → vlogs → annonce → …
@@ -178,6 +195,15 @@ export function useHashtagInjectedVideos(): InjectedHashtagVideo[] {
           : (account
               ? { id: "", name: `@${account}`, logo_url: null, logo_bg: null }
               : null);
+
+        // Filtre anti-spam externe : si pas de business rattaché,
+        // on n'accepte que les comptes whitelistés, et on exclut les YT longs.
+        if (!ownerId) {
+          const accLower = account.toLowerCase();
+          if (!accLower || !EXTERNAL_ACCOUNT_WHITELIST.has(accLower)) return;
+          if (isYoutubeLongFormat(g.url)) return;
+        }
+
         buckets[label].push({
           videoUrl: g.url,
           videoId: null,
