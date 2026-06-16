@@ -738,20 +738,19 @@ const HomeMindtrip = () => {
                         </>
                       )}
                       <div className={`relative z-10 ${i === 7 ? "text-left md:text-center flex flex-col items-start md:items-center justify-between h-full min-h-[300px] md:min-h-[400px] flex-1" : ""}`}>
+                        {i === 7 && (
+                          <div className="md:hidden mt-0 mb-2">
+                            <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
+                              Étape {i + 1}
+                            </span>
+                          </div>
+                        )}
                         {i === 7 ? (
-                          <div className="flex flex-col items-start md:items-center gap-3 w-full">
-                            {/* Mobile/Tablet Badge */}
-                            <div className="md:hidden mt-0 mb-2">
-                              <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
-                                Étape {i + 1}
-                              </span>
-                            </div>
-                            <div className="flex flex-col items-start md:items-center gap-3 md:mt-auto md:mb-12">
-                              <h3 className={`font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
-                                {s.title}
-                              </h3>
-                              <p className="mt-3 md:mt-4 text-white/90 font-normal [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base md:mx-auto">{s.desc}</p>
-                            </div>
+                          <div className="flex flex-col items-start md:items-center gap-3 mt-2 md:mt-auto md:mb-12">
+                            <h3 className={`font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] md:text-center`}>
+                              {s.title}
+                            </h3>
+                            <p className="mt-3 md:mt-4 text-white/90 font-normal [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base md:text-center md:mx-auto">{s.desc}</p>
                           </div>
                         ) : (
                           <>
