@@ -765,8 +765,7 @@ const HomeMindtrip = () => {
                           <div className="flex justify-center w-full mt-auto pt-4">
                             <Link
                               to={s.href}
-                              style={{ backgroundColor: "#C04F17" }}
-                              className="inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:opacity-90 transition-opacity md:px-6 md:py-3 md:text-sm"
+                              className="inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:px-6 md:py-3 md:text-sm"
                             >
                               {s.cta} →
                             </Link>
