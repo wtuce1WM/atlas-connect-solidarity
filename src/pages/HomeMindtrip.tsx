@@ -365,6 +365,7 @@ const HomeMindtrip = () => {
              fetchPriority="high"
            />
         </picture>
+        <div className="absolute inset-0 bg-black/35 md:hidden z-10" />
         <style>{`
           @keyframes heroKenBurns {
             0%, 100% { transform: scale(1); }
