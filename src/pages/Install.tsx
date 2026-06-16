@@ -202,7 +202,7 @@ const Install = () => {
                 }
               >
                 <img
-                  src="/logo-gold.webp"
+                  src="/images/logo_blanc.webp"
                   alt="ONE WORLD MOROCCO"
                   className="h-24 w-auto object-contain rounded-3xl shadow-xl transition-transform group-hover:scale-105 group-active:scale-95 cursor-pointer mx-auto"
                 />
