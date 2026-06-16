@@ -458,9 +458,15 @@ const ImageUploader = ({
   const handleRemoveImage = useCallback((indexToRemove: number) => {
     // Only remove from the list — do NOT delete from storage here.
     // Physical deletion will happen on form save by comparing before/after.
+    const removedUrl = images[indexToRemove];
     const newImages = images.filter((_, index) => index !== indexToRemove);
     onChange(newImages);
-  }, [images, onChange]);
+    // If the removed image was the welcome-popup image, clear the reference too
+    // (otherwise a stale popup_image_url triggers a broken popup on the front).
+    if (removedUrl && popupImageUrl === removedUrl) {
+      onPopupChange?.(null);
+    }
+  }, [images, onChange, popupImageUrl, onPopupChange]);
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
