@@ -660,11 +660,11 @@ const HomeMindtrip = () => {
             {STEPS.slice(1).map((s, idx) => {
               const i = idx + 1;
               return (
-                <div
-                  key={s.title}
-                  className="relative overflow-hidden w-full h-full rounded-2xl md:rounded-3xl p-4 md:p-10 border border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]"
-                  style={{ backgroundColor: "#F1F1F1" }}
-                >
+                 <div
+                   key={s.title}
+                   className="relative overflow-hidden w-full h-full rounded-2xl md:rounded-3xl p-4 md:p-10 border border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] flex flex-col justify-between"
+                   style={{ backgroundColor: "#F1F1F1" }}
+                 >
                   {(i === 1 || i === 2 || i === 3 || i === 4 || i === 6) && (
                     <div className="w-full mb-6 relative z-10">
                       <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
@@ -677,7 +677,7 @@ const HomeMindtrip = () => {
                   )}
 
                   {(i === 1 || i === 2 || i === 3 || i === 4 || i === 6) ? (
-                    <div className="relative z-10 flex flex-col gap-4 md:gap-6">
+                    <div className="relative z-10 flex flex-col gap-4 md:gap-6 flex-1 justify-between">
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         <div className="flex-1 lg:max-w-[60%]">
                           <p className="font-roboto text-sm md:text-base text-black/90 font-normal">
@@ -705,7 +705,7 @@ const HomeMindtrip = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex justify-start">
+                      <div className="flex justify-center mt-auto pt-4">
                         <Link
                           to={s.href}
                           className="inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:px-6 md:py-3 md:text-sm"
@@ -737,26 +737,40 @@ const HomeMindtrip = () => {
                           </div>
                         </>
                       )}
-                      <div className={`relative z-10 ${i === 7 ? "text-center flex flex-col items-center justify-center h-full min-h-[300px] md:min-h-[400px]" : ""}`}>
-                        {i !== 7 && (
-                          <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
-                            Étape {i + 1}
-                          </span>
+                      <div className={`relative z-10 ${i === 7 ? "text-center flex flex-col items-center justify-between h-full min-h-[300px] md:min-h-[400px] flex-1" : ""}`}>
+                        {i === 7 ? (
+                          <div className="flex flex-col items-center gap-3">
+                            <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
+                              {s.title}
+                            </h3>
+                            <p className="mt-3 md:mt-4 text-white/90 font-normal [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base mx-auto">{s.desc}</p>
+                          </div>
+                        ) : (
+                          <>
+                            {i !== 7 && (
+                              <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
+                                Étape {i + 1}
+                              </span>
+                            )}
+                            <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
+                              {s.title}
+                            </h3>
+                            <p className={`mt-3 md:mt-4 text-white/90 ${i === 7 ? "font-normal" : "font-bold"} [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base ${i === 7 ? "mx-auto" : ""}`}>{s.desc}</p>
+                          </>
                         )}
-                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
-                          {s.title}
-                        </h3>
-                        <p className={`mt-3 md:mt-4 text-white/90 ${i === 7 ? "font-normal" : "font-bold"} [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base ${i === 7 ? "mx-auto" : ""}`}>{s.desc}</p>
+
                         {i === 5 ? (
                           <HotelAvailabilityWidget />
                         ) : i === 7 ? (
-                          <Link
-                            to={s.href}
-                            style={{ backgroundColor: "#C04F17" }}
-                            className="mt-4 inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:opacity-90 transition-opacity md:mt-6 md:px-6 md:py-3 md:text-sm"
-                          >
-                            {s.cta} →
-                          </Link>
+                          <div className="flex justify-center w-full mt-auto pt-4">
+                            <Link
+                              to={s.href}
+                              style={{ backgroundColor: "#C04F17" }}
+                              className="inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] hover:opacity-90 transition-opacity md:px-6 md:py-3 md:text-sm"
+                            >
+                              {s.cta} →
+                            </Link>
+                          </div>
                         ) : (
                           <Link to={s.href} className="mt-4 inline-flex font-josefin text-xs uppercase tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm">
                             {s.cta} →
