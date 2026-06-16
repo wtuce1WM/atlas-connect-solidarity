@@ -662,13 +662,29 @@ html.hide-scrollbar-search::-webkit-scrollbar {
 @media (max-width: 767px) {
   .home-hero-content {
     position: absolute !important;
-    top: 35svh !important;
     left: 0 !important;
     right: 0 !important;
+    top: auto !important;
+    bottom: 0.75rem !important;
     display: block !important;
     min-height: auto !important;
     padding-top: 0 !important;
-    padding-bottom: 4rem !important;
+    padding-bottom: 0 !important;
+  }
+
+  .home-hero-content h1 {
+    font-size: 1.875rem !important;
+    line-height: 1.05 !important;
+  }
+
+  .home-hero-content p {
+    margin-top: 1rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.38 !important;
+  }
+
+  .home-hero-content h1 + p + div {
+    margin-top: 1.5rem !important;
   }
 }
 
