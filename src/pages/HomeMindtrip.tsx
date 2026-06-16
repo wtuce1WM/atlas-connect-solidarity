@@ -680,7 +680,7 @@ const HomeMindtrip = () => {
                     <div className="relative z-10 flex flex-col gap-4 md:gap-6">
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         <div className="flex-1 lg:max-w-[60%]">
-                          <p className="font-roboto text-sm md:text-base text-black/90 font-bold">
+                          <p className="font-roboto text-sm md:text-base text-black/90 font-normal">
                             {s.desc}
                           </p>
                         </div>
