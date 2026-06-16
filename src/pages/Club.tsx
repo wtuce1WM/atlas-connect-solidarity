@@ -413,7 +413,7 @@ const Club = () => {
           <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
 
 
-            <div className="w-full max-w-lg mx-auto bg-[#F1F1F1] p-6 sm:p-8 rounded-2xl border border-border/50 shadow-2xl">
+            <div className="w-full max-w-2xl mx-auto bg-[#F1F1F1] p-6 sm:p-8 rounded-2xl border border-border/50 shadow-2xl">
 
 
                 {/* Tabs */}
