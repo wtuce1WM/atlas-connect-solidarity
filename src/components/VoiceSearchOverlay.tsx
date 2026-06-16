@@ -34,9 +34,9 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
       {/* Close button */}
       <button
         onClick={guardClick(onClose)}
-        className="absolute top-6 right-6 p-2 rounded-full hover:bg-black/10 transition-colors z-10"
+        className="absolute top-6 left-6 p-2 rounded-full bg-black hover:bg-black/80 transition-colors z-10 w-10 h-10 flex items-center justify-center shadow-md"
       >
-        <X className="h-6 w-6 text-black" />
+        <X className="h-5 w-5 text-white" />
       </button>
 
       {/* Transcript area (positioned in the top half) */}
