@@ -140,8 +140,8 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
               voice.status === "recording"
                 ? "bg-red-500 animate-pulse"
                 : voice.status === "processing"
-                  ? "bg-black"
-                  : "bg-black hover:bg-black/90"
+                  ? "bg-[#194CFF]"
+                  : "bg-[#194CFF] hover:bg-[#194CFF]/90"
             }`}
           >
             {voice.status === "processing" ? (

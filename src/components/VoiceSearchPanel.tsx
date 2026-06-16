@@ -7,7 +7,7 @@ interface Props {
   align?: "center" | "start";
 }
 
-const ACCENT = "#6050dc";
+const ACCENT = "#194CFF";
 
 const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center" }: Props) => {
   const isStart = align === "start";
