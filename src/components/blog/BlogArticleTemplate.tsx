@@ -318,9 +318,16 @@ const BlogArticleTemplate = ({
                   </h2>
 
                   <div className="space-y-4 mb-8">
-                    {[entry.id, ...(entry.extraIds ?? [])].map((bid) => {
-                      const b = businesses[bid];
-                      if (!b) return null;
+                    {[entry.id, ...(entry.extraIds ?? [])]
+                      .map((bid) => businesses[bid])
+                      .filter(Boolean)
+                      .sort((a, b) => {
+                        const ra = a.computed_rating ?? a.rating ?? -1;
+                        const rb = b.computed_rating ?? b.rating ?? -1;
+                        if (rb !== ra) return rb - ra;
+                        return (b.total_review_count ?? 0) - (a.total_review_count ?? 0);
+                      })
+                      .map((b) => {
                       return (
                         <Link
                           key={bid}
