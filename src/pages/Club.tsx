@@ -538,11 +538,11 @@ const Club = () => {
                           <label className="text-sm text-foreground font-semibold mb-1 block">
                             {t.firstName} <span className="text-destructive">*</span>
                           </label>
-                          <Input value={form.first_name} onChange={handleChange("first_name")} required />
+                          <Input value={form.first_name} onChange={handleChange("first_name")} required className="bg-white text-black" />
                         </div>
                         <div>
                           <label className="text-sm text-muted-foreground mb-1 block">{t.lastName}</label>
-                          <Input value={form.last_name} onChange={handleChange("last_name")} />
+                          <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-white text-black" />
                         </div>
                       </div>
 
@@ -551,7 +551,7 @@ const Club = () => {
                         <label className="text-sm text-foreground font-semibold mb-1 block">
                           {t.emailLabel} <span className="text-destructive">*</span>
                         </label>
-                        <Input type="email" value={form.email} onChange={handleChange("email")} required />
+                        <Input type="email" value={form.email} onChange={handleChange("email")} required className="bg-white text-black" />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -566,7 +566,7 @@ const Club = () => {
                               onChange={(e) => setPassword(e.target.value)}
                               required
                               minLength={6}
-                              className="pr-10"
+                              className="bg-white text-black pr-10"
                             />
                             <button
                               type="button"
@@ -588,7 +588,7 @@ const Club = () => {
                               onChange={(e) => setConfirmPassword(e.target.value)}
                               required
                               minLength={6}
-                              className="pr-10"
+                              className="bg-white text-black pr-10"
                             />
                             <button
                               type="button"
@@ -607,11 +607,11 @@ const Club = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm text-muted-foreground mb-1 block">{t.phoneLabel}</label>
-                          <Input type="tel" value={form.phone} onChange={handleChange("phone")} />
+                          <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-white text-black" />
                         </div>
                         <div>
                           <label className="text-sm text-muted-foreground mb-1 block">{t.whatsappLabel}</label>
-                          <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} />
+                          <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-white text-black" />
                         </div>
                       </div>
 
