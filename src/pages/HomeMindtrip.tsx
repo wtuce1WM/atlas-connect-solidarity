@@ -747,10 +747,10 @@ const HomeMindtrip = () => {
                               </span>
                             </div>
                             <div className="flex flex-col items-start md:items-center gap-3 md:mt-auto md:mb-12">
-                              <h3 className={`font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
+                              <h3 className={`font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] md:text-center`}>
                                 {s.title}
                               </h3>
-                              <p className="mt-3 md:mt-4 text-white/90 font-normal [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base md:mx-auto">{s.desc}</p>
+                              <p className="mt-3 md:mt-4 text-white/90 font-normal [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base md:text-center md:mx-auto">{s.desc}</p>
                             </div>
                           </div>
                         ) : (
