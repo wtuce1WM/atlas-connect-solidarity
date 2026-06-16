@@ -691,16 +691,16 @@ const HomeMindtrip = () => {
                               <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 2 && (
-                              <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 3 && (
                               <img src="/__l5e/assets-v1/dcedd97c-5e12-42e9-b9d1-8dfd89e4952e/offre-popup.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 4 && (
-                              <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/1d4cd6cb-e735-432a-a333-af74d8f12d15-1781249602424-uzaggr.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/1d4cd6cb-e735-432a-a333-af74d8f12d15-1781249602424-uzaggr.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 6 && (
-                              <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                           </div>
                         </div>
