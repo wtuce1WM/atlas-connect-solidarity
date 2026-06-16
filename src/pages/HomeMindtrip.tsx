@@ -370,12 +370,20 @@ const HomeMindtrip = () => {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.04); }
           }
+          @media (max-width: 767px) {
+            .home-hero-content {
+              justify-content: flex-end !important;
+              min-height: calc(100svh - 2rem) !important;
+              padding-top: 0 !important;
+              padding-bottom: max(3.25rem, env(safe-area-inset-bottom)) !important;
+            }
+          }
           @media (prefers-reduced-motion: reduce) {
             section > picture img { animation: none !important; }
           }
         `}</style>
 
-        <div className="relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-start px-6 pt-[22rem] pb-6 md:justify-start md:py-24 md:pt-14 md:px-12 lg:justify-center lg:pt-24">
+        <div className="home-hero-content relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-start px-6 pt-72 pb-6 md:justify-start md:py-24 md:pt-14 md:px-12 lg:justify-center lg:pt-24">
           <h1 className="font-josefin text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] tracking-tight text-white md:max-w-[400px] lg:max-w-2xl">
             L’écosystème digital éthique & solidaire dédié à l'économie marocaine
           </h1>
