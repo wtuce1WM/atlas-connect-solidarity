@@ -189,36 +189,37 @@ const Install = () => {
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-8">
           <div className="w-full max-w-md bg-white/15 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
             <header className="text-center">
-              <button
-                type="button"
-                onClick={handleIconClick}
-                className="group relative mx-auto mb-8 block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-3xl cursor-pointer"
-                aria-label={
-                  installed
-                    ? "Application déjà installée"
-                    : installEvent
-                      ? "Installer l'application maintenant"
-                      : "Voir les instructions d'installation"
-                }
-              >
+              <div className="flex flex-col items-center gap-6 mb-8">
                 <img
                   src="/images/logo_blanc.webp"
                   alt="ONE WORLD MOROCCO"
-                  className="h-24 w-auto object-contain rounded-3xl shadow-xl transition-transform group-hover:scale-105 group-active:scale-95 cursor-pointer mx-auto mt-3"
+                  className="h-24 w-auto object-contain transition-transform hover:scale-105"
                 />
-                {!installed && (
-                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#C04F17] text-white text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
-                    <Download className="h-3 w-3" />
-                    {installEvent ? "Installer" : "Comment installer"}
-                  </span>
-                )}
-                {installed && (
-                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-600 text-white text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
-                    <Check className="h-3 w-3" />
-                    Installée
-                  </span>
-                )}
-              </button>
+                <button
+                  type="button"
+                  onClick={handleIconClick}
+                  className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C04F17] text-white text-sm font-roboto font-medium shadow-lg hover:opacity-95 transition-all active:scale-95 cursor-pointer"
+                  aria-label={
+                    installed
+                      ? "Application déjà installée"
+                      : installEvent
+                        ? "Installer l'application maintenant"
+                        : "Voir les instructions d'installation"
+                  }
+                >
+                  {!installed ? (
+                    <>
+                      <Download className="h-4 w-4" />
+                      {installEvent ? "Installer" : "Comment installer"}
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4" />
+                      Installée
+                    </>
+                  )}
+                </button>
+              </div>
               <h1 className="font-josefin text-3xl md:text-4xl font-light tracking-wide mb-3 text-white">
                 Installer ONE WORLD MOROCCO
               </h1>
