@@ -11,7 +11,7 @@ interface VoiceSearchOverlayProps {
   contained?: boolean;
 }
 
-const ACCENT = "#6050dc";
+const ACCENT = "#194CFF";
 
 const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
   // Anti-rebond mobile : ignore les clics synthétisés (ghost click) durant les
