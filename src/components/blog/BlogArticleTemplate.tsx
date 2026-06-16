@@ -330,7 +330,7 @@ const BlogArticleTemplate = ({
                       .map((b) => {
                       return (
                         <Link
-                          key={bid}
+                          key={b.id}
                           id={`entry-${b.id}`}
                           to={businessUrl(b)}
                           onClick={() => {
