@@ -702,7 +702,7 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   }
 
   .home-hero-content h1 + p + div .mt-5 {
-    margin-top: 0.75rem !important;
+    margin-top: 4.5rem !important;
   }
 }
 
