@@ -504,7 +504,7 @@ const Club = () => {
 
                       <p className="text-center text-sm text-white/90">
                         {tx.noAccount}{" "}
-                        <button type="button" onClick={() => setMode("register")} className="text-primary hover:underline font-semibold">
+                        <button type="button" onClick={() => setMode("register")} className="text-white hover:underline font-semibold">
                           {tx.registerTab}
                         </button>
                       </p>
@@ -526,7 +526,7 @@ const Club = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">
-                            {t.firstName} <span className="text-destructive">*</span>
+                            {t.firstName} <span className="text-white font-bold ml-1">*</span>
                           </label>
                           <Input value={form.first_name} onChange={handleChange("first_name")} required className="bg-white text-black" />
                         </div>
@@ -539,7 +539,7 @@ const Club = () => {
 
                       <div>
                         <label className="text-sm text-white font-semibold mb-1 block">
-                          {t.emailLabel} <span className="text-destructive">*</span>
+                          {t.emailLabel} <span className="text-white font-bold ml-1">*</span>
                         </label>
                         <Input type="email" value={form.email} onChange={handleChange("email")} required className="bg-white text-black" />
                       </div>
@@ -547,7 +547,7 @@ const Club = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">
-                            {t.passwordLabel} <span className="text-destructive">*</span>
+                            {t.passwordLabel} <span className="text-white font-bold ml-1">*</span>
                           </label>
                           <div className="relative">
                             <Input
@@ -569,7 +569,7 @@ const Club = () => {
                         </div>
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">
-                            {t.confirmPasswordLabel} <span className="text-destructive">*</span>
+                            {t.confirmPasswordLabel} <span className="text-white font-bold ml-1">*</span>
                           </label>
                           <div className="relative">
                             <Input
