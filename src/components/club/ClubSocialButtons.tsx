@@ -67,7 +67,7 @@ const TileButton = ({
     type="button"
     onClick={onClick}
     disabled={disabled}
-    className="relative w-full rounded-md border border-border bg-background hover:bg-muted/50 transition-colors py-3.5 px-4 flex items-center justify-center text-xs sm:text-base font-semibold text-foreground disabled:opacity-50"
+    className="relative w-full rounded-md border border-border bg-white hover:bg-neutral-50 transition-colors py-3.5 px-4 flex items-center justify-center text-xs sm:text-base font-semibold text-black disabled:opacity-50"
   >
     <span className="absolute left-4 flex items-center justify-center w-6 h-6">
       {icon}
@@ -86,7 +86,7 @@ const GoogleIcon = () => (
 );
 
 const AppleIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5 text-foreground" fill="currentColor">
+  <svg viewBox="0 0 24 24" className="w-5 h-5 text-black" fill="currentColor">
     <path d="M16.365 1.43c0 1.14-.46 2.23-1.21 3.04-.79.85-2.07 1.51-3.13 1.43-.13-1.1.45-2.27 1.18-3.04.81-.86 2.18-1.5 3.16-1.43zM20.6 17.4c-.59 1.32-.87 1.91-1.62 3.07-1.05 1.62-2.53 3.64-4.36 3.65-1.63.02-2.05-1.06-4.27-1.05-2.22.01-2.68 1.07-4.31 1.05-1.83-.02-3.23-1.84-4.28-3.46C-1.16 16.97-1.5 11.4 1.05 8.41c1.43-1.69 3.69-2.69 5.81-2.69 2.16 0 3.52 1.18 5.31 1.18 1.74 0 2.8-1.18 5.3-1.18 1.89 0 3.89.99 5.32 2.71-4.68 2.56-3.92 9.25 1.05 11.27z" />
   </svg>
 );
@@ -173,7 +173,7 @@ const ClubSocialButtons = ({ redirectPath = "/club", onSuccess }: Props) => {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder={t.phonePlaceholder}
-              className="w-full rounded-md border border-border bg-background px-4 py-3 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-white px-4 py-3 text-base text-black placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <p className="text-xs text-muted-foreground">{t.phoneHint}</p>
             <button
@@ -194,7 +194,7 @@ const ClubSocialButtons = ({ redirectPath = "/club", onSuccess }: Props) => {
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
               placeholder={t.codePlaceholder}
-              className="w-full rounded-md border border-border bg-background px-4 py-3 text-base text-foreground tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-white px-4 py-3 text-base text-black placeholder:text-muted-foreground tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
               type="button"
