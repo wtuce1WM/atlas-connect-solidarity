@@ -16,6 +16,8 @@ import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
 import ShareButton from "@/components/ShareButton";
+import LogoCSSSpinner from "@/components/LogoCSSSpinner";
+import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
 
 const Club = () => {
   const { language } = useLanguage();
@@ -398,36 +400,27 @@ const Club = () => {
       )}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
 
-      {/* Hero — masqué une fois connecté ; compact en mode déconnecté pour que le formulaire reste visible above the fold */}
+      {/* Hero — reprend le visuel de la homepage avec la carte d'authentification superposée */}
       {!user && (
-        <section className="club-hero relative overflow-hidden text-primary-foreground flex items-center justify-center px-4 pt-24 pb-8">
-          <div
-            className="club-hero-bg absolute inset-[-6%] bg-cover bg-center"
-            style={{ backgroundImage: "url('/hero_magical_realism_v2.jpg')" }}
+        <section className="relative w-full">
+          <img
+            src={heroHomeAsset.url}
+            alt=""
+            className="block w-full h-auto"
+            loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/70 pointer-events-none" />
-          <div className="relative z-10 max-w-3xl mx-auto text-center py-6">
-            <Crown className="h-10 w-10 mx-auto mb-2 opacity-90 drop-shadow-lg" />
-            <h1 className="text-2xl md:text-3xl font-bold mb-1 drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]">{t.title}</h1>
-            <p className="text-sm md:text-base opacity-95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">{t.subtitle}</p>
+
+          {/* Logo CSS — single spin + float */}
+          <div className="absolute inset-0 z-[20] lg:z-[90] flex items-start justify-center pt-24 pointer-events-none">
+            <LogoCSSSpinner className="w-56 h-56 md:w-80 md:h-80" replayKey={0} />
           </div>
-        </section>
-      )}
 
-      <main className="pb-40 md:pb-24">
+          {/* Auth card overlaid */}
+          <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
+            <div className="w-56 h-56 mb-2 md:mb-0 md:w-80 md:h-80" />
 
+            <div className="w-full max-w-lg mx-auto bg-[#F1F1F1] p-6 sm:p-8 rounded-2xl border border-border/50 shadow-2xl">
 
-
-        <section className={`${user ? "w-full pt-20 pb-12" : "max-w-3xl mx-auto pt-6 pb-12"} px-4`}>
-          {user ? (
-            /* ===== Logged-in: Dashboard ===== */
-            <div className="w-full">
-              <ClubDashboard user={user} onLogout={handleLogout} />
-            </div>
-          ) : (
-            /* ===== Not logged-in: Login form first, then benefits ===== */
-            <>
-              <div className="max-w-lg mx-auto bg-[#F1F1F1] p-6 sm:p-8 rounded-2xl border border-border/50 shadow-sm">
 
                 {/* Tabs */}
                 <div className="flex bg-[#BED1FF] rounded-lg p-1 mb-6">
@@ -628,10 +621,22 @@ const Club = () => {
                     </form>
                   </div>
                 )}
-              </div>
+            </div>
+            {/* end auth card */}
+          </div>
+          {/* end hero content */}
+        </section>
+      )}
 
-              {/* Bénéfices affichés sous le formulaire pour ne pas masquer la demande de connexion */}
-              <p className="text-muted-foreground text-center text-base leading-relaxed mt-12 mb-6">{t.desc}</p>
+      <main className="pb-40 md:pb-24">
+        <section className={`${user ? "w-full pt-20 pb-12" : "max-w-3xl mx-auto pt-12 pb-12"} px-4`}>
+          {user ? (
+            <div className="w-full">
+              <ClubDashboard user={user} onLogout={handleLogout} />
+            </div>
+          ) : (
+            <>
+              <p className="text-muted-foreground text-center text-base leading-relaxed mb-6">{t.desc}</p>
               <h2 className="text-xl font-bold text-center mb-4 !font-sans !not-italic">{t.benefits}</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 {benefits.map((b, i) => (
