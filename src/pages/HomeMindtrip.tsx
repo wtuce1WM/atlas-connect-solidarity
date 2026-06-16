@@ -360,7 +360,7 @@ const HomeMindtrip = () => {
           <img
              src={heroImage}
              alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-             className="absolute inset-0 h-full w-full origin-top object-cover object-right-top md:object-[85%_top] lg:object-right-top animate-[heroKenBurns_24s_ease-in-out_infinite]"
+             className="absolute inset-0 h-full w-full origin-top object-cover object-right-top md:object-[70%_top] lg:object-right-top animate-[heroKenBurns_24s_ease-in-out_infinite]"
              loading="eager"
              fetchPriority="high"
            />
