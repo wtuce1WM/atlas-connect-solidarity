@@ -399,15 +399,18 @@ const Club = () => {
       )}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
 
-      {/* Hero — reprend le visuel de la homepage avec la carte d'authentification superposée */}
+      {/* Hero — image de fond avec zoom lent (kenburns) + carte d'authentification superposée */}
       {!user && (
-        <section className="relative w-full">
-          <img
-            src={heroHomeAsset.url}
-            alt=""
-            className="block w-full h-auto"
-            loading="eager"
+        <section className="relative w-full overflow-hidden min-h-[640px] sm:min-h-[720px] md:min-h-[760px]">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${heroHomeAsset.url})`,
+              animation: "kenburns 20s ease-in-out infinite alternate",
+              transformOrigin: "center center",
+            }}
           />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40 pointer-events-none" />
 
           {/* Auth card overlaid */}
           <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
