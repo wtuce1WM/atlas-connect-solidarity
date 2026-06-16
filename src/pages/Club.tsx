@@ -18,6 +18,7 @@ import ClubSocialButtons from "@/components/club/ClubSocialButtons";
 import ShareButton from "@/components/ShareButton";
 import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
 import heroInstallAsset from "@/assets/hero_install_hor.webp.asset.json";
+import heroHomeVertAsset from "@/assets/hero-home-vert.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Club = () => {
