@@ -356,7 +356,7 @@ const HomeMindtrip = () => {
       <div className="pt-8 md:pt-10">
         <section className="relative min-h-[92vh] w-full overflow-hidden">
         <picture>
-          <source media="(max-width: 1023px)" srcSet={heroImageMobile} />
+          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
           <img
             src={heroImage}
             alt="Maroc — riad, piscine et tagine, composition réalisme magique"
