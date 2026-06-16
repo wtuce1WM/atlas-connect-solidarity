@@ -358,11 +358,20 @@ const HomeMindtrip = () => {
           <img
             src={heroImage}
             alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-            className="absolute inset-0 h-full w-full object-contain object-right"
+            className="absolute inset-0 h-full w-full object-contain object-right animate-[heroKenBurns_24s_ease-in-out_infinite]"
             loading="eager"
             fetchPriority="high"
           />
         </picture>
+        <style>{`
+          @keyframes heroKenBurns {
+            0%, 100% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.04) translate(-0.5%, -0.5%); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            section > picture img { animation: none !important; }
+          }
+        `}</style>
 
         <div className="relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-6 py-24 md:px-12">
           <h1 className="font-josefin text-5xl font-light leading-[0.95] tracking-tight text-white md:text-7xl lg:text-8xl">
