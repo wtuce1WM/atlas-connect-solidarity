@@ -506,7 +506,7 @@ const Club = () => {
                       <Button
                         type="submit"
                         disabled={isLoggingIn || !loginEmail.trim() || !loginPassword}
-                        className="w-full bg-[#C04F17] text-white hover:bg-[#C04F17]/90 font-semibold py-6 text-base"
+                        className="w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-semibold py-6 text-base"
                       >
                         {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Crown className="h-5 w-5 mr-2" />}
                         {tx.loginSubmit}
