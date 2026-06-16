@@ -305,7 +305,10 @@ const BookOnlineSlidePanelInner = ({
   const welcomePopupShownRef = useRef<string | null>(null);
   useEffect(() => {
     const url = (business as any)?.popup_image_url;
-    if (business?.id && url && welcomePopupShownRef.current !== business.id) {
+    // Defensive: only trigger the popup if the URL is still part of the business images
+    // (avoids broken popups on stale references after an image was removed).
+    const stillValid = !!url && Array.isArray((business as any)?.images) && (business as any).images.includes(url);
+    if (business?.id && stillValid && welcomePopupShownRef.current !== business.id) {
       welcomePopupShownRef.current = business.id;
       setShowWelcomePopup(true);
       setPopupMeta({ title: null, description: null });
@@ -319,7 +322,7 @@ const BookOnlineSlidePanelInner = ({
           if (data) setPopupMeta({ title: (data as any).title ?? null, description: (data as any).description ?? null });
         });
     }
-  }, [business?.id, (business as any)?.popup_image_url]);
+  }, [business?.id, (business as any)?.popup_image_url, (business as any)?.images]);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
