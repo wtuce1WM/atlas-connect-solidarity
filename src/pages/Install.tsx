@@ -204,7 +204,7 @@ const Install = () => {
                 <img
                   src="/images/logo_blanc.webp"
                   alt="ONE WORLD MOROCCO"
-                  className="h-24 w-auto object-contain rounded-3xl shadow-xl transition-transform group-hover:scale-105 group-active:scale-95 cursor-pointer mx-auto"
+                  className="h-24 w-auto object-contain rounded-3xl shadow-xl transition-transform group-hover:scale-105 group-active:scale-95 cursor-pointer mx-auto mt-3"
                 />
                 {!installed && (
                   <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#C04F17] text-white text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
