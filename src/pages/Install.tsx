@@ -224,7 +224,7 @@ const Install = () => {
                 </button>
               </div>
               <h1 className="font-josefin text-3xl md:text-4xl font-light tracking-wide mb-3 text-white">
-                Installer ONE WORLD MOROCCO
+                Installer l'App
               </h1>
               <p className="font-roboto text-white/90 text-base leading-relaxed">
                 {installEvent
