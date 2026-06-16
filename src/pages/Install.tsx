@@ -176,7 +176,7 @@ const Install = () => {
       <div className="pt-[60px] md:pt-[76px]">
         <div className="w-full relative overflow-hidden mb-12">
           <img
-            src="/og-install-app-v10.webp"
+            src="/og-install-app-v12.webp"
             alt="ONE WORLD MOROCCO — installer l'application"
             className="w-full h-auto block animate-[heroKenBurns_24s_ease-in-out_infinite]"
             loading="eager"
