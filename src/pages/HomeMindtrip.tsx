@@ -445,6 +445,7 @@ const HomeMindtrip = () => {
           <ArrowDown className="mx-auto mt-2 h-5 w-5 animate-bounce" />
         </button>
       </section>
+    </div>
 
       {/* HOW IT WORKS */}
       <section id="how-it-works" className="bg-background pt-24 md:pt-40 pb-4 md:pb-6">
