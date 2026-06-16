@@ -365,10 +365,10 @@ const HomeMindtrip = () => {
         </picture>
 
         <div className="relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-6 py-24 md:px-12">
-          <h1 className="font-josefin text-5xl font-light leading-[0.95] tracking-tight text-foreground md:text-7xl lg:text-8xl">
-            Le Maroc<br />autrement<span className="text-foreground">.</span>
+          <h1 className="font-josefin text-5xl font-light leading-[0.95] tracking-tight text-white md:text-7xl lg:text-8xl">
+            Le Maroc<br />autrement<span className="text-white">.</span>
           </h1>
-          <p className="mt-6 max-w-xl font-roboto text-base font-bold text-foreground md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
+          <p className="mt-6 max-w-xl font-roboto text-base font-bold text-white/90 md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
             Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité sur le terrain.
           </p>
           <div className="mt-10 w-full max-w-2xl">
@@ -385,7 +385,7 @@ const HomeMindtrip = () => {
               <button
                 type="button"
                 onClick={() => setVideoOpen(true)}
-                className="inline-flex items-center gap-3 text-foreground hover:opacity-80 transition-opacity"
+                className="inline-flex items-center gap-3 text-white hover:opacity-80 transition-opacity"
                 aria-label="Play video"
               >
                 <span className="flex items-center justify-center w-11 h-11 rounded-full bg-foreground text-background">
