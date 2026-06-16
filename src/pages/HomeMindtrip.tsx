@@ -366,8 +366,8 @@ const HomeMindtrip = () => {
         </picture>
         <style>{`
           @keyframes heroKenBurns {
-            0%, 100% { transform: scale(1) translate(0, 0); }
-            50% { transform: scale(1.04) translate(-0.5%, -0.5%); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
           }
           @media (prefers-reduced-motion: reduce) {
             section > picture img { animation: none !important; }
