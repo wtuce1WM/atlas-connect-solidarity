@@ -106,7 +106,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
           <img
             src="/logo-gold.webp"
             alt="One World Morocco"
-            className={`w-auto transition-all duration-500 ${scrolled ? "h-8 md:h-9" : "h-10 md:h-11"}`}
+            className="h-8 md:h-9 w-auto transition-all duration-500"
           />
           <span
             className={`font-josefin text-xs uppercase tracking-[0.18em] sm:text-sm sm:tracking-[0.22em] transition-colors ${
