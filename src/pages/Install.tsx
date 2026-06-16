@@ -172,76 +172,68 @@ const Install = () => {
   return (
     <>
     <main className="min-h-dvh bg-background text-foreground">
-      <HomeMindtripHeader />
-      {/* Hero image - Full screen (edge-to-edge) below header */}
-      <div className="pt-[60px] md:pt-[76px]">
-        <div className="w-full relative overflow-hidden mb-12">
-          <img
-            src={heroImageAsset.url}
-            alt="ONE WORLD MOROCCO — installer l'application"
-            className="w-full h-auto block animate-[heroKenBurns_24s_ease-in-out_infinite]"
-            loading="eager"
-          />
-          {/* Subtle gradient to fade into background */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40 pointer-events-none" />
-          {/* SEO tagline overlay */}
-          <p className="absolute bottom-[5%] left-1/2 -translate-x-1/2 w-[92%] max-w-3xl text-center font-roboto text-white text-sm sm:text-base md:text-xl lg:text-2xl leading-snug drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)] px-4">
-            L'écosystème digital éthique &amp; solidaire dédié à l'économie locale.
-          </p>
-          <style>{`
-            @keyframes heroKenBurns {
-              0%, 100% { transform: scale(1) translate(0, 0); }
-              50% { transform: scale(1.04) translate(-0.5%, -0.5%); }
-            }
-            @media (prefers-reduced-motion: reduce) {
-              .group img { animation: none !important; }
-            }
-          `}</style>
+      <HomeMindtripHeader alwaysWhite />
+
+      {/* Hero — image de fond avec zoom lent (kenburns) + carte d'installation superposée */}
+      <section className="relative w-full overflow-hidden min-h-[640px] sm:min-h-[720px] md:min-h-[760px] flex items-center">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${heroImageAsset.url})`,
+            animation: "kenburns 20s ease-in-out infinite alternate",
+            transformOrigin: "center center",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40 pointer-events-none" />
+
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-8">
+          <div className="w-full max-w-md bg-white/15 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+            <header className="text-center">
+              <button
+                type="button"
+                onClick={handleIconClick}
+                className="group relative mx-auto mb-8 block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-3xl cursor-pointer"
+                aria-label={
+                  installed
+                    ? "Application déjà installée"
+                    : installEvent
+                      ? "Installer l'application maintenant"
+                      : "Voir les instructions d'installation"
+                }
+              >
+                <img
+                  src="/logo-gold.webp"
+                  alt="ONE WORLD MOROCCO"
+                  className="h-24 w-auto object-contain rounded-3xl shadow-xl transition-transform group-hover:scale-105 group-active:scale-95 cursor-pointer mx-auto"
+                />
+                {!installed && (
+                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gold text-[hsl(var(--background))] text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
+                    <Download className="h-3 w-3" />
+                    {installEvent ? "Installer" : "Comment installer"}
+                  </span>
+                )}
+                {installed && (
+                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-600 text-white text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
+                    <Check className="h-3 w-3" />
+                    Installée
+                  </span>
+                )}
+              </button>
+              <h1 className="font-josefin text-3xl md:text-4xl font-light tracking-wide mb-3 text-white">
+                Installer ONE WORLD MOROCCO
+              </h1>
+              <p className="font-roboto text-white/90 text-base leading-relaxed">
+                {installEvent
+                  ? "Touche l'icône ci-dessus pour installer l'app en un clic, ou suis les étapes ci-dessous."
+                  : "Installe l'app sur ton appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur ton écran d'accueil ou ton bureau."}
+              </p>
+            </header>
+          </div>
         </div>
-      </div>
+      </section>
 
       <div className="mx-auto max-w-2xl px-6 pt-10 pb-12">
-        {/* Header */}
-        <header className="text-center mb-10">
-          <button
-            type="button"
-            onClick={handleIconClick}
-            className="group relative mx-auto mb-8 block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-3xl cursor-pointer"
-            aria-label={
-              installed
-                ? "Application déjà installée"
-                : installEvent
-                  ? "Installer l'application maintenant"
-                  : "Voir les instructions d'installation"
-            }
-          >
-            <img
-              src="/logo-gold.webp"
-              alt="ONE WORLD MOROCCO"
-              className={`h-24 w-auto object-contain rounded-3xl shadow-xl transition-transform group-hover:scale-105 group-active:scale-95 cursor-pointer`}
-            />
-            {!installed && (
-              <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gold text-[hsl(var(--background))] text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
-                <Download className="h-3 w-3" />
-                {installEvent ? "Installer" : "Comment installer"}
-              </span>
-            )}
-            {installed && (
-              <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-600 text-white text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
-                <Check className="h-3 w-3" />
-                Installée
-              </span>
-            )}
-          </button>
-          <h1 className="font-josefin text-3xl md:text-4xl font-light tracking-wide mb-3">
-            Installer ONE WORLD MOROCCO
-          </h1>
-          <p className="font-roboto text-muted-foreground text-base leading-relaxed">
-            {installEvent
-              ? "Touche l'icône ci-dessus pour installer l'app en un clic, ou suis les étapes ci-dessous."
-              : "Installe l'app sur ton appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur ton écran d'accueil ou ton bureau."}
-          </p>
-        </header>
+
 
         {/* Platform tabs */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
