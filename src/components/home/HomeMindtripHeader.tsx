@@ -106,7 +106,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
         <Link to="/" aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
           <img
-            src="/logo-gold.webp"
+            src={logoSrc}
             alt="One World Morocco"
             className="h-8 w-auto transition-all duration-500"
           />
