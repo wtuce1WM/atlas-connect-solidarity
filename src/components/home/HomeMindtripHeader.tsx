@@ -22,7 +22,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
   }, []);
 
   const whiteText = alwaysWhite || scrolled || isWhiteHeaderPage;
-  const logoSrc = isWhiteHeaderPage ? "/images/logo_blanc.webp" : "/logo-gold.webp";
+  const logoSrc = (isWhiteHeaderPage || alwaysWhite) ? "/images/logo_blanc.webp" : "/logo-gold.webp";
   const linkClass = `font-josefin text-sm uppercase tracking-[0.2em] transition ${
     whiteText ? "text-white/85 hover:text-white" : "text-black hover:text-black/70"
   }`;
