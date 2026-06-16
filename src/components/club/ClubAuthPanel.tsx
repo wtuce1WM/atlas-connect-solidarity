@@ -229,13 +229,13 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
             <label className="text-xs text-foreground font-semibold mb-1 block">
               {t.nickname} <span className="text-destructive">*</span>
             </label>
-            <Input value={nickname} onChange={(e) => setNickname(e.target.value)} required />
+            <Input value={nickname} onChange={(e) => setNickname(e.target.value)} required className="bg-white text-black" />
           </div>
           <div>
             <label className="text-xs text-foreground font-semibold mb-1 block">
               {t.email} <span className="text-destructive">*</span>
             </label>
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white text-black" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -249,7 +249,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="pr-10"
+                  className="bg-white text-black pr-10"
                 />
                 <button
                   type="button"
@@ -271,7 +271,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="pr-10"
+                  className="bg-white text-black pr-10"
                 />
                 <button
                   type="button"
