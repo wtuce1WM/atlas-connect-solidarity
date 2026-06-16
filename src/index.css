@@ -675,16 +675,17 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   .home-hero-content h1 {
     font-size: 1.625rem !important;
     line-height: 1.55 !important;
+    text-align: center !important;
   }
 
   .home-hero-content p {
     margin-top: 0.75rem !important;
-    font-size: 0.8125rem !important;
-    line-height: 1.3 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.55 !important;
   }
 
   .home-hero-content h1 + p + div {
-    margin-top: 1rem !important;
+    margin-top: 2rem !important;
   }
 
   .home-hero-content h1 + p + div > div {
