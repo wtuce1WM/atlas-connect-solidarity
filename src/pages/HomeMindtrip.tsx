@@ -739,7 +739,7 @@ const HomeMindtrip = () => {
                       )}
                       <div className={`relative z-10 ${i === 7 ? "text-center flex flex-col items-center justify-between h-full min-h-[300px] md:min-h-[400px] flex-1" : ""}`}>
                         {i === 7 ? (
-                          <div className="flex flex-col items-center gap-3 mt-auto mb-12">
+                          <div className="flex flex-col items-center gap-3 mt-20 md:mt-auto mb-auto md:mb-12">
                             <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
                               {s.title}
                             </h3>
