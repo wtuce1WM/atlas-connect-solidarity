@@ -95,10 +95,10 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
 
   return (
     <nav
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 py-1 ${
         scrolled
-          ? "border-b border-white/10 bg-[rgba(26,18,11,0.86)] backdrop-blur-md py-2"
-          : "bg-transparent py-2"
+          ? "border-b border-white/10 bg-[rgba(26,18,11,0.86)] backdrop-blur-md"
+          : "bg-transparent"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 md:px-12">

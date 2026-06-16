@@ -352,7 +352,7 @@ const HomeMindtrip = () => {
 
       {/* HERO */}
 
-      <div className="pt-[49px] md:pt-[53px]">
+      <div className="pt-[40px] md:pt-[44px]">
         <section className="relative min-h-[92vh] w-full overflow-hidden">
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
