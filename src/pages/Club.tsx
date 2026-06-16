@@ -621,10 +621,22 @@ const Club = () => {
                     </form>
                   </div>
                 )}
-              </div>
+            </div>
+            {/* end auth card */}
+          </div>
+          {/* end hero content */}
+        </section>
+      )}
 
-              {/* Bénéfices affichés sous le formulaire pour ne pas masquer la demande de connexion */}
-              <p className="text-muted-foreground text-center text-base leading-relaxed mt-12 mb-6">{t.desc}</p>
+      <main className="pb-40 md:pb-24">
+        <section className={`${user ? "w-full pt-20 pb-12" : "max-w-3xl mx-auto pt-12 pb-12"} px-4`}>
+          {user ? (
+            <div className="w-full">
+              <ClubDashboard user={user} onLogout={handleLogout} />
+            </div>
+          ) : (
+            <>
+              <p className="text-muted-foreground text-center text-base leading-relaxed mb-6">{t.desc}</p>
               <h2 className="text-xl font-bold text-center mb-4 !font-sans !not-italic">{t.benefits}</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 {benefits.map((b, i) => (
