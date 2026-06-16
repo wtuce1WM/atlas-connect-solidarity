@@ -149,6 +149,62 @@ const FERMES: BlogArticleEntry[] = [
       "Le Bled Ferme, c'est cette adresse rare qui combine confort, simplicité et authenticité. On en repart en fin d'après-midi avec la sensation d'avoir vraiment fait une pause, à quelques minutes seulement de la ville ocre.",
     ],
   },
+  {
+    id: "c3438ceb-270c-4247-bc5d-16e91b1ee5aa",
+    pretitle: "Route de l'Ourika, km 34",
+    title: "Le Jardin du Safran — à la découverte de l'or rouge et des oliviers centenaires",
+    hours: "Ouvert tous les jours de 08h30 à 17h30 — visite libre ou guidée.",
+    paragraphs: [
+      "La vallée de l'Ourika abrite de nombreux trésors, mais peu sont aussi précieux et fascinants que Le Jardin du Safran. Depuis plus de dix ans, ce domaine d'un hectare et demi célèbre l'épice la plus chère au monde — le safran, aussi appelé l'or rouge. On y pénètre pour une balade tranquille où les champs de safran se mêlent aux oliviers centenaires, aux plantes aromatiques et à un verger d'agrumes aux senteurs envoûtantes.",
+      "La grande force du lieu réside dans son Musée du Safran unique, installé sur place et ouvert toute l'année. Ce parcours captivant retrace l'histoire millénaire de la précieuse fleur, ses vertus médicinales, ses secrets de culture et les techniques de récolte traditionnelles. Les enfants et les parents y découvrent comment, à partir d'un simple bulbe, se récolte un condiment d'une pureté exceptionnelle, régulièrement certifié par des analyses de laboratoire.",
+      "Une visite complète comprend la découverte du musée, une balade guidée ou libre à travers les allées paysagères, et une halte sous les oliviers pour une dégustation de thé infusé au safran maison. Pour ceux qui ont la chance de s'y rendre entre le 21 octobre et le 30 novembre, la floraison offre un spectacle inoubliable : un tapis violet délicat d'où émergent les précieux filaments rouges.",
+      "C'est une étape culturelle et botanique incontournable de la vallée de l'Ourika. On en repart avec un flacon d'or rouge de la boutique et la sensation d'avoir touché du doigt une tradition agricole d'une rare finesse.",
+    ],
+  },
+  {
+    id: "d299e29c-e675-498e-b8dc-5b843b241315",
+    pretitle: "Route de l'Ourika, km 18",
+    title: "Ourika Park Ferme Pédagogique — le paradis de plein air pour les tout-petits",
+    hours: "Ouvert tous les jours de 10h30 à 19h00.",
+    paragraphs: [
+      "Ourika Park est cette petite oasis rurale idéalement située sur la route menant aux montagnes, pensée tout particulièrement pour les plus jeunes enfants. Moins impressionnante qu'un grand ranch, cette ferme pédagogique à taille humaine offre un cadre rassurant et chaleureux où les tout-petits peuvent faire leurs premiers pas dans le monde rural sans aucune appréhension.",
+      "Le concept est simple et participatif : les enfants sont invités à toucher, nourrir et cajoler les pensionnaires de la ferme. Chèvres espiègles, lapins soyeux, poules dodues, canards et petits agneaux évoluent dans des enclos faciles d'accès. Des animateurs attentionnés guident les petites mains pour distribuer des graines ou de la luzerne, transformant la visite en un merveilleux moment d'éveil et de sensibilisation au respect du vivant.",
+      "Le parc dispose également d'aires de jeux de plein air, d'espaces de pique-nique ombragés et de zones de détente verdoyantes où les parents peuvent s'installer tranquillement tout en gardant un œil sur leurs enfants. C'est l'adresse idéale pour une halte ludique en famille sur le chemin de la vallée, loin du tumulte citadin.",
+    ],
+  },
+  {
+    id: "964dd87e-e6f7-4fb9-9ab6-effe94e7a6e4",
+    pretitle: "Route d'Agadir, à 20 minutes de Marrakech",
+    title: "Nature by Mokhtar — une oasis de permaculture et d'engagement humain",
+    hours: "Ouvert tous les jours de 09h00 à 18h00 — réservation fortement conseillée.",
+    paragraphs: [
+      "Pour fuir la ferveur de la médina, Nature by Mokhtar s'impose comme un véritable pèlerinage de verdure. Sur ces terres familiales cultivées depuis des générations, Mokhtar a courageusement résisté aux pressions immobilières pour préserver une biodiversité incroyable et bâtir un modèle agricole d'avenir. Ce havre de paix célèbre la permaculture et la transmission d'une philosophie respectueuse de la terre.",
+      "Ici, chaque plante est soignée avec amour, sans aucun produit chimique, selon les principes d'une agriculture durable et solidaire. Le potager foisonnant, le verger d'agrumes, les oliviers et les ruches bourdonnantes créent un écosystème en parfaite harmonie. L'équipe, chaleureuse et bienveillante, intègre des jeunes en formation et des femmes de la région, mettant le partage et l'impact social au cœur de chaque action.",
+      "Sous de jolis toits de paille, on peut déguster un délicieux thé aux herbes fraîches du jardin ou un authentique tajine cuisiné avec les légumes bio du jour. La ferme propose également des ateliers de sensibilisation pour les enfants des écoles locales, des formations à la permaculture et des cours de cuisine. C'est un lieu qui nourrit le corps autant que l'esprit, où l'on prend le temps de réapprendre la valeur de ce que la terre nous offre.",
+    ],
+  },
+  {
+    id: "2dfbc30d-0dcf-42e0-8f7b-b5944fdea3ae",
+    pretitle: "Route d'Amizmiz, km 15",
+    title: "Ferme Sidi Safou — le raffinement d'une maison de campagne aux pieds de l'Atlas",
+    hours: "Ouvert tous les jours pour les séjours, déjeuners et ateliers — sur réservation uniquement.",
+    paragraphs: [
+      "Blottie au cœur de la campagne à une quinzaine de kilomètres de la ville, la Ferme Sidi Safou est un domaine d'exception qui marie à la perfection authenticité rustique et décoration raffinée créée par les meilleurs artisans marocains. Face aux majestueux sommets du Haut Atlas, cette ferme d'hôtes offre une immersion magique dans un immense jardin de milliers de roses et de centaines d'oliviers.",
+      "Au-delà du confort de ses somptueuses villas et lodges avec piscines privées, Sidi Safou vit au rythme d'une ferme active et d'une table d'hôtes remarquable. On y vient pour savourer une cuisine marocaine faite au jour le jour avec les produits frais du marché, ou pour participer à l'atelier de cuisine mené par le Chef Simo. L'expérience commence par le choix des ingrédients au marché local traditionnel, avant de faire cuire son pain de campagne dans le four communal du village.",
+      "Pour couronner cette journée champêtre, le domaine propose une parenthèse de pure détente avec un hammam traditionnel au savon noir, enveloppement au Ghassoul du Moyen-Atlas et des massages profondément relaxants à l'huile d'argan pure. Une adresse luxueuse et confidentielle pour les familles en quête d'art de vivre et de déconnexion totale.",
+    ],
+  },
+  {
+    id: "517d46b1-f981-47fd-805b-c6a4cf76224c",
+    pretitle: "Route de Fès, km 16",
+    title: "Bakkal Farm Lodge & Restaurant — l'agrolodge moderne et sa table 100% fermière",
+    hours: "Ouvert tous les jours de 09h00 à 20h00.",
+    paragraphs: [
+      "Situé à l'est de Marrakech, Bakkal Farm Agrolodge réinvente le concept de la ferme traditionnelle en le fusionnant avec un esprit contemporain et décontracté. Ce domaine agricole d'un nouveau genre offre une escapade d'une journée idéale pour les citadins en quête d'air pur, de nature et de repas sains face aux montagnes de l'Atlas.",
+      "L'expérience phare consiste à profiter d'une journée détente avec un accès à la belle piscine extérieure entourée d'un jardin luxuriant et paisible. Les enfants peuvent se promener en toute liberté dans les allées paysagères, observer les cultures et découvrir les secrets d'un grand domaine agricole en activité pendant que les parents se ressourcent sur les transats.",
+      "À l'heure du déjeuner, le restaurant propose une cuisine 100% fermière et saine, élaborée uniquement avec des produits de saison issus directement du potager de la ferme. Avec ses options de menus marocains authentiques ou purement végétaux, Bakkal Farm célèbre le goût brut et vrai de la terre dans un cadre d'une sérénité absolue.",
+    ],
+  },
 ];
 
 const FermesPedagogiquesMarrakech = () => (
@@ -156,13 +212,13 @@ const FermesPedagogiquesMarrakech = () => (
     entries={FERMES}
     articlePath="/blog/fermes-pedagogiques-marrakech"
     articleTitle="Les fermes pédagogiques à Marrakech"
-    articleDescription="Douze adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques."
+    articleDescription="Dix-sept adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques."
     bookmarkSlug="fermes-pedagogiques-marrakech"
     heroAlt="Fermes pédagogiques à Marrakech"
     heroTitleTop="Les fermes pédagogiques"
     heroTitleBottom="à Marrakech"
-    heroSubtitle="Douze adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques."
-    intro="Marrakech a beau être une ville d'effervescence, ses environs immédiats cachent quelques refuges de verdure où l'on respire autrement. Pour les familles, ces fermes pédagogiques sont une respiration nécessaire : un terrain de jeu grandeur nature où les enfants courent après les poules, donnent à manger aux ânes, plongent les mains dans la terre et apprennent — sans s'en rendre compte — d'où viennent les choses. Voici nos douze adresses préférées, toutes accessibles en moins d'une heure depuis la médina."
+    heroSubtitle="Dix-sept adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques."
+    intro="Marrakech a beau être une ville d'effervescence, ses environs immédiats cachent quelques refuges de verdure où l'on respire autrement. Pour les familles, ces fermes pédagogiques sont une respiration nécessaire : un terrain de jeu grandeur nature où les enfants courent après les poules, donnent à manger aux ânes, plongent les mains dans la terre et apprennent — sans s'en rendre compte — d'où viennent les choses. Voici nos dix-sept adresses préférées, toutes accessibles en moins d'une heure depuis la médina."
     datePublished="2026-06-12T08:00:00+01:00"
     dateModified="2026-06-13T08:00:00+01:00"
   />
