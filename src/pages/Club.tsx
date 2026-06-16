@@ -409,7 +409,6 @@ const Club = () => {
             className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(${isMobile ? heroHomeAsset.url : heroInstallAsset.url})`,
-              animation: "kenburns 20s ease-in-out infinite alternate",
               transformOrigin: "center center",
             }}
           />
