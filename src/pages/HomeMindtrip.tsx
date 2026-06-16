@@ -18,8 +18,9 @@ import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
+import heroHomeVertAsset from "@/assets/hero-home-vert.webp.asset.json";
 const heroImage = heroHomeAsset.url;
-const heroImageMobile = heroHomeAsset.url;
+const heroImageMobile = heroHomeVertAsset.url;
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
@@ -355,7 +356,7 @@ const HomeMindtrip = () => {
       <div className="pt-8 md:pt-10">
         <section className="relative min-h-[92vh] w-full overflow-hidden">
         <picture>
-          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
+          <source media="(max-width: 1023px)" srcSet={heroImageMobile} />
           <img
             src={heroImage}
             alt="Maroc — riad, piscine et tagine, composition réalisme magique"
