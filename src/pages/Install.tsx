@@ -176,34 +176,24 @@ const Install = () => {
       <div className="pt-[60px] md:pt-[76px]">
         <div className="w-full relative overflow-hidden mb-12">
           <img
-            src="/og-install-app-v13.webp"
+            src="/og-install-app-v14.webp"
             alt="ONE WORLD MOROCCO — installer l'application"
             className="w-full h-auto block animate-[heroKenBurns_24s_ease-in-out_infinite]"
             loading="eager"
           />
           {/* Subtle gradient to fade into background */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40 pointer-events-none" />
-          {/* Gold halo pulse over the mockup area */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(circle at 32% 55%, hsl(var(--gold) / 0.18) 0%, transparent 38%)",
-              animation: "heroHalo 5s ease-in-out infinite",
-            }}
-          />
+          {/* SEO tagline overlay */}
+          <p className="absolute bottom-[5%] left-1/2 -translate-x-1/2 w-[92%] max-w-3xl text-center font-roboto text-white text-sm sm:text-base md:text-xl lg:text-2xl leading-snug drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)] px-4">
+            L'écosystème digital éthique &amp; solidaire dédié à l'économie locale.
+          </p>
           <style>{`
             @keyframes heroKenBurns {
               0%, 100% { transform: scale(1) translate(0, 0); }
               50% { transform: scale(1.04) translate(-0.5%, -0.5%); }
             }
-            @keyframes heroHalo {
-              0%, 100% { opacity: 0.6; }
-              50% { opacity: 1; }
-            }
             @media (prefers-reduced-motion: reduce) {
-              .group img, .group div[aria-hidden] { animation: none !important; }
+              .group img { animation: none !important; }
             }
           `}</style>
         </div>
@@ -245,9 +235,6 @@ const Install = () => {
           <h1 className="font-josefin text-3xl md:text-4xl font-light tracking-wide mb-3">
             Installer ONE WORLD MOROCCO
           </h1>
-          <p className="font-roboto text-base md:text-lg text-foreground/80 leading-relaxed mb-3 max-w-xl mx-auto">
-            L'écosystème digital éthique &amp; solidaire dédié à l'économie locale.
-          </p>
           <p className="font-roboto text-muted-foreground text-base leading-relaxed">
             {installEvent
               ? "Touche l'icône ci-dessus pour installer l'app en un clic, ou suis les étapes ci-dessous."
