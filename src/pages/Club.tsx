@@ -427,7 +427,7 @@ const Club = () => {
           ) : (
             /* ===== Not logged-in: Login form first, then benefits ===== */
             <>
-              <div className="max-w-lg mx-auto">
+              <div className="max-w-lg mx-auto bg-[#F1F1F1] p-6 sm:p-8 rounded-2xl border border-border/50 shadow-sm">
 
                 {/* Tabs */}
                 <div className="flex bg-muted rounded-lg p-1 mb-6">
