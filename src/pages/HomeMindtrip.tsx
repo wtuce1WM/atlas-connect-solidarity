@@ -46,6 +46,27 @@ type VideoSlot = {
   businessId: string | null;
 };
 
+const InViewVideo = ({ src, className }: { src: string; className?: string }) => {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.play().catch(() => {});
+        } else {
+          el.pause();
+        }
+      },
+      { threshold: 0.25 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return <video ref={ref} src={src} muted loop playsInline preload="metadata" className={className} />;
+};
+
 const Step2PhoneMockup = () => (
   <div className="absolute inset-0 flex items-center justify-center bg-white pointer-events-none">
     <div className="relative h-[58%] w-[42%] translate-x-[18%] translate-y-[8%] rotate-[10deg] rounded-[2rem] border-[10px] border-foreground/80 bg-white shadow-[0_24px_50px_rgba(0,0,0,0.2)] md:h-[74%] md:w-[38%] md:translate-y-[16%]">
@@ -670,16 +691,16 @@ const HomeMindtrip = () => {
                               <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 2 && (
-                              <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 3 && (
                               <img src="/__l5e/assets-v1/dcedd97c-5e12-42e9-b9d1-8dfd89e4952e/offre-popup.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 4 && (
-                              <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/1d4cd6cb-e735-432a-a333-af74d8f12d15-1781249602424-uzaggr.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/1d4cd6cb-e735-432a-a333-af74d8f12d15-1781249602424-uzaggr.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 6 && (
-                              <video src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                           </div>
                         </div>
@@ -696,12 +717,8 @@ const HomeMindtrip = () => {
                   ) : (
                     <>
                       {i === 5 && (
-                        <video
+                        <InViewVideo
                           src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/6eab7b31-bda9-43d5-8c8b-4f972e5bb8bd-1774600396740-3cbxw.mp4"
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
                           className="absolute inset-0 h-full w-full object-cover"
                         />
                       )}
