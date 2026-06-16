@@ -42,11 +42,11 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
       {/* Transcript area (positioned in the top half) */}
       <div className="absolute top-[15%] left-0 right-0 flex items-center justify-center px-8 w-full max-w-2xl mx-auto z-10">
         {liveTranscript ? (
-          <p className="text-2xl md:text-3xl text-black font-light text-center leading-relaxed">
+          <p className="text-2xl md:text-3xl text-black font-bold text-center leading-relaxed">
             {liveTranscript}
           </p>
         ) : (
-          <p className="text-xl md:text-2xl text-black/70 font-light text-center">
+          <p className="text-xl md:text-2xl text-black/70 font-bold text-center">
             Je vous écoute…
           </p>
         )}
