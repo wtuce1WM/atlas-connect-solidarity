@@ -368,7 +368,7 @@ const HomeMindtrip = () => {
           <h1 className="font-josefin text-5xl font-light leading-[0.95] tracking-tight text-white md:text-7xl lg:text-8xl">
             Le Maroc<br />autrement<span className="text-white">.</span>
           </h1>
-          <p className="mt-6 max-w-xl font-roboto text-base font-bold text-white/90 md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
+          <p className="mt-6 max-w-xl font-roboto text-base font-bold text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
             Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité sur le terrain.
           </p>
           <div className="mt-10 w-full max-w-2xl">
@@ -385,15 +385,15 @@ const HomeMindtrip = () => {
               <button
                 type="button"
                 onClick={() => setVideoOpen(true)}
-                className="inline-flex items-center gap-3 text-white hover:opacity-80 transition-opacity"
+                className="inline-flex items-center gap-3 text-[#F1F1F1] hover:opacity-80 transition-opacity"
                 aria-label="Play video"
               >
-                <span className="flex items-center justify-center w-11 h-11 rounded-full bg-foreground text-background">
+                <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#F1F1F1] text-background">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </span>
-                <span className="font-roboto text-base font-medium">Voir la vidéo</span>
+                <span className="font-roboto text-base font-medium text-[#F1F1F1]">Voir la vidéo</span>
               </button>
             </div>
           </div>
