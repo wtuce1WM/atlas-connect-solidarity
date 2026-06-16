@@ -502,7 +502,7 @@ const Club = () => {
                         {tx.loginSubmit.toUpperCase()}
                       </Button>
 
-                      <p className="text-center text-sm text-muted-foreground">
+                      <p className="text-center text-sm text-white/90">
                         {tx.noAccount}{" "}
                         <button type="button" onClick={() => setMode("register")} className="text-primary hover:underline font-semibold">
                           {tx.registerTab}
@@ -516,29 +516,29 @@ const Club = () => {
 
                     {/* Separator */}
                     <div className="flex items-center gap-4">
-                      <div className="flex-1 h-px bg-border" />
-                      <span className="text-sm text-muted-foreground">{t.orSeparator}</span>
-                      <div className="flex-1 h-px bg-border" />
+                      <div className="flex-1 h-px bg-white/20" />
+                      <span className="text-sm text-white font-semibold">{t.orSeparator}</span>
+                      <div className="flex-1 h-px bg-white/20" />
                     </div>
 
                     {/* Email/Password Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm text-foreground font-semibold mb-1 block">
+                          <label className="text-sm text-white font-semibold mb-1 block">
                             {t.firstName} <span className="text-destructive">*</span>
                           </label>
                           <Input value={form.first_name} onChange={handleChange("first_name")} required className="bg-white text-black" />
                         </div>
                         <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.lastName}</label>
+                          <label className="text-sm text-white font-semibold mb-1 block">{t.lastName}</label>
                           <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-white text-black" />
                         </div>
                       </div>
 
 
                       <div>
-                        <label className="text-sm text-foreground font-semibold mb-1 block">
+                        <label className="text-sm text-white font-semibold mb-1 block">
                           {t.emailLabel} <span className="text-destructive">*</span>
                         </label>
                         <Input type="email" value={form.email} onChange={handleChange("email")} required className="bg-white text-black" />
@@ -546,7 +546,7 @@ const Club = () => {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm text-foreground font-semibold mb-1 block">
+                          <label className="text-sm text-white font-semibold mb-1 block">
                             {t.passwordLabel} <span className="text-destructive">*</span>
                           </label>
                           <div className="relative">
@@ -568,7 +568,7 @@ const Club = () => {
                           </div>
                         </div>
                         <div>
-                          <label className="text-sm text-foreground font-semibold mb-1 block">
+                          <label className="text-sm text-white font-semibold mb-1 block">
                             {t.confirmPasswordLabel} <span className="text-destructive">*</span>
                           </label>
                           <div className="relative">
@@ -596,17 +596,17 @@ const Club = () => {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.phoneLabel}</label>
+                          <label className="text-sm text-white font-semibold mb-1 block">{t.phoneLabel}</label>
                           <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-white text-black" />
                         </div>
                         <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.whatsappLabel}</label>
+                          <label className="text-sm text-white font-semibold mb-1 block">{t.whatsappLabel}</label>
                           <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-white text-black" />
                         </div>
                       </div>
 
 
-                      <p className="text-xs text-muted-foreground mb-2">{t.required}</p>
+                      <p className="text-xs text-white font-semibold mb-2">{t.required}</p>
                       <Button
                         type="submit"
                         disabled={isSubmitting || !isFormValid}
