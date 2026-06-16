@@ -99,7 +99,7 @@ const HeroSection = () => {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('/hero_magical_realism_v1.jpg')`,
+          backgroundImage: `url('${heroHomeAsset.url}')`,
           transform: `translateY(${scrollY * 0.35}px)`,
           willChange: "transform",
         }}
