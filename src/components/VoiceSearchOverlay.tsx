@@ -30,30 +30,30 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
   };
 
   return (
-    <div className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-200`}>
+    <div className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} flex flex-col items-center justify-between bg-white/95 backdrop-blur-md animate-in fade-in duration-200`}>
       {/* Close button */}
       <button
         onClick={guardClick(onClose)}
-        className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/10 transition-colors"
+        className="absolute top-6 right-6 p-2 rounded-full hover:bg-black/10 transition-colors z-10"
       >
-        <X className="h-6 w-6 text-white" />
+        <X className="h-6 w-6 text-black" />
       </button>
 
-      {/* Transcript area */}
-      <div className="flex-1 flex items-end justify-center pb-8 pt-20 px-8 w-full max-w-2xl">
+      {/* Transcript area (positioned in the top half) */}
+      <div className="absolute top-[15%] left-0 right-0 flex items-center justify-center px-8 w-full max-w-2xl mx-auto z-10">
         {liveTranscript ? (
-          <p className="text-2xl md:text-3xl text-white font-light text-center leading-relaxed">
+          <p className="text-2xl md:text-3xl text-black font-light text-center leading-relaxed">
             {liveTranscript}
           </p>
         ) : (
-          <p className="text-xl md:text-2xl text-white/70 font-light text-center">
+          <p className="text-xl md:text-2xl text-black/70 font-light text-center">
             Je vous écoute…
           </p>
         )}
       </div>
 
-      {/* Mic with liquid glass animated rings (same as homepage) */}
-      <div className="flex-1 flex items-start justify-center pt-12">
+      {/* Mic with liquid glass animated rings (perfectly centered in the viewport height) */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
         <div className="relative">
           {/* Outer expanding glass ring */}
           <div
@@ -108,10 +108,10 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
         </div>
       </div>
 
-      {/* Hint */}
-      <div className="pb-12">
-        <p className="text-sm text-white/60">
-          Cliquez sur le micro ou attendez pour lancer la recherche
+      {/* Hint (positioned in the bottom area) */}
+      <div className="absolute bottom-[12%] left-0 right-0 px-6 text-center z-10">
+        <p className="text-base md:text-lg text-black/80 font-medium leading-relaxed max-w-sm mx-auto">
+          Cliquez sur le micro<br />ou attendez pour lancer la recherche
         </p>
       </div>
     </div>
