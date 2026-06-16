@@ -101,16 +101,12 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
           : "bg-transparent"
       }`}
     >
-      <div
-        className={`mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 md:px-12 transition-transform duration-500 ${
-          location.pathname === "/" && !scrolled ? "translate-y-3 md:translate-y-4" : "translate-y-0"
-        }`}
-      >
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
         <Link to="/" aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
           <img
             src="/logo-gold.webp"
             alt="One World Morocco"
-            className="h-8 md:h-9 w-auto transition-all duration-500"
+            className="h-7 md:h-8 w-auto transition-all duration-500"
           />
           <span
             className={`font-josefin text-xs uppercase tracking-[0.18em] sm:text-sm sm:tracking-[0.22em] transition-colors ${
