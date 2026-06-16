@@ -370,14 +370,6 @@ const HomeMindtrip = () => {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.04); }
           }
-          @media (max-width: 767px) {
-            .home-hero-content {
-              justify-content: flex-end !important;
-              min-height: calc(100svh - 2rem) !important;
-              padding-top: 0 !important;
-              padding-bottom: max(3.25rem, env(safe-area-inset-bottom)) !important;
-            }
-          }
           @media (prefers-reduced-motion: reduce) {
             section > picture img { animation: none !important; }
           }
