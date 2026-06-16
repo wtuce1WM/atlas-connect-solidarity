@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "asset_id": "e369cfda-b20e-429d-b991-dc5d573000f1",
+  "asset_id": "bfb774c4-3563-41e5-b5c1-1997b9965d92",
   "project_id": "05505e92-7006-4fa6-856f-739f64085d3a",
-  "url": "/__l5e/assets-v1/e369cfda-b20e-429d-b991-dc5d573000f1/hero-home.jpg",
-  "r2_key": "a/v1/05505e92-7006-4fa6-856f-739f64085d3a/e369cfda-b20e-429d-b991-dc5d573000f1/hero-home.jpg",
-  "original_filename": "hero-home.jpg",
-  "size": 358490,
-  "content_type": "image/jpeg",
-  "created_at": "2026-06-16T09:26:13Z"
+  "url": "/__l5e/assets-v1/bfb774c4-3563-41e5-b5c1-1997b9965d92/hero-home.webp",
+  "r2_key": "a/v1/05505e92-7006-4fa6-856f-739f64085d3a/bfb774c4-3563-41e5-b5c1-1997b9965d92/hero-home.webp",
+  "original_filename": "hero-home.webp",
+  "size": 60316,
+  "content_type": "image/webp",
+  "created_at": "2026-06-16T09:37:16Z"
 }
