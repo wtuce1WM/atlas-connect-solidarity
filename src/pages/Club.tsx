@@ -575,7 +575,7 @@ const Club = () => {
                           <Input
                             type={showConfirmPassword ? "text" : "password"}
                             value={confirmPassword}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             required
                             minLength={6}
                             className="bg-white text-black pr-10"
