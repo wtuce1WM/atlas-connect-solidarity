@@ -733,11 +733,6 @@ const HomeMindtrip = () => {
                         </>
                       )}
                       <div className={`relative z-10 ${i === 7 ? "text-center flex flex-col items-center justify-center h-full min-h-[300px] md:min-h-[400px]" : ""}`}>
-                        {i === 7 && (
-                          <div className="mx-auto mb-6 h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
-                            <img src="/logo-gold.webp" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl object-contain" />
-                          </div>
-                        )}
                         <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
                           Étape {i + 1}
                         </span>
