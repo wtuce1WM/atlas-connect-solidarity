@@ -18,6 +18,7 @@ import { getTimeGreeting, extractTimeSlot } from "@/lib/timeSlots";
 import HeroLocationSelector from "@/components/HeroLocationSelector";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
+import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
 
 const HS_T = {
   fr: { useLocationQ: "Utiliser votre position pour affiner les résultats ?", changeAnytime: "Vous pouvez changer ce choix à tout moment.", noThanks: "Non merci", enable: "Activer" },
