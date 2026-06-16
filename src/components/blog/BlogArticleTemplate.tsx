@@ -277,11 +277,24 @@ const BlogArticleTemplate = ({
             </div>
           </section>
 
-          {[...entries].filter((e) => businesses[e.id]).sort((a, b) => {
-            const ra = businesses[a.id]?.computed_rating ?? businesses[a.id]?.rating ?? -1;
-            const rb = businesses[b.id]?.computed_rating ?? businesses[b.id]?.rating ?? -1;
-            return rb - ra;
-          }).map((entry, idx) => {
+          {[...entries]
+            .filter((e) => businesses[e.id])
+            .sort((a, b) => {
+              const ra = businesses[a.id]?.computed_rating ?? businesses[a.id]?.rating ?? -1;
+              const rb = businesses[b.id]?.computed_rating ?? businesses[b.id]?.rating ?? -1;
+              if (rb !== ra) return rb - ra;
+              
+              // Break ties with total review count
+              const countA = businesses[a.id]?.total_review_count ?? 0;
+              const countB = businesses[b.id]?.total_review_count ?? 0;
+              if (countB !== countA) return countB - countA;
+              
+              // Final fallback to alphabetical
+              const nameA = businesses[a.id]?.name ?? "";
+              const nameB = businesses[b.id]?.name ?? "";
+              return nameA.localeCompare(nameB);
+            })
+            .map((entry, idx) => {
             const isDark = idx % 2 === 0;
             return (
               <section
