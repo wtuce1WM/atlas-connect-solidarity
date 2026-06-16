@@ -358,10 +358,10 @@ const HomeMindtrip = () => {
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
           <img
-            src={heroImage}
-            alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-            className="absolute inset-0 h-full w-full origin-top object-contain object-right-top animate-[heroKenBurns_24s_ease-in-out_infinite]"
-            loading="eager"
+             src={heroImage}
+             alt="Maroc — riad, piscine et tagine, composition réalisme magique"
+             className="absolute inset-0 h-full w-full origin-top object-cover object-right-top animate-[heroKenBurns_24s_ease-in-out_infinite]"
+             loading="eager"
             fetchPriority="high"
           />
         </picture>
