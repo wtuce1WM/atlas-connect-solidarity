@@ -183,7 +183,6 @@ const Install = () => {
           className={`absolute inset-0 bg-cover ${isMobile ? "bg-bottom" : "bg-center"}`}
           style={{
             backgroundImage: `url(${isMobile ? heroHomeVertAsset.url : heroImageAsset.url})`,
-            animation: "kenburns 20s ease-in-out infinite alternate",
             transformOrigin: isMobile ? "center bottom" : "center center",
           }}
         />
