@@ -101,7 +101,11 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
           : "bg-transparent"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
+      <div
+        className={`mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 md:px-12 transition-transform duration-500 ${
+          location.pathname === "/" && !scrolled ? "translate-y-3 md:translate-y-4" : "translate-y-0"
+        }`}
+      >
         <Link to="/" aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
           <img
             src="/logo-gold.webp"
