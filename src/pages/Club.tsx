@@ -437,48 +437,48 @@ const Club = () => {
                   </button>
                 </div>
 
-                <h2 className="text-2xl font-bold text-center mb-2">{mode === "login" ? tx.loginTitle : t.register}</h2>
-                {mode === "register" && <p className="text-center text-xs text-muted-foreground mb-6">{t.required}</p>}
+                <h2 className="text-2xl font-bold text-center mb-2 text-white">{mode === "login" ? tx.loginTitle : t.register}</h2>
+                {mode === "register" && <p className="text-center text-xs text-white mb-6 font-semibold">{t.required}</p>}
 
                 {isRegistered ? (
                   <div className="text-center py-12">
                     <Mail className="h-16 w-16 text-primary mx-auto mb-4" />
-                    <p className="text-xl font-bold text-foreground mb-2">{t.successTitle}</p>
-                    <p className="text-muted-foreground">{t.successMsg}</p>
+                    <p className="text-xl font-bold text-white mb-2">{t.successTitle}</p>
+                    <p className="text-white/90">{t.successMsg}</p>
                   </div>
                 ) : mode === "login" ? (
                   <div className="space-y-6">
                     <ClubSocialButtons redirectPath="/club" />
 
                     <div className="flex items-center gap-4">
-                      <div className="flex-1 h-px bg-border" />
-                      <span className="text-sm text-muted-foreground">{t.orSeparator}</span>
-                      <div className="flex-1 h-px bg-border" />
+                      <div className="flex-1 h-px bg-white/20" />
+                      <span className="text-sm text-white font-semibold">{t.orSeparator}</span>
+                      <div className="flex-1 h-px bg-white/20" />
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-4">
                       <div>
-                        <label className="text-sm text-foreground font-semibold mb-1 block">{t.emailLabel}</label>
+                        <label className="text-sm text-white font-semibold mb-1 block">{t.emailLabel}</label>
                         <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" className="bg-white text-black" />
                       </div>
                       <div>
-                        <label className="text-sm text-foreground font-semibold mb-1 block">{t.passwordLabel}</label>
+                        <label className="text-sm text-white font-semibold mb-1 block">{t.passwordLabel}</label>
                         <div className="relative">
-                          <Input
-                            type={showLoginPassword ? "text" : "password"}
-                            value={loginPassword}
-                            onChange={(e) => setLoginPassword(e.target.value)}
-                            required
-                            autoComplete="current-password"
-                            className="bg-white text-black pr-10"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowLoginPassword(!showLoginPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                          >
-                            {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
+                           <Input
+                             type={showLoginPassword ? "text" : "password"}
+                             value={loginPassword}
+                             onChange={(e) => setLoginPassword(e.target.value)}
+                             required
+                             autoComplete="current-password"
+                             className="bg-white text-black pr-10"
+                           />
+                           <button
+                             type="button"
+                             onClick={() => setShowLoginPassword(!showLoginPassword)}
+                             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                           >
+                             {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                           </button>
                         </div>
                       </div>
 
@@ -487,7 +487,7 @@ const Club = () => {
                           type="button"
                           onClick={handleForgotPassword}
                           disabled={isResetting}
-                          className="text-sm text-primary hover:underline"
+                          className="text-sm text-white hover:underline font-semibold"
                         >
                           {isResetting ? "…" : tx.forgotPassword}
                         </button>
@@ -502,7 +502,7 @@ const Club = () => {
                         {tx.loginSubmit.toUpperCase()}
                       </Button>
 
-                      <p className="text-center text-sm text-muted-foreground">
+                      <p className="text-center text-sm text-white/90">
                         {tx.noAccount}{" "}
                         <button type="button" onClick={() => setMode("register")} className="text-primary hover:underline font-semibold">
                           {tx.registerTab}
@@ -516,29 +516,29 @@ const Club = () => {
 
                     {/* Separator */}
                     <div className="flex items-center gap-4">
-                      <div className="flex-1 h-px bg-border" />
-                      <span className="text-sm text-muted-foreground">{t.orSeparator}</span>
-                      <div className="flex-1 h-px bg-border" />
+                      <div className="flex-1 h-px bg-white/20" />
+                      <span className="text-sm text-white font-semibold">{t.orSeparator}</span>
+                      <div className="flex-1 h-px bg-white/20" />
                     </div>
 
                     {/* Email/Password Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm text-foreground font-semibold mb-1 block">
+                          <label className="text-sm text-white font-semibold mb-1 block">
                             {t.firstName} <span className="text-destructive">*</span>
                           </label>
                           <Input value={form.first_name} onChange={handleChange("first_name")} required className="bg-white text-black" />
                         </div>
                         <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.lastName}</label>
+                          <label className="text-sm text-white font-semibold mb-1 block">{t.lastName}</label>
                           <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-white text-black" />
                         </div>
                       </div>
 
 
                       <div>
-                        <label className="text-sm text-foreground font-semibold mb-1 block">
+                        <label className="text-sm text-white font-semibold mb-1 block">
                           {t.emailLabel} <span className="text-destructive">*</span>
                         </label>
                         <Input type="email" value={form.email} onChange={handleChange("email")} required className="bg-white text-black" />
@@ -546,7 +546,7 @@ const Club = () => {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm text-foreground font-semibold mb-1 block">
+                          <label className="text-sm text-white font-semibold mb-1 block">
                             {t.passwordLabel} <span className="text-destructive">*</span>
                           </label>
                           <div className="relative">
@@ -568,7 +568,7 @@ const Club = () => {
                           </div>
                         </div>
                         <div>
-                          <label className="text-sm text-foreground font-semibold mb-1 block">
+                          <label className="text-sm text-white font-semibold mb-1 block">
                             {t.confirmPasswordLabel} <span className="text-destructive">*</span>
                           </label>
                           <div className="relative">
@@ -596,17 +596,17 @@ const Club = () => {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.phoneLabel}</label>
+                          <label className="text-sm text-white font-semibold mb-1 block">{t.phoneLabel}</label>
                           <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-white text-black" />
                         </div>
                         <div>
-                          <label className="text-sm text-muted-foreground mb-1 block">{t.whatsappLabel}</label>
+                          <label className="text-sm text-white font-semibold mb-1 block">{t.whatsappLabel}</label>
                           <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-white text-black" />
                         </div>
                       </div>
 
 
-                      <p className="text-xs text-muted-foreground mb-2">{t.required}</p>
+                      <p className="text-xs text-white font-semibold mb-2">{t.required}</p>
                       <Button
                         type="submit"
                         disabled={isSubmitting || !isFormValid}
