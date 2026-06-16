@@ -95,18 +95,18 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
 
   return (
     <nav
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 py-1 ${
+      className={`fixed inset-x-0 top-0 z-50 h-8 transition-all duration-500 ${
         scrolled
           ? "border-b border-white/10 bg-[rgba(26,18,11,0.86)] backdrop-blur-md"
           : "bg-transparent"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
         <Link to="/" aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
           <img
             src="/logo-gold.webp"
             alt="One World Morocco"
-            className="h-7 md:h-8 w-auto transition-all duration-500"
+            className="h-7 w-auto transition-all duration-500"
           />
           <span
             className={`font-josefin text-xs uppercase tracking-[0.18em] sm:text-sm sm:tracking-[0.22em] transition-colors ${
