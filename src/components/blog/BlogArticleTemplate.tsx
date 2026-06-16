@@ -277,7 +277,7 @@ const BlogArticleTemplate = ({
             </div>
           </section>
 
-          {[...entries].sort((a, b) => {
+          {[...entries].filter((e) => businesses[e.id]).sort((a, b) => {
             const ra = businesses[a.id]?.computed_rating ?? businesses[a.id]?.rating ?? -1;
             const rb = businesses[b.id]?.computed_rating ?? businesses[b.id]?.rating ?? -1;
             return rb - ra;
