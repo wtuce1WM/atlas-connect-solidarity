@@ -180,11 +180,11 @@ const Install = () => {
       {/* Hero — image de fond avec zoom lent (kenburns) + carte d'installation superposée */}
       <section className="relative w-full overflow-hidden min-h-[640px] sm:min-h-[720px] md:min-h-[760px] flex items-center">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className={`absolute inset-0 bg-cover ${isMobile ? "bg-bottom" : "bg-center"}`}
           style={{
-            backgroundImage: `url(${heroImageAsset.url})`,
+            backgroundImage: `url(${isMobile ? heroHomeVertAsset.url : heroImageAsset.url})`,
             animation: "kenburns 20s ease-in-out infinite alternate",
-            transformOrigin: "center center",
+            transformOrigin: isMobile ? "center bottom" : "center center",
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40 pointer-events-none" />
