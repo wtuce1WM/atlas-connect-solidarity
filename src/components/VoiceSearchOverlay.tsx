@@ -30,7 +30,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
   };
 
   return (
-    <div className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} flex flex-col items-center justify-between bg-white/95 backdrop-blur-md animate-in fade-in duration-200`}>
+    <div className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} flex flex-col items-center justify-between bg-[#BED1FF] backdrop-blur-md animate-in fade-in duration-200`}>
       {/* Close button */}
       <button
         onClick={guardClick(onClose)}
