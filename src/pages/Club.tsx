@@ -506,10 +506,10 @@ const Club = () => {
                       <Button
                         type="submit"
                         disabled={isLoggingIn || !loginEmail.trim() || !loginPassword}
-                        className="w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-semibold py-6 text-base"
+                        className="w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-semibold uppercase tracking-wider py-6 text-base"
                       >
                         {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Crown className="h-5 w-5 mr-2" />}
-                        {tx.loginSubmit}
+                        {tx.loginSubmit.toUpperCase()}
                       </Button>
 
                       <p className="text-center text-sm text-muted-foreground">
@@ -620,10 +620,10 @@ const Club = () => {
                       <Button
                         type="submit"
                         disabled={isSubmitting || !isFormValid}
-                        className="w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-semibold py-6 text-base"
+                        className="w-full bg-[#25D366] text-white hover:bg-[#25D366]/90 font-semibold uppercase tracking-wider py-6 text-base"
                       >
                         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Crown className="h-5 w-5 mr-2" />}
-                        {t.submit}
+                        {t.submit.toUpperCase()}
                       </Button>
                     </form>
                   </div>
