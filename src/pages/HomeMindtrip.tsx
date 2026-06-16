@@ -677,7 +677,7 @@ const HomeMindtrip = () => {
                   )}
 
                   {(i === 1 || i === 2 || i === 3 || i === 4 || i === 6) ? (
-                    <div className="relative z-10 flex flex-col gap-4 md:gap-6">
+                    <div className="relative z-10 flex flex-col gap-4 md:gap-6 flex-1 justify-between">
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         <div className="flex-1 lg:max-w-[60%]">
                           <p className="font-roboto text-sm md:text-base text-black/90 font-normal">
@@ -705,7 +705,7 @@ const HomeMindtrip = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex justify-start">
+                      <div className="flex justify-center mt-auto pt-4">
                         <Link
                           to={s.href}
                           className="inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:px-6 md:py-3 md:text-sm"
