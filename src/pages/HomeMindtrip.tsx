@@ -746,7 +746,7 @@ const HomeMindtrip = () => {
                         <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
                           {s.title}
                         </h3>
-                        <p className={`mt-3 md:mt-4 text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base ${i === 7 ? "mx-auto" : ""}`}>{s.desc}</p>
+                        <p className={`mt-3 md:mt-4 text-white/90 ${i === 7 ? "font-normal" : "font-bold"} [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base ${i === 7 ? "mx-auto" : ""}`}>{s.desc}</p>
                         {i === 5 ? (
                           <HotelAvailabilityWidget />
                         ) : i === 7 ? (
