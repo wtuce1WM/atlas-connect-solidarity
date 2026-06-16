@@ -430,18 +430,18 @@ const Club = () => {
               <div className="max-w-lg mx-auto bg-[#F1F1F1] p-6 sm:p-8 rounded-2xl border border-border/50 shadow-sm">
 
                 {/* Tabs */}
-                <div className="flex bg-muted rounded-lg p-1 mb-6">
+                <div className="flex bg-[#BED1FF] rounded-lg p-1 mb-6">
                   <button
                     type="button"
                     onClick={() => setMode("login")}
-                    className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${mode === "login" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                    className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "login" ? "bg-[#194CFF] text-white shadow-sm" : "text-[#194CFF] hover:text-[#194CFF]/80"}`}
                   >
                     {tx.loginTab}
                   </button>
                   <button
                     type="button"
                     onClick={() => setMode("register")}
-                    className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${mode === "register" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                    className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "register" ? "bg-[#194CFF] text-white shadow-sm" : "text-[#194CFF] hover:text-[#194CFF]/80"}`}
                   >
                     {tx.registerTab}
                   </button>
