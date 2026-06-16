@@ -375,7 +375,7 @@ const HomeMindtrip = () => {
           }
         `}</style>
 
-        <div className="relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center md:justify-start lg:justify-center px-6 pt-44 pb-12 md:py-24 md:pt-14 lg:pt-24 md:px-12">
+        <div className="relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center md:justify-start lg:justify-center px-6 pt-60 pb-8 md:py-24 md:pt-14 lg:pt-24 md:px-12">
           <h1 className="font-josefin text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] tracking-tight text-white md:max-w-[400px] lg:max-w-2xl">
             L’écosystème digital éthique & solidaire dédié à l'économie marocaine
           </h1>
