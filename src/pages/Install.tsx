@@ -4,6 +4,8 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { resolveHomepageCity } from "@/lib/cityHomepage";
 import heroImageAsset from "@/assets/hero_install_hor.webp.asset.json";
+import heroHomeVertAsset from "@/assets/hero-home-vert.webp.asset.json";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Platform = "ios" | "android" | "mac" | "windows";
 
