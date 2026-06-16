@@ -696,7 +696,7 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     font-size: 0.9375rem !important;
   }
 
-  .home-hero-content h1 + p + div button {
+  .home-hero-content h1 + p + div button:not(.home-hero-video-cta) {
     width: 2.75rem !important;
     height: 2.75rem !important;
   }
