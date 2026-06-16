@@ -1,6 +1,6 @@
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import { useState, useRef, Suspense } from "react";
-import LogoCSSSpinner from "@/components/LogoCSSSpinner";
+
 import Header from "@/components/Header";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
@@ -340,18 +340,6 @@ const LogoEffectsDemo = () => {
           ))}
         </div>
 
-        {/* CSS 3D Spinner (production) */}
-        <div className="mt-12">
-          <h2 className="text-xl font-bold text-foreground text-center mb-6" style={{ fontStyle: "normal" }}>CSS 3D — Pièce dorée (production)</h2>
-          <p className="text-center text-muted-foreground text-sm mb-4">Utilisé en production (Hero + Loading). 0 KB de dépendances supplémentaires.</p>
-          <div className="flex justify-center">
-            <div className="relative bg-card rounded-xl border border-border shadow-sm p-8 w-72 flex flex-col items-center gap-4">
-              <WeightBadge weight="~0.3 KB" />
-              <LogoCSSSpinner className="w-48 h-48" key={`css-spin-${replay}`} />
-              <span className="text-foreground text-sm font-semibold">CSS Rotation unique + flottement</span>
-            </div>
-          </div>
-        </div>
 
         {/* Three.js 3D Section */}
         <div className="mt-12">

@@ -224,15 +224,6 @@ const DisplayPanel = () => (
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Logo CSS (LogoCSSSpinner)</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <DisplayParam label="Taille" value="w-56 h-56 md:w-80 md:h-80" />
-                    <DisplayParam label="Position" value="absolute, flex items-start justify-center pt-24" />
-                    <DisplayParam label="Z-index" value="z-[20] lg:z-[90]" />
-                    <DisplayParam label="Interaction" value="pointer-events-none" />
-                  </div>
-                </div>
-                <div>
                   <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Fond Hero</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DisplayParam label="Overlay gradient" value="bg-gradient-to-b from-white/20 via-white/40 to-white" />

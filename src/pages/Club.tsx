@@ -16,7 +16,6 @@ import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
 import ShareButton from "@/components/ShareButton";
-import LogoCSSSpinner from "@/components/LogoCSSSpinner";
 import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
 
 const Club = () => {
@@ -410,14 +409,9 @@ const Club = () => {
             loading="eager"
           />
 
-          {/* Logo CSS — single spin + float */}
-          <div className="absolute inset-0 z-[20] lg:z-[90] flex items-start justify-center pt-24 pointer-events-none">
-            <LogoCSSSpinner className="w-56 h-56 md:w-80 md:h-80" replayKey={0} />
-          </div>
-
           {/* Auth card overlaid */}
           <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
-            <div className="w-56 h-56 mb-2 md:mb-0 md:w-80 md:h-80" />
+
 
             <div className="w-full max-w-lg mx-auto bg-[#F1F1F1] p-6 sm:p-8 rounded-2xl border border-border/50 shadow-2xl">
 
