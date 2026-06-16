@@ -772,13 +772,13 @@ const HomeMindtrip = () => {
                           <div className="flex justify-center w-full mt-auto pt-4">
                             <Link
                               to={s.href}
-                              className="inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs uppercase tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:px-6 md:py-3 md:text-sm"
+                              className="inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs tracking-[0.2em] text-white bg-black/70 backdrop-blur-2xl border border-white/10 shadow-lg hover:bg-black/90 transition-colors md:px-6 md:py-3 md:text-sm"
                             >
                               {s.cta} →
                             </Link>
                           </div>
                         ) : (
-                          <Link to={s.href} className="mt-4 inline-flex font-josefin text-xs uppercase tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm">
+                          <Link to={s.href} className="mt-4 inline-flex font-josefin text-xs tracking-[0.2em] text-primary hover:underline md:mt-6 md:text-sm">
                             {s.cta} →
                           </Link>
                         )}
