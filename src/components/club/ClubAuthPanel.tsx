@@ -175,7 +175,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
         <form onSubmit={handleLogin} className="space-y-3">
           <div>
             <label className="text-xs text-foreground font-semibold mb-1 block">{t.email}</label>
-            <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" />
+            <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" className="bg-white text-black" />
           </div>
           <div>
             <label className="text-xs text-foreground font-semibold mb-1 block">{t.password}</label>
@@ -186,7 +186,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
                 onChange={(e) => setLoginPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="pr-10"
+                className="bg-white text-black pr-10"
               />
               <button
                 type="button"
