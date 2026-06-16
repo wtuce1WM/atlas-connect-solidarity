@@ -544,50 +544,49 @@ const Club = () => {
                         <Input type="email" value={form.email} onChange={handleChange("email")} required className="bg-white text-black" />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm text-white font-semibold mb-1 block">
-                            {t.passwordLabel} <span className="text-white font-bold ml-1">*</span>
-                          </label>
-                          <div className="relative">
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              value={password}
-                              onChange={(e) => setPassword(e.target.value)}
-                              required
-                              minLength={6}
-                              className="bg-white text-black pr-10"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            >
-                              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                          </div>
+                      <div>
+                        <label className="text-sm text-white font-semibold mb-1 block">
+                          {t.passwordLabel} <span className="text-white font-bold ml-1">*</span>
+                        </label>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            minLength={6}
+                            className="bg-white text-black pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
                         </div>
-                        <div>
-                          <label className="text-sm text-white font-semibold mb-1 block">
-                            {t.confirmPasswordLabel} <span className="text-white font-bold ml-1">*</span>
-                          </label>
-                          <div className="relative">
-                            <Input
-                              type={showConfirmPassword ? "text" : "password"}
-                              value={confirmPassword}
-                              onChange={(e) => setConfirmPassword(e.target.value)}
-                              required
-                              minLength={6}
-                              className="bg-white text-black pr-10"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            >
-                              {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                          </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm text-white font-semibold mb-1 block">
+                          {t.confirmPasswordLabel} <span className="text-white font-bold ml-1">*</span>
+                        </label>
+                        <div className="relative">
+                          <Input
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                            minLength={6}
+                            className="bg-white text-black pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          >
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
                         </div>
                       </div>
                       {confirmPassword && password !== confirmPassword && (
