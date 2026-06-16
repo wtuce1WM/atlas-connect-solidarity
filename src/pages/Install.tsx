@@ -3,6 +3,7 @@ import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check 
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { resolveHomepageCity } from "@/lib/cityHomepage";
+import heroImageAsset from "@/assets/og-install-app-v14.webp.asset.json";
 
 type Platform = "ios" | "android" | "mac" | "windows";
 
