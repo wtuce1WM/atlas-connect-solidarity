@@ -401,7 +401,7 @@ const Club = () => {
 
       {/* Hero — image de fond avec zoom lent (kenburns) + carte d'authentification superposée */}
       {!user && (
-        <section className="relative w-full overflow-hidden min-h-[640px] sm:min-h-[720px] md:min-h-[760px]">
+        <section className="relative w-full overflow-hidden min-h-[640px] sm:min-h-[720px] md:min-h-[760px] flex items-center">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
@@ -413,10 +413,10 @@ const Club = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40 pointer-events-none" />
 
           {/* Auth card overlaid */}
-          <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-8">
 
 
-            <div className="w-full max-w-2xl mx-auto bg-[#F1F1F1] p-6 sm:p-8 rounded-2xl border border-border/50 shadow-2xl">
+            <div className="w-full max-w-2xl bg-[#F1F1F1] p-6 sm:p-8 rounded-2xl border border-border/50 shadow-2xl">
 
 
                 {/* Tabs */}
