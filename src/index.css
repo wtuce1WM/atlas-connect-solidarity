@@ -682,10 +682,11 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     margin-top: 0.75rem !important;
     font-size: 0.95rem !important;
     line-height: 1.55 !important;
+    text-align: center !important;
   }
 
   .home-hero-content h1 + p + div {
-    margin-top: 2rem !important;
+    margin-top: 2.5rem !important;
   }
 
   .home-hero-content h1 + p + div > div {
