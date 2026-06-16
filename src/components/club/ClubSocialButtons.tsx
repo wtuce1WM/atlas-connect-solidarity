@@ -173,7 +173,7 @@ const ClubSocialButtons = ({ redirectPath = "/club", onSuccess }: Props) => {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder={t.phonePlaceholder}
-              className="w-full rounded-md border border-border bg-background px-4 py-3 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-white px-4 py-3 text-base text-black placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <p className="text-xs text-muted-foreground">{t.phoneHint}</p>
             <button
