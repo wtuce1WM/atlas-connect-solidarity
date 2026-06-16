@@ -194,7 +194,7 @@ const ClubSocialButtons = ({ redirectPath = "/club", onSuccess }: Props) => {
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
               placeholder={t.codePlaceholder}
-              className="w-full rounded-md border border-border bg-background px-4 py-3 text-base text-foreground tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-md border border-border bg-white px-4 py-3 text-base text-black placeholder:text-muted-foreground tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
               type="button"
