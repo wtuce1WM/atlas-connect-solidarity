@@ -207,7 +207,7 @@ const Install = () => {
                   className="h-24 w-auto object-contain rounded-3xl shadow-xl transition-transform group-hover:scale-105 group-active:scale-95 cursor-pointer mx-auto"
                 />
                 {!installed && (
-                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gold text-[hsl(var(--background))] text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
+                  <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#C04F17] text-white text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
                     <Download className="h-3 w-3" />
                     {installEvent ? "Installer" : "Comment installer"}
                   </span>
