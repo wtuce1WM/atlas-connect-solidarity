@@ -722,7 +722,17 @@ const HomeMindtrip = () => {
                           className="absolute inset-0 h-full w-full object-cover"
                         />
                       )}
-                      <div className={`relative z-10 ${i === 7 ? "text-center" : ""}`}>
+                      {i === 7 && (
+                        <>
+                          <img
+                            src={heroHomeVertAsset.url}
+                            alt=""
+                            className="absolute inset-0 h-full w-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40" />
+                        </>
+                      )}
+                      <div className={`relative z-10 ${i === 7 ? "text-center flex flex-col items-center justify-center h-full min-h-[300px] md:min-h-[400px]" : ""}`}>
                         {i === 7 && (
                           <div className="mx-auto mb-6 h-24 w-24 rounded-3xl p-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]">
                             <img src="/logo-gold.webp" alt="ONE WORLD MOROCCO" className="h-full w-full rounded-2xl object-contain" />
@@ -731,10 +741,10 @@ const HomeMindtrip = () => {
                         <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
                           Étape {i + 1}
                         </span>
-                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl ${i === 7 ? "text-black" : "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"}`}>
+                        <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
                           {s.title}
                         </h3>
-                        <p className={`mt-3 md:mt-4 ${i === 7 ? "mx-auto text-black/80" : "text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"} max-w-lg font-roboto text-sm md:text-base`}>{s.desc}</p>
+                        <p className={`mt-3 md:mt-4 text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base ${i === 7 ? "mx-auto" : ""}`}>{s.desc}</p>
                         {i === 5 ? (
                           <HotelAvailabilityWidget />
                         ) : i === 7 ? (
