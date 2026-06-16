@@ -9,7 +9,8 @@ interface Props {
 
 const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
   const location = useLocation();
-  const blackHamburger = location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/devenir-affilie";
+  const isWhiteHeaderPage = location.pathname === "/" || location.pathname === "/corporate" || location.pathname === "/join";
+  const blackHamburger = (location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/devenir-affilie") && !isWhiteHeaderPage;
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -20,7 +21,8 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const whiteText = alwaysWhite || scrolled;
+  const whiteText = alwaysWhite || scrolled || isWhiteHeaderPage;
+  const logoSrc = isWhiteHeaderPage ? "/images/logo_blanc.webp" : "/logo-gold.webp";
   const linkClass = `font-josefin text-sm uppercase tracking-[0.2em] transition ${
     whiteText ? "text-white/85 hover:text-white" : "text-black hover:text-black/70"
   }`;
@@ -104,7 +106,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
         <Link to="/" aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
           <img
-            src="/logo-gold.webp"
+            src={logoSrc}
             alt="One World Morocco"
             className="h-8 w-auto transition-all duration-500"
           />
