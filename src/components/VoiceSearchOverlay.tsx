@@ -34,19 +34,19 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
       {/* Close button */}
       <button
         onClick={guardClick(onClose)}
-        className="absolute top-6 right-6 p-2 rounded-full hover:bg-muted transition-colors"
+        className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/10 transition-colors"
       >
-        <X className="h-6 w-6 text-muted-foreground" />
+        <X className="h-6 w-6 text-white" />
       </button>
 
       {/* Transcript area */}
       <div className="flex-1 flex items-end justify-center pb-8 pt-20 px-8 w-full max-w-2xl">
         {liveTranscript ? (
-          <p className="text-2xl md:text-3xl text-foreground font-light text-center leading-relaxed">
+          <p className="text-2xl md:text-3xl text-white font-light text-center leading-relaxed">
             {liveTranscript}
           </p>
         ) : (
-          <p className="text-xl md:text-2xl text-muted-foreground font-light text-center">
+          <p className="text-xl md:text-2xl text-white/70 font-light text-center">
             Je vous écoute…
           </p>
         )}
@@ -110,7 +110,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
 
       {/* Hint */}
       <div className="pb-12">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-white/60">
           Cliquez sur le micro ou attendez pour lancer la recherche
         </p>
       </div>
