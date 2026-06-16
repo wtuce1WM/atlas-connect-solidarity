@@ -3,6 +3,7 @@ import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check 
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { resolveHomepageCity } from "@/lib/cityHomepage";
+import heroImageAsset from "@/assets/og-install-app-v14.webp.asset.json";
 
 type Platform = "ios" | "android" | "mac" | "windows";
 
@@ -176,7 +177,7 @@ const Install = () => {
       <div className="pt-[60px] md:pt-[76px]">
         <div className="w-full relative overflow-hidden mb-12">
           <img
-            src="/og-install-app-v14.webp"
+            src={heroImageAsset.url}
             alt="ONE WORLD MOROCCO — installer l'application"
             className="w-full h-auto block animate-[heroKenBurns_24s_ease-in-out_infinite]"
             loading="eager"
