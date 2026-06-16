@@ -569,7 +569,7 @@ const Club = () => {
                         </div>
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">
-                            {t.confirmPasswordLabel} <span className="text-destructive">*</span>
+                            {t.confirmPasswordLabel} <span className="text-white font-bold ml-1">*</span>
                           </label>
                           <div className="relative">
                             <Input
