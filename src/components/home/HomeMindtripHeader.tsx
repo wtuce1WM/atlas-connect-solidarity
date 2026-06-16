@@ -95,9 +95,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
 
   return (
     <nav
-      className={`fixed inset-x-0 z-50 h-10 transition-all duration-500 ${
-        location.pathname === "/" && !scrolled ? "top-3" : "top-0"
-      } ${
+      className={`fixed inset-x-0 top-0 z-50 h-10 transition-all duration-500 ${
         scrolled
           ? "border-b border-white/10 bg-[rgba(26,18,11,0.86)] backdrop-blur-md"
           : "bg-transparent"
