@@ -65,7 +65,6 @@ const Corporate = () => {
       <div
         ref={rootRef}
         className="corp-page"
-        style={{ paddingTop: 72 }}
       >
         <style>{corporateCss}</style>
         <div dangerouslySetInnerHTML={{ __html: corporateBody }} />

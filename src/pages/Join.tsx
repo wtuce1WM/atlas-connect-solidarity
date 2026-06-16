@@ -182,7 +182,7 @@ const Join = () => {
   return (
     <>
       <HomeMindtripHeader />
-      <div className="join-page" style={{ paddingTop: 72 }}>
+      <div className="join-page">
         <style>{CSS}</style>
 
 
