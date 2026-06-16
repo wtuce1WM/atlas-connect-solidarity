@@ -363,7 +363,6 @@ const HomeMindtrip = () => {
             fetchPriority="high"
           />
         </picture>
-        <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/70 to-transparent md:bg-gradient-to-r md:from-background/90 md:via-background/60 md:to-transparent" />
 
         <div className="relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-6 py-24 md:px-12">
           <h1 className="font-josefin text-5xl font-light leading-[0.95] tracking-tight text-foreground md:text-7xl lg:text-8xl">
