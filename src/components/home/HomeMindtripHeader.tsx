@@ -95,7 +95,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
 
   return (
     <nav
-      className={`fixed inset-x-0 top-0 z-50 h-8 transition-all duration-500 ${
+      className={`fixed inset-x-0 top-0 z-50 h-10 transition-all duration-500 ${
         scrolled
           ? "border-b border-white/10 bg-[rgba(26,18,11,0.86)] backdrop-blur-md"
           : "bg-transparent"
@@ -106,7 +106,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
           <img
             src="/logo-gold.webp"
             alt="One World Morocco"
-            className="h-7 w-auto transition-all duration-500"
+            className="h-8 w-auto transition-all duration-500"
           />
           <span
             className={`font-josefin text-xs uppercase tracking-[0.18em] sm:text-sm sm:tracking-[0.22em] transition-colors ${
