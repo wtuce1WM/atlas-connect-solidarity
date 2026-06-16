@@ -95,18 +95,14 @@ const HeroSection = () => {
         isExiting ? "opacity-0 -translate-y-16" : "opacity-100"
       }`}
     >
-      {/* Hero Background Image — full bleed from top */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('${heroHomeAsset.url}')`,
-          transform: `translateY(${scrollY * 0.35}px)`,
-          willChange: "transform",
-        }}
+      {/* Hero Image — affichée intégralement sous le header, sans coupe latérale */}
+      <img
+        src={heroHomeAsset.url}
+        alt=""
+        className="block w-full h-auto"
+        loading="eager"
       />
 
-      {/* Overlay with gradient to white at bottom for content legibility */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/70 to-white" />
 
 
       {/* Logo CSS — single spin + float */}
