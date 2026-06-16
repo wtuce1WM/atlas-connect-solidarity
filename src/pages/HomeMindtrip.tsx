@@ -727,7 +727,7 @@ const HomeMindtrip = () => {
                           <img
                             src={heroHomeVertAsset.url}
                             alt=""
-                            className="absolute inset-0 h-full w-full object-cover"
+                            className="absolute inset-0 h-full w-full object-cover object-bottom"
                           />
                           <div className="absolute inset-0 bg-black/40" />
                         </>
