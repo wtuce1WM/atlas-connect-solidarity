@@ -42,11 +42,11 @@ const ClubLoginPopup = () => {
         className="w-[90%] max-w-md rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ backgroundColor: "#C04F17" }} className="p-3 sm:p-6 text-white relative">
+        <div style={{ backgroundColor: "#194CFF" }} className="p-3 sm:p-6 text-white relative">
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="absolute top-3 left-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
+            className="absolute top-3 left-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white hover:bg-gray-100 text-black shadow-md transition-colors"
             aria-label="Close"
           >
             <X className="h-5 w-5" />

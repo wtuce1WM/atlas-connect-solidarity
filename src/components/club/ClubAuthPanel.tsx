@@ -210,11 +210,11 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
           <Button
             type="submit"
             disabled={isLoggingIn || !loginEmail.trim() || !loginPassword}
-            className="w-full text-white font-semibold normal-case tracking-normal hover:opacity-90"
+            className="w-full text-white font-semibold uppercase tracking-wider hover:opacity-90"
             style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", backgroundColor: "#25D366" }}
           >
             {isLoggingIn ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Crown className="h-4 w-4 mr-2" />}
-            {t.login}
+            {t.login.toUpperCase()}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
             {t.noAccount}{" "}
@@ -290,11 +290,11 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
           <Button
             type="submit"
             disabled={isSubmitting || !isRegisterValid}
-            className="w-full text-white font-semibold normal-case tracking-normal hover:opacity-90"
+            className="w-full text-white font-semibold uppercase tracking-wider hover:opacity-90"
             style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", backgroundColor: "#25D366" }}
           >
             {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Crown className="h-4 w-4 mr-2" />}
-            {t.register}
+            {t.register.toUpperCase()}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
             {t.hasAccount}{" "}
