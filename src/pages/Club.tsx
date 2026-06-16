@@ -17,9 +17,12 @@ import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
 import ShareButton from "@/components/ShareButton";
 import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
+import heroInstallAsset from "@/assets/hero_install_hor.webp.asset.json";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Club = () => {
   const { language } = useLanguage();
+  const isMobile = useIsMobile();
   useSEO({
     title: "Club – Rejoignez la communauté",
     description: "Rejoignez le Club ONE WORLD MOROCCO pour accéder à des avantages exclusifs et des recommandations personnalisées.",
@@ -405,7 +408,7 @@ const Club = () => {
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: `url(${heroHomeAsset.url})`,
+              backgroundImage: `url(${isMobile ? heroHomeAsset.url : heroInstallAsset.url})`,
               animation: "kenburns 20s ease-in-out infinite alternate",
               transformOrigin: "center center",
             }}
