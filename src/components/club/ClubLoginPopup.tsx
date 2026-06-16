@@ -54,7 +54,7 @@ const ClubLoginPopup = () => {
           <p className="text-xs sm:text-sm opacity-90 text-center">{t.welcome}</p>
           <h2 className="text-xl sm:text-2xl font-bold mt-0.5 sm:mt-1 !font-sans !not-italic text-center">{t.clubName}</h2>
         </div>
-        <div className="bg-card p-3 sm:p-6">
+        <div className="bg-[#F1F1F1] p-3 sm:p-6">
           <h3 className="text-base sm:text-lg font-semibold text-card-foreground mb-1 sm:mb-2 !font-sans text-center">
             {t.title}
           </h3>
