@@ -446,7 +446,7 @@ const HomeMindtrip = () => {
               onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
               onMobileSearchClick={() => heroVoice.toggleRecording()}
             />
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 md:relative md:bottom-auto md:left-auto md:translate-x-0 md:mt-5 flex justify-center">
+            <div className="hidden md:flex mt-5 justify-center">
               <button
                 type="button"
                 onClick={() => setVideoOpen(true)}
