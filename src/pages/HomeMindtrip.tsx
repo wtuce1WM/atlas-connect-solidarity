@@ -495,7 +495,7 @@ const HomeMindtrip = () => {
         </div>
 
         {/* Mobile-only video CTA placed absolutely below the search CTAs */}
-        <div className="md:hidden absolute bottom-[8.8rem] left-1/2 -translate-x-1/2 z-30 flex justify-center">
+        <div className="md:hidden absolute bottom-[7rem] left-1/2 -translate-x-1/2 z-30 flex justify-center">
           <button
             type="button"
             onClick={() => setVideoOpen(true)}
