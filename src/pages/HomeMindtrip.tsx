@@ -434,7 +434,7 @@ const HomeMindtrip = () => {
         `}</style>
 
         {/* Title container - placed just under the header on mobile */}
-        <div className="absolute top-[200px] md:hidden z-20 w-full max-w-7xl mx-auto px-6 text-center">
+        <div className="absolute top-[250px] md:hidden z-20 w-full max-w-7xl mx-auto px-6 text-center">
           <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-[1.625rem] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
             L’écosystème digital éthique & solidaire dédié à l'économie marocaine
           </h1>
