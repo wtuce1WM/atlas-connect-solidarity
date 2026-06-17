@@ -2,10 +2,14 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
+import heroHomeAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
+import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
+import zelligeMobileAsset from "@/assets/backgr-brun-zelliges.webp.asset.json";
 // @ts-ignore - raw imports provided by Vite
 import corporateCss from "./corporate.scoped.css?raw";
 // @ts-ignore
 import corporateBody from "./corporate.body.html?raw";
+
 
 const Corporate = () => {
   const navigate = useNavigate();
@@ -65,6 +69,12 @@ const Corporate = () => {
       <div
         ref={rootRef}
         className="corp-page"
+        style={{
+          ["--hero-img-desktop" as any]: `url("${heroHomeAsset.url}")`,
+          ["--hero-img-tablet" as any]: `url("${zelligeMobileAsset.url}")`,
+          ["--hero-img-mobile" as any]: `url("${zelligeMobileAsset.url}")`,
+          ["--hero-phone-mockup" as any]: `url("${phoneMockupAsset.url}")`,
+        }}
       >
         <style>{corporateCss}</style>
         <div dangerouslySetInnerHTML={{ __html: corporateBody }} />
@@ -73,5 +83,6 @@ const Corporate = () => {
     </>
   );
 };
+
 
 export default Corporate;

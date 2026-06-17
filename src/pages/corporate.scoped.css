@@ -58,12 +58,22 @@
 
   .hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;
     background:#0c0805;overflow:hidden;--mx:0;--my:0;--sy:0;perspective:1200px}
-  .hero .bg{position:absolute;inset:-6%;background:var(--img-pool) center/cover;
+  .hero .bg{position:absolute;inset:-6%;background:var(--hero-img-mobile,var(--img-pool)) center/cover;
     transform:scale(1.12) translate3d(calc(var(--mx)*-14px),calc(var(--my)*-14px + var(--sy)*40px),0);
     animation:kb 22s ease-out forwards;will-change:transform;transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+  @media(min-width:768px){.hero .bg{background:var(--hero-img-tablet,var(--img-pool)) center/cover}}
+  @media(min-width:1024px){.hero .bg{background:var(--hero-img-desktop,var(--img-pool)) center/cover}}
   @keyframes kb{to{transform:scale(1.05) translate3d(calc(var(--mx)*-14px),calc(var(--my)*-14px + var(--sy)*40px),0)}}
   .hero::after{content:"";position:absolute;inset:0;
     background:linear-gradient(180deg,rgba(12,8,5,.55),rgba(12,8,5,.15) 30%,rgba(12,8,5,.85) 65%,rgba(12,8,5,1));pointer-events:none}
+  .hero .phone-float{position:absolute;left:2%;top:50%;transform:translateY(-50%);height:64%;width:auto;z-index:2;
+    pointer-events:none;user-select:none;display:none;
+    filter:drop-shadow(0 30px 60px rgba(0,0,0,.45));animation:heroPhoneFloat 6s ease-in-out infinite}
+  @media(min-width:1024px){.hero .phone-float{display:block}}
+  @media(min-width:1280px){.hero .phone-float{left:5%}}
+  @keyframes heroPhoneFloat{0%,100%{transform:translateY(calc(-50% - 8px))}50%{transform:translateY(calc(-50% + 8px))}}
+  @media(prefers-reduced-motion: reduce){.hero .phone-float{animation:none!important}}
+
   .hero h1,.hero .lede,.hero .tagline{text-shadow:0 2px 18px rgba(0,0,0,.55)}
   .hero .halo{position:absolute;left:8%;top:18%;width:520px;height:520px;border-radius:50%;
     background:radial-gradient(circle at 50% 50%,rgba(198,160,70,.35),rgba(198,160,70,0) 65%);
