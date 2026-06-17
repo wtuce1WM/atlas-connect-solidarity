@@ -409,7 +409,7 @@ const HomeMindtrip = () => {
              fetchPriority="high"
            />
         </picture>
-        <div className="absolute inset-0 bg-black/35 md:hidden z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/40 to-transparent md:hidden z-10" />
 
         {/* Floating phone mockup — left side, desktop only */}
         <img
