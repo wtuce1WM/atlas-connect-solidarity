@@ -449,7 +449,7 @@ const HomeMindtrip = () => {
           </h1>
 
           <p className="mt-6 md:mt-2 max-w-2xl mx-auto font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
-            Faites de chaque achat<br className="md:hidden" /> un acte de générosité. <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
+            Faites de chaque achat<br className="md:hidden" /> un acte de générosité.<br className="md:hidden" /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
           </p>
           <div className="mt-10 w-full max-w-2xl mx-auto md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)]">
             <HeroInlineSearch
