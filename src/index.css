@@ -665,7 +665,7 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     left: 0 !important;
     right: 0 !important;
     top: auto !important;
-    bottom: 12rem !important;
+    bottom: 11rem !important;
     display: block !important;
     min-height: auto !important;
     padding-top: 0 !important;
