@@ -432,7 +432,7 @@ const HomeMindtrip = () => {
           <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl mx-auto">
             L’écosystème digital éthique & solidaire dédié à l'économie marocaine
           </h1>
-          <p className="mt-6 max-w-2xl mx-auto font-roboto text-base font-bold md:font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
+          <p className="mt-6 max-w-2xl mx-auto font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
             Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité sur le terrain.
           </p>
           <div className="mt-10 w-full max-w-2xl mx-auto">
