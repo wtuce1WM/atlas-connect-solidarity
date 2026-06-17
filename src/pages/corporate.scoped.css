@@ -294,7 +294,7 @@
     .plan-grid{grid-template-columns:1fr 1fr}
     .plan{border-bottom:1px solid rgba(198,160,70,.2)}.nav nav{display:none}
     .burger{display:inline-flex}
-    .hero-inner{padding-bottom:160px}
+    .hero-inner{padding-top:100px;padding-bottom:80px}
   }
   @media(max-width:680px){
     .wrap,.hero-inner{padding-left:22px;padding-right:22px}.urls{font-size:10px}
