@@ -399,7 +399,7 @@ const HomeMindtrip = () => {
 
       <div>
         <section 
-          className="relative min-h-[92vh] w-full overflow-hidden bg-cover bg-center md:bg-none"
+          className="relative min-h-[92vh] w-full overflow-hidden bg-cover bg-center lg:bg-none"
           style={{ backgroundImage: `url(${zelligeMobileAsset.url})` }}
         >
         <picture>
@@ -408,11 +408,13 @@ const HomeMindtrip = () => {
               ref={heroBgRef}
               src={heroImage}
               alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-              className="absolute top-[10%] left-0 right-0 h-[85%] md:inset-0 md:h-[120%] w-full origin-top object-contain object-bottom md:object-cover md:object-[70%_top] lg:object-right-top will-change-transform scale-95 md:scale-100"
+              className="absolute top-[10%] left-0 right-0 h-[85%] md:hidden lg:block lg:inset-0 lg:h-[120%] w-full origin-top object-contain object-bottom lg:object-cover lg:object-right-top will-change-transform scale-95 lg:scale-100"
               loading="eager"
               fetchPriority="high"
             />
         </picture>
+        {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
+        <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-10" />
         <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
 
 
