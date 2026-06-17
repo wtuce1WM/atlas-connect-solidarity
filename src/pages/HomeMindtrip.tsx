@@ -381,21 +381,12 @@ const HomeMindtrip = () => {
           <img
              src={heroImage}
              alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-             className="absolute inset-0 h-full w-full origin-top object-cover object-right-top md:object-[70%_top] lg:object-right-top animate-[heroKenBurns_24s_ease-in-out_infinite]"
+             className="absolute inset-0 h-full w-full origin-top object-cover object-right-top md:object-[70%_top] lg:object-right-top"
              loading="eager"
              fetchPriority="high"
            />
         </picture>
         <div className="absolute inset-0 bg-black/35 md:hidden z-10" />
-        <style>{`
-          @keyframes heroKenBurns {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.04); }
-          }
-          @media (prefers-reduced-motion: reduce) {
-            section > picture img { animation: none !important; }
-          }
-        `}</style>
 
         <div className="home-hero-content relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-start px-6 pt-72 pb-6 md:justify-start md:py-24 md:pt-36 md:px-12 lg:justify-center lg:pt-24">
           <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-3xl sm:text-4xl md:text-4xl lg:text-6xl font-light tracking-tight text-white md:max-w-[400px] lg:max-w-2xl md:text-center">
