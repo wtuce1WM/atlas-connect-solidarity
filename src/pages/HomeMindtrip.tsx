@@ -416,7 +416,7 @@ const HomeMindtrip = () => {
           src={phoneMockupAsset.url}
           alt="Application One World Morocco sur iPhone"
           aria-hidden="true"
-          className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[85%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
+          className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
         />
         <style>{`
           @keyframes heroPhoneFloat {
