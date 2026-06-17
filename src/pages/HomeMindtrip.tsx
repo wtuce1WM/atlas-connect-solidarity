@@ -399,7 +399,7 @@ const HomeMindtrip = () => {
 
       <div>
         <section 
-          className="relative min-h-[92vh] w-full overflow-hidden bg-cover bg-center md:bg-none"
+          className="relative min-h-[92vh] w-full overflow-hidden bg-cover bg-center lg:bg-none"
           style={{ backgroundImage: `url(${zelligeMobileAsset.url})` }}
         >
         <picture>
@@ -408,11 +408,13 @@ const HomeMindtrip = () => {
               ref={heroBgRef}
               src={heroImage}
               alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-              className="absolute top-[10%] left-0 right-0 h-[85%] md:inset-0 md:h-[120%] w-full origin-top object-contain object-bottom md:object-cover md:object-[70%_top] lg:object-right-top will-change-transform scale-95 md:scale-100"
+              className="absolute top-[10%] left-0 right-0 h-[85%] md:hidden lg:block lg:inset-0 lg:h-[120%] w-full origin-top object-contain object-bottom lg:object-cover lg:object-right-top will-change-transform scale-95 lg:scale-100"
               loading="eager"
               fetchPriority="high"
             />
         </picture>
+        {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
+        <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-10" />
         <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
 
 
@@ -449,7 +451,7 @@ const HomeMindtrip = () => {
           <p className="mt-6 md:mt-2 max-w-2xl mx-auto font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
             Faites de chaque achat un acte de générosité. <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
           </p>
-          <div className="mt-10 w-full max-w-2xl mx-auto">
+          <div className="mt-10 w-full max-w-2xl mx-auto md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)]">
             <HeroInlineSearch
               placeholder="Rechercher un hôtel, un restaurant, une expérience…"
               onSearch={(params) => {
