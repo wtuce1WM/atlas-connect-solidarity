@@ -407,8 +407,9 @@ const HomeMindtrip = () => {
              className="absolute top-[10%] left-0 right-0 h-[90%] md:inset-0 md:h-[120%] w-full origin-top object-cover object-top md:object-[70%_top] lg:object-right-top will-change-transform"
              loading="eager"
              fetchPriority="high"
-           />
+         />
         </picture>
+        <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
 
 
         {/* Floating phone mockup — left side, desktop only */}
