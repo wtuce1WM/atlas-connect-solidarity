@@ -24,6 +24,7 @@ const heroImageMobile = heroHomeVertAsset.url;
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
+import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
@@ -262,6 +263,27 @@ const HomeMindtrip = () => {
 
   const inspirationRef = useRef<HTMLDivElement>(null);
   const inspirationTrackRef = useRef<HTMLDivElement>(null);
+  const heroBgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const el = heroBgRef.current;
+    if (!el) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        el.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
+        raf = 0;
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   useLayoutEffect(() => {
     let cachedVw = window.innerWidth;
@@ -379,14 +401,32 @@ const HomeMindtrip = () => {
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
           <img
+             ref={heroBgRef}
              src={heroImage}
              alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-             className="absolute inset-0 h-full w-full origin-top object-cover object-right-top md:object-[70%_top] lg:object-right-top"
+             className="absolute inset-0 h-[120%] w-full origin-top object-cover object-right-top md:object-[70%_top] lg:object-right-top will-change-transform"
              loading="eager"
              fetchPriority="high"
            />
         </picture>
         <div className="absolute inset-0 bg-black/35 md:hidden z-10" />
+
+        {/* Floating phone mockup — left side, desktop only */}
+        <img
+          src={phoneMockupAsset.url}
+          alt="Application One World Morocco sur iPhone"
+          aria-hidden="true"
+          className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[85%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
+        />
+        <style>{`
+          @keyframes heroPhoneFloat {
+            0%, 100% { transform: translateY(calc(-50% - 8px)); }
+            50% { transform: translateY(calc(-50% + 8px)); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            section img[alt^="Application One World"] { animation: none !important; }
+          }
+        `}</style>
 
         <div className="home-hero-content relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center justify-center text-center px-6 pt-48 pb-6 md:py-24 md:px-12">
           <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl mx-auto">
