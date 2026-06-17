@@ -115,7 +115,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
              </span>
             </div>
             <p className={`mb-6 text-sm leading-relaxed ${textSecondary}`}>
-              Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité concrètes sur le terrain. Vous consommez, nous agissons ensemble.
+              Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité concrètes. Vous consommez, nous agissons ensemble.
             </p>
             <div className="flex flex-wrap gap-4 items-center justify-center md:justify-start">
               {SOCIAL_ORDER.map((key) => {
