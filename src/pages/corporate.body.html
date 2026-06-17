@@ -3,12 +3,16 @@
 
 
 
-<section class="hero" id="hero">
-  <div class="bg"></div>
+<section class="hero" id="hero" style="background:var(--hero-img-tablet) center/cover">
+  <picture class="bg-pic">
+    <source media="(max-width: 767px)" srcset="" style="content:var(--hero-phone-mockup)" />
+    <img class="bg-img" src="" alt="" aria-hidden="true" style="content:var(--hero-img-desktop)" />
+  </picture>
+  <div class="tablet-overlay"></div>
   <div class="halo"></div>
   <div class="ember"></div>
   <img class="phone-float" src="" alt="" aria-hidden="true" style="content:var(--hero-phone-mockup)" />
-  
+
   <div class="grain"></div>
   <div class="hero-inner">
     <span class="eyebrow">Le premier écosystème numérique éthique dédié à l'économie locale</span>
