@@ -58,11 +58,12 @@
 
   .hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;
     background:#0c0805;overflow:hidden;--mx:0;--my:0;--sy:0;perspective:1200px}
-  .hero .bg{position:absolute;inset:-6%;background:var(--hero-img-mobile,var(--img-pool)) center/cover;
+  .hero .bg{position:absolute;inset:-6%;background:var(--hero-img-mobile,var(--img-pool)) center center/cover no-repeat;
     transform:scale(1.12) translate3d(calc(var(--mx)*-14px),calc(var(--my)*-14px + var(--sy)*40px),0);
     animation:kb 22s ease-out forwards;will-change:transform;transition:transform .4s cubic-bezier(.2,.7,.2,1)}
-  @media(min-width:768px){.hero .bg{background:var(--hero-img-tablet,var(--img-pool)) center/cover}}
-  @media(min-width:1024px){.hero .bg{background:var(--hero-img-desktop,var(--img-pool)) center/cover}}
+  @media(min-width:768px){.hero .bg{background:var(--hero-img-tablet,var(--img-pool)) center center/cover no-repeat}}
+  @media(min-width:1024px){.hero .bg{background:var(--hero-img-desktop,var(--img-pool)) right top/cover no-repeat}}
+
   @keyframes kb{to{transform:scale(1.05) translate3d(calc(var(--mx)*-14px),calc(var(--my)*-14px + var(--sy)*40px),0)}}
   .hero::after{content:"";position:absolute;inset:0;
     background:linear-gradient(180deg,rgba(12,8,5,.55),rgba(12,8,5,.15) 30%,rgba(12,8,5,.85) 65%,rgba(12,8,5,1));pointer-events:none}
