@@ -429,10 +429,14 @@ const HomeMindtrip = () => {
           }
         `}</style>
 
-        <div className="home-hero-content relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center justify-end pt-24 pb-28 text-center px-6 md:justify-center md:pt-24 md:pb-6 md:py-24 md:px-12">
-          <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-3xl mx-auto">
+        {/* Title container - placed just under the header on mobile, integrated on desktop */}
+        <div className="absolute top-[75px] md:relative md:top-auto z-20 w-full max-w-7xl mx-auto px-6 text-center md:px-12 md:mt-16">
+          <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-[1.625rem] sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
             L’écosystème digital éthique & solidaire dédié à l'économie marocaine
           </h1>
+        </div>
+
+        <div className="home-hero-content relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center justify-end pt-24 pb-28 text-center px-6 md:justify-center md:pt-24 md:pb-6 md:py-24 md:px-12">
           <p className="mt-6 max-w-2xl mx-auto font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
             Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité.
           </p>
