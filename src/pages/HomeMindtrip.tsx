@@ -404,7 +404,7 @@ const HomeMindtrip = () => {
              ref={heroBgRef}
              src={heroImage}
              alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-             className="absolute inset-0 h-[120%] w-full origin-top object-cover object-center md:object-[70%_top] lg:object-right-top will-change-transform"
+             className="absolute inset-0 h-[90%] md:h-[120%] w-full origin-top object-cover object-center md:object-[70%_top] lg:object-right-top will-change-transform"
              loading="eager"
              fetchPriority="high"
            />
