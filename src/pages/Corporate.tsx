@@ -69,6 +69,12 @@ const Corporate = () => {
       <div
         ref={rootRef}
         className="corp-page"
+        style={{
+          ["--hero-img-desktop" as any]: `url("${heroHomeAsset.url}")`,
+          ["--hero-img-tablet" as any]: `url("${zelligeMobileAsset.url}")`,
+          ["--hero-img-mobile" as any]: `url("${zelligeMobileAsset.url}")`,
+          ["--hero-phone-mockup" as any]: `url("${phoneMockupAsset.url}")`,
+        }}
       >
         <style>{corporateCss}</style>
         <div dangerouslySetInnerHTML={{ __html: corporateBody }} />
@@ -77,5 +83,6 @@ const Corporate = () => {
     </>
   );
 };
+
 
 export default Corporate;
