@@ -24,6 +24,7 @@ const heroImageMobile = heroHomeVertAsset.url;
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
+import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
