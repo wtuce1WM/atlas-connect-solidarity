@@ -388,14 +388,14 @@ const HomeMindtrip = () => {
         </picture>
         <div className="absolute inset-0 bg-black/35 md:hidden z-10" />
 
-        <div className="home-hero-content relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-start px-6 pt-72 pb-6 md:justify-start md:py-24 md:pt-36 md:px-12 lg:justify-center lg:pt-24">
-          <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-3xl sm:text-4xl md:text-4xl lg:text-6xl font-light tracking-tight text-white md:max-w-[400px] lg:max-w-2xl md:text-center">
+        <div className="home-hero-content relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center justify-center text-center px-6 pt-48 pb-6 md:py-24 md:px-12">
+          <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-white max-w-3xl mx-auto">
             L’écosystème digital éthique & solidaire dédié à l'économie marocaine
           </h1>
-          <p className="mt-6 max-w-xl md:max-w-[400px] lg:max-w-xl font-roboto text-base font-bold md:font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0,0.4)]">
+          <p className="mt-6 max-w-2xl mx-auto font-roboto text-base font-bold md:font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
             Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité sur le terrain.
           </p>
-          <div className="mt-10 w-full max-w-2xl">
+          <div className="mt-10 w-full max-w-2xl mx-auto">
             <HeroInlineSearch
               placeholder="Rechercher un hôtel, un restaurant, une expérience…"
               onSearch={(params) => {
@@ -405,7 +405,7 @@ const HomeMindtrip = () => {
               onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
               onMobileSearchClick={() => heroVoice.toggleRecording()}
             />
-            <div className="mt-5 flex justify-start">
+            <div className="mt-5 flex justify-center">
               <button
                 type="button"
                 onClick={() => setVideoOpen(true)}
