@@ -499,19 +499,19 @@ const HomeMindtrip = () => {
         </div>
 
         {/* Mobile-only video CTA placed absolutely below the search CTAs */}
-        <div className="md:hidden absolute bottom-[7.8rem] left-1/2 -translate-x-1/2 z-30 flex justify-center">
+        <div className="md:hidden absolute bottom-[4.5rem] left-1/2 -translate-x-1/2 z-30 flex justify-center">
           <button
             type="button"
             onClick={() => setVideoOpen(true)}
-            className="inline-flex items-center gap-3 text-[#F1F1F1] hover:opacity-80 transition-opacity home-hero-video-cta"
+            className="inline-flex items-center gap-2.5 text-[#F1F1F1] hover:bg-black/80 transition bg-black/65 backdrop-blur-md border border-white/15 rounded-full pl-2 pr-4 py-1.5 shadow-lg home-hero-video-cta"
             aria-label="Play video"
           >
-            <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#F1F1F1] text-black shrink-0">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#F1F1F1] text-black shrink-0">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M8 5v14l11-7z" />
               </svg>
             </span>
-            <span className="font-roboto text-base font-medium text-[#F1F1F1] whitespace-nowrap">Voir la vidéo</span>
+            <span className="font-roboto text-sm font-medium text-[#F1F1F1] whitespace-nowrap">Voir la vidéo</span>
           </button>
         </div>
 
