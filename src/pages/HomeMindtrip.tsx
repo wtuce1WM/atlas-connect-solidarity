@@ -446,7 +446,7 @@ const HomeMindtrip = () => {
               onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
               onMobileSearchClick={() => heroVoice.toggleRecording()}
             />
-            <div className="flex mt-5 justify-center">
+            <div className="hidden md:flex mt-5 justify-center">
               <button
                 type="button"
                 onClick={() => setVideoOpen(true)}
@@ -488,6 +488,23 @@ const HomeMindtrip = () => {
             document.body
           )}
 
+        </div>
+
+        {/* Mobile-only video CTA placed absolutely below the search CTAs */}
+        <div className="md:hidden absolute bottom-[9.5rem] left-1/2 -translate-x-1/2 z-30 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVideoOpen(true)}
+            className="inline-flex items-center gap-3 text-[#F1F1F1] hover:opacity-80 transition-opacity home-hero-video-cta"
+            aria-label="Play video"
+          >
+            <span className="flex items-center justify-center w-11 h-11 rounded-full bg-[#F1F1F1] text-black shrink-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </span>
+            <span className="font-roboto text-base font-medium text-[#F1F1F1] whitespace-nowrap">Voir la vidéo</span>
+          </button>
         </div>
 
         <button
