@@ -89,22 +89,22 @@
   .hero .grain{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
     background-image:radial-gradient(rgba(255,255,255,.6) 1px,transparent 1px),radial-gradient(rgba(255,255,255,.4) 1px,transparent 1px);
     background-size:3px 3px,7px 7px;background-position:0 0,1px 2px}
-  .hero-inner{position:relative;z-index:3;width:100%;padding:0 40px 110px;
-    max-width:1240px;margin:0 auto;
+  .hero-inner{position:relative;z-index:3;width:100%;padding:120px 40px 80px;
+    max-width:1240px;margin:0 auto;text-align:center;
     transform:translate3d(calc(var(--mx)*-8px),calc(var(--my)*-8px + var(--sy)*-30px),0);
     transition:transform .5s cubic-bezier(.2,.7,.2,1);will-change:transform}
-  .hero .eyebrow{opacity:0;animation:rise .9s .3s forwards}
+  .hero .eyebrow{opacity:0;animation:rise .9s .3s forwards;display:block}
   .hero h1{color:var(--cream);font-size:clamp(46px,7.4vw,108px);line-height:1.02;
-    margin:22px 0 26px;max-width:14ch;letter-spacing:-.5px}
+    margin:22px auto 26px;max-width:14ch;letter-spacing:-.5px}
   .hero h1 span{display:block;color:var(--gold-soft);font-style:italic;font-weight:400;
     transform:translate3d(calc(var(--mx)*6px),calc(var(--my)*6px),0);transition:transform .5s cubic-bezier(.2,.7,.2,1)}
   .hero h1 b{font-weight:600}
   .hero .lede{color:rgba(244,236,223,.82);font-size:clamp(15px,1.5vw,20px);
-    font-weight:300;letter-spacing:.06em;max-width:46ch;line-height:1.7}
-  .tagline{margin-top:30px;font-family:'Montserrat',sans-serif;font-style:italic;
-    font-size:clamp(17px,1.7vw,23px);color:var(--gold-soft);position:relative;padding-left:54px}
-  .tagline::before{content:"";position:absolute;left:0;top:50%;width:38px;height:1px;
-    background:var(--gold)}
+    font-weight:300;letter-spacing:.06em;max-width:46ch;line-height:1.7;margin-left:auto;margin-right:auto}
+  .tagline{margin:30px auto 0;font-family:'Montserrat',sans-serif;font-style:italic;
+    font-size:clamp(17px,1.7vw,23px);color:var(--gold-soft);position:relative;padding:0;display:inline-block}
+  .tagline::before,.tagline::after{content:"";display:inline-block;vertical-align:middle;width:38px;height:1px;
+    background:var(--gold);margin:0 14px;position:static}
   .hero h1,.hero .lede,.hero .tagline,.cta-row{opacity:0;animation:rise 1s forwards}
   .hero h1{animation-delay:.45s}.hero .lede{animation-delay:.66s}
   .hero .tagline{animation-delay:.82s}.cta-row{animation-delay:.98s}
