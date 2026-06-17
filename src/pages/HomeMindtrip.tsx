@@ -20,6 +20,7 @@ import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import heroHomeAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
 import heroHomeVertAsset from "@/assets/hero-home-vert.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
+import zelligeMobileAsset from "@/assets/backgr-brun-zelliges.webp.asset.json";
 const heroImage = heroHomeAsset.url;
 const heroImageMobile = phoneMockupAsset.url;
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
@@ -399,7 +400,7 @@ const HomeMindtrip = () => {
       <div>
         <section 
           className="relative min-h-[92vh] w-full overflow-hidden bg-cover bg-center md:bg-none"
-          style={{ backgroundImage: `url(${heroImage})` }}
+          style={{ backgroundImage: `url(${zelligeMobileAsset.url})` }}
         >
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
