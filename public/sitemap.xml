@@ -854,8 +854,26 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/bab-aghmat</loc>
+    <lastmod>2026-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/bab-agnaou</loc>
     <lastmod>2026-06-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/bab-akoul-atlas</loc>
+    <lastmod>2026-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/bab-akoul-palmeraie</loc>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -934,6 +952,12 @@
   <url>
     <loc>https://oneworldmorocco.com/bagatelle-marrakech</loc>
     <lastmod>2026-06-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/bakkal-farm-lodge-restaurant</loc>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1341,7 +1365,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/boutique-el-fenn</loc>
-    <lastmod>2026-06-06</lastmod>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1599,7 +1623,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/cafe-vera</loc>
-    <lastmod>2026-06-05</lastmod>
+    <lastmod>2026-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2642,6 +2666,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/domaine-du-douar</loc>
+    <lastmod>2026-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/domaine-sauvage</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -3268,6 +3298,12 @@
   <url>
     <loc>https://oneworldmorocco.com/fondation-mohammed-vi-pour-la-protection-de-l-environnement</loc>
     <lastmod>2026-06-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/fondation-montresso</loc>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4641,7 +4677,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/la-ferme-el-dar</loc>
-    <lastmod>2026-06-14</lastmod>
+    <lastmod>2026-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -6441,7 +6477,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/medina-plaster-art</loc>
-    <lastmod>2026-06-15</lastmod>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -6789,7 +6825,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/musee-dar-si-said</loc>
-    <lastmod>2026-06-05</lastmod>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -7089,7 +7125,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/nommos-beach-resort</loc>
-    <lastmod>2026-06-05</lastmod>
+    <lastmod>2026-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -7492,6 +7528,12 @@
   <url>
     <loc>https://oneworldmorocco.com/palais-ronsard</loc>
     <lastmod>2026-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/palais-royal</loc>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -8577,7 +8619,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/riad-el-fenn</loc>
-    <lastmod>2026-06-05</lastmod>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9735,7 +9777,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/the-lemonary-marrakech</loc>
-    <lastmod>2026-06-05</lastmod>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9886,6 +9928,12 @@
   <url>
     <loc>https://oneworldmorocco.com/touda-ecolodge</loc>
     <lastmod>2026-06-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/touhina-playa-beach-club</loc>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -10306,6 +10354,12 @@
   <url>
     <loc>https://oneworldmorocco.com/villanovo-marrakech</loc>
     <lastmod>2026-06-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/villas-du-domaine-du-douar</loc>
+    <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
