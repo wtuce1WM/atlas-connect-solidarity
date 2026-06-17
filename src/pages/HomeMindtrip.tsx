@@ -503,15 +503,18 @@ const HomeMindtrip = () => {
           <button
             type="button"
             onClick={() => setVideoOpen(true)}
-            className="inline-flex items-center gap-2.5 text-[#F1F1F1] hover:bg-black/80 transition bg-black/65 backdrop-blur-md border border-white/15 rounded-full pl-2 pr-4 py-1.5 shadow-lg home-hero-video-cta"
+            className="relative inline-flex items-center gap-2.5 text-[#F1F1F1] hover:bg-white/15 transition bg-white/[0.07] backdrop-blur-xl border border-white/20 rounded-full pl-2 pr-4 py-1.5 duration-300 home-hero-video-cta active:scale-95"
+            style={{
+              boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 8px 32px 0 rgba(0, 0, 0, 0.3)"
+            }}
             aria-label="Play video"
           >
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#F1F1F1] text-black shrink-0">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shrink-0">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="ml-0.5">
                 <path d="M8 5v14l11-7z" />
               </svg>
             </span>
-            <span className="font-roboto text-sm font-medium text-[#F1F1F1] whitespace-nowrap">Voir la vidéo</span>
+            <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">Voir la vidéo</span>
           </button>
         </div>
 
