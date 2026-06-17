@@ -400,7 +400,7 @@ const HomeMindtrip = () => {
       <div>
         <section 
           className="relative min-h-[92vh] w-full overflow-hidden bg-cover bg-center md:bg-none"
-          style={{ backgroundImage: `url(${heroImage})` }}
+          style={{ backgroundImage: `url(${zelligeMobileAsset.url})` }}
         >
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
