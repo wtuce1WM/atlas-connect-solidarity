@@ -17,7 +17,7 @@ import { Search, Mic } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
-import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
+import heroHomeAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
 import heroHomeVertAsset from "@/assets/hero-home-vert.webp.asset.json";
 const heroImage = heroHomeAsset.url;
 const heroImageMobile = heroHomeVertAsset.url;
