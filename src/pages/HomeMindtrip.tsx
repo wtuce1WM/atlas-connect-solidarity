@@ -413,8 +413,8 @@ const HomeMindtrip = () => {
               fetchPriority="high"
             />
         </picture>
-        {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
-        <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-10" />
+         {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
+         <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
         <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
 
 
