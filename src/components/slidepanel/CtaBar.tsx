@@ -140,7 +140,7 @@ export function CtaBar({
           className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
-          <span className="truncate">WhatsApp</span>
+          <span className="whitespace-nowrap px-1">WhatsApp</span>
         </a>
       );
     } else {
@@ -150,7 +150,7 @@ export function CtaBar({
             className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
             <CalendarCheck className="h-4 w-4 hidden md:block" />
-            <span className="truncate">{bookingCtaLabel}</span>
+            <span className="whitespace-nowrap px-1">{bookingCtaLabel}</span>
             <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
           </a>
         ) : (
@@ -159,7 +159,7 @@ export function CtaBar({
             className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <CalendarCheck className="h-4 w-4 hidden md:block" />
-            <span className="truncate">{bookingCtaLabel}</span>
+            <span className="whitespace-nowrap px-1">{bookingCtaLabel}</span>
           </button>
         )
       );
@@ -173,7 +173,7 @@ export function CtaBar({
           className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
-          <span className="truncate">WhatsApp</span>
+          <span className="whitespace-nowrap px-1">WhatsApp</span>
         </a>
       );
     } else {
@@ -183,7 +183,7 @@ export function CtaBar({
             className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
             <ShoppingBag className="h-4 w-4 hidden md:block" />
-            <span className="truncate">{shopCtaLabel}</span>
+            <span className="whitespace-nowrap px-1">{shopCtaLabel}</span>
             <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
           </a>
         ) : (
@@ -192,7 +192,7 @@ export function CtaBar({
             className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <ShoppingBag className="h-4 w-4 hidden md:block" />
-            <span className="truncate">{shopCtaLabel}</span>
+            <span className="whitespace-nowrap px-1">{shopCtaLabel}</span>
           </button>
         )
       );
@@ -208,7 +208,7 @@ export function CtaBar({
           className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
-          <span className="truncate">WhatsApp</span>
+          <span className="whitespace-nowrap px-1">WhatsApp</span>
         </a>
       );
     } else {
@@ -218,14 +218,14 @@ export function CtaBar({
             className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
             <ExternalLink className="h-4 w-4 hidden md:block" />
-            <span className="truncate">{label}</span>
+            <span className="whitespace-nowrap px-1">{label}</span>
           </a>
         ) : (
           <button key="url4"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(url4Cta.fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }}
             className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
-            <span className="truncate">{label}</span>
+            <span className="whitespace-nowrap px-1">{label}</span>
           </button>
         )
       );
@@ -241,7 +241,7 @@ export function CtaBar({
           className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
-          <span className="truncate">WhatsApp</span>
+          <span className="whitespace-nowrap px-1">WhatsApp</span>
         </a>
       );
     } else {
@@ -251,14 +251,14 @@ export function CtaBar({
             className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
             <ExternalLink className="h-4 w-4 hidden md:block" />
-            <span className="truncate">{label}</span>
+            <span className="whitespace-nowrap px-1">{label}</span>
           </a>
         ) : (
           <button key="url5"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(url5Cta.fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }}
             className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
-            <span className="truncate">{label}</span>
+            <span className="whitespace-nowrap px-1">{label}</span>
           </button>
         )
       );
@@ -273,7 +273,7 @@ export function CtaBar({
         style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}
       >
         <MapPin className="h-4 w-4 hidden md:block" />
-        <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
+        <span className="whitespace-nowrap px-1">{language === "en" ? "Directions" : "Itinéraire"}</span>
       </button>
     );
   }
@@ -289,7 +289,7 @@ export function CtaBar({
       )}
       {ctaItems.length > 0 && (
         ctaItems.length === 5 ? (
-          <div className="w-full px-2 md:w-3/4 md:px-0 pointer-events-auto flex flex-col gap-2">
+          <div className="w-full px-2 md:w-[92%] md:px-0 pointer-events-auto flex flex-col gap-2">
             <div className="flex justify-center gap-1.5 md:gap-2">
               {ctaItems.slice(0, 3).map((item, i) => (
                 <div key={i} className="flex-1">{item}</div>
@@ -302,9 +302,9 @@ export function CtaBar({
             </div>
           </div>
         ) : (
-          <div className={`${ctaItems.length === 1 ? 'w-1/2' : ctaItems.length === 2 || ctaItems.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-3/4 md:px-0 pointer-events-auto ${ctaItems.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
+          <div className={`${ctaItems.length === 1 ? 'w-1/2' : ctaItems.length === 2 || ctaItems.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-[92%] md:px-0 pointer-events-auto ${ctaItems.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
             {ctaItems.map((item, i) => (
-              <div key={i} className={ctaItems.length === 4 ? '' : 'flex-1 md:flex-none md:w-1/3'}>{item}</div>
+              <div key={i} className={ctaItems.length === 4 ? '' : 'flex-1'}>{item}</div>
             ))}
           </div>
         )
