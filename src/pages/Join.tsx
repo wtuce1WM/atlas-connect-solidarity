@@ -259,17 +259,19 @@ const Join = () => {
           </h1>
           <p className="hero-sub text-white max-w-2xl text-center mb-4 text-base sm:text-lg opacity-95">Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.</p>
           <p className="hero-sub text-white max-w-2xl text-center mb-8 text-base sm:text-lg opacity-95">Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.</p>
-          <Link to="/devenir-affilie" className="hero-cta">REJOINDRE →</Link>
+          
           <div className="hero-checks">
             <span><Check color="#00a896" />Consommez local</span>
             <span><Check color="#00a896" />Voyagez autrement</span>
             <span><Check color="#00a896" />Agissez pour tous</span>
           </div>
-          <div className="hero-stats">
+          <div className="hero-stats mb-8">
             <div>🌍 Tout le Maroc</div>
             <div>🤝 Partenaires locaux</div>
             <div>✓ 0% de commission</div>
           </div>
+
+          <Link to="/devenir-affilie" className="hero-cta mt-4">REJOINDRE →</Link>
         </div>
       </section>
 
