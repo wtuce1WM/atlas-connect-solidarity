@@ -238,16 +238,16 @@
     color:var(--gold);display:block;margin-bottom:8px}
   .g-card .cap h3{font-size:30px;color:var(--cream);font-style:italic}
 
-  .cities{background:#ECD6B8;text-align:center}
+  .cities{background:#ECD6B8;color:#000000;text-align:center}
   .cities .eyebrow{display:block;margin-bottom:22px}
-  .cities h2{font-size:clamp(34px,4.6vw,60px);line-height:1.1;margin-bottom:18px}
+  .cities h2{color:#000000;font-size:clamp(34px,4.6vw,60px);line-height:1.1;margin-bottom:18px}
   .cities h2 em{font-style:italic;color:var(--red)}
-  .cities .sub{font-size:16px;color:rgba(33,23,16,.65);font-weight:300;
+  .cities .sub{font-size:16px;color:rgba(0,0,0,.75);font-weight:300;
     letter-spacing:.04em;margin-bottom:64px}
   .city-row{display:flex;justify-content:center;align-items:center;flex-wrap:wrap}
   .city{padding:0 70px}
   .city .nm{font-family:'Montserrat',sans-serif;font-size:clamp(40px,5vw,76px);
-    color:var(--espresso);line-height:1}
+    color:#000000;line-height:1}
   .city .lb{font-size:11px;letter-spacing:.32em;text-transform:uppercase;
     color:var(--gold);margin-top:14px}
   .divider-v{width:1px;height:110px;background:var(--line)}
