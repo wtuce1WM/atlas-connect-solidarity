@@ -164,9 +164,12 @@ const PublicBusinessProfile = () => {
       style={{ backgroundColor: "#ECD6B8" }}
     >
       <style>{`
-        @keyframes single-shimmer {
+        @keyframes shimmer-loop {
           0% {
             transform: translateX(-150%) skewX(-20deg);
+          }
+          37.5% {
+            transform: translateX(200%) skewX(-20deg);
           }
           100% {
             transform: translateX(200%) skewX(-20deg);
@@ -193,7 +196,7 @@ const PublicBusinessProfile = () => {
             transparent
           );
           transform: translateX(-150%) skewX(-20deg);
-          animation: single-shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation: shimmer-loop 4s infinite ease-in-out;
           animation-delay: 0.3s;
           pointer-events: none;
           z-index: 10;
@@ -219,7 +222,7 @@ const PublicBusinessProfile = () => {
             transparent
           );
           transform: translateX(-150%) skewX(-20deg);
-          animation: single-shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation: shimmer-loop 4s infinite ease-in-out;
           animation-delay: 0.9s;
           pointer-events: none;
           z-index: 10;
