@@ -414,33 +414,6 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   border-radius: 9999px;
 }
 
-/* Sexy custom scrollbar — dark theme, terracotta accent */
-*::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-*::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, hsl(var(--primary) / 0.55), hsl(var(--primary) / 0.85));
-  border-radius: 9999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  transition: background 0.2s ease;
-}
-*::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, hsl(var(--primary) / 0.8), hsl(var(--primary)));
-  background-clip: padding-box;
-  border: 2px solid transparent;
-}
-*::-webkit-scrollbar-corner {
-  background: transparent;
-}
-* {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--primary) / 0.7) transparent;
-}
 
 /* Gold scrollbar variant */
 .scrollbar-gold::-webkit-scrollbar-thumb {
