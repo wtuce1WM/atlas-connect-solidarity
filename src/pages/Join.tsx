@@ -2,16 +2,15 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
-import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
+import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import hiwStep2Mockup from "@/assets/hiw-step2-app-mockup.webp";
 import hiwStep3Tourist from "@/assets/hiw-step3-tourist.png";
 
-const heroImageDesktop = originalHeroAsset.url;
-const heroImageTablet = zelligeBrunAsset.url;
-const heroImageMobile = zelligeBrunAsset.url;
+const heroImageDesktop = heroHomeAsset.url;
+const heroImageTablet = heroHomeAsset.url;
+const heroImageMobile = heroHomeAsset.url;
 
 
 const CSS = `
