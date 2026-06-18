@@ -31,6 +31,7 @@ const StaffCRM = lazy(() => import("./pages/StaffCRM"));
 const StaffFront = lazy(() => import("./pages/StaffFront"));
 const AffiliatesLogin = lazy(() => import("./pages/AffiliatesLogin"));
 const AffiliatesResetPassword = lazy(() => import("./pages/AffiliatesResetPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AffiliatesDashboard = lazy(() => import("./pages/AffiliatesDashboard"));
 const AffiliatePresence = lazy(() => import("./pages/AffiliatePresence"));
 const BecomeAffiliate = lazy(() => import("./pages/BecomeAffiliate"));
@@ -172,6 +173,7 @@ const AppContent = () => {
               <Route path="/staff/front" element={<StaffRouteGuard>{renderLazyRoute(<StaffFront />)}</StaffRouteGuard>} />
               <Route path="/affiliates" element={renderLazyRoute(<AffiliatesLogin />)} />
               <Route path="/affiliates/reset-password" element={renderLazyRoute(<AffiliatesResetPassword />)} />
+              <Route path="/reset-password" element={renderLazyRoute(<ResetPassword />)} />
               <Route path="/affiliates/dashboard" element={renderLazyRoute(<AffiliatesDashboard />)} />
               <Route path="/affiliates/presence" element={renderLazyRoute(<AffiliatePresence />)} />
               <Route path="/devenir-affilie" element={renderLazyRoute(<BecomeAffiliate />)} />
