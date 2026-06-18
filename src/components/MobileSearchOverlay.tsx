@@ -69,6 +69,8 @@ const MobileSearchOverlay = ({
   const [query, setQuery] = useState("");
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dictationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleSubmitRef = useRef<() => void>(() => {});
   const navigate = useNavigate();
   const location = useLocation();
   const { language } = useLanguage();
