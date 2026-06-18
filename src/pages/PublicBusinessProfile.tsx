@@ -167,7 +167,7 @@ const PublicBusinessProfile = () => {
         <div className="absolute top-4 right-4 z-10">
           <ShareButton
             variant="dark"
-            title={`${business.name} — One World Morocco`}
+            title={business.name}
             shareUrl={`https://oneworldmorocco.com/b/${business.slug}`}
             previewImage={hamsaBlueAsset.url}
             avatarImage={avatar}
