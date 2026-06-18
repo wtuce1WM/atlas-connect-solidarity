@@ -243,7 +243,8 @@ const PublicBusinessProfile = () => {
                 {isLong && (
                   <button
                     onClick={() => setDescExpanded((v) => !v)}
-                    className="mt-2 text-sm font-semibold text-primary hover:underline transition-colors"
+                    className="mt-2 text-sm font-semibold hover:opacity-80 transition-opacity"
+                    style={{ color: "#ECD6B8" }}
                   >
                     {descExpanded ? "Voir −" : "Voir +"}
                   </button>
