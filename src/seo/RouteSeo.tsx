@@ -21,6 +21,7 @@ export const DYNAMIC_PATTERNS = new Set([
   "/destination/:destinationName",
   "/y/:slug",
   "/u/:pseudo",
+  "/b/:slug",
   "/:vanitySlug",
 ]);
 

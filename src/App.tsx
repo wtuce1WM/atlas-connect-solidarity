@@ -87,6 +87,7 @@ const VanityResolver = lazy(() => import("./pages/VanityResolver"));
 const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 const YouTubeChannelResolver = lazy(() => import("./pages/YouTubeChannelResolver"));
 const PublicClubProfile = lazy(() => import("./pages/PublicClubProfile"));
+const PublicBusinessProfile = lazy(() => import("./pages/PublicBusinessProfile"));
 const Card = lazy(() => import("./pages/Card"));
 
 const queryClient = new QueryClient();
@@ -224,6 +225,7 @@ const AppContent = () => {
               <Route path="/card" element={renderLazyRoute(<Card />)} />
               <Route path="/y/:slug" element={renderLazyRoute(<YouTubeChannelResolver />)} />
               <Route path="/u/:pseudo" element={renderLazyRoute(<PublicClubProfile />)} />
+              <Route path="/b/:slug" element={renderLazyRoute(<PublicBusinessProfile />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="/:vanitySlug" element={renderLazyRoute(<VanityResolver />)} />
               <Route path="*" element={renderLazyRoute(<NotFound />)} />
