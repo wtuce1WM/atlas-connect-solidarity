@@ -34,10 +34,22 @@ const CSS = `
   .card-page .url-label::after{content:"";position:absolute;right:30%;bottom:-46px;width:90px;height:48px;border-right:2px dashed var(--terracotta);border-bottom:2px dashed var(--terracotta);border-bottom-right-radius:30px}
   .card-page .phone{width:320px;max-width:100%;background:#111;border-radius:48px;padding:14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.4)}
   .card-page .phone-inner{background:#fff;border-radius:36px;overflow:hidden;position:relative;padding-bottom:18px}
+  @keyframes urlShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
   .card-page .phone-bar{display:flex;align-items:center;gap:6px;background:#f1f1f1;padding:10px 16px;font-size:12px;color:#555}
   .card-page .phone-bar .lock{font-size:10px}
   .card-page .phone-bar b{color:#111;font-weight:600}
-  .card-page .phone-bar .slug{color:var(--terracotta);font-weight:700}
+  .card-page .phone-bar .slug{
+    font-weight:700;
+    background: linear-gradient(90deg, var(--terracotta) 0%, #ffbe7a 25%, var(--terracotta) 50%, #ffbe7a 75%, var(--terracotta) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: urlShimmer 3s infinite linear;
+    display: inline-block;
+  }
   .card-page .phone-body{padding:22px 20px 0;text-align:center}
   .card-page .logo-circle{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#C04F17,#8F7950);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Montserrat',sans-serif;font-weight:700;font-size:32px;box-shadow:0 0 0 4px rgba(192,79,23,.15)}
   .card-page .biz-name{font-family:'Montserrat',sans-serif;font-weight:700;font-size:22px;margin-bottom:4px}
