@@ -265,7 +265,7 @@ const Join = () => {
             <span><Check color="#00a896" />Voyagez autrement</span>
             <span><Check color="#00a896" />Agissez pour tous</span>
           </div>
-          <div className="hero-stats mb-8">
+          <div className="hero-stats mb-8 hidden sm:inline-flex">
             <div>🌍 Tout le Maroc</div>
             <div>🤝 Partenaires locaux</div>
             <div>✓ 0% de commission</div>
