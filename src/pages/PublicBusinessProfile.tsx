@@ -109,7 +109,7 @@ const PublicBusinessProfile = () => {
       const query = supabase
         .from("businesses")
         .select(
-          "id, slug, name, city, country, description, hook_fr, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, google_maps_url, google_review_url, google_place_id, tripadvisor_url, tripadvisor_review_url, is_active",
+          "id, slug, name, city, country, description, hook_fr, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, google_maps_url, google_review_url, google_place_id, tripadvisor_url, tripadvisor_review_url, computed_rating, total_review_count, is_active",
         )
         .eq("is_active", true);
 
