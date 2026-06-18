@@ -73,7 +73,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
         </div>
         <div className="w-9 h-9" aria-hidden />
       </div>
-      <div className="relative z-10 flex-1 overflow-y-auto p-4">
+      <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain p-4">
         <div className="flex flex-col items-center gap-4">
           {badges.map((b) => (
             <button
