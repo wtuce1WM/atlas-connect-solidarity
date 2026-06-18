@@ -70,6 +70,9 @@
   .hero .tablet-overlay{display:none;position:absolute;inset:0;z-index:1;pointer-events:none;
     background:linear-gradient(180deg,rgba(0,0,0,.5),rgba(0,0,0,.3) 50%,rgba(0,0,0,.5))}
   @media(min-width:768px) and (max-width:1023px){.hero .tablet-overlay{display:block}}
+  /* Dark bottom gradient transitioning to #3B3B3B for all devices */
+  .hero .bottom-gradient-overlay{position:absolute;bottom:0;left:0;right:0;height:30%;z-index:2;pointer-events:none;
+    background:linear-gradient(180deg,transparent,rgba(59,59,59,0.5) 40%,#3B3B3B)}
   /* Mobile dark gradient at top for readability */
   .hero::before{content:"";position:absolute;top:0;left:0;right:0;height:45%;z-index:1;pointer-events:none;
     background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(0,0,0,.45) 50%,transparent)}
