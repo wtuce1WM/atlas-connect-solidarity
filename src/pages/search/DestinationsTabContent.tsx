@@ -86,14 +86,14 @@ const DestinationsTabContent = ({
   return (
     <div className="flex">
       <section
-        className={`pb-0 lg:pb-0 bg-white dark:bg-zinc-900 transition-all duration-300 ${
+        className={`pb-0 lg:pb-0 bg-transparent transition-all duration-300 ${
           hasRightPanel ? "w-1/2" : hasKnownLocation && !hideDestMap ? "w-1/2" : "w-full"
         }`}
       >
         <div className="pt-4 mx-auto px-4 max-w-full">
           {/* Sticky bar for Destinations — Carte badge only (mobile/tablet) */}
           <div
-            className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-1.5 lg:hidden"
+            className="sticky z-[19] bg-transparent flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-1.5 lg:hidden"
             style={{ top: "53px" }}
           >
             {isSubDesktop && (
