@@ -53,12 +53,15 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         { to: "/card", label: "Votre carte de visite numérique" },
       ];
     } else {
-      return [
+      const baseLinks = [
         { to: "/corporate", label: "Le concept" },
         { to: "/join", label: "Rejoindre" },
         { to: "/club", label: "Le club OWM" },
-        { to: "/install", label: "Application" },
       ];
+      if (location.pathname !== "/install") {
+        baseLinks.push({ to: "/install", label: "Application" });
+      }
+      return baseLinks;
     }
   };
 
@@ -93,13 +96,16 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         { to: "/card", label: "Votre carte de visite numérique" },
       ];
     } else {
-      return [
+      const baseLinks = [
         ...base,
         { to: "/corporate", label: "Le concept" },
         { to: "/join", label: "Rejoindre" },
         { to: "/club", label: "Le club OWM" },
-        { to: "/install", label: "Application" },
       ];
+      if (location.pathname !== "/install") {
+        baseLinks.push({ to: "/install", label: "Application" });
+      }
+      return baseLinks;
     }
   };
 
