@@ -244,7 +244,6 @@ const Join = () => {
         `}</style>
 
         <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col items-center justify-center text-center">
-          <div className="hero-badge">★ Partenaires locaux</div>
           <h1 className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-tight max-w-4xl" style={{ fontSize: "clamp(32px, 4.5vw, 56px)", fontFamily: "Montserrat, sans-serif" }}>
             Rejoignez le premier écosystème numérique <span className="text-[#ffc008]">éthique & solidaire</span> au Maroc.
           </h1>
