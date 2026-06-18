@@ -408,20 +408,61 @@ const Club = () => {
       )}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
 
-      {/* Hero — image de fond avec zoom lent (kenburns) + carte d'authentification superposée */}
+      {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
       {!user && (
-        <section className="relative w-full overflow-hidden min-h-[640px] sm:min-h-[720px] md:min-h-[760px] flex items-center">
-          <div
-            className={`absolute inset-0 bg-cover ${isMobile ? "bg-bottom" : "bg-center"}`}
-            style={{
-              backgroundImage: `url(${isMobile ? heroHomeVertAsset.url : heroInstallAsset.url})`,
-              transformOrigin: isMobile ? "center bottom" : "center center",
-            }}
+        <section className="relative min-h-[92vh] w-full overflow-hidden">
+          <picture>
+            <source media="(max-width: 767px)" srcSet={heroImageMobile} />
+            <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
+            <img
+              src={heroImageDesktop}
+              alt="Maroc — riad, piscine et tagine, composition réalisme magique"
+              className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
+              loading="eager"
+              fetchPriority="high"
+            />
+          </picture>
+          {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
+          <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
+          <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
+
+          {/* Floating phone mockup — left side, desktop only */}
+          <img
+            src={phoneMockupAsset.url}
+            alt="Application One World Morocco sur iPhone"
+            aria-hidden="true"
+            className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40 pointer-events-none" />
+          {/* Floating iPhone mockup — right side, tablet only (768px to 1023px) */}
+          <img
+            src={iphoneTabletMockupAsset.url}
+            alt="Application One World Morocco — Koutoubia"
+            aria-hidden="true"
+            className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
+          />
+          {/* Centered iPhone mockup — mobile only */}
+          <img
+            src={phoneMockupAsset.url}
+            alt="Application One World Morocco sur iPhone"
+            aria-hidden="true"
+            className="block md:hidden pointer-events-none select-none absolute top-[10%] left-0 right-0 h-[85%] w-full object-contain object-bottom origin-top scale-[0.95] z-10 opacity-50 animate-[mobilePhoneFloat_5s_ease-in-out_infinite]"
+          />
+          <style>{`
+            @keyframes heroPhoneFloat {
+              0%, 100% { transform: translateY(calc(-50% - 8px)); }
+              50% { transform: translateY(calc(-50% + 8px)); }
+            }
+            @keyframes mobilePhoneFloat {
+              0%, 100% { transform: scale(0.95) translateY(0); }
+              50% { transform: scale(0.95) translateY(-12px); }
+            }
+            @media (prefers-reduced-motion: reduce) {
+              section img[alt^="Application One World"] { animation: none !important; }
+            }
+          `}</style>
 
           {/* Auth card overlaid */}
-          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-8">
+          <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-8 min-h-[92vh]">
 
 
             <div className="w-full max-w-md bg-white/15 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
