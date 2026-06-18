@@ -819,3 +819,15 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   pointer-events: none;
   z-index: 10;
 }
+
+/* Cascading peek effect for left CTAs on slidepanel open */
+.cta-peek.is-peek > span:first-child {
+  max-width: 300px !important;
+  opacity: 1 !important;
+}
+.cta-peek.is-peek {
+  padding-left: 1rem !important;
+}
+.cta-peek.is-peek > svg {
+  margin-left: 0.5rem !important;
+}

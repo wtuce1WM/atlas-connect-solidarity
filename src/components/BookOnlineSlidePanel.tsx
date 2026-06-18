@@ -710,6 +710,25 @@ const BookOnlineSlidePanelInner = ({
     if (cardsHidden) setMatterportPinnedInHiddenMode(true);
   }, [cardsHidden, businessId]);
 
+  // Cascading peek effect on the left CTAs when the panel opens for a business
+  const [peekCta, setPeekCta] = useState<boolean[]>([]);
+  useEffect(() => {
+    if (!businessId) return;
+    const count = 6;
+    const start = 450;
+    const open = 850;
+    const stagger = 180;
+    const timers: number[] = [];
+    setPeekCta(Array(count).fill(false));
+    for (let i = 0; i < count; i++) {
+      timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = true; return n; }), start + i * stagger));
+      timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = false; return n; }), start + i * stagger + open));
+    }
+    return () => timers.forEach(clearTimeout);
+  }, [businessId]);
+
+
+
   // Track recently viewed
   useEffect(() => {
     if (business) {
@@ -1258,7 +1277,7 @@ const BookOnlineSlidePanelInner = ({
       {!cardsHidden && (
         <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
           {languages.length > 1 && (
-          <div className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+          <div className={`group cta-peek ${peekCta[0] ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
             <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Nous parlons</span>
             <span
               className="relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 group-hover:ml-2 transition-[margin] duration-300 cursor-help [&:hover>span]:opacity-100"
@@ -1307,7 +1326,7 @@ const BookOnlineSlidePanelInner = ({
             </div>
           ) : null}
           {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
-            <div onClick={() => setShowPoiMapOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+            <div onClick={() => setShowPoiMapOverlay(true)} className={`group cta-peek ${peekCta[1] ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Localisation</span>
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
@@ -1322,19 +1341,20 @@ const BookOnlineSlidePanelInner = ({
               } else {
                 setShowExternalVideosOverlay(true);
               }
-            }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+            }} className={`group cta-peek ${peekCta[2] ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">YouTube</span>
               <YouTubeIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300 text-red-600" />
             </div>
           )}
           {hasDestCarousel && (
-            <div onClick={() => { setDescGridSection("dest"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+            <div onClick={() => { setDescGridSection("dest"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }} className={`group cta-peek ${peekCta[3] ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Destinations</span>
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
           {hasKpCarousel && (
-            <div onClick={() => { setDescGridSection("kp"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+            <div onClick={() => { setDescGridSection("kp"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }} className={`group cta-peek ${peekCta[4] ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{kpGroupTitle || (language === "en" ? "Other establishments" : "Autres établissements")}</span>
               <Landmark className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
