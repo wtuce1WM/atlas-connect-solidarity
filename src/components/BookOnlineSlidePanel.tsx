@@ -710,6 +710,25 @@ const BookOnlineSlidePanelInner = ({
     if (cardsHidden) setMatterportPinnedInHiddenMode(true);
   }, [cardsHidden, businessId]);
 
+  // Cascading peek effect on the left CTAs when the panel opens for a business
+  const [peekCta, setPeekCta] = useState<boolean[]>([]);
+  useEffect(() => {
+    if (!businessId) return;
+    const count = 6;
+    const start = 450;
+    const open = 850;
+    const stagger = 180;
+    const timers: number[] = [];
+    setPeekCta(Array(count).fill(false));
+    for (let i = 0; i < count; i++) {
+      timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = true; return n; }), start + i * stagger));
+      timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = false; return n; }), start + i * stagger + open));
+    }
+    return () => timers.forEach(clearTimeout);
+  }, [businessId]);
+
+
+
   // Track recently viewed
   useEffect(() => {
     if (business) {
