@@ -326,6 +326,15 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                         https://oneworldmorocco.com/{slug}
                       </a>
                     ))}
+                    <a
+                      href={`/b/${business.slug || business.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Profil Linktree (/b/)"
+                      className="text-[11px] text-orange-500 hover:text-orange-600 hover:underline inline-flex items-center gap-1 leading-tight mt-0.5"
+                    >
+                      /b/{business.slug || business.id} <ExternalLink className="h-2.5 w-2.5" />
+                    </a>
                   </div>
                 </TableCell>
                 <TableCell>
