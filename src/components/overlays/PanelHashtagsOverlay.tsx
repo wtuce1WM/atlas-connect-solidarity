@@ -50,18 +50,18 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
 
   return (
     <div
-      className="absolute inset-0 h-full min-h-0 bg-background bg-no-repeat bg-cover bg-center animate-slide-up-from-bottom overflow-y-scroll overscroll-contain touch-pan-y"
+      className="absolute inset-0 h-full min-h-0 bg-background bg-no-repeat bg-cover bg-center animate-slide-up-from-bottom"
       style={{ backgroundImage: "url('/hero_magical_realism_v3.jpg')" }}
     >
       <button
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="sticky top-3 ml-3 z-20 w-9 h-9 rounded-full bg-black hover:bg-black/90 flex items-center justify-center text-white"
+        className="absolute top-3 left-3 z-25 w-9 h-9 rounded-full bg-black hover:bg-black/90 flex items-center justify-center text-white"
       >
         <X className="h-4 w-4" />
       </button>
-      <div className="relative z-10 px-4 pt-3 pb-4 -mt-9">
+      <div className="absolute inset-0 overflow-y-scroll overscroll-contain touch-pan-y px-4 pt-14 pb-4">
         <div className="flex flex-col items-center gap-4 pt-3">
           {badges.map((b) => (
             <button
