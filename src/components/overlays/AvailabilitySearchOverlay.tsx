@@ -209,10 +209,11 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
             onSearch(checkIn, checkOut, adults);
           }}
           disabled={isSearching}
-          className="mt-4 w-full px-5 py-3 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+          className="mt-4 w-full px-4 rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 normal-case tracking-normal whitespace-nowrap shrink-0"
+          style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}
         >
-          {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-          {isEn ? "Check availability" : "Vérifier la disponibilité"}
+          {isSearching ? <Loader2 className="h-4 w-4 animate-spin text-black" /> : <Search className="h-4 w-4 text-black" />}
+          <span>{isEn ? "Check availability" : "Vérifier la disponibilité"}</span>
         </button>
       </div>
     </div>
