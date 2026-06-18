@@ -14,6 +14,7 @@ interface MediaBackgroundProps {
   videoRef: React.RefObject<HTMLVideoElement>;
   iframeRef: React.RefObject<HTMLIFrameElement>;
   onLoadedMetadata: (e: React.SyntheticEvent<HTMLVideoElement>) => void;
+  anyOverlayOpen?: boolean;
 }
 
 const MediaBackground = React.memo(function MediaBackground({
@@ -27,6 +28,7 @@ const MediaBackground = React.memo(function MediaBackground({
   videoRef,
   iframeRef,
   onLoadedMetadata,
+  anyOverlayOpen = false,
 }: MediaBackgroundProps) {
   const { soundOn } = useVideoSoundPreference();
 
@@ -35,6 +37,10 @@ const MediaBackground = React.memo(function MediaBackground({
   useEffect(() => {
     const v = videoRef.current;
     if (!v || effectiveMedia?.kind !== "video" || videoInfo?.type !== "file") return;
+    if (anyOverlayOpen) {
+      v.pause();
+      return;
+    }
     v.muted = !soundOn;
     const tryPlay = v.play();
     if (tryPlay && typeof tryPlay.catch === "function") {
@@ -43,7 +49,7 @@ const MediaBackground = React.memo(function MediaBackground({
         v.play().catch(() => {});
       });
     }
-  }, [soundOn, effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, videoRef]);
+  }, [soundOn, effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, videoRef, anyOverlayOpen]);
 
   if (!effectiveMedia) {
     return (
@@ -63,7 +69,7 @@ const MediaBackground = React.memo(function MediaBackground({
           className="w-full h-full bg-black object-cover md:object-contain"
           loop
           playsInline
-          autoPlay
+          autoPlay={!anyOverlayOpen}
           muted={!soundOn}
           onLoadedMetadata={onLoadedMetadata}
         />
@@ -71,6 +77,10 @@ const MediaBackground = React.memo(function MediaBackground({
     }
 
     const isYouTubeVertical = videoInfo?.type === "youtube" && isVerticalVideo;
+    const finalEmbedUrl = anyOverlayOpen
+      ? videoInfo?.embedUrl?.replace("autoplay=1", "autoplay=0")?.replace("autoplay=true", "autoplay=false")
+      : videoInfo?.embedUrl;
+
     return (
       <div
         className={`w-full h-full overflow-hidden bg-black ${videoInfo?.type === "youtube" ? "relative" : ""}`}
@@ -82,7 +92,7 @@ const MediaBackground = React.memo(function MediaBackground({
         <iframe
           ref={iframeRef}
           key={effectiveMedia.url}
-          src={videoInfo?.embedUrl}
+          src={finalEmbedUrl}
           className={
             videoInfo?.type === "youtube"
               ? isVerticalVideo
@@ -90,7 +100,7 @@ const MediaBackground = React.memo(function MediaBackground({
                 : `w-full h-full pointer-events-none`
               : `w-full h-full ${cardsHidden ? "" : "pointer-events-none"}`
           }
-          allow="autoplay; encrypted-media"
+          allow={anyOverlayOpen ? "encrypted-media" : "autoplay; encrypted-media"}
           allowFullScreen
           frameBorder="0"
           style={

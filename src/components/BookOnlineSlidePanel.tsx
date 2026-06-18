@@ -841,13 +841,13 @@ const BookOnlineSlidePanelInner = ({
     };
   }, [businessId, currentMediaIndex]);
 
-  // Unified flag: true when any overlay is open on top of the slidepanel.
+  // Unified flag: true when any overlay or welcome popup is open on top of the slidepanel.
   // Used both to mute background media and to disable swipe/wheel navigation.
   const anyOverlayOpen =
     showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
-    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted;
+    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted || showWelcomePopup;
 
   // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
   // so they can disable business navigation while an overlay is open above the panel.
@@ -911,7 +911,7 @@ const BookOnlineSlidePanelInner = ({
   }, [
     forceMuted, showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId,
     docOverlay, showBookingOverlay, showYoutubeOverlay, showExternalVideosOverlay, showMosaic, externalOverlayActive,
-    showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay,
+    showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay, showWelcomePopup,
   ]);
 
 
@@ -1245,6 +1245,7 @@ const BookOnlineSlidePanelInner = ({
           videoRef={videoRef as React.RefObject<HTMLVideoElement>}
           iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
           onLoadedMetadata={handleVideoLoadedMetadata}
+          anyOverlayOpen={anyOverlayOpen}
         />
         {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
