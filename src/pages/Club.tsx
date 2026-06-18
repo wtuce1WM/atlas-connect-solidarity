@@ -408,7 +408,20 @@ const Club = () => {
 
   return (
     <div className={`min-h-screen ${user ? "bg-[#BED1FF]" : "bg-background"}`}>
-      {user && <Header compact rightContent={<div />} />}
+      {user && (
+        <Header 
+          compact 
+          rightContent={
+            <div className="flex justify-end items-center pr-2 h-10">
+              <ShareButton 
+                shareUrl={nickname ? `${window.location.origin}/u/${nickname}` : `${window.location.origin}/u/`}
+                title="Mon profil One World Morocco"
+                variant="dark"
+              />
+            </div>
+          } 
+        />
+      )}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
 
       {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
