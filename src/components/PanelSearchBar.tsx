@@ -75,7 +75,24 @@ const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<s
 
 const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
+  const navigate = useNavigate();
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
+
+  const handleProfileClick = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      window.dispatchEvent(new Event("open-generic-club-popup"));
+      return;
+    }
+    const { data } = await supabase
+      .from("club_members")
+      .select("nickname")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+    const nickname = (data as any)?.nickname;
+    if (nickname) navigate(`/u/${nickname}`);
+    else navigate("/club");
+  }, [navigate]);
 
   // Notify parent when search overlay opens/closes
   const setOverlay = useCallback((open: boolean) => {
