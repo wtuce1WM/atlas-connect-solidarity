@@ -381,6 +381,36 @@ const Install = () => {
           )}
         </section>
 
+        {/* Update available banner — shown only when an outdated version is detected */}
+        {updateAvailable && (
+          <div className="mt-10 rounded-2xl border border-primary/40 bg-primary/10 p-5 text-center">
+            <p className="font-roboto text-sm text-foreground">
+              <strong>Une nouvelle version de l'app est disponible.</strong><br />
+              Mettez à jour maintenant pour profiter des dernières améliorations.
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  if ("serviceWorker" in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map((r) => r.update()));
+                  }
+                  if ("caches" in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map((k) => caches.delete(k)));
+                  }
+                } catch {}
+                window.location.reload();
+              }}
+              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-roboto font-medium shadow-md hover:opacity-90 transition"
+            >
+              <Download className="h-4 w-4" />
+              Mettre à jour l'app
+            </button>
+          </div>
+        )}
+
         {/* Update button */}
         <div className="mt-10 text-center">
           <button
