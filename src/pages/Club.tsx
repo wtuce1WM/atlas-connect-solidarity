@@ -16,10 +16,15 @@ import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
 import ShareButton from "@/components/ShareButton";
-import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
-import heroInstallAsset from "@/assets/hero_install_hor.webp.asset.json";
-import heroHomeVertAsset from "@/assets/hero-home-vert.webp.asset.json";
+import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
+import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
+import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
+import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+const heroImageDesktop = originalHeroAsset.url;
+const heroImageTablet = zelligeBrunAsset.url;
+const heroImageMobile = zelligeBrunAsset.url;
 
 const Club = () => {
   const { language } = useLanguage();
