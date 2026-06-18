@@ -130,6 +130,7 @@ const Card = () => {
 
       {/* HERO */}
       <section className="hero">
+        <img src={heroHomeAsset.url} alt="" className="hero-bg" loading="eager" />
         <div className="wrap hero-grid">
           <div>
             <h1>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></h1>
