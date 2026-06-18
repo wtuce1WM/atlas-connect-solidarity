@@ -203,7 +203,7 @@ const PublicBusinessProfile = () => {
           )}
 
           {business.computed_rating != null && business.total_review_count && business.total_review_count > 0 && (
-            <div className="relative mt-4 mb-2 flex items-center justify-center gap-1.5 py-1 px-3.5 rounded-full border border-white/20 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]">
+            <div className="btn-shimmer relative mt-4 mb-2 flex items-center justify-center gap-1.5 py-1 px-3.5 rounded-full border border-white/20 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]">
               <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
               <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
               <div className="flex items-center gap-1.5">
@@ -279,7 +279,7 @@ const PublicBusinessProfile = () => {
                 href={l.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                className="btn-shimmer block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
               >
                 <span className="inline-flex items-center gap-2">
                   <Globe className="h-4 w-4 text-neutral-400" />
@@ -289,7 +289,7 @@ const PublicBusinessProfile = () => {
             ))}
             <a
               href={`/fiche/${business.slug}`}
-              className="block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
+              className="btn-shimmer block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
             >
               Voir la fiche complète
             </a>
@@ -310,7 +310,7 @@ const PublicBusinessProfile = () => {
                       href={googleReviewHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      className="btn-shimmer flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
                     >
                       <img src="https://www.google.com/favicon.ico" alt="" className="h-4 w-4" />
                       <span>Laisser un avis sur Google</span>
@@ -322,7 +322,7 @@ const PublicBusinessProfile = () => {
                       href={tripHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      className="btn-shimmer flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
                     >
                       <img src="/review-logos/tripadvisor.webp" alt="" className="h-4 w-4 object-contain" />
                       <span>Laisser un avis sur TripAdvisor</span>
