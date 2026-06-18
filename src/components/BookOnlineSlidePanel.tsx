@@ -716,7 +716,7 @@ const BookOnlineSlidePanelInner = ({
     if (!businessId) return;
     const count = 6;
     const start = 450;
-    const open = 850;
+    const open = 1500;
     const stagger = 180;
     const timers: number[] = [];
     setPeekCta(Array(count).fill(false));
