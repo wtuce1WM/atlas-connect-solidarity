@@ -57,8 +57,9 @@ const Corporate = () => {
       io.observe(el);
     });
 
-    // Parallax on hero bg (mirrors homepage) — desktop image + mobile section bg
+    // Parallax on hero bg (mirrors homepage) — desktop image + mobile phone mockup + section bg
     const heroBg = root.querySelector<HTMLImageElement>(".hero .bg-img-desktop");
+    const heroBgMobile = root.querySelector<HTMLImageElement>(".hero .bg-img-mobile");
     const heroSection = root.querySelector<HTMLElement>(".hero");
     let raf = 0;
     const onScroll = () => {
@@ -66,8 +67,9 @@ const Corporate = () => {
       raf = requestAnimationFrame(() => {
         const y = window.scrollY;
         if (heroBg) heroBg.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
-        if (heroSection && window.innerWidth < 1024) {
-          heroSection.style.backgroundPosition = `center calc(50% + ${y * 0.3}px)`;
+        if (window.innerWidth < 1024) {
+          if (heroBgMobile) heroBgMobile.style.transform = `scale(.95) translate3d(0, ${y * -0.35}px, 0)`;
+          if (heroSection) heroSection.style.backgroundPosition = `center calc(50% + ${y * 0.4}px)`;
         }
         raf = 0;
       });
