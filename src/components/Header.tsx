@@ -86,11 +86,11 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
 
   const navLinks = (
     <>
-      <Link to="/join" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
-        Rejoindre
-      </Link>
       <Link to="/corporate" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
         Le concept
+      </Link>
+      <Link to="/join" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
+        Rejoindre
       </Link>
       <Link to="/mission" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
         {t("footer.ourMission")}

@@ -43,8 +43,8 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
     } else if (location.pathname === "/card") {
       return [
         { to: "/corporate", label: "Le concept" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
         { to: "/join", label: "Rejoindre" },
+        { to: "/devenir-affilie", label: "Devenir affilié" },
       ];
     } else if (location.pathname === "/devenir-affilie") {
       return [
@@ -54,9 +54,9 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
     } else {
       return [
         { to: "/corporate", label: "Le concept" },
+        { to: "/join", label: "Rejoindre" },
         { to: "/club", label: "Le club OWM" },
         { to: "/install", label: "Application" },
-        { to: "/join", label: "Rejoindre" },
       ];
     }
   };
@@ -81,8 +81,8 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       return [
         ...base,
         { to: "/corporate", label: "Le concept" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
         { to: "/join", label: "Rejoindre" },
+        { to: "/devenir-affilie", label: "Devenir affilié" },
       ];
     } else if (location.pathname === "/devenir-affilie") {
       return [
@@ -94,9 +94,9 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       return [
         ...base,
         { to: "/corporate", label: "Le concept" },
+        { to: "/join", label: "Rejoindre" },
         { to: "/club", label: "Le club OWM" },
         { to: "/install", label: "Application" },
-        { to: "/join", label: "Rejoindre" },
       ];
     }
   };
