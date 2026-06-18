@@ -5,6 +5,7 @@ import { Globe, MapPin } from "lucide-react";
 import NotFound from "@/pages/NotFound";
 import ShareButton from "@/components/ShareButton";
 import { useSEO } from "@/hooks/useSEO";
+import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 
 type PublicProfile = {
   nickname: string;
@@ -164,7 +165,7 @@ const PublicClubProfile = () => {
             variant="dark"
             title={`${displayName} — One World Morocco`}
             shareUrl={`https://oneworldmorocco.com/u/${profile.nickname}`}
-            previewImage="/hero_magical_realism_v1.jpg"
+            previewImage={hamsaBlueAsset.url}
             avatarImage={profile.avatar_url || null}
           />
         </div>
