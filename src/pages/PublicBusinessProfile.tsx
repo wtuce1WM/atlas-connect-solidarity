@@ -89,6 +89,7 @@ const PublicBusinessProfile = () => {
   const { slug = "" } = useParams();
   const [loading, setLoading] = useState(true);
   const [business, setBusiness] = useState<PublicBusiness | null>(null);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
