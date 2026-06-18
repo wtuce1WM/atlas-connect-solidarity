@@ -4044,7 +4044,7 @@ const SearchPage = () => {
                 - un service précis a été détecté/sélectionné (requête déjà fine)
                 - une catégorie est déjà sélectionnée
                 - la requête vient de l'URL avec subcategoryNamesFromUrl (géré par le bloc précédent) */}
-            {(activeTab === "suggestions" || activeTab === "ai")
+            {activeTab === "suggestions"
               && !selectedCategoryFilter
               && !selectedServiceFilter
               && subcategoryNamesFromUrl.length <= 1
