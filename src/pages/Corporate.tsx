@@ -98,6 +98,7 @@ const Corporate = () => {
           ["--hero-img-tablet" as any]: `url("${zelligeMobileAsset.url}")`,
           ["--hero-img-mobile" as any]: `url("${zelligeMobileAsset.url}")`,
           ["--hero-phone-mockup" as any]: `url("${phoneMockupAsset.url}")`,
+          ["--hero-phone-mockup-tablet" as any]: `url("${iphoneTabletMockupAsset.url}")`,
         }}
       >
         <style>{corporateCss}</style>
