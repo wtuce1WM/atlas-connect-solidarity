@@ -192,14 +192,64 @@ const Join = () => {
         <style>{CSS}</style>
 
 
-      <section className="hero" aria-label="Rejoindre One World Morocco">
-        <img className="hero-img" src={joinHero} alt="" width={1920} height={1080} />
-        <div className="hero-overlay" aria-hidden="true" />
-        <div className="hero-inner">
+      <section className="relative min-h-[92vh] w-full overflow-hidden flex items-center justify-center border-b border-white/10" aria-label="Rejoindre One World Morocco">
+        <picture>
+          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
+          <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
+          <img
+            src={heroImageDesktop}
+            alt="Maroc — riad, piscine et tagine, composition réalisme magique"
+            className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
+            loading="eager"
+            fetchPriority="high"
+          />
+        </picture>
+        {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
+        <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
+        <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
+
+        {/* Floating phone mockup — left side, desktop only */}
+        <img
+          src={phoneMockupAsset.url}
+          alt="Application One World Morocco sur iPhone"
+          aria-hidden="true"
+          className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
+        />
+        {/* Floating iPhone mockup — right side, tablet only (768px to 1023px) */}
+        <img
+          src={iphoneTabletMockupAsset.url}
+          alt="Application One World Morocco — Koutoubia"
+          aria-hidden="true"
+          className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
+        />
+        {/* Centered iPhone mockup — mobile only */}
+        <img
+          src={phoneMockupAsset.url}
+          alt="Application One World Morocco sur iPhone"
+          aria-hidden="true"
+          className="block md:hidden pointer-events-none select-none absolute top-[10%] left-0 right-0 h-[85%] w-full object-contain object-bottom origin-top scale-[0.95] z-10 opacity-40 animate-[mobilePhoneFloat_5s_ease-in-out_infinite]"
+        />
+        <style>{`
+          @keyframes heroPhoneFloat {
+            0%, 100% { transform: translateY(calc(-50% - 8px)); }
+            50% { transform: translateY(calc(-50% + 8px)); }
+          }
+          @keyframes mobilePhoneFloat {
+            0%, 100% { transform: scale(0.95) translateY(0); }
+            50% { transform: scale(0.95) translateY(-12px); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            section img[alt^="Application One World"] { animation: none !important; }
+          }
+        `}</style>
+
+        <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col items-center justify-center text-center">
           <div className="hero-badge">★ Partenaires locaux</div>
-          <h1>Rejoignez le premier écosystème numérique <span className="hl">éthique & solidaire</span> au Maroc.</h1>
-          <p className="hero-sub">Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.</p>
-          <p className="hero-sub">Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.</p>
+          <h1 className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-tight max-w-4xl" style={{ fontSize: "clamp(32px, 4.5vw, 56px)", fontFamily: "Montserrat, sans-serif" }}>
+            Rejoignez le premier écosystème numérique <span className="text-[#ffc008]">éthique & solidaire</span> au Maroc.
+          </h1>
+          <p className="hero-sub text-white max-w-2xl text-center mb-4 text-base sm:text-lg opacity-95">Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.</p>
+          <p className="hero-sub text-white max-w-2xl text-center mb-8 text-base sm:text-lg opacity-95">Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.</p>
           <Link to="/devenir-affilie" className="hero-cta">REJOINDRE →</Link>
           <div className="hero-checks">
             <span><Check color="#00a896" />Consommez local</span>
