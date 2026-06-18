@@ -279,7 +279,7 @@ const PublicBusinessProfile = () => {
                 href={l.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                className="btn-shimmer block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
               >
                 <span className="inline-flex items-center gap-2">
                   <Globe className="h-4 w-4 text-neutral-400" />
@@ -289,7 +289,7 @@ const PublicBusinessProfile = () => {
             ))}
             <a
               href={`/fiche/${business.slug}`}
-              className="block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
+              className="btn-shimmer block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
             >
               Voir la fiche complète
             </a>
@@ -310,7 +310,7 @@ const PublicBusinessProfile = () => {
                       href={googleReviewHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      className="btn-shimmer flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
                     >
                       <img src="https://www.google.com/favicon.ico" alt="" className="h-4 w-4" />
                       <span>Laisser un avis sur Google</span>
@@ -322,7 +322,7 @@ const PublicBusinessProfile = () => {
                       href={tripHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      className="btn-shimmer flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
                     >
                       <img src="/review-logos/tripadvisor.webp" alt="" className="h-4 w-4 object-contain" />
                       <span>Laisser un avis sur TripAdvisor</span>
