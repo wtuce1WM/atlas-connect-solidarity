@@ -233,7 +233,7 @@ const BecomeAffiliate = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#ECD6B8]">
       <HomeMindtripHeader />
       <main className="pt-24 pb-20">
         {/* Hero */}
