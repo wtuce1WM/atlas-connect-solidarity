@@ -62,10 +62,10 @@
   .hero .bg-img-mobile{position:absolute;top:10%;left:0;right:0;height:85%;width:100%;
     object-fit:contain;object-position:bottom;transform-origin:top;transform:scale(.95);z-index:1;pointer-events:none}
   /* Desktop/Tablet: full-cover image (mirrors homepage) */
-  .hero .bg-img-desktop{display:none;position:absolute;inset:0;height:100%;width:100%;
+  .hero .bg-img-desktop{display:none;position:absolute;inset:0;height:120%;width:100%;
     object-fit:cover;object-position:center;z-index:1;pointer-events:none}
   @media(min-width:768px){.hero .bg-img-mobile{display:none}.hero .bg-img-desktop{display:block}.hero{background:none!important}}
-  @media(min-width:1024px){.hero .bg-img-desktop{height:120%;object-position:right top}}
+  @media(min-width:1024px){.hero .bg-img-desktop{object-position:right top}}
   /* Tablet dark overlay for readability over zellige */
   .hero .tablet-overlay{display:none;position:absolute;inset:0;z-index:1;pointer-events:none;
     background:linear-gradient(180deg,rgba(0,0,0,.5),rgba(0,0,0,.3) 50%,rgba(0,0,0,.5))}
