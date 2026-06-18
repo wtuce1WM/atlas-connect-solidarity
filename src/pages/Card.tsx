@@ -118,7 +118,6 @@ const Card = () => {
       <section className="hero">
         <div className="wrap hero-grid">
           <div>
-            <span className="eyebrow">Pour les partenaires</span>
             <h1>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></h1>
             <p className="lead">
               Un lien court et personnalisé que les voyageurs retiennent vraiment — <code>oneworldmorocco.com/yourname</code>.
