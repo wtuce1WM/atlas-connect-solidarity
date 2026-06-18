@@ -168,13 +168,13 @@
   .pillars{background:var(--ink);color:var(--cream)}
   .pillars-grid{display:grid;grid-template-columns:repeat(3,1fr)}
   .pillar{padding:64px 46px;border-right:1px solid rgba(198,160,70,.16);
-    text-align:center;transition:background .5s}
+    text-align:center;transition:background .5s;background:#3B3B3B;color:#F1F1F1}
   .pillar:last-child{border-right:none}
-  .pillar:hover{background:rgba(198,160,70,.05)}
+  .pillar:hover{background:#454545}
   .pillar .num{font-family:'Montserrat',sans-serif;font-size:54px;color:var(--gold);
     font-style:italic;line-height:1}
-  .pillar h3{font-size:19px;margin:16px 0 10px;color:var(--cream)}
-  .pillar p{font-size:14px;color:rgba(244,236,223,.62);font-weight:300;line-height:1.7;
+  .pillar h3{font-size:19px;margin:16px 0 10px;color:#F1F1F1}
+  .pillar p{font-size:14px;color:#F1F1F1;opacity:0.85;font-weight:300;line-height:1.7;
     letter-spacing:.03em}
 
   .pad{padding:130px 0}
