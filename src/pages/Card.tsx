@@ -30,7 +30,7 @@ const CSS = `
 
   /* Phone mock */
   .card-page .phone-wrap{position:relative;display:flex;justify-content:center}
-  .card-page .url-label{position:absolute;top:-32px;right:0;color:var(--terracotta);font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em}
+  .card-page .url-label{position:absolute;top:-32px;right:0;color:var(--terracotta);font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;z-index:10}
   .card-page .url-label::after{content:"";position:absolute;right:30%;bottom:-46px;width:230px;height:48px;border-right:2px dashed var(--terracotta);border-bottom:2px dashed var(--terracotta);border-bottom-right-radius:30px}
   .card-page .phone{width:320px;max-width:100%;background:#111;border-radius:48px;padding:14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.4)}
   .card-page .phone-inner{background:#fff;border-radius:36px;overflow:hidden;position:relative;padding-bottom:18px}
