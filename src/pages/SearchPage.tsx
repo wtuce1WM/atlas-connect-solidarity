@@ -1514,10 +1514,22 @@ const SearchPage = () => {
         const handler = (e: WheelEvent) => {
           const rect = el.getBoundingClientRect();
           const isOverPanel = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+          const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
           if (document.body.dataset.slidepanelOverlayOpen === "1") {
-            // While an overlay is open above the slidepanel, block wheel events
-            // hovering the panel/overlay so they don't scroll the results grid behind.
+            // While an overlay is open above the slidepanel, allow its own
+            // scrollable area to receive wheel events, but block scroll bleed
+            // to the results grid behind it.
             if (isOverPanel) {
+              let node = e.target instanceof HTMLElement ? e.target : null;
+              while (node && node !== el) {
+                if (isScrollableY(node)) {
+                  const canScrollDown = deltaY > 0 && node.scrollTop + node.clientHeight < node.scrollHeight - 1;
+                  const canScrollUp = deltaY < 0 && node.scrollTop > 1;
+                  if (canScrollDown || canScrollUp) return;
+                  break;
+                }
+                node = node.parentElement;
+              }
               e.preventDefault();
               e.stopPropagation();
               e.stopImmediatePropagation();
@@ -1531,7 +1543,6 @@ const SearchPage = () => {
 
 
           if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-          const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
           const dir = deltaY > 0 ? 1 : -1;
           const scrollable = getScrollable(e.target);
           if (scrollable) {
@@ -5764,9 +5775,9 @@ const SearchPage = () => {
               transition: isMobile && swipeOffsetY === 0 ? "transform 0.2s ease-out" : undefined,
             }}
             ref={panelWheelRef}
-            onTouchStart={onPanelTouchStart}
-            onTouchMove={onPanelTouchMove}
-            onTouchEnd={onPanelTouchEnd}
+            onTouchStart={bottomHashtagsOverlayOpen ? undefined : onPanelTouchStart}
+            onTouchMove={bottomHashtagsOverlayOpen ? undefined : onPanelTouchMove}
+            onTouchEnd={bottomHashtagsOverlayOpen ? undefined : onPanelTouchEnd}
           >
 
             {!isNestedMosaicOpen && (
