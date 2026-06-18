@@ -817,12 +817,36 @@ const HomeMindtrip = () => {
                       )}
                       {i === 7 && (
                         <>
+                          {/* Desktop background — unchanged */}
                           <img
                             src={heroHomeVertAsset.url}
                             alt=""
-                            className="absolute inset-0 h-full w-full object-cover object-bottom"
+                            className="hidden lg:block absolute inset-0 h-full w-full object-cover object-bottom"
                           />
-                          <div className="absolute inset-0 bg-black/40" />
+                          <div className="hidden lg:block absolute inset-0 bg-black/40" />
+
+                          {/* Mobile & Tablet — same bg + mockup as Hero */}
+                          <img
+                            src={zelligeBrunAsset.url}
+                            alt=""
+                            className="lg:hidden absolute inset-0 h-full w-full object-cover"
+                          />
+                          <div className="lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
+                          {/* Tablet mockup — right side */}
+                          <img
+                            src={iphoneTabletMockupAsset.url}
+                            alt=""
+                            aria-hidden="true"
+                            className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 h-[80%] w-auto z-10 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)]"
+                          />
+                          {/* Mobile mockup — centered */}
+                          <img
+                            src={phoneMockupAsset.url}
+                            alt=""
+                            aria-hidden="true"
+                            className="block md:hidden pointer-events-none select-none absolute top-[10%] left-0 right-0 h-[85%] w-full object-contain object-bottom z-10 opacity-85"
+                          />
+
                           <div className="hidden md:block absolute md:top-10 md:left-10 z-20">
                             <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
                               Étape {i + 1}
