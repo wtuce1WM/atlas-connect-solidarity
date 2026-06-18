@@ -30,7 +30,13 @@ type PublicBusiness = {
   spotify_url: string | null;
   soundcloud_url: string | null;
   hook_fr: string | null;
+  google_maps_url: string | null;
+  google_review_url: string | null;
+  google_place_id: string | null;
+  tripadvisor_url: string | null;
+  tripadvisor_review_url: string | null;
 };
+
 
 const SOCIAL_ICONS: Record<string, JSX.Element> = {
   whatsapp: (
