@@ -139,7 +139,13 @@ const Card = () => {
 
       {/* HERO */}
       <section className="hero">
-        <img src={heroHomeAsset.url} alt="" className="hero-bg" loading="eager" />
+        <picture>
+          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
+          <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
+          <img src={heroImageDesktop} alt="" className="hero-bg" loading="eager" fetchPriority="high" />
+        </picture>
+        <div className="hero-overlay-tablet" aria-hidden />
+        <div className="hero-overlay-mobile" aria-hidden />
         <div className="wrap hero-grid">
           <div>
             <h1>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></h1>
