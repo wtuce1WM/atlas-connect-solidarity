@@ -154,6 +154,10 @@ export default {
           "0%": { transform: "translate(0,0) scale(1)", opacity: "1" },
           "100%": { transform: "translate(0,-40px) scale(1.8)", opacity: "0" },
         },
+        "shimmer": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -165,6 +169,7 @@ export default {
         "fade-in": "fade-in 0.3s ease-out",
         "ripple": "ripple 2.4s ease-out infinite",
         "zoom-out-center": "zoom-out-center 0.35s cubic-bezier(0.16,1,0.3,1)",
+        "shimmer": "shimmer 0.75s ease-in-out",
       },
     },
   },
