@@ -19,6 +19,7 @@ import HeroLocationSelector from "@/components/HeroLocationSelector";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
+import iphoneMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 
 const HS_T = {
   fr: { useLocationQ: "Utiliser votre position pour affiner les résultats ?", changeAnytime: "Vous pouvez changer ce choix à tout moment.", noThanks: "Non merci", enable: "Activer" },
@@ -106,138 +107,143 @@ const HeroSection = () => {
 
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
+      <style>{`
+        @keyframes float-gentle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-15px); }
+        }
+        .animate-float-gentle {
+          animation: float-gentle 4.5s ease-in-out infinite;
+        }
+      `}</style>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 pt-24 pb-16">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 lg:gap-16">
+          
+          {/* Left Side: Titre + Texte + Search */}
+          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-6 w-full max-w-2xl">
+            <p className="text-lg md:text-base text-foreground/70 font-medium tracking-wide">
+              {language === "ar" ? "أول منصة تجارة إلكترونية تضامنية في المغرب" : language === "en" ? "1st solidarity e-commerce platform in Morocco" : "1ère plateforme de e-commerce solidaire au Maroc"}
+            </p>
 
+            {/* Titre dynamique — masqué sur mobile, visible tablette+ */}
+            <h1 className="hidden md:block text-3xl md:text-4xl lg:text-5xl font-bold text-black max-w-xl">
+              {(() => {
+                const texts = {
+                  all: { fr: "Que cherchez-vous ?", fr2: "Et où ?", en: "What are you looking for?", en2: "And where?", ar: "ماذا تبحث عنه؟", ar2: "وأين؟" },
+                  "Hôtellerie": { fr: "Trouvez les meilleurs hôtels & riads", en: "Find the best hotels & riads", ar: "ابحث عن أفضل الفنادق والرياضات" },
+                  "Restauration": { fr: "Trouvez un bon restaurant", en: "Find a good restaurant", ar: "ابحث عن مطعم جيد" },
+                  "Tourisme": { fr: "Amusez-vous", en: "Have fun", ar: "استمتعوا" },
+                  "Commerce": { fr: "Que voulez-vous", fr2: "acheter ?", en: "What do you want", en2: "to buy?", ar: "ماذا تريدون", ar2: "شراءه؟" },
+                  "Bien-être": { fr: "Prenez soin de vous", en: "Take care of yourself", ar: "اعتنوا بأنفسكم" },
+                };
+                const t = texts[searchCategory] || texts.all;
+                const line1 = language === "ar" ? t.ar : language === "en" ? t.en : t.fr;
+                const line2 = language === "ar" ? t.ar2 : language === "en" ? t.en2 : t.fr2;
+                return line2 ? <>{line1}<br />{line2}</> : line1;
+              })()}
+            </h1>
 
-        <p className="text-lg md:text-base text-foreground/70 font-medium tracking-wide text-center -mt-4">
-          {language === "ar" ? "أول منصة تجارة إلكترونية تضامنية في المغرب" : language === "en" ? "1st solidarity e-commerce platform in Morocco" : "1ère plateforme de e-commerce solidaire au Maroc"}
-        </p>
+            {/* Search Bar + Tabs */}
+            <div className="w-full" ref={searchContainerRef}>
+              {/* Category Tabs — une seule ligne, scroll si besoin */}
+              <div
+                ref={tabsRef}
+                className="flex items-center w-full justify-start md:justify-start gap-4 md:gap-6 mb-6 overflow-x-auto scrollbar-hide pb-1 px-1 md:px-0"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {[
+                  { key: "all", labelFr: "Tout", labelEn: "All", labelAr: "الكل", Icon: LayoutGrid },
+                  { key: "Hôtellerie", labelFr: "Hôtels", labelEn: "Hotels", labelAr: "فنادق", Icon: BedDouble },
+                  { key: "Restauration", labelFr: "Restaurants", labelEn: "Restaurants", labelAr: "مطاعم", Icon: UtensilsCrossed },
+                  { key: "Tourisme", labelFr: "Activités", labelEn: "Activities", labelAr: "أنشطة", Icon: Mountain },
+                  { key: "Commerce", labelFr: "Commerce", labelEn: "Shopping", labelAr: "تسوق", Icon: ShoppingBag },
+                  { key: "Bien-être", labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية", Icon: Sparkles },
+                ].map(({ key, labelFr, labelEn, labelAr, Icon }) => {
+                  const isActive = searchCategory === key;
+                  const label = language === "en" ? labelEn : language === "ar" ? labelAr : labelFr;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={(e) => {
+                        setSearchCategory(key);
+                        const btn = e.currentTarget;
+                        const container = tabsRef.current;
+                        if (container) {
+                          const containerRect = container.getBoundingClientRect();
+                          const btnRect = btn.getBoundingClientRect();
+                          const targetScroll = container.scrollLeft + (btnRect.left - containerRect.left) - (containerRect.width / 2) + (btnRect.width / 2);
+                          container.scrollTo({ left: Math.max(0, targetScroll), behavior: "smooth" });
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 pb-2 text-sm font-semibold transition-all border-b-2 whitespace-nowrap ${
+                        isActive
+                          ? "border-black text-black"
+                          : "border-transparent text-black/60 hover:text-black hover:border-black/40"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5 shrink-0" />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
 
-        {/* Titre dynamique — masqué sur mobile, visible tablette+ */}
-        <h1 className="hidden md:block text-3xl md:text-4xl lg:text-5xl font-bold text-black text-center max-w-5xl">
-          {(() => {
-            const texts: Record<string, { fr: string; fr2?: string; en: string; en2?: string; ar: string; ar2?: string }> = {
-              all: { fr: "Que cherchez-vous ?", fr2: "Et où ?", en: "What are you looking for?", en2: "And where?", ar: "ماذا تبحث عنه؟", ar2: "وأين؟" },
-              "Hôtellerie": { fr: "Trouvez les meilleurs hôtels & riads", en: "Find the best hotels & riads", ar: "ابحث عن أفضل الفنادق والرياضات" },
-              "Restauration": { fr: "Trouvez un bon restaurant", en: "Find a good restaurant", ar: "ابحث عن مطعم جيد" },
-              "Tourisme": { fr: "Amusez-vous", en: "Have fun", ar: "استمتعوا" },
-              "Commerce": { fr: "Que voulez-vous", fr2: "acheter ?", en: "What do you want", en2: "to buy?", ar: "ماذا تريدون", ar2: "شراءه؟" },
-              "Bien-être": { fr: "Prenez soin de vous", en: "Take care of yourself", ar: "اعتنوا بأنفسكم" },
-            };
-            const t = texts[searchCategory] || texts.all;
-            const line1 = language === "ar" ? t.ar : language === "en" ? t.en : t.fr;
-            const line2 = language === "ar" ? t.ar2 : language === "en" ? t.en2 : t.fr2;
-            return line2 ? <>{line1} {line2}</> : line1;
-          })()}
-        </h1>
+              {(() => {
+                const placeholders = {
+                  all: { fr: "Que cherchez-vous ? Et où ?", en: "What are you looking for? And where?", ar: "ماذا تبحث عنه؟ وأين؟" },
+                  "Hôtellerie": { fr: "Trouvez les meilleurs hôtels & riads", en: "Find the best hotels & riads", ar: "اعثر على أفضل الفنادق والرياضات" },
+                  "Restauration": { fr: "Trouvez un bon restaurant", en: "Find a great restaurant", ar: "اعثر على مطعم جيد" },
+                  "Tourisme": { fr: "Trouvez une activité inoubliable", en: "Find an unforgettable activity", ar: "اعثر على نشاط لا يُنسى" },
+                  "Commerce": { fr: "Trouvez les meilleures boutiques", en: "Find the best shops", ar: "اعثر على أفضل المتاجر" },
+                  "Bien-être": { fr: "Trouvez un spa ou hammam", en: "Find a spa ou hammam", ar: "اعثر على سبا أو حمام" },
+                };
+                const p = placeholders[searchCategory] || placeholders.all;
+                const placeholder = language === "ar" ? p.ar : language === "en" ? p.en : p.fr;
+                return (
+                  <HeroInlineSearch
+                    placeholder={placeholder}
+                    onSearch={(params) => {
+                      const qs = new URLSearchParams(params).toString();
+                      if (qs) navigateWithSlide(`/search?${qs}`);
+                    }}
+                    onBusinessSelect={(businessId) => navigateWithSlide(`/search?openBusiness=${businessId}`)}
+                  />
+                );
+              })()}
 
-
-        {/* Search Bar + Tabs */}
-        <div className="w-full max-w-2xl" ref={searchContainerRef}>
-          {/* Category Tabs — une seule ligne, scroll si besoin */}
-           <div
-            ref={tabsRef}
-            className="flex items-center w-full justify-start gap-4 md:gap-6 mb-6 overflow-x-auto scrollbar-hide pb-1 px-1 md:px-0"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {[
-              { key: "all", labelFr: "Tout", labelEn: "All", labelAr: "الكل", Icon: LayoutGrid },
-              { key: "Hôtellerie", labelFr: "Hôtels", labelEn: "Hotels", labelAr: "فنادق", Icon: BedDouble },
-              { key: "Restauration", labelFr: "Restaurants", labelEn: "Restaurants", labelAr: "مطاعم", Icon: UtensilsCrossed },
-              { key: "Tourisme", labelFr: "Activités", labelEn: "Activities", labelAr: "أنشطة", Icon: Mountain },
-              { key: "Commerce", labelFr: "Commerce", labelEn: "Shopping", labelAr: "تسوق", Icon: ShoppingBag },
-              { key: "Bien-être", labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية", Icon: Sparkles },
-            ].map(({ key, labelFr, labelEn, labelAr, Icon }) => {
-              const isActive = searchCategory === key;
-              const label = language === "en" ? labelEn : language === "ar" ? labelAr : labelFr;
-              return (
+              {/* Play video CTA */}
+              <div className="mt-5 flex justify-center md:justify-start">
                 <button
-                  key={key}
                   type="button"
-                  onClick={(e) => {
-                    setSearchCategory(key);
-                    const btn = e.currentTarget;
-                    const container = tabsRef.current;
-                    if (container) {
-                      const containerRect = container.getBoundingClientRect();
-                      const btnRect = btn.getBoundingClientRect();
-                      const targetScroll = container.scrollLeft + (btnRect.left - containerRect.left) - (containerRect.width / 2) + (btnRect.width / 2);
-                      container.scrollTo({ left: Math.max(0, targetScroll), behavior: "smooth" });
-                    }
-                  }}
-                  className={`flex items-center gap-1.5 pb-2 text-sm font-semibold transition-all border-b-2 whitespace-nowrap ${
-                    isActive
-                      ? "border-black text-black"
-                      : "border-transparent text-black/60 hover:text-black hover:border-black/40"
-                  }`}
+                  onClick={() => setVideoOpen(true)}
+                  className="inline-flex items-center gap-3 text-black hover:opacity-80 transition-opacity"
+                  aria-label="Play video"
                 >
-                  <Icon className="h-5 w-5 shrink-0" />
-                  {label}
+                  <span className="flex items-center justify-center w-11 h-11 rounded-full bg-black text-white">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </span>
+                  <span className="text-base font-medium">
+                    {language === "ar" ? "تشغيل الفيديو" : language === "en" ? "Play video" : "Voir la vidéo"}
+                  </span>
                 </button>
-              );
-            })}
+              </div>
+            </div>
           </div>
 
-          {(() => {
-            const placeholders: Record<string, { fr: string; en: string; ar: string }> = {
-              all: { fr: "Que cherchez-vous ? Et où ?", en: "What are you looking for? And where?", ar: "ماذا تبحث عنه؟ وأين؟" },
-              "Hôtellerie": { fr: "Trouvez les meilleurs hôtels & riads", en: "Find the best hotels & riads", ar: "اعثر على أفضل الفنادق والرياضات" },
-              "Restauration": { fr: "Trouvez un bon restaurant", en: "Find a great restaurant", ar: "اعثر على مطعم جيد" },
-              "Tourisme": { fr: "Trouvez une activité inoubliable", en: "Find an unforgettable activity", ar: "اعثر على نشاط لا يُنسى" },
-              "Commerce": { fr: "Trouvez les meilleures boutiques", en: "Find the best shops", ar: "اعثر على أفضل المتاجر" },
-              "Bien-être": { fr: "Trouvez un spa ou hammam", en: "Find a spa or hammam", ar: "اعثر على سبا أو حمام" },
-            };
-            const p = placeholders[searchCategory] || placeholders.all;
-            const placeholder = language === "ar" ? p.ar : language === "en" ? p.en : p.fr;
-            return (
-              <HeroInlineSearch
-                placeholder={placeholder}
-                onSearch={(params) => {
-                  const qs = new URLSearchParams(params).toString();
-                  if (qs) navigateWithSlide(`/search?${qs}`);
-                }}
-                onBusinessSelect={(businessId) => navigateWithSlide(`/search?openBusiness=${businessId}`)}
-              />
-            );
-          })()}
-
-
-          {/* Play video CTA */}
-          <div className="mt-5 flex justify-center">
-            <button
-              type="button"
-              onClick={() => setVideoOpen(true)}
-              className="inline-flex items-center gap-3 text-black hover:opacity-80 transition-opacity"
-              aria-label="Play video"
-            >
-              <span className="flex items-center justify-center w-11 h-11 rounded-full bg-black text-white">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </span>
-              <span className="text-base font-medium">
-                {language === "ar" ? "تشغيل الفيديو" : language === "en" ? "Play video" : "Voir la vidéo"}
-              </span>
-            </button>
+          {/* Right Side: Image with floating effect (visible on md/lg) */}
+          <div className="hidden md:block w-[260px] lg:w-[320px] shrink-0 relative animate-float-gentle select-none pointer-events-none">
+            <img
+              src={iphoneMockupAsset.url}
+              alt="iPhone Mockup"
+              className="w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
+              loading="eager"
+            />
           </div>
 
-          {/* Resume last search chip — disabled on homepage */}
         </div>
-
-
-        {/* Restaurant Guru-style location selector — disabled
-        <HeroLocationSelector
-          detectedCity={geo.detectedCity}
-          confirmedAddress={geo.confirmedAddress}
-          isEnabled={geo.isEnabled}
-          isDetecting={geo.isDetecting}
-          onAcceptGeo={geo.accept}
-          onSelectCity={(city) => {
-            geo.setManualCity(city);
-          }}
-          onOpenMap={() => setLocationDialogOpen(true)}
-        />
-        */}
 
         {/* Location Picker Dialog */}
         <LocationPickerDialog
@@ -251,17 +257,6 @@ const HeroSection = () => {
           onConfirm={(coords, address) => geo.setManualLocation(coords, address)}
           onDisableGeo={geo.decline}
         />
-
-        {/* Listez votre entreprise — disabled
-        <p className="text-2xl md:text-3xl text-black/80 font-medium mt-4">
-          {language === "fr"
-            ? <>Listez votre <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">entreprise</Link></>
-            : language === "ar"
-              ? <>أدرج <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">شركتك</Link></>
-              : <>List your <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">business</Link></>}
-        </p>
-        */}
-
       </div>
 
       {/* Video lightbox */}
