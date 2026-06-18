@@ -820,8 +820,10 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   z-index: 10;
 }
 
-/* Cascading peek effect for left CTAs on slidepanel open */
-.cta-peek.is-peek > span:first-child {
+/* Cascading peek effect for left CTAs on slidepanel open.
+   The first child <span> is the shimmer overlay (absolute inset-0),
+   so we target nth-child(2)+ to reveal the label spans. */
+.cta-peek.is-peek > span:not(.absolute) {
   max-width: 300px !important;
   opacity: 1 !important;
 }
