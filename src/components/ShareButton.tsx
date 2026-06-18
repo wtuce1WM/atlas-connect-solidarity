@@ -311,12 +311,12 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
               >
                 {previewImage && !avatarImage && <div className="absolute inset-0 bg-black/45" aria-hidden="true" />}
                 {avatarImage ? (
-                  <div className="relative h-20 w-20 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden mb-3 ring-2 ring-white/40 shadow-xl">
+                  <div className="relative h-24 w-24 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden mb-8 ring-2 ring-white/40 shadow-xl">
                     <img src={avatarImage} alt="" className="h-full w-full object-cover" />
                   </div>
                 ) : !previewImage && (
-                  <div className="relative h-20 w-20 rounded-full bg-white flex items-center justify-center overflow-hidden mb-3">
-                    <img src={logoGold} alt="" className="h-16 w-16 object-contain" />
+                  <div className="relative h-24 w-24 rounded-full bg-white flex items-center justify-center overflow-hidden mb-8">
+                    <img src={logoGold} alt="" className="h-20 w-20 object-contain" />
                   </div>
                 )}
                 <div className="relative font-semibold text-base line-clamp-2 drop-shadow">{shareTitle}</div>
