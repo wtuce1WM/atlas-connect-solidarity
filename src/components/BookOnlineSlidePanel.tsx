@@ -1245,6 +1245,7 @@ const BookOnlineSlidePanelInner = ({
           videoRef={videoRef as React.RefObject<HTMLVideoElement>}
           iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
           onLoadedMetadata={handleVideoLoadedMetadata}
+          anyOverlayOpen={anyOverlayOpen}
         />
         {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
