@@ -25,6 +25,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import BookingOverlay from "@/components/BookingOverlay";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
+import PanelHashtagsOverlay from "@/components/overlays/PanelHashtagsOverlay";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
 import VideoSlidePanel from "@/components/VideoSlidePanel";
