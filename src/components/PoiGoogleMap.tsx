@@ -416,6 +416,73 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
 
       const isSelected = poi.id === selectedPoiId;
 
+      const showInfo = () => {
+        // Cancel any pending close
+        if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
+        infoWindowHoveredRef.current = false;
+        openInfoPoiIdRef.current = poi.id;
+
+        const img = poi.images?.[0];
+        const loc = `${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}`;
+        const ratingHtml = poi.avgOn20
+          ? `<div style="display:flex;align-items:center;gap:4px;font-size:13px;">
+              <span style="color:#D4AF37;">★</span>
+              <span style="font-weight:600;">${poi.avgOn20}/20</span>
+              ${poi.totalReviews ? `<span style="color:rgba(255,255,255,0.7);">· ${poi.totalReviews} avis</span>` : ""}
+            </div>`
+          : "";
+        const currentUserLoc = userLocationRef.current;
+        const distKm = currentUserLoc && poi.latitude && poi.longitude
+          ? (() => {
+              const R = 6371;
+              const dLat = ((poi.latitude! - currentUserLoc.lat) * Math.PI) / 180;
+              const dLon = ((poi.longitude! - currentUserLoc.lng) * Math.PI) / 180;
+              const a = Math.sin(dLat / 2) ** 2 + Math.cos((currentUserLoc.lat * Math.PI) / 180) * Math.cos((poi.latitude! * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+              return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            })()
+          : null;
+        const distHtml = distKm != null
+          ? `<div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.6);color:#D4AF37;font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;backdrop-filter:blur(4px);white-space:nowrap;">${distKm < 1 ? `${Math.round(distKm * 1000)} m` : `${distKm.toFixed(1)} km`}</div>`
+          : "";
+        const html = `<div data-poi-id="${poi.id}" style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;cursor:pointer;">
+          ${img ? `<img src="${img}" style="width:100%;height:180px;display:block;object-fit:cover;" />` : ""}
+          <div style="background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:10px;">
+            <div style="font-weight:700;font-size:14px;color:white;line-height:1.3;">${poi.name}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:3px;">${loc}</div>
+            ${ratingHtml ? `<div style="margin-top:3px;color:white;">${ratingHtml}</div>` : ""}
+          </div>
+          ${distHtml}
+        </div>`;
+        infoWindowRef.current?.setContent(html);
+        infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -50) });
+        infoWindowRef.current?.setPosition(position);
+        infoWindowRef.current?.open(map);
+        // Make infowindow clickable + hoverable
+        gmaps.event.addListenerOnce(infoWindowRef.current!, "domready", () => {
+          const el = document.querySelector(`[data-poi-id="${poi.id}"]`);
+          if (el) {
+            (el as HTMLElement).addEventListener("click", () => {
+              openInfoPoiIdRef.current = null;
+              infoWindowRef.current?.close();
+              onPoiClickRef.current?.(poi.id);
+            });
+          }
+          // Keep infowindow open while mouse is over it
+          const iwContainer = document.querySelector(".gm-style-iw")?.closest(".gm-style-iw-a")
+            || document.querySelector(".gm-style-iw")?.parentElement;
+          if (iwContainer) {
+            (iwContainer as HTMLElement).addEventListener("mouseenter", () => {
+              infoWindowHoveredRef.current = true;
+              if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
+            });
+            (iwContainer as HTMLElement).addEventListener("mouseleave", () => {
+              infoWindowHoveredRef.current = false;
+              closeTimerRef.current = setTimeout(() => { infoWindowRef.current?.close(); }, 200);
+            });
+          }
+        });
+      };
+
       const overlay = new LabelMarker(
         position,
         map,
@@ -426,77 +493,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           const isTouch = typeof window !== "undefined" && !window.matchMedia?.("(hover: hover)").matches;
           if (isTouch && openInfoPoiIdRef.current !== poi.id) {
             // First tap on touch devices: show the thumbnail instead of navigating
-            overlay.dispatchMouseOver?.();
+            showInfo();
             return;
           }
           openInfoPoiIdRef.current = null;
           infoWindowRef.current?.close();
           onPoiClickRef.current?.(poi.id);
         },
-        () => {
-          // Cancel any pending close
-          if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
-          infoWindowHoveredRef.current = false;
-          openInfoPoiIdRef.current = poi.id;
-
-          const img = poi.images?.[0];
-          const loc = `${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}`;
-          const ratingHtml = poi.avgOn20
-            ? `<div style="display:flex;align-items:center;gap:4px;font-size:13px;">
-                <span style="color:#D4AF37;">★</span>
-                <span style="font-weight:600;">${poi.avgOn20}/20</span>
-                ${poi.totalReviews ? `<span style="color:rgba(255,255,255,0.7);">· ${poi.totalReviews} avis</span>` : ""}
-              </div>`
-            : "";
-          const currentUserLoc = userLocationRef.current;
-          const distKm = currentUserLoc && poi.latitude && poi.longitude
-            ? (() => {
-                const R = 6371;
-                const dLat = ((poi.latitude! - currentUserLoc.lat) * Math.PI) / 180;
-                const dLon = ((poi.longitude! - currentUserLoc.lng) * Math.PI) / 180;
-                const a = Math.sin(dLat / 2) ** 2 + Math.cos((currentUserLoc.lat * Math.PI) / 180) * Math.cos((poi.latitude! * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-              })()
-            : null;
-          const distHtml = distKm != null
-            ? `<div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.6);color:#D4AF37;font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;backdrop-filter:blur(4px);white-space:nowrap;">${distKm < 1 ? `${Math.round(distKm * 1000)} m` : `${distKm.toFixed(1)} km`}</div>`
-            : "";
-          const html = `<div data-poi-id="${poi.id}" style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;cursor:pointer;">
-            ${img ? `<img src="${img}" style="width:100%;height:180px;display:block;object-fit:cover;" />` : ""}
-            <div style="background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:10px;">
-              <div style="font-weight:700;font-size:14px;color:white;line-height:1.3;">${poi.name}</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:3px;">${loc}</div>
-              ${ratingHtml ? `<div style="margin-top:3px;color:white;">${ratingHtml}</div>` : ""}
-            </div>
-            ${distHtml}
-          </div>`;
-          infoWindowRef.current?.setContent(html);
-          infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -50) });
-          infoWindowRef.current?.setPosition(position);
-          infoWindowRef.current?.open(map);
-          // Make infowindow clickable + hoverable
-          gmaps.event.addListenerOnce(infoWindowRef.current!, "domready", () => {
-            const el = document.querySelector(`[data-poi-id="${poi.id}"]`);
-            if (el) {
-              (el as HTMLElement).addEventListener("click", () => {
-                onPoiClickRef.current?.(poi.id);
-              });
-            }
-            // Keep infowindow open while mouse is over it
-            const iwContainer = document.querySelector(".gm-style-iw")?.closest(".gm-style-iw-a") 
-              || document.querySelector(".gm-style-iw")?.parentElement;
-            if (iwContainer) {
-              (iwContainer as HTMLElement).addEventListener("mouseenter", () => {
-                infoWindowHoveredRef.current = true;
-                if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
-              });
-              (iwContainer as HTMLElement).addEventListener("mouseleave", () => {
-                infoWindowHoveredRef.current = false;
-                closeTimerRef.current = setTimeout(() => { infoWindowRef.current?.close(); }, 200);
-              });
-            }
-          });
-        },
+        showInfo,
         () => {
           // Delayed close to allow cursor to reach infowindow
           closeTimerRef.current = setTimeout(() => {
