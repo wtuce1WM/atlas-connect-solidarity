@@ -108,7 +108,7 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center gap-1.5">
+          <p className="text-sm font-semibold uppercase tracking-wider flex items-center gap-1.5" style={{ color: "#ECD6B8" }}>
             <Search className="h-4 w-4" />
             {isEn ? "Check availability" : "Vérifier la disponibilité"}
           </p>
