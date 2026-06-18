@@ -350,6 +350,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           </div>
         )}
         {immoBadge}
+        <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-10" />
       </div>
     );
   };
