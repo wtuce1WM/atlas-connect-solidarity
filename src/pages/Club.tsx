@@ -39,6 +39,7 @@ const Club = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [nickname, setNickname] = useState<string>("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [profileData, setProfileData] = useState<any>(null);
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
