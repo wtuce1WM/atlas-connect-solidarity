@@ -456,7 +456,7 @@ const HomeMindtrip = () => {
             </h1>
 
             <p className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
-              Faites de chaque achat<br className="md:hidden" /> un acte de générosité.<br className="md:hidden" /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
+              Faites de chaque achat<br className="md:hidden" /> un acte de générosité.<br className="md:hidden" /><br className="hidden md:inline lg:hidden" /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
             </p>
           </div>
 
