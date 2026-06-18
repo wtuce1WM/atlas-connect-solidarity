@@ -273,7 +273,7 @@
     color:var(--gold);margin-bottom:24px}
   .plan .pp{font-family:'Montserrat',sans-serif;font-size:46px;color:#ffffff;
     line-height:1}
-  .plan .pp small{font-size:14px;color:rgba(255,255,255,0.7);font-family:'Jost';
+  .plan .pp small{font-size:14px;color:rgba(255,255,255,0.7);font-family:'Avenir','Nunito Sans',sans-serif;
     letter-spacing:.04em}
   .plan .pd{margin-top:22px;font-size:13.5px;line-height:1.8;
     color:rgba(255,255,255,0.8);font-weight:400}
