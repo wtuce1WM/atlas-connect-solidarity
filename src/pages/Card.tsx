@@ -2,7 +2,12 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
+import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
+import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
+
+const heroImageDesktop = originalHeroAsset.url;
+const heroImageTablet = zelligeBrunAsset.url;
+const heroImageMobile = zelligeBrunAsset.url;
 
 
 const CSS = `
