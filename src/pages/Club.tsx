@@ -388,7 +388,7 @@ const Club = () => {
 
   return (
     <div className={`min-h-screen ${user ? "bg-[#BED1FF]" : "bg-background"}`}>
-      {user && <Header compact />}
+      {user && <Header compact rightContent={<div />} />}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
 
       {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
