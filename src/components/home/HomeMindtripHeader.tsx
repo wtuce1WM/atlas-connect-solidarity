@@ -44,6 +44,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       return [
         { to: "/corporate", label: "Le concept" },
         { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/join", label: "Rejoindre" },
       ];
     } else if (location.pathname === "/devenir-affilie") {
       return [
@@ -55,6 +56,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         { to: "/corporate", label: "Le concept" },
         { to: "/club", label: "Le club OWM" },
         { to: "/install", label: "Application" },
+        { to: "/join", label: "Rejoindre" },
       ];
     }
   };
@@ -80,6 +82,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         ...base,
         { to: "/corporate", label: "Le concept" },
         { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/join", label: "Rejoindre" },
       ];
     } else if (location.pathname === "/devenir-affilie") {
       return [
@@ -93,6 +96,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         { to: "/corporate", label: "Le concept" },
         { to: "/club", label: "Le club OWM" },
         { to: "/install", label: "Application" },
+        { to: "/join", label: "Rejoindre" },
       ];
     }
   };
