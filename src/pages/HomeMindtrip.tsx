@@ -23,6 +23,7 @@ import heroHomeVertAsset from "@/assets/hero-home-vert.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import zelligeMobileAsset from "@/assets/backgr-brun-zelliges.webp.asset.json";
+import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = zelligeBrunAsset.url;
