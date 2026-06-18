@@ -25,7 +25,7 @@ import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus4
 import zelligeMobileAsset from "@/assets/backgr-brun-zelliges.webp.asset.json";
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
-const heroImageMobile = phoneMockupAsset.url;
+const heroImageMobile = zelligeBrunAsset.url;
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
