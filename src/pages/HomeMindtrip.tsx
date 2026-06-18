@@ -850,10 +850,27 @@ const HomeMindtrip = () => {
                             {/* Mobile/Tablet/Desktop Content Layout with absolute full-size mockup */}
                             <div className="relative w-full mt-6 md:mt-8 flex-1 min-h-[180px]">
                               {/* Left/Middle side: text description taking 82% width, sits on top */}
-                              <div className="relative z-10 w-[82%] md:w-[85%] pr-2 pt-20 md:pt-28">
+                              <div className="relative z-10 w-[82%] md:w-[85%] pr-2 pt-20 md:pt-28 flex flex-col gap-4">
                                 <p className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-base text-left">
                                   {s.desc}
                                 </p>
+                                <div className="flex justify-start">
+                                  <Link 
+                                    to="/install"
+                                    className="relative group overflow-hidden rounded-[1.25rem] w-20 h-20 md:w-24 md:h-24 block border border-white/35 shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 bg-white/5 backdrop-blur-[2px] btn-shimmer"
+                                  >
+                                    {/* Glass sheen effect */}
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/15 z-10 pointer-events-none" />
+                                    {/* Curved highlight for realistic glass bubble effect */}
+                                    <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-white/25 to-transparent rounded-t-[1.25rem] pointer-events-none z-10" />
+                                    {/* App Icon Image */}
+                                    <img 
+                                      src={appIconHamsaAsset.url} 
+                                      alt="Download App" 
+                                      className="w-full h-full object-cover relative z-0"
+                                    />
+                                  </Link>
+                                </div>
                               </div>
                               {/* Full-size Mockup image absolutely positioned to the right */}
                               <img
