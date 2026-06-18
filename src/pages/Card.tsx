@@ -12,8 +12,9 @@ const CSS = `
 
 
 
-  .card-page .hero{padding:72px 0 96px}
-  .card-page .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+  .card-page .hero{position:relative;padding:72px 0 96px}
+  .card-page .hero-bg{display:block;width:100%;height:auto;margin-bottom:48px}
+  .card-page .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center;position:relative;z-index:2}
   @media (max-width:980px){.card-page .hero-grid{grid-template-columns:1fr;gap:48px}}
   .card-page .eyebrow{display:inline-block;background:#fff5ec;color:var(--terracotta);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;border-radius:999px;margin-bottom:22px}
   .card-page h1{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(40px,5.6vw,68px);line-height:1.02;letter-spacing:-.01em;margin-bottom:24px}
