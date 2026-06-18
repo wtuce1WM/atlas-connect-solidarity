@@ -283,7 +283,6 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
             </div>
           )}
           {immoBadge}
-          <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none z-20 mix-blend-overlay" />
         </div>
       );
     }
@@ -350,7 +349,6 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           </div>
         )}
         {immoBadge}
-        <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none z-20 mix-blend-overlay" />
       </div>
     );
   };
