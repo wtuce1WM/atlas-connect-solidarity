@@ -125,6 +125,16 @@ const CSS = `
   .join-page .hero-checks{display:flex;flex-wrap:wrap;justify-content:center;gap:22px;margin-top:22px;font-size:14px;color:rgba(255,255,255,.95)}
   .join-page .hero-checks span{display:inline-flex;align-items:center;gap:8px}
   .join-page .hero-checks svg{color:var(--green)}
+  @media (max-width: 640px) {
+    .join-page .hero-checks {
+      flex-direction: column;
+      align-items: flex-start;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      gap: 12px;
+    }
+  }
   .join-page .hero-stats{margin-top:38px;display:inline-flex;flex-wrap:wrap;justify-content:center;gap:0;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:10px 8px;font-size:13px}
   .join-page .hero-stats div{padding:6px 22px;display:inline-flex;align-items:center;gap:8px;color:#fff;border-right:1px solid rgba(255,255,255,.18)}
   .join-page .hero-stats div:last-child{border-right:none}
