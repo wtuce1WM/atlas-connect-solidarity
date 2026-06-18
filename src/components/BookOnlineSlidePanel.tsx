@@ -854,9 +854,21 @@ const BookOnlineSlidePanelInner = ({
   useEffect(() => {
     if (anyOverlayOpen) {
       document.body.dataset.slidepanelOverlayOpen = "1";
-      return () => { delete document.body.dataset.slidepanelOverlayOpen; };
+    } else {
+      delete document.body.dataset.slidepanelOverlayOpen;
     }
+    return () => { delete document.body.dataset.slidepanelOverlayOpen; };
   }, [anyOverlayOpen]);
+
+  // Expose popup state so we can remove the slide panel container's shadow when a welcome popup is active
+  useEffect(() => {
+    if (showWelcomePopup) {
+      document.body.dataset.slidepanelPopupOpen = "1";
+    } else {
+      delete document.body.dataset.slidepanelPopupOpen;
+    }
+    return () => { delete document.body.dataset.slidepanelPopupOpen; };
+  }, [showWelcomePopup]);
 
 
   // Pause/mute background media when an overlay is open — same mute gate as the Search overlay.
