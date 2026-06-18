@@ -243,7 +243,8 @@ const PublicBusinessProfile = () => {
                 {isLong && (
                   <button
                     onClick={() => setDescExpanded((v) => !v)}
-                    className="mt-2 text-sm font-semibold text-primary hover:underline transition-colors"
+                    className="mt-2 text-sm font-semibold hover:opacity-80 transition-opacity"
+                    style={{ color: "#ECD6B8" }}
                   >
                     {descExpanded ? "Voir −" : "Voir +"}
                   </button>
@@ -333,6 +334,14 @@ const PublicBusinessProfile = () => {
               );
             })()}
           </div>
+
+          <a
+            href="/club"
+            className="btn-shimmer mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
+            style={{ backgroundColor: "#ECD6B8" }}
+          >
+            Un compte One World Morocco ?
+          </a>
 
         </div>
       </div>
