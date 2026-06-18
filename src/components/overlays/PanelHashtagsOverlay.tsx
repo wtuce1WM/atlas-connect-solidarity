@@ -65,12 +65,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
         >
           <X className="h-4 w-4" />
         </button>
-        <div className="flex items-center justify-center gap-2">
-          <Hash className="h-4 w-4 text-black" />
-          <h2 className="text-sm font-semibold text-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-            Hashtags
-          </h2>
-        </div>
+        <div />
         <div className="w-9 h-9" aria-hidden />
       </div>
       <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain p-4">
