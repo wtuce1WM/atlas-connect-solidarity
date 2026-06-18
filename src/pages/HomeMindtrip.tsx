@@ -402,14 +402,17 @@ const HomeMindtrip = () => {
         <section 
           className="relative min-h-[92vh] w-full overflow-hidden"
         >
-         <img
-            ref={heroBgRef}
-            src={heroImage}
-            alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-            className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
-            loading="eager"
-            fetchPriority="high"
-          />
+        <picture>
+          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
+           <img
+              ref={heroBgRef}
+              src={heroImage}
+              alt="Maroc — riad, piscine et tagine, composition réalisme magique"
+              className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
+              loading="eager"
+              fetchPriority="high"
+            />
+        </picture>
          {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
          <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
         <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
@@ -422,12 +425,12 @@ const HomeMindtrip = () => {
           aria-hidden="true"
           className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
         />
-        {/* Floating iPhone mockup — right side, mobile and tablet (lg:hidden) */}
+        {/* Floating iPhone mockup — right side, tablet only (md to lg) */}
         <img
           src={iphoneTabletMockupAsset.url}
           alt="Application One World Morocco — Koutoubia"
           aria-hidden="true"
-          className="block lg:hidden pointer-events-none select-none absolute right-[3%] max-md:right-[-5%] max-md:top-[42%] max-md:h-[35%] max-md:opacity-85 top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] h-[60%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
+          className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] h-[60%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
         />
         <style>{`
           @keyframes heroPhoneFloat {
