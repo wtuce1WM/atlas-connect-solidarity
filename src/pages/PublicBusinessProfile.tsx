@@ -27,6 +27,7 @@ type PublicBusiness = {
   pinterest_url: string | null;
   spotify_url: string | null;
   soundcloud_url: string | null;
+  hook_fr: string | null;
 };
 
 const SOCIAL_ICONS: Record<string, JSX.Element> = {
