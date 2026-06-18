@@ -335,6 +335,14 @@ const PublicBusinessProfile = () => {
             })()}
           </div>
 
+          <a
+            href="/club"
+            className="btn-shimmer mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
+            style={{ backgroundColor: "#ECD6B8" }}
+          >
+            Un compte One World Morocco ?
+          </a>
+
         </div>
       </div>
     </div>
