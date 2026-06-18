@@ -857,12 +857,12 @@ const HomeMindtrip = () => {
                                 <div className="flex justify-start">
                                   <Link 
                                     to="/install"
-                                    className="relative group overflow-hidden rounded-[1.25rem] w-20 h-20 md:w-24 md:h-24 block border border-white/35 shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 bg-white/5 backdrop-blur-[2px] btn-shimmer"
+                                    className="relative group overflow-hidden rounded-[0.95rem] w-14 h-14 md:w-16 md:h-16 block border border-white/35 shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 bg-white/5 backdrop-blur-[2px] btn-shimmer"
                                   >
                                     {/* Glass sheen effect */}
                                     <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/15 z-10 pointer-events-none" />
                                     {/* Curved highlight for realistic glass bubble effect */}
-                                    <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-white/25 to-transparent rounded-t-[1.25rem] pointer-events-none z-10" />
+                                    <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-white/25 to-transparent rounded-t-[0.95rem] pointer-events-none z-10" />
                                     {/* App Icon Image */}
                                     <img 
                                       src={appIconHamsaAsset.url} 
