@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, MapPin } from "lucide-react";
+import { Globe, MapPin, Star, PenSquare } from "lucide-react";
 import NotFound from "@/pages/NotFound";
 import ShareButton from "@/components/ShareButton";
 import { useSEO } from "@/hooks/useSEO";
+import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
+
 
 type PublicBusiness = {
   id: string;
