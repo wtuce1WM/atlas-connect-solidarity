@@ -16,7 +16,7 @@ import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
 import ShareButton from "@/components/ShareButton";
-import ogImageCard from "@/assets/og-install-app.webp.asset.json";
+import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
 import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
