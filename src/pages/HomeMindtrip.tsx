@@ -17,12 +17,14 @@ import { Search, Mic } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
-import heroHomeAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
+import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
+import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import heroHomeVertAsset from "@/assets/hero-home-vert.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import zelligeMobileAsset from "@/assets/backgr-brun-zelliges.webp.asset.json";
-const heroImage = heroHomeAsset.url;
+const heroImageDesktop = originalHeroAsset.url;
+const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = phoneMockupAsset.url;
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
@@ -404,9 +406,10 @@ const HomeMindtrip = () => {
         >
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
+          <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
            <img
               ref={heroBgRef}
-              src={heroImage}
+              src={heroImageDesktop}
               alt="Maroc — riad, piscine et tagine, composition réalisme magique"
               className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
               loading="eager"
