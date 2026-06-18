@@ -234,6 +234,18 @@ const MobileSearchOverlay = ({
             <Mic className="h-4 w-4 text-white" />
           )}
         </button>
+
+        {/* Submit button — visible when query has content (also serves as fallback after iOS dictation) */}
+        {query.trim().length >= 2 && (
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="flex items-center justify-center px-4 h-10 rounded-xl shrink-0 bg-primary text-primary-foreground text-sm font-semibold transition-all hover:bg-primary/90"
+            aria-label="Rechercher"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Scrollable suggestions body */}
