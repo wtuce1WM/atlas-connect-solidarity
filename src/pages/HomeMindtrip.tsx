@@ -832,42 +832,42 @@ const HomeMindtrip = () => {
                             className="lg:hidden absolute inset-0 h-full w-full object-cover"
                           />
                           <div className="lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
-                          {/* Tablet mockup — right side */}
-                          <img
-                            src={iphoneTabletMockupAsset.url}
-                            alt=""
-                            aria-hidden="true"
-                            className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 h-[80%] w-auto z-10 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)]"
-                          />
-                          {/* Mobile mockup — shifted to the right inside the card */}
-                          <img
-                            src={iphoneTabletMockupAsset.url}
-                            alt=""
-                            aria-hidden="true"
-                            className="block md:hidden pointer-events-none select-none absolute top-1/2 -translate-y-1/2 right-[-20%] h-[75%] w-auto z-10 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)]"
-                          />
-
-                          <div className="hidden md:block absolute md:top-10 md:left-10 z-20">
-                            <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
-                              Étape {i + 1}
-                            </span>
-                          </div>
+                          {/* Mockup for desktop or other default cases if any */}
                         </>
                       )}
-                      <div className={`relative z-10 ${i === 7 ? "text-left md:text-center flex flex-col items-start md:items-center justify-between h-full min-h-[300px] md:min-h-[400px] flex-1 max-w-[70%] md:max-w-none" : ""}`}>
-                        {i === 7 && (
-                          <div className="md:hidden mt-0 mb-2">
-                            <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
-                              Étape {i + 1}
-                            </span>
-                          </div>
-                        )}
+                      <div className={`relative z-10 w-full h-full flex flex-col ${i === 7 ? "min-h-[300px] md:min-h-[400px] justify-between" : ""}`}>
                         {i === 7 ? (
-                          <div className="flex flex-col items-start md:items-center gap-3 mt-2 md:mt-auto md:mb-12">
-                            <h3 className={`font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] md:text-center`}>
+                          <div className="flex flex-col items-start w-full h-full flex-1">
+                            {/* Step Badge */}
+                            <div className="mt-0 mb-3">
+                              <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
+                                Étape {i + 1}
+                              </span>
+                            </div>
+
+                            {/* Title — full width, on top */}
+                            <h3 className="font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] text-left w-full">
                               {s.title}
                             </h3>
-                            <p className="mt-3 md:mt-4 text-white/90 font-normal [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base md:text-center md:mx-auto">{s.desc}</p>
+
+                            {/* Mobile/Tablet/Desktop Content Layout */}
+                            <div className="flex flex-row items-center justify-between w-full mt-4 gap-4 flex-1">
+                              {/* Left side: text description taking 70% width */}
+                              <div className="w-[68%] pr-2">
+                                <p className="text-white/90 font-normal [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] font-roboto text-sm md:text-base text-left">
+                                  {s.desc}
+                                </p>
+                              </div>
+                              {/* Right side: Mockup image taking remaining width, fully visible without being cut off */}
+                              <div className="w-[32%] flex justify-end items-center h-full">
+                                <img
+                                  src={iphoneTabletMockupAsset.url}
+                                  alt=""
+                                  aria-hidden="true"
+                                  className="pointer-events-none select-none max-h-[160px] md:max-h-[260px] lg:max-h-[320px] w-auto object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.45)]"
+                                />
+                              </div>
+                            </div>
                           </div>
                         ) : (
                           <>
@@ -879,7 +879,7 @@ const HomeMindtrip = () => {
                             <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
                               {s.title}
                             </h3>
-                            <p className={`mt-3 md:mt-4 text-white/90 ${i === 7 ? "font-normal" : "font-bold"} [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base ${i === 7 ? "mx-auto" : ""}`}>{s.desc}</p>
+                            <p className="mt-3 md:mt-4 text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base">{s.desc}</p>
                           </>
                         )}
 
