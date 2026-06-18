@@ -119,6 +119,16 @@ const CSS = `
   .card-page .final p{color:#3a3a3a;font-size:18px;max-width:620px;margin:0 auto 36px}
   .card-page .final code{background:#fff;padding:4px 12px;border-radius:8px;color:var(--terracotta);font-weight:700;font-family:inherit}
 
+  /* Hero (aligned with homepage / Join hero) */
+  .card-page .hero-sub{font-size:clamp(16px,1.4vw,19px);color:rgba(255,255,255,.92);max-width:680px;margin:0 auto 34px;line-height:1.5}
+  .card-page .hero-cta{display:inline-flex;align-items:center;gap:10px;background:var(--terracotta);color:#fff;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(192,79,23,.7);transition:transform .2s,background .2s}
+  .card-page .hero-cta:hover{background:var(--terracotta-deep);transform:translateY(-2px)}
+  .card-page .hero-checks{display:flex;flex-wrap:wrap;justify-content:center;gap:22px;margin-top:22px;font-size:14px;color:rgba(255,255,255,.95)}
+  .card-page .hero-checks span{display:inline-flex;align-items:center;gap:8px}
+  .card-page .hero-stats{margin-top:38px;display:inline-flex;flex-wrap:wrap;justify-content:center;gap:0;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:10px 8px;font-size:13px}
+  .card-page .hero-stats div{padding:6px 22px;display:inline-flex;align-items:center;gap:8px;color:#fff;border-right:1px solid rgba(255,255,255,.18)}
+  .card-page .hero-stats div:last-child{border-right:none}
+  @media (max-width:700px){.card-page .hero-stats{font-size:12px}.card-page .hero-stats div{padding:6px 14px}}
 `;
 
 const Card = () => {
