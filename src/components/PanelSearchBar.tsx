@@ -264,7 +264,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       </div>
 
 
-      {hashtagsOverlayOpen && (
+      {hashtagsOverlayOpen && hashtagsOverlayOpenProp === undefined && (
         <OverlayShell zClass="z-[92]" coverToolbar={false}>
           <PanelHashtagsOverlay open={hashtagsOverlayOpen} onClose={() => setHashtagsOverlayOpen(false)} />
         </OverlayShell>
