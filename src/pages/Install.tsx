@@ -6,6 +6,7 @@ import { resolveHomepageCity } from "@/lib/cityHomepage";
 import heroImageAsset from "@/assets/hero_install_hor.webp.asset.json";
 import heroHomeVertAsset from "@/assets/hero-home-vert.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
+import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 
 type Platform = "ios" | "android" | "mac" | "windows";
 
