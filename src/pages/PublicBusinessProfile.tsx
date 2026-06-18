@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, MapPin, PenSquare } from "lucide-react";
+import { Globe, MapPin, PenSquare, Star } from "lucide-react";
 import NotFound from "@/pages/NotFound";
 import ShareButton from "@/components/ShareButton";
 import { useSEO } from "@/hooks/useSEO";
@@ -35,6 +35,8 @@ type PublicBusiness = {
   google_place_id: string | null;
   tripadvisor_url: string | null;
   tripadvisor_review_url: string | null;
+  computed_rating?: number | null;
+  total_review_count?: number | null;
 };
 
 
@@ -107,7 +109,7 @@ const PublicBusinessProfile = () => {
       const query = supabase
         .from("businesses")
         .select(
-          "id, slug, name, city, country, description, hook_fr, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, google_maps_url, google_review_url, google_place_id, tripadvisor_url, tripadvisor_review_url, is_active",
+          "id, slug, name, city, country, description, hook_fr, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, google_maps_url, google_review_url, google_place_id, tripadvisor_url, tripadvisor_review_url, computed_rating, total_review_count, is_active",
         )
         .eq("is_active", true);
 
@@ -200,11 +202,27 @@ const PublicBusinessProfile = () => {
             </p>
           )}
 
+          {business.computed_rating != null && business.total_review_count && business.total_review_count > 0 && (
+            <div className="relative mt-4 mb-2 flex items-center justify-center gap-1.5 py-1 px-3.5 rounded-full border border-white/20 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]">
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
+              <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
+              <div className="flex items-center gap-1.5">
+                <Star className="h-4 w-4 text-[#D4AF37] fill-[#D4AF37]" />
+                <span className="text-lg font-black text-[#D4AF37] whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                  {business.computed_rating}<span className="text-xs font-semibold text-white/60">/20</span>
+                </span>
+              </div>
+              <span className="text-[11px] text-white/70 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                · {business.total_review_count.toLocaleString("fr-FR")} avis
+              </span>
+            </div>
+          )}
+
           {business.description && (() => {
             const full = business.description;
-            const isLong = full.length > 500;
-            const head = isLong ? full.slice(0, 500).trimEnd() : full;
-            const tail = isLong ? full.slice(500) : "";
+            const isLong = full.length > 300;
+            const head = isLong ? full.slice(0, 300).trimEnd() : full;
+            const tail = isLong ? full.slice(300) : "";
             return (
               <div className="mt-3 max-w-md">
                 <div className="text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line">
@@ -214,8 +232,8 @@ const PublicBusinessProfile = () => {
                     <div
                       className="grid transition-[grid-template-rows,opacity] duration-500 ease-in-out"
                       style={{
-                        gridTemplateRows: descExpanded ? "1fr" : "0fr",
-                        opacity: descExpanded ? 1 : 0,
+                          gridTemplateRows: descExpanded ? "1fr" : "0fr",
+                          opacity: descExpanded ? 1 : 0,
                       }}
                     >
                       <div className="overflow-hidden whitespace-pre-line">{tail}</div>
