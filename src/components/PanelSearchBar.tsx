@@ -257,11 +257,12 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             onClick={() => window.dispatchEvent(new Event("open-location-picker"))}
           />
           <Cell
-            icon={<Hash className="h-5 w-5" />}
-            label="Tags"
-            ariaLabel="Hashtags"
-            onClick={() => setHashtagsOverlayOpen(true)}
+            icon={<User className="h-5 w-5" />}
+            label="Profil"
+            ariaLabel="Profil"
+            onClick={handleProfileClick}
           />
+
         </div>
       </div>
 
