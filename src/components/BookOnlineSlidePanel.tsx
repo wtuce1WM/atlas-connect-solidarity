@@ -710,10 +710,15 @@ const BookOnlineSlidePanelInner = ({
     if (cardsHidden) setMatterportPinnedInHiddenMode(true);
   }, [cardsHidden, businessId]);
 
-  // Cascading peek effect on the left CTAs when the panel opens for a business
+  // Cascading peek effect on the left CTAs when the panel opens for a business.
+  // If a welcome popup is showing, defer until it closes.
   const [peekCta, setPeekCta] = useState<boolean[]>([]);
+  const peekPlayedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!businessId) return;
+    if (showWelcomePopup) return;
+    if (peekPlayedRef.current === businessId) return;
+    peekPlayedRef.current = businessId;
     const count = 6;
     const start = 450;
     const open = 1500;
@@ -725,7 +730,8 @@ const BookOnlineSlidePanelInner = ({
       timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = false; return n; }), start + i * stagger + open));
     }
     return () => timers.forEach(clearTimeout);
-  }, [businessId]);
+  }, [businessId, showWelcomePopup]);
+  useEffect(() => { peekPlayedRef.current = null; }, [businessId]);
 
 
 
