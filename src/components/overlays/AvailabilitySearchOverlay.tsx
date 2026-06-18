@@ -111,8 +111,8 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
             <Search className="h-4 w-4" />
             {isEn ? "Check availability" : "Vérifier la disponibilité"}
           </p>
-          <button onClick={onClose} className="text-white/50 hover:text-white transition-colors">
-            <X className="h-5 w-5" />
+          <button onClick={onClose} className="p-1.5 rounded-full bg-white text-black hover:bg-white/90 transition-colors shadow-md" title="Fermer">
+            <X className="h-4 w-4 text-black" />
           </button>
         </div>
 
