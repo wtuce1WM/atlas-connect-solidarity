@@ -250,7 +250,7 @@
   .city .nm{font-family:'Montserrat',sans-serif;font-size:clamp(40px,5vw,76px);
     color:#000000;line-height:1}
   .city .lb{font-size:11px;letter-spacing:.32em;text-transform:uppercase;
-    color:var(--gold);margin-top:14px}
+    color:#C04F17;margin-top:14px}
   .divider-v{width:1px;height:110px;background:var(--line)}
   .kingdom{margin-top:60px;font-family:'Montserrat',sans-serif;font-style:italic;
     font-size:clamp(18px,2vw,26px);color:var(--red)}
