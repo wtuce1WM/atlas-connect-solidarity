@@ -388,24 +388,7 @@ const Club = () => {
 
   return (
     <div className={`min-h-screen ${user ? "bg-[#BED1FF]" : "bg-background"}`}>
-      {user && (
-        <Header
-          leftContent={
-            <Link
-              to="/"
-              aria-label="Accueil"
-              className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors"
-            >
-              <Home className="h-5 w-5 text-foreground" />
-            </Link>
-          }
-          rightContent={
-            <div className="flex justify-end w-full">
-              <ShareButton variant="dark" />
-            </div>
-          }
-        />
-      )}
+      {user && <Header compact />}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
 
       {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
