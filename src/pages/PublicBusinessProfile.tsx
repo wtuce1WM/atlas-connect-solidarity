@@ -185,11 +185,32 @@ const PublicBusinessProfile = () => {
             </p>
           )}
 
-          {business.description && (
-            <p className="mt-3 text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line max-w-md">
-              {business.description}
+          {business.hook_fr && (
+            <p className="mt-3 text-[15px] italic text-white/90 font-medium max-w-md">
+              {business.hook_fr}
             </p>
           )}
+
+          {business.description && (() => {
+            const full = business.description;
+            const isLong = full.length > 500;
+            const shown = !isLong || descExpanded ? full : full.slice(0, 500).trimEnd() + "…";
+            return (
+              <div className="mt-3 max-w-md">
+                <p className="text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line">
+                  {shown}
+                </p>
+                {isLong && (
+                  <button
+                    onClick={() => setDescExpanded((v) => !v)}
+                    className="mt-2 text-sm font-semibold text-primary hover:underline"
+                  >
+                    {descExpanded ? "Voir −" : "Voir +"}
+                  </button>
+                )}
+              </div>
+            );
+          })()}
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             {socials.map((s) => {
