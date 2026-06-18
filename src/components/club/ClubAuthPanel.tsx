@@ -247,50 +247,48 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
             </label>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white text-black" />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-white font-semibold mb-1 block">
-                {t.password} <span className="text-white font-bold ml-1">*</span>
-              </label>
-              <div className="relative">
-                <Input
-                  type={showPw ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="bg-white text-black pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+          <div>
+            <label className="text-xs text-white font-semibold mb-1 block">
+              {t.password} <span className="text-white font-bold ml-1">*</span>
+            </label>
+            <div className="relative">
+              <Input
+                type={showPw ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="bg-white text-black pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(!showPw)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
-            <div>
-              <label className="text-xs text-white font-semibold mb-1 block">
-                {t.confirmPassword} <span className="text-white font-bold ml-1">*</span>
-              </label>
-              <div className="relative">
-                <Input
-                  type={showPw2 ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="bg-white text-black pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw2(!showPw2)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPw2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+          </div>
+          <div>
+            <label className="text-xs text-white font-semibold mb-1 block">
+              {t.confirmPassword} <span className="text-white font-bold ml-1">*</span>
+            </label>
+            <div className="relative">
+              <Input
+                type={showPw2 ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={6}
+                className="bg-white text-black pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw2(!showPw2)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPw2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
           {confirmPassword && password !== confirmPassword && (
