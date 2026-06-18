@@ -133,7 +133,7 @@ const PublicBusinessProfile = () => {
   });
 
   if (loading) {
-    return <div className="min-h-screen" style={{ backgroundColor: "#CDBFA4" }} />;
+    return <div className="min-h-screen" style={{ backgroundColor: "#ECD6B8" }} />;
   }
   if (!business) return <NotFound />;
 
@@ -161,8 +161,70 @@ const PublicBusinessProfile = () => {
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center py-6 px-3 sm:py-10"
-      style={{ backgroundColor: "#CDBFA4" }}
+      style={{ backgroundColor: "#ECD6B8" }}
     >
+      <style>{`
+        @keyframes single-shimmer {
+          0% {
+            transform: translateX(-150%) skewX(-20deg);
+          }
+          100% {
+            transform: translateX(200%) skewX(-20deg);
+          }
+        }
+        .shimmer-once-badge {
+          position: relative;
+          overflow: hidden;
+          isolation: isolate;
+        }
+        .shimmer-once-badge::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.15) 20%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0.15) 80%,
+            transparent
+          );
+          transform: translateX(-150%) skewX(-20deg);
+          animation: single-shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation-delay: 0.3s;
+          pointer-events: none;
+          z-index: 10;
+        }
+        .shimmer-once-cta {
+          position: relative;
+          overflow: hidden;
+          isolation: isolate;
+        }
+        .shimmer-once-cta::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.15) 20%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0.15) 80%,
+            transparent
+          );
+          transform: translateX(-150%) skewX(-20deg);
+          animation: single-shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation-delay: 0.9s;
+          pointer-events: none;
+          z-index: 10;
+        }
+      `}</style>
       <div className="relative w-full max-w-[420px] min-h-[85vh] rounded-[2.5rem] bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 shadow-2xl ring-1 ring-white/10 overflow-hidden">
         <div className="absolute top-4 right-4 z-10">
           <ShareButton
@@ -203,7 +265,7 @@ const PublicBusinessProfile = () => {
           )}
 
           {business.computed_rating != null && business.total_review_count && business.total_review_count > 0 && (
-            <div className="btn-shimmer relative mt-4 mb-2 flex items-center justify-center gap-1.5 py-1 px-3.5 rounded-full border border-white/20 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]">
+            <div className="shimmer-once-badge relative mt-4 mb-2 flex items-center justify-center gap-1.5 py-1 px-3.5 rounded-full border border-white/20 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]">
               <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
               <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
               <div className="flex items-center gap-1.5">
@@ -280,7 +342,7 @@ const PublicBusinessProfile = () => {
                 href={l.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-shimmer block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
               >
                 <span className="inline-flex items-center gap-2">
                   <Globe className="h-4 w-4 text-neutral-400" />
@@ -290,7 +352,7 @@ const PublicBusinessProfile = () => {
             ))}
             <a
               href={`/fiche/${business.slug}`}
-              className="btn-shimmer block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
+              className="shimmer-once-cta block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
             >
               Voir la fiche complète
             </a>
@@ -311,7 +373,7 @@ const PublicBusinessProfile = () => {
                       href={googleReviewHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn-shimmer flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
                     >
                       <img src="https://www.google.com/favicon.ico" alt="" className="h-4 w-4" />
                       <span>Laisser un avis sur Google</span>
@@ -323,7 +385,7 @@ const PublicBusinessProfile = () => {
                       href={tripHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn-shimmer flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
                     >
                       <img src="/review-logos/tripadvisor.webp" alt="" className="h-4 w-4 object-contain" />
                       <span>Laisser un avis sur TripAdvisor</span>
@@ -337,7 +399,7 @@ const PublicBusinessProfile = () => {
 
           <a
             href="/club"
-            className="btn-shimmer mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
+            className="mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
             style={{ backgroundColor: "#ECD6B8" }}
           >
             Un compte One World Morocco ?
