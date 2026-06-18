@@ -71,7 +71,7 @@ const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<s
   return params;
 };
 
-const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
@@ -85,11 +85,16 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
     _setAiOverlayOpen(open);
     onAiOverlayChange?.(open);
   }, [onAiOverlayChange]);
-  const [hashtagsOverlayOpen, _setHashtagsOverlayOpen] = useState(false);
+  const [hashtagsOverlayOpenLocal, setHashtagsOverlayOpenLocal] = useState(false);
+  const hashtagsOverlayOpen = hashtagsOverlayOpenProp !== undefined ? hashtagsOverlayOpenProp : hashtagsOverlayOpenLocal;
   const setHashtagsOverlayOpen = useCallback((open: boolean) => {
-    _setHashtagsOverlayOpen(open);
-    onHashtagsOverlayChange?.(open);
-  }, [onHashtagsOverlayChange]);
+    if (hashtagsOverlayOpenProp !== undefined) {
+      onHashtagsOverlayChange?.(open);
+    } else {
+      setHashtagsOverlayOpenLocal(open);
+      onHashtagsOverlayChange?.(open);
+    }
+  }, [hashtagsOverlayOpenProp, onHashtagsOverlayChange]);
 
   useEffect(() => {
     const handler = () => setHashtagsOverlayOpen(true);
