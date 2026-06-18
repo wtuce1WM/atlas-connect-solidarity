@@ -194,7 +194,7 @@
   .model-text h2{color:#000000;font-size:clamp(32px,4.2vw,56px);line-height:1.1;margin-bottom:26px}
   .model-text h2 em{font-style:italic;color:var(--red)}
   .model-text p{font-size:16.5px;line-height:1.9;color:#000000;
-    font-weight:300;margin-bottom:22px}
+    font-weight:400;margin-bottom:22px}
   .model-text .hl{color:var(--red);font-weight:500}
   .compare{margin-top:34px;border-top:1px solid var(--line)}
   .compare div{display:flex;justify-content:space-between;align-items:baseline;
