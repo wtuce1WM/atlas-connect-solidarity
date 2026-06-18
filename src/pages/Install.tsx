@@ -3,10 +3,16 @@ import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check 
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { resolveHomepageCity } from "@/lib/cityHomepage";
-import heroImageAsset from "@/assets/hero_install_hor.webp.asset.json";
-import heroHomeVertAsset from "@/assets/hero-home-vert.webp.asset.json";
+import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
+import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
+import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
+import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
+
+const heroImageDesktop = originalHeroAsset.url;
+const heroImageTablet = zelligeBrunAsset.url;
+const heroImageMobile = zelligeBrunAsset.url;
 
 type Platform = "ios" | "android" | "mac" | "windows";
 
