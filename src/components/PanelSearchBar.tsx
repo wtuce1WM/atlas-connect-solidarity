@@ -27,6 +27,8 @@ interface PanelSearchBarProps {
   onAiOverlayChange?: (open: boolean) => void;
   /** Called when the hashtags overlay opens or closes */
   onHashtagsOverlayChange?: (open: boolean) => void;
+  /** Force the hashtags overlay open state from parent */
+  hashtagsOverlayOpen?: boolean;
   /** Use a dark (black) background instead of transparent */
   darkBackground?: boolean;
   /** Increment to force-close all overlays from outside */
