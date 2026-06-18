@@ -189,11 +189,11 @@
   .sec-head p{margin-top:24px;font-size:17px;line-height:1.85;color:rgba(33,23,16,.7);
     font-weight:300;max-width:62ch}
 
-  .model{background:#ECD6B8}
+  .model{background:#ECD6B8;color:#000000}
   .model-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:90px;align-items:center}
-  .model-text h2{font-size:clamp(32px,4.2vw,56px);line-height:1.1;margin-bottom:26px}
+  .model-text h2{color:#000000;font-size:clamp(32px,4.2vw,56px);line-height:1.1;margin-bottom:26px}
   .model-text h2 em{font-style:italic;color:var(--red)}
-  .model-text p{font-size:16.5px;line-height:1.9;color:rgba(33,23,16,.74);
+  .model-text p{font-size:16.5px;line-height:1.9;color:#000000;
     font-weight:300;margin-bottom:22px}
   .model-text .hl{color:var(--red);font-weight:500}
   .compare{margin-top:34px;border-top:1px solid var(--line)}
