@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Globe, MapPin } from "lucide-react";
@@ -27,6 +27,7 @@ type PublicBusiness = {
   pinterest_url: string | null;
   spotify_url: string | null;
   soundcloud_url: string | null;
+  hook_fr: string | null;
 };
 
 const SOCIAL_ICONS: Record<string, JSX.Element> = {
@@ -49,7 +50,7 @@ const SOCIAL_ICONS: Record<string, JSX.Element> = {
     <svg className="h-6 w-6 text-[#E60023]" viewBox="0 0 24 24" fill="currentColor"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z"/></svg>
   ),
   soundcloud: (
-    <svg className="h-6 w-6 text-[#FF5500]" viewBox="0 0 24 24" fill="currentColor"><path d="M1.175 12.225c-.051 0-.094.046-.101.1l-.233 2.154.233 2.105c.007.058.05.098.101.098.05 0 .09-.04.099-.098l.255-2.105-.27-2.154c-.009-.057-.049-.1-.1-.1m17.318-2.243c-.108 0-.195.09-.199.191l-.155 3.601.155 3.338c.004.101.091.185.199.185.109 0 .194-.084.2-.185l.176-3.338-.176-3.601c-.006-.101-.091-.191-.2-.191m2.707-.825c-.16 0-.307.058-.427.152a4.452 4.452 0 00-4.09-2.685c-.355 0-.703.058-1.03.153-.122.042-.155.085-.155.17v8.93c.003.09.074.163.164.171h5.538a2.31 2.31 0 002.325-2.31 2.31 2.31 0 00-2.325-2.581"/></svg>
+    <svg className="h-6 w-6 text-[#FF5500]" viewBox="0 0 32 32" fill="currentColor"><path d="M0.96 19.04c0 1.36 0.32 2.4 0.8 3.12 0.16 0.16 0.32 0.24 0.48 0.16 0.16-0.08 0.24-0.24 0.16-0.4-0.48-0.88-0.72-1.84-0.72-2.88s0.24-2 0.72-2.88c0.08-0.16 0-0.32-0.16-0.4-0.16-0.08-0.32 0-0.48 0.16-0.48 0.72-0.8 1.76-0.8 3.12zM2.96 21.36c0 0.96 0.16 1.84 0.48 2.4 0.080 0.16 0.24 0.24 0.4 0.16s0.24-0.24 0.16-0.4c-0.24-0.56-0.4-1.36-0.4-2.16 0-1.6 0.32-2.96 0.4-3.12 0.080-0.16 0-0.32-0.16-0.4s-0.32 0-0.4 0.16c-0.24 0.56-0.48 1.92-0.48 3.36zM5.2 22.64c0 0.16 0.16 0.32 0.32 0.32s0.32-0.16 0.32-0.32l0.32-3.6-0.32-7.040c0-0.16-0.16-0.32-0.32-0.32s-0.32 0.16-0.32 0.32l-0.32 7.040 0.32 3.6zM7.6 23.040c0 0.16 0.16 0.32 0.32 0.32 0.24 0 0.32-0.16 0.32-0.32l0.24-4-0.24-8.16c0-0.24-0.16-0.32-0.32-0.32s-0.32 0.16-0.32 0.32l-0.24 8.16 0.24 4zM10 23.12c0 0.24 0.16 0.4 0.4 0.4 0.16 0 0.32-0.16 0.4-0.4l0.24-4.080-0.24-7.36c0-0.24-0.16-0.4-0.4-0.4-0.24 0-0.4 0.16-0.4 0.4l-0.24 7.36 0.24 4.080zM12.48 23.2c0 0.24 0.16 0.4 0.4 0.4s0.4-0.16 0.4-0.4l0.24-4.16-0.24-9.040c0-0.24-0.16-0.4-0.4-0.4s-0.4 0.16-0.4 0.4l-0.16 9.040 0.16 4.16zM14.96 23.2c0 0.24 0.24 0.4 0.48 0.4s0.4-0.16 0.48-0.4l0.16-4.16-0.16-10.080c0-0.24-0.24-0.48-0.48-0.48s-0.48 0.24-0.48 0.48l-0.16 10.080 0.16 4.16zM17.52 23.2c0 0.32 0.24 0.48 0.48 0.48 0.32 0 0.48-0.24 0.48-0.48l0.16-4.16-0.16-10.16c0-0.32-0.24-0.48-0.48-0.48-0.32 0-0.48 0.24-0.48 0.48v14.32zM20.080 23.2c0 0.32 0.24 0.56 0.56 0.56 0.24 0 0.48-0.24 0.56-0.56l0.16-4.080-0.16-9.6c0-0.32-0.24-0.56-0.56-0.56-0.24 0-0.56 0.24-0.56 0.56v13.68zM22.64 23.2c0 0.32 0.32 0.56 0.56 0.56 0.32 0 0.56-0.24 0.56-0.56l0.16-4-0.16-9.36c0-0.32-0.24-0.56-0.56-0.56-0.32 0-0.56 0.24-0.56 0.56l-0.16 9.36 0.16 4zM25.36 23.2c0 0.32 0.24 0.56 0.56 0.56s0.56-0.24 0.56-0.56l0.16-4-0.16-9.6c0-0.32-0.24-0.56-0.56-0.56s-0.56 0.24-0.56 0.56v13.6zM27.2 23.6c0 0.080 0.080 0.16 0.16 0.16h4.080c2.48 0 4.56-2 4.56-4.56s-2.080-4.56-4.56-4.56c-0.64 0-1.2 0.16-1.68 0.32-0.4-3.52-3.36-6.32-7.040-6.32-0.88 0-1.76 0.16-2.56 0.48-0.32 0.080-0.4 0.16-0.4 0.4v13.92z"/></svg>
   ),
   youtube: (
     <svg className="h-6 w-6 text-[#FF0000]" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
@@ -88,6 +89,7 @@ const PublicBusinessProfile = () => {
   const { slug = "" } = useParams();
   const [loading, setLoading] = useState(true);
   const [business, setBusiness] = useState<PublicBusiness | null>(null);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -97,7 +99,7 @@ const PublicBusinessProfile = () => {
       const query = supabase
         .from("businesses")
         .select(
-          "id, slug, name, city, country, description, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, is_active",
+          "id, slug, name, city, country, description, hook_fr, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, is_active",
         )
         .eq("is_active", true);
       const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
@@ -183,11 +185,32 @@ const PublicBusinessProfile = () => {
             </p>
           )}
 
-          {business.description && (
-            <p className="mt-3 text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line max-w-md">
-              {business.description}
+          {business.hook_fr && (
+            <p className="mt-3 text-[15px] italic text-white/90 font-medium max-w-md">
+              {business.hook_fr}
             </p>
           )}
+
+          {business.description && (() => {
+            const full = business.description;
+            const isLong = full.length > 500;
+            const shown = !isLong || descExpanded ? full : full.slice(0, 500).trimEnd() + "…";
+            return (
+              <div className="mt-3 max-w-md">
+                <p className="text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line">
+                  {shown}
+                </p>
+                {isLong && (
+                  <button
+                    onClick={() => setDescExpanded((v) => !v)}
+                    className="mt-2 text-sm font-semibold text-primary hover:underline"
+                  >
+                    {descExpanded ? "Voir −" : "Voir +"}
+                  </button>
+                )}
+              </div>
+            );
+          })()}
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             {socials.map((s) => {
