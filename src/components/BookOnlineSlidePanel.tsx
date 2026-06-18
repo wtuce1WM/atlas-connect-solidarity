@@ -734,6 +734,29 @@ const BookOnlineSlidePanelInner = ({
   }, [businessId, showWelcomePopup]);
   useEffect(() => { peekPlayedRef.current = null; }, [businessId]);
 
+  // Tap-to-reveal label on touch devices for left CTAs: first tap expands, second tap triggers.
+  const [tappedCta, setTappedCta] = useState<string | null>(null);
+  const isHoverDevice = typeof window !== 'undefined' && !!window.matchMedia?.('(hover: hover)').matches;
+  useEffect(() => {
+    if (!tappedCta) return;
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (!t || !t.closest('[data-cta-tap]')) setTappedCta(null);
+    };
+    document.addEventListener('pointerdown', onDown, true);
+    const timer = window.setTimeout(() => setTappedCta(null), 4000);
+    return () => { document.removeEventListener('pointerdown', onDown, true); clearTimeout(timer); };
+  }, [tappedCta]);
+  const handleCtaTap = (key: string, fn: () => void) => (e: React.MouseEvent) => {
+    if (!isHoverDevice && tappedCta !== key) {
+      e.preventDefault(); e.stopPropagation();
+      setTappedCta(key);
+      return;
+    }
+    setTappedCta(null);
+    fn();
+  };
+
 
 
   // Track recently viewed
