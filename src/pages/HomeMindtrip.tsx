@@ -821,13 +821,13 @@ const HomeMindtrip = () => {
                       )}
                       {i === 7 && (
                         <>
-                           {/* Mobile & Tablet Only — same bg + mockup as Hero (Desktop has default light background) */}
+                           {/* Background zellige — all devices */}
                            <img
                              src={zelligeMobileAsset.url}
                              alt=""
-                             className="lg:hidden absolute inset-0 h-full w-full object-cover"
+                             className="absolute inset-0 h-full w-full object-cover"
                            />
-                          <div className="lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
+                           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
                         </>
                       )}
                       <div className={`relative z-10 w-full h-full flex flex-col ${i === 7 ? "min-h-[300px] md:min-h-[400px] justify-between" : ""}`}>
