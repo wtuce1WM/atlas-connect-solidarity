@@ -2845,7 +2845,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <ExternalLink className="h-3.5 w-3.5" />
                   <span>Fiche</span>
                 </a>
-                {vanityUrls.length > 0 && (
+                 {vanityUrls.length > 0 && (
                   <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] leading-tight">
                     {vanityUrls.map((slug) => (
                       <a
@@ -2861,6 +2861,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     ))}
                   </div>
                 )}
+                <a
+                  href={`/b/${business?.slug || business?.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-orange-500 hover:text-orange-600 hover:underline inline-flex items-center gap-0.5 leading-tight transition-colors"
+                  title="Profil Linktree (/b/)"
+                >
+                  <ExternalLink className="h-2.5 w-2.5" />
+                  <span>/b/{business?.slug || business?.id}</span>
+                </a>
               </div>
               {formData.website && (
                 <a href={formData.website} target="_blank" rel="noopener noreferrer" title="Site web" className="text-muted-foreground hover:text-blue-600 transition-colors">
