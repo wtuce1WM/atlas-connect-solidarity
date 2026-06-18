@@ -39,6 +39,7 @@ const Club = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [nickname, setNickname] = useState<string>("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [profileData, setProfileData] = useState<any>(null);
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
@@ -68,20 +69,29 @@ const Club = () => {
     if (!user) {
       setNickname("");
       setAvatarUrl(null);
+      setProfileData(null);
       return;
     }
     const fetchMemberData = async () => {
       const { data } = await (supabase
         .from("club_members" as any)
-        .select("nickname, avatar_url")
+        .select("*")
         .eq("user_id", user.id)
         .maybeSingle() as any);
       if (data) {
-        if (data.nickname) setNickname(data.nickname);
+        let resolvedAvatarUrl = null;
         if (data.avatar_url) {
           const { data: signed } = await supabase.storage.from("club-avatars").createSignedUrl(data.avatar_url, 3600);
-          if (signed?.signedUrl) setAvatarUrl(signed.signedUrl);
+          if (signed?.signedUrl) {
+            resolvedAvatarUrl = signed.signedUrl;
+            setAvatarUrl(signed.signedUrl);
+          }
         }
+        if (data.nickname) setNickname(data.nickname);
+        setProfileData({
+          ...data,
+          avatar_url: resolvedAvatarUrl || data.avatar_url
+        });
       }
     };
     fetchMemberData();
@@ -425,6 +435,7 @@ const Club = () => {
                 title="Mon profil One World Morocco"
                 previewImage={ogImageCard.url}
                 avatarImage={avatarUrl}
+                profileData={profileData}
                 variant="dark"
               />
             </div>
