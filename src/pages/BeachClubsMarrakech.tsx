@@ -91,6 +91,28 @@ const BEACH_CLUBS: BlogArticleEntry[] = [
       "Le binôme avec Waky en fait l'une des combinaisons les plus efficaces de la route de l'Ourika : pour celles et ceux qui veulent un peu d'adrénaline avant la détente, le téléski nautique est littéralement de l'autre côté du portail — on traverse, on glisse, on revient s'allonger au bord de l'eau chauffée. Difficile de faire plus fluide.",
     ],
   },
+  {
+    id: "abcc3d84-3afe-4f5a-9bf0-054ba9a1c0bf",
+    pretitle: "Route de Ouarzazate, aux portes de la ville",
+    title: "Touhina Playa Beach Club — une magnifique piscine lagon à l'esprit bohème",
+    hours: "Ouvert tous les jours. Piscine lagon, transats confortables, parking clients, accès PMR.",
+    paragraphs: [
+      "À seulement quelques minutes du centre-ville, sur la route de Ouarzazate, Touhina Playa se distingue comme l'un des beach clubs les plus dépaysants de Marrakech. Sa pièce maîtresse ? Une somptueuse piscine lagon aux courbes naturelles, entourée de transats ultra confortables et de parasols en paille qui convoquent immédiatement une atmosphère bohème et insulaire sous le franc soleil marocain.",
+      "L'expérience est pensée pour être mémorable de bout en bout : on s'y installe pour une journée de détente absolue rythmée par une musique envoûtante et subtile. Les mixologues maison y préparent des cocktails raffinés et colorés à siroter au bord de l'eau, tandis que la carte propose une cuisine fraîche et ensoleillée qui sublime l'art de vivre marrakchi.",
+      "Que l'on vienne pour s'évader à deux ou entre amis, ce cadre exclusif s'impose comme une halte privilégiée, mariant à la perfection le sens du service, l'élégance du design et la sérénité d'une véritable oasis de fraîcheur."
+    ],
+  },
+  {
+    id: "3ec27f66-640e-49f7-a16c-5fdb7d0225f4",
+    pretitle: "Route de Ouarzazate, derrière la Palmeraie",
+    title: "Domaine Du Douar — la parenthèse hors du temps au cœur d'un parc de 1,5 hectare",
+    hours: "Ouvert tous les jours. 3 piscines, terrains de tennis et pétanque, spa, restaurant et bar.",
+    paragraphs: [
+      "Niché derrière la célèbre Palmeraie de Marrakech, au kilomètre 17 sur la route de Ouarzazate, Le Domaine Du Douar offre une retraite d'une tranquillité absolue. Implanté au cœur d'un parc verdoyant d'un hectare et demi, ce domaine d'exception réunit chambres douillettes, suites raffinées et villas privées avec piscines sans vis-à-vis pour se détendre en toute intimité.",
+      "Le domaine fait de la diversité sa force pour séduire les voyageurs et les visiteurs d'un jour : avec ses trois superbes piscines, son terrain de tennis, son terrain de pétanque, un espace billard et un authentique hammam traditionnel, l'ennui n'a pas sa place. Le restaurant et le bar de la propriété vous reçoivent pour des déjeuners sous le soleil ou des dîners romantiques à la découverte d'une cuisine gourmande et conviviale.",
+      "Idéal pour une escapade ressourçante en couple, des vacances familiales ou la privatisation complète d'événements marquants (mariages, anniversaires, séminaires), le Domaine Du Douar garantit un accueil chaleureux et des moments précieux, suspendus entre nature et confort haut de gamme."
+    ],
+  },
 ];
 
 const BeachClubsMarrakech = () => (
@@ -98,13 +120,13 @@ const BeachClubsMarrakech = () => (
     entries={BEACH_CLUBS}
     articlePath="/blog/beach-clubs-marrakech"
     articleTitle="Beach Clubs à Marrakech"
-    articleDescription="Huit beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau."
+    articleDescription="Dix beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau."
     bookmarkSlug="beach-clubs-marrakech"
     heroAlt="Beach Clubs à Marrakech"
     heroTitleTop="Les Beach Clubs"
     heroTitleBottom="de Marrakech"
-    heroSubtitle="Huit adresses autour de la ville ocre — du beldi chic au club international, de la piscine 100 % femmes à la pool party XXL — pour vivre Marrakech au bord de l'eau."
-    intro="Marrakech n'a pas la mer, mais elle a inventé son propre rapport à l'eau : à quelques minutes des remparts, sur la route de l'Ourika ou celle d'Agadir, une constellation de beach clubs prolonge la ville ocre en oasis. On y vient pour une journée pass, un déjeuner les pieds presque dans l'eau, un cocktail signé d'un mixologue, un DJ set qui monte avec le soleil — ou simplement pour souffler, à l'ombre des oliviers, loin de l'effervescence de la médina. Voici nos huit adresses, du plus intimiste au plus festif."
+    heroSubtitle="Dix adresses autour de la ville ocre — du beldi chic au club international, de la piscine 100 % femmes à la pool party XXL — pour vivre Marrakech au bord de l'eau."
+    intro="Marrakech n'a pas la mer, mais elle a inventé son propre rapport à l'eau : à quelques minutes des remparts, sur la route de l'Ourika ou celle d'Agadir, une constellation de beach clubs prolonge la ville ocre en oasis. On y vient pour une journée pass, un déjeuner les pieds presque dans l'eau, un cocktail signé d'un mixologue, un DJ set qui monte avec le soleil — ou simplement pour souffler, à l'ombre des oliviers, loin de l'effervescence de la médina. Voici nos dix adresses, du plus intimiste au plus festif."
     datePublished="2026-06-13T08:00:00+01:00"
   />
 );
