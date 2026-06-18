@@ -98,7 +98,7 @@ const PublicBusinessProfile = () => {
       const query = supabase
         .from("businesses")
         .select(
-          "id, slug, name, city, country, description, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, is_active",
+          "id, slug, name, city, country, description, hook_fr, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, is_active",
         )
         .eq("is_active", true);
       const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
