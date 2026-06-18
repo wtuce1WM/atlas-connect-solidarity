@@ -78,6 +78,7 @@ const Install = () => {
   const [platform, setPlatform] = useState<Platform>("ios");
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
   const guideRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
 
