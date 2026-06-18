@@ -93,14 +93,14 @@ const PublicBusinessProfile = () => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data } = await supabase
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+      const query = supabase
         .from("businesses")
         .select(
           "id, slug, name, city, country, description, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, is_active",
         )
-        .or(`slug.eq.${slug},id.eq.${slug}`)
-        .eq("is_active", true)
-        .maybeSingle();
+        .eq("is_active", true);
+      const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
       if (cancelled) return;
       if (data?.description) data.description = stripHtml(String(data.description));
       setBusiness((data as PublicBusiness) ?? null);
