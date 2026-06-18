@@ -193,11 +193,21 @@ const Install = () => {
           <div className="w-full max-w-md bg-white/15 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
             <header className="text-center">
               <div className="flex flex-col items-center gap-6 mb-8">
-                <img
-                  src="/images/logo_blanc.webp"
-                  alt="ONE WORLD MOROCCO"
-                  className="h-24 w-auto object-contain transition-transform hover:scale-105"
-                />
+                <div 
+                  className="relative group overflow-hidden rounded-[1.25rem] w-20 h-20 block border border-white/35 shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 bg-white/5 backdrop-blur-[2px] btn-shimmer cursor-pointer"
+                  onClick={handleIconClick}
+                >
+                  {/* Glass sheen effect */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/15 z-10 pointer-events-none" />
+                  {/* Curved highlight for realistic glass bubble effect */}
+                  <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-white/25 to-transparent rounded-t-[1.25rem] pointer-events-none z-10" />
+                  {/* App Icon Image */}
+                  <img 
+                    src={appIconHamsaAsset.url} 
+                    alt="ONE WORLD MOROCCO" 
+                    className="w-full h-full object-cover relative z-0"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={handleIconClick}
