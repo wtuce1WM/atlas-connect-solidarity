@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, MapPin, PenSquare } from "lucide-react";
+import { Globe, MapPin, PenSquare, Star } from "lucide-react";
 import NotFound from "@/pages/NotFound";
 import ShareButton from "@/components/ShareButton";
 import { useSEO } from "@/hooks/useSEO";
@@ -35,6 +35,8 @@ type PublicBusiness = {
   google_place_id: string | null;
   tripadvisor_url: string | null;
   tripadvisor_review_url: string | null;
+  computed_rating?: number | null;
+  total_review_count?: number | null;
 };
 
 
