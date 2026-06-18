@@ -442,21 +442,21 @@ const HomeMindtrip = () => {
           }
         `}</style>
 
-        <div className="home-hero-content relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center max-md:justify-start max-md:pt-[140px] pb-28 text-center px-6 md:justify-center md:pt-24 md:pb-6 md:py-24 md:px-12">
+        <div className="home-hero-content relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center max-md:justify-start max-md:pt-[140px] pb-28 text-center px-6 md:justify-center md:items-start lg:items-center md:text-left lg:text-center md:pt-24 md:pb-6 md:py-24 md:px-12 md:max-lg:max-w-[55%] md:max-lg:ml-0 md:max-lg:mr-auto">
           {/* Mobile Title - placed under the header in normal flow to avoid overlap */}
           <h1 style={{ lineHeight: 1.2 }} className="md:hidden font-josefin text-[1.625rem] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
             L’écosystème digital éthique & solidaire dédié à l'économie marocaine
           </h1>
 
           {/* Desktop Title - integrated in flex-col for perfect vertical centering */}
-          <h1 style={{ lineHeight: 1.2 }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2">
+          <h1 style={{ lineHeight: 1.2 }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2">
             L’écosystème digital éthique & solidaire dédié à l'économie marocaine
           </h1>
 
-          <p className="mt-6 md:mt-2 max-w-2xl mx-auto font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
+          <p className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
             Faites de chaque achat<br className="md:hidden" /> un acte de générosité.<br className="md:hidden" /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
           </p>
-          <div className="max-md:mt-auto max-md:pt-10 mt-10 w-full max-w-2xl mx-auto md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+          <div className="max-md:mt-auto max-md:pt-10 mt-10 w-full max-w-2xl md:max-lg:mx-0 md:max-lg:max-w-xl mx-auto md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)]">
             <HeroInlineSearch
               placeholder="Rechercher un hôtel, un restaurant, une expérience…"
               onSearch={(params) => {
@@ -466,7 +466,7 @@ const HomeMindtrip = () => {
               onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
               onMobileSearchClick={() => heroVoice.toggleRecording()}
             />
-            <div className="hidden md:flex mt-5 justify-center">
+            <div className="hidden md:flex mt-5 md:max-lg:justify-start lg:justify-center">
               <button
                 type="button"
                 onClick={() => setVideoOpen(true)}
