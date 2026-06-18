@@ -138,7 +138,10 @@ const CSS = `
   .join-page .hero-stats{margin-top:38px;display:inline-flex;flex-wrap:wrap;justify-content:center;gap:0;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:10px 8px;font-size:13px}
   .join-page .hero-stats div{padding:6px 22px;display:inline-flex;align-items:center;gap:8px;color:#fff;border-right:1px solid rgba(255,255,255,.18)}
   .join-page .hero-stats div:last-child{border-right:none}
-  @media (max-width:700px){.join-page .hero-inner{padding:90px 20px 80px}.join-page .hero-stats{font-size:12px}.join-page .hero-stats div{padding:6px 14px}}
+  @media (max-width:700px){
+    .join-page .hero-inner{padding:90px 20px 80px}
+    .join-page .hero-stats{display:none !important}
+  }
   .join-page .why-head{text-align:center;max-width:900px;margin:0 auto 48px}
   .join-page .why-head h2{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.01em;margin-bottom:16px;text-transform:uppercase}
   .join-page .why-head p{color:var(--muted);font-size:17px;max-width:620px;margin:0 auto}
