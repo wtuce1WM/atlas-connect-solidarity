@@ -2,22 +2,6 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
-import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
-import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
-import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
-
-const heroImageDesktop = originalHeroAsset.url;
-const heroImageTablet = zelligeBrunAsset.url;
-const heroImageMobile = zelligeBrunAsset.url;
-
-const Check = ({ color }: { color: string }) => (
-  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-    <circle cx="11" cy="11" r="10" stroke={color} strokeWidth="1.6" />
-    <path d="M6.5 11.3l3 3 6-6" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
 
 
 const CSS = `
@@ -119,16 +103,6 @@ const CSS = `
   .card-page .final p{color:#3a3a3a;font-size:18px;max-width:620px;margin:0 auto 36px}
   .card-page .final code{background:#fff;padding:4px 12px;border-radius:8px;color:var(--terracotta);font-weight:700;font-family:inherit}
 
-  /* Hero (aligned with homepage / Join hero) */
-  .card-page .hero-sub{font-size:clamp(16px,1.4vw,19px);color:rgba(255,255,255,.92);max-width:680px;margin:0 auto 34px;line-height:1.5}
-  .card-page .hero-cta{display:inline-flex;align-items:center;gap:10px;background:var(--terracotta);color:#fff;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(192,79,23,.7);transition:transform .2s,background .2s}
-  .card-page .hero-cta:hover{background:var(--terracotta-deep);transform:translateY(-2px)}
-  .card-page .hero-checks{display:flex;flex-wrap:wrap;justify-content:center;gap:22px;margin-top:22px;font-size:14px;color:rgba(255,255,255,.95)}
-  .card-page .hero-checks span{display:inline-flex;align-items:center;gap:8px}
-  .card-page .hero-stats{margin-top:38px;display:inline-flex;flex-wrap:wrap;justify-content:center;gap:0;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:10px 8px;font-size:13px}
-  .card-page .hero-stats div{padding:6px 22px;display:inline-flex;align-items:center;gap:8px;color:#fff;border-right:1px solid rgba(255,255,255,.18)}
-  .card-page .hero-stats div:last-child{border-right:none}
-  @media (max-width:700px){.card-page .hero-stats{font-size:12px}.card-page .hero-stats div{padding:6px 14px}}
 `;
 
 const Card = () => {
@@ -148,85 +122,71 @@ const Card = () => {
   return (
     <>
       <HomeMindtripHeader />
-      <div className="card-page">
+      <div className="card-page" style={{ paddingTop: 72 }}>
         <style>{CSS}</style>
 
-      {/* HERO — aligné avec la homepage */}
-      <section className="relative min-h-[92vh] w-full overflow-hidden flex items-center justify-center border-b border-white/10" aria-label="Votre carte de visite numérique">
-        <picture>
-          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
-          <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
-          <img
-            src={heroImageDesktop}
-            alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-            className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
-            loading="eager"
-            fetchPriority="high"
-          />
-        </picture>
-        {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
-        <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
-        <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
 
-        {/* Floating phone mockup — left side, desktop only */}
-        <img
-          src={phoneMockupAsset.url}
-          alt="Application One World Morocco sur iPhone"
-          aria-hidden="true"
-          className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
-        />
-        {/* Floating iPhone mockup — right side, tablet only (768px to 1023px) */}
-        <img
-          src={iphoneTabletMockupAsset.url}
-          alt="Application One World Morocco — Koutoubia"
-          aria-hidden="true"
-          className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
-        />
-        {/* Centered iPhone mockup — mobile only */}
-        <img
-          src={phoneMockupAsset.url}
-          alt="Application One World Morocco sur iPhone"
-          aria-hidden="true"
-          className="block md:hidden pointer-events-none select-none absolute top-[10%] left-0 right-0 h-[85%] w-full object-contain object-bottom origin-top scale-[0.95] z-10 opacity-40 animate-[mobilePhoneFloat_5s_ease-in-out_infinite]"
-        />
-        <style>{`
-          @keyframes heroPhoneFloat {
-            0%, 100% { transform: translateY(calc(-50% - 8px)); }
-            50% { transform: translateY(calc(-50% + 8px)); }
-          }
-          @keyframes mobilePhoneFloat {
-            0%, 100% { transform: scale(0.95) translateY(0); }
-            50% { transform: scale(0.95) translateY(-12px); }
-          }
-          @media (prefers-reduced-motion: reduce) {
-            section img[alt^="Application One World"] { animation: none !important; }
-          }
-        `}</style>
-
-        <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col items-center justify-center text-center">
-          <h1 className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-tight max-w-4xl" style={{ fontSize: "clamp(32px, 4.5vw, 56px)", fontFamily: "Montserrat, sans-serif" }}>
-            Votre carte de visite numérique sur <span className="text-[#ffc008]">One World Morocco</span>.
-          </h1>
-          <p className="hero-sub text-white max-w-2xl text-center mb-4 text-base sm:text-lg opacity-95">
-            Un lien court et personnalisé que les voyageurs retiennent — <strong>oneworldmorocco.com/yourname</strong>.
-          </p>
-          <p className="hero-sub text-white max-w-2xl text-center mb-8 text-base sm:text-lg opacity-95">
-            Un seul tap affiche vos offres, vos contacts et vos photos. Le QR n'est qu'une façon parmi d'autres de le partager.
-          </p>
-          <Link to="/join" className="hero-cta">CRÉEZ VOTRE PAGE →</Link>
-          <div className="hero-checks">
-            <span><Check color="#00a896" />URL courte &amp; mémorisable</span>
-            <span><Check color="#00a896" />Tous vos canaux réunis</span>
-            <span><Check color="#00a896" />Lien, QR, NFC ou imprimé</span>
+      {/* HERO */}
+      <section className="hero">
+        <div className="wrap hero-grid">
+          <div>
+            <h1>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></h1>
+            <p className="lead">
+              Un lien court et personnalisé que les voyageurs retiennent vraiment — <code>oneworldmorocco.com/yourname</code>.
+              Un seul tap affiche vos offres, vos contacts et vos photos, sur un domaine de voyage de confiance.
+              Le QR n'est qu'une façon parmi d'autres de le partager.
+            </p>
+            <ul className="bullets">
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>URL courte et mémorisable :<br/><strong>oneworldmorocco.com/yourname</strong></div></li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>Tous vos canaux numériques rassemblés au même endroit</div></li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>Un profil type Linktree partageable</div></li>
+              <li><span className="check">✓</span>Partagez par lien, QR, NFC ou carte imprimée</li>
+              <li><span className="check">✓</span>Mettez à jour à tout moment — le lien reste le même</li>
+            </ul>
+            <div className="btn-row">
+              <Link to="/join" className="btn-primary">CRÉEZ VOTRE PAGE →</Link>
+              <a href="#avantages" className="btn-ghost">Voir les avantages ↓</a>
+            </div>
           </div>
-          <div className="hero-stats">
-            <div>🔗 Lien personnalisé</div>
-            <div>📱 Profil type Linktree</div>
-            <div>♻️ Mises à jour à tout moment</div>
+
+          <div className="phone-wrap">
+            <div className="url-label">Votre URL personnalisée</div>
+            <div className="phone">
+              <div className="phone-inner">
+                <div className="phone-bar">
+                  <span className="lock">🔒</span>
+                  <span>oneworldmorocco.com/<span className="slug">riad-zahra</span></span>
+                </div>
+                <div className="phone-body">
+                  <div className="logo-circle">RZ</div>
+                  <div className="biz-name">Riad Zahra</div>
+                  <div className="biz-sub">Riad de charme · Marrakech</div>
+                  <div className="icons-row">
+                    <div className="ic">📞</div>
+                    <div className="ic">💬</div>
+                    <div className="ic">🌐</div>
+                    <div className="ic">📍</div>
+                  </div>
+                </div>
+                <div className="offer">
+                  <span className="pct">−25%</span>
+                  <span><span className="lbl">Séjour 3 nuits</span><span className="sub">Toute l'année</span></span>
+                </div>
+                <div className="offer">
+                  <span className="pct">−15%</span>
+                  <span><span className="lbl">Hammam & spa</span><span className="sub">Réservation directe</span></span>
+                </div>
+                <div className="offer">
+                  <span className="pct">−10%</span>
+                  <span><span className="lbl">Dîner sur la terrasse</span><span className="sub">Tous les soirs</span></span>
+                </div>
+                <div className="gallery"><div/><div/><div/></div>
+                <div className="share-btn">↗ Partager</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
-
 
       {/* STEPS */}
       <section>
