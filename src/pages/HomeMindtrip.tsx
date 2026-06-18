@@ -426,6 +426,13 @@ const HomeMindtrip = () => {
           aria-hidden="true"
           className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
         />
+        {/* Floating iPhone mockup — right side, tablet only (md to lg) */}
+        <img
+          src={iphoneTabletMockupAsset.url}
+          alt="Application One World Morocco — Koutoubia"
+          aria-hidden="true"
+          className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 h-[60%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
+        />
         <style>{`
           @keyframes heroPhoneFloat {
             0%, 100% { transform: translateY(calc(-50% - 8px)); }
