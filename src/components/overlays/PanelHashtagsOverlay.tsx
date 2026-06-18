@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Hash } from "lucide-react";
+import { X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { readLastHomepageCity } from "@/lib/cityHomepage";
