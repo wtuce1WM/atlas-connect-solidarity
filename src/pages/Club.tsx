@@ -36,6 +36,7 @@ const Club = () => {
   });
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [nickname, setNickname] = useState<string>("");
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
@@ -59,6 +60,25 @@ const Club = () => {
     phone: "",
     whatsapp: "",
   });
+
+  // Fetch nickname when user changes
+  useEffect(() => {
+    if (!user) {
+      setNickname("");
+      return;
+    }
+    const fetchNickname = async () => {
+      const { data } = await supabase
+        .from("club_members" as any)
+        .select("nickname")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (data?.nickname) {
+        setNickname(data.nickname);
+      }
+    };
+    fetchNickname();
+  }, [user]);
 
   // Listen for auth state changes + fetch countries
   useEffect(() => {
