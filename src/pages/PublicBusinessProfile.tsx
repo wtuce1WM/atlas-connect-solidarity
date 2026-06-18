@@ -203,16 +203,29 @@ const PublicBusinessProfile = () => {
           {business.description && (() => {
             const full = business.description;
             const isLong = full.length > 500;
-            const shown = !isLong || descExpanded ? full : full.slice(0, 500).trimEnd() + "…";
+            const head = isLong ? full.slice(0, 500).trimEnd() : full;
+            const tail = isLong ? full.slice(500) : "";
             return (
               <div className="mt-3 max-w-md">
-                <p className="text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line">
-                  {shown}
-                </p>
+                <div className="text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line">
+                  {head}
+                  {isLong && !descExpanded && "…"}
+                  {isLong && (
+                    <div
+                      className="grid transition-[grid-template-rows,opacity] duration-500 ease-in-out"
+                      style={{
+                        gridTemplateRows: descExpanded ? "1fr" : "0fr",
+                        opacity: descExpanded ? 1 : 0,
+                      }}
+                    >
+                      <div className="overflow-hidden whitespace-pre-line">{tail}</div>
+                    </div>
+                  )}
+                </div>
                 {isLong && (
                   <button
                     onClick={() => setDescExpanded((v) => !v)}
-                    className="mt-2 text-sm font-semibold text-primary hover:underline"
+                    className="mt-2 text-sm font-semibold text-primary hover:underline transition-colors"
                   >
                     {descExpanded ? "Voir −" : "Voir +"}
                   </button>
@@ -220,6 +233,7 @@ const PublicBusinessProfile = () => {
               </div>
             );
           })()}
+
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             {socials.map((s) => {
