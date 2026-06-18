@@ -275,7 +275,47 @@ const PublicBusinessProfile = () => {
             >
               Voir la fiche complète
             </a>
+
+            {(() => {
+              const googleReviewHref =
+                business.google_review_url ||
+                (business.google_place_id
+                  ? `https://search.google.com/local/writereview?placeid=${business.google_place_id}`
+                  : null);
+              const tripHref =
+                business.tripadvisor_review_url ||
+                tripadvisorReviewUrl(business.tripadvisor_url);
+              return (
+                <>
+                  {googleReviewHref && (
+                    <a
+                      href={googleReviewHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                    >
+                      <img src="https://www.google.com/favicon.ico" alt="" className="h-4 w-4" />
+                      <span>Laisser un avis sur Google</span>
+                      <PenSquare className="h-4 w-4 text-neutral-400" />
+                    </a>
+                  )}
+                  {tripHref && (
+                    <a
+                      href={tripHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                    >
+                      <img src="/review-logos/tripadvisor.webp" alt="" className="h-4 w-4 object-contain" />
+                      <span>Laisser un avis sur TripAdvisor</span>
+                      <PenSquare className="h-4 w-4 text-neutral-400" />
+                    </a>
+                  )}
+                </>
+              );
+            })()}
           </div>
+
         </div>
       </div>
     </div>
