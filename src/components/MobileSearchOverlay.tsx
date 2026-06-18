@@ -129,6 +129,26 @@ const MobileSearchOverlay = ({
     smartNavigate({ q: query.trim(), _t: String(Date.now()) });
   }, [query, smartNavigate]);
 
+  // Keep a ref to the latest handleSubmit so the dictation timer always uses fresh query
+  useEffect(() => { handleSubmitRef.current = handleSubmit; }, [handleSubmit]);
+  useEffect(() => () => { if (dictationTimerRef.current) clearTimeout(dictationTimerRef.current); }, []);
+
+  // Auto-submit ~1.2s after iOS dictation stops inserting text
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    const inputType = (e.nativeEvent as InputEvent).inputType;
+    if (dictationTimerRef.current) {
+      clearTimeout(dictationTimerRef.current);
+      dictationTimerRef.current = null;
+    }
+    if (inputType === "insertReplacementText" && value.trim().length >= 2) {
+      dictationTimerRef.current = setTimeout(() => {
+        handleSubmitRef.current();
+      }, 1200);
+    }
+  }, []);
+
   const handleSelect = useCallback((text: string) => {
     smartNavigate({ q: text, _t: String(Date.now()) });
   }, [smartNavigate]);
