@@ -3992,9 +3992,11 @@ const SearchPage = () => {
                   </p>
 
 
-                  <p className="text-primary font-semibold mt-2">
-                    {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
-                  </p>
+                  {!isLoading && (
+                    <p className="text-primary font-semibold mt-2">
+                      {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+                    </p>
+                  )}
                 </>
               )}
             </div>
