@@ -234,8 +234,8 @@ const PublicBusinessProfile = () => {
             variant="dark"
             title={business.name}
             shareUrl={`https://oneworldmorocco.com/b/${business.slug}`}
-            previewImage={hamsaBlueAsset.url}
-            avatarImage={avatar}
+            previewImage={business.images?.[0] || hamsaBlueAsset.url}
+            avatarImage={null}
           />
         </div>
 
