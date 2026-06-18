@@ -2861,15 +2861,15 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     ))}
                   </div>
                 )}
-                <a
-                  href={`/b/${business?.slug || business?.id}`}
+                 <a
+                  href={`https://oneworldmorocco.com/b/${business?.slug || business?.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[10px] text-orange-500 hover:text-orange-600 hover:underline inline-flex items-center gap-0.5 leading-tight transition-colors"
+                  className="text-[10px] text-orange-500 hover:text-orange-600 hover:underline inline-flex items-center gap-0.5 leading-tight transition-colors break-all"
                   title="Profil Linktree (/b/)"
                 >
                   <ExternalLink className="h-2.5 w-2.5" />
-                  <span>/b/{business?.slug || business?.id}</span>
+                  <span>https://oneworldmorocco.com/b/{business?.slug || business?.id}</span>
                 </a>
               </div>
               {formData.website && (
