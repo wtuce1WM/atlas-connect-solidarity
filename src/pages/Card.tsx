@@ -133,7 +133,7 @@ const Card = () => {
   return (
     <>
       <HomeMindtripHeader />
-      <div className="card-page" style={{ paddingTop: 72 }}>
+      <div className="card-page">
         <style>{CSS}</style>
 
 
