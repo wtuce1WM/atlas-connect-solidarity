@@ -103,7 +103,8 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
   return (
     <div className="absolute inset-0 z-[75] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in" onClick={onClose}>
       <div
-        className="bg-black/80 backdrop-blur-md border border-white/20 rounded-2xl p-5 w-[22rem] max-w-[95vw] text-white animate-zoom-out-center"
+        className="backdrop-blur-md border border-white/20 rounded-2xl p-5 w-[22rem] max-w-[95vw] text-white animate-zoom-out-center"
+        style={{ backgroundColor: "#3B3B3B" }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
