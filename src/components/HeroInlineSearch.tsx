@@ -92,7 +92,7 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
   return (
     <div ref={containerRef} className="relative w-full">
       <div className="relative flex flex-col md:flex-row md:items-center gap-6 md:gap-2">
-        <div className="relative flex-1">
+        <div className="relative flex-1 btn-flash rounded-xl overflow-hidden">
           <input
             ref={inputRef}
             type="text"
@@ -109,7 +109,7 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
             <button
               type="button"
               onClick={() => { setQuery(""); inputRef.current?.focus(); }}
-              className="absolute right-4 top-1/2 -translate-y-1/2"
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-20"
               aria-label="Clear"
             >
               <X className="h-4 w-4 text-muted-foreground" />
