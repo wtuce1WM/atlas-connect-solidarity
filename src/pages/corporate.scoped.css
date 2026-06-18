@@ -254,7 +254,7 @@
   .kingdom{margin-top:60px;font-family:'Montserrat',sans-serif;font-style:italic;
     font-size:clamp(18px,2vw,26px);color:var(--red)}
 
-  .plans{background:var(--ink);color:var(--cream)}
+  .plans{background:#3B3B3B;color:var(--cream)}
   .plans .sec-head{margin:0 auto 76px;text-align:center}
   .plans .sec-head h2{color:var(--cream)}
   .plans .sec-head .eyebrow{display:block;margin-bottom:20px}
