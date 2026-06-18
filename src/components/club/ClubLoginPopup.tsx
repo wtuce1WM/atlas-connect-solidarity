@@ -39,31 +39,27 @@ const ClubLoginPopup = () => {
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-[90%] max-w-md rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
+        className="relative w-[90%] max-w-md bg-[#BED1FF]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ backgroundColor: "#194CFF" }} className="p-3 sm:p-6 text-white relative">
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="absolute top-3 left-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white hover:bg-gray-100 text-black shadow-md transition-colors"
-            aria-label="Close"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          <p className="text-xs sm:text-sm opacity-90 text-center">{t.welcome}</p>
-          <h2 className="text-xl sm:text-2xl font-bold mt-0.5 sm:mt-1 !font-sans !not-italic text-center">{t.clubName}</h2>
-        </div>
-        <div className="bg-[#F1F1F1] p-3 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold text-card-foreground mb-1 sm:mb-2 !font-sans text-center">
-            {t.title}
-          </h3>
-          <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5 text-center">{t.desc}</p>
-          <ClubAuthPanel
-            redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"}
-            onSuccess={() => setOpen(false)}
-          />
-        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="absolute top-3 left-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white hover:bg-gray-100 text-black shadow-md transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <p className="text-xs sm:text-sm text-white/90 text-center">{t.welcome}</p>
+        <h2 className="text-xl sm:text-2xl font-bold mt-0.5 mb-2 !font-sans !not-italic text-center text-white">{t.clubName}</h2>
+        <h3 className="text-sm sm:text-base font-semibold text-white mb-1 !font-sans text-center">
+          {t.title}
+        </h3>
+        <p className="text-white/80 text-xs sm:text-sm leading-relaxed mb-5 text-center">{t.desc}</p>
+        <ClubAuthPanel
+          redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"}
+          onSuccess={() => setOpen(false)}
+        />
       </div>
     </div>
   );
