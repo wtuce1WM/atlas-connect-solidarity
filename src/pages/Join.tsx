@@ -120,8 +120,8 @@ const CSS = `
   .join-page .hero h1{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(36px,5.4vw,68px);line-height:1.05;letter-spacing:-.01em;margin:0 auto 22px;max-width:980px}
   .join-page .hero h1 .hl{color:#ffc008}
   .join-page .hero .hero-sub{font-size:clamp(16px,1.4vw,19px);color:rgba(255,255,255,.92);max-width:680px;margin:0 auto 34px;line-height:1.5}
-  .join-page .hero .hero-cta{display:inline-flex;align-items:center;gap:10px;background:#ffffff;color:#C04F17;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(0,0,0,.35);transition:transform .2s,background .2s}
-  .join-page .hero .hero-cta:hover{background:#f5f5f5;transform:translateY(-2px)}
+  .join-page .hero .hero-cta{display:inline-flex;align-items:center;gap:10px;background:#C04F17;color:#ffffff;padding:18px 44px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px;box-shadow:0 14px 30px -12px rgba(192,79,23,.7);transition:transform .2s,background .2s}
+  .join-page .hero .hero-cta:hover{background:#a84313;transform:translateY(-2px)}
   .join-page .hero-checks{display:flex;flex-wrap:wrap;justify-content:center;gap:22px;margin-top:22px;font-size:14px;color:rgba(255,255,255,.95)}
   .join-page .hero-checks span{display:inline-flex;align-items:center;gap:8px}
   .join-page .hero-checks svg{color:var(--green)}
