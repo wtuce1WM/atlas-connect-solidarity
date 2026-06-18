@@ -831,3 +831,9 @@ html.hide-scrollbar-search::-webkit-scrollbar {
 .cta-peek.is-peek > svg {
   margin-left: 0.5rem !important;
 }
+
+/* Remove slide panel shadow when a welcome popup is open */
+body[data-slidepanel-popup-open="1"] .slidepanel-container {
+  box-shadow: none !important;
+  border-left-color: transparent !important;
+}
