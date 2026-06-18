@@ -435,7 +435,6 @@ const Club = () => {
                 title="Mon profil One World Morocco"
                 previewImage={ogImageCard.url}
                 avatarImage={avatarUrl}
-                profileData={profileData}
                 variant="dark"
               />
             </div>
