@@ -1050,7 +1050,8 @@ const HotelAvailabilityWidget = () => {
       </label>
       <button
         type="submit"
-        className="rounded-full bg-primary hover:bg-primary/90 border border-white/30 px-5 py-2.5 font-josefin text-xs tracking-[0.2em] text-primary-foreground shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] transition sm:col-span-2 md:px-6 md:py-3 md:text-sm"
+        className="rounded-full border border-white/30 px-5 py-2.5 font-josefin text-xs tracking-[0.2em] text-white shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] btn-shimmer transition-transform hover:scale-105 duration-200 sm:col-span-2 md:px-6 md:py-3 md:text-sm"
+        style={{ backgroundColor: "#C04F17" }}
       >
         Voir les disponibilités
       </button>
