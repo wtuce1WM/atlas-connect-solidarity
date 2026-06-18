@@ -550,13 +550,7 @@ const Club = () => {
                         {isLoggingIn ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Crown className="h-5 w-5 mr-2" />}
                         {tx.loginSubmit.toUpperCase()}
                       </Button>
-
-                      <p className="text-center text-sm text-white/90">
-                        {tx.noAccount}{" "}
-                        <button type="button" onClick={() => setMode("register")} className="text-white hover:underline font-semibold">
-                          {tx.registerTab}
-                        </button>
-                      </p>
+                      
                     </form>
                   </div>
                 ) : (
