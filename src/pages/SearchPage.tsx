@@ -4004,7 +4004,7 @@ const SearchPage = () => {
             {/* URL-driven subcategory chips (e.g. "Marrakech Restauration") —
                 always visible in the IA/Suggestions tabs when the URL lists
                 several subcategories, so the user can narrow the search. */}
-            {(activeTab === "suggestions" || activeTab === "ai")
+            {activeTab === "suggestions"
               && subcategoryNamesFromUrl.length > 1
               && !selectedSubcategoryFilter && (
               <div className="pb-4">
@@ -4044,7 +4044,7 @@ const SearchPage = () => {
                 - un service précis a été détecté/sélectionné (requête déjà fine)
                 - une catégorie est déjà sélectionnée
                 - la requête vient de l'URL avec subcategoryNamesFromUrl (géré par le bloc précédent) */}
-            {(activeTab === "suggestions" || activeTab === "ai")
+            {activeTab === "suggestions"
               && !selectedCategoryFilter
               && !selectedServiceFilter
               && subcategoryNamesFromUrl.length <= 1
