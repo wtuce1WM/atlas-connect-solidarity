@@ -2890,6 +2890,12 @@ const BookOnlineSlidePanelInner = ({
         </div>
       )}
 
+      {hashtagsOverlayActive && (
+        <OverlayShell zClass="z-[92]" coverToolbar={false}>
+          <PanelHashtagsOverlay open={hashtagsOverlayActive} onClose={() => setHashtagsOverlayActive(false)} />
+        </OverlayShell>
+      )}
+
     </div>
   );
 };
