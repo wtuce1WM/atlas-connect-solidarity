@@ -38,6 +38,7 @@ const Club = () => {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [nickname, setNickname] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
@@ -62,23 +63,28 @@ const Club = () => {
     whatsapp: "",
   });
 
-  // Fetch nickname when user changes
+  // Fetch nickname & avatar when user changes
   useEffect(() => {
     if (!user) {
       setNickname("");
+      setAvatarUrl(null);
       return;
     }
-    const fetchNickname = async () => {
+    const fetchMemberData = async () => {
       const { data } = await (supabase
         .from("club_members" as any)
-        .select("nickname")
+        .select("nickname, avatar_url")
         .eq("user_id", user.id)
         .maybeSingle() as any);
-      if (data?.nickname) {
-        setNickname(data.nickname);
+      if (data) {
+        if (data.nickname) setNickname(data.nickname);
+        if (data.avatar_url) {
+          const { data: signed } = await supabase.storage.from("club-avatars").createSignedUrl(data.avatar_url, 3600);
+          if (signed?.signedUrl) setAvatarUrl(signed.signedUrl);
+        }
       }
     };
-    fetchNickname();
+    fetchMemberData();
   }, [user]);
 
   // Listen for auth state changes + fetch countries
