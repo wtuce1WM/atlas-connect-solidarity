@@ -734,6 +734,29 @@ const BookOnlineSlidePanelInner = ({
   }, [businessId, showWelcomePopup]);
   useEffect(() => { peekPlayedRef.current = null; }, [businessId]);
 
+  // Tap-to-reveal label on touch devices for left CTAs: first tap expands, second tap triggers.
+  const [tappedCta, setTappedCta] = useState<string | null>(null);
+  const isHoverDevice = typeof window !== 'undefined' && !!window.matchMedia?.('(hover: hover)').matches;
+  useEffect(() => {
+    if (!tappedCta) return;
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (!t || !t.closest('[data-cta-tap]')) setTappedCta(null);
+    };
+    document.addEventListener('pointerdown', onDown, true);
+    const timer = window.setTimeout(() => setTappedCta(null), 4000);
+    return () => { document.removeEventListener('pointerdown', onDown, true); clearTimeout(timer); };
+  }, [tappedCta]);
+  const handleCtaTap = (key: string, fn: () => void) => (e: React.MouseEvent) => {
+    if (!isHoverDevice && tappedCta !== key) {
+      e.preventDefault(); e.stopPropagation();
+      setTappedCta(key);
+      return;
+    }
+    setTappedCta(null);
+    fn();
+  };
+
 
 
   // Track recently viewed
@@ -1346,13 +1369,13 @@ const BookOnlineSlidePanelInner = ({
             </div>
           ) : null}
           {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
-            <div onClick={() => setShowPoiMapOverlay(true)} className={`group cta-peek ${peekCta[1] ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+            <div data-cta-tap onClick={handleCtaTap('map', () => setShowPoiMapOverlay(true))} className={`group cta-peek ${peekCta[1] || tappedCta === 'map' ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Localisation</span>
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
           {hasYoutubeBottomCarousel && (
-            <div onClick={() => {
+            <div data-cta-tap onClick={handleCtaTap('yt', () => {
               if (hasYoutubeReady || hasYoutubeChannel) {
                 const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
                 if (firstShort) setActiveYoutubeVideo(firstShort);
@@ -1361,25 +1384,25 @@ const BookOnlineSlidePanelInner = ({
               } else {
                 setShowExternalVideosOverlay(true);
               }
-            }} className={`group cta-peek ${peekCta[2] ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+            })} className={`group cta-peek ${peekCta[2] || tappedCta === 'yt' ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
 
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">YouTube</span>
               <YouTubeIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300 text-red-600" />
             </div>
           )}
           {hasDestCarousel && (
-            <div onClick={() => { setDescGridSection("dest"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }} className={`group cta-peek ${peekCta[3] ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+            <div data-cta-tap onClick={handleCtaTap('dest', () => { setDescGridSection("dest"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); })} className={`group cta-peek ${peekCta[3] || tappedCta === 'dest' ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Destinations</span>
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
           {hasKpCarousel && (
-            <div onClick={() => { setDescGridSection("kp"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); }} className={`group cta-peek ${peekCta[4] ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+            <div data-cta-tap onClick={handleCtaTap('kp', () => { setDescGridSection("kp"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); })} className={`group cta-peek ${peekCta[4] || tappedCta === 'kp' ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{kpGroupTitle || (language === "en" ? "Other establishments" : "Autres établissements")}</span>
               <Landmark className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
-          <div onClick={() => setHashtagsOverlayActive(true)} className={`group cta-peek ${peekCta[5] ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+          <div data-cta-tap onClick={handleCtaTap('tags', () => setHashtagsOverlayActive(true))} className={`group cta-peek ${peekCta[5] || tappedCta === 'tags' ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
             <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Tags</span>
             <Hash className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
           </div>
@@ -1395,7 +1418,7 @@ const BookOnlineSlidePanelInner = ({
               return "+ d'infos";
             })();
             return (
-              <div onClick={() => { setExtLinksOrigin('carousel'); setShowExtLinksOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+              <div data-cta-tap onClick={handleCtaTap('ext', () => { setExtLinksOrigin('carousel'); setShowExtLinksOverlay(true); })} className={`group cta-peek ${tappedCta === 'ext' ? 'is-peek' : ''} flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
                 <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{extLabel}</span>
                 {isPresse
                   ? <Newspaper className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
