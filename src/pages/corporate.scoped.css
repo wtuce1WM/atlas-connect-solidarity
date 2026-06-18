@@ -74,8 +74,11 @@
   .hero::before{content:"";position:absolute;top:0;left:0;right:0;height:45%;z-index:1;pointer-events:none;
     background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(0,0,0,.45) 50%,transparent)}
   @media(min-width:768px){.hero::before{display:none}}
-  .hero::after{content:"";position:absolute;inset:0;z-index:1;
-    background:linear-gradient(180deg,rgba(12,8,5,.55),rgba(12,8,5,.15) 30%,rgba(12,8,5,.85) 65%,rgba(12,8,5,1));pointer-events:none}
+  .hero::after{display:none}
+  @media(min-width:768px){
+    .hero::after{display:block;content:"";position:absolute;inset:0;z-index:1;
+      background:linear-gradient(180deg,rgba(12,8,5,.55),rgba(12,8,5,.15) 30%,rgba(12,8,5,.85) 65%,rgba(12,8,5,1));pointer-events:none}
+  }
   .hero .phone-float{position:absolute;left:2%;top:50%;transform:translateY(-50%);height:64%;width:auto;z-index:2;
     pointer-events:none;user-select:none;display:none;
     filter:drop-shadow(0 30px 60px rgba(0,0,0,.45));animation:heroPhoneFloat 6s ease-in-out infinite}
