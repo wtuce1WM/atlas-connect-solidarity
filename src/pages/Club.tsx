@@ -387,7 +387,7 @@ const Club = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen ${user ? "bg-[#BED1FF]" : "bg-background"}`}>
       {user && (
         <Header
           leftContent={
