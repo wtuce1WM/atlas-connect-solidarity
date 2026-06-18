@@ -189,7 +189,7 @@
   .sec-head p{margin-top:24px;font-size:17px;line-height:1.85;color:rgba(33,23,16,.7);
     font-weight:300;max-width:62ch}
 
-  .model{background:var(--cream)}
+  .model{background:#ECD6B8}
   .model-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:90px;align-items:center}
   .model-text h2{font-size:clamp(32px,4.2vw,56px);line-height:1.1;margin-bottom:26px}
   .model-text h2 em{font-style:italic;color:var(--red)}
@@ -238,7 +238,7 @@
     color:var(--gold);display:block;margin-bottom:8px}
   .g-card .cap h3{font-size:30px;color:var(--cream);font-style:italic}
 
-  .cities{background:var(--cream);text-align:center}
+  .cities{background:#ECD6B8;text-align:center}
   .cities .eyebrow{display:block;margin-bottom:22px}
   .cities h2{font-size:clamp(34px,4.6vw,60px);line-height:1.1;margin-bottom:18px}
   .cities h2 em{font-style:italic;color:var(--red)}
