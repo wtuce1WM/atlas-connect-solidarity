@@ -839,9 +839,9 @@ const HomeMindtrip = () => {
                             aria-hidden="true"
                             className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 h-[80%] w-auto z-10 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)]"
                           />
-                          {/* Mobile mockup — centered */}
+                          {/* Mobile mockup — centered using the tablet mockup */}
                           <img
-                            src={phoneMockupAsset.url}
+                            src={iphoneTabletMockupAsset.url}
                             alt=""
                             aria-hidden="true"
                             className="block md:hidden pointer-events-none select-none absolute top-[10%] left-0 right-0 h-[85%] w-full object-contain object-bottom z-10 opacity-85"
