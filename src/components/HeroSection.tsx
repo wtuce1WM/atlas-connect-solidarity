@@ -19,6 +19,7 @@ import HeroLocationSelector from "@/components/HeroLocationSelector";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
+import iphoneMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 
 const HS_T = {
   fr: { useLocationQ: "Utiliser votre position pour affiner les résultats ?", changeAnytime: "Vous pouvez changer ce choix à tout moment.", noThanks: "Non merci", enable: "Activer" },
