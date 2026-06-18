@@ -4090,35 +4090,6 @@ const SearchPage = () => {
               );
             })()}
 
-            {activeTab === "suggestions" && (!selectedCity || selectedCity === "all") && !detectedCity && (
-              <div className="pb-4">
-                <div className={`${shouldConstrainAiContent ? "max-w-3xl" : "max-w-none"} mx-auto text-center`}>
-                  <p className="text-sm font-medium text-foreground mb-3">
-                    {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
-                  </p>
-                  <div className="flex overflow-x-auto gap-2">
-                    {availableCities.slice(0, 10).map((city) => (
-                      <button
-                        key={city}
-                        onClick={() => {
-                          setSelectedCity(city);
-                          setIsGeoCityAutoSelected(false);
-                          setOverlaySelectedBusiness(null);
-                          // Regenerate AI text with the new city filter
-                          setPrevAiAnswerText(aiAnswerText);
-                                setAiAnswerText("");
-                          setAiRegenerateKey(k => k + 1);
-                        }}
-                        className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
-                      >
-                        <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-muted-foreground" />
-                        {city}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Service filters when subcategory is known — COMMENTED OUT
             {activeTab === "suggestions" && (() => {
