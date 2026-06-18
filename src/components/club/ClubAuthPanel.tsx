@@ -161,24 +161,40 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
 
   return (
     <div className="space-y-4">
-
+      {/* Tabs */}
+      <div className="flex bg-[#BED1FF] rounded-lg p-1 mb-2">
+        <button
+          type="button"
+          onClick={() => setMode("login")}
+          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "login" ? "bg-[#194CFF] text-white shadow-sm" : "text-[#194CFF] hover:text-[#194CFF]/80"}`}
+        >
+          {t.loginTab}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("register")}
+          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "register" ? "bg-[#194CFF] text-white shadow-sm" : "text-[#194CFF] hover:text-[#194CFF]/80"}`}
+        >
+          {t.registerTab}
+        </button>
+      </div>
 
       <ClubSocialButtons redirectPath={redirectPath} onSuccess={onSuccess} />
 
       <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-border" />
-        <span className="text-xs text-muted-foreground">{t.or}</span>
-        <div className="flex-1 h-px bg-border" />
+        <div className="flex-1 h-px bg-white/20" />
+        <span className="text-xs text-white font-semibold">{t.or}</span>
+        <div className="flex-1 h-px bg-white/20" />
       </div>
 
       {mode === "login" ? (
         <form onSubmit={handleLogin} className="space-y-3">
           <div>
-            <label className="text-xs text-foreground font-semibold mb-1 block">{t.email}</label>
+            <label className="text-xs text-white font-semibold mb-1 block">{t.email}</label>
             <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" className="bg-white text-black" />
           </div>
           <div>
-            <label className="text-xs text-foreground font-semibold mb-1 block">{t.password}</label>
+            <label className="text-xs text-white font-semibold mb-1 block">{t.password}</label>
             <div className="relative">
               <Input
                 type={showLoginPw ? "text" : "password"}
@@ -202,7 +218,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
               type="button"
               onClick={handleForgot}
               disabled={isResetting}
-              className="text-xs text-primary hover:underline"
+              className="text-xs text-white hover:underline font-semibold"
             >
               {isResetting ? "…" : t.forgot}
             </button>
@@ -216,31 +232,25 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
             {isLoggingIn ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Crown className="h-4 w-4 mr-2" />}
             {t.login.toUpperCase()}
           </Button>
-          <p className="text-center text-xs text-muted-foreground">
-            {t.noAccount}{" "}
-            <button type="button" onClick={() => setMode("register")} className="text-primary hover:underline font-semibold">
-              {t.registerTab}
-            </button>
-          </p>
         </form>
       ) : (
         <form onSubmit={handleRegister} className="space-y-3">
           <div>
-            <label className="text-xs text-foreground font-semibold mb-1 block">
-              {t.nickname} <span className="text-destructive">*</span>
+            <label className="text-xs text-white font-semibold mb-1 block">
+              {t.nickname} <span className="text-white font-bold ml-1">*</span>
             </label>
             <Input value={nickname} onChange={(e) => setNickname(e.target.value)} required className="bg-white text-black" />
           </div>
           <div>
-            <label className="text-xs text-foreground font-semibold mb-1 block">
-              {t.email} <span className="text-destructive">*</span>
+            <label className="text-xs text-white font-semibold mb-1 block">
+              {t.email} <span className="text-white font-bold ml-1">*</span>
             </label>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white text-black" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-foreground font-semibold mb-1 block">
-                {t.password} <span className="text-destructive">*</span>
+              <label className="text-xs text-white font-semibold mb-1 block">
+                {t.password} <span className="text-white font-bold ml-1">*</span>
               </label>
               <div className="relative">
                 <Input
@@ -261,8 +271,8 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
               </div>
             </div>
             <div>
-              <label className="text-xs text-foreground font-semibold mb-1 block">
-                {t.confirmPassword} <span className="text-destructive">*</span>
+              <label className="text-xs text-white font-semibold mb-1 block">
+                {t.confirmPassword} <span className="text-white font-bold ml-1">*</span>
               </label>
               <div className="relative">
                 <Input
@@ -286,7 +296,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
           {confirmPassword && password !== confirmPassword && (
             <p className="text-xs text-destructive">{t.pwMismatch}</p>
           )}
-          <p className="text-xs text-muted-foreground">{t.required}</p>
+          <p className="text-xs text-white font-semibold">{t.required}</p>
           <Button
             type="submit"
             disabled={isSubmitting || !isRegisterValid}
@@ -296,12 +306,6 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
             {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Crown className="h-4 w-4 mr-2" />}
             {t.register.toUpperCase()}
           </Button>
-          <p className="text-center text-xs text-muted-foreground">
-            {t.hasAccount}{" "}
-            <button type="button" onClick={() => setMode("login")} className="text-primary hover:underline font-semibold">
-              {t.loginTab}
-            </button>
-          </p>
         </form>
       )}
     </div>
