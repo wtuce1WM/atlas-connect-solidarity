@@ -27,6 +27,8 @@ interface PanelSearchBarProps {
   onAiOverlayChange?: (open: boolean) => void;
   /** Called when the hashtags overlay opens or closes */
   onHashtagsOverlayChange?: (open: boolean) => void;
+  /** Force the hashtags overlay open state from parent */
+  hashtagsOverlayOpen?: boolean;
   /** Use a dark (black) background instead of transparent */
   darkBackground?: boolean;
   /** Increment to force-close all overlays from outside */
@@ -69,7 +71,7 @@ const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<s
   return params;
 };
 
-const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
@@ -83,11 +85,16 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
     _setAiOverlayOpen(open);
     onAiOverlayChange?.(open);
   }, [onAiOverlayChange]);
-  const [hashtagsOverlayOpen, _setHashtagsOverlayOpen] = useState(false);
+  const [hashtagsOverlayOpenLocal, setHashtagsOverlayOpenLocal] = useState(false);
+  const hashtagsOverlayOpen = hashtagsOverlayOpenProp !== undefined ? hashtagsOverlayOpenProp : hashtagsOverlayOpenLocal;
   const setHashtagsOverlayOpen = useCallback((open: boolean) => {
-    _setHashtagsOverlayOpen(open);
-    onHashtagsOverlayChange?.(open);
-  }, [onHashtagsOverlayChange]);
+    if (hashtagsOverlayOpenProp !== undefined) {
+      onHashtagsOverlayChange?.(open);
+    } else {
+      setHashtagsOverlayOpenLocal(open);
+      onHashtagsOverlayChange?.(open);
+    }
+  }, [hashtagsOverlayOpenProp, onHashtagsOverlayChange]);
 
   useEffect(() => {
     const handler = () => setHashtagsOverlayOpen(true);
@@ -257,7 +264,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       </div>
 
 
-      {hashtagsOverlayOpen && (
+      {hashtagsOverlayOpen && hashtagsOverlayOpenProp === undefined && (
         <OverlayShell zClass="z-[92]" coverToolbar={false}>
           <PanelHashtagsOverlay open={hashtagsOverlayOpen} onClose={() => setHashtagsOverlayOpen(false)} />
         </OverlayShell>
