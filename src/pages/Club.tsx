@@ -414,7 +414,7 @@ const Club = () => {
           rightContent={
             <div className="flex justify-end items-center pr-2 h-10">
               <ShareButton 
-                shareUrl={nickname ? `${window.location.origin}/u/${nickname}` : `${window.location.origin}/u/`}
+                shareUrl={nickname ? `https://oneworldmorocco.com/u/${nickname}` : `https://oneworldmorocco.com/u/`}
                 title="Mon profil One World Morocco"
                 variant="dark"
               />
