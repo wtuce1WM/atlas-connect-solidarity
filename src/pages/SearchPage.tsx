@@ -3882,7 +3882,7 @@ const SearchPage = () => {
           }, 50);
         };
         return (
-        <div data-search-tab-panel="ai" className={isInline ? "relative w-full flex" : "fixed inset-0 z-[9990] flex animate-in fade-in duration-200"} style={{ backgroundColor: "#ECD6B8" }}>
+        <div data-search-tab-panel="ai" className={isInline ? "relative w-full flex" : "fixed inset-0 z-[9990] flex animate-in fade-in duration-200"} style={{ backgroundColor: "var(--background)" }}>
 
 
           {/* Left panel: AI suggestion */}
