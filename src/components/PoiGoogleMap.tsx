@@ -423,12 +423,21 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         iconSvg,
         isSelected,
         () => {
+          const isTouch = typeof window !== "undefined" && !window.matchMedia?.("(hover: hover)").matches;
+          if (isTouch && openInfoPoiIdRef.current !== poi.id) {
+            // First tap on touch devices: show the thumbnail instead of navigating
+            overlay.dispatchMouseOver?.();
+            return;
+          }
+          openInfoPoiIdRef.current = null;
+          infoWindowRef.current?.close();
           onPoiClickRef.current?.(poi.id);
         },
         () => {
           // Cancel any pending close
           if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
           infoWindowHoveredRef.current = false;
+          openInfoPoiIdRef.current = poi.id;
 
           const img = poi.images?.[0];
           const loc = `${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}`;
