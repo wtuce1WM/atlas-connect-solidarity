@@ -400,8 +400,7 @@ const HomeMindtrip = () => {
 
       <div>
         <section 
-          className="relative min-h-[92vh] w-full overflow-hidden bg-cover bg-center lg:bg-none"
-          style={{ backgroundImage: `url(${zelligeMobileAsset.url})` }}
+          className="relative min-h-[92vh] w-full overflow-hidden"
         >
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
@@ -409,7 +408,7 @@ const HomeMindtrip = () => {
               ref={heroBgRef}
               src={heroImage}
               alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-              className="absolute top-[10%] left-0 right-0 h-[85%] md:hidden lg:block lg:inset-0 lg:h-[120%] w-full origin-top object-contain object-bottom lg:object-cover lg:object-right-top will-change-transform scale-95 lg:scale-100"
+              className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
               loading="eager"
               fetchPriority="high"
             />
