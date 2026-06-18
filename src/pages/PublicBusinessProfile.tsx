@@ -133,7 +133,7 @@ const PublicBusinessProfile = () => {
   });
 
   if (loading) {
-    return <div className="min-h-screen" style={{ backgroundColor: "#CDBFA4" }} />;
+    return <div className="min-h-screen" style={{ backgroundColor: "#ECD6B8" }} />;
   }
   if (!business) return <NotFound />;
 
@@ -161,8 +161,70 @@ const PublicBusinessProfile = () => {
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center py-6 px-3 sm:py-10"
-      style={{ backgroundColor: "#CDBFA4" }}
+      style={{ backgroundColor: "#ECD6B8" }}
     >
+      <style>{`
+        @keyframes single-shimmer {
+          0% {
+            transform: translateX(-150%) skewX(-20deg);
+          }
+          100% {
+            transform: translateX(200%) skewX(-20deg);
+          }
+        }
+        .shimmer-once-badge {
+          position: relative;
+          overflow: hidden;
+          isolation: isolate;
+        }
+        .shimmer-once-badge::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.15) 20%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0.15) 80%,
+            transparent
+          );
+          transform: translateX(-150%) skewX(-20deg);
+          animation: single-shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation-delay: 0.3s;
+          pointer-events: none;
+          z-index: 10;
+        }
+        .shimmer-once-cta {
+          position: relative;
+          overflow: hidden;
+          isolation: isolate;
+        }
+        .shimmer-once-cta::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.15) 20%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0.15) 80%,
+            transparent
+          );
+          transform: translateX(-150%) skewX(-20deg);
+          animation: single-shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation-delay: 0.9s;
+          pointer-events: none;
+          z-index: 10;
+        }
+      `}</style>
       <div className="relative w-full max-w-[420px] min-h-[85vh] rounded-[2.5rem] bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 shadow-2xl ring-1 ring-white/10 overflow-hidden">
         <div className="absolute top-4 right-4 z-10">
           <ShareButton
