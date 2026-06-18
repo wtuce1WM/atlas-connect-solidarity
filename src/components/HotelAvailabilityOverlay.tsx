@@ -383,8 +383,8 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           </span>
           <span className="text-sm text-white/80 truncate max-w-[250px]">{businessName}</span>
         </div>
-        <button onClick={onClose} className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors" title="Fermer">
-          <X className="h-5 w-5 text-white" />
+        <button onClick={onClose} className="p-1.5 rounded-full bg-white text-black hover:bg-white/90 transition-colors shadow-md" title="Fermer">
+          <X className="h-5 w-5 text-black" />
         </button>
       </div>
 
