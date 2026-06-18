@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
+import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
 
 
 const CSS = `
