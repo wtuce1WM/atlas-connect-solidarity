@@ -28,16 +28,21 @@ const CSS = `
   .card-page .eyebrow{display:inline-block;background:#fff5ec;color:var(--terracotta);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;border-radius:999px;margin-bottom:22px}
   .card-page h1{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(40px,5.6vw,68px);line-height:1.02;letter-spacing:-.01em;margin-bottom:24px}
   .card-page h1 .accent{color:var(--terracotta)}
+  .card-page .hero h1{color:#ffffff}
   .card-page .lead{color:#3a3a3a;font-size:17px;max-width:560px;margin-bottom:28px}
+  .card-page .hero .lead{color:rgba(255,255,255,0.9)}
   .card-page .lead code{background:#fff;padding:2px 8px;border-radius:6px;font-family:inherit;font-weight:600;color:var(--terracotta);font-size:.95em}
   .card-page .bullets{list-style:none;padding:0;margin:0 0 36px;display:flex;flex-direction:column;gap:14px}
   .card-page .bullets li{display:flex;gap:12px;align-items:flex-start;font-size:15.5px;color:#222}
+  .card-page .hero .bullets li{color:rgba(255,255,255,0.95)}
   .card-page .check{flex:none;width:22px;height:22px;border-radius:50%;background:var(--terracotta);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-top:1px}
   .card-page .btn-row{display:flex;gap:14px;flex-wrap:wrap}
   .card-page .btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--terracotta);color:#fff;padding:16px 32px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:13px;box-shadow:0 14px 30px -12px rgba(192,79,23,.55);transition:transform .2s,background .2s}
   .card-page .btn-primary:hover{background:var(--terracotta-deep);transform:translateY(-2px)}
   .card-page .btn-ghost{display:inline-flex;align-items:center;gap:10px;background:transparent;color:var(--ink);padding:16px 28px;border-radius:999px;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:13px;border:1.5px solid rgba(0,0,0,.18)}
   .card-page .btn-ghost:hover{background:rgba(0,0,0,.04)}
+  .card-page .hero .btn-ghost{color:#ffffff;border-color:rgba(255,255,255,0.35)}
+  .card-page .hero .btn-ghost:hover{background:rgba(255,255,255,0.1)}
 
   /* Phone mock */
   .card-page .phone-wrap{position:relative;display:flex;justify-content:center}
