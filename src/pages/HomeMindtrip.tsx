@@ -485,7 +485,7 @@ const HomeMindtrip = () => {
               <button
                 type="button"
                 onClick={() => setVideoOpen(true)}
-                className="relative inline-flex items-center gap-2.5 text-[#F1F1F1] hover:bg-white/15 transition bg-white/[0.07] backdrop-blur-xl border border-white/20 rounded-full pl-2 pr-4 py-1.5 duration-300 home-hero-video-cta active:scale-95"
+                className="relative inline-flex items-center gap-2.5 text-[#F1F1F1] hover:bg-white/15 transition bg-white/[0.07] backdrop-blur-xl border border-white/20 rounded-full pl-2 pr-4 py-1.5 duration-300 home-hero-video-cta active:scale-95 btn-flash"
                 style={{
                   boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 8px 32px 0 rgba(0, 0, 0, 0.3)"
                 }}
