@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, MapPin } from "lucide-react";
+import { Globe, MapPin, PenSquare } from "lucide-react";
 import NotFound from "@/pages/NotFound";
 import ShareButton from "@/components/ShareButton";
 import { useSEO } from "@/hooks/useSEO";
+import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
+
 
 type PublicBusiness = {
   id: string;
@@ -28,7 +30,13 @@ type PublicBusiness = {
   spotify_url: string | null;
   soundcloud_url: string | null;
   hook_fr: string | null;
+  google_maps_url: string | null;
+  google_review_url: string | null;
+  google_place_id: string | null;
+  tripadvisor_url: string | null;
+  tripadvisor_review_url: string | null;
 };
+
 
 const SOCIAL_ICONS: Record<string, JSX.Element> = {
   whatsapp: (
@@ -99,9 +107,10 @@ const PublicBusinessProfile = () => {
       const query = supabase
         .from("businesses")
         .select(
-          "id, slug, name, city, country, description, hook_fr, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, is_active",
+          "id, slug, name, city, country, description, hook_fr, logo_url, images, website, whatsapp, instagram_url, facebook_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, spotify_url, soundcloud_url, google_maps_url, google_review_url, google_place_id, tripadvisor_url, tripadvisor_review_url, is_active",
         )
         .eq("is_active", true);
+
       const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
       if (cancelled) return;
       if (data?.description) data.description = stripHtml(String(data.description));
@@ -194,16 +203,29 @@ const PublicBusinessProfile = () => {
           {business.description && (() => {
             const full = business.description;
             const isLong = full.length > 500;
-            const shown = !isLong || descExpanded ? full : full.slice(0, 500).trimEnd() + "…";
+            const head = isLong ? full.slice(0, 500).trimEnd() : full;
+            const tail = isLong ? full.slice(500) : "";
             return (
               <div className="mt-3 max-w-md">
-                <p className="text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line">
-                  {shown}
-                </p>
+                <div className="text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line">
+                  {head}
+                  {isLong && !descExpanded && "…"}
+                  {isLong && (
+                    <div
+                      className="grid transition-[grid-template-rows,opacity] duration-500 ease-in-out"
+                      style={{
+                        gridTemplateRows: descExpanded ? "1fr" : "0fr",
+                        opacity: descExpanded ? 1 : 0,
+                      }}
+                    >
+                      <div className="overflow-hidden whitespace-pre-line">{tail}</div>
+                    </div>
+                  )}
+                </div>
                 {isLong && (
                   <button
                     onClick={() => setDescExpanded((v) => !v)}
-                    className="mt-2 text-sm font-semibold text-primary hover:underline"
+                    className="mt-2 text-sm font-semibold text-primary hover:underline transition-colors"
                   >
                     {descExpanded ? "Voir −" : "Voir +"}
                   </button>
@@ -211,6 +233,7 @@ const PublicBusinessProfile = () => {
               </div>
             );
           })()}
+
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             {socials.map((s) => {
@@ -252,7 +275,47 @@ const PublicBusinessProfile = () => {
             >
               Voir la fiche complète
             </a>
+
+            {(() => {
+              const googleReviewHref =
+                business.google_review_url ||
+                (business.google_place_id
+                  ? `https://search.google.com/local/writereview?placeid=${business.google_place_id}`
+                  : null);
+              const tripHref =
+                business.tripadvisor_review_url ||
+                tripadvisorReviewUrl(business.tripadvisor_url);
+              return (
+                <>
+                  {googleReviewHref && (
+                    <a
+                      href={googleReviewHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                    >
+                      <img src="https://www.google.com/favicon.ico" alt="" className="h-4 w-4" />
+                      <span>Laisser un avis sur Google</span>
+                      <PenSquare className="h-4 w-4 text-neutral-400" />
+                    </a>
+                  )}
+                  {tripHref && (
+                    <a
+                      href={tripHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                    >
+                      <img src="/review-logos/tripadvisor.webp" alt="" className="h-4 w-4 object-contain" />
+                      <span>Laisser un avis sur TripAdvisor</span>
+                      <PenSquare className="h-4 w-4 text-neutral-400" />
+                    </a>
+                  )}
+                </>
+              );
+            })()}
           </div>
+
         </div>
       </div>
     </div>
