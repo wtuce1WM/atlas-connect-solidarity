@@ -850,23 +850,21 @@ const HomeMindtrip = () => {
                               {s.title}
                             </h3>
 
-                            {/* Mobile/Tablet/Desktop Content Layout */}
-                            <div className="flex flex-row items-center justify-between w-full mt-4 gap-4 flex-1">
-                              {/* Left side: text description taking 70% width */}
-                              <div className="w-[68%] pr-2">
-                                <p className="text-white/90 font-normal [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] font-roboto text-sm md:text-base text-left">
+                            {/* Mobile/Tablet/Desktop Content Layout with absolute full-size mockup */}
+                            <div className="relative w-full mt-4 flex-1 min-h-[180px]">
+                              {/* Left/Middle side: text description taking 75% width, sits on top */}
+                              <div className="relative z-10 w-[75%] pr-2">
+                                <p className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-sm md:text-base text-left">
                                   {s.desc}
                                 </p>
                               </div>
-                              {/* Right side: Mockup image taking remaining width, fully visible without being cut off */}
-                              <div className="w-[32%] flex justify-end items-center h-full">
-                                <img
-                                  src={iphoneTabletMockupAsset.url}
-                                  alt=""
-                                  aria-hidden="true"
-                                  className="pointer-events-none select-none max-h-[160px] md:max-h-[260px] lg:max-h-[320px] w-auto object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.45)]"
-                                />
-                              </div>
+                              {/* Full-size Mockup image absolutely positioned to the right */}
+                              <img
+                                src={iphoneTabletMockupAsset.url}
+                                alt=""
+                                aria-hidden="true"
+                                className="pointer-events-none select-none absolute bottom-[-16px] right-[-15%] h-[115%] w-auto object-contain object-bottom z-0 drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
+                              />
                             </div>
                           </div>
                         ) : (
