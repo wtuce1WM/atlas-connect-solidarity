@@ -190,7 +190,7 @@ const MobileSearchOverlay = ({
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSubmit(); } }}
             placeholder={placeholderText}
             autoComplete="off"
