@@ -241,6 +241,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const [isFullscreen, setIsFullscreen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const infoWindowHoveredRef = useRef(false);
+  const openInfoPoiIdRef = useRef<string | null>(null);
   const userLocationRef = useRef(userLocation);
   useEffect(() => { userLocationRef.current = userLocation; }, [userLocation]);
 
