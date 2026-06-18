@@ -69,6 +69,8 @@ const MobileSearchOverlay = ({
   const [query, setQuery] = useState("");
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dictationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleSubmitRef = useRef<() => void>(() => {});
   const navigate = useNavigate();
   const location = useLocation();
   const { language } = useLanguage();
@@ -127,6 +129,26 @@ const MobileSearchOverlay = ({
     smartNavigate({ q: query.trim(), _t: String(Date.now()) });
   }, [query, smartNavigate]);
 
+  // Keep a ref to the latest handleSubmit so the dictation timer always uses fresh query
+  useEffect(() => { handleSubmitRef.current = handleSubmit; }, [handleSubmit]);
+  useEffect(() => () => { if (dictationTimerRef.current) clearTimeout(dictationTimerRef.current); }, []);
+
+  // Auto-submit ~1.2s after iOS dictation stops inserting text
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    const inputType = (e.nativeEvent as InputEvent).inputType;
+    if (dictationTimerRef.current) {
+      clearTimeout(dictationTimerRef.current);
+      dictationTimerRef.current = null;
+    }
+    if (inputType === "insertReplacementText" && value.trim().length >= 2) {
+      dictationTimerRef.current = setTimeout(() => {
+        handleSubmitRef.current();
+      }, 1200);
+    }
+  }, []);
+
   const handleSelect = useCallback((text: string) => {
     smartNavigate({ q: text, _t: String(Date.now()) });
   }, [smartNavigate]);
@@ -168,7 +190,7 @@ const MobileSearchOverlay = ({
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSubmit(); } }}
             placeholder={placeholderText}
             autoComplete="off"
@@ -212,6 +234,18 @@ const MobileSearchOverlay = ({
             <Mic className="h-4 w-4 text-white" />
           )}
         </button>
+
+        {/* Submit button — visible when query has content (also serves as fallback after iOS dictation) */}
+        {query.trim().length >= 2 && (
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="flex items-center justify-center px-4 h-10 rounded-xl shrink-0 bg-primary text-primary-foreground text-sm font-semibold transition-all hover:bg-primary/90"
+            aria-label="Rechercher"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Scrollable suggestions body */}
