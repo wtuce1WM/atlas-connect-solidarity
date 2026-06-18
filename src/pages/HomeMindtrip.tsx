@@ -821,12 +821,12 @@ const HomeMindtrip = () => {
                       )}
                       {i === 7 && (
                         <>
-                          {/* Mobile & Tablet Only — same bg + mockup as Hero (Desktop has default light background) */}
-                          <img
-                            src={zelligeBrunAsset.url}
-                            alt=""
-                            className="lg:hidden absolute inset-0 h-full w-full object-cover"
-                          />
+                           {/* Mobile & Tablet Only — same bg + mockup as Hero (Desktop has default light background) */}
+                           <img
+                             src={zelligeMobileAsset.url}
+                             alt=""
+                             className="lg:hidden absolute inset-0 h-full w-full object-cover"
+                           />
                           <div className="lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
                         </>
                       )}
