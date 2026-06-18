@@ -254,11 +254,11 @@
   .kingdom{margin-top:60px;font-family:'Montserrat',sans-serif;font-style:italic;
     font-size:clamp(18px,2vw,26px);color:var(--red)}
 
-  .plans{background:#3B3B3B;color:var(--cream)}
+  .plans{background:#3B3B3B;color:#ffffff}
   .plans .sec-head{margin:0 auto 76px;text-align:center}
-  .plans .sec-head h2{color:var(--cream)}
+  .plans .sec-head h2{color:#ffffff}
   .plans .sec-head .eyebrow{display:block;margin-bottom:20px}
-  .plans .sec-head p{margin-left:auto;margin-right:auto;color:rgba(244,236,223,.6)}
+  .plans .sec-head p{margin-left:auto;margin-right:auto;color:rgba(255,255,255,0.8)}
   .plan-grid{display:grid;grid-template-columns:repeat(4,1fr);
     border:1px solid rgba(198,160,70,.2)}
   .plan{padding:54px 32px;border-right:1px solid rgba(198,160,70,.2);
@@ -271,12 +271,12 @@
     background:var(--gold);padding:5px 12px}
   .plan .pn{font-size:12px;letter-spacing:.26em;text-transform:uppercase;
     color:var(--gold);margin-bottom:24px}
-  .plan .pp{font-family:'Montserrat',sans-serif;font-size:46px;color:var(--cream);
+  .plan .pp{font-family:'Montserrat',sans-serif;font-size:46px;color:#ffffff;
     line-height:1}
-  .plan .pp small{font-size:14px;color:rgba(244,236,223,.5);font-family:'Jost';
+  .plan .pp small{font-size:14px;color:rgba(255,255,255,0.7);font-family:'Jost';
     letter-spacing:.04em}
   .plan .pd{margin-top:22px;font-size:13.5px;line-height:1.8;
-    color:rgba(244,236,223,.6);font-weight:300}
+    color:rgba(255,255,255,0.8);font-weight:400}
 
   .closing{background:#C04F17;color:var(--cream);text-align:center;
     padding:150px 0;position:relative;overflow:hidden}
