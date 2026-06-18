@@ -5764,9 +5764,9 @@ const SearchPage = () => {
               transition: isMobile && swipeOffsetY === 0 ? "transform 0.2s ease-out" : undefined,
             }}
             ref={panelWheelRef}
-            onTouchStart={onPanelTouchStart}
-            onTouchMove={onPanelTouchMove}
-            onTouchEnd={onPanelTouchEnd}
+            onTouchStart={bottomHashtagsOverlayOpen ? undefined : onPanelTouchStart}
+            onTouchMove={bottomHashtagsOverlayOpen ? undefined : onPanelTouchMove}
+            onTouchEnd={bottomHashtagsOverlayOpen ? undefined : onPanelTouchEnd}
           >
 
             {!isNestedMosaicOpen && (
