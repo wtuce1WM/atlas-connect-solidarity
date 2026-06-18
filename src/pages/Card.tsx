@@ -2,7 +2,12 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import heroHomeAsset from "@/assets/hero-home.webp.asset.json";
+import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
+import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
+
+const heroImageDesktop = originalHeroAsset.url;
+const heroImageTablet = zelligeBrunAsset.url;
+const heroImageMobile = zelligeBrunAsset.url;
 
 
 const CSS = `
@@ -12,8 +17,12 @@ const CSS = `
 
 
 
-  .card-page .hero{position:relative;padding:72px 0 96px}
-  .card-page .hero-bg{display:block;width:100%;height:auto;margin-bottom:48px}
+  .card-page .hero{position:relative;padding:72px 0 96px;overflow:hidden}
+  .card-page .hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .card-page .hero-overlay-tablet{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,.3),rgba(0,0,0,.5));z-index:1;display:none}
+  .card-page .hero-overlay-mobile{position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(to bottom,rgba(0,0,0,.85),rgba(0,0,0,.45),transparent);z-index:1;display:none}
+  @media (min-width:768px) and (max-width:1023px){.card-page .hero-overlay-tablet{display:block}}
+  @media (max-width:767px){.card-page .hero-overlay-mobile{display:block}}
   .card-page .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center;position:relative;z-index:2}
   @media (max-width:980px){.card-page .hero-grid{grid-template-columns:1fr;gap:48px}}
   .card-page .eyebrow{display:inline-block;background:#fff5ec;color:var(--terracotta);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;border-radius:999px;margin-bottom:22px}
@@ -130,7 +139,13 @@ const Card = () => {
 
       {/* HERO */}
       <section className="hero">
-        <img src={heroHomeAsset.url} alt="" className="hero-bg" loading="eager" />
+        <picture>
+          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
+          <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
+          <img src={heroImageDesktop} alt="" className="hero-bg" loading="eager" fetchPriority="high" />
+        </picture>
+        <div className="hero-overlay-tablet" aria-hidden />
+        <div className="hero-overlay-mobile" aria-hidden />
         <div className="wrap hero-grid">
           <div>
             <h1>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></h1>
