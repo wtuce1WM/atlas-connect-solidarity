@@ -657,6 +657,29 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   .mb-safe { margin-bottom: env(safe-area-inset-bottom); }
   .top-safe { top: env(safe-area-inset-top); }
   .bottom-safe { bottom: env(safe-area-inset-bottom); }
+
+  /* Flash shimmer hover effect from Corporate page CTA */
+  .btn-flash {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn-flash::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.8s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .btn-flash:hover::after {
+    left: 120%;
+  }
 }
 
 @media (max-width: 767px) {
