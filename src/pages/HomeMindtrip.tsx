@@ -402,17 +402,14 @@ const HomeMindtrip = () => {
         <section 
           className="relative min-h-[92vh] w-full overflow-hidden"
         >
-        <picture>
-          <source media="(max-width: 767px)" srcSet={heroImageMobile} />
-           <img
-              ref={heroBgRef}
-              src={heroImage}
-              alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-              className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
-              loading="eager"
-              fetchPriority="high"
-            />
-        </picture>
+         <img
+            ref={heroBgRef}
+            src={heroImage}
+            alt="Maroc — riad, piscine et tagine, composition réalisme magique"
+            className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
+            loading="eager"
+            fetchPriority="high"
+          />
          {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
          <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
         <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
