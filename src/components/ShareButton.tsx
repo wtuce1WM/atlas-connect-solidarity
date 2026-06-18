@@ -21,6 +21,7 @@ interface ShareButtonProps {
   /** Optional profile data to render as a Linktree-style profile card */
   profileData?: {
     nickname: string;
+    avatar_url?: string | null;
     first_name?: string | null;
     last_name?: string | null;
     city?: string | null;
