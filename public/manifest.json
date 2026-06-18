@@ -11,21 +11,15 @@
   "lang": "fr",
   "icons": [
     {
-      "src": "/app-icon-512.png",
-      "sizes": "192x192",
-      "type": "image/png",
+      "src": "/__l5e/assets-v1/de8297d3-876e-4846-8601-bf4a4f1a9d05/app-icon-hamsa-250-rounded.webp",
+      "sizes": "250x250",
+      "type": "image/webp",
       "purpose": "any"
     },
     {
-      "src": "/app-icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/app-icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "/__l5e/assets-v1/de8297d3-876e-4846-8601-bf4a4f1a9d05/app-icon-hamsa-250-rounded.webp",
+      "sizes": "250x250",
+      "type": "image/webp",
       "purpose": "maskable"
     }
   ]
