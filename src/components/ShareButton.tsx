@@ -320,7 +320,6 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                   </div>
                 )}
                 <div className="relative font-semibold text-base line-clamp-2 drop-shadow">{shareTitle}</div>
-                <div className="relative text-xs text-white/80 mt-1 break-all line-clamp-1 drop-shadow">{displayUrl}</div>
               </div>
             )}
 
