@@ -90,6 +90,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         ...base,
         { to: "/corporate", label: "Le concept" },
         { to: "/join", label: "Rejoindre" },
+        { to: "/card", label: "Votre carte de visite numérique" },
       ];
     } else {
       return [
