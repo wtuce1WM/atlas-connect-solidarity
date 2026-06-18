@@ -68,11 +68,11 @@ const Club = () => {
       return;
     }
     const fetchNickname = async () => {
-      const { data } = await supabase
+      const { data } = await (supabase
         .from("club_members" as any)
         .select("nickname")
         .eq("user_id", user.id)
-        .maybeSingle();
+        .maybeSingle() as any);
       if (data?.nickname) {
         setNickname(data.nickname);
       }
