@@ -4750,9 +4750,11 @@ const SearchPage = () => {
             <p className="text-xl md:text-2xl font-bold text-foreground mb-3">
               «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` ${selectedCity}` : ""}&nbsp;»
             </p>
-            <p className="text-primary font-semibold text-lg mb-5">
-              {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
-            </p>
+            {!isLoading && (
+              <p className="text-primary font-semibold text-lg mb-5">
+                {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+              </p>
+            )}
 
             {/* TTS button */}
             {(ttsStatus === "playing" || ttsStatus === "loading") ? (
