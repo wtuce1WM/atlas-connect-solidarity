@@ -821,22 +821,13 @@ const HomeMindtrip = () => {
                       )}
                       {i === 7 && (
                         <>
-                          {/* Desktop background — unchanged */}
-                          <img
-                            src={heroHomeVertAsset.url}
-                            alt=""
-                            className="hidden lg:block absolute inset-0 h-full w-full object-cover object-bottom"
-                          />
-                          <div className="hidden lg:block absolute inset-0 bg-black/40" />
-
-                          {/* Mobile & Tablet — same bg + mockup as Hero */}
+                          {/* Mobile & Tablet Only — same bg + mockup as Hero (Desktop has default light background) */}
                           <img
                             src={zelligeBrunAsset.url}
                             alt=""
                             className="lg:hidden absolute inset-0 h-full w-full object-cover"
                           />
                           <div className="lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
-                          {/* Mockup for desktop or other default cases if any */}
                         </>
                       )}
                       <div className={`relative z-10 w-full h-full flex flex-col ${i === 7 ? "min-h-[300px] md:min-h-[400px] justify-between" : ""}`}>
