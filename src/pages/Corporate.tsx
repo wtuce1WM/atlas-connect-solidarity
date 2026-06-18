@@ -4,6 +4,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import heroHomeAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
+import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import zelligeMobileAsset from "@/assets/backgr-brun-zelliges.webp.asset.json";
 // @ts-ignore - raw imports provided by Vite
 import corporateCss from "./corporate.scoped.css?raw";
