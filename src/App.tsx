@@ -31,6 +31,7 @@ const StaffCRM = lazy(() => import("./pages/StaffCRM"));
 const StaffFront = lazy(() => import("./pages/StaffFront"));
 const AffiliatesLogin = lazy(() => import("./pages/AffiliatesLogin"));
 const AffiliatesResetPassword = lazy(() => import("./pages/AffiliatesResetPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AffiliatesDashboard = lazy(() => import("./pages/AffiliatesDashboard"));
 const AffiliatePresence = lazy(() => import("./pages/AffiliatePresence"));
 const BecomeAffiliate = lazy(() => import("./pages/BecomeAffiliate"));
