@@ -423,6 +423,8 @@ const Club = () => {
               <ShareButton 
                 shareUrl={nickname ? `https://oneworldmorocco.com/u/${nickname}` : `https://oneworldmorocco.com/u/`}
                 title="Mon profil One World Morocco"
+                previewImage={ogImageCard.url}
+                avatarImage={avatarUrl}
                 variant="dark"
               />
             </div>
