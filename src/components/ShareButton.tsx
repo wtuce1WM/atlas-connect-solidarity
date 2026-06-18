@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Share2, X, Check, Copy, Link as LinkIcon, QrCode, Download } from "lucide-react";
+import { Share2, X, Check, Copy, Link as LinkIcon, QrCode, Download, MapPin, Globe } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { FacebookIcon, TwitterIcon, WhatsAppIcon, LinkedInIcon } from "@/components/staff/SocialMediaIcons";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
@@ -18,9 +18,28 @@ interface ShareButtonProps {
   className?: string;
   /** Extra classes applied to the trigger button itself */
   buttonClassName?: string;
+  /** Optional profile data to render as a Linktree-style profile card */
+  profileData?: {
+    nickname: string;
+    first_name?: string | null;
+    last_name?: string | null;
+    city?: string | null;
+    country?: string | null;
+    description?: string | null;
+    website?: string | null;
+    instagram?: string | null;
+    facebook?: string | null;
+    tiktok?: string | null;
+    youtube?: string | null;
+    twitter?: string | null;
+    linkedin?: string | null;
+    pinterest?: string | null;
+    spotify?: string | null;
+    soundcloud?: string | null;
+  } | null;
 }
 
-const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "gold", className = "", buttonClassName = "" }: ShareButtonProps) => {
+const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "gold", className = "", buttonClassName = "", profileData = null }: ShareButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
