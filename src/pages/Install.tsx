@@ -107,9 +107,38 @@ const Install = () => {
     readCapturedInstallPrompt();
     window.addEventListener("owm-installprompt-ready", readCapturedInstallPrompt);
     window.addEventListener("appinstalled", installedHandler);
+
+    // Detect outdated version: if a Service Worker has a waiting/installed update,
+    // invite the user to refresh.
+    let cleanupSw: (() => void) | undefined;
+    if ("serviceWorker" in navigator) {
+      const trackWorker = (worker: ServiceWorker | null) => {
+        if (!worker) return;
+        const onStateChange = () => {
+          if (worker.state === "installed" && navigator.serviceWorker.controller) {
+            setUpdateAvailable(true);
+          }
+        };
+        worker.addEventListener("statechange", onStateChange);
+      };
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        if (!reg) return;
+        if (reg.waiting && navigator.serviceWorker.controller) {
+          setUpdateAvailable(true);
+        }
+        trackWorker(reg.installing);
+        const onUpdateFound = () => trackWorker(reg.installing);
+        reg.addEventListener("updatefound", onUpdateFound);
+        cleanupSw = () => reg.removeEventListener("updatefound", onUpdateFound);
+        // Ask the browser to check for an update immediately.
+        reg.update().catch(() => {});
+      }).catch(() => {});
+    }
+
     return () => {
       window.removeEventListener("owm-installprompt-ready", readCapturedInstallPrompt);
       window.removeEventListener("appinstalled", installedHandler);
+      cleanupSw?.();
     };
   }, []);
 
