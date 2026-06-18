@@ -841,7 +841,7 @@ const HomeMindtrip = () => {
                             </div>
 
                             {/* Title — full width, on top */}
-                            <h3 className="font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white lg:text-black [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] lg:[text-shadow:none] text-left w-full">
+                            <h3 className="font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] text-left w-full">
                               {s.title}
                             </h3>
 
@@ -849,7 +849,7 @@ const HomeMindtrip = () => {
                             <div className="relative w-full mt-6 md:mt-8 flex-1 min-h-[180px]">
                               {/* Left/Middle side: text description taking 82% width, sits on top */}
                               <div className="relative z-10 w-[82%] md:w-[85%] pr-2 pt-2 md:pt-4">
-                                <p className="text-white/90 lg:text-black/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] lg:[text-shadow:none] font-roboto text-base text-left">
+                                <p className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-base text-left">
                                   {s.desc}
                                 </p>
                               </div>
