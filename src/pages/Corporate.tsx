@@ -57,14 +57,18 @@ const Corporate = () => {
       io.observe(el);
     });
 
-    // Parallax on hero bg (mirrors homepage)
+    // Parallax on hero bg (mirrors homepage) — desktop image + mobile section bg
     const heroBg = root.querySelector<HTMLImageElement>(".hero .bg-img-desktop");
+    const heroSection = root.querySelector<HTMLElement>(".hero");
     let raf = 0;
     const onScroll = () => {
-      if (!heroBg || raf) return;
+      if (raf) return;
       raf = requestAnimationFrame(() => {
         const y = window.scrollY;
-        heroBg.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
+        if (heroBg) heroBg.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
+        if (heroSection && window.innerWidth < 1024) {
+          heroSection.style.backgroundPosition = `center calc(50% + ${y * 0.3}px)`;
+        }
         raf = 0;
       });
     };
