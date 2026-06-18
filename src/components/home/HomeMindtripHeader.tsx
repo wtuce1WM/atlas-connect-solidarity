@@ -36,22 +36,23 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       ];
     } else if (location.pathname === "/join") {
       return [
+        { to: "/corporate", label: "Le concept" },
         { to: "/card", label: "Votre carte de visite numérique" },
         { to: "/devenir-affilie", label: "Devenir affilié" },
       ];
     } else if (location.pathname === "/card") {
       return [
-        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/corporate", label: "Le concept" },
         { to: "/devenir-affilie", label: "Devenir affilié" },
       ];
     } else if (location.pathname === "/devenir-affilie") {
       return [
-        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/corporate", label: "Le concept" },
         { to: "/join", label: "Rejoindre" },
       ];
     } else {
       return [
-        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/corporate", label: "Le concept" },
         { to: "/club", label: "Le club OWM" },
         { to: "/install", label: "Application" },
       ];
@@ -70,25 +71,26 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
     } else if (location.pathname === "/join") {
       return [
         ...base,
+        { to: "/corporate", label: "Le concept" },
         { to: "/card", label: "Votre carte de visite numérique" },
         { to: "/devenir-affilie", label: "Devenir affilié" },
       ];
     } else if (location.pathname === "/card") {
       return [
         ...base,
-        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/corporate", label: "Le concept" },
         { to: "/devenir-affilie", label: "Devenir affilié" },
       ];
     } else if (location.pathname === "/devenir-affilie") {
       return [
         ...base,
-        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/corporate", label: "Le concept" },
         { to: "/join", label: "Rejoindre" },
       ];
     } else {
       return [
         ...base,
-        { to: "/corporate", label: "Ajoutez votre entreprise" },
+        { to: "/corporate", label: "Le concept" },
         { to: "/club", label: "Le club OWM" },
         { to: "/install", label: "Application" },
       ];
