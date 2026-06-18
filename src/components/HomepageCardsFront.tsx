@@ -261,7 +261,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
     if (!it.videoId) {
       return (
-        <div className="relative aspect-[9/16] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center px-2" style={cvStyle}>
+        <div className="relative aspect-[9/16] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center px-2 group" style={cvStyle}>
           {it.thumbnail ? (
             <>
               <img src={optimizedThumb || it.thumbnail} srcSet={thumbSrcSet} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
@@ -283,6 +283,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
             </div>
           )}
           {immoBadge}
+          <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-10" />
         </div>
       );
     }
@@ -349,6 +350,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           </div>
         )}
         {immoBadge}
+        <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-10" />
       </div>
     );
   };
