@@ -4960,7 +4960,7 @@ const SearchPage = () => {
       )}
 
       {activeTab === "destinations" && (
-        <div data-search-tab-panel="destinations">
+        <div data-search-tab-panel="destinations" style={{ backgroundColor: "var(--background)" }}>
         <DestinationsTabContent
           selectedCity={selectedCity}
           detectedCity={detectedCity}
