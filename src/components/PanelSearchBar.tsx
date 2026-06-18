@@ -88,6 +88,12 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
     _setHashtagsOverlayOpen(open);
     onHashtagsOverlayChange?.(open);
   }, [onHashtagsOverlayChange]);
+
+  useEffect(() => {
+    const handler = () => setHashtagsOverlayOpen(true);
+    window.addEventListener("open-hashtags-overlay", handler);
+    return () => window.removeEventListener("open-hashtags-overlay", handler);
+  }, [setHashtagsOverlayOpen]);
   const { toast } = useToast();
   const geo = useGeolocation();
 
