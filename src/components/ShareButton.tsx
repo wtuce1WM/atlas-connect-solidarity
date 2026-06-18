@@ -306,7 +306,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                 style={
                   previewImage
                     ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" }
-                    : { backgroundColor: "#171717" }
+                    : { backgroundColor: "#194CFF" }
                 }
               >
                 {previewImage && !avatarImage && <div className="absolute inset-0 bg-black/45" aria-hidden="true" />}
