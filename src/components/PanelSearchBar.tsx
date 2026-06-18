@@ -84,14 +84,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       window.dispatchEvent(new Event("open-generic-club-popup"));
       return;
     }
-    const { data } = await supabase
-      .from("club_members")
-      .select("nickname")
-      .eq("user_id", session.user.id)
-      .maybeSingle();
-    const nickname = (data as any)?.nickname;
-    if (nickname) navigate(`/u/${nickname}`);
-    else navigate("/club");
+    navigate("/club");
   }, [navigate]);
 
   // Notify parent when search overlay opens/closes
