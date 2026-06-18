@@ -841,13 +841,13 @@ const BookOnlineSlidePanelInner = ({
     };
   }, [businessId, currentMediaIndex]);
 
-  // Unified flag: true when any overlay is open on top of the slidepanel.
+  // Unified flag: true when any overlay or welcome popup is open on top of the slidepanel.
   // Used both to mute background media and to disable swipe/wheel navigation.
   const anyOverlayOpen =
     showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
-    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted;
+    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted || showWelcomePopup;
 
   // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
   // so they can disable business navigation while an overlay is open above the panel.
