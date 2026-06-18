@@ -428,12 +428,19 @@ const HomeMindtrip = () => {
           aria-hidden="true"
           className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
         />
-        {/* Floating iPhone mockup — right side, mobile and tablet (lg:hidden) */}
+        {/* Floating iPhone mockup — right side, tablet only (768px to 1023px) */}
         <img
           src={iphoneTabletMockupAsset.url}
           alt="Application One World Morocco — Koutoubia"
           aria-hidden="true"
-          className="block lg:hidden pointer-events-none select-none absolute right-[3%] max-md:right-[-5%] max-md:top-[42%] max-md:h-[35%] max-md:opacity-85 top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] h-[60%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
+          className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
+        />
+        {/* Centered iPhone mockup — mobile only, exactly like /corporate */}
+        <img
+          src={phoneMockupAsset.url}
+          alt="Application One World Morocco sur iPhone"
+          aria-hidden="true"
+          className="block md:hidden pointer-events-none select-none absolute top-[10%] left-0 right-0 h-[85%] w-full object-contain object-bottom origin-top scale-[0.95] z-10 opacity-85"
         />
         <style>{`
           @keyframes heroPhoneFloat {
