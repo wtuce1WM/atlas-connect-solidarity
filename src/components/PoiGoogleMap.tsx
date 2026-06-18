@@ -331,6 +331,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       ],
     });
     infoWindowRef.current = new gmaps.InfoWindow();
+    mapRef.current.addListener("click", () => {
+      openInfoPoiIdRef.current = null;
+      infoWindowRef.current?.close();
+    });
   }, [ready, center]);
 
   useEffect(() => {
