@@ -184,40 +184,96 @@ const Install = () => {
     <main className="min-h-dvh bg-background text-foreground">
       <HomeMindtripHeader alwaysWhite />
 
-      {/* Hero — image de fond avec zoom lent (kenburns) + carte d'installation superposée */}
-      <section className="relative w-full overflow-hidden min-h-[640px] sm:min-h-[720px] md:min-h-[760px] flex items-center">
-        <div
-          className={`absolute inset-0 bg-cover ${isMobile ? "bg-bottom" : "bg-center"}`}
-          style={{
-            backgroundImage: `url(${isMobile ? heroHomeVertAsset.url : heroImageAsset.url})`,
-            transformOrigin: isMobile ? "center bottom" : "center center",
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40 pointer-events-none" />
+      {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
+      <div>
+        <section className="relative min-h-[92vh] w-full overflow-hidden">
+          <picture>
+            <source media="(max-width: 767px)" srcSet={heroImageMobile} />
+            <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
+            <img
+              src={heroImageDesktop}
+              alt="Maroc — riad, piscine et tagine, composition réalisme magique"
+              className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
+              loading="eager"
+              fetchPriority="high"
+            />
+          </picture>
+          {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
+          <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
+          <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-black/85 via-black/45 to-transparent md:hidden z-10" />
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-8">
-          <div className="w-full max-w-md bg-white/15 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
-            <header className="text-center">
-              <div className="flex flex-col items-center gap-6 mb-8">
-                <div 
-                  className="relative group overflow-hidden rounded-[1.25rem] w-20 h-20 block border border-white/35 shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 bg-white/5 backdrop-blur-[2px] btn-shimmer cursor-pointer"
+          {/* Floating phone mockup — left side, desktop only */}
+          <img
+            src={phoneMockupAsset.url}
+            alt="Application One World Morocco sur iPhone"
+            aria-hidden="true"
+            className="hidden lg:block pointer-events-none select-none absolute left-[2%] xl:left-[5%] top-1/2 -translate-y-1/2 h-[64%] w-auto z-20 drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)] animate-[heroPhoneFloat_6s_ease-in-out_infinite]"
+          />
+          {/* Floating iPhone mockup — right side, tablet only (768px to 1023px) */}
+          <img
+            src={iphoneTabletMockupAsset.url}
+            alt="Application One World Morocco — Koutoubia"
+            aria-hidden="true"
+            className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
+          />
+          {/* Centered iPhone mockup — mobile only */}
+          <img
+            src={phoneMockupAsset.url}
+            alt="Application One World Morocco sur iPhone"
+            aria-hidden="true"
+            className="block md:hidden pointer-events-none select-none absolute top-[10%] left-0 right-0 h-[85%] w-full object-contain object-bottom origin-top scale-[0.95] z-10 opacity-85 animate-[mobilePhoneFloat_5s_ease-in-out_infinite]"
+          />
+          <style>{`
+            @keyframes heroPhoneFloat {
+              0%, 100% { transform: translateY(calc(-50% - 8px)); }
+              50% { transform: translateY(calc(-50% + 8px)); }
+            }
+            @keyframes mobilePhoneFloat {
+              0%, 100% { transform: scale(0.95) translateY(0); }
+              50% { transform: scale(0.95) translateY(-12px); }
+            }
+            @media (prefers-reduced-motion: reduce) {
+              section img[alt^="Application One World"] { animation: none !important; }
+            }
+          `}</style>
+
+          <div className="relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center max-md:justify-start max-md:pt-[140px] pb-28 text-center px-6 md:justify-center md:items-start lg:items-center md:text-left lg:text-center md:pt-24 md:pb-6 md:py-24 md:px-12 w-full">
+            <div className="w-full md:max-lg:max-w-[75%] md:max-lg:mb-6">
+              {/* Mobile Title */}
+              <h1 style={{ lineHeight: 1.2 }} className="md:hidden font-josefin text-[1.625rem] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
+                Installer l'App
+              </h1>
+              {/* Desktop/Tablet Title */}
+              <h1 style={{ lineHeight: 1.2 }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2">
+                Installer l'App
+              </h1>
+
+              <p className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
+                {installEvent
+                  ? "Touche l'icône ci-dessous pour installer l'app en un clic, ou suis les étapes ci-dessous."
+                  : "Installe l'app sur ton appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur ton écran d'accueil ou ton bureau."}
+              </p>
+            </div>
+
+            {/* Install CTA container — équivalent au search container de la home */}
+            <div className="max-md:mt-auto max-md:pt-10 mt-10 w-full max-w-2xl md:max-lg:mt-6 md:max-lg:mx-0 mx-auto md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+              <div className="flex flex-col items-center gap-5">
+                <div
+                  className="relative group overflow-hidden rounded-[1.25rem] w-20 h-20 md:w-24 md:h-24 block border border-white/35 shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 bg-white/5 backdrop-blur-[2px] btn-shimmer cursor-pointer"
                   onClick={handleIconClick}
                 >
-                  {/* Glass sheen effect */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/15 z-10 pointer-events-none" />
-                  {/* Curved highlight for realistic glass bubble effect */}
                   <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-white/25 to-transparent rounded-t-[1.25rem] pointer-events-none z-10" />
-                  {/* App Icon Image */}
-                  <img 
-                    src={appIconHamsaAsset.url} 
-                    alt="ONE WORLD MOROCCO" 
+                  <img
+                    src={appIconHamsaAsset.url}
+                    alt="ONE WORLD MOROCCO"
                     className="w-full h-full object-cover relative z-0"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={handleIconClick}
-                  className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C04F17] text-white text-sm font-roboto font-medium shadow-lg hover:opacity-95 transition-all active:scale-95 cursor-pointer"
+                  className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C04F17] text-white text-sm font-roboto font-medium shadow-lg hover:opacity-95 transition-all active:scale-95 cursor-pointer btn-shimmer"
                   aria-label={
                     installed
                       ? "Application déjà installée"
@@ -239,18 +295,11 @@ const Install = () => {
                   )}
                 </button>
               </div>
-              <h1 className="font-josefin text-3xl md:text-4xl font-light tracking-wide mb-3 text-white">
-                Installer l'App
-              </h1>
-              <p className="font-roboto text-white/90 text-base leading-relaxed">
-                {installEvent
-                  ? "Touche l'icône ci-dessus pour installer l'app en un clic, ou suis les étapes ci-dessous."
-                  : "Installe l'app sur ton appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur ton écran d'accueil ou ton bureau."}
-              </p>
-            </header>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
+
 
       <div className="mx-auto max-w-2xl px-6 pt-10 pb-12">
 
