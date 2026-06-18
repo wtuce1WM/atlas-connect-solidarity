@@ -777,7 +777,7 @@ const HomeMindtrip = () => {
                     <div className="relative z-10 flex flex-col gap-4 md:gap-6 flex-1 justify-between">
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         <div className="flex-1 lg:max-w-[60%]">
-                          <p className="font-roboto text-sm md:text-base text-black/90 font-normal">
+                          <p className="font-roboto text-base text-black/90 font-normal">
                             {s.desc}
                           </p>
                         </div>
@@ -858,7 +858,7 @@ const HomeMindtrip = () => {
                             <div className="relative w-full mt-4 flex-1 min-h-[180px]">
                               {/* Left/Middle side: text description taking 75% width, sits on top */}
                               <div className="relative z-10 w-[75%] pr-2">
-                                <p className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-sm md:text-base text-left">
+                                <p className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-base text-left">
                                   {s.desc}
                                 </p>
                               </div>
@@ -881,7 +881,7 @@ const HomeMindtrip = () => {
                             <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
                               {s.title}
                             </h3>
-                            <p className="mt-3 md:mt-4 text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-sm md:text-base">{s.desc}</p>
+                            <p className="mt-3 md:mt-4 text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-base">{s.desc}</p>
                           </>
                         )}
 
