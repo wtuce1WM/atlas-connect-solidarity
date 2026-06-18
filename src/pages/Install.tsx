@@ -78,6 +78,7 @@ const Install = () => {
   const [platform, setPlatform] = useState<Platform>("ios");
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
   const guideRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
 
@@ -106,9 +107,38 @@ const Install = () => {
     readCapturedInstallPrompt();
     window.addEventListener("owm-installprompt-ready", readCapturedInstallPrompt);
     window.addEventListener("appinstalled", installedHandler);
+
+    // Detect outdated version: if a Service Worker has a waiting/installed update,
+    // invite the user to refresh.
+    let cleanupSw: (() => void) | undefined;
+    if ("serviceWorker" in navigator) {
+      const trackWorker = (worker: ServiceWorker | null) => {
+        if (!worker) return;
+        const onStateChange = () => {
+          if (worker.state === "installed" && navigator.serviceWorker.controller) {
+            setUpdateAvailable(true);
+          }
+        };
+        worker.addEventListener("statechange", onStateChange);
+      };
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        if (!reg) return;
+        if (reg.waiting && navigator.serviceWorker.controller) {
+          setUpdateAvailable(true);
+        }
+        trackWorker(reg.installing);
+        const onUpdateFound = () => trackWorker(reg.installing);
+        reg.addEventListener("updatefound", onUpdateFound);
+        cleanupSw = () => reg.removeEventListener("updatefound", onUpdateFound);
+        // Ask the browser to check for an update immediately.
+        reg.update().catch(() => {});
+      }).catch(() => {});
+    }
+
     return () => {
       window.removeEventListener("owm-installprompt-ready", readCapturedInstallPrompt);
       window.removeEventListener("appinstalled", installedHandler);
+      cleanupSw?.();
     };
   }, []);
 
@@ -350,6 +380,36 @@ const Install = () => {
             </p>
           )}
         </section>
+
+        {/* Update available banner — shown only when an outdated version is detected */}
+        {updateAvailable && (
+          <div className="mt-10 rounded-2xl border border-primary/40 bg-primary/10 p-5 text-center">
+            <p className="font-roboto text-sm text-foreground">
+              <strong>Une nouvelle version de l'app est disponible.</strong><br />
+              Mettez à jour maintenant pour profiter des dernières améliorations.
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  if ("serviceWorker" in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map((r) => r.update()));
+                  }
+                  if ("caches" in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map((k) => caches.delete(k)));
+                  }
+                } catch {}
+                window.location.reload();
+              }}
+              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-roboto font-medium shadow-md hover:opacity-90 transition"
+            >
+              <Download className="h-4 w-4" />
+              Mettre à jour l'app
+            </button>
+          </div>
+        )}
 
         {/* Update button */}
         <div className="mt-10 text-center">
