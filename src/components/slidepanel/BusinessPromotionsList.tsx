@@ -57,20 +57,19 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
   const multiple = promotions.length > 1;
 
   return (
-    <div className="w-[88%] sm:w-[90%] translate-x-3 sm:translate-x-0 mx-auto mt-3 mb-2">
-      <div className="relative w-full">
+    <div className="max-w-[90%] mx-auto mt-3 mb-2 flex flex-col items-center">
+      <div className="relative grid">
         {promotions.map((p, i) => {
           const active = i === index;
           return (
             <div
               key={p.id}
               aria-hidden={!active}
-              className={`${
-                i === 0 ? "relative" : "absolute inset-0"
-              } rounded-xl border border-white/40 p-3 text-left transition-all duration-700 ease-out overflow-hidden ${
-                active ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-[0.97] pointer-events-none"
+              className={`w-fit max-w-full justify-self-center rounded-xl border border-white/40 p-3 text-left transition-all duration-700 ease-out overflow-hidden ${
+                active ? "opacity-100 translate-y-0 scale-100 relative" : "opacity-0 translate-y-4 scale-[0.97] pointer-events-none"
               }`}
               style={{
+                gridArea: "1 / 1",
                 background: "linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.25) 100%)",
                 backdropFilter: "blur(18px) saturate(180%)",
                 WebkitBackdropFilter: "blur(18px) saturate(180%)",
