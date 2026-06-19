@@ -183,13 +183,14 @@ const AffiliateBusinessesEditor = ({ affiliate, onBack }: Props) => {
     }
 
     setSaving(promo._uid);
+    const hasType = !!promo.promotion_type;
     const payload = {
       affiliate_id: affiliate.id,
       business_id: businessId,
       title: promo.title || null,
-      promotion_type: promo.promotion_type,
-      promotion_value: promo.promotion_value,
-      promotion_currency: promo.promotion_currency,
+      promotion_type: hasType ? promo.promotion_type : null,
+      promotion_value: hasType ? promo.promotion_value : null,
+      promotion_currency: hasType && promo.promotion_type === "fixed" ? (promo.promotion_currency || "MAD") : null,
       promotion_message: promo.promotion_message || null,
       images: promo.images,
       sort_order: promo.sort_order,
