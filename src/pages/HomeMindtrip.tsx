@@ -500,6 +500,8 @@ const HomeMindtrip = () => {
             transition: transform .5s cubic-bezier(.2,.7,.2,1);
             will-change: transform;
           }
+          @keyframes heroRise { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: none; } }
+          .hero-rise { opacity: 0; animation: heroRise 1s forwards; }
           @media (prefers-reduced-motion: reduce) {
             section img[alt^="Application One World"] { animation: none !important; }
             .hero-parallax .home-hero-content { transform: none !important; }
@@ -510,22 +512,22 @@ const HomeMindtrip = () => {
           {/* Title + Text Container (restricted to leave space for Mockup on Tablet, but wider than before) */}
           <div className="w-full md:max-lg:max-w-[75%] md:max-lg:mb-6">
             {/* Mobile Title - placed under the header in normal flow to avoid overlap */}
-            <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="md:hidden font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] opacity-0 animate-fade-in">
+            <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="md:hidden font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] hero-rise">
               L’écosystème digital éthique & solidaire dédié à l'économie marocaine
             </h1>
 
             {/* Desktop Title - integrated in flex-col for perfect vertical centering */}
-            <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2 opacity-0 animate-fade-in">
+            <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2 hero-rise">
               L’écosystème digital éthique & solidaire dédié à l'économie marocaine
             </h1>
 
-            <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] opacity-0 animate-fade-in">
+            <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] hero-rise">
               Faites de chaque achat<br className="md:hidden" /> un acte de générosité.<br className="md:hidden" /><br className="hidden md:inline lg:hidden" /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
             </p>
           </div>
 
           {/* Search container - placed below Title + Text + Mockup on tablet */}
-          <div style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="max-md:mt-auto max-md:pt-10 mt-10 w-full max-w-2xl md:max-lg:mt-6 md:max-lg:mx-0 mx-auto md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)] opacity-0 animate-fade-in">
+          <div style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="max-md:mt-auto max-md:pt-10 mt-10 w-full max-w-2xl md:max-lg:mt-6 md:max-lg:mx-0 mx-auto md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)] hero-rise">
             <HeroInlineSearch
               placeholder="Rechercher un hôtel, un restaurant, une expérience…"
               onSearch={(params) => {
