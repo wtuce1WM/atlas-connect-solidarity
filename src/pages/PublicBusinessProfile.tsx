@@ -375,6 +375,51 @@ const PublicBusinessProfile = () => {
             );
           })()}
 
+          {promotions.length > 0 && (
+            <div
+              className="b-rise-item mt-5 w-full max-w-md flex flex-col gap-3"
+              style={{ animationDelay: "0.54s" }}
+            >
+              <div
+                className="text-[11px] uppercase tracking-[0.18em] font-bold text-[#D4AF37] text-left"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                Avantages One World Morocco
+              </div>
+              {promotions.map((p) => (
+                <div
+                  key={p.id}
+                  className="rounded-xl border border-[#C04F17]/40 bg-white/5 backdrop-blur-sm p-3 text-left"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div
+                      className="text-[14px] font-bold text-white leading-snug"
+                      style={{ fontFamily: "'Montserrat', sans-serif" }}
+                    >
+                      {p.title}
+                    </div>
+                    {p.savings_amount != null && (
+                      <div
+                        className="shrink-0 text-[11px] font-black text-[#D4AF37] whitespace-nowrap"
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
+                      >
+                        −{p.savings_amount} {p.promotion_currency || "MAD"}
+                      </div>
+                    )}
+                  </div>
+                  {p.promotion_message && (
+                    <div
+                      className="mt-1.5 text-[13px] leading-relaxed text-neutral-300 [&_p]:m-0"
+                      dangerouslySetInnerHTML={{ __html: p.promotion_message }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+
+
 
           <div 
             className="b-rise-item mt-6 flex flex-wrap items-center justify-center gap-4"
