@@ -21,10 +21,10 @@ export type Database = {
           created_at: string
           id: string
           images: string[]
-          promotion_currency: string
+          promotion_currency: string | null
           promotion_message: string | null
-          promotion_type: string
-          promotion_value: number
+          promotion_type: string | null
+          promotion_value: number | null
           sort_order: number
           title: string | null
           updated_at: string
@@ -35,10 +35,10 @@ export type Database = {
           created_at?: string
           id?: string
           images?: string[]
-          promotion_currency?: string
+          promotion_currency?: string | null
           promotion_message?: string | null
-          promotion_type?: string
-          promotion_value?: number
+          promotion_type?: string | null
+          promotion_value?: number | null
           sort_order?: number
           title?: string | null
           updated_at?: string
@@ -49,10 +49,10 @@ export type Database = {
           created_at?: string
           id?: string
           images?: string[]
-          promotion_currency?: string
+          promotion_currency?: string | null
           promotion_message?: string | null
-          promotion_type?: string
-          promotion_value?: number
+          promotion_type?: string | null
+          promotion_value?: number | null
           sort_order?: number
           title?: string | null
           updated_at?: string
