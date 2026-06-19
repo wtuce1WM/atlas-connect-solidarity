@@ -10,3 +10,4 @@
 
 ## Memories
 - [Blog Card Thumbnail](mem://design/blog-card-thumbnail) — Vignettes /blog = 1ʳᵉ image de la 1ʳᵉ fiche de l'article (= hero)
+- [Voice Overlay Scope](mem://constraints/voice-overlay-scope) — L'overlay vocal du PanelSearchBar reste contenu dans le slidepanel droit, jamais fullscreen ni portalisé vers body
