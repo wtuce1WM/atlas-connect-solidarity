@@ -52,6 +52,7 @@ interface Promotion {
   promotion_value: number;
   promotion_currency: string;
   promotion_message: string;
+  savings_amount: number | null;
   images: string[];
   sort_order: number;
   has_changes: boolean;
@@ -115,6 +116,7 @@ const AffiliateBusinessesEditor = ({ affiliate, onBack }: Props) => {
         promotion_value: Number(p.promotion_value) || 0,
         promotion_currency: p.promotion_currency || "MAD",
         promotion_message: p.promotion_message || "",
+        savings_amount: p.savings_amount != null ? Number(p.savings_amount) : null,
         images: Array.isArray(p.images) ? p.images : [],
         sort_order: p.sort_order ?? 0,
         has_changes: false,
@@ -162,6 +164,7 @@ const AffiliateBusinessesEditor = ({ affiliate, onBack }: Props) => {
           promotion_value: 0,
           promotion_currency: "MAD",
           promotion_message: "",
+          savings_amount: null,
           images: [],
           sort_order: nextOrder,
           has_changes: true,
@@ -192,6 +195,7 @@ const AffiliateBusinessesEditor = ({ affiliate, onBack }: Props) => {
       promotion_value: hasType ? promo.promotion_value : null,
       promotion_currency: hasType && promo.promotion_type === "fixed" ? (promo.promotion_currency || "MAD") : null,
       promotion_message: promo.promotion_message || null,
+      savings_amount: promo.savings_amount,
       images: promo.images,
       sort_order: promo.sort_order,
     };
@@ -470,7 +474,7 @@ const OfferRow = ({ promo, saving, onUpdate, onSave, onDelete, affiliateId, busi
           </div>
 
           {/* Type / value / currency */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-1">
                 {promo.promotion_type === "percentage" ? (
@@ -505,6 +509,19 @@ const OfferRow = ({ promo, saving, onUpdate, onSave, onDelete, affiliateId, busi
                 />
               </div>
             )}
+            <div className="space-y-2">
+              <Label>Économies</Label>
+              <Input
+                type="number"
+                min={0}
+                value={promo.savings_amount ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  onUpdate({ savings_amount: v === "" ? null : parseFloat(v) });
+                }}
+                placeholder="Ex: 150"
+              />
+            </div>
             {promo.promotion_type === "fixed" && (
               <div className="space-y-2">
                 <Label>Devise</Label>
