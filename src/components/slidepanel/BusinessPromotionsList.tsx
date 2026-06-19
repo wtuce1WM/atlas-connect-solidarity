@@ -54,7 +54,7 @@ const BusinessPromotionsList = ({ businessId }: Props) => {
   const multiple = promotions.length > 1;
 
   return (
-    <div className="w-full mt-3 mb-2">
+    <div className="w-[90%] mx-auto mt-3 mb-2">
       <div className="relative w-full">
         {promotions.map((p, i) => {
           const active = i === index;
