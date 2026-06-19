@@ -2848,43 +2848,46 @@ const BookOnlineSlidePanelInner = ({
       )}
       {/* Search bar */}
       {showSearchBar && !docOverlay && !showDescriptionOverlay && !showBookingOverlay && !showYoutubeOverlay && !selectedPoiBusinessId && (
-        <PanelSearchBar
-          onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
-          iconVariant="black"
-          onSearch={onSearch}
-          onBusinessSelect={onSearchBusinessSelect}
-          onHotelSearch={onHotelSearch}
-          businessCity={business?.city}
-          businessCategory={business?.main_category}
-          businessName={business?.name}
-          onOverlayChange={setSearchOverlayActive}
-          onHashtagsOverlayChange={setHashtagsOverlayActive}
-          hashtagsOverlayOpen={hashtagsOverlayActive}
-          onAiOverlayChange={setAiOverlayActive}
-          darkBackground={true}
-          closeTrigger={closeTrigger}
-          compact
-          onSeeResults={onClose}
-          videoControls={
-            activeVideoOverlay ? undefined :
-            (showPoiMapOverlay || showDirections) ? undefined :
-            effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? {
-              type: "file",
-              videoRef: videoRef as React.RefObject<HTMLVideoElement>,
-              paused: videoPaused,
-              muted: videoMuted,
-            } :
-            effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? {
-              type: "youtube",
-              iframeRef: iframeRef as React.RefObject<HTMLIFrameElement>,
-              playing: !videoPaused,
-              muted: videoMuted,
-              onPlayingChange: (p: boolean) => setVideoPaused(!p),
-              onMutedChange: (m: boolean) => setVideoMuted(m),
-            } : undefined
-          }
-
-        />
+        <div className="fixed pointer-events-none bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]">
+          <div className="relative w-full h-full pointer-events-auto">
+            <PanelSearchBar
+              onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
+              iconVariant="black"
+              onSearch={onSearch}
+              onBusinessSelect={onSearchBusinessSelect}
+              onHotelSearch={onHotelSearch}
+              businessCity={business?.city}
+              businessCategory={business?.main_category}
+              businessName={business?.name}
+              onOverlayChange={setSearchOverlayActive}
+              onHashtagsOverlayChange={setHashtagsOverlayActive}
+              hashtagsOverlayOpen={hashtagsOverlayActive}
+              onAiOverlayChange={setAiOverlayActive}
+              darkBackground={true}
+              closeTrigger={closeTrigger}
+              compact
+              onSeeResults={onClose}
+              videoControls={
+                activeVideoOverlay ? undefined :
+                (showPoiMapOverlay || showDirections) ? undefined :
+                effectiveMedia?.kind === "video" && videoInfo?.type === "file" ? {
+                  type: "file",
+                  videoRef: videoRef as React.RefObject<HTMLVideoElement>,
+                  paused: videoPaused,
+                  muted: videoMuted,
+                } :
+                effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? {
+                  type: "youtube",
+                  iframeRef: iframeRef as React.RefObject<HTMLIFrameElement>,
+                  playing: !videoPaused,
+                  muted: videoMuted,
+                  onPlayingChange: (p: boolean) => setVideoPaused(!p),
+                  onMutedChange: (m: boolean) => setVideoMuted(m),
+                } : undefined
+              }
+            />
+          </div>
+        </div>
       )}
 
       {showWelcomePopup && (business as any)?.popup_image_url && (
