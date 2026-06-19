@@ -675,6 +675,8 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     font-size: 1.625rem !important;
     line-height: 1.55 !important;
     text-align: center !important;
+    opacity: 1 !important;
+    animation: none !important;
   }
 
   .home-hero-content p {
