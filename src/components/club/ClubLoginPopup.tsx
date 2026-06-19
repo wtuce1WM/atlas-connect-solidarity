@@ -39,16 +39,16 @@ const ClubLoginPopup = () => {
       onClick={() => setOpen(false)}
     >
       <div
-        className="relative w-[90%] max-w-md bg-[#BED1FF]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-200"
+        className="relative w-[94%] sm:w-[90%] max-w-lg bg-[#BED1FF]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="absolute top-3 left-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white hover:bg-gray-100 text-black shadow-md transition-colors"
+          className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white hover:bg-neutral-100 text-black shadow-lg transition-colors"
           aria-label="Close"
         >
-          <X className="h-5 w-5" />
+          <X className="h-5 w-5 stroke-[2.5]" />
         </button>
         <p className="text-xs sm:text-sm text-white/90 text-center">{t.welcome}</p>
         <h2 className="text-xl sm:text-2xl font-bold mt-0.5 mb-2 !font-sans !not-italic text-center text-white">{t.clubName}</h2>
