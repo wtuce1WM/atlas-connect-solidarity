@@ -638,7 +638,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         const transcript = accumulatedTranscriptRef.current;
         accumulatedTranscriptRef.current = "";
         processTranscript(transcript);
-      }, SILENCE_DELAY_MS);
+      }, isAndroid() ? SILENCE_DELAY_MS_ANDROID : SILENCE_DELAY_MS);
     };
 
     recognition.onerror = (event) => {
