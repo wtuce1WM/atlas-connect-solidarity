@@ -285,15 +285,15 @@ const PublicBusinessProfile = () => {
 
           {business.description && (() => {
             const full = business.description;
-            const isLong = full.length > 150;
+            const isLong = full.length > 140;
             // Split on the nearest whitespace to avoid breaking a word
-            let cut = 150;
+            let cut = 140;
             if (isLong) {
-              const nextSpace = full.indexOf(" ", 150);
-              const prevSpace = full.lastIndexOf(" ", 150);
+              const nextSpace = full.indexOf(" ", 140);
+              const prevSpace = full.lastIndexOf(" ", 140);
               const candidates = [nextSpace, prevSpace].filter((i) => i > 0);
               if (candidates.length) {
-                cut = candidates.reduce((a, b) => (Math.abs(b - 150) < Math.abs(a - 150) ? b : a));
+                cut = candidates.reduce((a, b) => (Math.abs(b - 140) < Math.abs(a - 140) ? b : a));
               }
             }
             const head = isLong ? full.slice(0, cut).trimEnd() : full;
@@ -319,7 +319,7 @@ const PublicBusinessProfile = () => {
                   <button
                     onClick={() => setDescExpanded((v) => !v)}
                     className="mt-2 text-sm font-semibold hover:opacity-80 transition-opacity"
-                    style={{ color: "#ECD6B8" }}
+                    style={{ color: "#C04F17" }}
                   >
                     {descExpanded ? "Voir −" : "Voir +"}
                   </button>
