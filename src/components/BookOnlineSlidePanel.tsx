@@ -2868,7 +2868,6 @@ const BookOnlineSlidePanelInner = ({
           <div className="relative w-full h-full pointer-events-auto">
             <PanelSearchBar
               onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
-              isInsideSlidePanel={true}
               iconVariant="black"
               onSearch={onSearch}
               onBusinessSelect={onSearchBusinessSelect}
