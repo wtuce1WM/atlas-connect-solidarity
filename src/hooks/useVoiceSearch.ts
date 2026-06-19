@@ -211,13 +211,70 @@ async function extractSearchIntent(transcript: string): Promise<{ query: string;
 }
 
 const SILENCE_DELAY_MS = 2000;
+const SILENCE_DELAY_MS_ANDROID = 1300;
 const MAX_RECORDING_MS = 30000;
 const DUPLICATE_PHRASE_MAX_WORDS = 6;
 
+// Mots de remplissage français à supprimer (n'apportent rien à la recherche).
+const FILLER_WORDS = new Set([
+  "euh", "euhh", "heu", "heuu", "hum", "hummm", "bah", "ben", "bof",
+  "alors", "voila", "voilà", "genre",
+]);
+// Phrases-filler supprimées en bloc (sinon "du" reste utile, ex: "ryad du sud").
+const FILLER_PHRASES: string[][] = [["du", "coup"], ["tu", "vois"], ["en", "fait"]];
+
+// Variantes phonétiques fréquentes que le STT confond en français marocain.
+const PHONETIC_REPLACEMENTS: Array<[RegExp, string]> = [
+  [/\bmarakech\b/gi, "marrakech"],
+  [/\bmarrakesh\b/gi, "marrakech"],
+  [/\bmarakesh\b/gi, "marrakech"],
+  [/\bessawira\b/gi, "essaouira"],
+  [/\bessaouirah\b/gi, "essaouira"],
+  [/\bmogador\b/gi, "essaouira"],
+  [/\briad\b/gi, "ryad"],
+  [/\briyad\b/gi, "ryad"],
+  [/\briyadh\b/gi, "ryad"],
+  [/\bquade\b/gi, "quad"],
+  [/\bkart\b/gi, "karting"],
+  [/\bouarzazat\b/gi, "ouarzazate"],
+  [/\bouarzazatte\b/gi, "ouarzazate"],
+  [/\btennise\b/gi, "tennis"],
+];
+
+function applyPhoneticNormalization(text: string): string {
+  let out = text;
+  for (const [re, rep] of PHONETIC_REPLACEMENTS) out = out.replace(re, rep);
+  return out;
+}
+
+function stripFillerWords(words: string[]): string[] {
+  const norm = (w: string) => w.toLocaleLowerCase("fr-FR").replace(/[.,!?;:]/g, "");
+  // 1) Supprimer les phrases-filler (séquences de mots)
+  const filtered: string[] = [];
+  for (let i = 0; i < words.length; i++) {
+    let matched = false;
+    for (const phrase of FILLER_PHRASES) {
+      if (i + phrase.length <= words.length) {
+        let ok = true;
+        for (let j = 0; j < phrase.length; j++) {
+          if (norm(words[i + j]) !== phrase[j]) { ok = false; break; }
+        }
+        if (ok) { i += phrase.length - 1; matched = true; break; }
+      }
+    }
+    if (!matched) filtered.push(words[i]);
+  }
+  // 2) Supprimer les fillers isolés
+  return filtered.filter((w) => !FILLER_WORDS.has(norm(w)));
+}
+
 function normalizeVoiceTranscript(transcript: string): string {
-  const words = transcript.replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+  // Normalisation phonétique d'abord (avant tokenisation).
+  const phoneticallyClean = applyPhoneticNormalization(transcript);
+  let words = phoneticallyClean.replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
   const clean = (word: string) => word.toLocaleLowerCase("fr-FR").replace(/[.,!?;:]/g, "");
 
+  // Déduplication des répétitions adjacentes (1 à N mots).
   let changed = true;
   while (changed) {
     changed = false;
@@ -240,6 +297,9 @@ function normalizeVoiceTranscript(transcript: string): string {
     }
   }
 
+  // Suppression des mots/phrases de remplissage.
+  words = stripFillerWords(words);
+
   return words.join(" ").trim();
 }
 
@@ -252,6 +312,11 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const accumulatedTranscriptRef = useRef<string>("");
   const pendingScribeStreamRef = useRef<MediaStream | null>(null);
   const pendingScribeAudioContextRef = useRef<AudioContext | null>(null);
+  // Fallback Android : on enregistre l'audio en parallèle de Web Speech API
+  // pour pouvoir le transcrire côté serveur (ElevenLabs Scribe) si Android STT échoue.
+  const fallbackRecorderRef = useRef<MediaRecorder | null>(null);
+  const fallbackStreamRef = useRef<MediaStream | null>(null);
+  const fallbackChunksRef = useRef<Blob[]>([]);
 
   // Garder les callbacks en ref pour éviter les problèmes de closure dans les handlers async
   const onTranscriptRef = useRef(onTranscript);
@@ -283,6 +348,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
   const processTranscript = useCallback(async (transcript: string) => {
     const cleanedTranscript = normalizeVoiceTranscript(transcript);
+    console.log("[VoiceSearch] raw:", JSON.stringify(transcript), "→ cleaned:", JSON.stringify(cleanedTranscript));
     if (!cleanedTranscript.trim()) {
       setStatus("idle");
       onErrorRef.current?.("Aucun texte détecté, réessayez.");
@@ -303,11 +369,76 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     } else if (keywords) {
       onTranscriptRef.current(keywords, cleanedTranscript, category || undefined, timeKeyword || undefined);
     } else {
+      console.warn("[VoiceSearch] no keywords from intent extraction. cleaned:", cleanedTranscript);
       onErrorRef.current?.("Aucun texte détecté, réessayez.");
     }
   }, []);
 
-  // ====================== ElevenLabs Scribe (iOS only) ======================
+  // ---- Fallback Android : enregistre l'audio en parallèle pour le réutiliser
+  // si Web Speech API ne renvoie rien (échec silencieux fréquent sur Android).
+  const startFallbackRecorder = useCallback(async () => {
+    if (!isAndroid()) return;
+    try {
+      const mimeType = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"]
+        .find((t) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(t));
+      if (!mimeType) return;
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+      });
+      const recorder = new MediaRecorder(stream, { mimeType });
+      fallbackChunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) fallbackChunksRef.current.push(e.data); };
+      recorder.start(250);
+      fallbackRecorderRef.current = recorder;
+      fallbackStreamRef.current = stream;
+    } catch (e) {
+      console.warn("[VoiceSearch] fallback recorder unavailable:", e);
+    }
+  }, []);
+
+  const stopFallbackRecorderAndGetBlob = useCallback(async (): Promise<Blob | null> => {
+    const recorder = fallbackRecorderRef.current;
+    const stream = fallbackStreamRef.current;
+    fallbackRecorderRef.current = null;
+    fallbackStreamRef.current = null;
+    if (!recorder) return null;
+    return new Promise((resolve) => {
+      const done = () => {
+        stream?.getTracks().forEach((t) => t.stop());
+        const chunks = fallbackChunksRef.current;
+        fallbackChunksRef.current = [];
+        if (!chunks.length) return resolve(null);
+        resolve(new Blob(chunks, { type: recorder.mimeType || "audio/webm" }));
+      };
+      if (recorder.state === "inactive") return done();
+      recorder.onstop = done;
+      try { recorder.stop(); } catch { done(); }
+    });
+  }, []);
+
+  const transcribeFallbackBlob = useCallback(async (blob: Blob): Promise<string> => {
+    if (blob.size < 2048) return "";
+    const fd = new FormData();
+    fd.append("audio", blob, "recording.webm");
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/elevenlabs-transcribe`, {
+        method: "POST",
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+        body: fd,
+      });
+      if (!res.ok) {
+        console.warn("[VoiceSearch] fallback transcribe HTTP", res.status);
+        return "";
+      }
+      const data = await res.json();
+      return (data?.text || "").trim();
+    } catch (e) {
+      console.warn("[VoiceSearch] fallback transcribe failed:", e);
+      return "";
+    }
+  }, []);
+
+
   // On iOS, the native Web Speech API uses Siri's local dictation which is
   // very poor in French and on proper nouns. We use ElevenLabs Scribe realtime
   // instead, which gives desktop-grade quality.
@@ -531,7 +662,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     const recognition = new SpeechRecognitionAPI();
     recognition.lang = lang;
     recognition.interimResults = true;
-    recognition.continuous = true;
+    // Sur Android, continuous=true ne marque jamais isFinal → on force false :
+    // le moteur émet alors des résultats finaux propres dès la fin de phrase.
+    recognition.continuous = !isAndroid();
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
@@ -574,7 +707,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         const transcript = accumulatedTranscriptRef.current;
         accumulatedTranscriptRef.current = "";
         processTranscript(transcript);
-      }, SILENCE_DELAY_MS);
+      }, isAndroid() ? SILENCE_DELAY_MS_ANDROID : SILENCE_DELAY_MS);
     };
 
     recognition.onerror = (event) => {
@@ -607,19 +740,34 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       setStatus("idle");
     };
 
-    recognition.onend = () => {
+    recognition.onend = async () => {
       if (recognitionRef.current !== null) {
         recognitionRef.current = null;
       }
       clearSilenceTimer();
       const transcript = accumulatedTranscriptRef.current;
       accumulatedTranscriptRef.current = "";
+
+      // Android fallback : si Web Speech n'a rien rendu, on transcrit l'audio
+      // côté serveur (beaucoup plus fiable que le STT natif Android).
+      const fallbackBlob = await stopFallbackRecorderAndGetBlob();
       if (transcript) {
         processTranscript(transcript);
+      } else if (fallbackBlob) {
+        console.log("[VoiceSearch] empty native transcript → server fallback");
+        setStatus("processing");
+        const serverText = await transcribeFallbackBlob(fallbackBlob);
+        if (serverText) {
+          processTranscript(serverText);
+        } else {
+          setStatus("idle");
+          onErrorRef.current?.("Aucun texte détecté, réessayez.");
+        }
       } else if (status === "recording") {
         setStatus("idle");
       }
     };
+
 
     recognitionRef.current = recognition;
 
@@ -646,8 +794,11 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     // click handler. Skip the warm-up entirely on Android.
     if (isAndroid()) {
       startNow();
+      // Lance le recorder de fallback en parallèle (non bloquant, async OK).
+      void startFallbackRecorder();
       return;
     }
+
 
     navigator.mediaDevices
       ?.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } })
@@ -661,7 +812,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         // No permission / not supported: fall back to direct start
         startNow();
       });
-  }, [lang, clearSilenceTimer, processTranscript, status, useScribePath, startScribeRecording]);
+  }, [lang, clearSilenceTimer, processTranscript, status, useScribePath, startScribeRecording, startFallbackRecorder, stopFallbackRecorderAndGetBlob, transcribeFallbackBlob]);
 
   const stopRecording = useCallback(() => {
     if (useScribePath) {
@@ -675,10 +826,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
+    // Stop le fallback recorder Android sans utiliser le blob.
+    void stopFallbackRecorderAndGetBlob();
     setStatus("idle");
-  }, [clearSilenceTimer, useScribePath, stopScribeRecording]);
+  }, [clearSilenceTimer, useScribePath, stopScribeRecording, stopFallbackRecorderAndGetBlob]);
 
-  const finishRecording = useCallback(() => {
+  const finishRecording = useCallback(async () => {
     if (useScribePath) {
       void finishScribeRecording();
       return;
@@ -690,16 +843,26 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
     const transcript = accumulatedTranscriptRef.current;
     accumulatedTranscriptRef.current = "";
+    const fallbackBlob = await stopFallbackRecorderAndGetBlob();
     if (transcript) {
       setStatus("processing");
-      processTranscript(transcript).finally(() => {
-        setLiveTranscript("");
-      });
+      processTranscript(transcript).finally(() => setLiveTranscript(""));
+    } else if (fallbackBlob) {
+      console.log("[VoiceSearch] finish with empty native transcript → server fallback");
+      setStatus("processing");
+      const serverText = await transcribeFallbackBlob(fallbackBlob);
+      setLiveTranscript("");
+      if (serverText) {
+        processTranscript(serverText);
+      } else {
+        setStatus("idle");
+        onErrorRef.current?.("Aucun texte détecté, réessayez.");
+      }
     } else {
       setLiveTranscript("");
       setStatus("idle");
     }
-  }, [clearSilenceTimer, processTranscript, useScribePath, finishScribeRecording]);
+  }, [clearSilenceTimer, processTranscript, useScribePath, finishScribeRecording, stopFallbackRecorderAndGetBlob, transcribeFallbackBlob]);
 
   const toggleRecording = useCallback(() => {
     if (status === "recording") {
