@@ -358,7 +358,10 @@ const PublicBusinessProfile = () => {
           })()}
 
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          <div 
+            className="b-rise-item mt-6 flex flex-wrap items-center justify-center gap-4"
+            style={{ animationDelay: "0.58s" }}
+          >
             {socials.map((s) => {
               if (!s.val) return null;
               const href = s.kind === "whatsapp" ? buildWhatsAppUrl(s.val) : normalizeUrl(s.val);
@@ -384,7 +387,8 @@ const PublicBusinessProfile = () => {
                 href={l.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                className="b-rise-item block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                style={{ animationDelay: `${0.66 + i * 0.08}s` }}
               >
                 <span className="inline-flex items-center gap-2">
                   <Globe className="h-4 w-4 text-neutral-400" />
@@ -394,7 +398,8 @@ const PublicBusinessProfile = () => {
             ))}
             <a
               href={`/fiche/${business.slug}`}
-              className="shimmer-once-cta block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
+              className="b-rise-item shimmer-once-cta block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
+              style={{ animationDelay: `${0.66 + links.length * 0.08}s` }}
             >
               Voir la fiche complète
             </a>
@@ -415,7 +420,8 @@ const PublicBusinessProfile = () => {
                       href={googleReviewHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      className="b-rise-item flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      style={{ animationDelay: `${0.66 + (links.length + 1) * 0.08}s` }}
                     >
                       <img src="https://www.google.com/favicon.ico" alt="" className="h-4 w-4" />
                       <span>Laisser un avis sur Google</span>
@@ -427,7 +433,8 @@ const PublicBusinessProfile = () => {
                       href={tripHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      className="b-rise-item flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      style={{ animationDelay: `${0.66 + (links.length + (googleReviewHref ? 2 : 1)) * 0.08}s` }}
                     >
                       <img src="/review-logos/tripadvisor.webp" alt="" className="h-4 w-4 object-contain" />
                       <span>Laisser un avis sur TripAdvisor</span>
@@ -441,8 +448,11 @@ const PublicBusinessProfile = () => {
 
           <a
             href="/club"
-            className="mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
-            style={{ backgroundColor: "#ECD6B8" }}
+            className="b-rise-item mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
+            style={{ 
+              backgroundColor: "#ECD6B8",
+              animationDelay: `${0.66 + (links.length + 3) * 0.08}s`
+            }}
           >
             Un compte One World Morocco ?
           </a>
