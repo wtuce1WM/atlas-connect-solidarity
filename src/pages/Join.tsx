@@ -305,24 +305,24 @@ const Join = () => {
         `}</style>
 
          <div className="hero-content relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 pt-6 pb-12 sm:py-24 flex flex-col items-center justify-start sm:justify-center text-center">
-          <h1 style={{ fontFamily: "Montserrat, sans-serif", animationDelay: '.45s', animationFillMode: 'forwards' }} className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-[1.2] tracking-tight max-w-3xl text-[26px] sm:text-4xl md:text-5xl lg:text-6xl opacity-0 animate-fade-in">
+          <h1 style={{ fontFamily: "Montserrat, sans-serif", animationDelay: '.45s', animationFillMode: 'forwards' }} className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-[1.2] tracking-tight max-w-3xl text-[26px] sm:text-4xl md:text-5xl lg:text-6xl hero-rise">
             Rejoignez le premier écosystème numérique <span className="text-[#ffc008]">éthique & solidaire</span> au Maroc.
           </h1>
-          <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="hero-sub text-white max-w-2xl text-center mb-4 text-base sm:text-lg opacity-95 opacity-0 animate-fade-in">Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.</p>
-          <p style={{ animationDelay: '.78s', animationFillMode: 'forwards' }} className="hero-sub text-white max-w-2xl text-center mb-8 text-base sm:text-lg opacity-95 opacity-0 animate-fade-in">Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.</p>
+          <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="hero-sub text-white max-w-2xl text-center mb-4 text-base sm:text-lg opacity-95 hero-rise">Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.</p>
+          <p style={{ animationDelay: '.78s', animationFillMode: 'forwards' }} className="hero-sub text-white max-w-2xl text-center mb-8 text-base sm:text-lg opacity-95 hero-rise">Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.</p>
           
-          <div className="hero-checks opacity-0 animate-fade-in" style={{ animationDelay: '.88s', animationFillMode: 'forwards' }}>
+          <div className="hero-checks hero-rise" style={{ animationDelay: '.88s', animationFillMode: 'forwards' }}>
             <span><Check color="#00a896" />Consommez local</span>
             <span><Check color="#00a896" />Voyagez autrement</span>
             <span><Check color="#00a896" />Agissez pour tous</span>
           </div>
-          <div className="hero-stats mb-8 hidden sm:inline-flex opacity-0 animate-fade-in" style={{ animationDelay: '.92s', animationFillMode: 'forwards' }}>
+          <div className="hero-stats mb-8 hidden sm:inline-flex hero-rise" style={{ animationDelay: '.92s', animationFillMode: 'forwards' }}>
             <div>🌍 Tout le Maroc</div>
             <div>🤝 Partenaires locaux</div>
             <div>✓ 0% de commission</div>
           </div>
 
-          <Link to="/devenir-affilie" style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="hero-cta mt-4 opacity-0 animate-fade-in">REJOINDRE →</Link>
+          <Link to="/devenir-affilie" style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="hero-cta mt-4 hero-rise">REJOINDRE →</Link>
         </div>
       </section>
 
