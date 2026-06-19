@@ -2915,10 +2915,10 @@ const BookOnlineSlidePanelInner = ({
             </div>
             <button
               onClick={() => setShowWelcomePopup(false)}
-              className="absolute top-3 right-3 h-10 w-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors z-10"
+              className="absolute top-3 right-3 h-10 w-10 rounded-full bg-white hover:bg-neutral-100 text-black flex items-center justify-center transition-colors shadow-lg z-10"
               aria-label="Fermer"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5 stroke-[2.5]" />
             </button>
           </div>
         </div>
