@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 interface VoiceSearchOverlayProps {
   isOpen: boolean;
   liveTranscript: string;
+  /** Niveau audio 0..1 du micro pour animer le ring autour du bouton. */
+  audioLevel?: number;
   onClose: () => void;
   onFinish?: () => void;
   /** When true, use absolute positioning to stay contained within its parent element */
@@ -13,7 +15,7 @@ interface VoiceSearchOverlayProps {
 
 const ACCENT = "#194CFF";
 
-const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
+const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
   // Anti-rebond mobile : ignore les clics synthétisés (ghost click) durant les
   // premières 500ms après l'ouverture, sinon le tap sur le mic qui a déclenché
   // l'ouverture est rejoué sur les boutons de l'overlay et le referme aussitôt.
