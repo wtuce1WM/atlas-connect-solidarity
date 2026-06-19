@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
@@ -197,6 +197,47 @@ const Join = () => {
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
+  const heroSectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const hero = heroSectionRef.current;
+    if (!hero) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let mx = 0, my = 0, tx = 0, ty = 0, sy = 0, ticking = false;
+    const update = () => {
+      tx += (mx - tx) * 0.08;
+      ty += (my - ty) * 0.08;
+      hero.style.setProperty('--mx', tx.toFixed(3));
+      hero.style.setProperty('--my', ty.toFixed(3));
+      hero.style.setProperty('--sy', sy.toFixed(3));
+      if (Math.abs(mx - tx) > 0.001 || Math.abs(my - ty) > 0.001) {
+        requestAnimationFrame(update);
+      } else ticking = false;
+    };
+    const kick = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    const onMove = (e: MouseEvent) => {
+      const r = hero.getBoundingClientRect();
+      mx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      my = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      kick();
+    };
+    const onLeave = () => { mx = 0; my = 0; kick(); };
+    const onScroll = () => {
+      const r = hero.getBoundingClientRect();
+      sy = Math.max(-1, Math.min(1, -r.top / r.height));
+      kick();
+    };
+    hero.addEventListener('mousemove', onMove);
+    hero.addEventListener('mouseleave', onLeave);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      hero.removeEventListener('mousemove', onMove);
+      hero.removeEventListener('mouseleave', onLeave);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+
+
 
   return (
     <>
@@ -205,7 +246,7 @@ const Join = () => {
         <style>{CSS}</style>
 
 
-      <section className="hero relative min-h-[92vh] w-full overflow-hidden flex items-start justify-center sm:items-center border-b border-white/10" aria-label="Rejoindre One World Morocco">
+      <section ref={heroSectionRef} className="hero hero-parallax relative min-h-[92vh] w-full overflow-hidden flex items-start justify-center sm:items-center border-b border-white/10" style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }} aria-label="Rejoindre One World Morocco">
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
           <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
@@ -251,12 +292,19 @@ const Join = () => {
             0%, 100% { transform: scale(0.95) translateY(0); }
             50% { transform: scale(0.95) translateY(-12px); }
           }
+          .hero-parallax { perspective: 1200px; }
+          .hero-parallax .hero-content {
+            transform: translate3d(calc(var(--mx)*-8px), calc(var(--my)*-8px + var(--sy)*-30px), 0);
+            transition: transform .5s cubic-bezier(.2,.7,.2,1);
+            will-change: transform;
+          }
           @media (prefers-reduced-motion: reduce) {
             section img[alt^="Application One World"] { animation: none !important; }
+            .hero-parallax .hero-content { transform: none !important; }
           }
         `}</style>
 
-         <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 pt-6 pb-12 sm:py-24 flex flex-col items-center justify-start sm:justify-center text-center">
+         <div className="hero-content relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 pt-6 pb-12 sm:py-24 flex flex-col items-center justify-start sm:justify-center text-center">
           <h1 style={{ fontFamily: "Montserrat, sans-serif", animationDelay: '.45s', animationFillMode: 'forwards' }} className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-[1.2] tracking-tight max-w-3xl text-[26px] sm:text-4xl md:text-5xl lg:text-6xl opacity-0 animate-fade-in">
             Rejoignez le premier écosystème numérique <span className="text-[#ffc008]">éthique & solidaire</span> au Maroc.
           </h1>
