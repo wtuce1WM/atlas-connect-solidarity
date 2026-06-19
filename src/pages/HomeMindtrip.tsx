@@ -443,7 +443,9 @@ const HomeMindtrip = () => {
 
       <div>
         <section 
-          className="relative min-h-[92vh] w-full overflow-hidden"
+          ref={heroSectionRef}
+          className="hero-parallax relative min-h-[92vh] w-full overflow-hidden"
+          style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }}
         >
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
