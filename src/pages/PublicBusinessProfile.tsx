@@ -164,6 +164,12 @@ const PublicBusinessProfile = () => {
       style={{ backgroundColor: "#ECD6B8" }}
     >
       <style>{`
+        @keyframes b-rise {
+          from { opacity: 0; transform: translateY(34px); }
+          to { opacity: 1; transform: none; }
+        }
+        .b-rise { opacity: 0; animation: b-rise 1s forwards; }
+
         @keyframes shimmer-loop {
           0% {
             transform: translateX(-150%) skewX(-20deg);
