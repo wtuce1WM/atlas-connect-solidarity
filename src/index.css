@@ -686,8 +686,9 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     text-align: center !important;
   }
 
-  .home-hero-content h1 + p + div {
+  .home-hero-copy + div {
     margin-top: 5rem !important;
+    padding-top: 0 !important;
   }
 
   .home-hero-content h1 + p + div > div {
