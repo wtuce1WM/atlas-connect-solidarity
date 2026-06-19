@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, type ReactNode, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import { Search, Sparkles, MapPin, User, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -285,7 +286,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
 
 
       {/* Search overlay — fullscreen fixed (rendered outside the dock pill which is pointer-events-none) */}
-      {searchOverlayOpen && (
+      {searchOverlayOpen && createPortal(
         <MobileSearchOverlay
           open={searchOverlayOpen}
           onClose={() => setOverlay(false)}
@@ -312,7 +313,8 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             toggle: geo.toggle,
             setManualCity: geo.setManualCity,
           }}
-        />
+        />,
+        document.body
       )}
 
       {/* AI Suggestion overlay — independent, can be triggered standalone */}
