@@ -812,7 +812,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         // No permission / not supported: fall back to direct start
         startNow();
       });
-  }, [lang, clearSilenceTimer, processTranscript, status, useScribePath, startScribeRecording]);
+  }, [lang, clearSilenceTimer, processTranscript, status, useScribePath, startScribeRecording, startFallbackRecorder, stopFallbackRecorderAndGetBlob, transcribeFallbackBlob]);
 
   const stopRecording = useCallback(() => {
     if (useScribePath) {
@@ -826,10 +826,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
+    // Stop le fallback recorder Android sans utiliser le blob.
+    void stopFallbackRecorderAndGetBlob();
     setStatus("idle");
-  }, [clearSilenceTimer, useScribePath, stopScribeRecording]);
+  }, [clearSilenceTimer, useScribePath, stopScribeRecording, stopFallbackRecorderAndGetBlob]);
 
-  const finishRecording = useCallback(() => {
+  const finishRecording = useCallback(async () => {
     if (useScribePath) {
       void finishScribeRecording();
       return;
@@ -841,16 +843,26 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
     const transcript = accumulatedTranscriptRef.current;
     accumulatedTranscriptRef.current = "";
+    const fallbackBlob = await stopFallbackRecorderAndGetBlob();
     if (transcript) {
       setStatus("processing");
-      processTranscript(transcript).finally(() => {
-        setLiveTranscript("");
-      });
+      processTranscript(transcript).finally(() => setLiveTranscript(""));
+    } else if (fallbackBlob) {
+      console.log("[VoiceSearch] finish with empty native transcript → server fallback");
+      setStatus("processing");
+      const serverText = await transcribeFallbackBlob(fallbackBlob);
+      setLiveTranscript("");
+      if (serverText) {
+        processTranscript(serverText);
+      } else {
+        setStatus("idle");
+        onErrorRef.current?.("Aucun texte détecté, réessayez.");
+      }
     } else {
       setLiveTranscript("");
       setStatus("idle");
     }
-  }, [clearSilenceTimer, processTranscript, useScribePath, finishScribeRecording]);
+  }, [clearSilenceTimer, processTranscript, useScribePath, finishScribeRecording, stopFallbackRecorderAndGetBlob, transcribeFallbackBlob]);
 
   const toggleRecording = useCallback(() => {
     if (status === "recording") {
