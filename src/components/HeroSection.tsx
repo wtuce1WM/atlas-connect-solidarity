@@ -234,14 +234,14 @@ const HeroSection = () => {
           </div>
 
           {/* Right Side: Image with floating effect (visible on md/lg) */}
-          <div className="hidden md:block w-[260px] lg:w-[320px] shrink-0 relative animate-float-gentle select-none pointer-events-none">
+          {/* <div className="hidden md:block w-[260px] lg:w-[320px] shrink-0 relative animate-float-gentle select-none pointer-events-none">
             <img
               src={iphoneMockupAsset.url}
               alt="iPhone Mockup"
               className="w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
               loading="eager"
             />
-          </div>
+          </div> */}
 
         </div>
 
