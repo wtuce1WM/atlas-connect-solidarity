@@ -115,7 +115,7 @@
   .top-banner{position:absolute;top:100px;left:0;right:0;z-index:10;font-size:17px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;color:#ffffff;text-align:center;padding:0 20px;opacity:0;animation:rise .9s .3s forwards}
   @media(max-width:767px){.top-banner{top:90px;font-size:14px;letter-spacing:.15em}}
   .hero h1{color:var(--cream);font-size:26px;line-height:1.2;
-    margin:22px auto 26px;max-width:32ch;letter-spacing:-.5px}
+    margin:22px auto 26px;max-width:32ch;letter-spacing:-.5px;font-weight:700}
   @media(min-width:640px){.hero h1{font-size:2.25rem}}
   @media(min-width:768px){.hero h1{font-size:3rem}}
   @media(min-width:1024px){.hero h1{font-size:3.75rem}}
