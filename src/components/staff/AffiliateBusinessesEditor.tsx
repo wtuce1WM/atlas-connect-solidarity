@@ -474,7 +474,7 @@ const OfferRow = ({ promo, saving, onUpdate, onSave, onDelete, affiliateId, busi
           </div>
 
           {/* Type / value / currency */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-1">
                 {promo.promotion_type === "percentage" ? (
