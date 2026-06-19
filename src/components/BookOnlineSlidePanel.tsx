@@ -723,13 +723,13 @@ const BookOnlineSlidePanelInner = ({
     if (peekPlayedRef.current === businessId) return;
     peekPlayedRef.current = businessId;
 
-    // Set Horaires and Disponibilités to peek immediately, then close after 3 seconds
+    // Set Horaires and Disponibilités to peek immediately, then close after 5 seconds
     setPeekDispo(true);
     setPeekHoraires(true);
     const mainTimer = window.setTimeout(() => {
       setPeekDispo(false);
       setPeekHoraires(false);
-    }, 3000);
+    }, 5000);
 
     const count = 6;
     const start = 450;
