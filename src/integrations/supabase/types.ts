@@ -20,10 +20,13 @@ export type Database = {
           business_id: string
           created_at: string
           id: string
+          images: string[]
           promotion_currency: string
           promotion_message: string | null
           promotion_type: string
           promotion_value: number
+          sort_order: number
+          title: string | null
           updated_at: string
         }
         Insert: {
@@ -31,10 +34,13 @@ export type Database = {
           business_id: string
           created_at?: string
           id?: string
+          images?: string[]
           promotion_currency?: string
           promotion_message?: string | null
           promotion_type?: string
           promotion_value?: number
+          sort_order?: number
+          title?: string | null
           updated_at?: string
         }
         Update: {
@@ -42,10 +48,13 @@ export type Database = {
           business_id?: string
           created_at?: string
           id?: string
+          images?: string[]
           promotion_currency?: string
           promotion_message?: string | null
           promotion_type?: string
           promotion_value?: number
+          sort_order?: number
+          title?: string | null
           updated_at?: string
         }
         Relationships: [

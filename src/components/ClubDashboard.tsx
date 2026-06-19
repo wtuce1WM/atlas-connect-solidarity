@@ -37,7 +37,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [memberId, setMemberId] = useState<string | null>(null);
-  const [bookmarks, setBookmarks] = useState<{ id: string; business_id: string; name: string; city: string | null; main_category: string | null; slug: string | null; promotion: { type: string; value: number; currency: string; message: string | null } | null }[]>([]);
+  const [bookmarks, setBookmarks] = useState<{ id: string; business_id: string; name: string; city: string | null; main_category: string | null; slug: string | null; promotions: { id: string; title: string | null; type: string; value: number; currency: string; message: string | null; images: string[] }[] }[]>([]);
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
   const [personas, setPersonas] = useState<{ id: string; slug: string; name_fr: string; name_en: string | null; name_ar: string | null }[]>([]);
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<Set<string>>(new Set());
@@ -228,15 +228,20 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           const bIds = (bookmarksRes.data as any[]).map((b: any) => b.business_id);
           const [bizRes, promoRes] = await Promise.all([
             supabase.from("businesses").select("id, name, city, main_category, slug").in("id", bIds),
-            supabase.from("affiliate_business_promotions").select("business_id, promotion_type, promotion_value, promotion_currency, promotion_message").in("business_id", bIds),
+            supabase.from("affiliate_business_promotions").select("id, business_id, title, promotion_type, promotion_value, promotion_currency, promotion_message, images, sort_order").in("business_id", bIds).order("sort_order", { ascending: true }),
           ]);
           
           const bizMap = new Map((bizRes.data || []).map(b => [b.id, b]));
-          const promoMap = new Map((promoRes.data || []).map(p => [p.business_id, p]));
+          const promosByBiz = new Map<string, any[]>();
+          (promoRes.data || []).forEach((p: any) => {
+            const list = promosByBiz.get(p.business_id) || [];
+            list.push(p);
+            promosByBiz.set(p.business_id, list);
+          });
           setBookmarks(
             (bookmarksRes.data as any[]).map((bk: any) => {
               const biz = bizMap.get(bk.business_id);
-              const promo = promoMap.get(bk.business_id);
+              const promos = promosByBiz.get(bk.business_id) || [];
               return {
                 id: bk.id,
                 business_id: bk.business_id,
@@ -244,7 +249,15 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 city: biz?.city || null,
                 main_category: biz?.main_category || null,
                 slug: biz?.slug || null,
-                promotion: promo ? { type: promo.promotion_type, value: promo.promotion_value, currency: promo.promotion_currency, message: promo.promotion_message } : null,
+                promotions: promos.map((p: any) => ({
+                  id: p.id,
+                  title: p.title || null,
+                  type: p.promotion_type,
+                  value: Number(p.promotion_value) || 0,
+                  currency: p.promotion_currency,
+                  message: p.promotion_message,
+                  images: Array.isArray(p.images) ? p.images : [],
+                })),
               };
             }).filter((bk: any) => bizMap.has(bk.business_id))
           );
@@ -732,24 +745,36 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                     </AlertDialog>
                   </div>
                 </div>
-                {bk.promotion && (
-                  <div className="px-3 pb-3 pt-0">
-                    <div className="bg-muted/50 rounded-md p-2.5 border border-dashed border-primary/20">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <Tag className="h-3.5 w-3.5 text-primary" />
-                        <span className="text-xs font-semibold text-primary">
-                          {bk.promotion.type === "percentage"
-                            ? `-${bk.promotion.value}%`
-                            : `-${bk.promotion.value} ${bk.promotion.currency}`}
-                        </span>
+                {bk.promotions.length > 0 && (
+                  <div className="px-3 pb-3 pt-0 space-y-2">
+                    {bk.promotions.map((promo) => (
+                      <div key={promo.id} className="bg-muted/50 rounded-md p-2.5 border border-dashed border-primary/20">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Tag className="h-3.5 w-3.5 text-primary" />
+                          <span className="text-xs font-semibold text-primary">
+                            {promo.type === "percentage"
+                              ? `-${promo.value}%`
+                              : `-${promo.value} ${promo.currency}`}
+                          </span>
+                          {promo.title && (
+                            <span className="text-xs font-medium text-foreground truncate">— {promo.title}</span>
+                          )}
+                        </div>
+                        {promo.message && (
+                          <div
+                            className="text-xs text-muted-foreground prose prose-xs max-w-none [&_p]:m-0 [&_ul]:m-0 [&_li]:m-0"
+                            dangerouslySetInnerHTML={{ __html: promo.message }}
+                          />
+                        )}
+                        {promo.images.length > 0 && (
+                          <div className="mt-2 flex gap-1 overflow-x-auto">
+                            {promo.images.map((url) => (
+                              <img key={url} src={url} alt="" className="h-14 w-14 rounded object-cover flex-shrink-0" />
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      {bk.promotion.message && (
-                        <div
-                          className="text-xs text-muted-foreground prose prose-xs max-w-none [&_p]:m-0 [&_ul]:m-0 [&_li]:m-0"
-                          dangerouslySetInnerHTML={{ __html: bk.promotion.message }}
-                        />
-                      )}
-                    </div>
+                    ))}
                   </div>
                 )}
               </div>
