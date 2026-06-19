@@ -1546,7 +1546,7 @@ const BookOnlineSlidePanelInner = ({
             {/* Conteneur 1 : bouton + (Description) */}
             <div className="flex items-center justify-center pointer-events-auto">
               {woDescription ? (
-                <div className="mt-8 md:mt-0 slidepanel-plus-short relative z-[40]">
+                <div className="slidepanel-plus-short relative z-[40]">
                   <button
                     type="button"
                     className="cursor-pointer group flex flex-col items-center gap-2 bg-transparent border-0 p-0"
@@ -1567,7 +1567,7 @@ const BookOnlineSlidePanelInner = ({
                   </button>
                 </div>
               ) : (
-                <div className="mt-8 md:mt-0 slidepanel-plus-short invisible pointer-events-none" aria-hidden="true">
+                <div className="slidepanel-plus-short invisible pointer-events-none" aria-hidden="true">
                   <div className="w-12 h-12" />
                 </div>
               )}
