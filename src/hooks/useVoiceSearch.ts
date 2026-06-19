@@ -600,6 +600,15 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       }
     };
 
+    // Android Chrome silently fails when SpeechRecognition.start() runs after
+    // an async gap (getUserMedia + setTimeout) — the browser loses the user
+    // gesture context. On Android we MUST start synchronously inside the
+    // click handler. Skip the warm-up entirely on Android.
+    if (isAndroid()) {
+      startNow();
+      return;
+    }
+
     navigator.mediaDevices
       ?.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } })
       .then((stream) => {
