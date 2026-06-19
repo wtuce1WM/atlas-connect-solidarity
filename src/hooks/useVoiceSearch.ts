@@ -343,6 +343,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
   const processTranscript = useCallback(async (transcript: string) => {
     const cleanedTranscript = normalizeVoiceTranscript(transcript);
+    console.log("[VoiceSearch] raw:", JSON.stringify(transcript), "→ cleaned:", JSON.stringify(cleanedTranscript));
     if (!cleanedTranscript.trim()) {
       setStatus("idle");
       onErrorRef.current?.("Aucun texte détecté, réessayez.");
@@ -363,6 +364,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     } else if (keywords) {
       onTranscriptRef.current(keywords, cleanedTranscript, category || undefined, timeKeyword || undefined);
     } else {
+      console.warn("[VoiceSearch] no keywords from intent extraction. cleaned:", cleanedTranscript);
       onErrorRef.current?.("Aucun texte détecté, réessayez.");
     }
   }, []);
