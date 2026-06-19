@@ -233,10 +233,11 @@ const SearchPage = () => {
       if (!cityDocIds.length) { if (!cancelled) setPinThumbMap({}); return; }
       const { data: docs } = await supabase
         .from("business_documents")
-        .select("business_id, thumbnail_url, url, sort_order")
+        .select("business_id, thumbnail_url, url, sort_order, thumbnail_locked")
         .in("id", cityDocIds)
         .in("business_id", ids)
-        .eq("business_is_active", true);
+        .eq("business_is_active", true)
+        .eq("thumbnail_locked", true);
       const sorted = [...((docs || []) as any[])].sort((a, b) => {
         const sa = a.sort_order ?? Number.MAX_SAFE_INTEGER;
         const sb = b.sort_order ?? Number.MAX_SAFE_INTEGER;
