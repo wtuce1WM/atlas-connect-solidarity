@@ -286,8 +286,18 @@ const PublicBusinessProfile = () => {
           {business.description && (() => {
             const full = business.description;
             const isLong = full.length > 300;
-            const head = isLong ? full.slice(0, 300).trimEnd() : full;
-            const tail = isLong ? full.slice(300) : "";
+            // Split on the nearest whitespace to avoid breaking a word (e.g. "D" | "es motifs…")
+            let cut = 300;
+            if (isLong) {
+              const nextSpace = full.indexOf(" ", 300);
+              const prevSpace = full.lastIndexOf(" ", 300);
+              const candidates = [nextSpace, prevSpace].filter((i) => i > 0);
+              if (candidates.length) {
+                cut = candidates.reduce((a, b) => (Math.abs(b - 300) < Math.abs(a - 300) ? b : a));
+              }
+            }
+            const head = isLong ? full.slice(0, cut).trimEnd() : full;
+            const tail = isLong ? full.slice(cut).trimStart() : "";
             return (
               <div className="mt-3 max-w-md">
                 <div className="text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line">
