@@ -211,13 +211,70 @@ async function extractSearchIntent(transcript: string): Promise<{ query: string;
 }
 
 const SILENCE_DELAY_MS = 2000;
+const SILENCE_DELAY_MS_ANDROID = 1300;
 const MAX_RECORDING_MS = 30000;
 const DUPLICATE_PHRASE_MAX_WORDS = 6;
 
+// Mots de remplissage français à supprimer (n'apportent rien à la recherche).
+const FILLER_WORDS = new Set([
+  "euh", "euhh", "heu", "heuu", "hum", "hummm", "bah", "ben", "bof",
+  "alors", "voila", "voilà", "genre",
+]);
+// Phrases-filler supprimées en bloc (sinon "du" reste utile, ex: "ryad du sud").
+const FILLER_PHRASES: string[][] = [["du", "coup"], ["tu", "vois"], ["en", "fait"]];
+
+// Variantes phonétiques fréquentes que le STT confond en français marocain.
+const PHONETIC_REPLACEMENTS: Array<[RegExp, string]> = [
+  [/\bmarakech\b/gi, "marrakech"],
+  [/\bmarrakesh\b/gi, "marrakech"],
+  [/\bmarakesh\b/gi, "marrakech"],
+  [/\bessawira\b/gi, "essaouira"],
+  [/\bessaouirah\b/gi, "essaouira"],
+  [/\bmogador\b/gi, "essaouira"],
+  [/\briad\b/gi, "ryad"],
+  [/\briyad\b/gi, "ryad"],
+  [/\briyadh\b/gi, "ryad"],
+  [/\bquade\b/gi, "quad"],
+  [/\bkart\b/gi, "karting"],
+  [/\bouarzazat\b/gi, "ouarzazate"],
+  [/\bouarzazatte\b/gi, "ouarzazate"],
+  [/\btennise\b/gi, "tennis"],
+];
+
+function applyPhoneticNormalization(text: string): string {
+  let out = text;
+  for (const [re, rep] of PHONETIC_REPLACEMENTS) out = out.replace(re, rep);
+  return out;
+}
+
+function stripFillerWords(words: string[]): string[] {
+  const norm = (w: string) => w.toLocaleLowerCase("fr-FR").replace(/[.,!?;:]/g, "");
+  // 1) Supprimer les phrases-filler (séquences de mots)
+  const filtered: string[] = [];
+  for (let i = 0; i < words.length; i++) {
+    let matched = false;
+    for (const phrase of FILLER_PHRASES) {
+      if (i + phrase.length <= words.length) {
+        let ok = true;
+        for (let j = 0; j < phrase.length; j++) {
+          if (norm(words[i + j]) !== phrase[j]) { ok = false; break; }
+        }
+        if (ok) { i += phrase.length - 1; matched = true; break; }
+      }
+    }
+    if (!matched) filtered.push(words[i]);
+  }
+  // 2) Supprimer les fillers isolés
+  return filtered.filter((w) => !FILLER_WORDS.has(norm(w)));
+}
+
 function normalizeVoiceTranscript(transcript: string): string {
-  const words = transcript.replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+  // Normalisation phonétique d'abord (avant tokenisation).
+  const phoneticallyClean = applyPhoneticNormalization(transcript);
+  let words = phoneticallyClean.replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
   const clean = (word: string) => word.toLocaleLowerCase("fr-FR").replace(/[.,!?;:]/g, "");
 
+  // Déduplication des répétitions adjacentes (1 à N mots).
   let changed = true;
   while (changed) {
     changed = false;
@@ -239,6 +296,9 @@ function normalizeVoiceTranscript(transcript: string): string {
       }
     }
   }
+
+  // Suppression des mots/phrases de remplissage.
+  words = stripFillerWords(words);
 
   return words.join(" ").trim();
 }
