@@ -13,6 +13,7 @@ import modePinIdsMd from "@/content/kb/mode-pinids.md?raw";
 import collaborationMultiPostesMd from "@/content/kb/collaboration-multi-postes.md?raw";
 import domaineDnsMd from "@/content/kb/domaine-dns.md?raw";
 import seoMetaTagsLovableMd from "@/content/kb/seo-meta-tags-lovable.md?raw";
+import previewsSocialesBotsMd from "@/content/kb/previews-sociales-bots.md?raw";
 
 const SECTIONS = [
   { id: "architecture", label: "Règles d'architecture", icon: Building2, content: architectureMd },
