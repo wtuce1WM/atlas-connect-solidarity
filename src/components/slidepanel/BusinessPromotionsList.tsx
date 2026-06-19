@@ -50,7 +50,7 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
     return () => clearInterval(id);
   }, [promotions.length]);
 
-  if (promotions.length === 0) return null;
+  if (promotions.length === 0 || cardsHidden) return null;
 
   const multiple = promotions.length > 1;
 
