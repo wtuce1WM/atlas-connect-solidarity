@@ -2892,34 +2892,30 @@ const BookOnlineSlidePanelInner = ({
 
       {showWelcomePopup && (business as any)?.popup_image_url && (
         <div
-          className="absolute inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in"
+          className="absolute inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
           onClick={() => setShowWelcomePopup(false)}
         >
           <div
-            className="relative w-[88%] max-w-md rounded-2xl overflow-hidden shadow-2xl animate-scale-in"
+            className="relative w-[88%] max-w-md max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-center"
+            style={{ backgroundImage: `url(${(business as any).popup_image_url})` }}
             onClick={(e) => e.stopPropagation()}
           >
-            <img
-              src={(business as any).popup_image_url}
-              alt={business?.name || ""}
-              className="w-full h-auto block"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
-            <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+            <div className="absolute inset-0 bg-black/55 pointer-events-none" />
+            <div className="relative overflow-y-auto p-5 text-white">
               {popupMeta.title && (
-                <h3 className="text-2xl font-bold leading-tight mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                <h3 className="text-2xl font-bold leading-tight mb-3 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {popupMeta.title}
                 </h3>
               )}
               {popupMeta.description && (
-                <p className="text-sm leading-snug text-white/90 whitespace-pre-line">
+                <p className="text-sm leading-snug text-white/95 whitespace-pre-line">
                   {popupMeta.description}
                 </p>
               )}
             </div>
             <button
               onClick={() => setShowWelcomePopup(false)}
-              className="absolute top-2 right-2 h-9 w-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors"
+              className="absolute top-2 right-2 h-9 w-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors z-10"
               aria-label="Fermer"
             >
               <X className="h-5 w-5" />
