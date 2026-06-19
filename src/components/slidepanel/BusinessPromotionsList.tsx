@@ -56,7 +56,14 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
 
   return (
     <div className="w-[88%] sm:w-[90%] translate-x-3 sm:translate-x-0 mx-auto mt-3 mb-2">
-      <div className="relative w-full">
+      <style>{`
+        @keyframes promo-float-gentle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
+        }
+        .animate-promo-float { animation: promo-float-gentle 4.5s ease-in-out infinite; }
+      `}</style>
+      <div className="relative w-full animate-promo-float">
         {promotions.map((p, i) => {
           const active = i === index;
           return (
@@ -65,11 +72,24 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
               aria-hidden={!active}
               className={`${
                 i === 0 ? "relative" : "absolute inset-0"
-              } rounded-xl border border-[#C04F17]/40 bg-white/70 backdrop-blur-sm p-3 text-left shadow-sm transition-opacity duration-700 ${
+              } rounded-xl border border-white/40 p-3 text-left transition-opacity duration-700 overflow-hidden ${
                 active ? "opacity-100" : "opacity-0 pointer-events-none"
               }`}
+              style={{
+                background: "linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.25) 100%)",
+                backdropFilter: "blur(18px) saturate(180%)",
+                WebkitBackdropFilter: "blur(18px) saturate(180%)",
+                boxShadow:
+                  "inset 0 1px 0 0 rgba(255,255,255,0.6), inset 0 -1px 0 0 rgba(255,255,255,0.15), 0 8px 24px -8px rgba(0,0,0,0.25), 0 2px 6px -2px rgba(192,79,23,0.15)",
+              }}
             >
-              <div className="flex items-start justify-between gap-3">
+              {/* Liquid glass highlight */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-xl"
+                style={{ background: "linear-gradient(to bottom, rgba(255,255,255,0.45), rgba(255,255,255,0))" }}
+              />
+              <div className="relative flex items-start justify-between gap-3">
                 <div
                   className="text-[14px] font-bold text-neutral-900 leading-snug"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
@@ -87,7 +107,7 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
               </div>
               {p.promotion_message && (
                 <div
-                  className="mt-1.5 prose prose-sm max-w-none text-[13px] leading-relaxed text-neutral-700 prose-headings:text-neutral-900 prose-headings:font-bold prose-strong:text-neutral-900 prose-a:text-[#C04F17] prose-a:underline [&_p]:my-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 [&_img]:rounded-md [&_img]:max-w-full [&_h2]:text-[14px] [&_h3]:text-[13px] [&_blockquote]:border-l-2 [&_blockquote]:border-[#C04F17]/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
+                  className="relative mt-1.5 prose prose-sm max-w-none text-[13px] leading-relaxed text-neutral-700 prose-headings:text-neutral-900 prose-headings:font-bold prose-strong:text-neutral-900 prose-a:text-[#C04F17] prose-a:underline [&_p]:my-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 [&_img]:rounded-md [&_img]:max-w-full [&_h2]:text-[14px] [&_h3]:text-[13px] [&_blockquote]:border-l-2 [&_blockquote]:border-[#C04F17]/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
                   dangerouslySetInnerHTML={{ __html: p.promotion_message }}
                 />
               )}
