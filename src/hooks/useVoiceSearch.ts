@@ -212,6 +212,36 @@ async function extractSearchIntent(transcript: string): Promise<{ query: string;
 
 const SILENCE_DELAY_MS = 2000;
 const MAX_RECORDING_MS = 30000;
+const DUPLICATE_PHRASE_MAX_WORDS = 6;
+
+function normalizeVoiceTranscript(transcript: string): string {
+  const words = transcript.replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+  const clean = (word: string) => word.toLocaleLowerCase("fr-FR").replace(/[.,!?;:]/g, "");
+
+  let changed = true;
+  while (changed) {
+    changed = false;
+    outer: for (let i = 0; i < words.length - 1; i++) {
+      const maxLen = Math.min(DUPLICATE_PHRASE_MAX_WORDS, Math.floor((words.length - i) / 2));
+      for (let len = maxLen; len >= 1; len--) {
+        let same = true;
+        for (let offset = 0; offset < len; offset++) {
+          if (clean(words[i + offset]) !== clean(words[i + len + offset])) {
+            same = false;
+            break;
+          }
+        }
+        if (same) {
+          words.splice(i + len, len);
+          changed = true;
+          break outer;
+        }
+      }
+    }
+  }
+
+  return words.join(" ").trim();
+}
 
 export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearch, onFlightSearch, onWebSearch, onError, lang = "fr-FR" }: UseVoiceSearchOptions) {
   const [status, setStatus] = useState<VoiceStatus>("idle");
@@ -252,25 +282,26 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   }, []);
 
   const processTranscript = useCallback(async (transcript: string) => {
-    if (!transcript.trim()) {
+    const cleanedTranscript = normalizeVoiceTranscript(transcript);
+    if (!cleanedTranscript.trim()) {
       setStatus("idle");
       onErrorRef.current?.("Aucun texte détecté, réessayez.");
       return;
     }
     setStatus("processing");
-    const { query: keywords, category, timeKeyword, intent, hotelAvailability, hotelSearch, flightSearch, webSearch } = await extractSearchIntent(transcript);
+    const { query: keywords, category, timeKeyword, intent, hotelAvailability, hotelSearch, flightSearch, webSearch } = await extractSearchIntent(cleanedTranscript);
     setStatus("idle");
 
     if (intent === "hotelAvailability" && hotelAvailability && onHotelAvailabilityRef.current) {
-      onHotelAvailabilityRef.current(hotelAvailability, transcript);
+      onHotelAvailabilityRef.current(hotelAvailability, cleanedTranscript);
     } else if (intent === "hotelSearch" && hotelSearch && onHotelSearchRef.current) {
-      onHotelSearchRef.current(hotelSearch, transcript);
+      onHotelSearchRef.current(hotelSearch, cleanedTranscript);
     } else if (intent === "flightSearch" && flightSearch && onFlightSearchRef.current) {
-      onFlightSearchRef.current(flightSearch, transcript);
+      onFlightSearchRef.current(flightSearch, cleanedTranscript);
     } else if (intent === "webSearch" && webSearch && onWebSearchRef.current) {
-      onWebSearchRef.current(webSearch, transcript);
+      onWebSearchRef.current(webSearch, cleanedTranscript);
     } else if (keywords) {
-      onTranscriptRef.current(keywords, transcript, category || undefined, timeKeyword || undefined);
+      onTranscriptRef.current(keywords, cleanedTranscript, category || undefined, timeKeyword || undefined);
     } else {
       onErrorRef.current?.("Aucun texte détecté, réessayez.");
     }
