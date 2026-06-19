@@ -168,7 +168,10 @@ const PublicBusinessProfile = () => {
           from { opacity: 0; transform: translateY(34px); }
           to { opacity: 1; transform: none; }
         }
-        .b-rise { opacity: 0; animation: b-rise 1s forwards; }
+        .b-rise-item {
+          opacity: 0;
+          animation: b-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
         @keyframes shimmer-loop {
           0% {
@@ -247,8 +250,11 @@ const PublicBusinessProfile = () => {
 
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/20 to-transparent pointer-events-none" />
 
-        <div className="b-rise relative px-6 pt-12 pb-10 flex flex-col items-center text-center">
-          <div className="h-28 w-28 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden mb-4 ring-2 ring-white/20 shadow-xl">
+        <div className="relative px-6 pt-12 pb-10 flex flex-col items-center text-center">
+          <div 
+            className="b-rise-item h-28 w-28 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden mb-4 ring-2 ring-white/20 shadow-xl"
+            style={{ animationDelay: "0.1s" }}
+          >
             {avatar ? (
               <img src={avatar} alt={business.name} className="h-full w-full object-cover" />
             ) : (
@@ -258,23 +264,37 @@ const PublicBusinessProfile = () => {
             )}
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-white">{business.name}</h1>
+          <h1 
+            className="b-rise-item text-2xl font-bold tracking-tight text-white"
+            style={{ animationDelay: "0.18s" }}
+          >
+            {business.name}
+          </h1>
 
           {(business.city || business.country) && (
-            <p className="mt-2 inline-flex items-center gap-1 text-sm text-neutral-400">
+            <p 
+              className="b-rise-item mt-2 inline-flex items-center gap-1 text-sm text-neutral-400"
+              style={{ animationDelay: "0.26s" }}
+            >
               <MapPin className="h-4 w-4" />
               {[business.city, business.country].filter(Boolean).join(", ")}
             </p>
           )}
 
           {business.hook_fr && (
-            <p className="mt-3 text-[15px] italic text-white/90 font-medium max-w-md">
+            <p 
+              className="b-rise-item mt-3 text-[15px] italic text-white/90 font-medium max-w-md"
+              style={{ animationDelay: "0.34s" }}
+            >
               {business.hook_fr}
             </p>
           )}
 
           {business.computed_rating != null && business.total_review_count && business.total_review_count > 0 && (
-            <div className="shimmer-once-badge relative mt-4 mb-2 flex items-center justify-center gap-1.5 py-1 px-3.5 rounded-full border border-white/20 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]">
+            <div 
+              className="b-rise-item shimmer-once-badge relative mt-4 mb-2 flex items-center justify-center gap-1.5 py-1 px-3.5 rounded-full border border-white/20 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]"
+              style={{ animationDelay: "0.42s" }}
+            >
               <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
               <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
               <div className="flex items-center gap-1.5">
@@ -305,7 +325,10 @@ const PublicBusinessProfile = () => {
             const head = isLong ? full.slice(0, cut).trimEnd() : full;
             const tail = isLong ? full.slice(cut).trimStart() : "";
             return (
-              <div className="mt-3 max-w-md">
+              <div 
+                className="b-rise-item mt-3 max-w-md"
+                style={{ animationDelay: "0.5s" }}
+              >
                 <div className="text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line">
                   {head}
                   {isLong && !descExpanded && "…"}
@@ -335,7 +358,10 @@ const PublicBusinessProfile = () => {
           })()}
 
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          <div 
+            className="b-rise-item mt-6 flex flex-wrap items-center justify-center gap-4"
+            style={{ animationDelay: "0.58s" }}
+          >
             {socials.map((s) => {
               if (!s.val) return null;
               const href = s.kind === "whatsapp" ? buildWhatsAppUrl(s.val) : normalizeUrl(s.val);
@@ -361,7 +387,8 @@ const PublicBusinessProfile = () => {
                 href={l.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                className="b-rise-item block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                style={{ animationDelay: `${0.66 + i * 0.08}s` }}
               >
                 <span className="inline-flex items-center gap-2">
                   <Globe className="h-4 w-4 text-neutral-400" />
@@ -371,7 +398,8 @@ const PublicBusinessProfile = () => {
             ))}
             <a
               href={`/fiche/${business.slug}`}
-              className="shimmer-once-cta block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
+              className="b-rise-item shimmer-once-cta block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
+              style={{ animationDelay: `${0.66 + links.length * 0.08}s` }}
             >
               Voir la fiche complète
             </a>
@@ -392,7 +420,8 @@ const PublicBusinessProfile = () => {
                       href={googleReviewHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      className="b-rise-item flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      style={{ animationDelay: `${0.66 + (links.length + 1) * 0.08}s` }}
                     >
                       <img src="https://www.google.com/favicon.ico" alt="" className="h-4 w-4" />
                       <span>Laisser un avis sur Google</span>
@@ -404,7 +433,8 @@ const PublicBusinessProfile = () => {
                       href={tripHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      className="b-rise-item flex items-center justify-center gap-2 w-full rounded-2xl bg-white/5 hover:bg-white/10 py-3 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+                      style={{ animationDelay: `${0.66 + (links.length + (googleReviewHref ? 2 : 1)) * 0.08}s` }}
                     >
                       <img src="/review-logos/tripadvisor.webp" alt="" className="h-4 w-4 object-contain" />
                       <span>Laisser un avis sur TripAdvisor</span>
@@ -418,8 +448,11 @@ const PublicBusinessProfile = () => {
 
           <a
             href="/club"
-            className="mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
-            style={{ backgroundColor: "#ECD6B8" }}
+            className="b-rise-item mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
+            style={{ 
+              backgroundColor: "#ECD6B8",
+              animationDelay: `${0.66 + (links.length + 3) * 0.08}s`
+            }}
           >
             Un compte One World Morocco ?
           </a>
