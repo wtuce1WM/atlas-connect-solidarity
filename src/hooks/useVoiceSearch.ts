@@ -593,7 +593,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     const recognition = new SpeechRecognitionAPI();
     recognition.lang = lang;
     recognition.interimResults = true;
-    recognition.continuous = true;
+    // Sur Android, continuous=true ne marque jamais isFinal → on force false :
+    // le moteur émet alors des résultats finaux propres dès la fin de phrase.
+    recognition.continuous = !isAndroid();
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
