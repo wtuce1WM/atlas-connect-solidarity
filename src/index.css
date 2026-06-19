@@ -660,7 +660,7 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     left: 0 !important;
     right: 0 !important;
     top: auto !important;
-    bottom: 15rem !important;
+    bottom: 11rem !important;
     display: block !important;
     min-height: auto !important;
     padding-top: 0 !important;
@@ -668,7 +668,7 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   }
 
   .home-hero-copy {
-    transform: translateY(-4.5rem) !important;
+    transform: translateY(-2rem) !important;
   }
 
   .home-hero-content h1 {
