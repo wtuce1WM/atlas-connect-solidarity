@@ -11,11 +11,12 @@ type Promotion = {
 
 interface Props {
   businessId: string | null | undefined;
+  cardsHidden?: boolean;
 }
 
 const ROTATE_MS = 10000;
 
-const BusinessPromotionsList = ({ businessId }: Props) => {
+const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [index, setIndex] = useState(0);
 
