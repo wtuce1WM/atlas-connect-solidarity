@@ -154,10 +154,10 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
         type="button"
         onClick={onClick}
         aria-label={ariaLabel}
-        className="group shrink-0 flex flex-col items-center justify-end gap-1 px-1.5 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
+        className="group shrink-0 flex flex-col items-center justify-start gap-1 w-11 h-14 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
       >
         <span
-          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
             active
               ? "bg-[#C04F17] text-white group-hover:bg-[#C04F17]/90"
               : "bg-black/60 text-white group-hover:bg-black/75"
@@ -165,7 +165,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
         >
           {icon}
         </span>
-        <span className="block w-10 text-center text-[10px] font-bold tracking-wider leading-none truncate font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] text-white">{label}</span>
+        <span className="block w-full text-center text-[9px] font-bold tracking-wider leading-none truncate font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] text-white px-0.5">{label}</span>
       </button>
     );
   };
