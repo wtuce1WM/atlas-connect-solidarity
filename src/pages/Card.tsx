@@ -155,20 +155,20 @@ const Card = () => {
         <div className="hero-overlay-mobile" aria-hidden />
         <div className="wrap hero-grid">
           <div>
-            <h1>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></h1>
-            <p className="lead">
+            <h1 className="hero-rise" style={{ animationDelay: '.45s', animationFillMode: 'forwards' }}>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></h1>
+            <p className="lead hero-rise" style={{ animationDelay: '.66s', animationFillMode: 'forwards' }}>
               Un lien court et personnalisé que les voyageurs retiennent vraiment — <code>oneworldmorocco.com/yourname</code>.
               Un seul tap affiche vos offres, vos contacts et vos photos, sur un domaine de voyage de confiance.
               Le QR n'est qu'une façon parmi d'autres de le partager.
             </p>
-            <ul className="bullets">
+            <ul className="bullets hero-rise" style={{ animationDelay: '.78s', animationFillMode: 'forwards' }}>
               <li><span className="check">✓</span><div style={{marginTop:-2}}>URL courte et mémorisable :<br/><strong>oneworldmorocco.com/yourname</strong></div></li>
               <li><span className="check">✓</span><div style={{marginTop:-2}}>Tous vos canaux numériques rassemblés au même endroit</div></li>
               <li><span className="check">✓</span><div style={{marginTop:-2}}>Un profil type Linktree partageable</div></li>
               <li><span className="check">✓</span>Partagez par lien, QR, NFC ou carte imprimée</li>
               <li><span className="check">✓</span>Mettez à jour à tout moment — le lien reste le même</li>
             </ul>
-            <div className="btn-row">
+            <div className="btn-row hero-rise" style={{ animationDelay: '.92s', animationFillMode: 'forwards' }}>
               <Link to="/join" className="btn-primary">CRÉEZ VOTRE PAGE →</Link>
               <a href="#avantages" className="btn-ghost">Voir les avantages ↓</a>
             </div>
