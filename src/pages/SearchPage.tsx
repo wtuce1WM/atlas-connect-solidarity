@@ -3574,8 +3574,19 @@ const SearchPage = () => {
     requestAnimationFrame(() => {
       const el = resultsBarRef.current;
       if (el) {
-        const y = el.getBoundingClientRect().top + window.scrollY - 60;
-        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+        // Use offsetTop (document-relative) instead of getBoundingClientRect
+        // (viewport-relative): when the bar is already sticky-pinned at the
+        // top of the viewport, getBoundingClientRect().top equals the sticky
+        // offset and the computed target becomes the current scroll position
+        // → no movement. This happens in pinIds mode where pagination is
+        // client-side (no isLoading flip to momentarily unstick the bar).
+        let top = 0;
+        let node: HTMLElement | null = el;
+        while (node) {
+          top += node.offsetTop;
+          node = node.offsetParent as HTMLElement | null;
+        }
+        window.scrollTo({ top: Math.max(0, top - 60), behavior: "smooth" });
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
