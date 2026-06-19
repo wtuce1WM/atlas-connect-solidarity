@@ -95,11 +95,20 @@ const stripHtml = (s: string) =>
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
+type Promotion = {
+  id: string;
+  title: string;
+  promotion_message: string | null;
+  savings_amount: number | null;
+  promotion_currency: string | null;
+};
+
 const PublicBusinessProfile = () => {
   const { slug = "" } = useParams();
   const [loading, setLoading] = useState(true);
   const [business, setBusiness] = useState<PublicBusiness | null>(null);
   const [descExpanded, setDescExpanded] = useState(false);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -118,6 +127,15 @@ const PublicBusinessProfile = () => {
       if (data?.description) data.description = stripHtml(String(data.description));
       setBusiness((data as PublicBusiness) ?? null);
       setLoading(false);
+
+      if (data?.id) {
+        const { data: promos } = await supabase
+          .from("affiliate_business_promotions")
+          .select("id, title, promotion_message, savings_amount, promotion_currency")
+          .eq("business_id", data.id)
+          .order("sort_order", { ascending: true });
+        if (!cancelled) setPromotions((promos as Promotion[]) ?? []);
+      }
     })();
     return () => {
       cancelled = true;
