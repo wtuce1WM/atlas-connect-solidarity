@@ -374,7 +374,71 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
   }, []);
 
-  // ====================== ElevenLabs Scribe (iOS only) ======================
+  // ---- Fallback Android : enregistre l'audio en parallèle pour le réutiliser
+  // si Web Speech API ne renvoie rien (échec silencieux fréquent sur Android).
+  const startFallbackRecorder = useCallback(async () => {
+    if (!isAndroid()) return;
+    try {
+      const mimeType = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"]
+        .find((t) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(t));
+      if (!mimeType) return;
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+      });
+      const recorder = new MediaRecorder(stream, { mimeType });
+      fallbackChunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) fallbackChunksRef.current.push(e.data); };
+      recorder.start(250);
+      fallbackRecorderRef.current = recorder;
+      fallbackStreamRef.current = stream;
+    } catch (e) {
+      console.warn("[VoiceSearch] fallback recorder unavailable:", e);
+    }
+  }, []);
+
+  const stopFallbackRecorderAndGetBlob = useCallback(async (): Promise<Blob | null> => {
+    const recorder = fallbackRecorderRef.current;
+    const stream = fallbackStreamRef.current;
+    fallbackRecorderRef.current = null;
+    fallbackStreamRef.current = null;
+    if (!recorder) return null;
+    return new Promise((resolve) => {
+      const done = () => {
+        stream?.getTracks().forEach((t) => t.stop());
+        const chunks = fallbackChunksRef.current;
+        fallbackChunksRef.current = [];
+        if (!chunks.length) return resolve(null);
+        resolve(new Blob(chunks, { type: recorder.mimeType || "audio/webm" }));
+      };
+      if (recorder.state === "inactive") return done();
+      recorder.onstop = done;
+      try { recorder.stop(); } catch { done(); }
+    });
+  }, []);
+
+  const transcribeFallbackBlob = useCallback(async (blob: Blob): Promise<string> => {
+    if (blob.size < 2048) return "";
+    const fd = new FormData();
+    fd.append("audio", blob, "recording.webm");
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/elevenlabs-transcribe`, {
+        method: "POST",
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+        body: fd,
+      });
+      if (!res.ok) {
+        console.warn("[VoiceSearch] fallback transcribe HTTP", res.status);
+        return "";
+      }
+      const data = await res.json();
+      return (data?.text || "").trim();
+    } catch (e) {
+      console.warn("[VoiceSearch] fallback transcribe failed:", e);
+      return "";
+    }
+  }, []);
+
+
   // On iOS, the native Web Speech API uses Siri's local dictation which is
   // very poor in French and on proper nouns. We use ElevenLabs Scribe realtime
   // instead, which gives desktop-grade quality.
