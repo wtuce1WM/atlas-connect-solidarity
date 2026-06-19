@@ -794,8 +794,11 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     // click handler. Skip the warm-up entirely on Android.
     if (isAndroid()) {
       startNow();
+      // Lance le recorder de fallback en parallèle (non bloquant, async OK).
+      void startFallbackRecorder();
       return;
     }
+
 
     navigator.mediaDevices
       ?.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } })
