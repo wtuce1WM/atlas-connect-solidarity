@@ -509,20 +509,29 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     };
 
     recognition.onresult = (event) => {
+      // Android Chrome emits multiple distinct non-final result entries that
+      // never get marked final until silence. Concatenating them all produces
+      // duplicated text ("je veux je veux faire faire un tennis…"). We only
+      // keep finals as the accumulated text and the LAST non-final as interim.
       let finalTranscript = "";
-      let interimTranscript = "";
+      let lastInterim = "";
       for (let i = 0; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript + " ";
+        const result = event.results[i];
+        const text = result[0].transcript;
+        if (result.isFinal) {
+          finalTranscript += text + " ";
         } else {
-          interimTranscript += event.results[i][0].transcript;
+          lastInterim = text;
         }
       }
 
-      setLiveTranscript((finalTranscript + interimTranscript).trim());
+      setLiveTranscript((finalTranscript + lastInterim).trim());
 
-      if (finalTranscript.trim()) {
-        accumulatedTranscriptRef.current = finalTranscript.trim();
+      // Persist both finals and the latest interim so silence-timer auto-finish
+      // doesn't lose the segment when nothing is ever marked final (Android).
+      const merged = (finalTranscript + lastInterim).trim();
+      if (merged) {
+        accumulatedTranscriptRef.current = merged;
       }
 
       clearSilenceTimer();
