@@ -13,7 +13,7 @@ interface Props {
   businessId: string | null | undefined;
 }
 
-const ROTATE_MS = 5000;
+const ROTATE_MS = 10000;
 
 const BusinessPromotionsList = ({ businessId }: Props) => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
