@@ -1534,7 +1534,7 @@ const BookOnlineSlidePanelInner = ({
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
-          <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-auto gap-4 md:gap-10 flex-1 -mt-[3rem]">
+          <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-auto gap-6 md:gap-8 flex-1">
             {hookText && (
               <div className="absolute top-12 left-0 right-0 flex justify-center pointer-events-none">
                 <div className="pointer-events-auto">
@@ -1546,7 +1546,7 @@ const BookOnlineSlidePanelInner = ({
             {/* Conteneur 1 : bouton + (Description) */}
             <div className="flex items-center justify-center pointer-events-auto">
               {woDescription ? (
-                <div className="mt-8 md:mt-0 slidepanel-plus-short relative z-[40]">
+                <div className="slidepanel-plus-short relative z-[40]">
                   <button
                     type="button"
                     className="cursor-pointer group flex flex-col items-center gap-2 bg-transparent border-0 p-0"
@@ -1567,7 +1567,7 @@ const BookOnlineSlidePanelInner = ({
                   </button>
                 </div>
               ) : (
-                <div className="mt-8 md:mt-0 slidepanel-plus-short invisible pointer-events-none" aria-hidden="true">
+                <div className="slidepanel-plus-short invisible pointer-events-none" aria-hidden="true">
                   <div className="w-12 h-12" />
                 </div>
               )}
@@ -1581,7 +1581,7 @@ const BookOnlineSlidePanelInner = ({
                 );
                 if (flipbookImages.length > 0) {
                   return (
-                    <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 mt-20">
+                    <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 mt-2">
                       {flipbookImages.map((d: any) => (
                         <button
                           key={d.id}

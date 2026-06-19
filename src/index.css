@@ -572,26 +572,25 @@ html.hide-scrollbar-search::-webkit-scrollbar {
 /* Slidepanel central block — stable spacing regardless of viewport height */
 @media (max-width: 767px) {
   .slidepanel-plus-short {
-    margin-top: 0.5rem !important;
+    margin-top: 0 !important;
   }
   .slidepanel-review-short {
-    margin-top: 1rem !important;
+    margin-top: 0 !important;
   }
 }
 
 @media (min-width: 768px) {
   .slidepanel-center-short {
-    gap: 0 !important;
-    margin-top: 0.5rem !important;
+    margin-top: 0 !important;
   }
   .slidepanel-plus-short {
-    margin-top: 4rem !important;
+    margin-top: 0 !important;
   }
   .slidepanel-review-short {
-    margin-top: 4rem !important;
+    margin-top: 0 !important;
   }
   .slidepanel-rating-short {
-    margin-top: 2rem !important;
+    margin-top: 0 !important;
   }
 }
 
