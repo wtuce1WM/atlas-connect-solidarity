@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef, useEffect, type ReactNode, type RefObject } from "react";
-import { createPortal } from "react-dom";
 import { Search, Sparkles, MapPin, User, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -285,36 +284,38 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       )}
 
 
-      {/* Search overlay — fullscreen fixed (rendered outside the dock pill which is pointer-events-none) */}
-      {searchOverlayOpen && createPortal(
-        <MobileSearchOverlay
-          open={searchOverlayOpen}
-          onClose={() => setOverlay(false)}
-          onBusinessSelect={(bizId) => {
-            setAiOverlayOpen(false);
-            setOverlay(false);
-            onBusinessSelect?.(bizId);
-          }}
-          onSearch={(params) => {
-            setOverlay(false);
-            onSearch?.(params);
-          }}
-          onVoiceStart={handleVoiceStart}
-          onAiSuggestionClick={() => {
-            setAiOverlayOpen(true);
-          }}
-          geoState={{
-            isEnabled: geo.isEnabled,
-            isDetecting: geo.isDetecting,
-            detectedCity: geo.detectedCity,
-            detectedNeighborhood: geo.detectedNeighborhood,
-            confirmedAddress: geo.confirmedAddress,
-            accept: geo.accept,
-            toggle: geo.toggle,
-            setManualCity: geo.setManualCity,
-          }}
-        />,
-        document.body
+      {/* Search overlay — contained in the current panel/map surface */}
+      {searchOverlayOpen && (
+        <OverlayShell zClass="z-[90]" coverToolbar={false}>
+          <MobileSearchOverlay
+            open={searchOverlayOpen}
+            onClose={() => setOverlay(false)}
+            onBusinessSelect={(bizId) => {
+              setAiOverlayOpen(false);
+              setOverlay(false);
+              onBusinessSelect?.(bizId);
+            }}
+            onSearch={(params) => {
+              setOverlay(false);
+              onSearch?.(params);
+            }}
+            onVoiceStart={handleVoiceStart}
+            contained
+            onAiSuggestionClick={() => {
+              setAiOverlayOpen(true);
+            }}
+            geoState={{
+              isEnabled: geo.isEnabled,
+              isDetecting: geo.isDetecting,
+              detectedCity: geo.detectedCity,
+              detectedNeighborhood: geo.detectedNeighborhood,
+              confirmedAddress: geo.confirmedAddress,
+              accept: geo.accept,
+              toggle: geo.toggle,
+              setManualCity: geo.setManualCity,
+            }}
+          />
+        </OverlayShell>
       )}
 
       {/* AI Suggestion overlay — independent, can be triggered standalone */}
