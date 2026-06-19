@@ -496,7 +496,7 @@ const HomeMindtrip = () => {
           }
           .hero-parallax { perspective: 1200px; }
           .hero-parallax .home-hero-content {
-            transform: translate3d(calc(var(--mx)*-8px), calc(var(--my)*-8px + var(--sy)*-30px), 0);
+            transform: translate3d(0, calc(var(--sy)*-30px), 0);
             transition: transform .5s cubic-bezier(.2,.7,.2,1);
             will-change: transform;
           }
