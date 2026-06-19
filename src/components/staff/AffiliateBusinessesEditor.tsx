@@ -522,21 +522,19 @@ const OfferRow = ({ promo, saving, onUpdate, onSave, onDelete, affiliateId, busi
                 placeholder="Ex: 150"
               />
             </div>
-            {promo.promotion_type === "fixed" && (
-              <div className="space-y-2">
-                <Label>Devise</Label>
-                <Select
-                  value={promo.promotion_currency || "MAD"}
-                  onValueChange={(v) => onUpdate({ promotion_currency: v })}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MAD">MAD (Dirham)</SelectItem>
-                    <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label>Devise</Label>
+              <Select
+                value={promo.promotion_currency || "MAD"}
+                onValueChange={(v) => onUpdate({ promotion_currency: v })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MAD">MAD (Dirham)</SelectItem>
+                  <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
 
