@@ -191,7 +191,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
           aria-label="Partager"
         >
           <div
-            className="relative w-[94%] sm:w-[90%] max-w-lg rounded-3xl text-foreground shadow-2xl p-6 animate-in zoom-in-95 fade-in-0"
+            className="relative w-[98%] sm:w-[90%] max-w-lg rounded-3xl text-foreground shadow-2xl p-6 animate-in zoom-in-95 fade-in-0"
             style={{ backgroundColor: "#CDBFA4" }}
             onClick={(e) => e.stopPropagation()}
           >
