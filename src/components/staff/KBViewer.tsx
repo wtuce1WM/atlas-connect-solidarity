@@ -25,6 +25,7 @@ const SECTIONS = [
   { id: "collaboration-multi-postes", label: "Multi-postes", icon: Users, content: collaborationMultiPostesMd },
   { id: "domaine-dns", label: "Domaine & DNS", icon: Globe, content: domaineDnsMd },
   { id: "seo-meta-tags-lovable", label: "SEO & balises meta", icon: Search, content: seoMetaTagsLovableMd },
+  { id: "previews-sociales-bots", label: "Previews sociales /b/", icon: Share2, content: previewsSocialesBotsMd },
 ];
 
 
