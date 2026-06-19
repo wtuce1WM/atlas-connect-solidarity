@@ -86,6 +86,11 @@ function isIOS(): boolean {
   return iOSClassic || iPadOS;
 }
 
+function isAndroid(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /Android/i.test(navigator.userAgent || "");
+}
+
 function base64FromBytes(bytes: Uint8Array): string {
   let binary = "";
   const chunkSize = 0x8000;
@@ -594,6 +599,15 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         onErrorRef.current?.("Erreur vocale: démarrage impossible.");
       }
     };
+
+    // Android Chrome silently fails when SpeechRecognition.start() runs after
+    // an async gap (getUserMedia + setTimeout) — the browser loses the user
+    // gesture context. On Android we MUST start synchronously inside the
+    // click handler. Skip the warm-up entirely on Android.
+    if (isAndroid()) {
+      startNow();
+      return;
+    }
 
     navigator.mediaDevices
       ?.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } })
