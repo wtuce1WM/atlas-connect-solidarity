@@ -164,6 +164,7 @@ const AffiliateBusinessesEditor = ({ affiliate, onBack }: Props) => {
           promotion_value: 0,
           promotion_currency: "MAD",
           promotion_message: "",
+          savings_amount: null,
           images: [],
           sort_order: nextOrder,
           has_changes: true,
