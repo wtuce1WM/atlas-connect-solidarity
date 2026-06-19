@@ -137,7 +137,7 @@ export function CtaBar({
     if (isWhatsAppCta(bookingCtaLabel) && business?.whatsapp) {
       ctaItems.push(
         <a key="booking" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
-          className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+          className={`flex items-center justify-center gap-1.5 w-full rounded-lg !font-bold text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
           <span className="whitespace-nowrap px-1">WhatsApp</span>
@@ -147,7 +147,7 @@ export function CtaBar({
       ctaItems.push(
         bookingCta.forceExternal ? (
           <a key="booking" href={bookingCta.fullUrl} target="_blank" rel="noopener noreferrer"
-            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black !font-bold text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
             <CalendarCheck className="h-4 w-4 hidden md:block" />
             <span className="whitespace-nowrap px-1">{bookingCtaLabel}</span>
@@ -156,7 +156,7 @@ export function CtaBar({
         ) : (
           <button key="booking"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
-            className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg !font-bold text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <CalendarCheck className="h-4 w-4 hidden md:block" />
             <span className="whitespace-nowrap px-1">{bookingCtaLabel}</span>
@@ -170,7 +170,7 @@ export function CtaBar({
     if (isWhatsAppCta(shopCtaLabel) && business?.whatsapp) {
       ctaItems.push(
         <a key="shop" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
-          className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+          className={`flex items-center justify-center gap-1.5 w-full rounded-lg !font-bold text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
           <span className="whitespace-nowrap px-1">WhatsApp</span>
@@ -180,7 +180,7 @@ export function CtaBar({
       ctaItems.push(
         shopCta.forceExternal ? (
           <a key="shop" href={shopCta.fullUrl} target="_blank" rel="noopener noreferrer"
-            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black !font-bold text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
             <ShoppingBag className="h-4 w-4 hidden md:block" />
             <span className="whitespace-nowrap px-1">{shopCtaLabel}</span>
@@ -189,7 +189,7 @@ export function CtaBar({
         ) : (
           <button key="shop"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
-            className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg !font-bold text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <ShoppingBag className="h-4 w-4 hidden md:block" />
             <span className="whitespace-nowrap px-1">{shopCtaLabel}</span>
@@ -205,7 +205,7 @@ export function CtaBar({
     if (isWhatsAppCta(label) && business?.whatsapp) {
       ctaItems.push(
         <a key="url4" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
-          className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+          className={`flex items-center justify-center gap-1.5 w-full rounded-lg !font-bold text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
           <span className="whitespace-nowrap px-1">WhatsApp</span>
@@ -215,7 +215,7 @@ export function CtaBar({
       ctaItems.push(
         url4Cta.forceExternal ? (
           <a key="url4" href={url4Cta.fullUrl} target="_blank" rel="noopener noreferrer"
-            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black !font-bold text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
             <ExternalLink className="h-4 w-4 hidden md:block" />
             <span className="whitespace-nowrap px-1">{label}</span>
@@ -223,7 +223,7 @@ export function CtaBar({
         ) : (
           <button key="url4"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(url4Cta.fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }}
-            className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg !font-bold text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <span className="whitespace-nowrap px-1">{label}</span>
           </button>
@@ -238,7 +238,7 @@ export function CtaBar({
     if (isWhatsAppCta(label) && business?.whatsapp) {
       ctaItems.push(
         <a key="url5" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
-          className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+          className={`flex items-center justify-center gap-1.5 w-full rounded-lg !font-bold text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
           <span className="whitespace-nowrap px-1">WhatsApp</span>
@@ -248,7 +248,7 @@ export function CtaBar({
       ctaItems.push(
         url5Cta.forceExternal ? (
           <a key="url5" href={url5Cta.fullUrl} target="_blank" rel="noopener noreferrer"
-            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black !font-bold text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
             <ExternalLink className="h-4 w-4 hidden md:block" />
             <span className="whitespace-nowrap px-1">{label}</span>
@@ -256,7 +256,7 @@ export function CtaBar({
         ) : (
           <button key="url5"
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(url5Cta.fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }}
-            className={`flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+            className={`flex items-center justify-center gap-1.5 w-full rounded-lg !font-bold text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
             <span className="whitespace-nowrap px-1">{label}</span>
           </button>
