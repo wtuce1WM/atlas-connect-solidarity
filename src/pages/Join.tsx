@@ -246,7 +246,7 @@ const Join = () => {
         <style>{CSS}</style>
 
 
-      <section className="hero relative min-h-[92vh] w-full overflow-hidden flex items-start justify-center sm:items-center border-b border-white/10" aria-label="Rejoindre One World Morocco">
+      <section ref={heroSectionRef} className="hero hero-parallax relative min-h-[92vh] w-full overflow-hidden flex items-start justify-center sm:items-center border-b border-white/10" style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }} aria-label="Rejoindre One World Morocco">
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
           <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
