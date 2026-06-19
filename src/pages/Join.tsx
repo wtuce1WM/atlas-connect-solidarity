@@ -298,6 +298,8 @@ const Join = () => {
             transition: transform .5s cubic-bezier(.2,.7,.2,1);
             will-change: transform;
           }
+          @keyframes heroRise { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: none; } }
+          .hero-rise { opacity: 0; animation: heroRise 1s forwards; }
           @media (prefers-reduced-motion: reduce) {
             section img[alt^="Application One World"] { animation: none !important; }
             .hero-parallax .hero-content { transform: none !important; }
