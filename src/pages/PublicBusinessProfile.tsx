@@ -124,7 +124,7 @@ const PublicBusinessProfile = () => {
 
       const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
       if (cancelled) return;
-      if (data?.description) data.description = stripHtml(String(data.description));
+      // keep raw HTML — rich text (h2, h3, blockquote, lists…) is rendered with styling below
       setBusiness((data as PublicBusiness) ?? null);
       setLoading(false);
 
