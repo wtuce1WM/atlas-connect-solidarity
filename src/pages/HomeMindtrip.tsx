@@ -480,12 +480,12 @@ const HomeMindtrip = () => {
            className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
          />
          {/* Centered iPhone mockup — mobile only, exactly like /corporate */}
-         <img
+         {/* <img
            src={phoneMockupAsset.url}
            alt="Application One World Morocco sur iPhone"
            aria-hidden="true"
            className="block md:hidden pointer-events-none select-none absolute top-[10%] left-0 right-0 h-[85%] w-full object-contain object-bottom origin-top scale-[0.95] z-10 opacity-85 animate-[mobilePhoneFloat_5s_ease-in-out_infinite]"
-         />
+         /> */}
         <style>{`
           @keyframes heroPhoneFloat {
             0%, 100% { transform: translateY(calc(-50% - 8px)); }
