@@ -52,6 +52,7 @@ interface Promotion {
   promotion_value: number;
   promotion_currency: string;
   promotion_message: string;
+  savings_amount: number | null;
   images: string[];
   sort_order: number;
   has_changes: boolean;
