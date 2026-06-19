@@ -740,19 +740,34 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       setStatus("idle");
     };
 
-    recognition.onend = () => {
+    recognition.onend = async () => {
       if (recognitionRef.current !== null) {
         recognitionRef.current = null;
       }
       clearSilenceTimer();
       const transcript = accumulatedTranscriptRef.current;
       accumulatedTranscriptRef.current = "";
+
+      // Android fallback : si Web Speech n'a rien rendu, on transcrit l'audio
+      // côté serveur (beaucoup plus fiable que le STT natif Android).
+      const fallbackBlob = await stopFallbackRecorderAndGetBlob();
       if (transcript) {
         processTranscript(transcript);
+      } else if (fallbackBlob) {
+        console.log("[VoiceSearch] empty native transcript → server fallback");
+        setStatus("processing");
+        const serverText = await transcribeFallbackBlob(fallbackBlob);
+        if (serverText) {
+          processTranscript(serverText);
+        } else {
+          setStatus("idle");
+          onErrorRef.current?.("Aucun texte détecté, réessayez.");
+        }
       } else if (status === "recording") {
         setStatus("idle");
       }
     };
+
 
     recognitionRef.current = recognition;
 
