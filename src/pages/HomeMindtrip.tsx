@@ -509,7 +509,7 @@ const HomeMindtrip = () => {
           }
         `}</style>
 
-        <div className="absolute left-0 right-0 top-14 z-30 px-6 text-center md:hidden">
+        <div className="absolute left-0 right-0 top-20 z-30 px-6 text-center md:hidden">
           <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] hero-rise">
             L’écosystème digital éthique & solidaire dédié à l'économie marocaine
           </h1>
