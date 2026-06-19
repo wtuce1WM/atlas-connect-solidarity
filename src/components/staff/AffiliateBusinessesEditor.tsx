@@ -195,6 +195,7 @@ const AffiliateBusinessesEditor = ({ affiliate, onBack }: Props) => {
       promotion_value: hasType ? promo.promotion_value : null,
       promotion_currency: hasType && promo.promotion_type === "fixed" ? (promo.promotion_currency || "MAD") : null,
       promotion_message: promo.promotion_message || null,
+      savings_amount: promo.savings_amount,
       images: promo.images,
       sort_order: promo.sort_order,
     };
