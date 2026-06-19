@@ -1516,7 +1516,7 @@ const BookOnlineSlidePanelInner = ({
               ) : undefined}
               middleSlot={hookText ? (
                 <p
-                  className="md:hidden text-base text-white/90 font-bold text-center max-w-[95%] md:max-w-[85%] leading-relaxed pointer-events-none pl-8 pr-0 md:px-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
+                  className="md:hidden text-[15px] sm:text-base text-white/95 font-bold text-center w-full max-w-full leading-relaxed pointer-events-none px-4 [text-shadow:0_1px_3px_rgba(0,0,0,0.6)]"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
                   {hookText}
