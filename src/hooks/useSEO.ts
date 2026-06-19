@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { resolveRouteMeta } from "@/seo/RouteSeo";
+import { getOverride, subscribeOverrides } from "@/seo/pageMetaOverrides";
 
 interface SEOOptions {
   title: string;
@@ -17,9 +19,30 @@ const BASE_URL = "https://oneworldmorocco.com";
 /**
  * Sets document.title, meta description, canonical link and optional JSON-LD.
  * Cleans up on unmount (restores defaults).
+ *
+ * Back-office overrides (public.page_meta_overrides) take precedence over the
+ * hard-coded title/description passed in, so staff edits in Présentation / Pages
+ * apply to static pages that call useSEO (Homepage, etc.).
  */
-export function useSEO({ title, description, canonical, ogImage, ogUrl, ogType, jsonLd }: SEOOptions) {
+export function useSEO(opts: SEOOptions) {
+  // Re-run the effect when overrides load/change.
+  const [overridesVersion, setOverridesVersion] = useState(0);
   useEffect(() => {
+    const unsub = subscribeOverrides(() => setOverridesVersion((n) => n + 1));
+    return () => { unsub(); };
+  }, []);
+
+  const { pattern } = resolveRouteMeta(
+    typeof window !== "undefined" ? window.location.pathname : "/",
+  );
+  const override = getOverride(pattern);
+  const title = override?.title || opts.title;
+  const description = override?.description || opts.description;
+  const ogImage = override?.og_image || opts.ogImage;
+  const ogType = (override?.og_type as string | undefined) || opts.ogType;
+  const { canonical, ogUrl, jsonLd } = opts;
+  useEffect(() => {
+
     // Title — keep under 60 chars; only append site name if not already present
     const prevTitle = document.title;
     document.title = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
