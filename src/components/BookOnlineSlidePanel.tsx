@@ -714,17 +714,28 @@ const BookOnlineSlidePanelInner = ({
   // Cascading peek effect on the left CTAs when the panel opens for a business.
   // If a welcome popup is showing, defer until it closes.
   const [peekCta, setPeekCta] = useState<boolean[]>([]);
+  const [peekDispo, setPeekDispo] = useState(false);
+  const [peekHoraires, setPeekHoraires] = useState(false);
   const peekPlayedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!businessId) return;
     if (showWelcomePopup) return;
     if (peekPlayedRef.current === businessId) return;
     peekPlayedRef.current = businessId;
+
+    // Set Horaires and Disponibilités to peek immediately, then close after 3 seconds
+    setPeekDispo(true);
+    setPeekHoraires(true);
+    const mainTimer = window.setTimeout(() => {
+      setPeekDispo(false);
+      setPeekHoraires(false);
+    }, 3000);
+
     const count = 6;
     const start = 450;
     const open = 1500;
     const stagger = 180;
-    const timers: number[] = [];
+    const timers: number[] = [mainTimer];
     setPeekCta(Array(count).fill(false));
     for (let i = 0; i < count; i++) {
       timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = true; return n; }), start + i * stagger));
