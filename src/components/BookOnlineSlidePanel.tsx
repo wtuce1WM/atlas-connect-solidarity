@@ -2848,7 +2848,7 @@ const BookOnlineSlidePanelInner = ({
       )}
       {/* Search bar */}
       {showSearchBar && !docOverlay && !showDescriptionOverlay && !showBookingOverlay && !showYoutubeOverlay && !selectedPoiBusinessId && (
-        <div className="fixed pointer-events-none bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]">
+        <div className="absolute pointer-events-none bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-[480px] z-[85]">
           <div className="relative w-full h-full pointer-events-auto">
             <PanelSearchBar
               onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
