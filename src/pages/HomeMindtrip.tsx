@@ -445,7 +445,7 @@ const HomeMindtrip = () => {
       <div>
         <section 
           ref={heroSectionRef}
-          className="hero-parallax relative min-h-[92vh] w-full overflow-hidden"
+          className="hero-parallax relative min-h-[92svh] w-full overflow-hidden"
           style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }}
         >
         <picture>
@@ -458,7 +458,7 @@ const HomeMindtrip = () => {
               className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
               loading="eager"
               fetchPriority="high"
-            />
+             />
         </picture>
          {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
          <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
@@ -509,7 +509,7 @@ const HomeMindtrip = () => {
           }
         `}</style>
 
-        <div className="home-hero-content relative z-20 mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center max-md:justify-start max-md:pt-0 pb-28 text-center px-6 md:justify-center md:items-start lg:items-center md:text-left lg:text-center md:pt-24 md:pb-6 md:py-24 md:px-12 w-full">
+        <div className="home-hero-content relative z-20 mx-auto flex min-h-[92svh] max-w-7xl flex-col items-center max-md:justify-start max-md:pt-0 pb-28 text-center px-6 md:justify-center md:items-start lg:items-center md:text-left lg:text-center md:pt-24 md:pb-6 md:py-24 md:px-12 w-full">
           {/* Title + Text Container (restricted to leave space for Mockup on Tablet, but wider than before) */}
           <div className="home-hero-copy w-full md:max-lg:max-w-[75%] md:max-lg:mb-6">
             {/* Mobile Title - placed under the header in normal flow to avoid overlap */}
