@@ -234,7 +234,7 @@ const PublicBusinessProfile = () => {
           z-index: 10;
         }
       `}</style>
-      <div className="b-rise relative w-full max-w-[420px] min-h-[85vh] rounded-[2.5rem] bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 shadow-2xl ring-1 ring-white/10 overflow-hidden">
+      <div className="relative w-full max-w-[420px] min-h-[85vh] rounded-[2.5rem] bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 shadow-2xl ring-1 ring-white/10 overflow-hidden">
         <div className="absolute top-4 right-4 z-10">
           <ShareButton
             variant="dark"
@@ -247,7 +247,7 @@ const PublicBusinessProfile = () => {
 
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/20 to-transparent pointer-events-none" />
 
-        <div className="relative px-6 pt-12 pb-10 flex flex-col items-center text-center">
+        <div className="b-rise relative px-6 pt-12 pb-10 flex flex-col items-center text-center">
           <div className="h-28 w-28 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden mb-4 ring-2 ring-white/20 shadow-xl">
             {avatar ? (
               <img src={avatar} alt={business.name} className="h-full w-full object-cover" />
