@@ -1665,7 +1665,7 @@ const BookOnlineSlidePanelInner = ({
         />
 
          {/* Offres B2B (entre badge Avis et CTAs URL 2-5) */}
-         <BusinessPromotionsList businessId={business?.id} cardsHidden={cardsHidden} />
+         <BusinessPromotionsList businessId={business?.id} cardsHidden={cardsHidden || showWelcomePopup} />
 
         {/* CTA Bar */}
         <CtaBar
