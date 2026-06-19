@@ -76,6 +76,7 @@ import { useCtaConfig } from "@/hooks/useCtaConfig";
 import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
+import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
@@ -1662,6 +1663,9 @@ const BookOnlineSlidePanelInner = ({
           setBookingOverlayUrl={setBookingOverlayUrl}
           setBookingOverlayTitle={setBookingOverlayTitle}
         />
+
+        {/* Offres B2B (entre badge Avis et CTAs URL 2-5) */}
+        <BusinessPromotionsList businessId={business?.id} />
 
         {/* CTA Bar */}
         <CtaBar
