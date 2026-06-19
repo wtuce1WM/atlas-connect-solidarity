@@ -111,7 +111,7 @@ const AffiliateBusinessesEditor = ({ affiliate, onBack }: Props) => {
         _uid: p.id,
         business_id: p.business_id,
         title: p.title || "",
-        promotion_type: p.promotion_type || "percentage",
+        promotion_type: p.promotion_type || "",
         promotion_value: Number(p.promotion_value) || 0,
         promotion_currency: p.promotion_currency || "MAD",
         promotion_message: p.promotion_message || "",
