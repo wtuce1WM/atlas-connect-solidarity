@@ -25,6 +25,7 @@ export type Database = {
           promotion_message: string | null
           promotion_type: string | null
           promotion_value: number | null
+          savings_amount: number | null
           sort_order: number
           title: string | null
           updated_at: string
@@ -39,6 +40,7 @@ export type Database = {
           promotion_message?: string | null
           promotion_type?: string | null
           promotion_value?: number | null
+          savings_amount?: number | null
           sort_order?: number
           title?: string | null
           updated_at?: string
@@ -53,6 +55,7 @@ export type Database = {
           promotion_message?: string | null
           promotion_type?: string | null
           promotion_value?: number | null
+          savings_amount?: number | null
           sort_order?: number
           title?: string | null
           updated_at?: string
