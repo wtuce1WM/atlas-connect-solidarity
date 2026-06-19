@@ -509,9 +509,9 @@ const HomeMindtrip = () => {
           }
         `}</style>
 
-        <div className="home-hero-content relative z-20 mx-auto flex min-h-[100dvh] md:min-h-[92svh] max-w-7xl flex-col items-center max-md:justify-start max-md:pt-32 pb-28 text-center px-6 md:justify-center md:items-start lg:items-center md:text-left lg:text-center md:pt-24 md:pb-6 md:py-24 md:px-12 w-full">
+        <div className="home-hero-content relative z-20 mx-auto flex min-h-[100dvh] md:min-h-[92svh] max-w-7xl flex-col items-center pb-28 text-center px-6 md:justify-center md:items-start lg:items-center md:text-left lg:text-center md:pt-24 md:pb-6 md:py-24 md:px-12 w-full">
           {/* Title + Text Container (restricted to leave space for Mockup on Tablet, but wider than before) */}
-          <div className="home-hero-copy w-full md:max-lg:max-w-[75%] md:max-lg:mb-6">
+          <div className="home-hero-copy w-full max-md:absolute max-md:left-0 max-md:right-0 max-md:top-[30dvh] max-md:px-6 md:max-lg:max-w-[75%] md:max-lg:mb-6">
             {/* Mobile Title - placed under the header in normal flow to avoid overlap */}
             <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="md:hidden font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] hero-rise">
               L’écosystème digital éthique & solidaire dédié à l'économie marocaine
