@@ -3571,26 +3571,20 @@ const SearchPage = () => {
 
   const goToPage = async (page: number) => {
     setCurrentPage(page);
-    requestAnimationFrame(() => {
-      const el = resultsBarRef.current;
+    const scrollToGrid = () => {
+      const el = document.querySelector<HTMLElement>('[data-results-grid="true"]') ?? resultsBarRef.current;
       if (el) {
-        // Use offsetTop (document-relative) instead of getBoundingClientRect
-        // (viewport-relative): when the bar is already sticky-pinned at the
-        // top of the viewport, getBoundingClientRect().top equals the sticky
-        // offset and the computed target becomes the current scroll position
-        // → no movement. This happens in pinIds mode where pagination is
-        // client-side (no isLoading flip to momentarily unstick the bar).
-        let top = 0;
-        let node: HTMLElement | null = el;
-        while (node) {
-          top += node.offsetTop;
-          node = node.offsetParent as HTMLElement | null;
-        }
-        window.scrollTo({ top: Math.max(0, top - 60), behavior: "smooth" });
+        const header = document.querySelector<HTMLElement>('header');
+        const headerH = header ? header.getBoundingClientRect().height : 60;
+        const target = el.getBoundingClientRect().top + window.scrollY - headerH - 8;
+        window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
-    });
+    };
+    requestAnimationFrame(scrollToGrid);
+    window.setTimeout(scrollToGrid, 80);
+    window.setTimeout(scrollToGrid, 220);
 
     // When results are pinned (pinIds), all businesses are already loaded;
     // pagination must stay client-side to preserve coherence.
