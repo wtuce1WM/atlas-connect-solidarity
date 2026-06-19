@@ -89,7 +89,9 @@ function getLogIcon(l: string) {
 
 export default function SearchResultCard({ business, index, labelLogos, distanceKm, onClick, onMouseEnter, onMouseLeave }: SearchResultCardProps) {
   const rawImg = business.images?.[0] || business.logo_url;
-  const img = optimizeSupabaseImage(rawImg, { width: 600, quality: 70 });
+  const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+  const size = Math.round(450 * dpr);
+  const img = optimizeSupabaseImage(rawImg, { width: size, height: size, resize: "cover", quality: 75 });
   const isPriority = index < 2;
   const avgOn20 = business.computed_rating ?? business.rating ?? null;
   const totalReviews = business.total_review_count ?? 0;
