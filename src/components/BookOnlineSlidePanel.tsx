@@ -1664,6 +1664,9 @@ const BookOnlineSlidePanelInner = ({
           setBookingOverlayTitle={setBookingOverlayTitle}
         />
 
+        {/* Offres B2B (entre badge Avis et CTAs URL 2-5) */}
+        <BusinessPromotionsList businessId={business?.id} />
+
         {/* CTA Bar */}
         <CtaBar
           business={business}
