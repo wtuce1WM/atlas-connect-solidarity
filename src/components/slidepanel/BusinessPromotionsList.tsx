@@ -56,14 +56,7 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
 
   return (
     <div className="w-[88%] sm:w-[90%] translate-x-3 sm:translate-x-0 mx-auto mt-3 mb-2">
-      <style>{`
-        @keyframes promo-float-gentle {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
-        }
-        .animate-promo-float { animation: promo-float-gentle 4.5s ease-in-out infinite; }
-      `}</style>
-      <div className="relative w-full animate-promo-float">
+      <div className="relative w-full">
         {promotions.map((p, i) => {
           const active = i === index;
           return (
@@ -72,8 +65,8 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
               aria-hidden={!active}
               className={`${
                 i === 0 ? "relative" : "absolute inset-0"
-              } rounded-xl border border-white/40 p-3 text-left transition-opacity duration-700 overflow-hidden ${
-                active ? "opacity-100" : "opacity-0 pointer-events-none"
+              } rounded-xl border border-white/40 p-3 text-left transition-all duration-700 ease-out overflow-hidden ${
+                active ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-[0.97] pointer-events-none"
               }`}
               style={{
                 background: "linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.25) 100%)",
