@@ -328,40 +328,33 @@ const PublicBusinessProfile = () => {
           )}
 
           {business.description && (() => {
-            const full = business.description;
-            const isLong = full.length > 130;
-            // Split on the nearest whitespace to avoid breaking a word
-            let cut = 130;
-            if (isLong) {
-              const nextSpace = full.indexOf(" ", 130);
-              const prevSpace = full.lastIndexOf(" ", 130);
-              const candidates = [nextSpace, prevSpace].filter((i) => i > 0);
-              if (candidates.length) {
-                cut = candidates.reduce((a, b) => (Math.abs(b - 130) < Math.abs(a - 130) ? b : a));
-              }
-            }
-            const head = isLong ? full.slice(0, cut).trimEnd() : full;
-            const tail = isLong ? full.slice(cut).trimStart() : "";
+            const html = business.description;
+            const textLen = stripHtml(html).length;
+            const isLong = textLen > 220;
             return (
-              <div 
-                className="b-rise-item mt-3 max-w-md"
+              <div
+                className="b-rise-item mt-3 w-full max-w-md"
                 style={{ animationDelay: "0.5s" }}
               >
-                <div className="text-[15px] leading-relaxed text-neutral-300 whitespace-pre-line">
-                  {head}
-                  {isLong && !descExpanded && "…"}
-                  {isLong && (
-                    <div
-                      className="grid transition-[grid-template-rows,opacity] duration-500 ease-in-out"
-                      style={{
-                          gridTemplateRows: descExpanded ? "1fr" : "0fr",
-                          opacity: descExpanded ? 1 : 0,
-                      }}
-                    >
-                      <div className="overflow-hidden whitespace-pre-line">{tail}</div>
-                    </div>
-                  )}
-                </div>
+                <div
+                  className={[
+                    "rich-desc relative text-[15px] leading-relaxed text-neutral-300 text-left",
+                    "[&_h2]:font-bold [&_h2]:text-white [&_h2]:text-[17px] [&_h2]:mt-4 [&_h2]:mb-1.5 [&_h2]:font-[Montserrat]",
+                    "[&_h3]:font-semibold [&_h3]:text-white [&_h3]:text-[15px] [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:font-[Montserrat]",
+                    "[&_p]:my-2",
+                    "[&_blockquote]:border-l-2 [&_blockquote]:border-[#C04F17] [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-neutral-200 [&_blockquote]:my-3",
+                    "[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2 [&_li]:my-0.5",
+                    "[&_a]:text-[#C04F17] [&_a]:underline hover:[&_a]:opacity-80",
+                    "[&_strong]:text-white [&_em]:italic",
+                    "[&_hr]:border-white/15 [&_hr]:my-3",
+                    "overflow-hidden transition-[max-height] duration-500 ease-in-out",
+                  ].join(" ")}
+                  style={{ maxHeight: descExpanded || !isLong ? "4000px" : "8.5em" }}
+                  dangerouslySetInnerHTML={{ __html: html }}
+                />
+                {isLong && !descExpanded && (
+                  <div className="-mt-6 h-6 bg-gradient-to-b from-transparent to-[#1a1a1a] pointer-events-none" />
+                )}
                 {isLong && (
                   <button
                     onClick={() => setDescExpanded((v) => !v)}
