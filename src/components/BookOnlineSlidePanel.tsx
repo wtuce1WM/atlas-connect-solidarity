@@ -714,17 +714,28 @@ const BookOnlineSlidePanelInner = ({
   // Cascading peek effect on the left CTAs when the panel opens for a business.
   // If a welcome popup is showing, defer until it closes.
   const [peekCta, setPeekCta] = useState<boolean[]>([]);
+  const [peekDispo, setPeekDispo] = useState(false);
+  const [peekHoraires, setPeekHoraires] = useState(false);
   const peekPlayedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!businessId) return;
     if (showWelcomePopup) return;
     if (peekPlayedRef.current === businessId) return;
     peekPlayedRef.current = businessId;
+
+    // Set Horaires and Disponibilités to peek immediately, then close after 3 seconds
+    setPeekDispo(true);
+    setPeekHoraires(true);
+    const mainTimer = window.setTimeout(() => {
+      setPeekDispo(false);
+      setPeekHoraires(false);
+    }, 3000);
+
     const count = 6;
     const start = 450;
     const open = 1500;
     const stagger = 180;
-    const timers: number[] = [];
+    const timers: number[] = [mainTimer];
     setPeekCta(Array(count).fill(false));
     for (let i = 0; i < count; i++) {
       timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = true; return n; }), start + i * stagger));
@@ -1356,19 +1367,20 @@ const BookOnlineSlidePanelInner = ({
           </div>
           )}
           {isHotelWithPrice ? (
-            <div onClick={() => setShowAvailabilitySearch(true)} className="group relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pl-4 pr-4 gap-2 cursor-pointer">
+            <div data-cta-tap onClick={handleCtaTap('dispo', () => setShowAvailabilitySearch(true))} className={`group cta-peek ${peekDispo || tappedCta === 'dispo' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-              <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Disponibilité</span>
-              <CalendarCheck className="h-[22px] w-[22px] shrink-0" />
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Disponibilité</span>
+              <CalendarCheck className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           ) : hasOpeningHours && !business?.is_open_24h ? (
             <div
-              onClick={() => setShowHoursOverlay(true)}
-              className={`group relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pl-4 pr-4 gap-2 cursor-pointer transition-colors ${openBadgeInfo?.isOpen ? 'bg-[#25D366] hover:bg-[#1fb958]' : 'backdrop-blur-md bg-black/80 hover:bg-black/90'}`}
+              data-cta-tap
+              onClick={handleCtaTap('hours', () => setShowHoursOverlay(true))}
+              className={`group cta-peek ${peekHoraires || tappedCta === 'hours' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4 ${openBadgeInfo?.isOpen ? 'bg-[#25D366] hover:bg-[#1fb958]' : 'backdrop-blur-md bg-black/80 hover:bg-black/90'}`}
             >
               <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
-              <Clock className="h-[22px] w-[22px] shrink-0" />
-              <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{openBadgeInfo?.isOpen ? 'Ouvert' : 'Horaires'}</span>
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{openBadgeInfo?.isOpen ? 'Ouvert' : 'Horaires'}</span>
+              <Clock className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           ) : null}
           {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
