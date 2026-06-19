@@ -2896,7 +2896,7 @@ const BookOnlineSlidePanelInner = ({
           onClick={() => setShowWelcomePopup(false)}
         >
           <div
-            className="relative w-[88%] max-w-lg max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-center"
+            className="relative w-[94%] sm:w-[88%] max-w-lg max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-center"
             style={{ backgroundImage: `url(${(business as any).popup_image_url})` }}
             onClick={(e) => e.stopPropagation()}
           >
