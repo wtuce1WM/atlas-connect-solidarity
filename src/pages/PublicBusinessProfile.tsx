@@ -164,6 +164,12 @@ const PublicBusinessProfile = () => {
       style={{ backgroundColor: "#ECD6B8" }}
     >
       <style>{`
+        @keyframes b-rise {
+          from { opacity: 0; transform: translateY(34px); }
+          to { opacity: 1; transform: none; }
+        }
+        .b-rise { opacity: 0; animation: b-rise 1s forwards; }
+
         @keyframes shimmer-loop {
           0% {
             transform: translateX(-150%) skewX(-20deg);
@@ -228,7 +234,7 @@ const PublicBusinessProfile = () => {
           z-index: 10;
         }
       `}</style>
-      <div className="relative w-full max-w-[420px] min-h-[85vh] rounded-[2.5rem] bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 shadow-2xl ring-1 ring-white/10 overflow-hidden">
+      <div className="b-rise relative w-full max-w-[420px] min-h-[85vh] rounded-[2.5rem] bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 shadow-2xl ring-1 ring-white/10 overflow-hidden">
         <div className="absolute top-4 right-4 z-10">
           <ShareButton
             variant="dark"
