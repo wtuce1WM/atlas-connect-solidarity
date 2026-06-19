@@ -350,7 +350,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       )}
 
       {(voice.status === "recording" || voice.status === "processing") && (
-        <OverlayShell zClass="z-[91]" coverToolbar={!noToolbarOffset}>
+        <OverlayShell zClass="z-[91]" coverToolbar={false}>
           <VoiceSearchOverlay
             isOpen
             liveTranscript={voice.liveTranscript}
