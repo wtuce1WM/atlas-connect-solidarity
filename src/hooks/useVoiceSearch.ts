@@ -306,6 +306,7 @@ function normalizeVoiceTranscript(transcript: string): string {
 export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearch, onFlightSearch, onWebSearch, onError, lang = "fr-FR" }: UseVoiceSearchOptions) {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const [liveTranscript, setLiveTranscript] = useState("");
+  const [audioLevel, setAudioLevel] = useState(0);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -317,6 +318,61 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const fallbackRecorderRef = useRef<MediaRecorder | null>(null);
   const fallbackStreamRef = useRef<MediaStream | null>(null);
   const fallbackChunksRef = useRef<Blob[]>([]);
+  // Niveau audio (VU-mètre) pour animer le bouton micro pendant l'écoute.
+  const levelStreamRef = useRef<MediaStream | null>(null);
+  const levelCtxRef = useRef<AudioContext | null>(null);
+  const levelRafRef = useRef<number | null>(null);
+
+  const stopAudioLevelMonitor = useCallback(() => {
+    if (levelRafRef.current != null) {
+      cancelAnimationFrame(levelRafRef.current);
+      levelRafRef.current = null;
+    }
+    levelStreamRef.current?.getTracks().forEach((t) => t.stop());
+    levelStreamRef.current = null;
+    if (levelCtxRef.current && levelCtxRef.current.state !== "closed") {
+      void levelCtxRef.current.close();
+    }
+    levelCtxRef.current = null;
+    setAudioLevel(0);
+  }, []);
+
+  const startAudioLevelMonitor = useCallback(async () => {
+    try {
+      if (levelStreamRef.current) return; // déjà actif
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+      });
+      levelStreamRef.current = stream;
+      const ctx = new AudioContext();
+      levelCtxRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.6;
+      source.connect(analyser);
+      const buffer = new Uint8Array(analyser.frequencyBinCount);
+      const tick = () => {
+        analyser.getByteTimeDomainData(buffer);
+        // RMS normalisé sur la déviation par rapport au centre (128).
+        let sumSq = 0;
+        for (let i = 0; i < buffer.length; i++) {
+          const v = (buffer[i] - 128) / 128;
+          sumSq += v * v;
+        }
+        const rms = Math.sqrt(sumSq / buffer.length);
+        // Boost perceptif + clamp 0..1.
+        const level = Math.min(1, rms * 3.5);
+        setAudioLevel(level);
+        levelRafRef.current = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch (e) {
+      console.warn("[VoiceSearch] audio level monitor unavailable:", e);
+    }
+  }, []);
+
+
 
   // Garder les callbacks en ref pour éviter les problèmes de closure dans les handlers async
   const onTranscriptRef = useRef(onTranscript);
