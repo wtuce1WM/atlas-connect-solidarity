@@ -256,8 +256,8 @@ const Join = () => {
           }
         `}</style>
 
-        <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 pt-6 pb-12 sm:py-24 flex flex-col items-center justify-start sm:justify-center text-center">
-          <h1 className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-[1.2] tracking-tight max-w-3xl text-[1.25rem] sm:text-4xl md:text-5xl lg:text-6xl" style={{ fontFamily: "Montserrat, sans-serif" }}>
+         <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 pt-6 pb-12 sm:py-24 flex flex-col items-center justify-start sm:justify-center text-center">
+          <h1 className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-[1.2] tracking-tight max-w-3xl text-[24px] sm:text-4xl md:text-5xl lg:text-6xl" style={{ fontFamily: "Montserrat, sans-serif" }}>
             Rejoignez le premier écosystème numérique <span className="text-[#ffc008]">éthique & solidaire</span> au Maroc.
           </h1>
           <p className="hero-sub text-white max-w-2xl text-center mb-4 text-base sm:text-lg opacity-95">Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.</p>
