@@ -509,11 +509,11 @@ const HomeMindtrip = () => {
           }
         `}</style>
 
-        <div className="absolute left-0 right-0 top-28 z-30 px-6 text-center md:hidden">
-          <h1 style={{ lineHeight: 1.2, animation: 'heroRise 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards', animationDelay: '.45s', opacity: 0 }} className="font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
+        <div className="absolute left-0 right-0 top-28 z-30 px-6 text-center md:hidden transition-all duration-700 animate-fade-in">
+          <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
             L’écosystème digital éthique & solidaire dédié à l'économie marocaine
           </h1>
-          <p style={{ animation: 'heroRise 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards', animationDelay: '.66s', opacity: 0 }} className="mt-6 max-w-2xl mx-auto font-roboto text-base font-normal text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
+          <p className="mt-6 max-w-2xl mx-auto font-roboto text-base font-normal text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
             Faites de chaque achat<br /> un acte de générosité.<br /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
           </p>
         </div>
