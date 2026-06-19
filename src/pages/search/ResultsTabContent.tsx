@@ -236,7 +236,13 @@ export default function ResultsTabContent({
       }
       const header = document.querySelector<HTMLElement>('header');
       const headerH = header ? header.getBoundingClientRect().height : 53;
-      const y = el.getBoundingClientRect().top + window.scrollY - headerH - 4;
+      let top = 0;
+      let node: HTMLElement | null = el;
+      while (node) {
+        top += node.offsetTop;
+        node = node.offsetParent as HTMLElement | null;
+      }
+      const y = top - headerH - 4;
       window.scrollTo({ top: Math.max(0, y), behavior: "auto" });
     };
     doScroll();
