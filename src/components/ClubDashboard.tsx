@@ -751,13 +751,15 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                       <div key={promo.id} className="bg-muted/50 rounded-md p-2.5 border border-dashed border-primary/20">
                         <div className="flex items-center gap-1.5 mb-1">
                           <Tag className="h-3.5 w-3.5 text-primary" />
-                          <span className="text-xs font-semibold text-primary">
-                            {promo.type === "percentage"
-                              ? `-${promo.value}%`
-                              : `-${promo.value} ${promo.currency}`}
-                          </span>
+                          {promo.type && (
+                            <span className="text-xs font-semibold text-primary">
+                              {promo.type === "percentage"
+                                ? `-${promo.value}%`
+                                : `-${promo.value} ${promo.currency}`}
+                            </span>
+                          )}
                           {promo.title && (
-                            <span className="text-xs font-medium text-foreground truncate">— {promo.title}</span>
+                            <span className="text-xs font-medium text-foreground truncate">{promo.type ? "— " : ""}{promo.title}</span>
                           )}
                         </div>
                         {promo.message && (
