@@ -168,7 +168,10 @@ const PublicBusinessProfile = () => {
           from { opacity: 0; transform: translateY(34px); }
           to { opacity: 1; transform: none; }
         }
-        .b-rise { opacity: 0; animation: b-rise 1s forwards; }
+        .b-rise-item {
+          opacity: 0;
+          animation: b-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
         @keyframes shimmer-loop {
           0% {
