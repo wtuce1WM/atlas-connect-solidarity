@@ -62,6 +62,8 @@ interface PanelSearchBarProps {
   aiAnswerText?: string | null;
   /** Businesses pool matching aiAnswerText (for thumbnail resolution) */
   aiBusinesses?: any[] | null;
+  /** Indicates if search bar is placed inside a sliding panel */
+  isInsideSlidePanel?: boolean;
 }
 
 
@@ -74,7 +76,7 @@ const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<s
   return params;
 };
 
-const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses, isInsideSlidePanel }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const navigate = useNavigate();
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
@@ -348,16 +350,21 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
         </OverlayShell>
       )}
 
-      {(voice.status === "recording" || voice.status === "processing") && createPortal(
-        <VoiceSearchOverlay
-          isOpen
-          liveTranscript={voice.liveTranscript}
-          audioLevel={voice.audioLevel}
-          onClose={() => voice.toggleRecording()}
-          onFinish={() => voice.finishRecording()}
-        />,
-        document.body
-      )}
+      {(voice.status === "recording" || voice.status === "processing") && (() => {
+        const slidePanel = isInsideSlidePanel ? (document.querySelector('.slidepanel-container') || document.body) : document.body;
+        const mode = isInsideSlidePanel ? "slidepanel" : "halfscreen";
+        return createPortal(
+          <VoiceSearchOverlay
+            isOpen
+            liveTranscript={voice.liveTranscript}
+            audioLevel={voice.audioLevel}
+            onClose={() => voice.toggleRecording()}
+            onFinish={() => voice.finishRecording()}
+            layoutMode={mode}
+          />,
+          slidePanel
+        );
+      })()}
     </>
   );
 };

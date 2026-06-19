@@ -944,6 +944,7 @@ const VideoSlidePanel = ({
             <div className="pointer-events-auto">
               <PanelSearchBar
                 iconVariant="black"
+                isInsideSlidePanel={true}
                 onOverlayChange={setSearchOverlayOpen}
                 onAiClick={() => navigate("/search?tab=ai")}
                 onHashtagsOverlayChange={setHashtagsOverlayOpen}
