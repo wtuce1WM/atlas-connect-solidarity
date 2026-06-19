@@ -312,6 +312,11 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const accumulatedTranscriptRef = useRef<string>("");
   const pendingScribeStreamRef = useRef<MediaStream | null>(null);
   const pendingScribeAudioContextRef = useRef<AudioContext | null>(null);
+  // Fallback Android : on enregistre l'audio en parallèle de Web Speech API
+  // pour pouvoir le transcrire côté serveur (ElevenLabs Scribe) si Android STT échoue.
+  const fallbackRecorderRef = useRef<MediaRecorder | null>(null);
+  const fallbackStreamRef = useRef<MediaStream | null>(null);
+  const fallbackChunksRef = useRef<Blob[]>([]);
 
   // Garder les callbacks en ref pour éviter les problèmes de closure dans les handlers async
   const onTranscriptRef = useRef(onTranscript);
