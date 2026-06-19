@@ -474,38 +474,41 @@ const OfferRow = ({ promo, saving, onUpdate, onSave, onDelete, affiliateId, busi
               <Label className="flex items-center gap-1">
                 {promo.promotion_type === "percentage" ? (
                   <Percent className="h-3.5 w-3.5" />
-                ) : (
+                ) : promo.promotion_type === "fixed" ? (
                   <BadgeDollarSign className="h-3.5 w-3.5" />
-                )}
+                ) : null}
                 Type
               </Label>
               <Select
-                value={promo.promotion_type}
-                onValueChange={(v) => onUpdate({ promotion_type: v })}
+                value={promo.promotion_type || "none"}
+                onValueChange={(v) => onUpdate({ promotion_type: v === "none" ? "" : v })}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Aucun</SelectItem>
                   <SelectItem value="percentage">Pourcentage (%)</SelectItem>
                   <SelectItem value="fixed">Montant fixe</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>{promo.promotion_type === "percentage" ? "Réduction (%)" : "Montant"}</Label>
-              <Input
-                type="number"
-                min={0}
-                max={promo.promotion_type === "percentage" ? 100 : undefined}
-                value={promo.promotion_value}
-                onChange={(e) => onUpdate({ promotion_value: parseFloat(e.target.value) || 0 })}
-                placeholder={promo.promotion_type === "percentage" ? "Ex: 15" : "Ex: 200"}
-              />
-            </div>
+            {promo.promotion_type && (
+              <div className="space-y-2">
+                <Label>{promo.promotion_type === "percentage" ? "Réduction (%)" : "Montant"}</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={promo.promotion_type === "percentage" ? 100 : undefined}
+                  value={promo.promotion_value}
+                  onChange={(e) => onUpdate({ promotion_value: parseFloat(e.target.value) || 0 })}
+                  placeholder={promo.promotion_type === "percentage" ? "Ex: 15" : "Ex: 200"}
+                />
+              </div>
+            )}
             {promo.promotion_type === "fixed" && (
               <div className="space-y-2">
                 <Label>Devise</Label>
                 <Select
-                  value={promo.promotion_currency}
+                  value={promo.promotion_currency || "MAD"}
                   onValueChange={(v) => onUpdate({ promotion_currency: v })}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -517,6 +520,7 @@ const OfferRow = ({ promo, saving, onUpdate, onSave, onDelete, affiliateId, busi
               </div>
             )}
           </div>
+
 
           {/* Message */}
           <div className="space-y-2">
