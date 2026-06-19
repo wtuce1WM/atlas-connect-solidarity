@@ -269,6 +269,46 @@ const HomeMindtrip = () => {
   const inspirationRef = useRef<HTMLDivElement>(null);
   const inspirationTrackRef = useRef<HTMLDivElement>(null);
   const heroBgRef = useRef<HTMLImageElement>(null);
+  const heroSectionRef = useRef<HTMLElement>(null);
+
+  // Mouse + scroll parallax on hero (mirrors /corporate)
+  useEffect(() => {
+    const hero = heroSectionRef.current;
+    if (!hero) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let mx = 0, my = 0, tx = 0, ty = 0, sy = 0, ticking = false;
+    const update = () => {
+      tx += (mx - tx) * 0.08;
+      ty += (my - ty) * 0.08;
+      hero.style.setProperty('--mx', tx.toFixed(3));
+      hero.style.setProperty('--my', ty.toFixed(3));
+      hero.style.setProperty('--sy', sy.toFixed(3));
+      if (Math.abs(mx - tx) > 0.001 || Math.abs(my - ty) > 0.001) {
+        requestAnimationFrame(update);
+      } else ticking = false;
+    };
+    const kick = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    const onMove = (e: MouseEvent) => {
+      const r = hero.getBoundingClientRect();
+      mx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      my = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      kick();
+    };
+    const onLeave = () => { mx = 0; my = 0; kick(); };
+    const onScroll = () => {
+      const r = hero.getBoundingClientRect();
+      sy = Math.max(-1, Math.min(1, -r.top / r.height));
+      kick();
+    };
+    hero.addEventListener('mousemove', onMove);
+    hero.addEventListener('mouseleave', onLeave);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      hero.removeEventListener('mousemove', onMove);
+      hero.removeEventListener('mouseleave', onLeave);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const el = heroBgRef.current;
