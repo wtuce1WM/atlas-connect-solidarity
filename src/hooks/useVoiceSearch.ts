@@ -928,5 +928,14 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
   }, [status, startRecording, stopRecording]);
 
+  // Démarre/arrête le VU-mètre automatiquement selon le statut.
+  useEffect(() => {
+    if (status === "recording") {
+      void startAudioLevelMonitor();
+    } else {
+      stopAudioLevelMonitor();
+    }
+  }, [status, startAudioLevelMonitor, stopAudioLevelMonitor]);
+
   return { status, toggleRecording, finishRecording, liveTranscript, audioLevel };
 }
