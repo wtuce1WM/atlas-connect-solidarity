@@ -125,6 +125,7 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
                 />
               )}
             </div>
+            </div>
           );
         })}
       </div>
