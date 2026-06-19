@@ -928,5 +928,5 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
   }, [status, startRecording, stopRecording]);
 
-  return { status, toggleRecording, finishRecording, liveTranscript };
+  return { status, toggleRecording, finishRecording, liveTranscript, audioLevel };
 }
