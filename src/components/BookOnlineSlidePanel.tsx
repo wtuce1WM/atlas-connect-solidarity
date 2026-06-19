@@ -1542,63 +1542,67 @@ const BookOnlineSlidePanelInner = ({
                 </div>
               </div>
             )}
-            {woDescription ? (
-              <div className="mt-8 md:mt-0 slidepanel-plus-short relative z-[40]">
-                <button
-                  type="button"
-                  className="cursor-pointer group flex flex-col items-center gap-2 bg-transparent border-0 p-0"
-                  onClick={(e) => { e.stopPropagation(); setShowDescriptionOverlay(true); }}
-                  onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setShowDescriptionOverlay(true); }}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  onTouchMove={(e) => e.stopPropagation()}
-                  aria-label="Ouvrir la description"
-                >
-                  <div
-                    className="btn-shimmer relative w-12 h-12 rounded-full border border-white/30 flex items-center justify-center overflow-hidden backdrop-blur-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)] transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
-                    style={{ backgroundColor: 'rgba(37, 211, 102, 0.55)' }}
-                  >
-                    <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
-                    <span aria-hidden="true" className="pointer-events-none absolute top-0 left-1.5 right-1.5 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
-                    <span className="relative text-2xl text-white font-light leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">+</span>
-                  </div>
-                </button>
-              </div>
-            ) : (
-              <div className="mt-8 md:mt-0 slidepanel-plus-short invisible pointer-events-none" aria-hidden="true">
-                <div className="w-12 h-12" />
-              </div>
-            )}
-            {(() => {
-              const flipbookImages = (menuDocs || []).filter(
-                (d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)
-              );
-              if (flipbookImages.length > 0) {
-                return (
-                  <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 mt-20">
-                    {flipbookImages.map((d: any) => (
-                      <button
-                        key={d.id}
-                        onClick={() => openDocOrBooking(d.url, d.name || 'Document')}
-                        className="block rounded-xl overflow-hidden border-2 border-white/30 hover:border-gold transition-colors shadow-2xl"
-                        style={{ filter: "drop-shadow(0 4px 20px hsla(0,0%,0%,0.5))" }}
-                        aria-label={d.name || 'Flipbook'}
-                      >
-                        <img
-                          src={d.icon}
-                          alt={d.name || 'Flipbook'}
-                          className="block w-28 h-36 md:w-36 md:h-48 object-cover"
-                          loading="lazy"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                );
-              }
-              if (avgOn20 != null && totalReviewCount > 0) {
-                return (
-                  <>
-                    {null}
 
+            {/* Conteneur 1 : bouton + (Description) */}
+            <div className="flex items-center justify-center pointer-events-auto">
+              {woDescription ? (
+                <div className="mt-8 md:mt-0 slidepanel-plus-short relative z-[40]">
+                  <button
+                    type="button"
+                    className="cursor-pointer group flex flex-col items-center gap-2 bg-transparent border-0 p-0"
+                    onClick={(e) => { e.stopPropagation(); setShowDescriptionOverlay(true); }}
+                    onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setShowDescriptionOverlay(true); }}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchMove={(e) => e.stopPropagation()}
+                    aria-label="Ouvrir la description"
+                  >
+                    <div
+                      className="btn-shimmer relative w-12 h-12 rounded-full border border-white/30 flex items-center justify-center overflow-hidden backdrop-blur-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)] transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+                      style={{ backgroundColor: 'rgba(37, 211, 102, 0.55)' }}
+                    >
+                      <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
+                      <span aria-hidden="true" className="pointer-events-none absolute top-0 left-1.5 right-1.5 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
+                      <span className="relative text-2xl text-white font-light leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">+</span>
+                    </div>
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-8 md:mt-0 slidepanel-plus-short invisible pointer-events-none" aria-hidden="true">
+                  <div className="w-12 h-12" />
+                </div>
+              )}
+            </div>
+
+            {/* Conteneur 2 : flipbooks OU badge Avis clients */}
+            <div className="flex items-center justify-center pointer-events-auto">
+              {(() => {
+                const flipbookImages = (menuDocs || []).filter(
+                  (d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)
+                );
+                if (flipbookImages.length > 0) {
+                  return (
+                    <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 mt-20">
+                      {flipbookImages.map((d: any) => (
+                        <button
+                          key={d.id}
+                          onClick={() => openDocOrBooking(d.url, d.name || 'Document')}
+                          className="block rounded-xl overflow-hidden border-2 border-white/30 hover:border-gold transition-colors shadow-2xl"
+                          style={{ filter: "drop-shadow(0 4px 20px hsla(0,0%,0%,0.5))" }}
+                          aria-label={d.name || 'Flipbook'}
+                        >
+                          <img
+                            src={d.icon}
+                            alt={d.name || 'Flipbook'}
+                            className="block w-28 h-36 md:w-36 md:h-48 object-cover"
+                            loading="lazy"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  );
+                }
+                if (avgOn20 != null && totalReviewCount > 0) {
+                  return (
                     <div
                       key={`rating-${business?.id}`}
                       className="relative flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border border-white/30 cursor-pointer flex-wrap slidepanel-rating-short backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]"
@@ -1616,11 +1620,11 @@ const BookOnlineSlidePanelInner = ({
                         · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
                       </span>
                     </div>
-                  </>
-                );
-              }
-              return null;
-            })()}
+                  );
+                }
+                return null;
+              })()}
+            </div>
           </div>
         ) : null}
 
