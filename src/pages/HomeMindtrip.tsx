@@ -461,7 +461,7 @@ const HomeMindtrip = () => {
           {/* Title + Text Container (restricted to leave space for Mockup on Tablet, but wider than before) */}
           <div className="w-full md:max-lg:max-w-[75%] md:max-lg:mb-6">
             {/* Mobile Title - placed under the header in normal flow to avoid overlap */}
-            <h1 style={{ lineHeight: 1.2 }} className="md:hidden font-josefin text-[1.625rem] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
+            <h1 style={{ lineHeight: 1.2 }} className="md:hidden font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
               L’écosystème digital éthique & solidaire dédié à l'économie marocaine
             </h1>
 
