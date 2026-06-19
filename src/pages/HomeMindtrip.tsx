@@ -509,15 +509,19 @@ const HomeMindtrip = () => {
           }
         `}</style>
 
+        <div className="absolute left-0 right-0 top-14 z-30 px-6 text-center md:hidden">
+          <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] hero-rise">
+            L’écosystème digital éthique & solidaire dédié à l'économie marocaine
+          </h1>
+          <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="mt-6 max-w-2xl mx-auto font-roboto text-base font-normal text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] hero-rise">
+            Faites de chaque achat<br /> un acte de générosité.<br /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
+          </p>
+        </div>
+
         <div className="home-hero-content relative z-20 mx-auto flex min-h-[100dvh] md:min-h-[92svh] max-w-7xl flex-col items-center pb-28 text-center px-6 md:justify-center md:items-start lg:items-center md:text-left lg:text-center md:pt-24 md:pb-6 md:py-24 md:px-12 w-full">
           {/* Title + Text Container (restricted to leave space for Mockup on Tablet, but wider than before) */}
-          <div className="home-hero-copy w-full max-md:fixed max-md:left-0 max-md:right-0 max-md:top-14 max-md:px-6 md:max-lg:max-w-[75%] md:max-lg:mb-6">
+          <div className="home-hero-copy hidden w-full md:block md:max-lg:max-w-[75%] md:max-lg:mb-6">
             {/* Mobile Title - placed under the header in normal flow to avoid overlap */}
-            <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="md:hidden font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] hero-rise">
-              L’écosystème digital éthique & solidaire dédié à l'économie marocaine
-            </h1>
-
-            {/* Desktop Title - integrated in flex-col for perfect vertical centering */}
             <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2 hero-rise">
               L’écosystème digital éthique & solidaire dédié à l'économie marocaine
             </h1>
