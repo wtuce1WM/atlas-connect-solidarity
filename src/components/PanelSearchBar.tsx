@@ -284,38 +284,35 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
       )}
 
 
-      {/* Search overlay — covers toolbar */}
+      {/* Search overlay — fullscreen fixed (rendered outside the dock pill which is pointer-events-none) */}
       {searchOverlayOpen && (
-        <OverlayShell zClass="z-[90]" coverToolbar={false}>
-          <MobileSearchOverlay
-            open={searchOverlayOpen}
-            onClose={() => setOverlay(false)}
-            contained
-            onBusinessSelect={(bizId) => {
-              setAiOverlayOpen(false);
-              setOverlay(false);
-              onBusinessSelect?.(bizId);
-            }}
-            onSearch={(params) => {
-              setOverlay(false);
-              onSearch?.(params);
-            }}
-            onVoiceStart={handleVoiceStart}
-            onAiSuggestionClick={() => {
-              setAiOverlayOpen(true);
-            }}
-            geoState={{
-              isEnabled: geo.isEnabled,
-              isDetecting: geo.isDetecting,
-              detectedCity: geo.detectedCity,
-              detectedNeighborhood: geo.detectedNeighborhood,
-              confirmedAddress: geo.confirmedAddress,
-              accept: geo.accept,
-              toggle: geo.toggle,
-              setManualCity: geo.setManualCity,
-            }}
-          />
-        </OverlayShell>
+        <MobileSearchOverlay
+          open={searchOverlayOpen}
+          onClose={() => setOverlay(false)}
+          onBusinessSelect={(bizId) => {
+            setAiOverlayOpen(false);
+            setOverlay(false);
+            onBusinessSelect?.(bizId);
+          }}
+          onSearch={(params) => {
+            setOverlay(false);
+            onSearch?.(params);
+          }}
+          onVoiceStart={handleVoiceStart}
+          onAiSuggestionClick={() => {
+            setAiOverlayOpen(true);
+          }}
+          geoState={{
+            isEnabled: geo.isEnabled,
+            isDetecting: geo.isDetecting,
+            detectedCity: geo.detectedCity,
+            detectedNeighborhood: geo.detectedNeighborhood,
+            confirmedAddress: geo.confirmedAddress,
+            accept: geo.accept,
+            toggle: geo.toggle,
+            setManualCity: geo.setManualCity,
+          }}
+        />
       )}
 
       {/* AI Suggestion overlay — independent, can be triggered standalone */}
