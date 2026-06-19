@@ -285,15 +285,15 @@ const PublicBusinessProfile = () => {
 
           {business.description && (() => {
             const full = business.description;
-            const isLong = full.length > 300;
-            // Split on the nearest whitespace to avoid breaking a word (e.g. "D" | "es motifs…")
-            let cut = 300;
+            const isLong = full.length > 150;
+            // Split on the nearest whitespace to avoid breaking a word
+            let cut = 150;
             if (isLong) {
-              const nextSpace = full.indexOf(" ", 300);
-              const prevSpace = full.lastIndexOf(" ", 300);
+              const nextSpace = full.indexOf(" ", 150);
+              const prevSpace = full.lastIndexOf(" ", 150);
               const candidates = [nextSpace, prevSpace].filter((i) => i > 0);
               if (candidates.length) {
-                cut = candidates.reduce((a, b) => (Math.abs(b - 300) < Math.abs(a - 300) ? b : a));
+                cut = candidates.reduce((a, b) => (Math.abs(b - 150) < Math.abs(a - 150) ? b : a));
               }
             }
             const head = isLong ? full.slice(0, cut).trimEnd() : full;
