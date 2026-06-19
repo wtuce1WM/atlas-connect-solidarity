@@ -246,7 +246,7 @@ const Join = () => {
         <style>{CSS}</style>
 
 
-      <section ref={heroSectionRef} className="hero hero-parallax relative min-h-[92vh] w-full overflow-hidden flex items-start justify-center sm:items-center border-b border-white/10" style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }} aria-label="Rejoindre One World Morocco">
+      <section ref={heroSectionRef} className="hero hero-parallax relative min-h-[92vh] w-full overflow-hidden flex items-center justify-center border-b border-white/10" style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }} aria-label="Rejoindre One World Morocco">
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
           <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
@@ -306,7 +306,7 @@ const Join = () => {
           }
         `}</style>
 
-         <div className="hero-content relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 pt-6 pb-12 sm:py-24 flex flex-col items-center justify-start sm:justify-center text-center">
+         <div className="hero-content relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 pt-16 pb-12 sm:py-24 flex flex-col items-center justify-center text-center">
           <h1 style={{ fontFamily: "Montserrat, sans-serif", animationDelay: '.45s', animationFillMode: 'forwards' }} className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-[1.2] tracking-tight max-w-3xl text-[26px] sm:text-4xl md:text-5xl lg:text-6xl hero-rise">
             Rejoignez le premier écosystème numérique <span className="text-[#ffc008]">éthique & solidaire</span> au Maroc.
           </h1>
