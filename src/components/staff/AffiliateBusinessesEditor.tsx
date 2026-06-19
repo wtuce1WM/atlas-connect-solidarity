@@ -193,7 +193,7 @@ const AffiliateBusinessesEditor = ({ affiliate, onBack }: Props) => {
       title: promo.title || null,
       promotion_type: hasType ? promo.promotion_type : null,
       promotion_value: hasType ? promo.promotion_value : null,
-      promotion_currency: hasType && promo.promotion_type === "fixed" ? (promo.promotion_currency || "MAD") : null,
+      promotion_currency: promo.promotion_currency || "MAD",
       promotion_message: promo.promotion_message || null,
       savings_amount: promo.savings_amount,
       images: promo.images,
@@ -522,21 +522,19 @@ const OfferRow = ({ promo, saving, onUpdate, onSave, onDelete, affiliateId, busi
                 placeholder="Ex: 150"
               />
             </div>
-            {promo.promotion_type === "fixed" && (
-              <div className="space-y-2">
-                <Label>Devise</Label>
-                <Select
-                  value={promo.promotion_currency || "MAD"}
-                  onValueChange={(v) => onUpdate({ promotion_currency: v })}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MAD">MAD (Dirham)</SelectItem>
-                    <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label>Devise</Label>
+              <Select
+                value={promo.promotion_currency || "MAD"}
+                onValueChange={(v) => onUpdate({ promotion_currency: v })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MAD">MAD (Dirham)</SelectItem>
+                  <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
 
