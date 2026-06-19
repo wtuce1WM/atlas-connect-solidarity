@@ -474,7 +474,7 @@ const OfferRow = ({ promo, saving, onUpdate, onSave, onDelete, affiliateId, busi
           </div>
 
           {/* Type / value / currency */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-1">
                 {promo.promotion_type === "percentage" ? (
@@ -509,6 +509,19 @@ const OfferRow = ({ promo, saving, onUpdate, onSave, onDelete, affiliateId, busi
                 />
               </div>
             )}
+            <div className="space-y-2">
+              <Label>Économies</Label>
+              <Input
+                type="number"
+                min={0}
+                value={promo.savings_amount ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  onUpdate({ savings_amount: v === "" ? null : parseFloat(v) });
+                }}
+                placeholder="Ex: 150"
+              />
+            </div>
             {promo.promotion_type === "fixed" && (
               <div className="space-y-2">
                 <Label>Devise</Label>
