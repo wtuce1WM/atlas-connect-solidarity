@@ -40,11 +40,11 @@ const BusinessPromotionsList = ({ businessId }: Props) => {
   const multiple = promotions.length > 1;
 
   return (
-    <div className="w-full px-3 md:px-4 mt-3 mb-2">
+    <div className={`w-full mt-3 mb-2 overflow-hidden ${multiple ? "-mr-4 md:-mr-6" : ""}`}>
       <div
         className={
           multiple
-            ? "flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            ? "flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 pr-4 md:pr-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             : "flex flex-col gap-3"
         }
       >
