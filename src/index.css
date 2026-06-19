@@ -667,6 +667,10 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     padding-bottom: 0 !important;
   }
 
+  .home-hero-copy {
+    transform: translateY(-5rem) !important;
+  }
+
   .home-hero-content h1 {
     font-size: 1.625rem !important;
     line-height: 1.55 !important;
