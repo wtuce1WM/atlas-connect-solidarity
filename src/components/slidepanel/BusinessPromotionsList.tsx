@@ -57,17 +57,18 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
   const multiple = promotions.length > 1;
 
   return (
-    <div className="max-w-full mx-auto mt-3 mb-2 flex flex-col items-center">
-      <div className="relative grid w-full justify-items-center">
+    <div className="w-full mx-auto mt-3 mb-2 flex flex-col items-center">
+      <div className="relative w-full">
         {promotions.map((p, i) => {
           const active = i === index;
           const maxWClass = p.promotion_message ? "max-w-[90%]" : "max-w-[60%]";
+          const positionClass = i === 0 ? "relative" : "absolute inset-0";
           return (
+            <div className={`${positionClass} w-full flex justify-center`} key={p.id}>
             <div
-              key={p.id}
               aria-hidden={!active}
-              className={`w-fit ${maxWClass} justify-self-center rounded-xl border border-white/40 p-3 text-left transition-all duration-700 ease-out overflow-hidden ${
-                active ? "opacity-100 translate-y-0 scale-100 relative" : "opacity-0 translate-y-4 scale-[0.97] pointer-events-none"
+              className={`w-fit ${maxWClass} rounded-xl border border-white/40 p-3 text-left transition-all duration-700 ease-out overflow-hidden ${
+                active ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-[0.97] pointer-events-none"
               }`}
               style={{
                 gridArea: "1 / 1",
