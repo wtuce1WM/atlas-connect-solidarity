@@ -2896,26 +2896,26 @@ const BookOnlineSlidePanelInner = ({
           onClick={() => setShowWelcomePopup(false)}
         >
           <div
-            className="relative w-[88%] max-w-md max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-center"
+            className="relative w-[88%] max-w-lg max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-center"
             style={{ backgroundImage: `url(${(business as any).popup_image_url})` }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="absolute inset-0 bg-black/55 pointer-events-none" />
-            <div className="relative overflow-y-auto p-5 text-white">
+            <div className="relative overflow-y-auto p-6 text-white">
               {popupMeta.title && (
-                <h3 className="text-2xl font-bold leading-tight mb-3 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {popupMeta.title}
                 </h3>
               )}
               {popupMeta.description && (
-                <p className="text-sm leading-snug text-white/95 whitespace-pre-line">
+                <p className="text-base md:text-lg leading-relaxed text-white/98 font-medium whitespace-pre-line">
                   {popupMeta.description}
                 </p>
               )}
             </div>
             <button
               onClick={() => setShowWelcomePopup(false)}
-              className="absolute top-2 right-2 h-9 w-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors z-10"
+              className="absolute top-3 right-3 h-10 w-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors z-10"
               aria-label="Fermer"
             >
               <X className="h-5 w-5" />
