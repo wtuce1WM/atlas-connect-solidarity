@@ -191,20 +191,22 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
           aria-label="Partager"
         >
           <div
-            className="relative w-full max-w-md rounded-3xl text-foreground shadow-2xl p-6 animate-in zoom-in-95 fade-in-0"
+            className="relative w-[94%] sm:w-[90%] max-w-lg rounded-3xl text-foreground shadow-2xl p-6 animate-in zoom-in-95 fade-in-0"
             style={{ backgroundColor: "#CDBFA4" }}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Close Button */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="absolute top-3 right-3 h-10 w-10 flex items-center justify-center rounded-full bg-white hover:bg-neutral-100 text-black shadow-lg transition-colors z-10"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5 stroke-[2.5]" />
+            </button>
+
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 pr-12">
               <h2 className="text-lg font-semibold">Partager</h2>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
-                aria-label="Fermer"
-              >
-                <X className="h-4 w-4" />
-              </button>
             </div>
 
             {/* Preview card */}
