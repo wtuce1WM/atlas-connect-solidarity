@@ -5,11 +5,12 @@ interface Props {
   onClose: () => void;
   onFinish?: () => void;
   align?: "center" | "start";
+  audioLevel?: number;
 }
 
 const ACCENT = "#194CFF";
 
-const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center" }: Props) => {
+const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center", audioLevel = 0 }: Props) => {
   const isStart = align === "start";
   return (
     <div className={`w-full flex flex-col gap-6 py-6 ${isStart ? "items-start" : "items-center"}`}>
