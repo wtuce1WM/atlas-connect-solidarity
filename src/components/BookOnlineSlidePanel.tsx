@@ -1478,7 +1478,7 @@ const BookOnlineSlidePanelInner = ({
                   onTouchStart={(e) => e.stopPropagation()}
                 >
                   <ChevronUp className="h-3.5 w-3.5" />
-                  <span className="text-xs font-medium" style={{ fontFamily: "'Montserrat', sans-serif" }}>Afficher</span>
+                  <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Afficher</span>
                   <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
                 </button>
                 <div className="min-w-0" />
