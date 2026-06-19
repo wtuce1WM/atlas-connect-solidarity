@@ -2157,7 +2157,7 @@ const SearchPage = () => {
 
 
 
-  const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
+  const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript, audioLevel } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
       setAvailabilityRestrictedIds(null);
@@ -4564,6 +4564,7 @@ const SearchPage = () => {
                       {(refineVoice.status === "recording" || refineVoice.status === "processing") && (
                         <VoiceSearchPanel
                           liveTranscript={refineVoice.liveTranscript}
+                          audioLevel={refineVoice.audioLevel}
                           onClose={refineVoice.toggleRecording}
                           onFinish={refineVoice.finishRecording}
                           align="center"
@@ -5619,6 +5620,7 @@ const SearchPage = () => {
       <VoiceSearchOverlay
         isOpen={voiceStatus === "recording" || voiceStatus === "processing"}
         liveTranscript={liveTranscript}
+        audioLevel={audioLevel}
         onClose={() => toggleRecording()}
         onFinish={() => finishRecording()}
       />

@@ -354,6 +354,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
           <VoiceSearchOverlay
             isOpen
             liveTranscript={voice.liveTranscript}
+          audioLevel={voice.audioLevel}
             onClose={() => voice.toggleRecording()}
             onFinish={() => voice.finishRecording()}
             contained

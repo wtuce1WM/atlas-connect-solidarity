@@ -1034,6 +1034,7 @@ const HomeMindtrip = () => {
       <VoiceSearchOverlay
         isOpen={heroVoice.status === "recording" || heroVoice.status === "processing"}
         liveTranscript={heroVoice.liveTranscript}
+        audioLevel={heroVoice.audioLevel}
         onClose={heroVoice.toggleRecording}
         onFinish={heroVoice.finishRecording}
       />

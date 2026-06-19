@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 interface VoiceSearchOverlayProps {
   isOpen: boolean;
   liveTranscript: string;
+  /** Niveau audio 0..1 du micro pour animer le ring autour du bouton. */
+  audioLevel?: number;
   onClose: () => void;
   onFinish?: () => void;
   /** When true, use absolute positioning to stay contained within its parent element */
@@ -13,7 +15,7 @@ interface VoiceSearchOverlayProps {
 
 const ACCENT = "#194CFF";
 
-const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
+const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
   // Anti-rebond mobile : ignore les clics synthétisés (ghost click) durant les
   // premières 500ms après l'ouverture, sinon le tap sur le mic qui a déclenché
   // l'ouverture est rejoué sur les boutons de l'overlay et le referme aussitôt.
@@ -55,6 +57,17 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
       {/* Mic with liquid glass animated rings (perfectly centered in the viewport height) */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
         <div className="relative">
+          {/* Ring réactif au niveau audio du micro */}
+          <div
+            className="absolute rounded-full pointer-events-none transition-transform duration-75 ease-out"
+            style={{
+              inset: "-12px",
+              transform: `scale(${1 + audioLevel * 0.9})`,
+              background: `radial-gradient(circle, ${ACCENT}${Math.round(20 + audioLevel * 60).toString(16).padStart(2, "0")} 0%, transparent 70%)`,
+              border: `2px solid ${ACCENT}${Math.round(60 + audioLevel * 180).toString(16).padStart(2, "0").slice(0, 2)}`,
+              opacity: 0.5 + audioLevel * 0.5,
+            }}
+          />
           {/* Outer expanding glass ring */}
           <div
             className="absolute rounded-full animate-ping pointer-events-none backdrop-blur-2xl backdrop-saturate-150"
