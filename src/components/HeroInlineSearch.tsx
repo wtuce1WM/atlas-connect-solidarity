@@ -176,6 +176,7 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
       {!useMobileOverlay && (voice.status === "recording" || voice.status === "processing") && (
         <VoiceSearchPanel
           liveTranscript={voice.liveTranscript}
+          audioLevel={voice.audioLevel}
           onClose={voice.toggleRecording}
           onFinish={voice.finishRecording}
         />

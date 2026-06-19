@@ -4564,6 +4564,7 @@ const SearchPage = () => {
                       {(refineVoice.status === "recording" || refineVoice.status === "processing") && (
                         <VoiceSearchPanel
                           liveTranscript={refineVoice.liveTranscript}
+                          audioLevel={refineVoice.audioLevel}
                           onClose={refineVoice.toggleRecording}
                           onFinish={refineVoice.finishRecording}
                           align="center"
