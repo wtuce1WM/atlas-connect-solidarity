@@ -745,24 +745,36 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                     </AlertDialog>
                   </div>
                 </div>
-                {bk.promotion && (
-                  <div className="px-3 pb-3 pt-0">
-                    <div className="bg-muted/50 rounded-md p-2.5 border border-dashed border-primary/20">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <Tag className="h-3.5 w-3.5 text-primary" />
-                        <span className="text-xs font-semibold text-primary">
-                          {bk.promotion.type === "percentage"
-                            ? `-${bk.promotion.value}%`
-                            : `-${bk.promotion.value} ${bk.promotion.currency}`}
-                        </span>
+                {bk.promotions.length > 0 && (
+                  <div className="px-3 pb-3 pt-0 space-y-2">
+                    {bk.promotions.map((promo) => (
+                      <div key={promo.id} className="bg-muted/50 rounded-md p-2.5 border border-dashed border-primary/20">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Tag className="h-3.5 w-3.5 text-primary" />
+                          <span className="text-xs font-semibold text-primary">
+                            {promo.type === "percentage"
+                              ? `-${promo.value}%`
+                              : `-${promo.value} ${promo.currency}`}
+                          </span>
+                          {promo.title && (
+                            <span className="text-xs font-medium text-foreground truncate">— {promo.title}</span>
+                          )}
+                        </div>
+                        {promo.message && (
+                          <div
+                            className="text-xs text-muted-foreground prose prose-xs max-w-none [&_p]:m-0 [&_ul]:m-0 [&_li]:m-0"
+                            dangerouslySetInnerHTML={{ __html: promo.message }}
+                          />
+                        )}
+                        {promo.images.length > 0 && (
+                          <div className="mt-2 flex gap-1 overflow-x-auto">
+                            {promo.images.map((url) => (
+                              <img key={url} src={url} alt="" className="h-14 w-14 rounded object-cover flex-shrink-0" />
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      {bk.promotion.message && (
-                        <div
-                          className="text-xs text-muted-foreground prose prose-xs max-w-none [&_p]:m-0 [&_ul]:m-0 [&_li]:m-0"
-                          dangerouslySetInnerHTML={{ __html: bk.promotion.message }}
-                        />
-                      )}
-                    </div>
+                    ))}
                   </div>
                 )}
               </div>
