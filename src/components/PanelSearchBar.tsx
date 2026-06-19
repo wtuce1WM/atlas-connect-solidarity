@@ -348,17 +348,15 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
         </OverlayShell>
       )}
 
-      {(voice.status === "recording" || voice.status === "processing") && (
-        <OverlayShell zClass="z-[91]" coverToolbar={!noToolbarOffset}>
-          <VoiceSearchOverlay
-            isOpen
-            liveTranscript={voice.liveTranscript}
+      {(voice.status === "recording" || voice.status === "processing") && createPortal(
+        <VoiceSearchOverlay
+          isOpen
+          liveTranscript={voice.liveTranscript}
           audioLevel={voice.audioLevel}
-            onClose={() => voice.toggleRecording()}
-            onFinish={() => voice.finishRecording()}
-            contained
-          />
-        </OverlayShell>
+          onClose={() => voice.toggleRecording()}
+          onFinish={() => voice.finishRecording()}
+        />,
+        document.body
       )}
     </>
   );
