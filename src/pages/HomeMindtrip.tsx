@@ -1026,10 +1026,10 @@ const HomeMindtrip = () => {
                                 Étape {i + 1}
                               </span>
                             )}
-                            <h3 className="mt-3 font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
+                            <h3 className={`mt-3 font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] ${i === 3 ? "max-w-[55%] sm:max-w-[60%]" : ""}`}>
                               {s.title}
                             </h3>
-                            <div className="mt-3 md:mt-4 text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-base">
+                            <div className={`mt-3 md:mt-4 text-white/90 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] font-roboto text-base ${i === 3 ? "font-normal max-w-[55%] sm:max-w-[60%]" : "font-bold max-w-lg"}`}>
                               {renderDescWithCheckmarks(s.desc, true)}
                             </div>
                           </>
