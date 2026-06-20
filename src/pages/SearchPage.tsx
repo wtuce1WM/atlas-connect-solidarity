@@ -2157,7 +2157,7 @@ const SearchPage = () => {
 
 
 
-  const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript, audioLevel } = useVoiceSearch({
+  const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript, audioLevel, micReady: voiceMicReady } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
       setAvailabilityRestrictedIds(null);
@@ -4565,6 +4565,7 @@ const SearchPage = () => {
                         <VoiceSearchPanel
                           liveTranscript={refineVoice.liveTranscript}
                           audioLevel={refineVoice.audioLevel}
+                          micReady={refineVoice.micReady}
                           onClose={refineVoice.toggleRecording}
                           onFinish={refineVoice.finishRecording}
                           align="center"
@@ -5621,6 +5622,7 @@ const SearchPage = () => {
         isOpen={voiceStatus === "recording" || voiceStatus === "processing"}
         liveTranscript={liveTranscript}
         audioLevel={audioLevel}
+        micReady={voiceMicReady}
         onClose={() => toggleRecording()}
         onFinish={() => finishRecording()}
       />

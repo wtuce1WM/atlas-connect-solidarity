@@ -96,6 +96,7 @@ const Step2AssistantBlock = ({ stepLabel, title, description, onMobileSearchClic
           <VoiceSearchPanel
             liveTranscript={voice.liveTranscript}
           audioLevel={voice.audioLevel}
+          micReady={voice.micReady}
             onClose={voice.toggleRecording}
             onFinish={voice.finishRecording}
             align="start"

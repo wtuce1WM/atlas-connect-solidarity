@@ -6,12 +6,16 @@ interface Props {
   onFinish?: () => void;
   align?: "center" | "start";
   audioLevel?: number;
+  micReady?: boolean;
 }
 
 const ACCENT = "#194CFF";
 
-const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center", audioLevel = 0 }: Props) => {
+const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center", audioLevel = 0, micReady = true }: Props) => {
   const isStart = align === "start";
+  const hint = !micReady
+    ? "Attendez le signal sonore avant de parler"
+    : "Parlez maintenant";
   return (
     <div className={`w-full flex flex-col gap-6 py-6 ${isStart ? "items-start" : "items-center"}`}>
       {/* Transcript / hint */}
@@ -21,9 +25,10 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
         </p>
       ) : (
         <p className={`text-lg md:text-xl text-white/70 font-light ${isStart ? "text-left" : "text-center"}`}>
-          Je vous écoute…
+          {hint}
         </p>
       )}
+
 
       {/* Mic with liquid glass animated rings */}
       <div className="relative">

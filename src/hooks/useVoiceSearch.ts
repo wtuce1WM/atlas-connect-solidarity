@@ -307,6 +307,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const [liveTranscript, setLiveTranscript] = useState("");
   const [audioLevel, setAudioLevel] = useState(0);
+  const [micReady, setMicReady] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -546,6 +547,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       scribePartialRef.current = "";
       setLiveTranscript("");
       setStatus("recording");
+      setMicReady(true);
 
       if (!mediaStream) {
         mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -668,6 +670,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         scribePartialRef.current = "";
         setLiveTranscript("");
         setStatus("recording");
+        setMicReady(true);
 
         const audioContext = new AudioContext();
         void audioContext.resume();
@@ -714,6 +717,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     clearSilenceTimer();
     // Indicate immediately we're starting so UI shows feedback during warm-up
     setStatus("recording");
+    // Sur Android, on attend l'événement onstart (= signal sonore + micro ouvert)
+    // avant d'inviter à parler. Sur les autres plateformes, pas de signal sonore : prêt tout de suite.
+    setMicReady(!isAndroid());
 
     const recognition = new SpeechRecognitionAPI();
     recognition.lang = lang;
@@ -726,6 +732,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     recognition.onstart = () => {
       setStatus("recording");
       setLiveTranscript("");
+      setMicReady(true);
     };
 
     recognition.onresult = (event) => {
@@ -941,5 +948,10 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
   }, [status, startAudioLevelMonitor, stopAudioLevelMonitor]);
 
-  return { status, toggleRecording, finishRecording, liveTranscript, audioLevel };
+  // Réinitialise l'état "micro prêt" dès qu'on quitte l'enregistrement.
+  useEffect(() => {
+    if (status !== "recording") setMicReady(false);
+  }, [status]);
+
+  return { status, toggleRecording, finishRecording, liveTranscript, audioLevel, micReady };
 }

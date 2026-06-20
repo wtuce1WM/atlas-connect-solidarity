@@ -7,6 +7,8 @@ interface VoiceSearchOverlayProps {
   liveTranscript: string;
   /** Niveau audio 0..1 du micro pour animer le ring autour du bouton. */
   audioLevel?: number;
+  /** True quand le micro est réellement ouvert (Android: après le signal sonore). */
+  micReady?: boolean;
   onClose: () => void;
   onFinish?: () => void;
   /** When true, use absolute positioning to stay contained within its parent element */
@@ -15,7 +17,7 @@ interface VoiceSearchOverlayProps {
 
 const ACCENT = "#194CFF";
 
-const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
+const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, micReady = true, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
   // Anti-rebond mobile : ignore les clics synthétisés (ghost click) durant les
   // premières 500ms après l'ouverture, sinon le tap sur le mic qui a déclenché
   // l'ouverture est rejoué sur les boutons de l'overlay et le referme aussitôt.
@@ -49,7 +51,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, onClose, o
           </p>
         ) : (
           <p className="text-xl md:text-2xl text-black/70 font-bold text-center">
-            Je vous écoute…
+            {micReady ? "Parlez maintenant" : "Attendez le signal sonore avant de parler"}
           </p>
         )}
       </div>
