@@ -1,5 +1,5 @@
 import React from "react";
-import { ExternalLink, MapPin, CalendarCheck, ShoppingBag } from "lucide-react";
+import { ExternalLink, MapPin, CalendarCheck, ShoppingBag, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import { OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
