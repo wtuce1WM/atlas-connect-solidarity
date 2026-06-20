@@ -298,7 +298,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                     </div>
                   )}
                   <div className="w-full rounded-2xl bg-[#C9521E] py-3 px-4 text-center text-xs font-bold text-white shadow-md">
-                    Join on 1WM
+                    Un compte One World Morocco ?
                   </div>
                 </div>
               </div>
