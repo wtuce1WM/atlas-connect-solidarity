@@ -405,6 +405,7 @@ const ACTIVITES: BlogArticleEntry[] = [
       "Au cœur du Carré Eden, X-trem 360 a installé l'une des offres de divertissement les plus complètes de la ville : jeux d'aventures, laser-tag et escape-games en réalité virtuelle dès 6 ans (solo ou multijoueurs), simulateurs racing dynamiques à vérins, Multiball sport-gaming sur écran géant dès 4 ans.",
       "L'adresse parfaite pour les anniversaires d'ados, les après-midi pluvieuses ou les sorties multi-générations : il y a forcément une activité qui correspond à chaque âge.",
     ],
+  },
   {
     id: "3fa44f68-a554-4f61-8bd0-4d17eebfcb25",
     pretitle: "La Palmeraie, Marrakech",
