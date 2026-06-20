@@ -188,7 +188,7 @@ const PublicClubProfile = () => {
 
           {/* Identity + QR */}
           <div className="w-full flex items-center justify-center gap-4">
-            <div className="flex-1 text-left">
+            <div className="flex-1 text-center">
               <h1 className="text-2xl font-bold tracking-tight text-white">{displayName}</h1>
               {displayName !== profile.nickname && (
                 <p className="text-sm text-neutral-400 mt-0.5">@{profile.nickname}</p>
