@@ -575,7 +575,7 @@ const HomeMindtrip = () => {
       <div>
         <section 
           ref={heroSectionRef}
-          className="hero-parallax relative min-h-[100dvh] md:min-h-[92svh] w-full overflow-hidden"
+          className="home-hero-section hero-parallax relative min-h-[100dvh] md:min-h-[92svh] w-full overflow-hidden"
           style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }}
         >
         <picture>
@@ -636,6 +636,9 @@ const HomeMindtrip = () => {
           @media (prefers-reduced-motion: reduce) {
             section img[alt^="Application One World"] { animation: none !important; }
             .hero-parallax .home-hero-content { transform: none !important; }
+          }
+          @media (max-width: 767px) {
+            .home-hero-section .hero-search-ripple { display: none; }
           }
         `}</style>
 
@@ -722,7 +725,7 @@ const HomeMindtrip = () => {
         {/* Mobile-only video CTA placed absolutely below the search CTAs */}
         <div
           className="md:hidden absolute left-1/2 -translate-x-1/2 z-30 flex justify-center"
-          style={{ bottom: "calc(5.5rem + env(safe-area-inset-bottom, 0px))" }}
+          style={{ bottom: "calc(4.75rem + env(safe-area-inset-bottom, 0px))" }}
         >
           <button
             type="button"
