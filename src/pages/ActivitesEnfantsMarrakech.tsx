@@ -405,6 +405,16 @@ const ACTIVITES: BlogArticleEntry[] = [
       "Au cœur du Carré Eden, X-trem 360 a installé l'une des offres de divertissement les plus complètes de la ville : jeux d'aventures, laser-tag et escape-games en réalité virtuelle dès 6 ans (solo ou multijoueurs), simulateurs racing dynamiques à vérins, Multiball sport-gaming sur écran géant dès 4 ans.",
       "L'adresse parfaite pour les anniversaires d'ados, les après-midi pluvieuses ou les sorties multi-générations : il y a forcément une activité qui correspond à chaque âge.",
     ],
+  {
+    id: "3fa44f68-a554-4f61-8bd0-4d17eebfcb25",
+    pretitle: "La Palmeraie, Marrakech",
+    title: "Ava Bay Marrakech — le spot des mamans qui veulent souffler pendant que les enfants s'amusent",
+    hours: "Ouvert tous les jours — accès sur réservation, capacité maîtrisée pour préserver l'intimité.",
+    paragraphs: [
+      "C'est l'adresse qu'on attendait sans le savoir : un lieu pensé d'abord pour les mamans, où elles peuvent enfin profiter d'une vraie journée à elles — pool, spa, hammam, massages, padel, table méditerranéenne — pendant que leurs enfants vivent, juste à côté, leur propre journée d'aventures encadrée par des professionnels. Au cœur de La Palmeraie, face à l'Atlas, Ava Bay est le premier resort de jour 100 % féminin de luxe de Marrakech, et il a tout prévu pour que les mères viennent accompagnées sans rien céder à leur tranquillité.",
+      "Le club enfants, Ava Land, accueille les petits de 6 mois à 14 ans dans un espace dédié, complet et sécurisé : trampolines, terrain de football, PlayStation, jeux d'agilité, coin animalier et même un spa pour enfants. Tout y est conçu pour qu'ils s'occupent vraiment — pas juste pour les déposer, mais pour qu'ils repartent le soir fatigués, heureux, fiers de leur journée. Les encadrants sont formés, présents en continu, et la zone est pensée à l'échelle des enfants.",
+      "Pendant ce temps, les mamans profitent du domaine sans charge mentale : une piscine au centre d'un jardin centenaire, des protocoles de bien-être les plus avancés (hammam marocain, massages thaï privés, hydra facial coréen, head spa japonais), un salon de coiffure et d'ongles, un terrain de padel et la table d'Ava pour une vraie pause gourmande. C'est l'une des seules adresses de Marrakech où l'on peut, le même jour, déposer ses enfants entre de bonnes mains et vivre une journée qui ressemble à une parenthèse — exactement celle dont les mères ont besoin.",
+    ],
   },
 ];
 
