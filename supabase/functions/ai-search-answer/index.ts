@@ -468,8 +468,47 @@ serve(async (req) => {
       console.log(`Found ${knowledgeEntries.length} knowledge entries for query "${query}" (${businessIds.length} by business link)`);
     }
 
-    const businessContext = effectiveHasResults
-      ? effectiveBusinesses.map((b: any, i: number) => {
+    // Compute distance (km) from user to each business when geolocated.
+    const distanceFromUser: Record<string, number> = {};
+    if (hasUserCoords) {
+      const toRad = (d: number) => (d * Math.PI) / 180;
+      const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const R = 6371;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+        return 2 * R * Math.asin(Math.sqrt(a));
+      };
+      for (const b of effectiveBusinesses) {
+        if (b?.id && typeof b.latitude === "number" && typeof b.longitude === "number") {
+          distanceFromUser[b.id] = haversine(userCoords.lat, userCoords.lng, b.latitude, b.longitude);
+        }
+      }
+    }
+
+    // If a radius was specified and we have coords, filter the pool down to that radius.
+    const distanceFilteredBusinesses = (geoIntent && hasUserCoords && maxDistanceKm !== null)
+      ? effectiveBusinesses.filter((b: any) => {
+          const d = b?.id ? distanceFromUser[b.id] : undefined;
+          return typeof d === "number" && d <= (maxDistanceKm as number);
+        })
+      : effectiveBusinesses;
+
+    // If a "near me" intent without explicit radius, sort by ascending distance.
+    const renderBusinesses = (geoIntent && hasUserCoords)
+      ? [...distanceFilteredBusinesses].sort((a: any, b: any) => {
+          const da = a?.id ? distanceFromUser[a.id] : undefined;
+          const db = b?.id ? distanceFromUser[b.id] : undefined;
+          if (typeof da !== "number") return 1;
+          if (typeof db !== "number") return -1;
+          return da - db;
+        })
+      : effectiveBusinesses;
+
+    const effectiveHasRenderResults = renderBusinesses.length > 0;
+
+    const businessContext = effectiveHasRenderResults
+      ? renderBusinesses.map((b: any, i: number) => {
           const parts = [`${i + 1}. ${b.name}`];
           if (b.wtuce_status === "verified") parts.push(`[CONFIANCE]`);
           if (b.city) parts.push(`(${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""})`);
@@ -477,6 +516,11 @@ serve(async (req) => {
           if (b.main_category) parts.push(`— ${b.main_category}`);
           if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
           if (b.categories?.length) parts.push(`— Sous-catégories: ${b.categories.join(", ")}`);
+          const dist = b.id ? distanceFromUser[b.id] : undefined;
+          if (typeof dist === "number") {
+            const formatted = dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(dist < 10 ? 1 : 0)} km`;
+            parts.push(`— Distance depuis l'utilisateur: ${formatted}`);
+          }
           const enr = b.id ? enrichment[b.id] : undefined;
           if (enr?.description) parts.push(`— Description: ${enr.description}`);
           if (enr?.services?.length) parts.push(`— Services: ${enr.services.slice(0, 30).join(", ")}`);
@@ -494,7 +538,9 @@ serve(async (req) => {
           if (enr?.reviews?.length && !(b.id && reviewsDisabled.has(b.id))) parts.push(`— Avis clients: ${enr.reviews.join(" | ")}`);
           return parts.join(" ");
         }).join("\n")
-      : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)";
+      : (geoIntent && hasUserCoords && maxDistanceKm !== null
+          ? `(Aucun établissement trouvé dans un rayon de ${maxDistanceKm < 1 ? Math.round(maxDistanceKm * 1000) + " m" : maxDistanceKm + " km"} autour de la position de l'utilisateur)`
+          : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)");
 
     const langInstructions = language === "en"
       ? "Answer in English."
