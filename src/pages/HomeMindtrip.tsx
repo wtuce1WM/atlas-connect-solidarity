@@ -108,7 +108,7 @@ const InViewVideo = ({ src, className, controls = false }: { src: string; classN
     <div className={`relative ${className ?? ""}`}>
       <video ref={ref} src={src} muted loop playsInline preload="metadata" className="h-full w-full object-cover rounded-[inherit]" />
       {controls && (
-        <div className="absolute bottom-2 right-2 z-30 flex gap-1.5 pointer-events-auto">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-1.5 pointer-events-auto">
           <button
             type="button"
             onClick={togglePlay}
