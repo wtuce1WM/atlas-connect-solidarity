@@ -989,7 +989,7 @@ const HomeMindtrip = () => {
                                 </p>
                                 {i === 8 && (
                                   <div className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-base text-left">
-                                    Votre application direct-to-local dédiée au tourisme et à la vie quotidienne au Maroc.
+                                    {"\n"}
                                   </div>
                                 )}
                                 <div className="flex justify-start">
@@ -1243,14 +1243,14 @@ const STEPS = [
   },
   {
     title: "Composez votre voyage",
-    desc: "Construisez votre itinéraire, suivez les établissements qui vous intéressent, gardez les points d'intérêts dans votre compte, soyez informé des bons plans, agenda, annonces...",
+    desc: "- Construisez votre itinéraire\n- Suivez les établissements qui vous intéressent\n- Gardez les points d'intérêts dans votre compte\n- Soyez informé des bons plans, agenda, annonces...",
     cta: "Inscrivez-vous",
     href: "/club",
     icon: Compass,
   },
   {
     title: "Offres sélectionnées. Prix locaux.",
-    desc: "Réductions exclusives sur séjours, visites, restaurants, commerces, activités, services et plus pour les utilisateurs de notre application.",
+    desc: "Votre application direct-to-local dédiée au tourisme et à la vie quotidienne au Maroc.\n\nRéductions exclusives sur :\n- Séjours\n- Visites\n- Restaurants\n- Commerces\n- Activités\n- Services\n\nPour les utilisateurs de notre application.",
     cta: "Voir les offres",
     href: "/search?badge=reduction",
     icon: Percent,
