@@ -938,12 +938,13 @@ const HomeMindtrip = () => {
                       )}
                       {i === 3 && (
                         <>
-                           {/* Background image with parallax (fixed attachment) — same params as step 8 */}
-                            <div
-                              aria-hidden="true"
-                              className="absolute inset-0 bg-cover bg-center bg-fixed"
-                              style={{ backgroundImage: `url(${destinationsMapAsset.url})` }}
-                            />
+                            {/* Background image — uses <img> for iOS Safari compatibility (bg-fixed is ignored on iOS) */}
+                             <img
+                               aria-hidden="true"
+                               src={destinationsMapAsset.url}
+                               alt=""
+                               className="absolute inset-0 h-full w-full object-cover md:bg-fixed"
+                             />
                            <div className="absolute inset-0 bg-white/80" />
                             {/* Floating phone mockup on the right (tablet/desktop) */}
                             <div className="pointer-events-none absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-[5] hidden sm:block">
@@ -956,11 +957,12 @@ const HomeMindtrip = () => {
                       )}
                       {i === 8 && (
                         <>
-                           {/* Background image with parallax (fixed attachment) — all devices */}
-                           <div
+                           {/* Background image — uses <img> for iOS Safari compatibility (bg-fixed is ignored on iOS) */}
+                           <img
                              aria-hidden="true"
-                             className="absolute inset-0 bg-cover bg-center bg-fixed"
-                             style={{ backgroundImage: `url(${heroImageMobile})` }}
+                             src={heroImageMobile}
+                             alt=""
+                             className="absolute inset-0 h-full w-full object-cover"
                            />
                            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
                            <style>{`
