@@ -1159,14 +1159,14 @@ const STEPS = [
   },
   {
     title: "Offres sélectionnées. Prix locaux.",
-    desc: "Jusqu'à 20 % de réduction sur séjours, visites, restaurants, commerces, services et plus. Uniquement avec des commerces locaux.",
+    desc: "Réductions exclusives sur séjours, visites, restaurants, commerces, services et plus pour les utilisateurs de notre application.",
     cta: "Voir les offres",
     href: "/search?badge=reduction",
     icon: Percent,
   },
   {
     title: "Pépites cachées, expériences inoubliables",
-    desc: "Découvrez des adresses d'exception, épinglez-les, visitez-les. Soyez informé des bons plans, agenda, annonces...",
+    desc: "Découvrez des adresses d'exception, épinglez-les, partagez-les, visitez-les, notez-les.",
     cta: "Explorer",
     href: "/search",
     icon: Sparkles,
