@@ -105,8 +105,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
   const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null; sort_order: number; metric_title: string | null; metric_value: string | null }[]>([]);
   const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null }>({ title: null, intro: null });
-  const [searchOverlayActive, setSearchOverlayActive] = useState(false);
-  const [hashtagsOverlayActive, setHashtagsOverlayActive] = useState(false);
+
 
 
   const videoRef = useRef<HTMLVideoElement>(null);
