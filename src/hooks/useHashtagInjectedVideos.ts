@@ -213,7 +213,11 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
       ((genLinksRes.data as any[]) || []).forEach((l: any) => {
         const g = genById.get(l.generic_video_id);
         const label = labelByBadgeId.get(l.badge_id);
-        if (!g || !label || !g.url) return;
+        if (!g || !label) return;
+        // URL exploitable : url principale, sinon fallback sur les URLs de vidéo par plateforme.
+        const effectiveUrl: string | null =
+          g.url || g.instagram_video_url || g.tiktok_video_url || g.youtube_video_url || null;
+        if (!effectiveUrl) return;
         const ownerId = firstOwnerByGeneric[g.id] || null;
         const igAcc = (g.instagram_account || "").replace(/^@+/, "");
         const ttAcc = (g.tiktok_account || "").replace(/^@+/, "");
@@ -242,11 +246,11 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
         if (!ownerId) {
           const accLower = account.toLowerCase();
           if (!accLower || !EXTERNAL_ACCOUNT_WHITELIST.has(accLower)) return;
-          if (isYoutubeLongFormat(g.url)) return;
+          if (isYoutubeLongFormat(effectiveUrl)) return;
         }
 
         buckets[label].push({
-          videoUrl: g.url,
+          videoUrl: effectiveUrl,
           videoId: null,
           isGeneric: true,
           owner,
