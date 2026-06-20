@@ -186,9 +186,14 @@ h1, h2, h3 {
   letter-spacing: 0.02em;
 }
 
+html {
+  background-color: #3B3B3B;
+}
+
 body {
   font-family: 'Avenir Next', 'Avenir', 'Nunito Sans', system-ui, sans-serif;
   letter-spacing: 0.02em;
+  background-color: #3B3B3B;
 }
 
 .rich-price-html {
