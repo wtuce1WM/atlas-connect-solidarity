@@ -864,20 +864,20 @@ const HomeMindtrip = () => {
                    className="relative overflow-hidden w-full h-full rounded-2xl md:rounded-3xl p-4 md:p-10 border border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] flex flex-col justify-between"
                    style={{ backgroundColor: "#F1F1F1" }}
                  >
-                   {i === 7 && (
-                     <>
-                       <div
-                         aria-hidden="true"
-                         className="absolute inset-0 bg-fixed bg-no-repeat"
-                         style={{ 
-                           backgroundImage: `url(${poiMapAsset.url})`,
-                           backgroundSize: "auto 150%",
-                           backgroundPosition: "15% center"
-                         }}
-                       />
-                       <div className="absolute inset-0 bg-white/55" />
-                     </>
-                   )}
+                    {i === 7 && (
+                      <>
+                        <div
+                          aria-hidden="true"
+                          className="absolute inset-0 bg-fixed bg-no-repeat"
+                          style={{ 
+                            backgroundImage: `url(${poiMapAsset.url})`,
+                            backgroundSize: "auto 150%",
+                            backgroundPosition: "15% center"
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" />
+                      </>
+                    )}
                   {(i === 1 || i === 2 || i === 4 || i === 5 || i === 7) && (
                     <div className="w-full mb-6 relative z-10">
                       <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
