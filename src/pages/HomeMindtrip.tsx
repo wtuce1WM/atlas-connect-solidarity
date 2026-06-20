@@ -879,9 +879,9 @@ const HomeMindtrip = () => {
                       )}
                       {i === 7 && (
                         <>
-                           {/* Background zellige — all devices */}
+                           {/* Background image — all devices */}
                            <img
-                             src={zelligeMobileAsset.url}
+                             src={heroImageMobile}
                              alt=""
                              className="absolute inset-0 h-full w-full object-cover"
                            />
