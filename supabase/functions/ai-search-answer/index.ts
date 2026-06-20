@@ -463,6 +463,24 @@ serve(async (req) => {
       ? `\n- MODE DESTINATIONS : Présente les destinations fournies de façon inspirante et détaillée. Pour chaque destination, décris brièvement ce qui la rend unique (paysages, activités, culture). Cite jusqu'à 10 destinations par leur nom exact entouré de **doubles astérisques**.`
       : '';
 
+    // Detect if the user is asking about opening hours / time availability
+    // (across current query + recent history) → instruct the model to surface
+    // each cited business's hours explicitly.
+    const hoursHaystack = [
+      query,
+      ...(Array.isArray(history)
+        ? history
+            .filter((m: any) => m && typeof m.content === "string")
+            .slice(-6)
+            .map((m: any) => m.content)
+        : []),
+    ].join(" \n ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const HOURS_RE = /\b(ouvert|ouverts?|ouverte?s?|ferme|fermes?|fermee?s?|fermeture|ouverture|horaires?|heures?|tard|tot|matin|midi|apres[- ]?midi|soir|soiree|nuit|minuit|aube|tot le matin|tard le soir|24\s*\/?\s*24|24h|non[- ]?stop|dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi|week[- ]?end|jour ferie|jours feries|open|opens|opened|closing|closes|hours?|late|early|night|midnight|morning|evening|noon|afternoon|weekend|sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/;
+    const focusHours = HOURS_RE.test(hoursHaystack);
+    const hoursInstruction = focusHours && effectiveHasResults && !mode
+      ? `\n- FOCUS HORAIRES : La demande porte sur les horaires / la disponibilité (créneau, ouvert tard, tôt, week-end, nuit, etc.). Pour CHAQUE établissement cité, indique EXPLICITEMENT ses horaires (en gras avec **) tels que fournis dans le champ "Horaires", et mets clairement en avant ceux qui correspondent au créneau demandé. Si les horaires d'un établissement ne couvrent pas le créneau demandé, ne le cite pas. Si aucun établissement ne correspond, dis-le honnêtement.`
+      : '';
+
     const systemPrompt = `${persona}
 
 RÈGLES :
