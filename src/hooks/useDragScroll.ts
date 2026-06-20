@@ -92,15 +92,14 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
     };
 
     const onWheel = (e: WheelEvent) => {
-      // If the user is scrolling horizontally natively (trackpad), let the browser handle it.
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      if (e.deltaY === 0) return;
       if (el.scrollWidth <= el.clientWidth) return;
+      // Use the dominant axis: trackpads send deltaX for horizontal swipes,
+      // mouse wheels send deltaY. Both scroll this container horizontally.
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (delta === 0) return;
       stopMomentum();
-      // Use 'auto' (instant) to avoid fighting CSS scroll-snap and to prevent
-      // rapid scroll-behavior thrashing on consecutive wheel ticks.
       el.style.scrollBehavior = "auto";
-      el.scrollLeft += e.deltaY;
+      el.scrollLeft += delta;
       e.preventDefault();
     };
 
