@@ -104,29 +104,30 @@ const InViewVideo = ({ src, className, controls = false }: { src: string; classN
     el.muted = !el.muted;
     setIsMuted(el.muted);
   };
+  if (!controls) {
+    return <video ref={ref} src={src} muted loop playsInline preload="metadata" className={className} />;
+  }
   return (
     <div className={`relative ${className ?? ""}`}>
       <video ref={ref} src={src} muted loop playsInline preload="metadata" className="h-full w-full object-cover rounded-[inherit]" />
-      {controls && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-1.5 pointer-events-auto">
-          <button
-            type="button"
-            onClick={togglePlay}
-            aria-label={isPlaying ? "Pause" : "Play"}
-            className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
-          >
-            {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-          </button>
-          <button
-            type="button"
-            onClick={toggleMute}
-            aria-label={isMuted ? "Activer le son" : "Couper le son"}
-            className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
-          >
-            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-          </button>
-        </div>
-      )}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-1.5 pointer-events-auto">
+        <button
+          type="button"
+          onClick={togglePlay}
+          aria-label={isPlaying ? "Pause" : "Play"}
+          className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
+        >
+          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+        </button>
+        <button
+          type="button"
+          onClick={toggleMute}
+          aria-label={isMuted ? "Activer le son" : "Couper le son"}
+          className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
+        >
+          {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+        </button>
+      </div>
     </div>
   );
 };
@@ -932,7 +933,7 @@ const HomeMindtrip = () => {
                         <div className="absolute inset-0 bg-white/80" />
                       </>
                     )}
-                  {(i === 1 || i === 2 || i === 4 || i === 5 || i === 7) && (
+                  {(i === 1 || i === 2 || i === 3 || i === 4 || i === 5 || i === 7) && (
                     <div className="w-full mb-6 relative z-10">
                       <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
                       Étape {i + 1}
@@ -943,7 +944,7 @@ const HomeMindtrip = () => {
                     </div>
                   )}
 
-                  {(i === 1 || i === 2 || i === 4 || i === 5 || i === 7) ? (
+                  {(i === 1 || i === 2 || i === 3 || i === 4 || i === 5 || i === 7) ? (
                     <div className="relative z-10 flex flex-col gap-4 md:gap-6 flex-1 justify-between">
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         <div className="flex-1 lg:max-w-[60%]">
@@ -959,6 +960,9 @@ const HomeMindtrip = () => {
                             )}
                             {i === 2 && (
                               <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
+                            )}
+                            {i === 3 && (
+                              <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 4 && (
                               <img src="/__l5e/assets-v1/61f1aae7-ac0f-446f-a27b-61c9cfb7a03e/business-card1.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
@@ -989,25 +993,6 @@ const HomeMindtrip = () => {
                           src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/6eab7b31-bda9-43d5-8c8b-4f972e5bb8bd-1774600396740-3cbxw.mp4"
                           className="absolute inset-0 h-full w-full object-cover"
                         />
-                      )}
-                      {i === 3 && (
-                        <>
-                            {/* Background image — uses <img> for iOS Safari compatibility (bg-fixed is ignored on iOS) */}
-                             <img
-                               aria-hidden="true"
-                               src={destinationsMapAsset.url}
-                               alt=""
-                               className="absolute inset-0 h-full w-full object-cover md:bg-fixed"
-                             />
-                           <div className="absolute inset-0 bg-white/80" />
-                            {/* Floating phone mockup on the right (tablet/desktop) */}
-                            <div className="pointer-events-none absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-[5] hidden sm:block">
-                              <div className="relative h-[220px] md:h-[260px] lg:h-[340px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.55)] overflow-hidden">
-                                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20" />
-                                <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
-                              </div>
-                            </div>
-                        </>
                       )}
                       {i === 8 && (
                         <>
@@ -1081,7 +1066,7 @@ const HomeMindtrip = () => {
                                 src={iphoneTabletMockupAsset.url}
                                 alt=""
                                 aria-hidden="true"
-                                className="step9-float pointer-events-none select-none absolute bottom-[150px] sm:bottom-[-16px] right-[-10%] sm:right-[-15%] h-[75%] sm:h-[95%] md:h-[115%] w-auto object-contain object-bottom z-0 drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
+                                className="step9-float pointer-events-none select-none absolute bottom-[150px] sm:bottom-[-16px] right-[-10%] sm:right-[-5%] h-[75%] sm:h-[55%] md:h-[65%] w-auto object-contain object-bottom z-0 drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
                               />
                             </div>
                           </div>
