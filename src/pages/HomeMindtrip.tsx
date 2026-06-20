@@ -939,7 +939,17 @@ const HomeMindtrip = () => {
                           aria-hidden="true"
                           src={destinationsMapAsset.url}
                           alt=""
-                          className="absolute inset-0 h-full w-full object-cover"
+                          className="absolute inset-0 h-full w-full object-cover hidden md:block"
+                        />
+                        <div
+                          aria-hidden="true"
+                          className="absolute inset-0 bg-cover bg-center md:bg-fixed md:hidden"
+                          style={{ backgroundImage: `url(${destinationsMapAsset.url})` }}
+                        />
+                        <div
+                          aria-hidden="true"
+                          className="absolute inset-0 hidden md:block bg-cover bg-center bg-fixed"
+                          style={{ backgroundImage: `url(${destinationsMapAsset.url})` }}
                         />
                         <div className="absolute inset-0 bg-white/80" />
                       </>
