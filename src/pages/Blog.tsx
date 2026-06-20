@@ -552,7 +552,7 @@ const Blog = () => {
                           Beach Clubs à Marrakech
                         </h2>
                         <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                          Onze beach clubs autour de la ville ocre — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes.
+                          Douze beach clubs autour de la ville ocre — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes.
                         </p>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 text-primary font-medium">
