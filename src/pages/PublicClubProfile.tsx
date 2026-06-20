@@ -5,6 +5,7 @@ import { Globe, MapPin, Mail, Phone } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import NotFound from "@/pages/NotFound";
 import ShareButton from "@/components/ShareButton";
+import HScroll from "@/components/HScroll";
 import { useSEO } from "@/hooks/useSEO";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 
@@ -217,7 +218,7 @@ const PublicClubProfile = () => {
           )}
 
           {/* Social icons row */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          <HScroll className="mt-6 w-full flex flex-nowrap items-center justify-center gap-4 overflow-x-auto scrollbar-none pb-1">
             {socials.map((s) => {
               const v = profile[s.kind] as string | null;
               if (!v) return null;
@@ -228,13 +229,13 @@ const PublicClubProfile = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="hover:scale-110 transition-transform"
+                  className="hover:scale-110 transition-transform shrink-0"
                 >
                   {SOCIAL_ICONS[s.kind as string]}
                 </a>
               );
             })}
-          </div>
+          </HScroll>
 
           {/* Link buttons */}
           <div className="w-full mt-8 space-y-3">
