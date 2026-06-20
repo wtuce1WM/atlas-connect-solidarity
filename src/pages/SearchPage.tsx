@@ -4521,7 +4521,8 @@ const SearchPage = () => {
                               : "Affinez votre demande"
                           }
                           disabled={aiChatLoading}
-                          className="flex-1 min-h-[44px] max-h-32 resize-none rounded-2xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-50"
+                          className="flex-1 min-h-[44px] max-h-32 resize-none rounded-2xl border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-50 text-black placeholder:text-zinc-500"
+                          style={{ backgroundColor: "#F1F1F1" }}
                         />
                         <button
                           type="submit"
