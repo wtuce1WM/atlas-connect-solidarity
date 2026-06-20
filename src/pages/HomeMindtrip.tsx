@@ -769,9 +769,6 @@ const HomeMindtrip = () => {
               >
                 {i === 0 ? (
                   <div>
-                    <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
-                      Étape {i + 1}
-                    </span>
                     <h3 className="mt-3 font-josefin text-3xl font-light tracking-tight text-foreground md:text-4xl">
                       {s.title}
                     </h3>
@@ -991,10 +988,7 @@ const HomeMindtrip = () => {
                     )}
                   {(i === 1 || i === 2 || i === 3 || i === 4 || i === 5 || i === 7) && (
                     <div className="w-full mb-6 relative z-10">
-                      <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
-                      Étape {i + 1}
-                      </span>
-                      <h3 className="mt-3 font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight text-black">
+                      <h3 className="font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight text-black">
                         {s.title}
                       </h3>
                     </div>
@@ -1075,13 +1069,6 @@ const HomeMindtrip = () => {
                       <div className={`relative z-10 w-full h-full flex flex-col ${i === 8 ? "min-h-[300px] md:min-h-[400px] justify-between" : ""}`}>
                         {i === 8 ? (
                           <div className="flex flex-col items-start w-full h-full flex-1">
-                            {/* Step Badge */}
-                            <div className="mt-0 mb-3">
-                              <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
-                                Étape {i + 1}
-                              </span>
-                            </div>
-
                             {/* Title — full width, on top */}
                             <h3 className="font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] text-left w-full">
                               {s.title}
@@ -1128,12 +1115,7 @@ const HomeMindtrip = () => {
                           </div>
                         ) : (
                           <>
-                            {i !== 8 && (
-                              <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
-                                Étape {i + 1}
-                              </span>
-                            )}
-                            <h3 className={`mt-3 font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight ${i === 3 ? "text-black" : "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"}`}>
+                            <h3 className={`font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight ${i === 3 ? "text-black" : "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"}`}>
                               {s.title}
                             </h3>
                             <div className={`${i === 3 ? "text-black/90 font-roboto text-base" : "text-white/90 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] font-roboto text-base"} ${i === 3 ? "mt-6 md:mt-8 font-normal max-w-full sm:max-w-[60%]" : "mt-3 md:mt-4 font-bold max-w-lg"}`}>
