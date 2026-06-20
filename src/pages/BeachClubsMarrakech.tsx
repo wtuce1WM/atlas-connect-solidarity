@@ -135,6 +135,17 @@ const BEACH_CLUBS: BlogArticleEntry[] = [
       "Les enfants ne sont pas oubliés — ils sont au contraire tendrement accueillis dans Ava Land, un club dédié de 6 mois à 14 ans, encadré par des professionnels : trampolines, terrain de football, PlayStation, jeux d'agilité, coin animalier et même un spa pour enfants. Pendant qu'ils s'épanouissent, les mères profitent vraiment du domaine — pool, spa, padel, restaurant — sans charge mentale. Une renaissance, à la fois intime et complète, comme Marrakech n'en proposait pas encore.",
     ],
   },
+  {
+    id: "04eea891-a682-44a5-87b5-f4beeef5a3db",
+    pretitle: "Marrakech, à l'écart des animations",
+    title: "Mango Zen Pool & Restaurant — détente et gastronomie autour d'une piscine de 40 mètres",
+    hours: "Ouvert du jeudi au mardi, de 10h00 à 20h00 (fermé le mercredi). Piscine bleu azur de 40 m, deux jacuzzis, jardin, terrasse.",
+    paragraphs: [
+      "« Détente et gastronomie, l'art de vivre au Mango Zen Pool. » La signature dit tout : niché dans un cadre paisible et verdoyant, loin des animations, le Mango Zen Pool & Restaurant cultive l'art du retrait. On y entre comme dans un havre — jardin luxuriant, piscine bleu azur de quarante mètres qui file droit entre les beds, atmosphère qui mêle fraîcheur et zénitude dès la première arrivée.",
+      "La journée se construit au rythme de chacun : on lit un livre au soleil, on sirote un cocktail rafraîchissant, on s'installe dans l'un des larges beds pour ne plus en bouger. La carte joue une fusion de saveurs internationales et exotiques — salades, omelettes, viandes, burgers, poissons, fruits de mer, coquillages, crustacés, plats végétariens, glaces et sorbets — pensée pour surprendre et ravir sans casser le calme du lieu. Le chef exécutif Ichou résume l'esprit : « Chaque plat est une invitation à l'évasion, mêlant saveurs exotiques et internationales dans un cadre paisible et raffiné. »",
+      "Et pour prolonger la journée, deux jacuzzis attendent en soirée : on s'y installe au coucher du soleil, on se laisse bercer par la quiétude des lieux, on étire la parenthèse aussi longtemps que possible. Le Mango se privatise aussi pour des événements de petite et moyenne taille, avec ou sans restauration — un format rare pour celles et ceux qui cherchent une oasis intime à Marrakech, à mille lieues de l'effervescence des pool parties.",
+    ],
+  },
 ];
 
 const BeachClubsMarrakech = () => (
@@ -142,13 +153,13 @@ const BeachClubsMarrakech = () => (
     entries={BEACH_CLUBS}
     articlePath="/blog/beach-clubs-marrakech"
     articleTitle="Beach Clubs à Marrakech"
-    articleDescription="Douze beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau."
+    articleDescription="Treize beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives, oasis zen et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau."
     bookmarkSlug="beach-clubs-marrakech"
     heroAlt="Beach Clubs à Marrakech"
     heroTitleTop="Les Beach Clubs"
     heroTitleBottom="de Marrakech"
-    heroSubtitle="Douze adresses autour de la ville ocre — du beldi chic au club international, de la piscine 100 % femmes à la pool party XXL — pour vivre Marrakech au bord de l'eau."
-    intro="Marrakech n'a pas la mer, mais elle a inventé son propre rapport à l'eau : à quelques minutes des remparts, sur la route de l'Ourika ou celle d'Agadir, une constellation de beach clubs prolonge la ville ocre en oasis. On y vient pour une journée pass, un déjeuner les pieds presque dans l'eau, un cocktail signé d'un mixologue, un DJ set qui monte avec le soleil — ou simplement pour souffler, à l'ombre des oliviers, loin de l'effervescence de la médina. Voici nos douze adresses, du plus intimiste au plus festif."
+    heroSubtitle="Treize adresses autour de la ville ocre — du beldi chic au club international, de la piscine 100 % femmes à la pool party XXL — pour vivre Marrakech au bord de l'eau."
+    intro="Marrakech n'a pas la mer, mais elle a inventé son propre rapport à l'eau : à quelques minutes des remparts, sur la route de l'Ourika ou celle d'Agadir, une constellation de beach clubs prolonge la ville ocre en oasis. On y vient pour une journée pass, un déjeuner les pieds presque dans l'eau, un cocktail signé d'un mixologue, un DJ set qui monte avec le soleil — ou simplement pour souffler, à l'ombre des oliviers, loin de l'effervescence de la médina. Voici nos treize adresses, du plus intimiste au plus festif."
     datePublished="2026-06-13T08:00:00+01:00"
   />
 );
