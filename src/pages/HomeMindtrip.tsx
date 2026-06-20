@@ -1176,6 +1176,7 @@ const HotelAvailabilityWidget = () => {
  
   const fieldCls = "rounded-md border border-border/40 bg-white px-3 py-1.5 font-roboto text-sm text-black !text-black md:py-2 [color-scheme:light] [-webkit-text-fill-color:#000]";
   const labelCls = "flex flex-col gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white md:text-xs";
+  const fieldStyle = { color: "#000", WebkitTextFillColor: "#000", opacity: 1, colorScheme: "light" } as React.CSSProperties;
 
   return (
     <form
@@ -1184,7 +1185,7 @@ const HotelAvailabilityWidget = () => {
     >
       <label className={`${labelCls} sm:col-span-2`}>
         Destination
-        <select value={city} onChange={(e) => setCity(e.target.value)} className={fieldCls}>
+        <select value={city} onChange={(e) => setCity(e.target.value)} className={fieldCls} style={fieldStyle}>
           <option value="Marrakech">Marrakech</option>
           <option value="Essaouira">Essaouira</option>
         </select>
@@ -1204,6 +1205,7 @@ const HotelAvailabilityWidget = () => {
             }
           }}
           className={fieldCls}
+          style={fieldStyle}
         />
       </label>
       <label className={labelCls}>
@@ -1214,11 +1216,12 @@ const HotelAvailabilityWidget = () => {
           min={checkIn}
           onChange={(e) => setCheckOut(e.target.value)}
           className={fieldCls}
+          style={fieldStyle}
         />
       </label>
       <label className={`${labelCls} sm:col-span-2`}>
         Adultes
-        <select value={adults} onChange={(e) => setAdults(e.target.value)} className={fieldCls}>
+        <select value={adults} onChange={(e) => setAdults(e.target.value)} className={fieldCls} style={fieldStyle}>
           {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
       </label>
