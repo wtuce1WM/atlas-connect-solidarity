@@ -615,10 +615,13 @@ const BookOnlineSlidePanelInner = ({
   useEffect(() => {
     const saved = savedUrlRef.current;
     return () => {
-      // Only restore the saved URL if it was cosmetically rewritten (i.e. we're
-      // no longer on /search). If the user navigated to a new /search URL
-      // (e.g. via the Hashtags overlay), keep that navigation intact.
-      if (window.location.pathname !== "/search") {
+      // Only restore the saved URL if the current path is a cosmetically-
+      // rewritten one (/fiche/ or /destination/). If the user navigated
+      // somewhere else entirely (home, /club, /test, etc.), respect that
+      // navigation and do NOT overwrite it with the previous /search URL.
+      const currentPath = window.location.pathname;
+      const isCosmetic = currentPath.startsWith("/fiche/") || currentPath.startsWith("/destination/");
+      if (isCosmetic) {
         window.history.replaceState(null, "", saved);
       }
     };
