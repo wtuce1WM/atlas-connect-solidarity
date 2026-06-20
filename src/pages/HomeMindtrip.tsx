@@ -957,11 +957,12 @@ const HomeMindtrip = () => {
                       )}
                       {i === 8 && (
                         <>
-                           {/* Background image with parallax (fixed attachment) — all devices */}
-                           <div
+                           {/* Background image — uses <img> for iOS Safari compatibility (bg-fixed is ignored on iOS) */}
+                           <img
                              aria-hidden="true"
-                             className="absolute inset-0 bg-cover bg-center bg-fixed"
-                             style={{ backgroundImage: `url(${heroImageMobile})` }}
+                             src={heroImageMobile}
+                             alt=""
+                             className="absolute inset-0 h-full w-full object-cover"
                            />
                            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
                            <style>{`
