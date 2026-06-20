@@ -285,11 +285,7 @@ const BlogArticleTemplate = ({
 
   return (
     <div className="min-h-screen bg-background">
-      <div
-        className={`transition-[padding] duration-300 ease-out ${
-          openBusinessId && !isClosing ? "lg:pr-[50vw]" : ""
-        }`}
-      >
+      <div>
 
       <HomeMindtripHeader alwaysWhite />
 
@@ -548,7 +544,7 @@ const BlogArticleTemplate = ({
 
       {openBusinessId && (
         <div
-          className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:w-1/2 ${isClosing ? "animate-slide-out-right" : "animate-slide-in-right"}`}
+          className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col transform-gpu will-change-transform lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:w-1/2 ${isClosing ? "animate-slide-out-right" : "animate-slide-in-right"}`}
           style={{ height: "100dvh" }}
         >
 
