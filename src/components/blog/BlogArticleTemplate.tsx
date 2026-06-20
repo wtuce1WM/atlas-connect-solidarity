@@ -1,8 +1,7 @@
-import { ReactNode, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
-import { businessUrl } from "@/lib/businessUrl";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +12,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
+
+const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 export interface BlogArticleBusiness {
   id: string;
