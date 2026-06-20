@@ -576,9 +576,15 @@ serve(async (req) => {
     ].join(" \n ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const HOURS_RE = /\b(ouvert|ouverts?|ouverte?s?|ferme|fermes?|fermee?s?|fermeture|ouverture|horaires?|heures?|tard|tot|matin|midi|apres[- ]?midi|soir|soiree|nuit|minuit|aube|tot le matin|tard le soir|24\s*\/?\s*24|24h|non[- ]?stop|dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi|week[- ]?end|jour ferie|jours feries|open|opens|opened|closing|closes|hours?|late|early|night|midnight|morning|evening|noon|afternoon|weekend|sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/;
     const focusHours = HOURS_RE.test(hoursHaystack);
-    const hoursInstruction = focusHours && effectiveHasResults && !mode
+    const hoursInstruction = focusHours && effectiveHasRenderResults && !mode
       ? `\n- FOCUS HORAIRES : La demande porte sur les horaires / la disponibilité (créneau, ouvert tard, tôt, week-end, nuit, etc.). Pour CHAQUE établissement cité, indique EXPLICITEMENT ses horaires (en gras avec **) tels que fournis dans le champ "Horaires", et mets clairement en avant ceux qui correspondent au créneau demandé. Si les horaires d'un établissement ne couvrent pas le créneau demandé, ne le cite pas. Si aucun établissement ne correspond, dis-le honnêtement.`
       : '';
+
+    const geoInstruction = geoIntent && hasUserCoords && effectiveHasRenderResults && !mode
+      ? `\n- FOCUS PROXIMITÉ : L'utilisateur recherche par rapport à SA position (géolocalisée). La liste fournie est déjà triée par distance croissante depuis l'utilisateur et chaque établissement indique son champ "Distance depuis l'utilisateur". ${maxDistanceKm !== null ? `Cite UNIQUEMENT les établissements situés dans un rayon de ${maxDistanceKm < 1 ? Math.round(maxDistanceKm * 1000) + " m" : maxDistanceKm + " km"} (déjà filtrés dans la liste).` : `Privilégie clairement les plus proches.`} Pour CHAQUE établissement cité, indique la distance en gras (ex. **à 850 m**, **à 2,3 km**) après son nom. Si aucun établissement n'est suffisamment proche, dis-le honnêtement et propose d'élargir le rayon.`
+      : (geoIntent && hasUserCoords && !effectiveHasRenderResults && !mode
+        ? `\n- AUCUN RÉSULTAT À PROXIMITÉ : ${maxDistanceKm !== null ? `Aucun établissement dans un rayon de ${maxDistanceKm < 1 ? Math.round(maxDistanceKm * 1000) + " m" : maxDistanceKm + " km"} autour de la position de l'utilisateur.` : "Aucun établissement proche de la position de l'utilisateur."} Dis-le clairement et propose d'élargir la zone de recherche.`
+        : '');
 
     const systemPrompt = `${persona}
 
