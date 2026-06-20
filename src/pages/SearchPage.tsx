@@ -383,6 +383,8 @@ const SearchPage = () => {
 
   const categoryFromUrl = searchParams.get("category") || "";
   
+  const geo = useGeolocation();
+
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
   // Previous AI text kept visible while a new one regenerates (subcategory/city change)
@@ -804,6 +806,8 @@ const SearchPage = () => {
         main_category: b.main_category,
         categories: b.categories, services: b.services, engagements: b.engagements,
         hook_fr: b.hook_fr, hook_en: b.hook_en, wtuce_status: b.wtuce_status,
+        latitude: (b as any).latitude ?? null,
+        longitude: (b as any).longitude ?? null,
       });
       const baseBusinesses = poolForAi.slice(0, 200).map(toAiPayload);
       const baseIds = new Set(baseBusinesses.map((b) => b.id));
@@ -812,12 +816,17 @@ const SearchPage = () => {
         .map(toAiPayload);
       const businesses = [...baseBusinesses, ...nearbyBusinessesPayload];
 
+      const userCoordsPayload = geo.isEnabled && geo.coords
+        ? { lat: geo.coords.lat, lng: geo.coords.lng }
+        : undefined;
+
       const { data, error } = await supabase.functions.invoke("ai-search-answer", {
         body: {
           query: q,
           businesses,
           language,
           history: nextHistory,
+          userCoords: userCoordsPayload,
           nearbyContext: nearbyEntityResults.length > 0 ? {
             entity: nearbyEntityTerm,
             anchorNames: nearbyAnchorNames.slice(0, 8),
@@ -850,7 +859,7 @@ const SearchPage = () => {
     } finally {
       setAiChatLoading(false);
     }
-  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, aiRefinementSpokenText, aiInlineBusinessPool]);
+  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, aiRefinementSpokenText, aiInlineBusinessPool, geo.isEnabled, geo.coords]);
 
   // Demo mode: when ?demo=<followup> is present, wait for the initial AI answer,
   // then auto-submit the follow-up question once as a refinement turn.
@@ -1816,7 +1825,7 @@ const SearchPage = () => {
     },
   });
   const toggleRecordingRef = useRef<(() => void) | null>(null);
-  const geo = useGeolocation();
+  // `geo` est déclaré plus haut (proche du state AI) pour être accessible aux callbacks IA.
 
   // Auto-select city from geolocation when geo is enabled and no city is explicitly set
   useEffect(() => {
@@ -4422,17 +4431,28 @@ const SearchPage = () => {
                                 </div>
                                 {m.clarify && m.clarify.options.length > 0 && (
                                   <div className="flex flex-wrap gap-2">
-                                    {m.clarify.options.map((opt) => (
-                                      <button
-                                        key={opt.id}
-                                        type="button"
-                                        onClick={() => submitAiRefinement(opt.text)}
-                                        disabled={aiChatLoading}
-                                        className="rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs sm:text-sm px-3 py-1.5 transition-colors disabled:opacity-50"
-                                      >
-                                        {opt.label}
-                                      </button>
-                                    ))}
+                                    {m.clarify.options.map((opt) => {
+                                      const isGeoEnable = m.clarify?.type === "geolocate" && opt.id === "enable_geo";
+                                      return (
+                                        <button
+                                          key={opt.id}
+                                          type="button"
+                                          onClick={() => {
+                                            if (isGeoEnable) {
+                                              geo.accept();
+                                              // Laisse au hook le temps de récupérer les coords avant de relancer
+                                              setTimeout(() => submitAiRefinement(opt.text), 800);
+                                            } else {
+                                              submitAiRefinement(opt.text);
+                                            }
+                                          }}
+                                          disabled={aiChatLoading}
+                                          className="rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs sm:text-sm px-3 py-1.5 transition-colors disabled:opacity-50"
+                                        >
+                                          {isGeoEnable ? "📍 " : ""}{opt.label}
+                                        </button>
+                                      );
+                                    })}
                                   </div>
                                 )}
                                 {(() => {

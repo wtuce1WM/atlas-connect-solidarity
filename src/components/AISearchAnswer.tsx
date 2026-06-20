@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo, ReactNode } from "react";
 import { MapPin, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 
@@ -30,6 +31,8 @@ interface BusinessData {
   getyourguide_review_count?: number | null;
   viator_rating?: number | null;
   viator_review_count?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface AISearchAnswerProps {
@@ -271,6 +274,7 @@ const parseInline = (
 
 const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady, externalRegenerateKey }: AISearchAnswerProps) => {
   const { language } = useLanguage();
+  const geo = useGeolocation();
   const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -281,8 +285,9 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const fetchKey = useMemo(() => {
     if (!query || !businesses.length) return "";
     const names = businesses.slice(0, 10).map(b => b.name).join("|");
-    return `${query}::${names}::${regenerateCount}::${externalRegenerateKey ?? 0}`;
-  }, [query, businesses, externalRegenerateKey]);
+    const geoKey = geo.isEnabled && geo.coords ? `${geo.coords.lat.toFixed(3)},${geo.coords.lng.toFixed(3)}` : "no-geo";
+    return `${query}::${names}::${regenerateCount}::${externalRegenerateKey ?? 0}::${geoKey}`;
+  }, [query, businesses, externalRegenerateKey, geo.isEnabled, geo.coords]);
 
   useEffect(() => {
     setIsDismissed(false);
@@ -320,6 +325,10 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
           return aMatch - bMatch;
         });
 
+        const userCoordsPayload = geo.isEnabled && geo.coords
+          ? { lat: geo.coords.lat, lng: geo.coords.lng }
+          : undefined;
+
         const { data, error: fnError } = await supabase.functions.invoke("ai-search-answer", {
           body: {
             query,
@@ -331,8 +340,11 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
               categories: b.categories,
               hook_fr: b.hook_fr,
               wtuce_status: b.wtuce_status,
+              latitude: b.latitude ?? null,
+              longitude: b.longitude ?? null,
             })),
             language,
+            userCoords: userCoordsPayload,
             vary: (regenerateCount + (externalRegenerateKey ?? 0)) > 0 ? regenerateCount + (externalRegenerateKey ?? 0) : undefined,
           },
         });

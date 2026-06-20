@@ -13,7 +13,60 @@ serve(async (req) => {
   }
 
   try {
-    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext } = await req.json();
+    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext, userCoords } = await req.json();
+
+    // --- Geolocation intent detection ---
+    // "près de moi", "autour de moi", "à moins de X km", "dans un rayon de Y m", etc.
+    const geoHaystack = [
+      query,
+      ...(Array.isArray(history)
+        ? history.filter((m: any) => m && typeof m.content === "string").slice(-4).map((m: any) => m.content)
+        : []),
+    ].join(" \n ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const NEAR_ME_RE = /\b(pres\s+de\s+moi|aupres\s+de\s+moi|autour\s+de\s+moi|a\s+cote\s+de\s+moi|a\s+proximite\s+de\s+moi|ma\s+position|ma\s+localisation|near\s+me|around\s+me|close\s+to\s+me|next\s+to\s+me|nearby\s+me)\b/;
+    const RADIUS_RE = /(?:a\s+moins\s+de|moins\s+de|dans\s+un\s+rayon\s+de|rayon\s+de|within|less\s+than|under)\s+(\d+(?:[\.,]\d+)?)\s*(km|kms|kilom[eè]tres?|m|metres?|meters?|miles?|mi)\b/;
+    const nearMeIntent = NEAR_ME_RE.test(geoHaystack);
+    const radiusMatch = geoHaystack.match(RADIUS_RE);
+    let maxDistanceKm: number | null = null;
+    if (radiusMatch) {
+      const value = parseFloat(radiusMatch[1].replace(",", "."));
+      const unit = radiusMatch[2];
+      if (/^m(etres?|eters?)?$/.test(unit)) maxDistanceKm = value / 1000;
+      else if (/^miles?$|^mi$/.test(unit)) maxDistanceKm = value * 1.609344;
+      else maxDistanceKm = value;
+    }
+    const geoIntent = nearMeIntent || maxDistanceKm !== null;
+    const hasUserCoords = !!(userCoords && typeof userCoords.lat === "number" && typeof userCoords.lng === "number");
+
+    // Si l'utilisateur exprime une intention de proximité physique mais que sa position
+    // n'est pas connue → on demande l'autorisation de géolocalisation côté UI.
+    if (geoIntent && !hasUserCoords) {
+      const isEn = language === "en";
+      return new Response(
+        JSON.stringify({
+          answer: "",
+          clarify: {
+            type: "geolocate",
+            question: isEn
+              ? "I need your location to find what's closest. Enable geolocation?"
+              : "J'ai besoin de votre position pour trouver ce qui est le plus proche. Activer la géolocalisation ?",
+            options: [
+              {
+                id: "enable_geo",
+                label: isEn ? "Enable geolocation" : "Activer la géolocalisation",
+                text: query,
+              },
+              {
+                id: "skip_geo",
+                label: isEn ? "Skip — search the whole area" : "Ignorer — chercher dans toute la zone",
+                text: `${query} ${isEn ? "(anywhere in the current search area)" : "(partout dans la zone de recherche actuelle)"}`,
+              },
+            ],
+          },
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     if (!query) {
       return new Response(JSON.stringify({ answer: "" }), {
@@ -415,8 +468,47 @@ serve(async (req) => {
       console.log(`Found ${knowledgeEntries.length} knowledge entries for query "${query}" (${businessIds.length} by business link)`);
     }
 
-    const businessContext = effectiveHasResults
-      ? effectiveBusinesses.map((b: any, i: number) => {
+    // Compute distance (km) from user to each business when geolocated.
+    const distanceFromUser: Record<string, number> = {};
+    if (hasUserCoords) {
+      const toRad = (d: number) => (d * Math.PI) / 180;
+      const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const R = 6371;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+        return 2 * R * Math.asin(Math.sqrt(a));
+      };
+      for (const b of effectiveBusinesses) {
+        if (b?.id && typeof b.latitude === "number" && typeof b.longitude === "number") {
+          distanceFromUser[b.id] = haversine(userCoords.lat, userCoords.lng, b.latitude, b.longitude);
+        }
+      }
+    }
+
+    // If a radius was specified and we have coords, filter the pool down to that radius.
+    const distanceFilteredBusinesses = (geoIntent && hasUserCoords && maxDistanceKm !== null)
+      ? effectiveBusinesses.filter((b: any) => {
+          const d = b?.id ? distanceFromUser[b.id] : undefined;
+          return typeof d === "number" && d <= (maxDistanceKm as number);
+        })
+      : effectiveBusinesses;
+
+    // If a "near me" intent without explicit radius, sort by ascending distance.
+    const renderBusinesses = (geoIntent && hasUserCoords)
+      ? [...distanceFilteredBusinesses].sort((a: any, b: any) => {
+          const da = a?.id ? distanceFromUser[a.id] : undefined;
+          const db = b?.id ? distanceFromUser[b.id] : undefined;
+          if (typeof da !== "number") return 1;
+          if (typeof db !== "number") return -1;
+          return da - db;
+        })
+      : effectiveBusinesses;
+
+    const effectiveHasRenderResults = renderBusinesses.length > 0;
+
+    const businessContext = effectiveHasRenderResults
+      ? renderBusinesses.map((b: any, i: number) => {
           const parts = [`${i + 1}. ${b.name}`];
           if (b.wtuce_status === "verified") parts.push(`[CONFIANCE]`);
           if (b.city) parts.push(`(${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""})`);
@@ -424,6 +516,11 @@ serve(async (req) => {
           if (b.main_category) parts.push(`— ${b.main_category}`);
           if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
           if (b.categories?.length) parts.push(`— Sous-catégories: ${b.categories.join(", ")}`);
+          const dist = b.id ? distanceFromUser[b.id] : undefined;
+          if (typeof dist === "number") {
+            const formatted = dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(dist < 10 ? 1 : 0)} km`;
+            parts.push(`— Distance depuis l'utilisateur: ${formatted}`);
+          }
           const enr = b.id ? enrichment[b.id] : undefined;
           if (enr?.description) parts.push(`— Description: ${enr.description}`);
           if (enr?.services?.length) parts.push(`— Services: ${enr.services.slice(0, 30).join(", ")}`);
@@ -441,7 +538,9 @@ serve(async (req) => {
           if (enr?.reviews?.length && !(b.id && reviewsDisabled.has(b.id))) parts.push(`— Avis clients: ${enr.reviews.join(" | ")}`);
           return parts.join(" ");
         }).join("\n")
-      : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)";
+      : (geoIntent && hasUserCoords && maxDistanceKm !== null
+          ? `(Aucun établissement trouvé dans un rayon de ${maxDistanceKm < 1 ? Math.round(maxDistanceKm * 1000) + " m" : maxDistanceKm + " km"} autour de la position de l'utilisateur)`
+          : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)");
 
     const langInstructions = language === "en"
       ? "Answer in English."
@@ -449,12 +548,8 @@ serve(async (req) => {
         ? "Answer in Arabic."
         : "Réponds en français.";
 
-    const noResultsInstructions = !effectiveHasResults
-      ? `\n- ${noResultsCfg || "Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles."}
-- IMPORTANT : Ne cite AUCUN nom d'établissement spécifique. Tu ne connais pas notre annuaire, donc n'invente pas de noms. Donne uniquement des conseils généraux sur la thématique ou la destination.
-- Si la recherche mentionne une ville marocaine, partage ce que tu sais sur cette ville en rapport avec la requête.
-- Propose à l'utilisateur d'affiner sa recherche ou de chercher avec d'autres mots-clés.`
-      : `\n- Si la liste contient peu de résultats (1-2), complète ta réponse avec des conseils généraux sur la destination/thématique pour enrichir l'expérience.`;
+    // noResultsInstructions est désormais inliné directement dans le prompt
+    // pour pouvoir s'appuyer sur effectiveHasRenderResults (post-filtre proximité).
 
     // Build mode-specific prompt overrides for POI / Destinations tabs
     const modeInstructions = mode === "poi"
@@ -477,26 +572,35 @@ serve(async (req) => {
     ].join(" \n ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const HOURS_RE = /\b(ouvert|ouverts?|ouverte?s?|ferme|fermes?|fermee?s?|fermeture|ouverture|horaires?|heures?|tard|tot|matin|midi|apres[- ]?midi|soir|soiree|nuit|minuit|aube|tot le matin|tard le soir|24\s*\/?\s*24|24h|non[- ]?stop|dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi|week[- ]?end|jour ferie|jours feries|open|opens|opened|closing|closes|hours?|late|early|night|midnight|morning|evening|noon|afternoon|weekend|sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/;
     const focusHours = HOURS_RE.test(hoursHaystack);
-    const hoursInstruction = focusHours && effectiveHasResults && !mode
+    const hoursInstruction = focusHours && effectiveHasRenderResults && !mode
       ? `\n- FOCUS HORAIRES : La demande porte sur les horaires / la disponibilité (créneau, ouvert tard, tôt, week-end, nuit, etc.). Pour CHAQUE établissement cité, indique EXPLICITEMENT ses horaires (en gras avec **) tels que fournis dans le champ "Horaires", et mets clairement en avant ceux qui correspondent au créneau demandé. Si les horaires d'un établissement ne couvrent pas le créneau demandé, ne le cite pas. Si aucun établissement ne correspond, dis-le honnêtement.`
       : '';
+
+    const geoInstruction = geoIntent && hasUserCoords && effectiveHasRenderResults && !mode
+      ? `\n- FOCUS PROXIMITÉ : L'utilisateur recherche par rapport à SA position (géolocalisée). La liste fournie est déjà triée par distance croissante depuis l'utilisateur et chaque établissement indique son champ "Distance depuis l'utilisateur". ${maxDistanceKm !== null ? `Cite UNIQUEMENT les établissements situés dans un rayon de ${maxDistanceKm < 1 ? Math.round(maxDistanceKm * 1000) + " m" : maxDistanceKm + " km"} (déjà filtrés dans la liste).` : `Privilégie clairement les plus proches.`} Pour CHAQUE établissement cité, indique la distance en gras (ex. **à 850 m**, **à 2,3 km**) après son nom. Si aucun établissement n'est suffisamment proche, dis-le honnêtement et propose d'élargir le rayon.`
+      : (geoIntent && hasUserCoords && !effectiveHasRenderResults && !mode
+        ? `\n- AUCUN RÉSULTAT À PROXIMITÉ : ${maxDistanceKm !== null ? `Aucun établissement dans un rayon de ${maxDistanceKm < 1 ? Math.round(maxDistanceKm * 1000) + " m" : maxDistanceKm + " km"} autour de la position de l'utilisateur.` : "Aucun établissement proche de la position de l'utilisateur."} Dis-le clairement et propose d'élargir la zone de recherche.`
+        : '');
 
     const systemPrompt = `${persona}
 
 RÈGLES :
 - ${langInstructions}
 - Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.
-- Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${modeInstructions || (effectiveHasResults ? `
+- Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${modeInstructions || (effectiveHasRenderResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
 - Cite jusqu'à 10 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.).
 - CRITIQUE : Écris chaque nom EXACTEMENT comme dans la liste fournie, caractère pour caractère (mêmes accents, majuscules, ponctuation). N'ajoute JAMAIS de suffixe, de ville, de quartier, de parenthèses, de tiret descriptif, ni d'article ("Le", "La", "Restaurant", etc.) qui ne figure pas dans le nom original. Pas de reformulation, pas de traduction du nom.
-- Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : '')}${boostVerified && effectiveHasResults && !mode ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${!mode ? noResultsInstructions : ''}
+- Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : '')}${boostVerified && effectiveHasRenderResults && !mode ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${!mode && !effectiveHasRenderResults ? `\n- ${noResultsCfg || "Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles."}
+- IMPORTANT : Ne cite AUCUN nom d'établissement spécifique. Tu ne connais pas notre annuaire, donc n'invente pas de noms. Donne uniquement des conseils généraux sur la thématique ou la destination.
+- Si la recherche mentionne une ville marocaine, partage ce que tu sais sur cette ville en rapport avec la requête.
+- Propose à l'utilisateur d'affiner sa recherche ou de chercher avec d'autres mots-clés.` : (!mode ? `\n- Si la liste contient peu de résultats (1-2), complète ta réponse avec des conseils généraux sur la destination/thématique pour enrichir l'expérience.` : '')}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - Entoure chaque nom de doubles astérisques, par exemple **Nom**.
 - FORMATAGE : Utilise du markdown riche pour structurer ta réponse. Gras (**texte**), italique (*texte*), listes à puces (- item), listes numérotées (1. item), et sauts de paragraphe. Pas de titres (#). Structure bien ta réponse avec des paragraphes et des listes quand c'est pertinent.
 - Commence par une phrase d'accroche engageante liée à la recherche, puis laisse DEUX lignes vides avant de continuer avec les recommandations.
 - ${tone}
-- Commence par une accroche engageante liée à la recherche de l'utilisateur.${hoursInstruction}${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}${vary ? `\n- IMPORTANT : L'utilisateur demande une suggestion DIFFÉRENTE (tentative #${vary}). Change l'angle d'approche, l'ordre de présentation, le style d'accroche et mets en avant des établissements différents ou des aspects différents. Sois créatif et surprenant.` : ''}${isRefinement && topicChange ? `\n- CHANGEMENT DE SUJET DÉTECTÉ : La nouvelle question de l'utilisateur porte sur un lieu ou un sujet qui n'est PAS représenté dans la liste d'établissements fournie. N'essaie PAS de piocher un établissement de la liste pour répondre. Réponds librement en t'appuyant sur tes connaissances générales du Maroc (paysages, activités, culture, conseils pratiques). Ne cite AUCUN nom d'établissement de la liste — ils ne sont pas pertinents pour cette question. Invite l'utilisateur à lancer une nouvelle recherche s'il souhaite des adresses concrètes sur ce sujet.` : isRefinement ? `\n- AFFINEMENT : L'utilisateur précise sa recherche initiale avec un nouveau critère. Filtre STRICTEMENT la liste fournie pour ne citer QUE les établissements qui correspondent réellement à ce critère. Analyse TOUS les champs disponibles pour chaque établissement : nom, ville, quartier, adresse, sous-catégories, hook, Services, Engagements (RSE/certifications), Badges (badges de l'établissement) et Badges vidéos (thématiques des vidéos liées). Si le critère est un lieu (quartier, route, rue, avenue, secteur…), considère qu'un établissement correspond dès que ce lieu apparaît dans son adresse OU son quartier. Cite TOUS les établissements pertinents de la liste (jusqu'à 10), pas seulement 2 ou 3 — la liste fournie peut contenir jusqu'à 60 candidats. N'hésite PAS à re-citer un établissement déjà mentionné précédemment s'il correspond au nouveau critère — la pertinence prime sur la nouveauté. Si AUCUN établissement de la liste ne correspond clairement au critère, dis-le honnêtement plutôt que d'en citer qui ne correspondent pas. Ne cite jamais un établissement uniquement parce qu'il n'a pas encore été mentionné.` : ''}
+- Commence par une accroche engageante liée à la recherche de l'utilisateur.${geoInstruction}${hoursInstruction}${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}${vary ? `\n- IMPORTANT : L'utilisateur demande une suggestion DIFFÉRENTE (tentative #${vary}). Change l'angle d'approche, l'ordre de présentation, le style d'accroche et mets en avant des établissements différents ou des aspects différents. Sois créatif et surprenant.` : ''}${isRefinement && topicChange ? `\n- CHANGEMENT DE SUJET DÉTECTÉ : La nouvelle question de l'utilisateur porte sur un lieu ou un sujet qui n'est PAS représenté dans la liste d'établissements fournie. N'essaie PAS de piocher un établissement de la liste pour répondre. Réponds librement en t'appuyant sur tes connaissances générales du Maroc (paysages, activités, culture, conseils pratiques). Ne cite AUCUN nom d'établissement de la liste — ils ne sont pas pertinents pour cette question. Invite l'utilisateur à lancer une nouvelle recherche s'il souhaite des adresses concrètes sur ce sujet.` : isRefinement ? `\n- AFFINEMENT : L'utilisateur précise sa recherche initiale avec un nouveau critère. Filtre STRICTEMENT la liste fournie pour ne citer QUE les établissements qui correspondent réellement à ce critère. Analyse TOUS les champs disponibles pour chaque établissement : nom, ville, quartier, adresse, sous-catégories, hook, Services, Engagements (RSE/certifications), Badges (badges de l'établissement) et Badges vidéos (thématiques des vidéos liées). Si le critère est un lieu (quartier, route, rue, avenue, secteur…), considère qu'un établissement correspond dès que ce lieu apparaît dans son adresse OU son quartier. Cite TOUS les établissements pertinents de la liste (jusqu'à 10), pas seulement 2 ou 3 — la liste fournie peut contenir jusqu'à 60 candidats. N'hésite PAS à re-citer un établissement déjà mentionné précédemment s'il correspond au nouveau critère — la pertinence prime sur la nouveauté. Si AUCUN établissement de la liste ne correspond clairement au critère, dis-le honnêtement plutôt que d'en citer qui ne correspondent pas. Ne cite jamais un établissement uniquement parce qu'il n'a pas encore été mentionné.` : ''}
 
 ${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS" : "ÉTABLISSEMENTS TROUVÉS"} :
 ${businessContext}${knowledgeContext ? `
