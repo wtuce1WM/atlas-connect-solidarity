@@ -1173,8 +1173,8 @@ const HotelAvailabilityWidget = () => {
     });
     navigate(`/search?${params.toString()}`);
   };
-
-  const fieldCls = "rounded-md border border-border/40 bg-white px-3 py-1.5 font-roboto text-sm text-black md:py-2";
+ 
+  const fieldCls = "rounded-md border border-border/40 bg-white px-3 py-1.5 font-roboto text-sm text-black !text-black md:py-2";
   const labelCls = "flex flex-col gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white md:text-xs";
 
   return (
