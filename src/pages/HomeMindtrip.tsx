@@ -923,7 +923,7 @@ const HomeMindtrip = () => {
                       )}
                       {i === 3 && (
                         <>
-                           {/* Background image with parallax (fixed attachment), shifted right, original resolution */}
+                           {/* Background image with parallax (fixed attachment), centered, original resolution */}
                            <div
                              aria-hidden="true"
                              className="absolute inset-0 bg-fixed"
@@ -931,7 +931,7 @@ const HomeMindtrip = () => {
                                backgroundImage: `url(${destinationsMapAsset.url})`,
                                backgroundSize: "auto",
                                backgroundRepeat: "no-repeat",
-                               backgroundPosition: "right center",
+                               backgroundPosition: "center",
                              }}
                            />
                            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/40" />
