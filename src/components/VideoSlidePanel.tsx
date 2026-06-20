@@ -512,7 +512,7 @@ const VideoSlidePanel = ({
     >
       <div
         ref={panelRef}
-        className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-hidden"
+        className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl overflow-hidden"
         style={swipeNavigationEnabled ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
         onTouchStart={swipeNavigationEnabled ? (e) => {
           if (e.touches.length !== 1) return;
