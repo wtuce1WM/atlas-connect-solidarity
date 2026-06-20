@@ -167,7 +167,6 @@ const PublicClubProfile = () => {
             title={`${displayName} — One World Morocco`}
             shareUrl={`https://oneworldmorocco.com/u/${profile.nickname}`}
             previewImage={hamsaBlueAsset.url}
-            avatarImage={profile.avatar_url || null}
           />
         </div>
 
