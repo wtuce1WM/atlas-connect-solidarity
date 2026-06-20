@@ -882,22 +882,36 @@ const VideoSlidePanel = ({
                         {social.platform === "youtube" && <Youtube className="w-5 h-5 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                       </>
                     )}
-                    <button
-                      type="button"
-                      disabled={!ownerBusiness}
-                      onClick={async () => {
-                        if (!ownerBusiness) return;
-                        storeReturnToTest();
-                        const url = await buildKpSearchUrl(ownerBusiness.id);
-                        navigate(url);
-                      }}
-                      className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors disabled:cursor-default disabled:hover:bg-black normal-case tracking-normal"
-                      aria-label={`Voir la fiche de ${owner.name}`}
-                    >
-                      <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        {owner.name} ©
-                      </span>
-                    </button>
+                    {isGeneric && social ? (
+                      <a
+                        href={social.url || undefined}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors normal-case tracking-normal"
+                        aria-label={`Follow @${social.account}`}
+                      >
+                        <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                          Follow @{social.account}
+                        </span>
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={!ownerBusiness}
+                        onClick={async () => {
+                          if (!ownerBusiness) return;
+                          storeReturnToTest();
+                          const url = await buildKpSearchUrl(ownerBusiness.id);
+                          navigate(url);
+                        }}
+                        className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors disabled:cursor-default disabled:hover:bg-black normal-case tracking-normal"
+                        aria-label={`Voir la fiche de ${owner.name}`}
+                      >
+                        <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                          {owner.name} ©
+                        </span>
+                      </button>
+                    )}
                     </div>
                   );
                 }
