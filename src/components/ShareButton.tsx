@@ -397,8 +397,9 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
             </div>
             <div className="mt-3 text-xs text-black/60 break-all text-center line-clamp-2">{displayUrl}</div>
             <div className="mt-4 flex gap-2">
-              <button
-                onClick={() => {
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
                   const svg = qrRef.current?.querySelector("svg");
                   if (!svg) return;
                   const blob = new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" });
@@ -409,16 +410,19 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="flex-1 h-10 rounded-full bg-black text-white flex items-center justify-center gap-2 text-sm font-medium hover:bg-black/85 transition-colors"
+                className="flex-1 h-10 rounded-full bg-black text-white flex items-center justify-center gap-2 text-sm font-medium hover:bg-black/85 transition-colors cursor-pointer select-none"
               >
                 <Download className="h-4 w-4" /> Télécharger
-              </button>
-              <button
-                onClick={handleCopy}
-                className="flex-1 h-10 rounded-full bg-muted text-foreground flex items-center justify-center gap-2 text-sm font-medium hover:bg-muted/80 transition-colors"
+              </a>
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleCopy();
+                }}
+                className="flex-1 h-10 rounded-full bg-muted text-foreground flex items-center justify-center gap-2 text-sm font-medium hover:bg-muted/80 transition-colors cursor-pointer select-none"
               >
                 {copied ? <><Check className="h-4 w-4 text-green-600" /> Copié</> : <><Copy className="h-4 w-4" /> Copier le lien</>}
-              </button>
+              </a>
             </div>
           </div>
         </div>
