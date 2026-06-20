@@ -1,8 +1,7 @@
-import { ReactNode, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
-import { businessUrl } from "@/lib/businessUrl";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +12,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
+
+const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 export interface BlogArticleBusiness {
   id: string;
@@ -80,6 +82,7 @@ const BlogArticleTemplate = ({
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
 
   const geo = useGeolocation();
   const userLocation = geo.isEnabled && geo.coords ? geo.coords : null;
@@ -96,6 +99,60 @@ const BlogArticleTemplate = ({
     businesses[entries[1]?.id]?.images?.[0] ||
     null;
   const heroImage = customHeroImage || heroImageBusiness || ogFallback;
+
+  // Ordered list of business IDs as they appear on the page (used for vertical swipe in the panel)
+  const orderedIds = useMemo(() => {
+    const sortedEntries = [...entries]
+      .filter((e) => businesses[e.id])
+      .sort((a, b) => {
+        const ra = businesses[a.id]?.computed_rating ?? businesses[a.id]?.rating ?? -1;
+        const rb = businesses[b.id]?.computed_rating ?? businesses[b.id]?.rating ?? -1;
+        if (rb !== ra) return rb - ra;
+        const countA = businesses[a.id]?.total_review_count ?? 0;
+        const countB = businesses[b.id]?.total_review_count ?? 0;
+        if (countB !== countA) return countB - countA;
+        return (businesses[a.id]?.name ?? "").localeCompare(businesses[b.id]?.name ?? "");
+      });
+    return sortedEntries.flatMap((entry) =>
+      [entry.id, ...(entry.extraIds ?? [])]
+        .map((bid) => businesses[bid])
+        .filter(Boolean)
+        .sort((a, b) => {
+          const ra = a.computed_rating ?? a.rating ?? -1;
+          const rb = b.computed_rating ?? b.rating ?? -1;
+          if (rb !== ra) return rb - ra;
+          return (b.total_review_count ?? 0) - (a.total_review_count ?? 0);
+        })
+        .map((b) => b.id)
+    );
+  }, [entries, businesses]);
+
+  const openIndex = openBusinessId ? orderedIds.indexOf(openBusinessId) : -1;
+  const hasPrev = openIndex > 0;
+  const hasNext = openIndex >= 0 && openIndex < orderedIds.length - 1;
+
+  const openBusiness = useCallback((id: string) => {
+    setOpenBusinessId(id);
+  }, []);
+
+  const closePanel = useCallback(() => {
+    setOpenBusinessId(null);
+  }, []);
+
+  // Sync ?openBusiness= in URL (read on mount + write on change) without reload
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const initial = url.searchParams.get("openBusiness");
+    if (initial) setOpenBusinessId(initial);
+  }, []);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (openBusinessId) url.searchParams.set("openBusiness", openBusinessId);
+    else url.searchParams.delete("openBusiness");
+    window.history.replaceState({}, "", url.toString());
+  }, [openBusinessId]);
+
 
 
   const handleSaveArticle = async () => {
@@ -175,6 +232,11 @@ const BlogArticleTemplate = ({
 
   return (
     <div className="min-h-screen bg-background">
+      <div
+        className={`transition-[padding] duration-300 ease-out ${
+          openBusinessId ? "lg:pr-[50vw]" : ""
+        }`}
+      >
       <HomeMindtripHeader alwaysWhite />
 
       {/* Hero */}
@@ -262,14 +324,7 @@ const BlogArticleTemplate = ({
                     fitToMarkers
                     userLocation={userLocation}
                     onPoiClick={(id) => {
-                      const b = businesses[id];
-                      if (b) {
-                        try {
-                          sessionStorage.setItem("returnToBlogPath", articlePath);
-                          sessionStorage.setItem("returnToBlogEntryId", b.id);
-                        } catch {}
-                        navigate(businessUrl(b));
-                      }
+                      if (businesses[id]) openBusiness(id);
                     }}
                   />
                 );
@@ -329,17 +384,12 @@ const BlogArticleTemplate = ({
                       })
                       .map((b) => {
                       return (
-                        <Link
+                        <button
                           key={b.id}
                           id={`entry-${b.id}`}
-                          to={businessUrl(b)}
-                          onClick={() => {
-                            try {
-                              sessionStorage.setItem("returnToBlogPath", articlePath);
-                              sessionStorage.setItem("returnToBlogEntryId", b.id);
-                            } catch {}
-                          }}
-                          className="block group"
+                          type="button"
+                          onClick={() => openBusiness(b.id)}
+                          className="block w-full text-left group"
                         >
                           <Card className="overflow-hidden border-border/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
                             <div className="grid md:grid-cols-2">
@@ -415,7 +465,7 @@ const BlogArticleTemplate = ({
                               </CardContent>
                             </div>
                           </Card>
-                        </Link>
+                        </button>
                       );
                     })}
                   </div>
@@ -439,7 +489,30 @@ const BlogArticleTemplate = ({
       )}
 
       <Footer />
+      </div>
       <ClubLoginPopup />
+
+      {openBusinessId && (
+        <div
+          className="fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col animate-slide-in-right lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:w-1/2"
+          style={{ height: "100dvh" }}
+        >
+          <SlidePanelHeader onClose={closePanel} alwaysDark glassClose />
+          <div className="flex-1 min-h-0 overflow-visible">
+            <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
+              <BookOnlineSlidePanel
+                key={openBusinessId}
+                businessId={openBusinessId}
+                onClose={closePanel}
+                onPrevBusiness={() => hasPrev && setOpenBusinessId(orderedIds[openIndex - 1])}
+                onNextBusiness={() => hasNext && setOpenBusinessId(orderedIds[openIndex + 1])}
+                hasPrevBusiness={hasPrev}
+                hasNextBusiness={hasNext}
+              />
+            </Suspense>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
