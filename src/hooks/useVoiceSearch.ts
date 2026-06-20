@@ -909,10 +909,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       console.log("[VoiceSearch] finish with empty native transcript → server fallback");
       setStatus("processing");
       const serverText = await transcribeFallbackBlob(fallbackBlob);
-      setLiveTranscript("");
       if (serverText) {
-        processTranscript(serverText);
+        // Affiche le texte dans l'overlay (Web Speech n'a rien émis sur Android).
+        setLiveTranscript(serverText);
+        processTranscript(serverText).finally(() => setLiveTranscript(""));
       } else {
+        setLiveTranscript("");
         setStatus("idle");
         onErrorRef.current?.("Aucun texte détecté, réessayez.");
       }
