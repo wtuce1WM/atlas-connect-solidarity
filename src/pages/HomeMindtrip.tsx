@@ -898,7 +898,7 @@ const HomeMindtrip = () => {
                           </div>
                         </div>
                         <div className="flex lg:block items-center justify-center lg:flex-shrink-0 pointer-events-none">
-                          <div className={`relative ${i === 1 ? "h-[250px]" : "h-[220px]"} md:h-[260px] lg:h-[340px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden`}>
+                          <div className="relative h-[250px] md:h-[260px] lg:h-[340px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden">
                             <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
                             {i === 1 && (
                               <img src={step3MockupAsset.url} alt="Votre identité numérique - One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
