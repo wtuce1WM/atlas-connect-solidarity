@@ -848,7 +848,7 @@ const HomeMindtrip = () => {
                               <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 3 && (
-                              <img src="/__l5e/assets-v1/dcedd97c-5e12-42e9-b9d1-8dfd89e4952e/offre-popup.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <img src="/__l5e/assets-v1/db2c7355-3c12-4375-84b3-5ee82bc8316f/business-card.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 4 && (
                               <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/89aa9374-4150-470a-aade-0189d84afb20-1775630369725-hyc1g8.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
