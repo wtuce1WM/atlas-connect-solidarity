@@ -871,7 +871,7 @@ const HomeMindtrip = () => {
                          className="absolute inset-0 bg-cover bg-fixed"
                          style={{ 
                            backgroundImage: `url(${poiMapAsset.url})`,
-                           backgroundPosition: "30% center"
+                           backgroundPosition: "15% center"
                          }}
                        />
                        <div className="absolute inset-0 bg-white/55" />
