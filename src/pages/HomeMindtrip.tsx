@@ -648,7 +648,7 @@ const HomeMindtrip = () => {
           </p>
         </div>
 
-        <div className="home-hero-content relative z-20 mx-auto flex min-h-[100dvh] md:min-h-[92svh] max-w-7xl flex-col items-center pb-28 text-center px-6 md:justify-center md:items-start lg:items-center md:text-left lg:text-center md:pt-24 md:pb-6 md:py-24 md:px-12 w-full">
+        <div className="home-hero-content relative z-20 mx-auto flex min-h-[100dvh] md:min-h-[92svh] max-w-7xl flex-col items-center max-md:pb-34 pb-28 text-center px-6 md:justify-center md:items-start lg:items-center md:text-left lg:text-center md:pt-24 md:pb-6 md:py-24 md:px-12 w-full">
           {/* Title + Text Container (restricted to leave space for Mockup on Tablet, but wider than before) */}
           <div className="home-hero-copy hidden w-full md:block md:max-lg:max-w-[75%] md:max-lg:mb-6">
             {/* Mobile Title - placed under the header in normal flow to avoid overlap */}
