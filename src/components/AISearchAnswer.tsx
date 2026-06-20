@@ -285,8 +285,9 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const fetchKey = useMemo(() => {
     if (!query || !businesses.length) return "";
     const names = businesses.slice(0, 10).map(b => b.name).join("|");
-    return `${query}::${names}::${regenerateCount}::${externalRegenerateKey ?? 0}`;
-  }, [query, businesses, externalRegenerateKey]);
+    const geoKey = geo.isEnabled && geo.coords ? `${geo.coords.lat.toFixed(3)},${geo.coords.lng.toFixed(3)}` : "no-geo";
+    return `${query}::${names}::${regenerateCount}::${externalRegenerateKey ?? 0}::${geoKey}`;
+  }, [query, businesses, externalRegenerateKey, geo.isEnabled, geo.coords]);
 
   useEffect(() => {
     setIsDismissed(false);
