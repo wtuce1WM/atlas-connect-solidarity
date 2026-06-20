@@ -177,6 +177,7 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
         <VoiceSearchPanel
           liveTranscript={voice.liveTranscript}
           audioLevel={voice.audioLevel}
+          micReady={voice.micReady}
           onClose={voice.toggleRecording}
           onFinish={voice.finishRecording}
         />
