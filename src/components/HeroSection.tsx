@@ -318,6 +318,7 @@ const HeroSection = () => {
         isOpen={voiceStatus === "recording" || voiceStatus === "processing"}
         liveTranscript={liveTranscript}
         audioLevel={audioLevel}
+        micReady={micReady}
         onClose={() => toggleRecording()}
         onFinish={() => finishRecording()}
       />
