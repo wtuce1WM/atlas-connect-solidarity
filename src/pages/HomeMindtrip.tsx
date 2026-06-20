@@ -676,7 +676,7 @@ const HomeMindtrip = () => {
 
                     <div className="relative mt-6">
                       {loadingVideos ? (
-                        <div className="flex gap-3 overflow-x-auto scrollbar-hide-mobile">
+                        <div className="flex gap-3 overflow-x-auto scrollbar-hide">
                           {Array.from({ length: 4 }).map((_, idx) => (
                             <div key={idx} className="aspect-[9/16] w-[200px] shrink-0 animate-pulse rounded-lg bg-muted/40 md:w-[240px]" />
                           ))}
@@ -686,7 +686,7 @@ const HomeMindtrip = () => {
                           Aucune vidéo pour {selectedCity}.
                         </div>
                       ) : (
-                        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide-mobile">
+                        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
                           {videos.map((v) => {
                             const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
                             if (!v.label) return null;
