@@ -213,7 +213,7 @@ const HeroSection = () => {
               })()}
 
               {/* Play video CTA */}
-              <div className="mt-5 flex justify-center md:justify-start">
+              <div className="mt-10 md:mt-5 flex justify-center md:justify-start">
                 <button
                   type="button"
                   onClick={() => setVideoOpen(true)}
