@@ -731,7 +731,7 @@ const HomeMindtrip = () => {
                           Aucune vidéo pour {selectedCity}.
                         </div>
                       ) : (
-                        <HScroll className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+                        <HScroll className="flex gap-3 overflow-x-auto snap-x snap-proximity scrollbar-hide">
                           {videos.map((v) => {
                             const thumb = optimizeSupabaseImage(v.thumbnail, { width: 400 }) || v.thumbnail;
                             if (!v.label) return null;
