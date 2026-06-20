@@ -4546,8 +4546,8 @@ const SearchPage = () => {
                               refineVoice.status === "recording"
                                 ? "bg-red-500 animate-pulse"
                                 : refineVoice.status === "processing"
-                                  ? "bg-black"
-                                  : "bg-black hover:bg-black/90"
+                                  ? "bg-[#194CFF]"
+                                  : "bg-[#194CFF] hover:bg-[#194CFF]/90"
                             }`}
                             aria-label={language === "en" ? "Voice refinement" : "Affiner à la voix"}
                             title={language === "en" ? "Voice refinement" : "Affiner à la voix"}
