@@ -13,7 +13,60 @@ serve(async (req) => {
   }
 
   try {
-    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext } = await req.json();
+    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext, userCoords } = await req.json();
+
+    // --- Geolocation intent detection ---
+    // "près de moi", "autour de moi", "à moins de X km", "dans un rayon de Y m", etc.
+    const geoHaystack = [
+      query,
+      ...(Array.isArray(history)
+        ? history.filter((m: any) => m && typeof m.content === "string").slice(-4).map((m: any) => m.content)
+        : []),
+    ].join(" \n ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const NEAR_ME_RE = /\b(pres\s+de\s+moi|aupres\s+de\s+moi|autour\s+de\s+moi|a\s+cote\s+de\s+moi|a\s+proximite\s+de\s+moi|ma\s+position|ma\s+localisation|near\s+me|around\s+me|close\s+to\s+me|next\s+to\s+me|nearby\s+me)\b/;
+    const RADIUS_RE = /(?:a\s+moins\s+de|moins\s+de|dans\s+un\s+rayon\s+de|rayon\s+de|within|less\s+than|under)\s+(\d+(?:[\.,]\d+)?)\s*(km|kms|kilom[eè]tres?|m|metres?|meters?|miles?|mi)\b/;
+    const nearMeIntent = NEAR_ME_RE.test(geoHaystack);
+    const radiusMatch = geoHaystack.match(RADIUS_RE);
+    let maxDistanceKm: number | null = null;
+    if (radiusMatch) {
+      const value = parseFloat(radiusMatch[1].replace(",", "."));
+      const unit = radiusMatch[2];
+      if (/^m(etres?|eters?)?$/.test(unit)) maxDistanceKm = value / 1000;
+      else if (/^miles?$|^mi$/.test(unit)) maxDistanceKm = value * 1.609344;
+      else maxDistanceKm = value;
+    }
+    const geoIntent = nearMeIntent || maxDistanceKm !== null;
+    const hasUserCoords = !!(userCoords && typeof userCoords.lat === "number" && typeof userCoords.lng === "number");
+
+    // Si l'utilisateur exprime une intention de proximité physique mais que sa position
+    // n'est pas connue → on demande l'autorisation de géolocalisation côté UI.
+    if (geoIntent && !hasUserCoords) {
+      const isEn = language === "en";
+      return new Response(
+        JSON.stringify({
+          answer: "",
+          clarify: {
+            type: "geolocate",
+            question: isEn
+              ? "I need your location to find what's closest. Enable geolocation?"
+              : "J'ai besoin de votre position pour trouver ce qui est le plus proche. Activer la géolocalisation ?",
+            options: [
+              {
+                id: "enable_geo",
+                label: isEn ? "Enable geolocation" : "Activer la géolocalisation",
+                text: query,
+              },
+              {
+                id: "skip_geo",
+                label: isEn ? "Skip — search the whole area" : "Ignorer — chercher dans toute la zone",
+                text: `${query} ${isEn ? "(anywhere in the current search area)" : "(partout dans la zone de recherche actuelle)"}`,
+              },
+            ],
+          },
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     if (!query) {
       return new Response(JSON.stringify({ answer: "" }), {
