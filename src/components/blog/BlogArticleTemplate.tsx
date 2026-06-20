@@ -82,6 +82,7 @@ const BlogArticleTemplate = ({
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
 
   const geo = useGeolocation();
   const userLocation = geo.isEnabled && geo.coords ? geo.coords : null;
@@ -98,6 +99,60 @@ const BlogArticleTemplate = ({
     businesses[entries[1]?.id]?.images?.[0] ||
     null;
   const heroImage = customHeroImage || heroImageBusiness || ogFallback;
+
+  // Ordered list of business IDs as they appear on the page (used for vertical swipe in the panel)
+  const orderedIds = useMemo(() => {
+    const sortedEntries = [...entries]
+      .filter((e) => businesses[e.id])
+      .sort((a, b) => {
+        const ra = businesses[a.id]?.computed_rating ?? businesses[a.id]?.rating ?? -1;
+        const rb = businesses[b.id]?.computed_rating ?? businesses[b.id]?.rating ?? -1;
+        if (rb !== ra) return rb - ra;
+        const countA = businesses[a.id]?.total_review_count ?? 0;
+        const countB = businesses[b.id]?.total_review_count ?? 0;
+        if (countB !== countA) return countB - countA;
+        return (businesses[a.id]?.name ?? "").localeCompare(businesses[b.id]?.name ?? "");
+      });
+    return sortedEntries.flatMap((entry) =>
+      [entry.id, ...(entry.extraIds ?? [])]
+        .map((bid) => businesses[bid])
+        .filter(Boolean)
+        .sort((a, b) => {
+          const ra = a.computed_rating ?? a.rating ?? -1;
+          const rb = b.computed_rating ?? b.rating ?? -1;
+          if (rb !== ra) return rb - ra;
+          return (b.total_review_count ?? 0) - (a.total_review_count ?? 0);
+        })
+        .map((b) => b.id)
+    );
+  }, [entries, businesses]);
+
+  const openIndex = openBusinessId ? orderedIds.indexOf(openBusinessId) : -1;
+  const hasPrev = openIndex > 0;
+  const hasNext = openIndex >= 0 && openIndex < orderedIds.length - 1;
+
+  const openBusiness = useCallback((id: string) => {
+    setOpenBusinessId(id);
+  }, []);
+
+  const closePanel = useCallback(() => {
+    setOpenBusinessId(null);
+  }, []);
+
+  // Sync ?openBusiness= in URL (read on mount + write on change) without reload
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const initial = url.searchParams.get("openBusiness");
+    if (initial) setOpenBusinessId(initial);
+  }, []);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (openBusinessId) url.searchParams.set("openBusiness", openBusinessId);
+    else url.searchParams.delete("openBusiness");
+    window.history.replaceState({}, "", url.toString());
+  }, [openBusinessId]);
+
 
 
   const handleSaveArticle = async () => {
