@@ -814,7 +814,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         setStatus("processing");
         const serverText = await transcribeFallbackBlob(fallbackBlob);
         if (serverText) {
-          processTranscript(serverText);
+          // Affiche le texte dans l'overlay (Web Speech n'a rien émis sur Android).
+          setLiveTranscript(serverText);
+          processTranscript(serverText).finally(() => setLiveTranscript(""));
         } else {
           setStatus("idle");
           onErrorRef.current?.("Aucun texte détecté, réessayez.");
