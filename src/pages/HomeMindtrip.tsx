@@ -56,15 +56,18 @@ type VideoSlot = {
   businessId: string | null;
 };
 
-const InViewVideo = ({ src, className }: { src: string; className?: string }) => {
+const InViewVideo = ({ src, className, controls = false }: { src: string; className?: string; controls?: boolean }) => {
   const ref = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const userPausedRef = useRef(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.play().catch(() => {});
+          if (!userPausedRef.current) el.play().catch(() => {});
         } else {
           el.pause();
         }
@@ -72,9 +75,60 @@ const InViewVideo = ({ src, className }: { src: string; className?: string }) =>
       { threshold: 0.25 }
     );
     io.observe(el);
-    return () => io.disconnect();
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    el.addEventListener("play", onPlay);
+    el.addEventListener("pause", onPause);
+    return () => {
+      io.disconnect();
+      el.removeEventListener("play", onPlay);
+      el.removeEventListener("pause", onPause);
+    };
   }, []);
-  return <video ref={ref} src={src} muted loop playsInline preload="metadata" className={className} />;
+  const togglePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const el = ref.current;
+    if (!el) return;
+    if (el.paused) {
+      userPausedRef.current = false;
+      el.play().catch(() => {});
+    } else {
+      userPausedRef.current = true;
+      el.pause();
+    }
+  };
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const el = ref.current;
+    if (!el) return;
+    el.muted = !el.muted;
+    setIsMuted(el.muted);
+  };
+  return (
+    <div className={`relative ${className ?? ""}`}>
+      <video ref={ref} src={src} muted loop playsInline preload="metadata" className="h-full w-full object-cover rounded-[inherit]" />
+      {controls && (
+        <div className="absolute bottom-2 right-2 z-30 flex gap-1.5 pointer-events-auto">
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label={isPlaying ? "Pause" : "Play"}
+            className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
+          >
+            {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+          </button>
+          <button
+            type="button"
+            onClick={toggleMute}
+            aria-label={isMuted ? "Activer le son" : "Couper le son"}
+            className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
+          >
+            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const Step2PhoneMockup = () => (
