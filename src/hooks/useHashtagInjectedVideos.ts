@@ -191,6 +191,10 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
         const y = ytById.get(l.youtube_video_id);
         const label = labelByBadgeId.get(l.badge_id);
         if (!y || !label || !y.business_id || !bizMap[y.business_id]) return;
+        // Whitelist : seules les chaînes YT des comptes autorisés sont gardées.
+        const handle = (bizMap[y.business_id]?.youtube_url || "")
+          .match(/@([^/?#]+)/)?.[1]?.toLowerCase() || "";
+        if (!handle || !EXTERNAL_ACCOUNT_WHITELIST.has(handle)) return;
         const owner = {
           id: y.business_id,
           name: bizMap[y.business_id]?.name || "",
