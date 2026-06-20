@@ -35,7 +35,7 @@ import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
 import step3MockupAsset from "@/assets/step3-mockup.webp.asset.json";
-import destinationsMapAsset from "@/assets/destinations_map.webp.asset.json";
+import destinationsMapAsset from "@/assets/destinations_map1.webp.asset.json";
 import { X } from "lucide-react";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
