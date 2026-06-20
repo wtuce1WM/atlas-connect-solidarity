@@ -319,14 +319,7 @@ const BlogArticleTemplate = ({
                     fitToMarkers
                     userLocation={userLocation}
                     onPoiClick={(id) => {
-                      const b = businesses[id];
-                      if (b) {
-                        try {
-                          sessionStorage.setItem("returnToBlogPath", articlePath);
-                          sessionStorage.setItem("returnToBlogEntryId", b.id);
-                        } catch {}
-                        navigate(businessUrl(b));
-                      }
+                      if (businesses[id]) openBusiness(id);
                     }}
                   />
                 );
