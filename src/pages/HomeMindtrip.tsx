@@ -883,13 +883,23 @@ const HomeMindtrip = () => {
                       )}
                       {i === 8 && (
                         <>
-                           {/* Background image — all devices */}
-                           <img
-                             src={heroImageMobile}
-                             alt=""
-                             className="absolute inset-0 h-full w-full object-cover"
+                           {/* Background image with parallax (fixed attachment) — all devices */}
+                           <div
+                             aria-hidden="true"
+                             className="absolute inset-0 bg-cover bg-center bg-fixed"
+                             style={{ backgroundImage: `url(${heroImageMobile})` }}
                            />
                            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50" />
+                           <style>{`
+                             @keyframes step9Float {
+                               0%, 100% { transform: translateY(0) rotate(0deg); }
+                               50% { transform: translateY(-14px) rotate(-1.2deg); }
+                             }
+                             .step9-float { animation: step9Float 6s ease-in-out infinite; will-change: transform; }
+                             @media (prefers-reduced-motion: reduce) {
+                               .step9-float { animation: none; }
+                             }
+                           `}</style>
                         </>
                       )}
                       <div className={`relative z-10 w-full h-full flex flex-col ${i === 8 ? "min-h-[300px] md:min-h-[400px] justify-between" : ""}`}>
@@ -932,12 +942,12 @@ const HomeMindtrip = () => {
                                   </Link>
                                 </div>
                               </div>
-                              {/* Full-size Mockup image absolutely positioned to the right */}
+                              {/* Full-size Mockup image absolutely positioned to the right + floating animation */}
                               <img
                                 src={iphoneTabletMockupAsset.url}
                                 alt=""
                                 aria-hidden="true"
-                                className="pointer-events-none select-none absolute bottom-[-16px] right-[-15%] h-[115%] w-auto object-contain object-bottom z-0 drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
+                                className="step9-float pointer-events-none select-none absolute bottom-[-16px] right-[-15%] h-[115%] w-auto object-contain object-bottom z-0 drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
                               />
                             </div>
                           </div>
