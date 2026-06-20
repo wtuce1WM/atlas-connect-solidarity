@@ -278,57 +278,6 @@ export function CtaBar({
     );
   }
 
-  // Video controls integrated as liquidglass CTAs (play/mute) — replaces the old round buttons.
-  if (!hideVideoControls && !cardsHidden && effectiveMedia?.kind === "video" && videoInfo) {
-    if (videoInfo.type === "file") {
-      ctaItems.push(
-        <button
-          key="video-play"
-          onClick={() => { const v = videoRef.current; if (!v) return; v.paused ? v.play() : v.pause(); }}
-          aria-label={videoPaused ? "Play" : "Pause"}
-          className={`flex items-center justify-center w-full rounded-lg bg-black/60 text-white hover:bg-black/75 transition-colors animate-slide-in-left ${glassFx}`}
-          style={{ height: '40px' }}
-        >
-          {videoPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-        </button>
-      );
-      ctaItems.push(
-        <button
-          key="video-mute"
-          onClick={() => { const v = videoRef.current; if (!v) return; v.muted = !v.muted; }}
-          aria-label={videoMuted ? "Unmute" : "Mute"}
-          className={`flex items-center justify-center w-full rounded-lg bg-black/60 text-white hover:bg-black/75 transition-colors animate-slide-in-left ${glassFx}`}
-          style={{ height: '40px' }}
-        >
-          {videoMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-        </button>
-      );
-    } else if (videoInfo.type === "youtube") {
-      const post = (fn: string) => iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "command", func: fn, args: [] }), "*");
-      ctaItems.push(
-        <button
-          key="yt-play"
-          onClick={() => { const next = !ytBgPlaying; setYtBgPlaying(next); post(next ? "playVideo" : "pauseVideo"); }}
-          aria-label={ytBgPlaying ? "Pause" : "Play"}
-          className={`flex items-center justify-center w-full rounded-lg bg-black/60 text-white hover:bg-black/75 transition-colors animate-slide-in-left ${glassFx}`}
-          style={{ height: '40px' }}
-        >
-          {ytBgPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-        </button>
-      );
-      ctaItems.push(
-        <button
-          key="yt-mute"
-          onClick={() => { const next = !ytBgMuted; setYtBgMuted(next); post(next ? "mute" : "unMute"); }}
-          aria-label={ytBgMuted ? "Unmute" : "Mute"}
-          className={`flex items-center justify-center w-full rounded-lg bg-black/60 text-white hover:bg-black/75 transition-colors animate-slide-in-left ${glassFx}`}
-          style={{ height: '40px' }}
-        >
-          {ytBgMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-        </button>
-      );
-    }
-  }
   return (
     <div
       className={`${cardsHidden && showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
@@ -340,26 +289,11 @@ export function CtaBar({
         </div>
       )}
       {ctaItems.length > 0 && (
-        (ctaItems.length === 5 || ctaItems.length === 6) ? (
-          <div className="w-full px-2 md:w-[92%] md:px-0 pointer-events-auto flex flex-col gap-2">
-            <div className="flex justify-center gap-1.5 md:gap-2">
-              {ctaItems.slice(0, 3).map((item, i) => (
-                <div key={i} className="flex-1">{item}</div>
-              ))}
-            </div>
-            <div className="flex justify-center gap-1.5 md:gap-2">
-              {ctaItems.slice(3).map((item, i) => (
-                <div key={i + 3} className="flex-1">{item}</div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className={`${ctaItems.length === 1 ? 'w-1/2' : ctaItems.length === 2 || ctaItems.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-[92%] md:px-0 pointer-events-auto ${ctaItems.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
-            {ctaItems.map((item, i) => (
-              <div key={i} className={ctaItems.length === 4 ? '' : 'flex-1'}>{item}</div>
-            ))}
-          </div>
-        )
+        <div className={`${ctaItems.length === 1 ? 'w-1/2' : ctaItems.length === 2 || ctaItems.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-[92%] md:px-0 pointer-events-auto ${ctaItems.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
+          {ctaItems.map((item, i) => (
+            <div key={i} className={ctaItems.length === 4 ? '' : 'flex-1'}>{item}</div>
+          ))}
+        </div>
       )}
 
       {/* Owner logo + badge */}

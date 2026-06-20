@@ -548,6 +548,25 @@ const BlogArticleTemplate = ({
                 onNextBusiness={() => hasNext && setOpenBusinessId(orderedIds[openIndex + 1])}
                 hasPrevBusiness={hasPrev}
                 hasNextBusiness={hasNext}
+                showSearchBar={true}
+                onSearch={(params) => {
+                  const queryParams = new URLSearchParams(params).toString();
+                  navigate(`/search?${queryParams}`);
+                }}
+                onSearchBusinessSelect={(id) => {
+                  navigate(`/search?openBusiness=${id}`);
+                }}
+                onHotelSearch={(intent, spokenText) => {
+                  const params: Record<string, string> = {
+                    city: intent.city,
+                    checkIn: intent.checkIn || "",
+                    checkOut: intent.checkOut || "",
+                    adults: String(intent.adults || 2),
+                    spokenText,
+                  };
+                  const queryParams = new URLSearchParams(params).toString();
+                  navigate(`/search?${queryParams}`);
+                }}
               />
             </Suspense>
           </div>
