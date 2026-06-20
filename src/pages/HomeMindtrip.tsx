@@ -1274,9 +1274,9 @@ const HotelAvailabilityWidget = () => {
     navigate(`/search?${params.toString()}`);
   };
  
-  const fieldCls = "rounded-md border border-border/40 bg-white px-3 py-1.5 font-roboto text-sm text-black !text-black md:py-2 [color-scheme:light] [-webkit-text-fill-color:#000]";
+  const fieldCls = "rounded-md border border-border/40 bg-white px-3 py-1.5 font-roboto text-sm text-black !text-black md:py-2 [color-scheme:light] [-webkit-text-fill-color:#000] appearance-none";
   const labelCls = "flex flex-col gap-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white md:text-xs";
-  const fieldStyle = { color: "#000", WebkitTextFillColor: "#000", opacity: 1, colorScheme: "light" } as React.CSSProperties;
+  const fieldStyle = { color: "#000000", WebkitTextFillColor: "#000000", opacity: 1, colorScheme: "light" } as React.CSSProperties;
 
   return (
     <form
@@ -1285,15 +1285,18 @@ const HotelAvailabilityWidget = () => {
     >
       <style>{`
         .hotel-field,
+        select.hotel-field,
+        input.hotel-field,
         .hotel-field option,
+        select.hotel-field option,
         .hotel-field::-webkit-datetime-edit,
         .hotel-field::-webkit-datetime-edit-fields-wrapper,
         .hotel-field::-webkit-datetime-edit-text,
         .hotel-field::-webkit-datetime-edit-month-field,
         .hotel-field::-webkit-datetime-edit-day-field,
         .hotel-field::-webkit-datetime-edit-year-field {
-          color: #000 !important;
-          -webkit-text-fill-color: #000 !important;
+          color: #000000 !important;
+          -webkit-text-fill-color: #000000 !important;
           opacity: 1 !important;
         }
       `}</style>
