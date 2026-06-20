@@ -246,7 +246,7 @@ const PublicClubProfile = () => {
               href="/club"
               className="block w-full rounded-2xl bg-primary hover:bg-primary/90 py-4 px-5 text-center font-semibold shadow-lg transition-all text-primary-foreground"
             >
-              Join on 1WM
+              Un compte One World Morocco ?
             </a>
           </div>
 
