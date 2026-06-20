@@ -241,14 +241,9 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
               ? { id: "", name: `@${account}`, logo_url: null, logo_bg: null }
               : null);
 
-        // Filtre anti-spam externe : dès qu'un compte externe est présent,
-        // il doit être whitelisté (et on exclut les YT longs). Le rattachement
-        // à un business ne contourne PAS cette règle.
-        const accLower = account.toLowerCase();
-        if (accLower) {
-          if (!EXTERNAL_ACCOUNT_WHITELIST.has(accLower)) return;
-          if (effectiveUrl && isYoutubeLongFormat(effectiveUrl)) return;
-        }
+        // Filtre anti-spam : seules les vidéos YouTube de comptes whitelistés
+        // sont acceptées. Les vidéos IG/TikTok/sans compte passent sans filtre.
+        if (ytAcc && !EXTERNAL_ACCOUNT_WHITELIST.has(ytAcc.toLowerCase())) return;
 
         buckets[label].push({
           videoUrl: effectiveUrl,
