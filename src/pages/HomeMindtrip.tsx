@@ -944,7 +944,7 @@ const HomeMindtrip = () => {
                     </div>
                   )}
 
-                  {(i === 1 || i === 2 || i === 4 || i === 5 || i === 7) ? (
+                  {(i === 1 || i === 2 || i === 3 || i === 4 || i === 5 || i === 7) ? (
                     <div className="relative z-10 flex flex-col gap-4 md:gap-6 flex-1 justify-between">
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         <div className="flex-1 lg:max-w-[60%]">
