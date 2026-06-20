@@ -124,6 +124,17 @@ const BEACH_CLUBS: BlogArticleEntry[] = [
       "Côté table et rafraîchissements, l'expérience est tout aussi soignée. Les chefs maison proposent une cuisine internationale raffinée et revisitée pour un déjeuner gourmand les pieds dans l'herbe. Au bar, la fraîcheur est reine : mocktails colorés, smoothies vitaminés préparés à la minute, milkshakes onctueux et thés glacés maison accompagnent idéalement votre après-midi au bord de l'eau. Une pause fraîcheur incontournable en plein cœur de la ville."
     ],
   },
+  {
+    id: "3fa44f68-a554-4f61-8bd0-4d17eebfcb25",
+    pretitle: "La Palmeraie, Marrakech",
+    title: "Ava Bay Marrakech — le premier resort de jour 100 % féminin de luxe",
+    hours: "Ouvert tous les jours — accès sur réservation, capacité maîtrisée pour préserver l'intimité.",
+    paragraphs: [
+      "Au cœur de La Palmeraie, face à l'Atlas, Ava Bay est une oasis fraîche d'un genre nouveau à Marrakech : le premier resort de jour 100 % féminin de luxe de la ville. Né de l'eau rare de la région et d'une vision longtemps attendue, le lieu se vit comme un sanctuaire — confidentialité, exclusivité, fraîcheur — où chaque détail a été pensé pour que les femmes reviennent à elles-mêmes, loin de la chaleur et du bruit de la ville ocre.",
+      "La Maison est le cœur du domaine. En son centre, une piscine qui reflète le ciel ; tout autour, un jardin centenaire où des arbres anciens et des plantes endémiques composent une canopée vivante d'ombre et de senteurs. Sous le calme du feuillage, chaque rituel vous attend : hammam marocain, salles de massage thaï privées, salon de coiffure et d'ongles, hydra facial coréen, head spa japonais — les protocoles les plus avancés y rencontrent la sagesse ancestrale. La Table d'Ava prolonge l'expérience avec une cuisine méditerranéenne saine et gourmande, préparée avec intention.",
+      "Les enfants ne sont pas oubliés — ils sont au contraire tendrement accueillis dans Ava Land, un club dédié de 6 mois à 14 ans, encadré par des professionnels : trampolines, terrain de football, PlayStation, jeux d'agilité, coin animalier et même un spa pour enfants. Pendant qu'ils s'épanouissent, les mères profitent vraiment du domaine — pool, spa, padel, restaurant — sans charge mentale. Une renaissance, à la fois intime et complète, comme Marrakech n'en proposait pas encore.",
+    ],
+  },
 ];
 
 const BeachClubsMarrakech = () => (
@@ -131,13 +142,13 @@ const BeachClubsMarrakech = () => (
     entries={BEACH_CLUBS}
     articlePath="/blog/beach-clubs-marrakech"
     articleTitle="Beach Clubs à Marrakech"
-    articleDescription="Onze beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau."
+    articleDescription="Douze beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau."
     bookmarkSlug="beach-clubs-marrakech"
     heroAlt="Beach Clubs à Marrakech"
     heroTitleTop="Les Beach Clubs"
     heroTitleBottom="de Marrakech"
-    heroSubtitle="Onze adresses autour de la ville ocre — du beldi chic au club international, de la piscine 100 % femmes à la pool party XXL — pour vivre Marrakech au bord de l'eau."
-    intro="Marrakech n'a pas la mer, mais elle a inventé son propre rapport à l'eau : à quelques minutes des remparts, sur la route de l'Ourika ou celle d'Agadir, une constellation de beach clubs prolonge la ville ocre en oasis. On y vient pour une journée pass, un déjeuner les pieds presque dans l'eau, un cocktail signé d'un mixologue, un DJ set qui monte avec le soleil — ou simplement pour souffler, à l'ombre des oliviers, loin de l'effervescence de la médina. Voici nos onze adresses, du plus intimiste au plus festif."
+    heroSubtitle="Douze adresses autour de la ville ocre — du beldi chic au club international, de la piscine 100 % femmes à la pool party XXL — pour vivre Marrakech au bord de l'eau."
+    intro="Marrakech n'a pas la mer, mais elle a inventé son propre rapport à l'eau : à quelques minutes des remparts, sur la route de l'Ourika ou celle d'Agadir, une constellation de beach clubs prolonge la ville ocre en oasis. On y vient pour une journée pass, un déjeuner les pieds presque dans l'eau, un cocktail signé d'un mixologue, un DJ set qui monte avec le soleil — ou simplement pour souffler, à l'ombre des oliviers, loin de l'effervescence de la médina. Voici nos douze adresses, du plus intimiste au plus festif."
     datePublished="2026-06-13T08:00:00+01:00"
   />
 );
