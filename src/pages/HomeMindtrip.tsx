@@ -1109,7 +1109,7 @@ const HomeMindtrip = () => {
                                 src={iphoneTabletMockupAsset.url}
                                 alt=""
                                 aria-hidden="true"
-                                className="step9-float pointer-events-none select-none absolute top-[15%] sm:top-auto sm:bottom-[-16px] md:bottom-[60px] lg:bottom-[-16px] right-[-10%] sm:right-[-5%] h-[75%] sm:h-[55%] md:h-[105%] lg:h-[65%] w-auto object-contain object-bottom z-0 drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
+                                className="step9-float pointer-events-none select-none absolute top-[15%] sm:top-auto sm:bottom-[-16px] md:bottom-[25px] lg:bottom-[-16px] right-[-10%] sm:right-[-5%] h-[75%] sm:h-[55%] md:h-[105%] lg:h-[65%] w-auto object-contain object-bottom z-0 drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
                               />
                             </div>
                           </div>
