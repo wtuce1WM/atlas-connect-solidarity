@@ -27,7 +27,6 @@ import BookingOverlay from "@/components/BookingOverlay";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
 import PanelHashtagsOverlay from "@/components/overlays/PanelHashtagsOverlay";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
-import PoiSlidePanel from "@/components/PoiSlidePanel";
 import VideoSlidePanel from "@/components/VideoSlidePanel";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
 import ContactFlipCard from "@/components/cards/ContactFlipCard";
