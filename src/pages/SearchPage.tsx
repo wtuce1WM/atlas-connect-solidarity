@@ -1804,6 +1804,8 @@ const SearchPage = () => {
 
   const voiceLoopRef = useRef(false);
   const ttsIntroWordCountRef = useRef(0);
+  // -1 = original AI answer block; otherwise the aiChat message index being read
+  const [ttsSourceIdx, setTtsSourceIdx] = useState<number>(-1);
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus, spokenWordIndex: ttsSpokenWordIndex } = useTextToSpeech({
     onEnd: () => {
       if (voiceLoopRef.current) {
@@ -4183,7 +4185,7 @@ const SearchPage = () => {
                       </div>
                     );
                   }
-                  const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
+                  const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === -1;
                   const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
                   // Build data source for link matching based on active tab
                   const linkDataSource: AIBusinessData[] = activeTab === "poi"
@@ -4352,12 +4354,16 @@ const SearchPage = () => {
                           ttsStop();
                           return;
                         }
-                        const lastAssistant = [...aiChat].reverse().find(m => m.role === "assistant")?.content;
-                        const sourceText = lastAssistant || aiAnswerText;
+                        let lastAssistantIdx = -1;
+                        for (let i = aiChat.length - 1; i >= 0; i--) {
+                          if (aiChat[i].role === "assistant") { lastAssistantIdx = i; break; }
+                        }
+                        const sourceText = lastAssistantIdx >= 0 ? aiChat[lastAssistantIdx].content : aiAnswerText;
                         const cleanText = sourceText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
                         const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
                         ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
                         voiceLoopRef.current = true;
+                        setTtsSourceIdx(lastAssistantIdx);
                         ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
                       }}
                       className="relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border border-white/10 transition-transform hover:scale-105"
@@ -4406,18 +4412,24 @@ const SearchPage = () => {
                             ) : (
                               <div className="max-w-[90%] flex flex-col gap-4">
                                 <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
-                                  {parseInline(
-                                    m.content,
-                                    aiInlineBusinessPool,
-                                    (b: AIBusinessData) => {
-                                      setShowAiPopup(false);
-                                      setOverlaySelectedBusiness(null);
-                                      openCompactPanel(b);
-                                    },
-                                    `ai-chat-${idx}`,
-                                    undefined,
-                                    (b) => setHoveredResultId(b ? b.id : null)
-                                  )}
+                                  {(() => {
+                                    const isMsgTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === idx;
+                                    const msgKaraokeTarget = isMsgTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
+                                    return parseInline(
+                                      m.content,
+                                      aiInlineBusinessPool,
+                                      (b: AIBusinessData) => {
+                                        setShowAiPopup(false);
+                                        setOverlaySelectedBusiness(null);
+                                        openCompactPanel(b);
+                                      },
+                                      `ai-chat-${idx}`,
+                                      isMsgTTSActive
+                                        ? { wordIndex: 0, target: msgKaraokeTarget, mode: "karaoke" as const }
+                                        : undefined,
+                                      (b) => setHoveredResultId(b ? b.id : null)
+                                    );
+                                  })()}
                                 </div>
                                 {m.clarify && m.clarify.options.length > 0 && (
                                   <div className="flex flex-wrap gap-2">
@@ -4513,17 +4525,18 @@ const SearchPage = () => {
                                        )}
                                        <button
                                          type="button"
-                                         onClick={() => {
-                                           if (ttsStatus === "playing" || ttsStatus === "loading") {
-                                             ttsStop();
-                                             return;
-                                           }
-                                           const cleanText = m.content.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                                           const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                                           ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                                           voiceLoopRef.current = true;
-                                           ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                                         }}
+                                          onClick={() => {
+                                            if (ttsStatus === "playing" || ttsStatus === "loading") {
+                                              ttsStop();
+                                              return;
+                                            }
+                                            const cleanText = m.content.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                                            const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                                            ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                                            voiceLoopRef.current = true;
+                                            setTtsSourceIdx(idx);
+                                            ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                                          }}
                                          className="relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border border-white/10 transition-transform hover:scale-105"
                                          style={{
                                            background: "#3B3B3B",
