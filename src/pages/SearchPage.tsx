@@ -4485,9 +4485,9 @@ const SearchPage = () => {
                                          className="absolute rounded-full animate-ping pointer-events-none backdrop-blur-2xl backdrop-saturate-150"
                                          style={{
                                            inset: "-14px",
-                                           background: "radial-gradient(circle, rgba(59, 59, 59, 0.15) 0%, transparent 70%)",
-                                           border: "1px solid rgba(59, 59, 59, 0.3)",
-                                           boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 32px rgba(59, 59, 59, 0.2)",
+                                           background: "radial-gradient(circle, rgba(209, 209, 214, 0.15) 0%, transparent 70%)",
+                                           border: "1px solid rgba(209, 209, 214, 0.3)",
+                                           boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 32px rgba(209, 209, 214, 0.2)",
                                            animationDuration: "2.4s",
                                          }}
                                        />
@@ -4495,7 +4495,7 @@ const SearchPage = () => {
                                          className="absolute rounded-full animate-pulse pointer-events-none backdrop-blur-xl"
                                          style={{
                                            inset: "-9px",
-                                           background: "linear-gradient(135deg, rgba(255,255,255,0.15), rgba(59, 59, 59, 0.1))",
+                                           background: "linear-gradient(135deg, rgba(255,255,255,0.15), rgba(209, 209, 214, 0.1))",
                                            border: "1px solid rgba(255,255,255,0.25)",
                                            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35)",
                                          }}
@@ -4505,7 +4505,7 @@ const SearchPage = () => {
                                            className="absolute rounded-full pointer-events-none"
                                            style={{
                                              inset: "-4px",
-                                             background: "conic-gradient(from 0deg, transparent 0%, #3B3B3B 35%, rgba(59, 59, 59, 0.5) 50%, transparent 70%)",
+                                             background: "conic-gradient(from 0deg, transparent 0%, #D1D1D6 35%, rgba(209, 209, 214, 0.5) 50%, transparent 70%)",
                                              animation: "spin 2s linear infinite",
                                              filter: "blur(0.5px)",
                                            }}
@@ -4527,7 +4527,7 @@ const SearchPage = () => {
                                          className="relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/30 transition-transform hover:scale-105"
                                          style={{
                                            background: "linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))",
-                                           boxShadow: "0 8px 32px rgba(59, 59, 59, 0.3), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.1)",
+                                           boxShadow: "0 8px 32px rgba(209, 209, 214, 0.3), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.1)",
                                          }}
                                          title={language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
                                        >
@@ -4538,11 +4538,11 @@ const SearchPage = () => {
                                            }}
                                          />
                                          {ttsStatus === "loading" ? (
-                                           <Loader className="relative h-5 w-5 md:h-6 md:w-6 animate-spin" style={{ color: "#3B3B3B" }} />
+                                           <Loader className="relative h-5 w-5 md:h-6 md:w-6 animate-spin" style={{ color: "#D1D1D6" }} />
                                          ) : (ttsStatus === "playing") ? (
-                                           <VolumeX className="relative h-5 w-5 md:h-6 md:w-6" style={{ color: "#3B3B3B" }} />
+                                           <VolumeX className="relative h-5 w-5 md:h-6 md:w-6" style={{ color: "#D1D1D6" }} />
                                          ) : (
-                                           <Volume2 className="relative h-5 w-5 md:h-6 md:w-6" style={{ color: "#3B3B3B" }} />
+                                           <Volume2 className="relative h-5 w-5 md:h-6 md:w-6" style={{ color: "#D1D1D6" }} />
                                          )}
                                        </button>
                                      </div>
