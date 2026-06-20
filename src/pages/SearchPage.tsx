@@ -4231,7 +4231,7 @@ const SearchPage = () => {
                 return (
                   <div className="mt-6 -mx-4 sm:mx-0">
                     <div
-                      className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]"
+                      className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 scrollbar-hide"
                       onWheel={(e) => {
                         const el = e.currentTarget;
                         if (e.deltaX !== 0) return;
@@ -4441,7 +4441,7 @@ const SearchPage = () => {
                                   return (
                                     <div className="-mx-4 sm:mx-0">
                                       <div
-                                        className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]"
+                                        className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 scrollbar-hide"
                                         onWheel={(e) => {
                                           const el = e.currentTarget;
                                           if (e.deltaX !== 0) return;

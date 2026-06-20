@@ -465,7 +465,7 @@ const SearchAIVideosCarousel = ({ subcategoryNames, city, entryLabel, serviceNam
 
 
       <div className="-mx-4 sm:mx-0">
-        <div className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 [scrollbar-width:thin]">
+        <div className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 scrollbar-hide">
           {docs.map((doc) => {
             const priceTypeLabel = doc.price_type
               ? (doc.price_type.toLowerCase() === "location"
