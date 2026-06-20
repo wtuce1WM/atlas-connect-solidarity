@@ -4501,7 +4501,7 @@ const SearchPage = () => {
                       <>
                       <form
                         onSubmit={(e) => { e.preventDefault(); submitAiRefinement(); }}
-                        className="flex items-end gap-2"
+                        className="flex flex-col gap-3 w-full"
                       >
                         <textarea
                           value={aiChatInput}
@@ -4521,45 +4521,47 @@ const SearchPage = () => {
                               : "Affinez votre demande"
                           }
                           disabled={aiChatLoading}
-                          className="flex-1 min-h-[44px] max-h-32 resize-none rounded-2xl border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-50 text-black placeholder:text-zinc-500"
+                          className="w-full min-h-[44px] max-h-32 resize-none rounded-2xl border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-50 text-black placeholder:text-zinc-500"
                           style={{ backgroundColor: "#F1F1F1" }}
                         />
-                        <button
-                          type="submit"
-                          disabled={aiChatLoading || !aiChatInput.trim()}
-                          className="flex items-center justify-center w-14 h-14 rounded-xl transition-all hover:opacity-90 shrink-0 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
-                          style={{ backgroundColor: "hsl(var(--primary))" }}
-                          aria-label={language === "en" ? "Send" : "Envoyer"}
-                          title={language === "en" ? "Send" : "Envoyer"}
-                        >
-                          {aiChatLoading ? <Loader2 className="h-6 w-6 text-white animate-spin" /> : <Send className="h-6 w-6 text-white" />}
-                        </button>
-                        <div className="relative flex items-center justify-center shrink-0">
-                          <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
-                          <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
-                          <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
+                        <div className="flex justify-center items-center gap-4">
                           <button
-                            type="button"
-                            onClick={refineVoice.toggleRecording}
-                            disabled={aiChatLoading || refineVoice.status === "processing"}
-                            className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
-                              refineVoice.status === "recording"
-                                ? "bg-red-500 animate-pulse"
-                                : refineVoice.status === "processing"
-                                  ? "bg-[#194CFF]"
-                                  : "bg-[#194CFF] hover:bg-[#194CFF]/90"
-                            }`}
-                            aria-label={language === "en" ? "Voice refinement" : "Affiner à la voix"}
-                            title={language === "en" ? "Voice refinement" : "Affiner à la voix"}
+                            type="submit"
+                            disabled={aiChatLoading || !aiChatInput.trim()}
+                            className="flex items-center justify-center w-14 h-14 rounded-xl transition-all hover:opacity-90 shrink-0 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
+                            style={{ backgroundColor: "hsl(var(--primary))" }}
+                            aria-label={language === "en" ? "Send" : "Envoyer"}
+                            title={language === "en" ? "Send" : "Envoyer"}
                           >
-                            {refineVoice.status === "processing" ? (
-                              <Loader2 className="h-5 w-5 text-white animate-spin" />
-                            ) : refineVoice.status === "recording" ? (
-                              <MicOff className="h-5 w-5 text-white" />
-                            ) : (
-                              <Mic className="h-5 w-5 text-white" />
-                            )}
+                            {aiChatLoading ? <Loader2 className="h-6 w-6 text-white animate-spin" /> : <Send className="h-6 w-6 text-white" />}
                           </button>
+                          <div className="relative flex items-center justify-center shrink-0">
+                            <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
+                            <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
+                            <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
+                            <button
+                              type="button"
+                              onClick={refineVoice.toggleRecording}
+                              disabled={aiChatLoading || refineVoice.status === "processing"}
+                              className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
+                                refineVoice.status === "recording"
+                                  ? "bg-red-500 animate-pulse"
+                                  : refineVoice.status === "processing"
+                                    ? "bg-[#194CFF]"
+                                    : "bg-[#194CFF] hover:bg-[#194CFF]/90"
+                              }`}
+                              aria-label={language === "en" ? "Voice refinement" : "Affiner à la voix"}
+                              title={language === "en" ? "Voice refinement" : "Affiner à la voix"}
+                            >
+                              {refineVoice.status === "processing" ? (
+                                <Loader2 className="h-5 w-5 text-white animate-spin" />
+                              ) : refineVoice.status === "recording" ? (
+                                <MicOff className="h-5 w-5 text-white" />
+                              ) : (
+                                <Mic className="h-5 w-5 text-white" />
+                              )}
+                            </button>
+                          </div>
                         </div>
                       </form>
                       {(refineVoice.status === "recording" || refineVoice.status === "processing") && (
