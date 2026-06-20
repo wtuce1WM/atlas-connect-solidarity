@@ -932,6 +932,16 @@ const HomeMindtrip = () => {
                         />
                         <div className="absolute inset-0 bg-white/80" />
                       </>
+                    {i === 3 && (
+                      <>
+                        <img
+                          aria-hidden="true"
+                          src={destinationsMapAsset.url}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-white/80" />
+                      </>
                     )}
                   {(i === 1 || i === 2 || i === 3 || i === 4 || i === 5 || i === 7) && (
                     <div className="w-full mb-6 relative z-10">
