@@ -1151,6 +1151,13 @@ const STEPS = [
     icon: Sparkles,
   },
   {
+    title: "Votre identité numérique",
+    desc: "Créez un profil qui vous ressemble — profil, carte, lieux favoris et avantages locaux en un seul lien.\n\nAjoutez votre style, vos liens et connectez-vous avec des utilisateurs qui partagent votre intérêt pour le Maroc.\n\n• Profil et couverture personnalisés\n• Ajoutez vos réseaux sociaux\n• Votre QR code\n• Connectez-vous et chattez facilement",
+    cta: "Créer mon profil",
+    href: "/club",
+    icon: User,
+  },
+  {
     title: "Composez votre voyage",
     desc: "Construisez votre itinéraire, suivez les établissements qui vous intéressent, gardez les points d'intérêts dans votre compte, soyez informé des bons plans, agenda, annonces...",
     cta: "Inscrivez-vous",
