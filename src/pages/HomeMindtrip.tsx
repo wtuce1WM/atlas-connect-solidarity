@@ -132,6 +132,36 @@ const InViewVideo = ({ src, className, controls = false }: { src: string; classN
   );
 };
 
+// Image de fond avec effet parallax JS (fonctionne sur iOS Safari, contrairement à bg-fixed)
+const ParallaxImg = ({ src, className, style, amplitude = 40 }: { src: string; className?: string; style?: React.CSSProperties; amplitude?: number }) => {
+  const ref = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const parent = el.parentElement;
+      if (!parent) return;
+      const r = parent.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      const progress = (r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2);
+      const clamped = Math.max(-1, Math.min(1, progress));
+      el.style.transform = `translate3d(0, ${(-clamped * amplitude).toFixed(1)}px, 0)`;
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [amplitude]);
+  return <img ref={ref} src={src} alt="" aria-hidden="true" className={className} style={{ willChange: "transform", ...style }} />;
+};
+
 const Step2PhoneMockup = () => (
   <div className="absolute inset-0 flex items-center justify-center bg-white pointer-events-none">
     <div className="relative h-[58%] w-[42%] translate-x-[18%] translate-y-[8%] rotate-[10deg] rounded-[2rem] border-[10px] border-foreground/80 bg-white shadow-[0_24px_50px_rgba(0,0,0,0.2)] md:h-[74%] md:w-[38%] md:translate-y-[16%]">
