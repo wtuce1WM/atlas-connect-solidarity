@@ -68,7 +68,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   "/blog/activites-enfants-marrakech": {
     title: `Activités pour les enfants à Marrakech — ${BRAND}`,
     description:
-      "Douze adresses pour occuper les enfants à Marrakech : parcs aquatiques, trampolines, escape games, mini-villes éducatives, poneys et expériences immersives en famille.",
+      "Quarante-et-une adresses pour occuper les enfants à Marrakech : parcs aquatiques, trampolines, escape games, mini-villes, poneys, fermes pédagogiques, ateliers créatifs et expériences immersives en famille.",
   },
   "/blog/artisanat-medina-marrakech": {
     title: `Artisanat marocain dans la Médina de Marrakech — ${BRAND}`,
