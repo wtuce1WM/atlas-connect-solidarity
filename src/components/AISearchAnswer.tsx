@@ -324,6 +324,10 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
           return aMatch - bMatch;
         });
 
+        const userCoordsPayload = geo.isEnabled && geo.coords
+          ? { lat: geo.coords.lat, lng: geo.coords.lng }
+          : undefined;
+
         const { data, error: fnError } = await supabase.functions.invoke("ai-search-answer", {
           body: {
             query,
@@ -335,8 +339,11 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
               categories: b.categories,
               hook_fr: b.hook_fr,
               wtuce_status: b.wtuce_status,
+              latitude: b.latitude ?? null,
+              longitude: b.longitude ?? null,
             })),
             language,
+            userCoords: userCoordsPayload,
             vary: (regenerateCount + (externalRegenerateKey ?? 0)) > 0 ? regenerateCount + (externalRegenerateKey ?? 0) : undefined,
           },
         });
