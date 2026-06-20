@@ -877,9 +877,9 @@ const HomeMindtrip = () => {
                     <div className="relative z-10 flex flex-col gap-4 md:gap-6 flex-1 justify-between">
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         <div className="flex-1 lg:max-w-[60%]">
-                          <p className="font-roboto text-base text-black/90 font-normal whitespace-pre-line">
-                            {s.desc}
-                          </p>
+                          <div className="font-roboto text-base text-black/90 font-normal">
+                            {renderDescWithCheckmarks(s.desc)}
+                          </div>
                         </div>
                         <div className="flex lg:block items-center justify-center lg:flex-shrink-0 pointer-events-none">
                           <div className="relative h-[220px] md:h-[260px] lg:h-[340px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden">
