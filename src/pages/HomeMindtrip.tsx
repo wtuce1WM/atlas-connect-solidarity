@@ -109,6 +109,48 @@ const Step2PhoneMockup = () => (
   </div>
 );
 
+const renderDescWithCheckmarks = (text: string, isDarkBg = false) => {
+  if (!text) return null;
+  const lines = text.split("\n");
+  return (
+    <span className="flex flex-col gap-1.5 w-full">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        const isBullet = trimmed.startsWith("•") || trimmed.startsWith("-") || trimmed.startsWith("*") || trimmed.startsWith("•\u00a0") || trimmed.startsWith("\u00a0•");
+        
+        if (isBullet) {
+          const content = line.replace(/^\s*[\u00a0]?•\s*/, "").replace(/^\s*-\s*/, "").replace(/^\s*\*\s*/, "").trim();
+          return (
+            <span key={idx} className="flex items-start gap-2.5 text-left w-full">
+              <span 
+                className="inline-flex items-center justify-center shrink-0 w-4 h-4 rounded-full mt-1 border border-[#C04F17]/10 shadow-sm"
+                style={{ backgroundColor: "#C04F17" }}
+              >
+                <svg className="w-2.5 h-2.5 text-white stroke-[3.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </span>
+              <span className={isDarkBg ? "text-white/90" : "text-black/90"}>
+                {content}
+              </span>
+            </span>
+          );
+        }
+        
+        if (trimmed === "" || trimmed === "\u00a0") {
+          return <span key={idx} className="h-1" />;
+        }
+        
+        return (
+          <span key={idx} className={`${isDarkBg ? "text-white/90" : "text-black/90"} block text-left`}>
+            {line}
+          </span>
+        );
+      })}
+    </span>
+  );
+};
+
 const HomeMindtrip = () => {
   
   const navigate = useNavigate();
@@ -835,9 +877,9 @@ const HomeMindtrip = () => {
                     <div className="relative z-10 flex flex-col gap-4 md:gap-6 flex-1 justify-between">
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         <div className="flex-1 lg:max-w-[60%]">
-                          <p className="font-roboto text-base text-black/90 font-normal whitespace-pre-line">
-                            {s.desc}
-                          </p>
+                          <div className="font-roboto text-base text-black/90 font-normal">
+                            {renderDescWithCheckmarks(s.desc)}
+                          </div>
                         </div>
                         <div className="flex lg:block items-center justify-center lg:flex-shrink-0 pointer-events-none">
                           <div className="relative h-[220px] md:h-[260px] lg:h-[340px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden">
@@ -966,7 +1008,9 @@ const HomeMindtrip = () => {
                             <h3 className="mt-3 font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
                               {s.title}
                             </h3>
-                            <p className="mt-3 md:mt-4 text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-base">{s.desc}</p>
+                            <div className="mt-3 md:mt-4 text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-base">
+                              {renderDescWithCheckmarks(s.desc, true)}
+                            </div>
                           </>
                         )}
 
