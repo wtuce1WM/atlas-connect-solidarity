@@ -241,20 +241,20 @@ const PublicClubProfile = () => {
           <div className="w-full mt-8 space-y-3">
             <button
               type="button"
-              className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+              className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100 font-sans"
             >
-              <span className="inline-flex items-center gap-2">
+              <span className="inline-flex items-center gap-2 font-sans">
                 <Mail className="h-4 w-4 text-neutral-400" />
-                Contactez-moi
+                contactez-moi
               </span>
             </button>
             <button
               type="button"
-              className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+              className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100 font-sans"
             >
-              <span className="inline-flex items-center gap-2">
+              <span className="inline-flex items-center gap-2 font-sans">
                 <Phone className="h-4 w-4 text-neutral-400" />
-                Appelez-moi
+                appelez-moi
               </span>
             </button>
             {links.map((l, i) => (
