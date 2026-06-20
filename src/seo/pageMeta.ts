@@ -88,7 +88,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   "/blog/beach-clubs-marrakech": {
     title: `Beach Clubs à Marrakech — ${BRAND}`,
     description:
-      "Onze beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau.",
+      "Douze beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau.",
   },
   "/blog/hotels-riads-vue-mer-essaouira": {
     title: `Hôtels & Riads avec vue sur mer à Essaouira — ${BRAND}`,
