@@ -613,6 +613,44 @@ const Blog = () => {
                 ),
               });
 
+              // Carte Manger des fruits de mer à Essaouira
+              items.push({
+                key: "static-manger-fruits-de-mer-essaouira",
+                date: "2026-06-20T08:00:00Z",
+                node: (
+                  <Link key="static-manger-fruits-de-mer-essaouira" to="/blog/manger-fruits-de-mer-essaouira">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-cyan-50 to-sky-50 dark:from-cyan-950/30 dark:to-sky-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.fruitsmer ? (
+                          <img
+                            src={staticHeroes.fruitsmer}
+                            alt="Manger des fruits de mer à Essaouira"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Manger des fruits de mer à Essaouira
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Quinze adresses pour goûter à l'Atlantique, du port aux remparts — gastronomie marine, tables de médina, beach restaurants et l'incontournable marché au poisson.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Essaouira
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
               // Carte Hébergements Sidi Kaouki
               items.push({
                 key: "static-hebergements-sidi-kaouki",
