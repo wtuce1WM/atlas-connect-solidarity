@@ -949,7 +949,7 @@ const HomeMindtrip = () => {
                                 backgroundPosition: "left center",
                               }}
                             />
-                           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/40" />
+                           <div className="absolute inset-0 bg-white/80" />
                            {/* Floating phone mockup on the right */}
                            <div className="pointer-events-none absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-[5] hidden sm:block">
                              <div className="relative h-[220px] md:h-[260px] lg:h-[300px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.55)] overflow-hidden">
@@ -1041,11 +1041,11 @@ const HomeMindtrip = () => {
                                 Étape {i + 1}
                               </span>
                             )}
-                            <h3 className="mt-3 font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
+                            <h3 className={`mt-3 font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight ${i === 3 ? "text-black" : "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"}`}>
                               {s.title}
                             </h3>
-                            <div className={`text-white/90 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] font-roboto text-base ${i === 3 ? "mt-6 md:mt-8 font-normal max-w-[55%] sm:max-w-[60%]" : "mt-3 md:mt-4 font-bold max-w-lg"}`}>
-                              {renderDescWithCheckmarks(s.desc, true)}
+                            <div className={`${i === 3 ? "text-black/90 font-roboto text-base" : "text-white/90 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] font-roboto text-base"} ${i === 3 ? "mt-6 md:mt-8 font-normal max-w-[55%] sm:max-w-[60%]" : "mt-3 md:mt-4 font-bold max-w-lg"}`}>
+                              {renderDescWithCheckmarks(s.desc, i !== 3)}
                             </div>
                           </>
                         )}
