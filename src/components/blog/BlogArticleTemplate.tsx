@@ -548,9 +548,10 @@ const BlogArticleTemplate = ({
 
       {openBusinessId && (
         <div
-          className="fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col animate-slide-in-right lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:w-1/2"
+          className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:w-1/2 ${isClosing ? "animate-slide-out-right" : "animate-slide-in-right"}`}
           style={{ height: "100dvh" }}
         >
+
           <SlidePanelHeader onClose={closePanel} alwaysDark glassClose />
           <div className="flex-1 min-h-0 overflow-visible">
             <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
