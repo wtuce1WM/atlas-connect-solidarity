@@ -340,7 +340,7 @@ export function CtaBar({
         </div>
       )}
       {ctaItems.length > 0 && (
-        ctaItems.length === 5 ? (
+        (ctaItems.length === 5 || ctaItems.length === 6) ? (
           <div className="w-full px-2 md:w-[92%] md:px-0 pointer-events-auto flex flex-col gap-2">
             <div className="flex justify-center gap-1.5 md:gap-2">
               {ctaItems.slice(0, 3).map((item, i) => (
