@@ -241,11 +241,12 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
               ? { id: "", name: `@${account}`, logo_url: null, logo_bg: null }
               : null);
 
-        // Filtre anti-spam externe : si pas de business rattaché,
-        // on n'accepte que les comptes whitelistés, et on exclut les YT longs.
-        if (!ownerId) {
-          const accLower = account.toLowerCase();
-          if (!accLower || !EXTERNAL_ACCOUNT_WHITELIST.has(accLower)) return;
+        // Filtre anti-spam externe : dès qu'un compte externe est présent,
+        // il doit être whitelisté (et on exclut les YT longs). Le rattachement
+        // à un business ne contourne PAS cette règle.
+        const accLower = account.toLowerCase();
+        if (accLower) {
+          if (!EXTERNAL_ACCOUNT_WHITELIST.has(accLower)) return;
           if (effectiveUrl && isYoutubeLongFormat(effectiveUrl)) return;
         }
 
