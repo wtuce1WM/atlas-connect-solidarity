@@ -868,8 +868,11 @@ const HomeMindtrip = () => {
                      <>
                        <div
                          aria-hidden="true"
-                         className="absolute inset-0 bg-cover bg-center bg-fixed"
-                         style={{ backgroundImage: `url(${poiMapAsset.url})` }}
+                         className="absolute inset-0 bg-cover bg-fixed"
+                         style={{ 
+                           backgroundImage: `url(${poiMapAsset.url})`,
+                           backgroundPosition: "30% center"
+                         }}
                        />
                        <div className="absolute inset-0 bg-white/55" />
                      </>
