@@ -918,9 +918,9 @@ const HomeMindtrip = () => {
                             </h3>
 
                             {/* Mobile/Tablet/Desktop Content Layout with absolute full-size mockup */}
-                            <div className="relative w-full mt-6 md:mt-8 flex-1 min-h-[180px]">
+                             <div className="relative w-full mt-6 md:mt-8 flex-1 min-h-[180px]">
                               {/* Left/Middle side: text description taking 82% width, sits on top */}
-                              <div className="relative z-10 w-[82%] md:w-[85%] pr-2 pt-20 md:pt-28 flex flex-col gap-4">
+                              <div className="relative z-10 w-[82%] md:w-[85%] pr-2 pt-8 md:pt-12 flex flex-col gap-4">
                                 <p className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-base text-left whitespace-pre-line">
                                   {s.desc.replace("\n\n\nVotre\u00a0", "")}
                                 </p>
