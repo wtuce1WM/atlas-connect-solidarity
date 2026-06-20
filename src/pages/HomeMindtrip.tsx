@@ -1183,9 +1183,23 @@ const HotelAvailabilityWidget = () => {
       onSubmit={submit}
       className="mt-4 grid w-full max-w-2xl gap-2 rounded-2xl border border-border/40 bg-background/40 p-3 backdrop-blur sm:grid-cols-2 md:mt-6 md:gap-3 md:p-4"
     >
+      <style>{`
+        .hotel-field,
+        .hotel-field option,
+        .hotel-field::-webkit-datetime-edit,
+        .hotel-field::-webkit-datetime-edit-fields-wrapper,
+        .hotel-field::-webkit-datetime-edit-text,
+        .hotel-field::-webkit-datetime-edit-month-field,
+        .hotel-field::-webkit-datetime-edit-day-field,
+        .hotel-field::-webkit-datetime-edit-year-field {
+          color: #000 !important;
+          -webkit-text-fill-color: #000 !important;
+          opacity: 1 !important;
+        }
+      `}</style>
       <label className={`${labelCls} sm:col-span-2`}>
         Destination
-        <select value={city} onChange={(e) => setCity(e.target.value)} className={fieldCls} style={fieldStyle}>
+        <select value={city} onChange={(e) => setCity(e.target.value)} className={`${fieldCls} hotel-field`} style={fieldStyle}>
           <option value="Marrakech">Marrakech</option>
           <option value="Essaouira">Essaouira</option>
         </select>
@@ -1204,7 +1218,7 @@ const HotelAvailabilityWidget = () => {
               setCheckOut(fmt(d));
             }
           }}
-          className={fieldCls}
+          className={`${fieldCls} hotel-field`}
           style={fieldStyle}
         />
       </label>
@@ -1215,13 +1229,13 @@ const HotelAvailabilityWidget = () => {
           value={checkOut}
           min={checkIn}
           onChange={(e) => setCheckOut(e.target.value)}
-          className={fieldCls}
+          className={`${fieldCls} hotel-field`}
           style={fieldStyle}
         />
       </label>
       <label className={`${labelCls} sm:col-span-2`}>
         Adultes
-        <select value={adults} onChange={(e) => setAdults(e.target.value)} className={fieldCls} style={fieldStyle}>
+        <select value={adults} onChange={(e) => setAdults(e.target.value)} className={`${fieldCls} hotel-field`} style={fieldStyle}>
           {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
       </label>
