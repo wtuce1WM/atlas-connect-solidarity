@@ -1148,18 +1148,18 @@ const STEPS = [
     icon: PlayCircle,
   },
   {
-    title: "Votre assistant IA",
-    desc: "Dialoguez avec notre Agent IA pour affiner vos recherches avec vos propres critères, sauvegardez les résultats, partagez les avec vos proches.",
-    cta: "Voir la démo",
-    href: "/search?q=je%20cherche%20un%20restaurant%20%C3%A0%20Marrakech%20ouvert%20demain%20midi%20avec%20une%20piscine&tab=ai&demo=sur%20la%20route%20de%20l'Ourika",
-    icon: Sparkles,
-  },
-  {
     title: "Votre identité numérique",
     desc: "Créez un profil qui vous ressemble — profil, carte, lieux favoris et avantages locaux en un seul lien.\n\nAjoutez votre style, vos liens et connectez-vous avec des utilisateurs qui partagent votre intérêt pour le Maroc.\n\n• Profil et couverture personnalisés\n• Ajoutez vos réseaux sociaux\n• Votre QR code\n• Connectez-vous et chattez facilement",
     cta: "Créer mon profil",
     href: "/club",
     icon: User,
+  },
+  {
+    title: "Votre assistant IA",
+    desc: "Dialoguez avec notre Agent IA pour affiner vos recherches avec vos propres critères, sauvegardez les résultats, partagez les avec vos proches.",
+    cta: "Voir la démo",
+    href: "/search?q=je%20cherche%20un%20restaurant%20%C3%A0%20Marrakech%20ouvert%20demain%20midi%20avec%20une%20piscine&tab=ai&demo=sur%20la%20route%20de%20l'Ourika",
+    icon: Sparkles,
   },
   {
     title: "Composez votre voyage",
