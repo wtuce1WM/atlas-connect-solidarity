@@ -951,14 +951,14 @@ const HomeMindtrip = () => {
                  >
                     {i === 7 && (
                       <>
-                        {/* iOS Safari ignore bg-fixed → fallback <img> en mobile */}
-                        <img
-                          aria-hidden="true"
-                          src={poiMapAsset.url}
-                          alt=""
-                          className="absolute inset-0 h-full w-full object-cover md:hidden"
-                          style={{ objectPosition: "15% center" }}
-                        />
+                        {/* Mobile : parallax JS (bg-fixed ignoré par iOS Safari) */}
+                        <div aria-hidden="true" className="absolute inset-0 overflow-hidden md:hidden">
+                          <ParallaxImg
+                            src={poiMapAsset.url}
+                            className="absolute left-0 w-full object-cover"
+                            style={{ top: "-10%", height: "120%", objectPosition: "15% center" }}
+                          />
+                        </div>
                         <div
                           aria-hidden="true"
                           className="absolute inset-0 hidden md:block bg-fixed bg-no-repeat"
