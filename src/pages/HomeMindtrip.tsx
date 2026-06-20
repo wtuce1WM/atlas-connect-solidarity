@@ -933,7 +933,7 @@ const HomeMindtrip = () => {
                         <div className="absolute inset-0 bg-white/80" />
                       </>
                     )}
-                  {(i === 1 || i === 2 || i === 4 || i === 5 || i === 7) && (
+                  {(i === 1 || i === 2 || i === 3 || i === 4 || i === 5 || i === 7) && (
                     <div className="w-full mb-6 relative z-10">
                       <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
                       Étape {i + 1}
