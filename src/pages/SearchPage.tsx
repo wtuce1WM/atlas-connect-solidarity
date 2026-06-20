@@ -383,6 +383,8 @@ const SearchPage = () => {
 
   const categoryFromUrl = searchParams.get("category") || "";
   
+  const geo = useGeolocation();
+
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
   // Previous AI text kept visible while a new one regenerates (subcategory/city change)
