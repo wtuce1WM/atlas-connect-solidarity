@@ -1824,8 +1824,7 @@ const SearchPage = () => {
       }
     },
   });
-  const toggleRecordingRef = useRef<(() => void) | null>(null);
-  const geo = useGeolocation();
+  // `geo` est déclaré plus haut (proche du state AI) pour être accessible aux callbacks IA.
 
   // Auto-select city from geolocation when geo is enabled and no city is explicitly set
   useEffect(() => {
