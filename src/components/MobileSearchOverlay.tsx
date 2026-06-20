@@ -383,6 +383,7 @@ const MobileSearchOverlay = ({
         isOpen={voice.status === "recording" || voice.status === "processing"}
         liveTranscript={voice.liveTranscript}
           audioLevel={voice.audioLevel}
+          micReady={voice.micReady}
         onClose={voice.toggleRecording}
         onFinish={voice.finishRecording}
       />
