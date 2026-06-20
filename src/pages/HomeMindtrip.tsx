@@ -575,7 +575,7 @@ const HomeMindtrip = () => {
       <div>
         <section 
           ref={heroSectionRef}
-          className="hero-parallax relative min-h-[100dvh] md:min-h-[92svh] w-full overflow-hidden"
+          className="home-hero-section hero-parallax relative min-h-[100dvh] md:min-h-[92svh] w-full overflow-hidden"
           style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }}
         >
         <picture>
