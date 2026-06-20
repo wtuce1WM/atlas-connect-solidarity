@@ -937,7 +937,7 @@ const HomeMindtrip = () => {
 
       {/* HOW IT WORKS — VERTICAL 2-COLUMN GRID (steps 2-8) */}
       <section className="relative bg-background mt-8 md:mt-16 px-4 md:px-8 py-8 md:py-16">
-        <div className="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4 md:gap-8">
+        <div className="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 md:auto-rows-fr gap-4 md:gap-8">
             {STEPS.slice(1).map((s, idx) => {
               const i = idx + 1;
               return (
