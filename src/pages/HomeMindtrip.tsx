@@ -964,10 +964,10 @@ const HomeMindtrip = () => {
                               <img src="/__l5e/assets-v1/61f1aae7-ac0f-446f-a27b-61c9cfb7a03e/business-card1.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 5 && (
-                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/89aa9374-4150-470a-aade-0189d84afb20-1775630369725-hyc1g8.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/89aa9374-4150-470a-aade-0189d84afb20-1775630369725-hyc1g8.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 7 && (
-                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                           </div>
                         </div>
@@ -1004,7 +1004,7 @@ const HomeMindtrip = () => {
                             <div className="pointer-events-none absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-[5] hidden sm:block">
                               <div className="relative h-[220px] md:h-[260px] lg:h-[340px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.55)] overflow-hidden">
                                 <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20" />
-                                <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
+                                <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                               </div>
                             </div>
                         </>
@@ -1102,7 +1102,7 @@ const HomeMindtrip = () => {
                               <div className="mt-6 flex justify-center sm:hidden">
                                 <div className="relative h-[280px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.55)] overflow-hidden">
                                   <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
-                                  <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
+                                  <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                                 </div>
                               </div>
                             )}
