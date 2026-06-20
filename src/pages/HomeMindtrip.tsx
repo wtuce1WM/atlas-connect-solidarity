@@ -834,7 +834,7 @@ const HomeMindtrip = () => {
                     <div className="relative z-10 flex flex-col gap-4 md:gap-6 flex-1 justify-between">
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         <div className="flex-1 lg:max-w-[60%]">
-                          <p className="font-roboto text-base text-black/90 font-normal">
+                          <p className="font-roboto text-base text-black/90 font-normal whitespace-pre-line">
                             {s.desc}
                           </p>
                         </div>
@@ -1180,7 +1180,7 @@ const STEPS = [
   },
   {
     title: "Naviguez en mode immersif",
-    desc: "Associez la précision de la recherche Google, la preuve sociale/avis clients des grandes plateformes, les fonctionnalités de TripAdvisor/Booking, le navigation immersive de TikTok/Instagram/Youtube dans une application dédiée au tourisme et à la vie quotidienne au Maroc.",
+    desc: "Associez :\n - la précision de la recherche Google,\n- la preuve sociale/avis clients des grandes plateformes,\n- les fonctionnalités de TripAdvisor/Booking,\n- le navigation immersive de TikTok/Instagram/Youtube\n- la personnalisation de l'IA\ndans une application dédiée au tourisme et à la vie quotidienne au Maroc.",
     cta: "Découvrir",
     href: "/y/tarik-belasri",
     icon: PlayCircle,
