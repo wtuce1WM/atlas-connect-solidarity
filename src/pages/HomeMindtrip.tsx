@@ -35,6 +35,7 @@ import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
 import step3MockupAsset from "@/assets/step3-mockup.webp.asset.json";
+import destinationsMapAsset from "@/assets/destinations_map.webp.asset.json";
 import { X } from "lucide-react";
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -862,7 +863,7 @@ const HomeMindtrip = () => {
                    className="relative overflow-hidden w-full h-full rounded-2xl md:rounded-3xl p-4 md:p-10 border border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)] flex flex-col justify-between"
                    style={{ backgroundColor: "#F1F1F1" }}
                  >
-                  {(i === 1 || i === 2 || i === 3 || i === 4 || i === 5 || i === 7) && (
+                  {(i === 1 || i === 2 || i === 4 || i === 5 || i === 7) && (
                     <div className="w-full mb-6 relative z-10">
                       <span className="font-josefin text-xs uppercase tracking-[0.3em] text-white inline-flex items-center rounded-full px-3 py-1 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)]" style={{ backgroundColor: "#C04F17" }}>
                       Étape {i + 1}
@@ -873,7 +874,7 @@ const HomeMindtrip = () => {
                     </div>
                   )}
 
-                  {(i === 1 || i === 2 || i === 3 || i === 4 || i === 5 || i === 7) ? (
+                  {(i === 1 || i === 2 || i === 4 || i === 5 || i === 7) ? (
                     <div className="relative z-10 flex flex-col gap-4 md:gap-6 flex-1 justify-between">
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         <div className="flex-1 lg:max-w-[60%]">
@@ -889,9 +890,6 @@ const HomeMindtrip = () => {
                             )}
                             {i === 2 && (
                               <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
-                            )}
-                            {i === 3 && (
-                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 4 && (
                               <img src="/__l5e/assets-v1/61f1aae7-ac0f-446f-a27b-61c9cfb7a03e/business-card1.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
@@ -922,6 +920,17 @@ const HomeMindtrip = () => {
                           src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/6eab7b31-bda9-43d5-8c8b-4f972e5bb8bd-1774600396740-3cbxw.mp4"
                           className="absolute inset-0 h-full w-full object-cover"
                         />
+                      )}
+                      {i === 3 && (
+                        <>
+                           {/* Background image with parallax (fixed attachment) — all devices */}
+                           <div
+                             aria-hidden="true"
+                             className="absolute inset-0 bg-cover bg-center bg-fixed"
+                             style={{ backgroundImage: `url(${destinationsMapAsset.url})` }}
+                           />
+                           <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-black/65" />
+                        </>
                       )}
                       {i === 8 && (
                         <>
@@ -1016,8 +1025,8 @@ const HomeMindtrip = () => {
 
                         {i === 6 ? (
                           <HotelAvailabilityWidget />
-                        ) : i === 8 ? (
-                          <div className="flex justify-center w-full mt-auto pt-4">
+                        ) : (i === 3 || i === 8) ? (
+                          <div className="flex justify-center w-full mt-auto pt-4 relative z-10">
                             <Link
                               to={s.href}
                               className="inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs tracking-[0.2em] text-white border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] btn-shimmer transition-transform hover:scale-105 duration-200 md:px-6 md:py-3 md:text-sm"
