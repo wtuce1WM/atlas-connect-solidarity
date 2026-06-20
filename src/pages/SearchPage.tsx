@@ -2157,7 +2157,7 @@ const SearchPage = () => {
 
 
 
-  const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript, audioLevel } = useVoiceSearch({
+  const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript, audioLevel, micReady: voiceMicReady } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
       setAvailabilityRestrictedIds(null);
