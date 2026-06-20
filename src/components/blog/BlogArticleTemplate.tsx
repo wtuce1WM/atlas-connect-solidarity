@@ -36,7 +36,7 @@ export interface BlogArticleEntry {
   extraIds?: string[];
   pretitle: string;
   title: string;
-  hours: string;
+  hours?: string;
   paragraphs: string[];
 }
 
@@ -401,10 +401,12 @@ const BlogArticleTemplate = ({
                                     </span>
                                   )}
                                 </div>
-                                <p className="flex items-start gap-2 text-sm text-muted-foreground mb-3">
-                                  <Clock className="h-4 w-4 mt-0.5 shrink-0" />
-                                  <span>{entry.hours}</span>
-                                </p>
+                                {entry.hours && (
+                                  <p className="flex items-start gap-2 text-sm text-muted-foreground mb-3">
+                                    <Clock className="h-4 w-4 mt-0.5 shrink-0" />
+                                    <span>{entry.hours}</span>
+                                  </p>
+                                )}
                                 {b.hook_fr && (
                                   <p className="text-sm text-foreground/70 italic">
                                     « {b.hook_fr} »
