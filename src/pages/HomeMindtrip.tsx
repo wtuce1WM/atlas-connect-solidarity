@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play, Percent, User } from "lucide-react";
+import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play, Pause, Volume2, VolumeX, Percent, User } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
@@ -56,15 +56,18 @@ type VideoSlot = {
   businessId: string | null;
 };
 
-const InViewVideo = ({ src, className }: { src: string; className?: string }) => {
+const InViewVideo = ({ src, className, controls = false }: { src: string; className?: string; controls?: boolean }) => {
   const ref = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const userPausedRef = useRef(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.play().catch(() => {});
+          if (!userPausedRef.current) el.play().catch(() => {});
         } else {
           el.pause();
         }
@@ -72,9 +75,60 @@ const InViewVideo = ({ src, className }: { src: string; className?: string }) =>
       { threshold: 0.25 }
     );
     io.observe(el);
-    return () => io.disconnect();
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    el.addEventListener("play", onPlay);
+    el.addEventListener("pause", onPause);
+    return () => {
+      io.disconnect();
+      el.removeEventListener("play", onPlay);
+      el.removeEventListener("pause", onPause);
+    };
   }, []);
-  return <video ref={ref} src={src} muted loop playsInline preload="metadata" className={className} />;
+  const togglePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const el = ref.current;
+    if (!el) return;
+    if (el.paused) {
+      userPausedRef.current = false;
+      el.play().catch(() => {});
+    } else {
+      userPausedRef.current = true;
+      el.pause();
+    }
+  };
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const el = ref.current;
+    if (!el) return;
+    el.muted = !el.muted;
+    setIsMuted(el.muted);
+  };
+  return (
+    <div className={`relative ${className ?? ""}`}>
+      <video ref={ref} src={src} muted loop playsInline preload="metadata" className="h-full w-full object-cover rounded-[inherit]" />
+      {controls && (
+        <div className="absolute bottom-2 right-2 z-30 flex gap-1.5 pointer-events-auto">
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label={isPlaying ? "Pause" : "Play"}
+            className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
+          >
+            {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+          </button>
+          <button
+            type="button"
+            onClick={toggleMute}
+            aria-label={isMuted ? "Activer le son" : "Couper le son"}
+            className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
+          >
+            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const Step2PhoneMockup = () => (
@@ -910,10 +964,10 @@ const HomeMindtrip = () => {
                               <img src="/__l5e/assets-v1/61f1aae7-ac0f-446f-a27b-61c9cfb7a03e/business-card1.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 5 && (
-                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/89aa9374-4150-470a-aade-0189d84afb20-1775630369725-hyc1g8.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/89aa9374-4150-470a-aade-0189d84afb20-1775630369725-hyc1g8.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 7 && (
-                              <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/08f848fc-83ee-48c5-9636-fb80e68f0218-1781251423466-3s20ok.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                           </div>
                         </div>
@@ -950,7 +1004,7 @@ const HomeMindtrip = () => {
                             <div className="pointer-events-none absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-[5] hidden sm:block">
                               <div className="relative h-[220px] md:h-[260px] lg:h-[340px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.55)] overflow-hidden">
                                 <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20" />
-                                <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
+                                <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                               </div>
                             </div>
                         </>
@@ -1048,7 +1102,7 @@ const HomeMindtrip = () => {
                               <div className="mt-6 flex justify-center sm:hidden">
                                 <div className="relative h-[280px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.55)] overflow-hidden">
                                   <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
-                                  <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
+                                  <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
                                 </div>
                               </div>
                             )}
