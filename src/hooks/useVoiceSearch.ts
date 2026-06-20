@@ -948,5 +948,10 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
   }, [status, startAudioLevelMonitor, stopAudioLevelMonitor]);
 
-  return { status, toggleRecording, finishRecording, liveTranscript, audioLevel };
+  // Réinitialise l'état "micro prêt" dès qu'on quitte l'enregistrement.
+  useEffect(() => {
+    if (status !== "recording") setMicReady(false);
+  }, [status]);
+
+  return { status, toggleRecording, finishRecording, liveTranscript, audioLevel, micReady };
 }
