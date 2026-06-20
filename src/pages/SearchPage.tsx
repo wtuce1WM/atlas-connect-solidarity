@@ -804,6 +804,8 @@ const SearchPage = () => {
         main_category: b.main_category,
         categories: b.categories, services: b.services, engagements: b.engagements,
         hook_fr: b.hook_fr, hook_en: b.hook_en, wtuce_status: b.wtuce_status,
+        latitude: (b as any).latitude ?? null,
+        longitude: (b as any).longitude ?? null,
       });
       const baseBusinesses = poolForAi.slice(0, 200).map(toAiPayload);
       const baseIds = new Set(baseBusinesses.map((b) => b.id));
@@ -812,12 +814,17 @@ const SearchPage = () => {
         .map(toAiPayload);
       const businesses = [...baseBusinesses, ...nearbyBusinessesPayload];
 
+      const userCoordsPayload = geo.isEnabled && geo.coords
+        ? { lat: geo.coords.lat, lng: geo.coords.lng }
+        : undefined;
+
       const { data, error } = await supabase.functions.invoke("ai-search-answer", {
         body: {
           query: q,
           businesses,
           language,
           history: nextHistory,
+          userCoords: userCoordsPayload,
           nearbyContext: nearbyEntityResults.length > 0 ? {
             entity: nearbyEntityTerm,
             anchorNames: nearbyAnchorNames.slice(0, 8),
