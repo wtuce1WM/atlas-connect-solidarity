@@ -413,13 +413,13 @@ const ActivitesEnfantsMarrakech = () => (
     entries={ACTIVITES}
     articlePath="/blog/activites-enfants-marrakech"
     articleTitle="Activités pour les enfants à Marrakech"
-    articleDescription="Douze adresses incontournables pour occuper les enfants à Marrakech : parcs aquatiques, mini-villes, paintball, poney, kids clubs et trampolines — pour des journées qu'ils n'oublieront pas."
+    articleDescription="Quarante-et-une adresses incontournables pour occuper les enfants à Marrakech : parcs aquatiques, mini-villes, paintball, poney, kids clubs, fermes pédagogiques, ateliers créatifs et bien plus — pour des journées qu'ils n'oublieront pas."
     bookmarkSlug="activites-enfants-marrakech"
     heroAlt="Activités pour les enfants à Marrakech"
     heroTitleTop="Activités pour les enfants"
     heroTitleBottom="à Marrakech"
-    heroSubtitle="Douze adresses incontournables pour occuper les enfants à Marrakech : parcs aquatiques, mini-villes, paintball, poney, kids clubs et trampolines — pour des journées qu'ils n'oublieront pas."
-    intro="Marrakech a beau être une ville d'adultes — médinas, palais, terrasses tardives —, ses environs cachent un terrain de jeu démesuré pour les enfants. Parcs aquatiques pensés à l'échelle d'une vraie station, kids clubs encadrés où l'on dépose les petits l'esprit tranquille, mini-villes où les enfants jouent les adultes, trampolines, paintball, poney : il y a de quoi remplir un week-end, des vacances entières ou un anniversaire mémorable. Voici nos douze adresses préférées, toutes à moins d'une heure de la médina, pour offrir aux enfants — et aux parents — une journée vraiment à leur mesure."
+    heroSubtitle="Quarante-et-une adresses incontournables pour occuper les enfants à Marrakech : parcs aquatiques, mini-villes, paintball, poney, kids clubs, fermes pédagogiques, ateliers créatifs et bien plus — pour des journées qu'ils n'oublieront pas."
+    intro="Marrakech a beau être une ville d'adultes — médinas, palais, terrasses tardives —, ses environs cachent un terrain de jeu démesuré pour les enfants. Parcs aquatiques pensés à l'échelle d'une vraie station, kids clubs encadrés, mini-villes où les enfants jouent les adultes, trampolines, paintball, poneys, fermes pédagogiques, ateliers créatifs, escalade, karting, parapente : il y a de quoi remplir un week-end, des vacances entières ou un anniversaire mémorable. Voici nos quarante-et-une adresses préférées, toutes à moins d'une heure de la médina, pour offrir aux enfants — et aux parents — une journée vraiment à leur mesure."
     datePublished="2026-06-14T08:00:00+01:00"
     dateModified="2026-06-14T08:00:00+01:00"
   />
