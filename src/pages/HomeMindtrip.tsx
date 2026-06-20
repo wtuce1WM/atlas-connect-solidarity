@@ -924,16 +924,16 @@ const HomeMindtrip = () => {
                       {i === 3 && (
                         <>
                            {/* Background image with parallax (fixed attachment), centered, original resolution */}
-                           <div
-                             aria-hidden="true"
-                             className="absolute inset-0 bg-fixed"
-                             style={{
-                               backgroundImage: `url(${destinationsMapAsset.url})`,
-                               backgroundSize: "auto",
-                               backgroundRepeat: "no-repeat",
-                               backgroundPosition: "center",
-                             }}
-                           />
+                            <div
+                              aria-hidden="true"
+                              className="absolute inset-0 bg-fixed"
+                              style={{
+                                backgroundImage: `url(${destinationsMapAsset.url})`,
+                                backgroundSize: "75% auto",
+                                backgroundRepeat: "no-repeat",
+                                backgroundPosition: "center",
+                              }}
+                            />
                            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/40" />
                            {/* Floating phone mockup on the right */}
                            <div className="pointer-events-none absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-[5] hidden sm:block">
