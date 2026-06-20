@@ -4354,12 +4354,16 @@ const SearchPage = () => {
                           ttsStop();
                           return;
                         }
-                        const lastAssistant = [...aiChat].reverse().find(m => m.role === "assistant")?.content;
-                        const sourceText = lastAssistant || aiAnswerText;
+                        let lastAssistantIdx = -1;
+                        for (let i = aiChat.length - 1; i >= 0; i--) {
+                          if (aiChat[i].role === "assistant") { lastAssistantIdx = i; break; }
+                        }
+                        const sourceText = lastAssistantIdx >= 0 ? aiChat[lastAssistantIdx].content : aiAnswerText;
                         const cleanText = sourceText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
                         const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
                         ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
                         voiceLoopRef.current = true;
+                        setTtsSourceIdx(lastAssistantIdx);
                         ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
                       }}
                       className="relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border border-white/10 transition-transform hover:scale-105"
