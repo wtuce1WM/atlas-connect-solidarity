@@ -232,6 +232,11 @@ const BlogArticleTemplate = ({
 
   return (
     <div className="min-h-screen bg-background">
+      <div
+        className={`transition-[padding] duration-300 ease-out ${
+          openBusinessId ? "lg:pr-[50vw]" : ""
+        }`}
+      >
       <HomeMindtripHeader alwaysWhite />
 
       {/* Hero */}
