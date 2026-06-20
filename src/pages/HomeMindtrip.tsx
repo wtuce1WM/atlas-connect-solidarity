@@ -124,8 +124,8 @@ const renderDescWithCheckmarks = (text: string, isDarkBg = false) => {
           return (
             <span key={idx} className="flex items-start gap-2.5 text-left w-full">
               <span 
-                className="inline-flex items-center justify-center shrink-0 w-4 h-4 rounded-full mt-1 border border-[#C04F17]/10 shadow-sm"
-                style={{ backgroundColor: "#C04F17" }}
+                className="inline-flex items-center justify-center shrink-0 w-4 h-4 rounded-full mt-1 border border-[#194CFF]/10 shadow-sm"
+                style={{ backgroundColor: "#194CFF" }}
               >
                 <svg className="w-2.5 h-2.5 text-white stroke-[3.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
