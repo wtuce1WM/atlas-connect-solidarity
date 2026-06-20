@@ -899,7 +899,7 @@ const HomeMindtrip = () => {
                             </div>
 
                             {/* Title — full width, on top */}
-                            <h3 className="font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] text-left w-full">
+                            <h3 className="font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] text-left w-full">
                               {s.title}
                             </h3>
 
@@ -944,7 +944,7 @@ const HomeMindtrip = () => {
                                 Étape {i + 1}
                               </span>
                             )}
-                            <h3 className={`mt-3 font-josefin text-2xl font-bold tracking-tight md:text-4xl text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]`}>
+                            <h3 className="mt-3 font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
                               {s.title}
                             </h3>
                             <p className="mt-3 md:mt-4 text-white/90 font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] max-w-lg font-roboto text-base">{s.desc}</p>
