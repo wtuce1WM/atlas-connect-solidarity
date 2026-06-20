@@ -961,6 +961,9 @@ const HomeMindtrip = () => {
                             {i === 2 && (
                               <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
+                            {i === 3 && (
+                              <InViewVideo controls src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
+                            )}
                             {i === 4 && (
                               <img src="/__l5e/assets-v1/61f1aae7-ac0f-446f-a27b-61c9cfb7a03e/business-card1.webp" alt="Offre One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
