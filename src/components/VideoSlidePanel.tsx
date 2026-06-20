@@ -873,8 +873,15 @@ const VideoSlidePanel = ({
                   return (
                     <div
                       key={`credit-owner-${videoId || videoUrl}`}
-                      className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
+                      className="flex flex-col items-center justify-center gap-2 px-4 pointer-events-none"
                     >
+                    {isGeneric && social && (
+                      <>
+                        {social.platform === "instagram" && <InstagramIcon className="w-5 h-5 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "tiktok" && <SiTiktok className="w-5 h-5 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "youtube" && <Youtube className="w-5 h-5 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                      </>
+                    )}
                     <button
                       type="button"
                       disabled={!ownerBusiness}
