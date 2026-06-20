@@ -1286,7 +1286,7 @@ const STEPS = [
   },
   {
     title: "Naviguez en mode immersif",
-    desc: "Associez :\n\n• la précision de la recherche Google\n• la preuve sociale/avis clients des grandes plateformes\n• les fonctionnalités de TripAdvisor/Booking\n• la géolocalisation de Google Maps\u00a0\n• la navigation immersive de TikTok/Instagram/Youtube\n• la personnalisation de l'IA\n",
+    desc: "Associez :\n\n• la précision de la recherche Google\n• la preuve sociale/avis clients des grandes plateformes\n• les fonctionnalités de TripAdvisor/Booking\n• la géolocalisation de Google Maps\u00a0\n• la navigation immersive de TikTok / Instagram / Youtube\n• la personnalisation de l'IA\n",
     cta: "Découvrir",
     href: "/y/tarik-belasri",
     icon: PlayCircle,
