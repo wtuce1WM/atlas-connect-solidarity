@@ -213,7 +213,7 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
       ((genLinksRes.data as any[]) || []).forEach((l: any) => {
         const g = genById.get(l.generic_video_id);
         const label = labelByBadgeId.get(l.badge_id);
-        if (!g || !label || !g.url) return;
+        if (!g || !label) return;
         const ownerId = firstOwnerByGeneric[g.id] || null;
         const igAcc = (g.instagram_account || "").replace(/^@+/, "");
         const ttAcc = (g.tiktok_account || "").replace(/^@+/, "");
