@@ -843,10 +843,10 @@ const HomeMindtrip = () => {
                           <div className="relative h-[220px] md:h-[260px] lg:h-[340px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden">
                             <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
                             {i === 1 && (
-                              <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <img src={step3MockupAsset.url} alt="Votre identité numérique - One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 2 && (
-                              <img src={step3MockupAsset.url} alt="Votre identité numérique - One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
+                              <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 3 && (
                               <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
@@ -1148,18 +1148,18 @@ const STEPS = [
     icon: PlayCircle,
   },
   {
-    title: "Votre assistant IA",
-    desc: "Dialoguez avec notre Agent IA pour affiner vos recherches avec vos propres critères, sauvegardez les résultats, partagez les avec vos proches.",
-    cta: "Voir la démo",
-    href: "/search?q=je%20cherche%20un%20restaurant%20%C3%A0%20Marrakech%20ouvert%20demain%20midi%20avec%20une%20piscine&tab=ai&demo=sur%20la%20route%20de%20l'Ourika",
-    icon: Sparkles,
-  },
-  {
     title: "Votre identité numérique",
     desc: "Créez un profil qui vous ressemble — profil, carte, lieux favoris et avantages locaux en un seul lien.\n\nAjoutez votre style, vos liens et connectez-vous avec des utilisateurs qui partagent votre intérêt pour le Maroc.\n\n• Profil et couverture personnalisés\n• Ajoutez vos réseaux sociaux\n• Votre QR code\n• Connectez-vous et chattez facilement",
     cta: "Créer mon profil",
     href: "/club",
     icon: User,
+  },
+  {
+    title: "Votre assistant IA",
+    desc: "Dialoguez avec notre Agent IA pour affiner vos recherches avec vos propres critères, sauvegardez les résultats, partagez les avec vos proches.",
+    cta: "Voir la démo",
+    href: "/search?q=je%20cherche%20un%20restaurant%20%C3%A0%20Marrakech%20ouvert%20demain%20midi%20avec%20une%20piscine&tab=ai&demo=sur%20la%20route%20de%20l'Ourika",
+    icon: Sparkles,
   },
   {
     title: "Composez votre voyage",
