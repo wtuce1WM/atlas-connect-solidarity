@@ -4565,6 +4565,7 @@ const SearchPage = () => {
                         <VoiceSearchPanel
                           liveTranscript={refineVoice.liveTranscript}
                           audioLevel={refineVoice.audioLevel}
+                          micReady={refineVoice.micReady}
                           onClose={refineVoice.toggleRecording}
                           onFinish={refineVoice.finishRecording}
                           align="center"
