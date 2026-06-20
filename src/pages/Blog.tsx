@@ -156,6 +156,14 @@ const Blog = () => {
         .maybeSingle();
       const enfImg = (enfRow as any)?.images?.[0];
 
+      // Hero Manger des fruits de mer à Essaouira : 1ʳᵉ fiche du hero (Chez Sam)
+      const { data: fmRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "d00d119b-a5b2-492b-bdbd-f0872e5701d7")
+        .maybeSingle();
+      const fmImg = (fmRow as any)?.images?.[0];
+
        setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -170,6 +178,7 @@ const Blog = () => {
         sidikaouki: skImg,
         agafay: agImg,
         rated: ratedRes.data?.[0]?.images?.[0],
+        fruitsmer: fmImg,
       });
     };
     fetchStaticHeroes();
