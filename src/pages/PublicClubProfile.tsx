@@ -5,6 +5,7 @@ import { Globe, MapPin, Mail, Phone } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import NotFound from "@/pages/NotFound";
 import ShareButton from "@/components/ShareButton";
+import HScroll from "@/components/HScroll";
 import { useSEO } from "@/hooks/useSEO";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 
