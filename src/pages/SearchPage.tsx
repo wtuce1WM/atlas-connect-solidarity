@@ -5622,6 +5622,7 @@ const SearchPage = () => {
         isOpen={voiceStatus === "recording" || voiceStatus === "processing"}
         liveTranscript={liveTranscript}
         audioLevel={audioLevel}
+        micReady={voiceMicReady}
         onClose={() => toggleRecording()}
         onFinish={() => finishRecording()}
       />
