@@ -662,7 +662,7 @@ const HomeMindtrip = () => {
           </div>
 
           {/* Search container - placed below Title + Text + Mockup on tablet */}
-          <div style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="max-md:mt-auto max-md:pt-10 mt-10 w-full max-w-2xl md:max-lg:mt-6 md:max-lg:mx-0 mx-auto md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)] hero-rise">
+          <div style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="max-md:mt-auto max-md:pt-10 max-md:-translate-y-6 mt-10 w-full max-w-2xl md:max-lg:mt-6 md:max-lg:mx-0 mx-auto md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)] hero-rise">
             <HeroInlineSearch
               placeholder="Rechercher un hôtel, un restaurant, une expérience…"
               onSearch={(params) => {
