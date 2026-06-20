@@ -104,29 +104,30 @@ const InViewVideo = ({ src, className, controls = false }: { src: string; classN
     el.muted = !el.muted;
     setIsMuted(el.muted);
   };
+  if (!controls) {
+    return <video ref={ref} src={src} muted loop playsInline preload="metadata" className={className} />;
+  }
   return (
     <div className={`relative ${className ?? ""}`}>
       <video ref={ref} src={src} muted loop playsInline preload="metadata" className="h-full w-full object-cover rounded-[inherit]" />
-      {controls && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-1.5 pointer-events-auto">
-          <button
-            type="button"
-            onClick={togglePlay}
-            aria-label={isPlaying ? "Pause" : "Play"}
-            className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
-          >
-            {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-          </button>
-          <button
-            type="button"
-            onClick={toggleMute}
-            aria-label={isMuted ? "Activer le son" : "Couper le son"}
-            className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
-          >
-            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-          </button>
-        </div>
-      )}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-1.5 pointer-events-auto">
+        <button
+          type="button"
+          onClick={togglePlay}
+          aria-label={isPlaying ? "Pause" : "Play"}
+          className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
+        >
+          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+        </button>
+        <button
+          type="button"
+          onClick={toggleMute}
+          aria-label={isMuted ? "Activer le son" : "Couper le son"}
+          className="grid place-items-center h-7 w-7 rounded-full bg-black/55 backdrop-blur-sm text-white border border-white/25 hover:bg-black/70 transition"
+        >
+          {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+        </button>
+      </div>
     </div>
   );
 };
