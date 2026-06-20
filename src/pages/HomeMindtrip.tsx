@@ -797,7 +797,7 @@ const HomeMindtrip = () => {
                               </div>
                             );
                           })}
-                        </div>
+                        </HScroll>
                       )}
                     </div>
                   </div>
