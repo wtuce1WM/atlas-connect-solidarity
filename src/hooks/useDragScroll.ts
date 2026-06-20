@@ -93,13 +93,15 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
 
     const onWheel = (e: WheelEvent) => {
       if (el.scrollWidth <= el.clientWidth) return;
-      // Use the dominant axis: trackpads send deltaX for horizontal swipes,
-      // mouse wheels send deltaY. Both scroll this container horizontally.
-      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      if (delta === 0) return;
       stopMomentum();
       el.style.scrollBehavior = "auto";
-      el.scrollLeft += delta;
+
+      // Trackpads already emit horizontal deltaX with native momentum.
+      // Let the browser handle it instead of cancelling the gesture.
+      if (Math.abs(e.deltaX) > 0) return;
+
+      if (e.deltaY === 0) return;
+      el.scrollLeft += e.deltaY;
       e.preventDefault();
     };
 
