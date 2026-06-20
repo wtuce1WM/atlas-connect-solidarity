@@ -113,6 +113,17 @@ const BEACH_CLUBS: BlogArticleEntry[] = [
       "Idéal pour une escapade ressourçante en couple, des vacances familiales ou la privatisation complète d'événements marquants (mariages, anniversaires, séminaires), le Domaine Du Douar garantit un accueil chaleureux et des moments précieux, suspendus entre nature et confort haut de gamme."
     ],
   },
+  {
+    id: "9caf157c-300f-4da2-a62e-c06b6768a582",
+    pretitle: "Quartier de l'Hivernage, au cœur de la ville",
+    title: "Le Jardin de l'Hivernage — l'oasis de verdure urbaine au Club des Pharmaciens",
+    hours: "Ouvert tous les jours. Piscine, restaurant de cuisine internationale, bar à cocktails softs et smoothies, parking clients.",
+    paragraphs: [
+      "Profitez d'une parenthèse ressourçante en plein centre-ville, là où l'énergie vibrante de Marrakech rencontre le charme serein d'un écrin de verdure. Niché au cœur du prestigieux quartier de l’Hivernage, au sein du Club des Pharmaciens — une institution marrakchie fondée en 1993 —, le Jardin de l’Hivernage est un véritable havre de paix où la nature, le bien-être et la détente se rencontrent pour une journée mémorable.",
+      "Le décor est un enchantement : entre palmiers majestueux et massifs de plantes aromatiques odorantes, cet espace est une invitation immédiate à la sérénité. Que ce soit pour un moment de farniente et de baignade en famille autour de sa belle piscine, ou pour faire le plein d'énergie positive, le Jardin de l’Hivernage s'impose comme l'adresse idéale pour goûter aux délices d'un Marrakech verdoyant, intimiste et apaisant, sans même avoir à quitter la ville.",
+      "Côté table et rafraîchissements, l'expérience est tout aussi soignée. Les chefs maison proposent une cuisine internationale raffinée et revisitée pour un déjeuner gourmand les pieds dans l'herbe. Au bar, la fraîcheur est reine : mocktails colorés, smoothies vitaminés préparés à la minute, milkshakes onctueux et thés glacés maison accompagnent idéalement votre après-midi au bord de l'eau. Une pause fraîcheur incontournable en plein cœur de la ville."
+    ],
+  },
 ];
 
 const BeachClubsMarrakech = () => (
@@ -120,13 +131,13 @@ const BeachClubsMarrakech = () => (
     entries={BEACH_CLUBS}
     articlePath="/blog/beach-clubs-marrakech"
     articleTitle="Beach Clubs à Marrakech"
-    articleDescription="Dix beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau."
+    articleDescription="Onze beach clubs autour de Marrakech — oliveraies, piscines XXL, pool parties, tables festives et adresses 100 % femmes : notre sélection immersive pour vivre la ville ocre au bord de l'eau."
     bookmarkSlug="beach-clubs-marrakech"
     heroAlt="Beach Clubs à Marrakech"
     heroTitleTop="Les Beach Clubs"
     heroTitleBottom="de Marrakech"
-    heroSubtitle="Dix adresses autour de la ville ocre — du beldi chic au club international, de la piscine 100 % femmes à la pool party XXL — pour vivre Marrakech au bord de l'eau."
-    intro="Marrakech n'a pas la mer, mais elle a inventé son propre rapport à l'eau : à quelques minutes des remparts, sur la route de l'Ourika ou celle d'Agadir, une constellation de beach clubs prolonge la ville ocre en oasis. On y vient pour une journée pass, un déjeuner les pieds presque dans l'eau, un cocktail signé d'un mixologue, un DJ set qui monte avec le soleil — ou simplement pour souffler, à l'ombre des oliviers, loin de l'effervescence de la médina. Voici nos dix adresses, du plus intimiste au plus festif."
+    heroSubtitle="Onze adresses autour de la ville ocre — du beldi chic au club international, de la piscine 100 % femmes à la pool party XXL — pour vivre Marrakech au bord de l'eau."
+    intro="Marrakech n'a pas la mer, mais elle a inventé son propre rapport à l'eau : à quelques minutes des remparts, sur la route de l'Ourika ou celle d'Agadir, une constellation de beach clubs prolonge la ville ocre en oasis. On y vient pour une journée pass, un déjeuner les pieds presque dans l'eau, un cocktail signé d'un mixologue, un DJ set qui monte avec le soleil — ou simplement pour souffler, à l'ombre des oliviers, loin de l'effervescence de la médina. Voici nos onze adresses, du plus intimiste au plus festif."
     datePublished="2026-06-13T08:00:00+01:00"
   />
 );
