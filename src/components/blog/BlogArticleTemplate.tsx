@@ -36,7 +36,7 @@ export interface BlogArticleEntry {
   extraIds?: string[];
   pretitle: string;
   title: string;
-  hours: string;
+  hours?: string;
   paragraphs: string[];
 }
 
