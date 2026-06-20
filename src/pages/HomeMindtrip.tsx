@@ -989,7 +989,7 @@ const HomeMindtrip = () => {
                                 </p>
                                 {i === 8 && (
                                   <div className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-base text-left">
-                                    Votre application direct-to-local dédiée au tourisme et à la vie quotidienne au Maroc.
+                                    {"\n"}
                                   </div>
                                 )}
                                 <div className="flex justify-start">
