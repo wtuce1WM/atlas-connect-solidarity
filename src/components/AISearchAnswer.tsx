@@ -274,6 +274,7 @@ const parseInline = (
 
 const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady, externalRegenerateKey }: AISearchAnswerProps) => {
   const { language } = useLanguage();
+  const geo = useGeolocation();
   const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
