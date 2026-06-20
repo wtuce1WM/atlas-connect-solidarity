@@ -949,7 +949,7 @@ const HomeMindtrip = () => {
                                 backgroundPosition: "left center",
                               }}
                             />
-                           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/40" />
+                           <div className="absolute inset-0 bg-white/80" />
                            {/* Floating phone mockup on the right */}
                            <div className="pointer-events-none absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-[5] hidden sm:block">
                              <div className="relative h-[220px] md:h-[260px] lg:h-[300px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.55)] overflow-hidden">
