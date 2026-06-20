@@ -4408,18 +4408,24 @@ const SearchPage = () => {
                             ) : (
                               <div className="max-w-[90%] flex flex-col gap-4">
                                 <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
-                                  {parseInline(
-                                    m.content,
-                                    aiInlineBusinessPool,
-                                    (b: AIBusinessData) => {
-                                      setShowAiPopup(false);
-                                      setOverlaySelectedBusiness(null);
-                                      openCompactPanel(b);
-                                    },
-                                    `ai-chat-${idx}`,
-                                    undefined,
-                                    (b) => setHoveredResultId(b ? b.id : null)
-                                  )}
+                                  {(() => {
+                                    const isMsgTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === idx;
+                                    const msgKaraokeTarget = isMsgTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
+                                    return parseInline(
+                                      m.content,
+                                      aiInlineBusinessPool,
+                                      (b: AIBusinessData) => {
+                                        setShowAiPopup(false);
+                                        setOverlaySelectedBusiness(null);
+                                        openCompactPanel(b);
+                                      },
+                                      `ai-chat-${idx}`,
+                                      isMsgTTSActive
+                                        ? { wordIndex: 0, target: msgKaraokeTarget, mode: "karaoke" as const }
+                                        : undefined,
+                                      (b) => setHoveredResultId(b ? b.id : null)
+                                    );
+                                  })()}
                                 </div>
                                 {m.clarify && m.clarify.options.length > 0 && (
                                   <div className="flex flex-wrap gap-2">
