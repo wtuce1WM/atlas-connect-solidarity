@@ -154,7 +154,7 @@ const SEAFOOD: BlogArticleEntry[] = [
     hours: "Ouvert tous les jours, de 11h30 à 23h30.",
     paragraphs: [
       "Pas envie d'un grand dîner ? Fishburger règle l'affaire en cinq minutes — et la qualité, elle, ne fait aucune concession. L'idée est simple : un filet de poisson local frais, parfaitement cuit, glissé dans un bun moelleux, avec frites maison, anneaux d'oignon ou guacamole selon l'humeur, et une limonade gingembre-menthe servie dans son petit verre.",
-      "« Le poisson est cuit à la perfection, le service est rapide, tout est frais et bien préparé — c'est à essayer absolument », résument les habitués. « Tout le monde nous a partagé ses avis "waouh" sur ce restaurant de burger au poisson », écrit un autre. La file d'attente extérieure dit tout : on a affaire à un vrai phénomène local.",
+      "« Le poisson est cuit à la perfection, le service est rapide, tout est frais et bien préparé — c'est à essayer absolument », résument les habitués. « Tout le monde nous a partagé ses avis « waouh » sur ce restaurant de burger au poisson », écrit un autre. La file d'attente extérieure dit tout : on a affaire à un vrai phénomène local.",
       "C'est l'adresse parfaite pour le déjeuner sur le pouce entre deux visites de la médina, ou pour un dîner léger avant un coucher de soleil sur les remparts. Petits prix, paiement par carte accepté, ambiance jeune — un grand oui.",
     ],
   },
