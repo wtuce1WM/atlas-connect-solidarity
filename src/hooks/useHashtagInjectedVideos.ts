@@ -217,7 +217,7 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
         // URL exploitable : url principale, sinon fallback sur les URLs de vidéo par plateforme.
         const effectiveUrl: string | null =
           g.url || g.instagram_video_url || g.tiktok_video_url || g.youtube_video_url || null;
-        if (!effectiveUrl) return;
+
         const ownerId = firstOwnerByGeneric[g.id] || null;
         const igAcc = (g.instagram_account || "").replace(/^@+/, "");
         const ttAcc = (g.tiktok_account || "").replace(/^@+/, "");
