@@ -4525,17 +4525,18 @@ const SearchPage = () => {
                                        )}
                                        <button
                                          type="button"
-                                         onClick={() => {
-                                           if (ttsStatus === "playing" || ttsStatus === "loading") {
-                                             ttsStop();
-                                             return;
-                                           }
-                                           const cleanText = m.content.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                                           const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                                           ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                                           voiceLoopRef.current = true;
-                                           ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                                         }}
+                                          onClick={() => {
+                                            if (ttsStatus === "playing" || ttsStatus === "loading") {
+                                              ttsStop();
+                                              return;
+                                            }
+                                            const cleanText = m.content.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                                            const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                                            ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                                            voiceLoopRef.current = true;
+                                            setTtsSourceIdx(idx);
+                                            ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                                          }}
                                          className="relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border border-white/10 transition-transform hover:scale-105"
                                          style={{
                                            background: "#3B3B3B",
