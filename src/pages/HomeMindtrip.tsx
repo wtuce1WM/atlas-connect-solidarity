@@ -846,51 +846,7 @@ const HomeMindtrip = () => {
                               <img src="/__l5e/assets-v1/1f99cc17-403a-46b2-9e99-1e6744e5c67f/etape2-ia.webp" alt="Assistant IA One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 2 && (
-                              <div className="h-full w-full bg-[#121212] text-white flex flex-col relative rounded-[0.9rem] overflow-hidden">
-                                <div className="h-[28%] w-full bg-[url('https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=300&q=80')] bg-cover bg-center relative">
-                                  <div className="absolute inset-0 bg-black/30" />
-                                </div>
-                                <div className="flex-1 px-3 flex flex-col items-center -mt-6 relative pb-2 justify-between">
-                                  <div className="flex flex-col items-center">
-                                    <div className="w-12 h-14 rounded-full border-2 border-primary bg-zinc-800 overflow-hidden shadow-lg">
-                                      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Yassine" className="w-full h-full object-cover" />
-                                    </div>
-                                    <h4 className="font-josefin text-xs font-bold mt-1 text-[#D4AF37] tracking-wide text-center">Yassine</h4>
-                                    <span className="font-roboto text-[9px] text-zinc-400 text-center">@yassine_travel</span>
-                                    <span className="font-roboto text-[8px] text-zinc-500 flex items-center gap-0.5 mt-0.5 justify-center">
-                                      <MapPin className="w-2 h-2 text-primary" /> Marrakech, Maroc
-                                    </span>
-                                  </div>
-                                  <div className="p-1 bg-white rounded-lg shadow-md my-1 flex flex-col items-center border border-zinc-200">
-                                    <div className="w-14 h-14 bg-[radial-gradient(#000_15%,transparent_16%),radial-gradient(#000_15%,transparent_16%)] bg-[length:5px_5px] bg-[position:0_0,2.5px_2.5px] relative p-1 flex items-center justify-center">
-                                      <div className="absolute inset-0 m-auto w-3.5 h-3.5 bg-[#C04F17] rounded-sm border border-white flex items-center justify-center shadow-sm">
-                                        <span className="text-[6px] text-white font-bold font-josefin">1WM</span>
-                                      </div>
-                                      <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
-                                      <div className="absolute top-0.5 left-0.5 w-3 h-3 border border-black bg-white" />
-                                      <div className="absolute top-0.5 right-0.5 w-3 h-3 border border-black bg-white" />
-                                      <div className="absolute bottom-0.5 left-0.5 w-3 h-3 border border-black bg-white" />
-                                    </div>
-                                    <span className="text-[5px] text-zinc-500 font-bold uppercase mt-0.5 tracking-wider">Scannez-moi</span>
-                                  </div>
-                                  <div className="w-full">
-                                    <div className="flex justify-center gap-1.5 mb-1">
-                                      <span className="w-4 h-4 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 text-zinc-300">
-                                        <span className="text-[6px] font-bold">IG</span>
-                                      </span>
-                                      <span className="w-4 h-4 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 text-zinc-300">
-                                        <span className="text-[6px] font-bold">WA</span>
-                                      </span>
-                                      <span className="w-4 h-4 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 text-zinc-300">
-                                        <span className="text-[6px] font-bold">YT</span>
-                                      </span>
-                                    </div>
-                                    <div className="bg-zinc-900 border border-zinc-800/80 rounded-md py-0.5 text-[6px] text-center text-zinc-400">
-                                      ✨ Avantages Club Actifs
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
+                              <img src={step3MockupAsset.url} alt="Votre identité numérique - One World Morocco" className="h-full w-full object-cover rounded-[0.9rem]" />
                             )}
                             {i === 3 && (
                               <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
