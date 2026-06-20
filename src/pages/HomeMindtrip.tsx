@@ -921,9 +921,17 @@ const HomeMindtrip = () => {
                  >
                     {i === 7 && (
                       <>
+                        {/* iOS Safari ignore bg-fixed → fallback <img> en mobile */}
+                        <img
+                          aria-hidden="true"
+                          src={poiMapAsset.url}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover md:hidden"
+                          style={{ objectPosition: "15% center" }}
+                        />
                         <div
                           aria-hidden="true"
-                          className="absolute inset-0 bg-fixed bg-no-repeat"
+                          className="absolute inset-0 hidden md:block bg-fixed bg-no-repeat"
                           style={{ 
                             backgroundImage: `url(${poiMapAsset.url})`,
                             backgroundSize: "auto 150%",
