@@ -3984,17 +3984,6 @@ const SearchPage = () => {
                         <Map className="h-4 w-4" />
                         {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
                       </button>
-                      <button
-                        onClick={() => {
-                          if (hideResultsMap) setHideResultsMap(false);
-                          setActiveTab("suggestions");
-                          setTimeout(() => window.dispatchEvent(new CustomEvent("open-results-filters")), 0);
-                        }}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
-                      >
-                        <SlidersHorizontal className="h-4 w-4" />
-                        {language === "en" ? "Filters" : language === "ar" ? "فلاتر" : "Filtres"}
-                      </button>
                     </div>
                   )}
                   <p className="text-muted-foreground text-sm mt-6">
