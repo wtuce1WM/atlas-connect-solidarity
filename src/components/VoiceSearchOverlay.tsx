@@ -51,7 +51,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, micReady =
           </p>
         ) : (
           <p className="text-xl md:text-2xl text-black/70 font-bold text-center">
-            Je vous écoute…
+            {micReady ? "Parlez maintenant" : "Attendez le signal sonore avant de parler"}
           </p>
         )}
       </div>
