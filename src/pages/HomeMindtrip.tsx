@@ -932,6 +932,7 @@ const HomeMindtrip = () => {
                         />
                         <div className="absolute inset-0 bg-white/80" />
                       </>
+                     )}
                     {i === 3 && (
                       <>
                         <img
