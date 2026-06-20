@@ -153,6 +153,46 @@ const BlogArticleTemplate = ({
     window.history.replaceState({}, "", url.toString());
   }, [openBusinessId]);
 
+  // Desktop navigation between businesses inside the panel: wheel + arrow keys.
+  // (Touch swipe is already handled inside BookOnlineSlidePanel.)
+  useEffect(() => {
+    if (!openBusinessId) return;
+    const goNext = () => hasNext && setOpenBusinessId(orderedIds[openIndex + 1]);
+    const goPrev = () => hasPrev && setOpenBusinessId(orderedIds[openIndex - 1]);
+    let accum = 0;
+    let lockUntil = 0;
+    const onWheel = (e: WheelEvent) => {
+      const target = e.target as Element | null;
+      // Let internal scroll containers handle their own wheel first
+      const scrollable = target?.closest('[data-slidepanel-scroll="true"], .overflow-y-auto, .overflow-auto') as HTMLElement | null;
+      if (scrollable) {
+        const canScrollDown = e.deltaY > 0 && scrollable.scrollTop + scrollable.clientHeight < scrollable.scrollHeight - 1;
+        const canScrollUp = e.deltaY < 0 && scrollable.scrollTop > 1;
+        if (canScrollDown || canScrollUp) return;
+      }
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      const now = Date.now();
+      if (now < lockUntil) return;
+      accum += e.deltaY;
+      if (Math.abs(accum) < 80) return;
+      const dir = accum > 0 ? 1 : -1;
+      accum = 0;
+      lockUntil = now + 450;
+      dir > 0 ? goNext() : goPrev();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLElement && /input|textarea|select/i.test(e.target.tagName)) return;
+      if (e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); goNext(); }
+      else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); goPrev(); }
+    };
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [openBusinessId, openIndex, hasPrev, hasNext, orderedIds]);
+
 
 
   const handleSaveArticle = async () => {
