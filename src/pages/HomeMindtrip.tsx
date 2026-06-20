@@ -1039,9 +1039,17 @@ const HomeMindtrip = () => {
                             <h3 className={`mt-3 font-josefin text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight ${i === 3 ? "text-black" : "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"}`}>
                               {s.title}
                             </h3>
-                            <div className={`${i === 3 ? "text-black/90 font-roboto text-base" : "text-white/90 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] font-roboto text-base"} ${i === 3 ? "mt-6 md:mt-8 font-normal max-w-[55%] sm:max-w-[60%]" : "mt-3 md:mt-4 font-bold max-w-lg"}`}>
+                            <div className={`${i === 3 ? "text-black/90 font-roboto text-base" : "text-white/90 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] font-roboto text-base"} ${i === 3 ? "mt-6 md:mt-8 font-normal max-w-full sm:max-w-[60%]" : "mt-3 md:mt-4 font-bold max-w-lg"}`}>
                               {renderDescWithCheckmarks(s.desc, i !== 3)}
                             </div>
+                            {i === 3 && (
+                              <div className="mt-6 flex justify-center sm:hidden">
+                                <div className="relative h-[280px] aspect-[9/16] border-[6px] border-neutral-900 bg-neutral-950 rounded-[1.3rem] shadow-[0_15px_35px_rgba(0,0,0,0.55)] overflow-hidden">
+                                  <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 bg-neutral-900 rounded-full z-20 pointer-events-none" />
+                                  <InViewVideo src="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-videos/businesses/generic-1779806600486-gfn1oq.mp4" className="h-full w-full object-cover rounded-[0.9rem]" />
+                                </div>
+                              </div>
+                            )}
                           </>
                         )}
 
