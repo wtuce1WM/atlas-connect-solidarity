@@ -65,6 +65,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Dix-sept adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
   },
+  "/blog/manger-fruits-de-mer-essaouira": {
+    title: `Manger des fruits de mer à Essaouira — ${BRAND}`,
+    description:
+      "Quinze adresses pour goûter à l'Atlantique, du port aux remparts — gastronomie marine, tables de médina, beach restaurants et l'incontournable marché au poisson.",
+  },
   "/blog/activites-enfants-marrakech": {
     title: `Activités pour les enfants à Marrakech — ${BRAND}`,
     description:
