@@ -262,8 +262,12 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
         });
       });
 
-      // Shuffle each bucket so repeated visits feel fresh (stable within session).
-      Object.values(buckets).forEach((arr) => arr.sort(() => Math.random() - 0.5));
+      // Shuffle each bucket so repeated visits feel fresh (stable within session),
+      // puis priorise les vidéos génériques avant les vidéos YouTube.
+      Object.values(buckets).forEach((arr) => {
+        arr.sort(() => Math.random() - 0.5);
+        arr.sort((a, b) => (a.isGeneric === b.isGeneric ? 0 : a.isGeneric ? -1 : 1));
+      });
 
       // 6. Round-robin interleave: annonce → agenda → culture → tips → vlogs → …
       const out: InjectedHashtagVideo[] = [];
