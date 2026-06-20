@@ -875,7 +875,7 @@ const HomeMindtrip = () => {
                             backgroundPosition: "15% center"
                           }}
                         />
-                        <div className="absolute inset-0 bg-white/60" />
+                        <div className="absolute inset-0 bg-white/80" />
                       </>
                     )}
                   {(i === 1 || i === 2 || i === 4 || i === 5 || i === 7) && (
