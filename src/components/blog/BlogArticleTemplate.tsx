@@ -379,17 +379,12 @@ const BlogArticleTemplate = ({
                       })
                       .map((b) => {
                       return (
-                        <Link
+                        <button
                           key={b.id}
                           id={`entry-${b.id}`}
-                          to={businessUrl(b)}
-                          onClick={() => {
-                            try {
-                              sessionStorage.setItem("returnToBlogPath", articlePath);
-                              sessionStorage.setItem("returnToBlogEntryId", b.id);
-                            } catch {}
-                          }}
-                          className="block group"
+                          type="button"
+                          onClick={() => openBusiness(b.id)}
+                          className="block w-full text-left group"
                         >
                           <Card className="overflow-hidden border-border/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
                             <div className="grid md:grid-cols-2">
