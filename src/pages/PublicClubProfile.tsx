@@ -245,7 +245,7 @@ const PublicClubProfile = () => {
             >
               <span className="inline-flex items-center gap-2">
                 <Mail className="h-4 w-4 text-neutral-400" />
-                contactez-moi
+                Contactez-moi
               </span>
             </a>
             <a
@@ -254,7 +254,7 @@ const PublicClubProfile = () => {
             >
               <span className="inline-flex items-center gap-2">
                 <Phone className="h-4 w-4 text-neutral-400" />
-                appelez-moi
+                Appelez-moi
               </span>
             </a>
             {links.map((l, i) => (
