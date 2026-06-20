@@ -186,19 +186,29 @@ const PublicClubProfile = () => {
             )}
           </div>
 
-          {/* Name */}
-          <h1 className="text-2xl font-bold tracking-tight text-white">{displayName}</h1>
-          {displayName !== profile.nickname && (
-            <p className="text-sm text-neutral-400 mt-0.5">@{profile.nickname}</p>
-          )}
-
-          {/* Location */}
-          {(profile.city || profile.country) && (
-            <p className="mt-2 inline-flex items-center gap-1 text-sm text-neutral-400">
-              <MapPin className="h-4 w-4" />
-              {[profile.city, profile.country].filter(Boolean).join(", ")}
-            </p>
-          )}
+          {/* Identity + QR */}
+          <div className="w-full flex items-center justify-center gap-4">
+            <div className="flex-1 text-left">
+              <h1 className="text-2xl font-bold tracking-tight text-white">{displayName}</h1>
+              {displayName !== profile.nickname && (
+                <p className="text-sm text-neutral-400 mt-0.5">@{profile.nickname}</p>
+              )}
+              {(profile.city || profile.country) && (
+                <p className="mt-2 inline-flex items-center gap-1 text-sm text-neutral-400">
+                  <MapPin className="h-4 w-4" />
+                  {[profile.city, profile.country].filter(Boolean).join(", ")}
+                </p>
+              )}
+            </div>
+            <div className="shrink-0 rounded-lg bg-white p-2 shadow-md">
+              <QRCodeSVG
+                value={`https://oneworldmorocco.com/u/${profile.nickname}`}
+                size={84}
+                level="M"
+                includeMargin={false}
+              />
+            </div>
+          </div>
 
           {/* Description */}
           {profile.description && (
@@ -229,6 +239,24 @@ const PublicClubProfile = () => {
 
           {/* Link buttons */}
           <div className="w-full mt-8 space-y-3">
+            <button
+              type="button"
+              className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Mail className="h-4 w-4 text-neutral-400" />
+                Contactez-moi
+              </span>
+            </button>
+            <button
+              type="button"
+              className="block w-full rounded-2xl bg-white/5 hover:bg-white/10 py-4 px-5 text-center font-medium shadow-sm transition-all backdrop-blur-sm border border-white/10 text-neutral-100"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Phone className="h-4 w-4 text-neutral-400" />
+                Appelez-moi
+              </span>
+            </button>
             {links.map((l, i) => (
               <a
                 key={i}
