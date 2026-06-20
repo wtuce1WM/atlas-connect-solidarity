@@ -637,6 +637,9 @@ const HomeMindtrip = () => {
             section img[alt^="Application One World"] { animation: none !important; }
             .hero-parallax .home-hero-content { transform: none !important; }
           }
+          @media (max-width: 767px) {
+            .home-hero-section .hero-search-ripple { display: none; }
+          }
         `}</style>
 
         <div className="absolute left-0 right-0 top-28 z-30 px-6 text-center md:hidden transition-all duration-700 animate-fade-in">
@@ -722,7 +725,7 @@ const HomeMindtrip = () => {
         {/* Mobile-only video CTA placed absolutely below the search CTAs */}
         <div
           className="md:hidden absolute left-1/2 -translate-x-1/2 z-30 flex justify-center"
-          style={{ bottom: "calc(5.5rem + env(safe-area-inset-bottom, 0px))" }}
+          style={{ bottom: "calc(4.75rem + env(safe-area-inset-bottom, 0px))" }}
         >
           <button
             type="button"
