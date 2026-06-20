@@ -715,6 +715,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     clearSilenceTimer();
     // Indicate immediately we're starting so UI shows feedback during warm-up
     setStatus("recording");
+    // Sur Android, on attend l'événement onstart (= signal sonore + micro ouvert)
+    // avant d'inviter à parler. Sur les autres plateformes, pas de signal sonore : prêt tout de suite.
+    setMicReady(!isAndroid());
 
     const recognition = new SpeechRecognitionAPI();
     recognition.lang = lang;
@@ -727,6 +730,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     recognition.onstart = () => {
       setStatus("recording");
       setLiveTranscript("");
+      setMicReady(true);
     };
 
     recognition.onresult = (event) => {
