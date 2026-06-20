@@ -31,7 +31,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; galeries?: string; fermes?: string; enfants?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string; sidikaouki?: string; agafay?: string; rated?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; galeries?: string; fermes?: string; enfants?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string; sidikaouki?: string; agafay?: string; rated?: string; fruitsmer?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
