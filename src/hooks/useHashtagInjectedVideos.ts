@@ -246,7 +246,7 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
         if (!ownerId) {
           const accLower = account.toLowerCase();
           if (!accLower || !EXTERNAL_ACCOUNT_WHITELIST.has(accLower)) return;
-          if (isYoutubeLongFormat(effectiveUrl)) return;
+          if (effectiveUrl && isYoutubeLongFormat(effectiveUrl)) return;
         }
 
         buckets[label].push({
