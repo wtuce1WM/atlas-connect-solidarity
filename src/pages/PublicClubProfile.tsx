@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe, MapPin } from "lucide-react";
+import { Globe, MapPin, Mail, Phone } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import NotFound from "@/pages/NotFound";
 import ShareButton from "@/components/ShareButton";
 import { useSEO } from "@/hooks/useSEO";
