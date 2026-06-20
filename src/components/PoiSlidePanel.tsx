@@ -105,8 +105,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
   const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null; sort_order: number; metric_title: string | null; metric_value: string | null }[]>([]);
   const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null }>({ title: null, intro: null });
-  const [searchOverlayActive, setSearchOverlayActive] = useState(false);
-  const [hashtagsOverlayActive, setHashtagsOverlayActive] = useState(false);
+
 
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -809,32 +808,7 @@ const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom
         </div>
       )}
 
-      {/* Liquid-glass search bar with 6 round CTAs (aligned with BookOnlineSlidePanel) */}
-      {showSearchBar && !showBookingOverlay && !openedPoiBusinessId && !showDirections && !showMosaic && !isLightboxOpen && (
-        <div className={`absolute pointer-events-none ${searchOverlayActive ? "inset-0 left-0 translate-x-0 w-full max-w-none z-[90]" : "bottom-0 left-1/2 -translate-x-1/2 w-[96%] sm:w-[94%] max-w-[540px] z-[85]"}`}>
-          <div className="relative w-full h-full pointer-events-auto">
-            <PanelSearchBar
-              onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
-              iconVariant="black"
-              onSearch={onSearch}
-              onBusinessSelect={onSearchBusinessSelect}
-              businessCity={poi?.city}
-              businessName={poi?.name}
-              onOverlayChange={setSearchOverlayActive}
-              onHashtagsOverlayChange={setHashtagsOverlayActive}
-              hashtagsOverlayOpen={hashtagsOverlayActive}
-              darkBackground={true}
-              compact
-              onSeeResults={onClose}
-              videoControls={
-                currentMedia?.kind === "video"
-                  ? { type: "file", videoRef: videoRef as React.RefObject<HTMLVideoElement>, paused: videoPaused, muted: videoMuted }
-                  : undefined
-              }
-            />
-          </div>
-        </div>
-      )}
+      {/* PanelSearchBar removed in POI overlay — no bottom round CTAs */}
 
 
       {/* Recursive SlidePanel for selected POI */}
