@@ -139,12 +139,18 @@ const BlogArticleTemplate = ({
   const hasNext = openIndex >= 0 && openIndex < orderedIds.length - 1;
 
   const openBusiness = useCallback((id: string) => {
+    setIsClosing(false);
     setOpenBusinessId(id);
   }, []);
 
   const closePanel = useCallback(() => {
-    setOpenBusinessId(null);
+    setIsClosing(true);
+    window.setTimeout(() => {
+      setOpenBusinessId(null);
+      setIsClosing(false);
+    }, 300);
   }, []);
+
 
   // Sync ?openBusiness= in URL (read on mount + write on change) without reload
   useEffect(() => {
