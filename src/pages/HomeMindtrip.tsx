@@ -722,7 +722,7 @@ const HomeMindtrip = () => {
         {/* Mobile-only video CTA placed absolutely below the search CTAs */}
         <div
           className="md:hidden absolute left-1/2 -translate-x-1/2 z-30 flex justify-center"
-          style={{ bottom: "calc(6.2rem + env(safe-area-inset-bottom, 0px))" }}
+          style={{ bottom: "calc(5rem + env(safe-area-inset-bottom, 0px))" }}
         >
           <button
             type="button"
