@@ -4431,17 +4431,28 @@ const SearchPage = () => {
                                 </div>
                                 {m.clarify && m.clarify.options.length > 0 && (
                                   <div className="flex flex-wrap gap-2">
-                                    {m.clarify.options.map((opt) => (
-                                      <button
-                                        key={opt.id}
-                                        type="button"
-                                        onClick={() => submitAiRefinement(opt.text)}
-                                        disabled={aiChatLoading}
-                                        className="rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs sm:text-sm px-3 py-1.5 transition-colors disabled:opacity-50"
-                                      >
-                                        {opt.label}
-                                      </button>
-                                    ))}
+                                    {m.clarify.options.map((opt) => {
+                                      const isGeoEnable = m.clarify?.type === "geolocate" && opt.id === "enable_geo";
+                                      return (
+                                        <button
+                                          key={opt.id}
+                                          type="button"
+                                          onClick={() => {
+                                            if (isGeoEnable) {
+                                              geo.accept();
+                                              // Laisse au hook le temps de récupérer les coords avant de relancer
+                                              setTimeout(() => submitAiRefinement(opt.text), 800);
+                                            } else {
+                                              submitAiRefinement(opt.text);
+                                            }
+                                          }}
+                                          disabled={aiChatLoading}
+                                          className="rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs sm:text-sm px-3 py-1.5 transition-colors disabled:opacity-50"
+                                        >
+                                          {isGeoEnable ? "📍 " : ""}{opt.label}
+                                        </button>
+                                      );
+                                    })}
                                   </div>
                                 )}
                                 {(() => {
