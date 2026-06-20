@@ -973,12 +973,14 @@ const HomeMindtrip = () => {
                      )}
                     {i === 3 && (
                       <>
-                        <img
-                          aria-hidden="true"
-                          src={destinationsMapAsset.url}
-                          alt=""
-                          className="absolute inset-0 h-full w-full object-cover md:hidden"
-                        />
+                        {/* Mobile : parallax JS (bg-fixed ignoré par iOS Safari) */}
+                        <div aria-hidden="true" className="absolute inset-0 overflow-hidden md:hidden">
+                          <ParallaxImg
+                            src={destinationsMapAsset.url}
+                            className="absolute left-0 w-full object-cover"
+                            style={{ top: "-10%", height: "120%" }}
+                          />
+                        </div>
                         <div
                           aria-hidden="true"
                           className="absolute inset-0 hidden md:block bg-cover bg-center bg-fixed"
