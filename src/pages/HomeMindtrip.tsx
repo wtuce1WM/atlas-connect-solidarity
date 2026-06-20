@@ -1180,7 +1180,7 @@ const STEPS = [
   },
   {
     title: "Naviguez en mode immersif",
-    desc: "Associez :\n - la précision de la recherche Google,\n- la preuve sociale/avis clients des grandes plateformes,\n- les fonctionnalités de TripAdvisor/Booking,\n- le navigation immersive de TikTok/Instagram/Youtube\n- la personnalisation de l'IA\ndans une application dédiée au tourisme et à la vie quotidienne au Maroc.",
+    desc: "Associez :\n • la précision de la recherche Google,\n• la preuve sociale/avis clients des grandes plateformes,\n• les fonctionnalités de TripAdvisor/Booking,\n• la navigation immersive de TikTok/Instagram/Youtube\n• la personnalisation de l'IA\ndans une application dédiée au tourisme et à la vie quotidienne au Maroc.",
     cta: "Découvrir",
     href: "/y/tarik-belasri",
     icon: PlayCircle,
