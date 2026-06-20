@@ -83,6 +83,13 @@ const BlogArticleTemplate = ({
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
+  // Pre-load the lazy panel chunk early to avoid Suspense flash on first open
+  useEffect(() => {
+    const t = setTimeout(() => { import("@/components/BookOnlineSlidePanel"); }, 1200);
+    return () => clearTimeout(t);
+  }, []);
+
 
   const geo = useGeolocation();
   const userLocation = geo.isEnabled && geo.coords ? geo.coords : null;
@@ -132,12 +139,18 @@ const BlogArticleTemplate = ({
   const hasNext = openIndex >= 0 && openIndex < orderedIds.length - 1;
 
   const openBusiness = useCallback((id: string) => {
+    setIsClosing(false);
     setOpenBusinessId(id);
   }, []);
 
   const closePanel = useCallback(() => {
-    setOpenBusinessId(null);
+    setIsClosing(true);
+    window.setTimeout(() => {
+      setOpenBusinessId(null);
+      setIsClosing(false);
+    }, 300);
   }, []);
+
 
   // Sync ?openBusiness= in URL (read on mount + write on change) without reload
   useEffect(() => {
@@ -274,9 +287,10 @@ const BlogArticleTemplate = ({
     <div className="min-h-screen bg-background">
       <div
         className={`transition-[padding] duration-300 ease-out ${
-          openBusinessId ? "lg:pr-[50vw]" : ""
+          openBusinessId && !isClosing ? "lg:pr-[50vw]" : ""
         }`}
       >
+
       <HomeMindtripHeader alwaysWhite />
 
       {/* Hero */}
@@ -534,9 +548,10 @@ const BlogArticleTemplate = ({
 
       {openBusinessId && (
         <div
-          className="fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col animate-slide-in-right lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:w-1/2"
+          className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:w-1/2 ${isClosing ? "animate-slide-out-right" : "animate-slide-in-right"}`}
           style={{ height: "100dvh" }}
         >
+
           <SlidePanelHeader onClose={closePanel} alwaysDark glassClose />
           <div className="flex-1 min-h-0 overflow-visible">
             <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
