@@ -31,6 +31,8 @@ interface BusinessData {
   getyourguide_review_count?: number | null;
   viator_rating?: number | null;
   viator_review_count?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface AISearchAnswerProps {
