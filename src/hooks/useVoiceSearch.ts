@@ -547,6 +547,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       scribePartialRef.current = "";
       setLiveTranscript("");
       setStatus("recording");
+      setMicReady(true);
 
       if (!mediaStream) {
         mediaStream = await navigator.mediaDevices.getUserMedia({
