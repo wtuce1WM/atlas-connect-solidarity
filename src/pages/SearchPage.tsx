@@ -4185,7 +4185,7 @@ const SearchPage = () => {
                       </div>
                     );
                   }
-                  const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
+                  const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === -1;
                   const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
                   // Build data source for link matching based on active tab
                   const linkDataSource: AIBusinessData[] = activeTab === "poi"
