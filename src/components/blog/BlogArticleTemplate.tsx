@@ -460,7 +460,7 @@ const BlogArticleTemplate = ({
                               </CardContent>
                             </div>
                           </Card>
-                        </Link>
+                        </button>
                       );
                     })}
                   </div>
