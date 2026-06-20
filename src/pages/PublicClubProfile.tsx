@@ -218,7 +218,7 @@ const PublicClubProfile = () => {
           )}
 
           {/* Social icons row */}
-          <HScroll className="mt-6 w-full flex flex-nowrap items-center justify-center gap-4 overflow-x-auto scrollbar-none pb-1">
+          <HScroll className="mt-6 w-full flex flex-nowrap items-center justify-start gap-4 overflow-x-auto scrollbar-hide px-6 pb-1">
             {socials.map((s) => {
               const v = profile[s.kind] as string | null;
               if (!v) return null;
