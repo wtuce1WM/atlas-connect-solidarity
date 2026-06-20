@@ -400,7 +400,7 @@ const Blog = () => {
                           Activités pour les enfants à Marrakech
                         </h2>
                         <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                          Douze adresses pour occuper les enfants à Marrakech : parcs aquatiques, trampolines, escape games, mini-villes éducatives, poneys et expériences immersives en famille.
+                          Quarante-et-une adresses pour occuper les enfants à Marrakech : parcs aquatiques, trampolines, escape games, mini-villes éducatives, poneys, fermes et expériences immersives en famille.
                         </p>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 text-primary font-medium">
