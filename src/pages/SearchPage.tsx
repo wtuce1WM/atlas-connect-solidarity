@@ -1804,6 +1804,8 @@ const SearchPage = () => {
 
   const voiceLoopRef = useRef(false);
   const ttsIntroWordCountRef = useRef(0);
+  // -1 = original AI answer block; otherwise the aiChat message index being read
+  const [ttsSourceIdx, setTtsSourceIdx] = useState<number>(-1);
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus, spokenWordIndex: ttsSpokenWordIndex } = useTextToSpeech({
     onEnd: () => {
       if (voiceLoopRef.current) {
