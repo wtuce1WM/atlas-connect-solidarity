@@ -128,9 +128,9 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
         </button>
 
         <div className="relative flex items-center justify-center shrink-0">
-          <span className="hero-search-ripple absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
-          <span className="hero-search-ripple absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
-          <span className="hero-search-ripple absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
+          <span className="hero-search-ripple absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
+          <span className="hero-search-ripple absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
+          <span className="hero-search-ripple absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
           <button
             type="button"
             onClick={() => (useMobileOverlay ? onMobileSearchClick!() : voice.toggleRecording())}
