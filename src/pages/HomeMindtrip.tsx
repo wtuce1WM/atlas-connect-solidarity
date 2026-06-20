@@ -921,9 +921,14 @@ const HomeMindtrip = () => {
                             <div className="relative w-full mt-6 md:mt-8 flex-1 min-h-[180px]">
                               {/* Left/Middle side: text description taking 82% width, sits on top */}
                               <div className="relative z-10 w-[82%] md:w-[85%] pr-2 pt-20 md:pt-28 flex flex-col gap-4">
-                                <p className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-base text-left">
-                                  {s.desc}
+                                <p className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-base text-left whitespace-pre-line">
+                                  {s.desc.replace("\n\n\nVotre\u00a0", "")}
                                 </p>
+                                {i === 8 && (
+                                  <div className="text-white/90 font-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] font-roboto text-base text-left">
+                                    Votre application direct-to-local dédiée au tourisme et à la vie quotidienne au Maroc.
+                                  </div>
+                                )}
                                 <div className="flex justify-start">
                                   <Link 
                                     to="/install"
@@ -1166,7 +1171,7 @@ const STEPS = [
   },
   {
     title: "Votre assistant IA",
-    desc: "Dialoguez avec notre Agent IA :\n\n- Affinez vos recherches avec vos propres critères en dialoguant avec notre agent IA\n- En mode texte ou vocal\n- Sauvegardez les résultats\n- Partagez les avec vos proches",
+    desc: "Dialoguez avec notre Agent IA :\n\u00a0\n• Affinez vos recherches avec vos propres critères en dialoguant avec notre agent IA\u00a0\n• En mode texte ou vocal\u00a0\n• Sauvegardez les résultats\n• Partagez les avec vos proches",
     cta: "Voir la démo",
     href: "/search?q=je%20cherche%20un%20restaurant%20%C3%A0%20Marrakech%20ouvert%20demain%20midi%20avec%20une%20piscine&tab=ai&demo=sur%20la%20route%20de%20l'Ourika",
     icon: Sparkles,
@@ -1187,7 +1192,7 @@ const STEPS = [
   },
   {
     title: "Pépites cachées, expériences inoubliables",
-    desc: "Découvrez des adresses d'exception.\n\n- épinglez-les\n- partagez-les\n- visitez-les\n- notez-les",
+    desc: "Découvrez des adresses d'exception.\n\n• épinglez-les\n• partagez-les\n• visitez-les\n• notez-les",
     cta: "Explorer",
     href: "/search",
     icon: Sparkles,
@@ -1201,14 +1206,14 @@ const STEPS = [
   },
   {
     title: "Naviguez en mode immersif",
-    desc: "Associez :\n\n• la précision de la recherche Google,\n• la preuve sociale/avis clients des grandes plateformes,\n• les fonctionnalités de TripAdvisor/Booking\n• la géolocalisation de Google Maps\u00a0\n• la navigation immersive de TikTok/Instagram/Youtube\n• la personnalisation de l'IA\n\ndans une application dédiée au tourisme et à la vie quotidienne au Maroc.",
+    desc: "Associez :\n\n• la précision de la recherche Google,\n• la preuve sociale/avis clients des grandes plateformes,\n• les fonctionnalités de TripAdvisor/Booking\n• la géolocalisation de Google Maps\u00a0\n• la navigation immersive de TikTok/Instagram/Youtube\n• la personnalisation de l'IA\n",
     cta: "Découvrir",
     href: "/y/tarik-belasri",
     icon: PlayCircle,
   },
   {
     title: "Installez l'application",
-    desc: "Installez ONE WORLD MOROCCO sur votre appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur votre écran d'accueil ou votre bureau. Compatible iPhone, iPad, Android, Mac et Windows.",
+    desc: "Installez ONE WORLD MOROCCO sur votre appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur votre écran d'accueil ou votre bureau.\n\nCompatible iPhone, iPad, Android, Mac et Windows.\n\n\nVotre\u00a0",
     cta: "Installer l'app",
     href: "/install",
     icon: PlayCircle,
