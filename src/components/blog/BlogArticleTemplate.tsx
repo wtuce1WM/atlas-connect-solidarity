@@ -83,6 +83,13 @@ const BlogArticleTemplate = ({
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
+  // Pre-load the lazy panel chunk early to avoid Suspense flash on first open
+  useEffect(() => {
+    const t = setTimeout(() => { import("@/components/BookOnlineSlidePanel"); }, 1200);
+    return () => clearTimeout(t);
+  }, []);
+
 
   const geo = useGeolocation();
   const userLocation = geo.isEnabled && geo.coords ? geo.coords : null;
