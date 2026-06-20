@@ -1156,7 +1156,7 @@ const STEPS = [
   },
   {
     title: "Votre assistant IA",
-    desc: "Dialoguez avec notre Agent IA :\n\n\n- Affinez vos recherches avec vos propres critères en dialoguant avec notre agent IA\n- En mode texte ou vocal\n- Sauvegardez les résultats\n- Partagez les avec vos proches",
+    desc: "Dialoguez avec notre Agent IA :\n\n- Affinez vos recherches avec vos propres critères en dialoguant avec notre agent IA\n- En mode texte ou vocal\n- Sauvegardez les résultats\n- Partagez les avec vos proches",
     cta: "Voir la démo",
     href: "/search?q=je%20cherche%20un%20restaurant%20%C3%A0%20Marrakech%20ouvert%20demain%20midi%20avec%20une%20piscine&tab=ai&demo=sur%20la%20route%20de%20l'Ourika",
     icon: Sparkles,
@@ -1170,14 +1170,14 @@ const STEPS = [
   },
   {
     title: "Offres sélectionnées. Prix locaux.",
-    desc: "Réductions exclusives sur séjours, visites, restaurants, commerces, services et plus pour les utilisateurs de notre application.",
+    desc: "Réductions exclusives sur séjours, visites, restaurants, commerces, activités, services et plus pour les utilisateurs de notre application.",
     cta: "Voir les offres",
     href: "/search?badge=reduction",
     icon: Percent,
   },
   {
     title: "Pépites cachées, expériences inoubliables",
-    desc: "Découvrez des adresses d'exception, épinglez-les, partagez-les, visitez-les, notez-les.",
+    desc: "Découvrez des adresses d'exception.\n\n- épinglez-les\n- partagez-les\n- visitez-les\n- notez-les",
     cta: "Explorer",
     href: "/search",
     icon: Sparkles,
