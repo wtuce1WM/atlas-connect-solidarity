@@ -330,13 +330,7 @@ export function CtaBar({
         onNavigateToOwner={setActiveBusinessId}
       />
 
-      {/* Video controls */}
-      {!hideVideoControls && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
-        <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
-      )}
-      {!hideVideoControls && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && !cardsHidden && (
-        <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
-      )}
+      {/* Round play/mute controls removed — controls now live in the liquidglass CTA bar */}
     </div>
   );
 }
