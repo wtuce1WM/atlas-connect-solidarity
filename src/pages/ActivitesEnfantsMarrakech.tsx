@@ -134,6 +134,278 @@ const ACTIVITES: BlogArticleEntry[] = [
       "C'est l'adresse idéale pour offrir aux enfants une activité régulière qui les sort des écrans et les met en lien avec le vivant. On en repart en fin de séance avec des enfants fiers, un peu sales, et déjà impatients de revenir la semaine suivante.",
     ],
   },
+  {
+    id: "0021188e-e7e4-407d-90ae-3e1577f90d51",
+    pretitle: "Vallée de l'Ourika, à 27 km de Marrakech",
+    title: "ANIMA Garden — un jardin d'artiste pour rêver en famille",
+    paragraphs: [
+      "André Heller a planté ici trois hectares de merveilles : plus de 250 espèces botaniques, des sculptures de Keith Haring et Picasso disséminées entre les sentiers, des pavillons surprises, des étangs et la silhouette de l'Atlas en toile de fond. Les enfants y entrent comme dans un livre d'images — chaque détour révèle un personnage, un coin secret, une fontaine.",
+      "C'est l'une des rares sorties nature aux portes de Marrakech qui parle vraiment à toute la famille : assez calme pour les parents, assez ludique pour les petits. On y consacre une demi-journée, on déjeune au café du jardin, on repart avec des photos plein le téléphone.",
+    ],
+  },
+  {
+    id: "7547f653-74b4-4900-ba76-7c0e92fab42f",
+    pretitle: "Gueliz",
+    title: "Artelier Workshop & Gallery — ateliers créatifs pour petits artistes",
+    paragraphs: [
+      "Au cœur du Gueliz, Artelier ouvre ses portes aux enfants comme aux adultes pour des ateliers de peinture, dessin, sculpture, arts plastiques et techniques mixtes. L'espace est lumineux, le matériel professionnel, l'encadrement bienveillant — exactement ce qu'il faut pour que les plus jeunes osent se lancer.",
+      "On peut y inscrire son enfant à l'année, profiter d'un stage pendant les vacances ou réserver un atelier d'anniversaire clé en main. Une vraie alternative aux écrans, qui ramène les enfants à la joie simple de créer quelque chose avec ses mains.",
+    ],
+  },
+  {
+    id: "d6a099a7-8297-49e5-800b-8776cb8732eb",
+    pretitle: "Centre commercial Al Mazar, Route de l'Ourika",
+    title: "Atlas Elevation — l'escalade comme école de confiance en soi",
+    paragraphs: [
+      "Murs d'escalade indoor de toutes hauteurs, salle de fitness, cours collectifs et — surtout — un programme « Climbing Team » dédié aux enfants de 5 à 15 ans. Atlas Elevation a été fondé par une communauté de grimpeurs passionnés et ça se sent : l'esprit y est sérieux, encourageant, jamais intimidant.",
+      "Pour les enfants, l'escalade combine ce qu'on cherche dans une bonne activité : dépense physique, concentration, dépassement de soi, et le plaisir d'atteindre le sommet. Le centre organise aussi des sorties d'escalade en plein air dans les montagnes de l'Atlas pour les plus aguerris.",
+    ],
+  },
+  {
+    id: "c1f804bd-2a90-4095-8f79-000ca6e86887",
+    pretitle: "Lac de Lalla Takerkoust, route d'Amizmiz",
+    title: "Base nautique Jet Atlas — sports nautiques avec vue sur l'Atlas",
+    paragraphs: [
+      "À quarante minutes de Marrakech, sur les rives du lac de Lalla Takerkoust, Jet Atlas propose tout ce qu'on attend d'une vraie base nautique : jet-ski, ski nautique, wakeboard, bouée tractée, flyboard, mais aussi quad et buggy pour ceux qui préfèrent la terre ferme.",
+      "Pour les familles, la formule est imparable : une piscine à débordement avec vue sur l'Atlas, un restaurant ouvert toute la journée, et la possibilité de tester une activité d'eau encadrée pendant que les plus jeunes profitent du bord. Une vraie évasion d'une journée, à un jet de pierre de la ville.",
+    ],
+  },
+  {
+    id: "89db62af-e799-42a8-8000-d4166b57d407",
+    pretitle: "Hivernage",
+    title: "Bowling Marrakech — six pistes au cœur de la ville",
+    hours: "Ouvert tous les jours, de 14h00 à 01h00.",
+    paragraphs: [
+      "Le bon vieux bowling, version Marrakech : six pistes en plein Hivernage, restauration sur place, ambiance conviviale. C'est l'activité indoor de secours par excellence — quand il pleut, quand il fait trop chaud, quand on cherche simplement à faire plaisir à toute la famille sans prise de tête.",
+      "L'équipe organise aussi des anniversaires d'enfants et des soirées team-building. On y va pour une partie, on enchaîne sur une pizza, on repart avec ce sentiment rare d'avoir vraiment passé du temps ensemble, sans téléphone.",
+    ],
+  },
+  {
+    id: "531a7bf4-534d-4b0d-a32a-3a16ed8cbb73",
+    pretitle: "Route de Meknès",
+    title: "Centre équestre Cimes de l'Atlas — l'amour des chevaux avant tout",
+    paragraphs: [
+      "Cette adresse-là se distingue par une chose : l'engagement réel envers le bien-être animal. L'équipe, menée par la coach équin Safia, met cet amour au centre de tout — et les enfants le ressentent. Les chevaux sont calmes, bien nourris, bien soignés ; le contact est juste, jamais brutal.",
+      "Cours, balades, baptêmes poneys, stages : la palette couvre tous les âges et tous les niveaux. C'est l'école d'équitation qu'on espère pour son enfant — celle qui transmet bien plus qu'une technique.",
+    ],
+  },
+  {
+    id: "54695f20-1f94-4d5d-ac99-a85c7a44f4c4",
+    pretitle: "Palmeraie, à 12 km du centre",
+    title: "Club Équestre Palmeraie — balades à cheval au cœur de la Palmeraie",
+    paragraphs: [
+      "Centre équestre familial niché au cœur de la Palmeraie, avec moniteurs professionnels, chevaux bien tenus et formules adaptées à tous les niveaux. Pour les enfants, le poney club est l'entrée parfaite — encadrement attentif, animaux patients, sécurité prise au sérieux.",
+      "Pour les plus grands, ce sont les balades dans la palmeraie qui font le sel de l'adresse : lever du jour, plein après-midi ou coucher de soleil, le décor change à chaque heure et l'on découvre Marrakech sous un angle qu'aucune voiture ne donne.",
+    ],
+  },
+  {
+    id: "2fdb1f15-4a02-40b4-b344-0ffc0c2e1abd",
+    pretitle: "À quelques minutes de Marrakech",
+    title: "Domaine Bled Ouladi — ferme de loisirs et piscine en formule Day Pass",
+    hours: "Ouvert sur réservation.",
+    paragraphs: [
+      "Bled Ouladi a inventé la formule parfaite pour une journée en famille : un Day Pass qui inclut piscine, buffet gourmand et accès à toute la ferme. Les enfants y croisent les animaux en quasi-liberté, courent dans les espaces verts, profitent des jeux en plein air pendant que les parents s'installent au bord de l'eau.",
+      "L'esprit est simple, généreux, sans artifice — exactement ce qu'on cherche pour un dimanche au vert sans avoir à organiser quoi que ce soit. On arrive, on dépose ses affaires, la journée se déroule toute seule.",
+    ],
+  },
+  {
+    id: "6b3b72ea-58f1-4ddd-acf3-f652af9e26b8",
+    pretitle: "Route de Casablanca",
+    title: "Jardin de Cactus Thiemann — la plus grande plantation de cactus d'Afrique",
+    paragraphs: [
+      "Depuis 1964, la famille Thiemann a acclimaté ici plus de 150 variétés de cactus venues d'Amérique latine. Le jardin, posé au pied des Jbilet, est une curiosité botanique unique au Maroc — et un terrain de découverte fascinant pour les enfants, qui n'ont jamais vu des cactus d'une telle ampleur, certains plus hauts qu'eux.",
+      "On y vient pour apprendre, photographier, s'émerveiller devant ces formes improbables. Une visite courte mais marquante, qui change radicalement des sorties habituelles.",
+    ],
+  },
+  {
+    id: "9cd7bbfd-6ba0-48ba-8975-2806f435dc8d",
+    pretitle: "Route d'Amizmiz",
+    title: "Jardin Ocre — un écrin verdoyant pour apprendre en s'amusant",
+    paragraphs: [
+      "Le Jardin Ocre cultive volontairement l'expérience ludique et pédagogique : ateliers pour enfants, parcours sensoriels, découverte des plantes aromatiques et de la flore locale, moments de partage à l'ombre des arbres. Une vraie respiration dans un cadre marocain authentique.",
+      "L'esprit du lieu se prête particulièrement bien aux sorties scolaires, anniversaires nature ou simples après-midi en famille où l'on a envie d'allier détente et apprentissage.",
+    ],
+  },
+  {
+    id: "f5f38917-849d-4c2a-8e1d-bee6e9ef5b4c",
+    pretitle: "La Mamounia, Médina",
+    title: "Kid's Spa La Mamounia — des soins pensés pour les 6-16 ans",
+    paragraphs: [
+      "C'est probablement le rituel le plus exclusif de notre sélection : à La Mamounia, les enfants et adolescents de 6 à 16 ans ont droit à leur propre carte de soins. Ateliers de massage doux, soins du visage adaptés, manucure ludique — tout est calibré pour leur âge, dans le cadre mythique du spa de l'hôtel.",
+      "Une expérience à offrir pour un anniversaire d'exception, un moment mère-fille ou père-fils, ou simplement pour initier les plus jeunes au plaisir du bien-être sans qu'ils s'ennuient.",
+    ],
+  },
+  {
+    id: "e499ba31-7ac5-4fe9-8685-480e89a5e97d",
+    pretitle: "Km 6, Route de l'Ourika",
+    title: "La Ferme El Dar — déjeuner et piscine au milieu des oliviers",
+    paragraphs: [
+      "Aux portes de Marrakech, La Ferme El Dar propose une formule très efficace pour une sortie en famille : menu trois plats à 350 dhs par personne, accès piscine inclus, le tout dans un jardin d'oliviers paisible. L'esprit ferme se ressent — animaux, potager, calme — et les enfants peuvent gambader pendant que les parents profitent du repas.",
+      "C'est l'adresse à garder pour ces dimanches où l'on veut sortir de la ville sans aller loin, et où l'on a envie d'un cadre simple, sincère, vraiment reposant.",
+    ],
+  },
+  {
+    id: "4441008c-7e98-4a0f-b48d-0544772ab3e8",
+    pretitle: "Route de Ouarzazate",
+    title: "La Perle aux Oiseaux — un refuge zoologique pour découvrir la faune",
+    paragraphs: [
+      "Refuge zoologique tourné vers la conservation de la biodiversité, La Perle aux Oiseaux donne aux enfants l'occasion rare d'observer de près des espèces qu'ils ne croiseront pas ailleurs. L'approche est pédagogique : on explique, on contextualise, on sensibilise — pas de simple spectacle, mais une vraie démarche éducative.",
+      "Une sortie qui ouvre les yeux et qui laisse des traces : on en sort avec des enfants un peu plus curieux du vivant, et c'est précieux.",
+    ],
+  },
+  {
+    id: "5d397457-1ed1-4824-8541-57131a09b8e3",
+    pretitle: "Menara Mall",
+    title: "La Petite Crèche de Kidzo — garderie pour les 1-4 ans pendant que vous shoppez",
+    paragraphs: [
+      "Pensée comme un complément idéal au Menara Mall, La Petite Crèche de Kidzo accueille les enfants de 1 à 4 ans dans un environnement sécurisé et amusant. Encadrement professionnel, jeux éducatifs, activités créatives, goûter — tout est prévu pour que les petits passent un vrai bon moment.",
+      "Pour les parents, c'est la solution pratique imparable : on dépose, on profite enfin d'une heure ou deux à soi dans le centre commercial, on récupère un enfant qui a joué, mangé, peut-être même fait la sieste.",
+    ],
+  },
+  {
+    id: "55e5a0f4-f570-4aab-942e-932284c4f8c4",
+    pretitle: "Centre commercial Al Mazar, Route de l'Ourika",
+    title: "Laser Game Evolution — trois labyrinthes et un karaoké",
+    paragraphs: [
+      "Au cœur du centre Al Mazar, Laser Game Evolution propose trois labyrinthes pour des parties immersives, un karaoké pour prolonger la soirée et un café/glacier oriental pour reprendre des forces. La formule plaît particulièrement aux préados et ados qui veulent du fun sans la rudesse du paintball.",
+      "L'adresse est rodée pour les anniversaires, sorties étudiantes et team-buildings — l'équipe d'animation sait emballer une après-midi en quelques minutes.",
+    ],
+  },
+  {
+    id: "e56a1782-3b86-4d73-a75a-fe5ae6ae12fd",
+    pretitle: "Route d'Amizmiz",
+    title: "Laser Games Marrakech — l'alternative douce au paintball",
+    paragraphs: [
+      "Laser Games Marrakech assume une promesse claire : tous les avantages du combat tactique en équipe, aucun des inconvénients du paintball. Pas de bleus, pas de douleur, des règles simples, accessible dès le plus jeune âge — c'est l'activité parfaite pour mélanger les générations sans laisser personne de côté.",
+      "Parfait pour les anniversaires d'enfants, les sorties de groupes mixtes et les premières fois en matière de jeux d'équipe à sensations.",
+    ],
+  },
+  {
+    id: "b18e96bd-85bc-4e3d-828d-29953b40063f",
+    pretitle: "Route d'Agafay",
+    title: "Le Parc des Oliviers Ecolodge — un coin de paradis à deux pas de la ville",
+    paragraphs: [
+      "À deux pas de Marrakech, Le Parc des Oliviers offre une vraie échappée nature en mode écolodge — un domaine planté d'oliviers, calme, où l'on vient se ressourcer en famille. Piscine, espaces ombragés, restauration sur place : la formule est simple et fonctionne.",
+      "Les enfants y trouvent l'espace pour courir, grimper, explorer. Les parents y trouvent enfin un peu de silence. Un équilibre rare et précieux.",
+    ],
+  },
+  {
+    id: "8a85b337-56ce-47a6-880b-6029176df283",
+    pretitle: "Marrakech",
+    title: "M'Art Studio — un studio créatif pour libérer l'imagination",
+    paragraphs: [
+      "M'Art Studio est un espace pensé pour les enfants qui ont envie de créer, peindre, modeler, expérimenter. Encadrement par des artistes, matériel professionnel, ambiance détendue — tout est réuni pour que la créativité s'exprime sans pression.",
+      "Cours réguliers, stages de vacances ou ateliers anniversaires : on choisit la formule, et l'enfant repart avec ses œuvres et beaucoup de fierté.",
+    ],
+  },
+  {
+    id: "5b40b159-3411-4c30-a919-82855694166b",
+    pretitle: "Marrakech",
+    title: "Marrakech Kart Racing — du karting pour les pilotes en herbe",
+    paragraphs: [
+      "Piste de karting professionnelle, karts adaptés à différents âges, encadrement strict côté sécurité : Marrakech Kart Racing donne aux enfants et ados l'occasion rare de vivre la vitesse en vrai, casque sur la tête, doigts sur le volant.",
+      "Une activité d'anniversaire qui marque, ou simplement une après-midi adrénaline à offrir à un enfant fan de course automobile.",
+    ],
+  },
+  {
+    id: "964dd87e-e6f7-4fb9-9ab6-effe94e7a6e4",
+    pretitle: "Route d'Agadir",
+    title: "Nature by Mokhtar — la ferme préservée à la périphérie de la ville",
+    paragraphs: [
+      "Espace vert magnifiquement préservé, Nature by Mokhtar rend hommage à la vocation agricole originelle de la périphérie de Marrakech. On y croise des animaux, on découvre des cultures, on respire — bref, on redécouvre ce qu'était la ville avant qu'elle ne se densifie.",
+      "Une sortie pédagogique idéale pour les enfants, qui touchent du doigt une autre échelle de temps et de paysage.",
+    ],
+  },
+  {
+    id: "d299e29c-e675-498e-b8dc-5b843b241315",
+    pretitle: "Route de l'Ourika",
+    title: "Ourika Park Ferme Pédagogique — plusieurs activités et restaurant",
+    paragraphs: [
+      "Ourika Park combine ferme pédagogique, plusieurs activités encadrées et restaurant sur place. La formule typique : on arrive en fin de matinée, on enchaîne découverte des animaux et jeux, on déjeune sur place, on prolonge l'après-midi sans avoir à courir d'un endroit à l'autre.",
+      "C'est l'archétype de la sortie familiale clé en main sur la route de l'Ourika — efficace, rassurante, particulièrement adaptée aux jeunes enfants.",
+    ],
+  },
+  {
+    id: "23dc2291-3dd1-40a4-ad3c-b2771689a3c6",
+    pretitle: "Palmeraie",
+    title: "Palmeride — la Palmeraie en trottinette électrique tout-terrain",
+    paragraphs: [
+      "Trottinettes électriques tout-terrain, sans permis, accessibles dès 1m20 : Palmeride a trouvé l'équilibre parfait pour faire découvrir la Palmeraie aux familles. Les guides sont locaux, passionnés, et choisissent des parcours qui combinent sentiers de palmeraie, points de vue et anecdotes du terrain.",
+      "Une vraie aventure douce et écologique, parfaite pour les ados et les enfants en âge de tenir un guidon — l'un des meilleurs moyens de comprendre l'envers de la ville.",
+    ],
+  },
+  {
+    id: "9a5d9a6d-b711-45fd-a8f8-795031de236a",
+    pretitle: "À 45 km de Marrakech",
+    title: "Parapente Adrénaline — le baptême de l'air en biplace",
+    paragraphs: [
+      "À 45 kilomètres de la ville, Parapente Adrénaline propose des vols en biplace encadrés par des pilotes diplômés. C'est l'expérience à offrir aux ados qui rêvent d'aventure — décoller depuis une crête, planer au-dessus des paysages, atterrir avec ce regard qu'on ne voit qu'une fois dans une vie.",
+      "Sécurité prise au sérieux, matériel homologué, ambiance accueillante : on confie son enfant en toute tranquillité.",
+    ],
+  },
+  {
+    id: "396ca85e-cf31-49ca-9fbe-fc5614b12c3e",
+    pretitle: "Menara Mall",
+    title: "Patinoire Kidzo — la magie de la glace en plein Marrakech",
+    paragraphs: [
+      "Une vraie patinoire, dans le climat de Marrakech : la Patinoire Kidzo du Menara Mall offre aux enfants un dépaysement total. On enfile les patins, on glisse, on tombe, on rit — exactement ce qu'on associe à une après-midi d'hiver, mais ici sous le soleil.",
+      "Cours pour débutants, sessions libres et créneaux anniversaires : la formule fonctionne pour tous les âges et niveaux. À tester au moins une fois.",
+    ],
+  },
+  {
+    id: "010742f5-db3f-42a5-8041-392843bb40a5",
+    pretitle: "Médina",
+    title: "Pikala Bikes — la médina et la palmeraie à vélo, en famille",
+    paragraphs: [
+      "Pikala loue des vélos adaptés à tous les terrains et à toutes les tailles, et propose même la livraison à votre hôtel ou riad. Une manière originale, ludique et écologique de faire découvrir Marrakech aux enfants — souks, Palmeraie, ruelles cachées prennent un autre relief quand on les traverse à deux roues.",
+      "Le projet a aussi une dimension sociale (formation et emploi des jeunes) qui en fait un choix particulièrement aligné si l'on cherche à donner du sens à sa sortie.",
+    ],
+  },
+  {
+    id: "c03e0482-f26e-4664-9165-67e2c731ca4c",
+    pretitle: "Route d'Agadir",
+    title: "Secret Family Farm — animaux en liberté et atelier de création",
+    paragraphs: [
+      "L'adresse est dans le nom : une ferme familiale tranquille, où les enfants courent au milieu d'animaux en liberté (chèvres, poules, lapins), participent à un atelier créatif et déjeunent ensuite d'une cuisine simple, fraîche, faite maison.",
+      "Tout y est pensé pour l'authenticité — on est loin des parcs aseptisés, on retrouve le plaisir d'une vraie ferme et d'un vrai contact avec le vivant.",
+    ],
+  },
+  {
+    id: "da640b4a-fae8-4904-a265-0a9d21572f9d",
+    pretitle: "Marrakech",
+    title: "Sky Riders Marrakech — survoler Marrakech en parapente",
+    paragraphs: [
+      "Sky Riders propose des vols en parapente au-dessus de la région marrakchie, encadrés par une équipe certifiée. L'expérience est calibrée pour tous les niveaux, avec un matériel homologué et un système de réservation flexible 7j/7.",
+      "Pour un ado, c'est l'aventure absolue : palmeraie, désert et Atlas vus du ciel, avec le souvenir gravé pour des années. Un cadeau d'anniversaire qui change vraiment.",
+    ],
+  },
+  {
+    id: "0471ae99-0ae8-4fba-ae5a-8f697209f36f",
+    pretitle: "Marrakech",
+    title: "The Wave Marrakech — surfer sur des vagues stationnaires",
+    paragraphs: [
+      "The Wave Marrakech propose une expérience encore rare au Maroc : surfer sur des vagues stationnaires, dans un environnement maîtrisé. Les sensations sont vraies, l'apprentissage est rapide, et l'on peut progresser sans dépendre de l'océan.",
+      "Une activité originale et marquante pour les ados (et les parents !) qui ont envie d'essayer quelque chose qu'on ne trouve nulle part ailleurs en ville.",
+    ],
+  },
+  {
+    id: "b401faae-7c02-49b1-96de-cf2c8478de32",
+    pretitle: "Palmeraie",
+    title: "Trottinette électrique dans la Palmeraie — l'évasion d'une heure",
+    paragraphs: [
+      "Formule pensée pour les visiteurs : transfert depuis votre hôtel ou riad, thé à la menthe et photos inclus, à partir de 35 € par personne. Une heure de trottinette électrique tout-terrain dans la Palmeraie, ludique, facile et sécurisée — l'évasion idéale sans avoir à organiser quoi que ce soit.",
+      "Le bon plan pour faire vivre une vraie aventure aux enfants (et aux ados) sans logistique compliquée.",
+    ],
+  },
+  {
+    id: "089836d9-8f1e-4442-bf2f-cc58790f74a6",
+    pretitle: "Carré Eden, Gueliz",
+    title: "X-trem 360 Marrakech — réalité virtuelle, simulateurs et écran géant interactif",
+    paragraphs: [
+      "Au cœur du Carré Eden, X-trem 360 a installé l'une des offres de divertissement les plus complètes de la ville : jeux d'aventures, laser-tag et escape-games en réalité virtuelle dès 6 ans (solo ou multijoueurs), simulateurs racing dynamiques à vérins, Multiball sport-gaming sur écran géant dès 4 ans.",
+      "L'adresse parfaite pour les anniversaires d'ados, les après-midi pluvieuses ou les sorties multi-générations : il y a forcément une activité qui correspond à chaque âge.",
+    ],
+  },
 ];
 
 const ActivitesEnfantsMarrakech = () => (
