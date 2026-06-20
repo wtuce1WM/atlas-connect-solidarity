@@ -1243,7 +1243,7 @@ const STEPS = [
   },
   {
     title: "Composez votre voyage",
-    desc: "Construisez votre itinéraire, suivez les établissements qui vous intéressent, gardez les points d'intérêts dans votre compte, soyez informé des bons plans, agenda, annonces...",
+    desc: "- Construisez votre itinéraire\n- Suivez les établissements qui vous intéressent\n- Gardez les points d'intérêts dans votre compte\n- Soyez informé des bons plans, agenda, annonces...",
     cta: "Inscrivez-vous",
     href: "/club",
     icon: Compass,
