@@ -921,6 +921,17 @@ const HomeMindtrip = () => {
                           className="absolute inset-0 h-full w-full object-cover"
                         />
                       )}
+                      {i === 3 && (
+                        <>
+                           {/* Background image with parallax (fixed attachment) — all devices */}
+                           <div
+                             aria-hidden="true"
+                             className="absolute inset-0 bg-cover bg-center bg-fixed"
+                             style={{ backgroundImage: `url(${destinationsMapAsset.url})` }}
+                           />
+                           <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-black/65" />
+                        </>
+                      )}
                       {i === 8 && (
                         <>
                            {/* Background image with parallax (fixed attachment) — all devices */}
@@ -1014,8 +1025,8 @@ const HomeMindtrip = () => {
 
                         {i === 6 ? (
                           <HotelAvailabilityWidget />
-                        ) : i === 8 ? (
-                          <div className="flex justify-center w-full mt-auto pt-4">
+                        ) : (i === 3 || i === 8) ? (
+                          <div className="flex justify-center w-full mt-auto pt-4 relative z-10">
                             <Link
                               to={s.href}
                               className="inline-flex items-center rounded-full px-5 py-2.5 font-josefin text-xs tracking-[0.2em] text-white border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] btn-shimmer transition-transform hover:scale-105 duration-200 md:px-6 md:py-3 md:text-sm"
