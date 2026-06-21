@@ -787,6 +787,8 @@ const BlogArticleTemplate = ({
               currentTime={videoCurrentTime}
               onTimeUpdate={setVideoCurrentTime}
               returnContext={null}
+              hideDirections={true}
+              hideSecondaryCtas={true}
             />
           </Suspense>
         );
