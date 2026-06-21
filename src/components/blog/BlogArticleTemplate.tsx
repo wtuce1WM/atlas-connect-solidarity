@@ -596,9 +596,17 @@ const BlogArticleTemplate = ({
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                         {v.price && (
-                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-gold text-black text-[11px] font-semibold shadow">
-                            {v.price}
-                          </span>
+                          v.price.toLowerCase().trim() === "sur demande" || v.price.toLowerCase().trim() === "prix sur demande" ? (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <span className="px-3 py-1.5 rounded-full bg-[#F1F1F1] text-black text-[11px] font-semibold shadow-sm">
+                                Prix sur demande
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-gold text-black text-[11px] font-semibold shadow">
+                              {v.price}
+                            </span>
+                          )
                         )}
                         {v.title && v.title !== "Vidéo" && v.title !== "video" && (
                           <div className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium line-clamp-2 drop-shadow">
