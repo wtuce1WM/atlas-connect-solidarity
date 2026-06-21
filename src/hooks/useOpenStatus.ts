@@ -29,8 +29,8 @@ export function useOpenStatus({ business, language }: UseOpenStatusParams) {
     }, {} as Record<string, any>);
 
     const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-    const now = new Date();
-    const todayKey = days[now.getDay()];
+    const moroccoNow = getMoroccoNow();
+    const todayKey = days[moroccoNow.dayOfWeek];
     const currentlyOpen = isCurrentlyOpen(todayKey ? hours[todayKey] : null);
 
     if (currentlyOpen) {
@@ -38,7 +38,7 @@ export function useOpenStatus({ business, language }: UseOpenStatusParams) {
       return { text: label, isOpen: true };
     }
 
-    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const nowMin = moroccoNow.minutes;
     const dh = hours[todayKey];
     let foundToday = false;
     let badgeText: string | null = null;
