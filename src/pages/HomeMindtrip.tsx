@@ -32,9 +32,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
-import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
-import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
-import essaouiraLobsterAsset from "@/assets/essaouira-lobster-hero.jpg.asset.json";
+import { STATIC_BLOG_HERO_OVERRIDES } from "@/lib/blogStaticHeroes";
 import step3MockupAsset from "@/assets/step3-mockup.webp.asset.json";
 import destinationsMapAsset from "@/assets/destinations_map1.webp.asset.json";
 import poiMapAsset from "@/assets/poi_map.webp.asset.json";
@@ -295,13 +293,8 @@ const HomeMindtrip = () => {
       const staticItems = staticArticles.map((a) => ({
         slug: a.path,
         title: a.title,
-        image: a.slug === "etablissements-notes" 
-          ? ratedHeroAsset.url 
-          : a.slug === "hotels-riads-vue-mer-essaouira" 
-          ? essaouiraSunsetAsset.url 
-          : a.slug === "manger-fruits-de-mer-essaouira"
-          ? essaouiraLobsterAsset.url
-          : (a.bizId ? imgById.get(a.bizId) : undefined),
+        image: STATIC_BLOG_HERO_OVERRIDES[a.slug] 
+          ?? (a.bizId ? imgById.get(a.bizId) : undefined),
         date: a.date,
       }));
       const dbItems = (dbPosts || []).map((p: any) => ({
