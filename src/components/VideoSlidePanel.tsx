@@ -12,6 +12,8 @@ import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineO
 import { useNavigate } from "react-router-dom";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
+import LocationPickerDialog from "@/components/LocationPickerDialog";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { businessUrl, buildOgShareUrl } from "@/lib/businessUrl";
 import { formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
 import { buildKpSearchUrl } from "@/lib/buildKpSearchUrl";
@@ -191,6 +193,13 @@ const VideoSlidePanel = ({
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null; description: string | null; start_date: string | null; end_date: string | null; days_of_week: string[] | null; start_time: string | null; end_time: string | null } | null>(null);
   const [poiOverlayBusinessId, setPoiOverlayBusinessId] = useState<string | null>(null);
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const geo = useGeolocation();
+  useEffect(() => {
+    const h = () => setLocationDialogOpen(true);
+    window.addEventListener("open-location-picker", h);
+    return () => window.removeEventListener("open-location-picker", h);
+  }, []);
   useEffect(() => { if (!open) setPoiOverlayBusinessId(null); }, [open]);
 
   const effectiveDescription = (description && description.trim())
@@ -1023,6 +1032,25 @@ const VideoSlidePanel = ({
             />
           </div>
         )}
+        <LocationPickerDialog
+          open={locationDialogOpen}
+          onOpenChange={setLocationDialogOpen}
+          coords={geo.coords}
+          detectedCity={geo.confirmedAddress || geo.detectedCity}
+          isEnabled={geo.isEnabled}
+          isDetecting={geo.isDetecting}
+          onUseCurrentPosition={() => { if (!geo.isEnabled) geo.accept(); }}
+          onConfirm={(confirmedCoords, address) => {
+            geo.setManualLocation(confirmedCoords, address);
+          }}
+          onDisableGeo={() => {
+            try {
+              localStorage.removeItem("geo_manual_coords");
+              localStorage.removeItem("geo_manual_address");
+            } catch { /* noop */ }
+            geo.decline();
+          }}
+        />
         {showYoutubeOverlay && ctaBusiness?.youtube_url && (
           <YouTubeOverlay
             business={{ id: ctaBusiness.id, name: ctaBusiness.name, youtube_url: ctaBusiness.youtube_url } as unknown as BookOnlineBusiness}
