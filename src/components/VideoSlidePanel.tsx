@@ -125,6 +125,7 @@ const VideoSlidePanel = ({
   showSocialBadge = false,
   description,
   videoName,
+  headerVideoTitle,
   agendaCity,
   eventId,
   returnContext,
