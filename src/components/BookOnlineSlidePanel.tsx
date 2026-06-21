@@ -84,12 +84,14 @@ import VideoThumbnail from "@/components/VideoThumbnail";
 /* Static hook text component */
 const TypewriterHook = ({ text }: { text: string }) => {
   return (
-    <p
-      className="hidden md:block text-lg md:text-xl text-white/90 font-bold text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
-      style={{ fontFamily: "'Montserrat', sans-serif" }}
-    >
-      {text}
-    </p>
+    <div className="hidden md:block rounded-2xl bg-black/45 backdrop-blur-[3px] border border-white/10 px-6 py-3 max-w-[85%] md:max-w-xl text-center pointer-events-none transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.37)]">
+      <p
+        className="text-base md:text-lg text-white/95 font-semibold leading-relaxed [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]"
+        style={{ fontFamily: "'Montserrat', sans-serif" }}
+      >
+        {text}
+      </p>
+    </div>
   );
 };
 
