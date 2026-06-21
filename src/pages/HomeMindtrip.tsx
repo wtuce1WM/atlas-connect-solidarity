@@ -299,6 +299,8 @@ const HomeMindtrip = () => {
           ? ratedHeroAsset.url 
           : a.slug === "hotels-riads-vue-mer-essaouira" 
           ? essaouiraSunsetAsset.url 
+          : a.slug === "manger-fruits-de-mer-essaouira"
+          ? essaouiraLobsterAsset.url
           : (a.bizId ? imgById.get(a.bizId) : undefined),
         date: a.date,
       }));
