@@ -84,12 +84,14 @@ import VideoThumbnail from "@/components/VideoThumbnail";
 /* Static hook text component */
 const TypewriterHook = ({ text }: { text: string }) => {
   return (
-    <p
-      className="hidden md:block text-lg md:text-xl text-white/90 font-bold text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
-      style={{ fontFamily: "'Montserrat', sans-serif" }}
-    >
-      {text}
-    </p>
+    <div className="hidden md:block rounded-2xl bg-black/45 backdrop-blur-[3px] border border-white/10 px-6 py-3 max-w-[85%] md:max-w-xl text-center pointer-events-none transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.37)]">
+      <p
+        className="text-base md:text-lg text-white/95 font-semibold leading-relaxed [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]"
+        style={{ fontFamily: "'Montserrat', sans-serif" }}
+      >
+        {text}
+      </p>
+    </div>
   );
 };
 
@@ -1525,12 +1527,14 @@ const BookOnlineSlidePanelInner = ({
                 </div>
               ) : undefined}
               middleSlot={hookText ? (
-                <p
-                  className="md:hidden text-[15px] sm:text-base text-white/95 font-bold text-center w-[calc(100%+2rem)] -mx-4 px-4 leading-relaxed pointer-events-none [text-shadow:0_1px_3px_rgba(0,0,0,0.6)]"
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
-                >
-                  {hookText}
-                </p>
+                <div className="md:hidden rounded-xl bg-black/45 backdrop-blur-[2px] border border-white/5 py-1.5 px-4 max-w-[95%] mx-auto shadow-[0_4px_16px_rgba(0,0,0,0.25)] pointer-events-none">
+                  <p
+                    className="text-xs sm:text-sm text-white/95 font-semibold text-center leading-relaxed [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    {hookText}
+                  </p>
+                </div>
               ) : undefined}
               rightSlot={undefined}
             />
