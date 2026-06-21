@@ -679,7 +679,7 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     transform: skewX(-20deg);
     pointer-events: none;
     z-index: 10;
-    animation: flash-sweep-once 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation: flash-sweep-once 1.2s cubic-bezier(0.25, 1, 0.5, 1) 600ms forwards;
   }
 }
 
