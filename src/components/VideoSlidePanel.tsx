@@ -623,9 +623,10 @@ const VideoSlidePanel = ({
             <BusinessHeader
               business={{
                 ...ctaBusiness,
-                name: businessName || ctaBusiness.name,
-                logo_url: shouldShowOwnerLogoInHeader ? owner.logo_url : null,
-                logo_bg: shouldShowOwnerLogoInHeader ? owner.logo_bg ?? null : null,
+                name: headerVideoTitle || businessName || ctaBusiness.name,
+                ...(headerVideoTitle ? { city: null, neighborhood: null, address: null } : {}),
+                logo_url: shouldShowOwnerLogoInHeader && !headerVideoTitle ? owner.logo_url : null,
+                logo_bg: shouldShowOwnerLogoInHeader && !headerVideoTitle ? owner.logo_bg ?? null : null,
               }}
               businessId={ctaBusiness.id}
               hookText={null}
