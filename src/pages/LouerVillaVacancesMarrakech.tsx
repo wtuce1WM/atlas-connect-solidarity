@@ -275,12 +275,22 @@ const LouerVillaVacancesMarrakech = () => {
       const docIds = (badgedDocs || []).map((d: any) => d.document_id);
       let internal: BlogArticleVideo[] = [];
       if (docIds.length > 0) {
+        // Restrict to docs linked to Marrakech (or Agafay)
+        const { data: docCities } = await supabase
+          .from("business_document_cities")
+          .select("document_id")
+          .in("document_id", docIds)
+          .in("city_id", CITY_IDS_MARRAKECH);
+        const cityDocIds = Array.from(
+          new Set((docCities || []).map((c: any) => c.document_id))
+        );
+        if (cityDocIds.length > 0) {
         const { data: docs } = await supabase
           .from("business_documents")
           .select(
             "id, business_id, name, description, price, price_type, url, youtube_video_url, instagram_video_url, tiktok_video_url, thumbnail_url, business_is_active"
           )
-          .in("id", docIds)
+          .in("id", cityDocIds)
           .eq("type", "video")
           .eq("price_type", "location");
         const docs2 = (docs || []).filter((d: any) => d.business_is_active !== false);
