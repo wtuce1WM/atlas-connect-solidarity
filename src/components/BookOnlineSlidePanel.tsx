@@ -1688,16 +1688,16 @@ const BookOnlineSlidePanelInner = ({
          {/* Offres B2B (entre badge Avis et CTAs URL 2-5).
              - Si un popup d'accueil existe : les offres sont affichées en slides dans ce popup (cardsHidden -> rien ici).
              - Sinon : on remplace la liste inline par une carte "Offre" qui ouvre un popup dédié. */}
-         {!cardsHidden && !showWelcomePopup && businessPromotions.length > 0 && !((business as any)?.popup_image_url) ? (
-           <div className="w-full mx-auto mt-3 mb-2 flex justify-center">
-             <button
-               type="button"
-               onClick={() => { setPopupSlide(0); setShowPromosPopup(true); }}
-               className="w-fit rounded-xl border border-white/40 px-4 py-2.5 text-center transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden whitespace-nowrap flex items-center justify-center mx-auto"
-               style={{
-                 background: "linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.25) 100%)",
-                 backdropFilter: "blur(18px) saturate(180%)",
-                 WebkitBackdropFilter: "blur(18px) saturate(180%)",
+          {!cardsHidden && !showWelcomePopup && businessPromotions.length > 0 && !((business as any)?.popup_image_url) ? (
+            <div className="w-full mx-auto mt-3 mb-2 flex justify-center">
+              <button
+                type="button"
+                onClick={() => { setPopupSlide(0); setShowPromosPopup(true); }}
+                className="w-fit rounded-xl border border-white/40 px-4 py-2.5 text-center transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden whitespace-nowrap flex items-center justify-center mx-auto btn-flash"
+                style={{
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.25) 100%)",
+                  backdropFilter: "blur(18px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(18px) saturate(180%)",
                  boxShadow:
                    "inset 0 1px 0 0 rgba(255,255,255,0.6), inset 0 -1px 0 0 rgba(255,255,255,0.15), 0 8px 24px -8px rgba(0,0,0,0.25), 0 2px 6px -2px rgba(192,79,23,0.15)",
                }}
