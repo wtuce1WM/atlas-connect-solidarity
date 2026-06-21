@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
+import { isCurrentlyOpen, getMoroccoNow } from "@/lib/formatOpeningHours";
 
 interface UseOpenStatusParams {
   business: any;
