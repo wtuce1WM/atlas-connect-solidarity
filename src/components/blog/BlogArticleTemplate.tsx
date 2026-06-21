@@ -325,7 +325,7 @@ const BlogArticleTemplate = ({
         <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
         <div className="absolute inset-0 flex flex-col justify-end pb-12">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-4 gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
               <button
                 onClick={() => navigate("/blog")}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border border-white/20 bg-black/50 text-white hover:text-gold hover:border-gold hover:bg-black/70 backdrop-blur-md transition-all duration-300 shadow-sm"
@@ -376,7 +376,7 @@ const BlogArticleTemplate = ({
 
           {/* Full-width map */}
           <section className="bg-background">
-            <div className="w-full h-[520px]">
+            <div className="w-full h-[320px] sm:h-[520px]">
               {(() => {
                 const pois: PoiMapItem[] = Object.values(businesses)
                   .filter((b) => b.latitude != null && b.longitude != null)
