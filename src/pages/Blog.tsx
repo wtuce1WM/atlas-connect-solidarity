@@ -179,7 +179,7 @@ const Blog = () => {
         sidikaouki: skImg,
         agafay: agImg,
         rated: ratedRes.data?.[0]?.images?.[0],
-        fruitsmer: fmImg,
+        fruitsmer: essaouiraLobsterAsset.url,
       });
     };
     fetchStaticHeroes();
