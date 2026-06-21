@@ -70,6 +70,10 @@ interface CtaBarProps {
   setActiveBusinessId: (id: string) => void;
   /** Skip rendering the play/mute VideoControls (they may be rendered elsewhere, e.g. in PanelSearchBar) */
   hideVideoControls?: boolean;
+  /** Whether to hide directions button (Itinéraire) */
+  hideDirections?: boolean;
+  /** Whether to hide secondary CTAs (URLs 2-5, shopCta, etc.) */
+  hideSecondaryCtas?: boolean;
 }
 
 export function CtaBar({
@@ -113,8 +117,10 @@ export function CtaBar({
   setBookingOverlayTitle,
   setActiveBusinessId,
   hideVideoControls,
+  hideDirections = false,
+  hideSecondaryCtas = false,
 }: CtaBarProps) {
-  const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || !!shopCta || !!url4Cta || !!url5Cta)) || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
+  const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || (!hideSecondaryCtas && (!!shopCta || !!url4Cta || !!url5Cta)))) || (!cardsHidden && showGoogleMap && !hideDirections && business?.latitude && business?.longitude);
 
   // Hide when cards hidden + availability confirmed
   const hideStyle = (cardsHidden && fallbackPanelData && (() => {
@@ -166,7 +172,7 @@ export function CtaBar({
     }
   }
 
-  if (shopCta && !cardsHidden) {
+  if (shopCta && !cardsHidden && !hideSecondaryCtas) {
     if (isWhatsAppCta(shopCtaLabel) && business?.whatsapp) {
       ctaItems.push(
         <a key="shop" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
@@ -200,7 +206,7 @@ export function CtaBar({
   }
 
   // URL 4 CTA
-  if (url4Cta && !cardsHidden) {
+  if (url4Cta && !cardsHidden && !hideSecondaryCtas) {
     const label = url4CtaLabel || 'URL 4';
     if (isWhatsAppCta(label) && business?.whatsapp) {
       ctaItems.push(
@@ -233,7 +239,7 @@ export function CtaBar({
   }
 
   // URL 5 CTA
-  if (url5Cta && !cardsHidden) {
+  if (url5Cta && !cardsHidden && !hideSecondaryCtas) {
     const label = url5CtaLabel || 'URL 5';
     if (isWhatsAppCta(label) && business?.whatsapp) {
       ctaItems.push(
@@ -264,7 +270,7 @@ export function CtaBar({
       );
     }
   }
-  if (!cardsHidden && showGoogleMap && business.latitude && business.longitude) {
+  if (!cardsHidden && showGoogleMap && business.latitude && business.longitude && !hideDirections) {
     ctaItems.push(
       <button
         key="directions"

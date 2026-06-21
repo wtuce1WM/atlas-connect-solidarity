@@ -70,6 +70,8 @@ interface VideoSlidePanelProps {
   returnContext?: string | null;
   /** Compact business header (background hugs the name, centered) */
   compactBusinessHeader?: boolean;
+  /** Whether to hide directions button (Itinéraire) */
+  hideDirections?: boolean;
 }
 
 
@@ -130,6 +132,7 @@ const VideoSlidePanel = ({
   eventId,
   returnContext,
   compactBusinessHeader = false,
+  hideDirections = false,
 }: VideoSlidePanelProps) => {
 
   const navigate = useNavigate();
@@ -952,7 +955,7 @@ const VideoSlidePanel = ({
                     <ExternalLink className="h-3.5 w-3.5" />
                     <span className="truncate">En savoir +</span>
                   </button>
-                  {ctaBusiness.latitude && ctaBusiness.longitude && (
+                  {ctaBusiness.latitude && ctaBusiness.longitude && !hideDirections && (
                     <button
                       type="button"
                       onClick={() => setDirectionsBusiness(ctaBusiness)}

@@ -164,6 +164,10 @@ interface BookOnlineSlidePanelProps {
   onTimeUpdate?: (t: number) => void;
   /** Controls open state externally (parent unmounts when closed) */
   open?: boolean;
+  /** Whether to hide directions button (Itinéraire) */
+  hideDirections?: boolean;
+  /** Whether to hide secondary CTAs (URLs 2-5) */
+  hideSecondaryCtas?: boolean;
 }
 
 const BookOnlineSlidePanelInner = ({
@@ -173,6 +177,7 @@ const BookOnlineSlidePanelInner = ({
   onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
+  hideDirections, hideSecondaryCtas,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const effectiveOnPrev = onPrevBusiness ?? onPrev;
@@ -1713,6 +1718,8 @@ const BookOnlineSlidePanelInner = ({
           setBookingOverlayTitle={setBookingOverlayTitle}
           setActiveBusinessId={setActiveBusinessId}
           hideVideoControls={showSearchBar}
+          hideDirections={hideDirections}
+          hideSecondaryCtas={hideSecondaryCtas}
         />
 
       </div>
@@ -3035,6 +3042,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         eventId={props.eventId ?? null}
         returnContext={props.returnContext ?? null}
         compactBusinessHeader={props.compactBusinessHeader}
+        hideDirections={props.hideDirections}
       />
     );
   }
