@@ -173,6 +173,14 @@ const Blog = () => {
         .maybeSingle();
       const villaImg = (villaRow as any)?.images?.[0];
 
+      // Hero Louer une villa pour vos vacances à Marrakech : 1ʳᵉ fiche (Palm Agency Marrakech)
+      const { data: villaVacRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "be1c1314-236c-46b6-8588-c390a0a54c31")
+        .maybeSingle();
+      const villaVacImg = (villaVacRow as any)?.images?.[0];
+
        setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -189,6 +197,7 @@ const Blog = () => {
         rated: ratedRes.data?.[0]?.images?.[0],
         fruitsmer: essaouiraLobsterAsset.url,
         villas: villaImg,
+        villasvac: villaVacImg,
       });
     };
     fetchStaticHeroes();
