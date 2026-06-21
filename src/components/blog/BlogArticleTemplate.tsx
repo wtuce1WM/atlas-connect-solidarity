@@ -229,6 +229,61 @@ const BlogArticleTemplate = ({
     };
   }, [openBusinessId, openIndex, hasPrev, hasNext, orderedIds]);
 
+  // Desktop: while the video panel from "Les offres du moment" is open,
+  // capture wheel + arrow keys to navigate between videos and prevent
+  // the page (thumbnails behind) from scrolling.
+  useEffect(() => {
+    if (!activeVideoId || !videoSection) return;
+    const ids = videoSection.videos.map((v) => v.id);
+    const idx = ids.indexOf(activeVideoId);
+    const goNext = () => {
+      if (idx >= 0 && idx < ids.length - 1) {
+        setActiveVideoId(ids[idx + 1]);
+        setVideoCurrentTime(0);
+      }
+    };
+    const goPrev = () => {
+      if (idx > 0) {
+        setActiveVideoId(ids[idx - 1]);
+        setVideoCurrentTime(0);
+      }
+    };
+    let accum = 0;
+    let lockUntil = 0;
+    const onWheel = (e: WheelEvent) => {
+      const target = e.target as Element | null;
+      const scrollable = target?.closest('[data-slidepanel-scroll="true"], .overflow-y-auto, .overflow-auto') as HTMLElement | null;
+      if (scrollable) {
+        const canScrollDown = e.deltaY > 0 && scrollable.scrollTop + scrollable.clientHeight < scrollable.scrollHeight - 1;
+        const canScrollUp = e.deltaY < 0 && scrollable.scrollTop > 1;
+        if (canScrollDown || canScrollUp) return;
+      }
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      // Prevent the page behind (thumbnails column) from scrolling.
+      if (e.cancelable) e.preventDefault();
+      const now = Date.now();
+      if (now < lockUntil) return;
+      accum += e.deltaY;
+      if (Math.abs(accum) < 80) return;
+      const dir = accum > 0 ? 1 : -1;
+      accum = 0;
+      lockUntil = now + 450;
+      dir > 0 ? goNext() : goPrev();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLElement && /input|textarea|select/i.test(e.target.tagName)) return;
+      if (e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); goNext(); }
+      else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); goPrev(); }
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [activeVideoId, videoSection]);
+
+
 
 
   const handleSaveArticle = async () => {
