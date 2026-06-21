@@ -2905,29 +2905,33 @@ const BookOnlineSlidePanelInner = ({
         </div>
       )}
 
-      {showWelcomePopup && (business as any)?.popup_image_url && (
+      {showWelcomePopup && (business as any)?.popup_image_url && (() => {
+        const hasMeta = !!(popupMeta.title || popupMeta.description);
+        return (
         <div
-          className="absolute inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
+          className={`absolute inset-0 z-[120] flex items-center justify-center p-4 animate-fade-in ${hasMeta ? 'bg-black/70 backdrop-blur-sm' : ''}`}
           onClick={() => setShowWelcomePopup(false)}
         >
           <div
-            className="relative w-[98%] sm:w-[88%] max-w-lg max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-center"
+            className={`relative w-[88%] sm:w-[80%] max-w-md max-h-[80vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-contain bg-no-repeat bg-center ${hasMeta ? '' : 'aspect-[1333/1737] h-auto'}`}
             style={{ backgroundImage: `url(${(business as any).popup_image_url})` }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="absolute inset-0 bg-black/55 pointer-events-none" />
-            <div className="relative overflow-y-auto p-6 text-white">
-              {popupMeta.title && (
-                <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  {popupMeta.title}
-                </h3>
-              )}
-              {popupMeta.description && (
-                <p className="text-base md:text-lg leading-relaxed text-white/98 font-medium whitespace-pre-line">
-                  {popupMeta.description}
-                </p>
-              )}
-            </div>
+            {hasMeta && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
+            {hasMeta && (
+              <div className="relative overflow-y-auto p-6 text-white">
+                {popupMeta.title && (
+                  <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    {popupMeta.title}
+                  </h3>
+                )}
+                {popupMeta.description && (
+                  <p className="text-base md:text-lg leading-relaxed text-white/98 font-medium whitespace-pre-line">
+                    {popupMeta.description}
+                  </p>
+                )}
+              </div>
+            )}
             <button
               onClick={() => setShowWelcomePopup(false)}
               className="absolute top-3 right-3 h-10 w-10 rounded-full bg-white hover:bg-neutral-100 text-black flex items-center justify-center transition-colors shadow-lg z-10"
@@ -2937,7 +2941,8 @@ const BookOnlineSlidePanelInner = ({
             </button>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {hashtagsOverlayActive && (
         <OverlayShell zClass="z-[92]" coverToolbar={false}>
