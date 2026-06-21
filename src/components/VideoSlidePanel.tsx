@@ -60,6 +60,8 @@ interface VideoSlidePanelProps {
   description?: string | null;
   /** Titre/nom de la vidéo à afficher en haut (comme sur la vignette) */
   videoName?: string | null;
+  /** Si défini, remplace le nom + adresse dans le rectangle BusinessHeader par ce titre (et masque la caption videoName en dessous) */
+  headerVideoTitle?: string | null;
   /** When set, displays the list of events for this city (Agenda card) */
   agendaCity?: string | null;
   /** When set, displays CTAs for the event's linked business (via event_businesses) */
@@ -123,6 +125,7 @@ const VideoSlidePanel = ({
   showSocialBadge = false,
   description,
   videoName,
+  headerVideoTitle,
   agendaCity,
   eventId,
   returnContext,
@@ -620,9 +623,10 @@ const VideoSlidePanel = ({
             <BusinessHeader
               business={{
                 ...ctaBusiness,
-                name: businessName || ctaBusiness.name,
-                logo_url: shouldShowOwnerLogoInHeader ? owner.logo_url : null,
-                logo_bg: shouldShowOwnerLogoInHeader ? owner.logo_bg ?? null : null,
+                name: headerVideoTitle || businessName || ctaBusiness.name,
+                ...(headerVideoTitle ? { city: null, neighborhood: null, address: null } : {}),
+                logo_url: shouldShowOwnerLogoInHeader && !headerVideoTitle ? owner.logo_url : null,
+                logo_bg: shouldShowOwnerLogoInHeader && !headerVideoTitle ? owner.logo_bg ?? null : null,
               }}
               businessId={ctaBusiness.id}
               hookText={null}
@@ -637,7 +641,7 @@ const VideoSlidePanel = ({
           </div>
         )}
 
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && videoName && !(isGeneric && social?.account && videoName === `@${social.account}`) && (() => {
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !headerVideoTitle && videoName && !(isGeneric && social?.account && videoName === `@${social.account}`) && (() => {
           const dateStr = eventId && eventInfo ? formatEventDateRange(eventInfo.start_date, eventInfo.end_date) : null;
           const daysStr = eventId && eventInfo ? formatDaysOfWeek(eventInfo.days_of_week) : null;
           const timeStr = eventId && eventInfo ? formatTimeRange(eventInfo.start_time, eventInfo.end_time) : null;
