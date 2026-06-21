@@ -595,18 +595,17 @@ const BlogArticleTemplate = ({
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                        {v.price && (
-                          <div className="absolute top-2 left-1/2 -translate-x-1/2 pointer-events-none z-10">
-                            <span className="px-2.5 py-0.5 rounded-full bg-[#F1F1F1] text-black text-[11px] font-semibold shadow-sm whitespace-nowrap">
-                              {(() => {
-                                const p = v.price.toLowerCase().trim();
-                                if (p === "sur demande" || p === "prix sur demande") return "Prix sur demande";
-                                if (p === "nous consulter" || p === "prix: nous consulter") return "Prix: nous consulter";
-                                return v.price;
-                              })()}
-                            </span>
-                          </div>
-                        )}
+                        <div className="absolute top-2 left-1/2 -translate-x-1/2 pointer-events-none z-10">
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#F1F1F1] text-black text-[11px] font-semibold shadow-sm whitespace-nowrap">
+                            {(() => {
+                              if (!v.price) return "Prix: nous consulter";
+                              const p = v.price.toLowerCase().trim();
+                              if (p === "sur demande" || p === "prix sur demande") return "Prix sur demande";
+                              if (p === "nous consulter" || p === "prix: nous consulter") return "Prix: nous consulter";
+                              return v.price;
+                            })()}
+                          </span>
+                        </div>
                         {v.title && v.title !== "Vidéo" && v.title !== "video" && (
                           <div className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium line-clamp-2 drop-shadow">
                             {v.title}
