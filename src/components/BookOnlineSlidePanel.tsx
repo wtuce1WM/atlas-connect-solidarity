@@ -77,6 +77,7 @@ import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
+import { useBusinessPromotions } from "@/hooks/useBusinessPromotions";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
@@ -318,8 +319,10 @@ const BookOnlineSlidePanelInner = ({
   const [bookingOverlayLoaded, setBookingOverlayLoaded] = useState(false);
   const [bookingOverlayHideContact, setBookingOverlayHideContact] = useState(false);
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+  const [popupSlide, setPopupSlide] = useState(0);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const welcomePopupShownRef = useRef<string | null>(null);
+  const businessPromotions = useBusinessPromotions(business?.id);
   useEffect(() => {
     const url = (business as any)?.popup_image_url;
     // Defensive: only trigger the popup if the URL is still part of the business images
@@ -328,6 +331,7 @@ const BookOnlineSlidePanelInner = ({
     if (business?.id && stillValid && welcomePopupShownRef.current !== business.id) {
       welcomePopupShownRef.current = business.id;
       setShowWelcomePopup(true);
+      setPopupSlide(0);
       setPopupMeta({ title: null, description: null });
       supabase
         .from("business_image_titles")
@@ -1668,8 +1672,8 @@ const BookOnlineSlidePanelInner = ({
           setBookingOverlayTitle={setBookingOverlayTitle}
         />
 
-         {/* Offres B2B (entre badge Avis et CTAs URL 2-5) */}
-         <BusinessPromotionsList businessId={business?.id} cardsHidden={cardsHidden || showWelcomePopup} />
+         {/* Offres B2B (entre badge Avis et CTAs URL 2-5). Quand un popup d'accueil existe, les offres sont déplacées dans le popup (slides). */}
+         <BusinessPromotionsList businessId={business?.id} cardsHidden={cardsHidden || showWelcomePopup || (!!(business as any)?.popup_image_url && businessPromotions.length > 0)} />
 
         {/* CTA Bar */}
         <CtaBar
@@ -2914,18 +2918,36 @@ const BookOnlineSlidePanelInner = ({
 
       {showWelcomePopup && (business as any)?.popup_image_url && (() => {
         const hasMeta = !!(popupMeta.title || popupMeta.description);
+        const promoSlides = businessPromotions;
+        const totalSlides = 1 + promoSlides.length;
+        const safeSlide = Math.min(popupSlide, totalSlides - 1);
+        const isPopupSlide = safeSlide === 0;
+        const currentPromo = isPopupSlide ? null : promoSlides[safeSlide - 1];
+        const promoBg = images[0] || (business as any)?.popup_image_url;
+        const goPrev = () => setPopupSlide((s) => (s - 1 + totalSlides) % totalSlides);
+        const goNext = () => setPopupSlide((s) => (s + 1) % totalSlides);
+        const showOverlay = !isPopupSlide || hasMeta;
+
+        const promoAmount = currentPromo ? (() => {
+          if (currentPromo.promotion_type === "percentage" && currentPromo.promotion_value != null) return `-${currentPromo.promotion_value}%`;
+          if (currentPromo.promotion_type === "fixed" && currentPromo.promotion_value != null) return `-${currentPromo.promotion_value} ${currentPromo.promotion_currency || "MAD"}`;
+          if (currentPromo.savings_amount != null) return `-${currentPromo.savings_amount} ${currentPromo.promotion_currency || "MAD"}`;
+          return null;
+        })() : null;
+
         return (
         <div
-          className={`absolute inset-0 z-[120] flex items-center justify-center p-4 animate-fade-in ${hasMeta ? 'bg-black/70 backdrop-blur-sm' : ''}`}
+          className={`absolute inset-0 z-[120] flex items-center justify-center p-4 animate-fade-in ${showOverlay ? 'bg-black/70 backdrop-blur-sm' : ''}`}
           onClick={() => setShowWelcomePopup(false)}
         >
           <div
-            className={`relative w-[88%] sm:w-[80%] max-w-md max-h-[80vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-contain bg-no-repeat bg-center ${hasMeta ? '' : 'aspect-[1333/1737] h-auto'}`}
-            style={{ backgroundImage: `url(${(business as any).popup_image_url})` }}
+            className={`relative w-[88%] sm:w-[80%] max-w-md max-h-[80vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-contain bg-no-repeat bg-center ${isPopupSlide && !hasMeta ? 'aspect-[1333/1737] h-auto' : ''}`}
+            style={{ backgroundImage: `url(${isPopupSlide ? (business as any).popup_image_url : promoBg})`, ...(isPopupSlide ? {} : { backgroundSize: 'cover' }) }}
             onClick={(e) => e.stopPropagation()}
           >
-            {hasMeta && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
-            {hasMeta && (
+            {showOverlay && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
+
+            {isPopupSlide && hasMeta && (
               <div className="relative overflow-y-auto p-6 text-white">
                 {popupMeta.title && (
                   <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -2939,6 +2961,28 @@ const BookOnlineSlidePanelInner = ({
                 )}
               </div>
             )}
+
+            {!isPopupSlide && currentPromo && (
+              <div className="relative overflow-y-auto p-6 text-white">
+                <div className="flex items-start justify-between gap-3 mb-3 pr-12">
+                  <h3 className="text-2xl md:text-3xl font-extrabold leading-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    {currentPromo.title}
+                  </h3>
+                  {promoAmount && (
+                    <div className="shrink-0 text-[26px] md:text-[30px] font-black text-[#FFB088] whitespace-nowrap leading-none" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                      {promoAmount}
+                    </div>
+                  )}
+                </div>
+                {currentPromo.promotion_message && (
+                  <div
+                    className="prose prose-sm max-w-none text-[14px] md:text-[15px] leading-relaxed text-white/95 prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#FFB088] prose-a:underline [&_p]:my-1.5 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
+                    dangerouslySetInnerHTML={{ __html: currentPromo.promotion_message }}
+                  />
+                )}
+              </div>
+            )}
+
             <button
               onClick={() => setShowWelcomePopup(false)}
               className="absolute top-3 right-3 h-10 w-10 rounded-full bg-white hover:bg-neutral-100 text-black flex items-center justify-center transition-colors shadow-lg z-10"
@@ -2946,6 +2990,36 @@ const BookOnlineSlidePanelInner = ({
             >
               <X className="h-5 w-5 stroke-[2.5]" />
             </button>
+
+            {totalSlides > 1 && (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); goPrev(); }}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/90 hover:bg-white text-black flex items-center justify-center shadow-lg z-10"
+                  aria-label="Précédent"
+                >
+                  <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); goNext(); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/90 hover:bg-white text-black flex items-center justify-center shadow-lg z-10"
+                  aria-label="Suivant"
+                >
+                  <ChevronRight className="h-5 w-5 stroke-[2.5]" />
+                </button>
+                <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+                  {Array.from({ length: totalSlides }).map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      aria-label={`Slide ${i + 1}`}
+                      onClick={(e) => { e.stopPropagation(); setPopupSlide(i); }}
+                      className={`h-1.5 rounded-full transition-all ${i === safeSlide ? 'w-5 bg-white' : 'w-1.5 bg-white/50'}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
         );
