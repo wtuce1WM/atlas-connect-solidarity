@@ -165,6 +165,14 @@ const Blog = () => {
         .maybeSingle();
       const fmImg = (fmRow as any)?.images?.[0];
 
+      // Hero Louer une villa dans un complexe hôtelier à Marrakech : 1ʳᵉ fiche (Amanjena)
+      const { data: villaRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "e7019579-408a-4b3c-90d7-41c6dbff9063")
+        .maybeSingle();
+      const villaImg = (villaRow as any)?.images?.[0];
+
        setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -180,6 +188,7 @@ const Blog = () => {
         agafay: agImg,
         rated: ratedRes.data?.[0]?.images?.[0],
         fruitsmer: essaouiraLobsterAsset.url,
+        villas: villaImg,
       });
     };
     fetchStaticHeroes();
