@@ -3096,16 +3096,11 @@ const BookOnlineSlidePanelInner = ({
             >
               <div className="absolute inset-0 bg-black/55 pointer-events-none" />
 
-              <div className="relative pt-12 px-6 pb-6 text-white flex-1">
-                <div className="flex items-start justify-between gap-3 mb-4 pr-12">
+              <div className="relative pt-16 px-6 pb-6 text-white flex-1">
+                <div className="flex items-start justify-between gap-3 mb-4">
                   <h3 className="text-3xl md:text-4xl font-extrabold leading-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     {currentPromo.title}
                   </h3>
-                  {promoAmount && (
-                    <div className="shrink-0 text-[28px] md:text-[34px] font-black text-[#D4AF37] whitespace-nowrap leading-none" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                      {promoAmount}
-                    </div>
-                  )}
                 </div>
                 {currentPromo.promotion_message && (
                   <div
@@ -3114,6 +3109,16 @@ const BookOnlineSlidePanelInner = ({
                   />
                 )}
               </div>
+
+              {promoAmount && (
+                <div 
+                  className="absolute top-3 left-1/2 -translate-x-1/2 h-10 flex items-center justify-center gap-1.5 z-10 text-white font-semibold text-sm sm:text-base tracking-wide uppercase"
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                >
+                  <span className="text-white/90">économisez</span>
+                  <span className="text-[#D4AF37] font-black text-lg sm:text-xl">{promoAmount}</span>
+                </div>
+              )}
 
               <button
                 onClick={() => setShowPromosPopup(false)}
