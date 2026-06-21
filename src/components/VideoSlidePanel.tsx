@@ -78,6 +78,8 @@ interface VideoSlidePanelProps {
   hideLeftCtas?: boolean;
   /** Editorial label coming from the thumbnail manualCard badge (e.g. "Offre du moment") */
   manualCardLabel?: string | null;
+  /** Price of the item for pricing badge */
+  price?: string | null;
 }
 
 
