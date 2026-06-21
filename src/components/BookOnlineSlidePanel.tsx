@@ -2958,7 +2958,7 @@ const BookOnlineSlidePanelInner = ({
               {showOverlay && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
 
               {isPopupSlide && hasMeta && (
-                <div className="relative overflow-y-auto pt-12 px-6 pb-6 text-white">
+                <div className="relative pt-12 px-6 pb-6 text-white">
                   {popupMeta.title && (
                     <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                       {popupMeta.title}
