@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
+import essaouiraLobsterAsset from "@/assets/essaouira-lobster-hero.jpg.asset.json";
 
 interface BlogPost {
   id: string;
