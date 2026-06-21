@@ -940,13 +940,13 @@ const BookOnlineSlidePanelInner = ({
 
   // Expose popup state so we can remove the slide panel container's shadow when a welcome popup is active
   useEffect(() => {
-    if (showWelcomePopup) {
+    if (showWelcomePopup || showPromosPopup) {
       document.body.dataset.slidepanelPopupOpen = "1";
     } else {
       delete document.body.dataset.slidepanelPopupOpen;
     }
     return () => { delete document.body.dataset.slidepanelPopupOpen; };
-  }, [showWelcomePopup]);
+  }, [showWelcomePopup, showPromosPopup]);
 
 
   // Pause/mute background media when an overlay is open — same mute gate as the Search overlay.
