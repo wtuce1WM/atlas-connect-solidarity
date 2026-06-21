@@ -59,6 +59,7 @@ import SubstackIcon from "@/components/icons/SubstackIcon";
 import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import LocationPickerDialog from "@/components/LocationPickerDialog";
 
 import { useHotelAvailability } from "@/hooks/useHotelAvailability";
 import { useOpenStatus } from "@/hooks/useOpenStatus";
