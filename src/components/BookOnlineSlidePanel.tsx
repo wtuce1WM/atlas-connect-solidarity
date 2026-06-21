@@ -319,6 +319,7 @@ const BookOnlineSlidePanelInner = ({
   const [bookingOverlayLoaded, setBookingOverlayLoaded] = useState(false);
   const [bookingOverlayHideContact, setBookingOverlayHideContact] = useState(false);
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+  const [showPromosPopup, setShowPromosPopup] = useState(false);
   const [popupSlide, setPopupSlide] = useState(0);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const welcomePopupShownRef = useRef<string | null>(null);
