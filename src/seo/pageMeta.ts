@@ -70,6 +70,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Dix-huit adresses pour des vacances en famille à Marrakech, alliant l'isolement d'une villa privative aux services hôteliers d'un palace cinq étoiles.",
   },
+  "/blog/louer-villa-vacances-marrakech": {
+    title: `Louer une villa pour vos vacances à Marrakech — ${BRAND}`,
+    description:
+      "Vingt-six adresses (villas privatives et agences spécialisées) pour louer une villa à Marrakech, et notre sélection vidéo des offres du moment.",
+  },
   "/blog/manger-fruits-de-mer-essaouira": {
     title: `Manger des fruits de mer à Essaouira — ${BRAND}`,
     description:
