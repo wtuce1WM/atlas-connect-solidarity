@@ -3097,7 +3097,7 @@ const BookOnlineSlidePanelInner = ({
               <div className="absolute inset-0 bg-black/55 pointer-events-none" />
 
               {(() => {
-                const hasMessage = currentPromo.promotion_message && currentPromo.promotion_message.trim() !== "";
+                const hasMessage = !!currentPromo.promotion_message && currentPromo.promotion_message.replace(/<[^>]*>/g, '').trim() !== "";
                 return (
                   <div className={`relative pt-16 px-6 pb-6 text-white flex-1 flex flex-col ${!hasMessage ? 'justify-center' : ''}`}>
                     <div className={`flex items-start gap-3 ${!hasMessage ? 'justify-center mb-0' : 'justify-between mb-4'}`}>
