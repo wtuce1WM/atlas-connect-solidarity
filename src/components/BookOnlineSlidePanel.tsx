@@ -1693,7 +1693,7 @@ const BookOnlineSlidePanelInner = ({
              <button
                type="button"
                onClick={() => { setPopupSlide(0); setShowPromosPopup(true); }}
-               className="w-fit max-w-[90%] rounded-xl border border-white/40 px-4 py-2.5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
+               className="inline-flex w-auto max-w-[90%] rounded-xl border border-white/40 px-4 py-2.5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden whitespace-nowrap"
                style={{
                  background: "linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.25) 100%)",
                  backdropFilter: "blur(18px) saturate(180%)",
