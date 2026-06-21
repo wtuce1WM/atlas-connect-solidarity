@@ -59,6 +59,7 @@ import SubstackIcon from "@/components/icons/SubstackIcon";
 import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import LocationPickerDialog from "@/components/LocationPickerDialog";
 
 import { useHotelAvailability } from "@/hooks/useHotelAvailability";
 import { useOpenStatus } from "@/hooks/useOpenStatus";
@@ -344,7 +345,14 @@ const BookOnlineSlidePanelInner = ({
   const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
   const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
   const poiOpenedFromMapRef = useRef(false);
-  const { coords: userCoords } = useGeolocation();
+  const geo = useGeolocation();
+  const { coords: userCoords } = geo;
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  useEffect(() => {
+    const h = () => setLocationDialogOpen(true);
+    window.addEventListener("open-location-picker", h);
+    return () => window.removeEventListener("open-location-picker", h);
+  }, []);
   const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
@@ -2956,6 +2964,26 @@ const BookOnlineSlidePanelInner = ({
           <PanelHashtagsOverlay open={hashtagsOverlayActive} onClose={() => setHashtagsOverlayActive(false)} />
         </OverlayShell>
       )}
+
+      <LocationPickerDialog
+        open={locationDialogOpen}
+        onOpenChange={setLocationDialogOpen}
+        coords={geo.coords}
+        detectedCity={geo.confirmedAddress || geo.detectedCity}
+        isEnabled={geo.isEnabled}
+        isDetecting={geo.isDetecting}
+        onUseCurrentPosition={() => { if (!geo.isEnabled) geo.accept(); }}
+        onConfirm={(confirmedCoords, address) => {
+          geo.setManualLocation(confirmedCoords, address);
+        }}
+        onDisableGeo={() => {
+          try {
+            localStorage.removeItem("geo_manual_coords");
+            localStorage.removeItem("geo_manual_address");
+          } catch { /* noop */ }
+          geo.decline();
+        }}
+      />
 
     </div>
   );
