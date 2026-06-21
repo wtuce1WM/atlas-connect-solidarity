@@ -193,6 +193,13 @@ const VideoSlidePanel = ({
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null; description: string | null; start_date: string | null; end_date: string | null; days_of_week: string[] | null; start_time: string | null; end_time: string | null } | null>(null);
   const [poiOverlayBusinessId, setPoiOverlayBusinessId] = useState<string | null>(null);
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const geo = useGeolocation();
+  useEffect(() => {
+    const h = () => setLocationDialogOpen(true);
+    window.addEventListener("open-location-picker", h);
+    return () => window.removeEventListener("open-location-picker", h);
+  }, []);
   useEffect(() => { if (!open) setPoiOverlayBusinessId(null); }, [open]);
 
   const effectiveDescription = (description && description.trim())
