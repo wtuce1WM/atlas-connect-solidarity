@@ -309,7 +309,7 @@ const LouerVillaVacancesMarrakech = () => {
           return {
             id: d.id,
             url,
-            title: d.name || "Vidéo",
+            title: d.name || null,
             description: d.description || null,
             price: d.price || null,
             thumbnailUrl: d.thumbnail_url || null,
@@ -346,7 +346,7 @@ const LouerVillaVacancesMarrakech = () => {
           return {
             id: g.id,
             url: g.url,
-            title: g.title || g.name || "Vidéo",
+            title: g.title || g.name || null,
             description: g.description || null,
             price: null,
             thumbnailUrl: g.thumbnail_url || null,
