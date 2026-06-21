@@ -331,6 +331,7 @@ const BookOnlineSlidePanelInner = ({
     if (business?.id && stillValid && welcomePopupShownRef.current !== business.id) {
       welcomePopupShownRef.current = business.id;
       setShowWelcomePopup(true);
+      setPopupSlide(0);
       setPopupMeta({ title: null, description: null });
       supabase
         .from("business_image_titles")
