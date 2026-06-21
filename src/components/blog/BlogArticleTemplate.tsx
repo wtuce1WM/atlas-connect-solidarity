@@ -9,7 +9,7 @@ import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useArticleBookmark } from "@/hooks/useArticleBookmark";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark } from "lucide-react";
+import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark, ArrowDown } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
@@ -375,8 +375,8 @@ const BlogArticleTemplate = ({
           </section>
 
           {/* Full-width map */}
-          <section className="bg-background">
-            <div className="w-full h-[320px] sm:h-[520px]">
+          <section className="bg-background relative">
+            <div className="w-full h-[320px] sm:h-[520px] relative group">
               {(() => {
                 const pois: PoiMapItem[] = Object.values(businesses)
                   .filter((b) => b.latitude != null && b.longitude != null)
@@ -402,6 +402,21 @@ const BlogArticleTemplate = ({
                   />
                 );
               })()}
+              
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById("first-blog-result");
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }}
+                aria-label="Découvrir"
+                className="absolute bottom-6 sm:bottom-8 left-1/2 z-20 -translate-x-1/2 text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition hover:text-white pointer-events-auto"
+              >
+                <span className="block font-josefin text-xs uppercase tracking-[0.3em] font-bold text-center">Découvrir</span>
+                <ArrowDown className="mx-auto mt-2 h-5 w-5 animate-bounce" />
+              </button>
             </div>
           </section>
 
@@ -427,6 +442,7 @@ const BlogArticleTemplate = ({
             return (
               <section
                 key={entry.id}
+                id={idx === 0 ? "first-blog-result" : undefined}
                 className={`py-16 ${isDark ? "bg-[#3B3B3B]" : "bg-background"}`}
               >
                 <div className="container mx-auto px-4 max-w-5xl">
