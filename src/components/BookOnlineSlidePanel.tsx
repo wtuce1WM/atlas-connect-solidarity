@@ -171,6 +171,8 @@ interface BookOnlineSlidePanelProps {
   hideSecondaryCtas?: boolean;
   /** Hide the entire left-side CTAs column (e.g. YouTube button) */
   hideLeftCtas?: boolean;
+  /** Editorial label coming from the thumbnail manualCard badge */
+  manualCardLabel?: string | null;
 }
 
 const BookOnlineSlidePanelInner = ({
