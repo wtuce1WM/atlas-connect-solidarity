@@ -25,6 +25,8 @@ interface Props<T extends VideoLike> {
   currentTime: number;
   onTimeUpdate: (t: number) => void;
   returnContext: string | null;
+  hideDirections?: boolean;
+  hideSecondaryCtas?: boolean;
 }
 
 /**
@@ -41,6 +43,8 @@ function HomeVideoSlidePanel<T extends VideoLike>({
   currentTime,
   onTimeUpdate,
   returnContext,
+  hideDirections = false,
+  hideSecondaryCtas = false,
 }: Props<T>) {
   const currentIndex = useMemo(
     () => (activeVideo ? activeList.findIndex((v) => v.id === activeVideo.id) : -1),
