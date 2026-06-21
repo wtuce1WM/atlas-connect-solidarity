@@ -659,30 +659,42 @@ const VideoSlidePanel = ({
           </div>
         )}
 
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !headerVideoTitle && videoName && !(isGeneric && social?.account && videoName === `@${social.account}`) && (() => {
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !headerVideoTitle && (videoName || manualCardLabel) && !(isGeneric && social?.account && videoName === `@${social.account}` && !manualCardLabel) && (() => {
           const dateStr = eventId && eventInfo ? formatEventDateRange(eventInfo.start_date, eventInfo.end_date) : null;
           const daysStr = eventId && eventInfo ? formatDaysOfWeek(eventInfo.days_of_week) : null;
           const timeStr = eventId && eventInfo ? formatTimeRange(eventInfo.start_time, eventInfo.end_time) : null;
           const textShadow = "0 1px 2px rgba(0,0,0,0.4)";
+          const showVideoName = !!videoName && !(isGeneric && social?.account && videoName === `@${social.account}`);
           return (
-            <div className="absolute top-40 md:top-40 lg:top-44 left-4 right-4 z-[60] pointer-events-none flex flex-col items-center gap-1 text-center">
-              <p
-                className="text-sm md:text-base font-bold text-white line-clamp-2 cursor-pointer pointer-events-auto"
-                style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", letterSpacing: "0.02em", textShadow }}
-                onClick={() => {
-                  if (videoId) {
-                    navigator.clipboard.writeText(videoId).catch(() => {});
-                  }
-                }}
-              >
-                {videoName}
-              </p>
+            <div className="absolute top-40 md:top-40 lg:top-44 left-4 right-4 z-[60] pointer-events-none flex flex-col items-center gap-1.5 text-center">
+              {manualCardLabel && (
+                <span
+                  className="pointer-events-none inline-flex items-center rounded-full bg-black/70 backdrop-blur-md border border-white/15 px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase text-white tracking-wide"
+                  style={{ fontFamily: "'Montserrat',system-ui,sans-serif", textShadow }}
+                >
+                  {manualCardLabel}
+                </span>
+              )}
+              {showVideoName && (
+                <p
+                  className="text-sm md:text-base font-bold text-white line-clamp-2 cursor-pointer pointer-events-auto"
+                  style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", letterSpacing: "0.02em", textShadow }}
+                  onClick={() => {
+                    if (videoId) {
+                      navigator.clipboard.writeText(videoId).catch(() => {});
+                    }
+                  }}
+                >
+                  {videoName}
+                </p>
+              )}
               {dateStr && <p className="text-xs md:text-sm font-bold text-white" style={{ textShadow }}>{dateStr}</p>}
               {daysStr && <p className="text-xs md:text-sm font-bold text-white" style={{ textShadow }}>{daysStr}</p>}
               {timeStr && <p className="text-xs md:text-sm font-bold text-white" style={{ textShadow }}>{timeStr}</p>}
             </div>
           );
         })()}
+
 
         {(onPrev || onNext) && (
           <div className="absolute top-1/2 -translate-y-1/2 right-3 z-30 flex flex-col gap-6 pointer-events-none">
