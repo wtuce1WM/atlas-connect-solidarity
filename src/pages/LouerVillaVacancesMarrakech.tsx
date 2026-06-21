@@ -357,6 +357,7 @@ const LouerVillaVacancesMarrakech = () => {
             businessName: null,
           };
         });
+        }
       }
 
       if (!cancelled) setVideos([...internal, ...generic]);
