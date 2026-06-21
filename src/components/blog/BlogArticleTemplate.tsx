@@ -328,7 +328,7 @@ const BlogArticleTemplate = ({
             <div className="flex items-center justify-between mb-4 gap-3">
               <button
                 onClick={() => navigate("/blog")}
-                className="inline-flex items-center gap-2 text-white/60 hover:text-gold transition-colors text-sm"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border border-white/20 bg-black/50 text-white hover:text-gold hover:border-gold hover:bg-black/70 backdrop-blur-md transition-all duration-300 shadow-sm"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Retour au blog
@@ -336,10 +336,10 @@ const BlogArticleTemplate = ({
               <button
                 onClick={handleSaveArticle}
                 disabled={bmLoading}
-                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-300 backdrop-blur-md shadow-sm ${
                   isBookmarked
-                    ? "bg-gold text-black border-gold"
-                    : "bg-black/40 text-white/90 border-white/30 hover:border-gold hover:text-gold"
+                    ? "bg-gold text-black border-gold hover:bg-gold/90"
+                    : "bg-black/50 text-white border-white/20 hover:border-gold hover:text-gold hover:bg-black/70"
                 }`}
                 aria-label={isBookmarked ? "Retirer de mon Club OWM" : "Sauvegarder dans mon Club OWM"}
               >
