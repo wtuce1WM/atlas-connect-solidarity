@@ -3058,6 +3058,100 @@ const BookOnlineSlidePanelInner = ({
         );
       })()}
 
+      {showPromosPopup && businessPromotions.length > 0 && (() => {
+        const promoSlides = businessPromotions;
+        const totalSlides = promoSlides.length;
+        const safeSlide = Math.min(popupSlide, totalSlides - 1);
+        const currentPromo = promoSlides[safeSlide];
+        const promoBg = images[0];
+        const goPrev = () => setPopupSlide((s) => (s - 1 + totalSlides) % totalSlides);
+        const goNext = () => setPopupSlide((s) => (s + 1) % totalSlides);
+
+        const promoAmount = (() => {
+          if (currentPromo.promotion_type === "percentage" && currentPromo.promotion_value != null) return `-${currentPromo.promotion_value}%`;
+          if (currentPromo.promotion_type === "fixed" && currentPromo.promotion_value != null) return `-${currentPromo.promotion_value} ${currentPromo.promotion_currency || "MAD"}`;
+          if (currentPromo.savings_amount != null) return `-${currentPromo.savings_amount} ${currentPromo.promotion_currency || "MAD"}`;
+          return null;
+        })();
+
+        return (
+        <div
+          className="absolute inset-0 z-[120] flex items-center justify-center p-4 animate-fade-in bg-black/70 backdrop-blur-sm"
+          onClick={() => setShowPromosPopup(false)}
+        >
+          <div className="relative flex items-center justify-center w-full max-w-lg md:max-w-xl px-10 sm:px-16" onClick={(e) => e.stopPropagation()}>
+            {totalSlides > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); goPrev(); }}
+                className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 h-11 w-10 rounded-l-md rounded-r-none bg-black/60 hover:bg-black/80 text-white flex items-center justify-center shadow-lg z-20 active:scale-95 transition-all border border-r-0 border-white/10 backdrop-blur-sm"
+                aria-label="Précédent"
+              >
+                <ChevronLeft className="h-6 w-6 stroke-[2.5]" />
+              </button>
+            )}
+
+            <div
+              className="relative w-full max-w-md max-h-[80vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center aspect-[1333/1737] h-auto"
+              style={{ backgroundImage: promoBg ? `url(${promoBg})` : undefined, backgroundColor: promoBg ? undefined : '#1a1a1a' }}
+            >
+              <div className="absolute inset-0 bg-black/55 pointer-events-none" />
+
+              <div className="relative pt-12 px-6 pb-6 text-white flex-1">
+                <div className="flex items-start justify-between gap-3 mb-4 pr-12">
+                  <h3 className="text-3xl md:text-4xl font-extrabold leading-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    {currentPromo.title}
+                  </h3>
+                  {promoAmount && (
+                    <div className="shrink-0 text-[28px] md:text-[34px] font-black text-[#D4AF37] whitespace-nowrap leading-none" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                      {promoAmount}
+                    </div>
+                  )}
+                </div>
+                {currentPromo.promotion_message && (
+                  <div
+                    className="prose prose-invert prose-base max-w-none text-base md:text-lg leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
+                    dangerouslySetInnerHTML={{ __html: currentPromo.promotion_message }}
+                  />
+                )}
+              </div>
+
+              <button
+                onClick={() => setShowPromosPopup(false)}
+                className="absolute top-3 right-3 h-10 w-10 rounded-full bg-white hover:bg-neutral-100 text-black flex items-center justify-center transition-colors shadow-lg z-10"
+                aria-label="Fermer"
+              >
+                <X className="h-5 w-5 stroke-[2.5]" />
+              </button>
+
+              {totalSlides > 1 && (
+                <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+                  {Array.from({ length: totalSlides }).map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      aria-label={`Slide ${i + 1}`}
+                      onClick={(e) => { e.stopPropagation(); setPopupSlide(i); }}
+                      className={`h-1.5 rounded-full transition-all ${i === safeSlide ? 'w-5 bg-white' : 'w-1.5 bg-white/50'}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {totalSlides > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); goNext(); }}
+                className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 h-11 w-10 rounded-r-md rounded-l-none bg-black/60 hover:bg-black/80 text-white flex items-center justify-center shadow-lg z-20 active:scale-95 transition-all border border-l-0 border-white/10 backdrop-blur-sm"
+                aria-label="Suivant"
+              >
+                <ChevronRight className="h-6 w-6 stroke-[2.5]" />
+              </button>
+            )}
+          </div>
+        </div>
+        );
+      })()}
+
       {hashtagsOverlayActive && (
         <OverlayShell zClass="z-[92]" coverToolbar={false}>
           <PanelHashtagsOverlay open={hashtagsOverlayActive} onClose={() => setHashtagsOverlayActive(false)} />
