@@ -140,6 +140,7 @@ const VideoSlidePanel = ({
   compactBusinessHeader = false,
   hideDirections = false,
   hideLeftCtas = false,
+  manualCardLabel = null,
 }: VideoSlidePanelProps) => {
 
   const navigate = useNavigate();
