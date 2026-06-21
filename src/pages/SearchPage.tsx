@@ -1000,16 +1000,35 @@ const SearchPage = () => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openDestinationParam]);
-    useEffect(() => {
-      if (badgeIdParam && activeTab !== "hashtag") {
-        setActiveTab("hashtag");
-        setCompactPanelBusiness(null);
-        setCompactPanelInitialVideoUrl(null);
-      }
-      if (!badgeIdParam && activeTab === "hashtag") setActiveTab("suggestions");
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [badgeIdParam]);
-   const [detectedCity, setDetectedCity] = useState<string | null>(null);
+     useEffect(() => {
+       if (badgeIdParam && activeTab !== "hashtag") {
+         setActiveTab("hashtag");
+         setCompactPanelBusiness(null);
+         setCompactPanelInitialVideoUrl(null);
+       }
+       if (!badgeIdParam && activeTab === "hashtag") setActiveTab("suggestions");
+       // eslint-disable-next-line react-hooks/exhaustive-deps
+     }, [badgeIdParam]);
+
+     // Nettoyer l'URL de recherche (q et _t) quand l'onglet hashtag est actif pour avoir une URL de partage parfaite
+     useEffect(() => {
+       if (activeTab === "hashtag" && badgeIdParam) {
+         const hasQ = searchParams.has("q");
+         const hasT = searchParams.has("_t");
+         if (hasQ || hasT) {
+           const nextParams = new URLSearchParams(searchParams.toString());
+           nextParams.delete("q");
+           nextParams.delete("_t");
+           setSearchQuery("");
+           setInputValue("");
+           const newUrl = `${window.location.pathname}?${nextParams.toString()}`;
+           window.history.replaceState(null, "", newUrl);
+           setSearchParams(nextParams, { replace: true });
+         }
+       }
+     }, [activeTab, badgeIdParam, searchParams, setSearchParams]);
+
+    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
    const [neighborhoodCoords, setNeighborhoodCoords] = useState<{ lat: number; lng: number } | null>(null);
