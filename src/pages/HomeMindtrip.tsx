@@ -269,6 +269,7 @@ const HomeMindtrip = () => {
         { slug: "hebergements-sidi-kaouki", path: "/blog/hebergements-sidi-kaouki", title: "Les meilleurs hébergements à Sidi Kaouki", bizId: "04e08ef3-cd54-4091-876a-6822518c84a7", date: "2026-06-13T11:00:00Z" },
         { slug: "hotels-riads-vue-mer-essaouira", path: "/blog/hotels-riads-vue-mer-essaouira", title: "Hôtels & Riads avec vue sur mer à Essaouira", bizId: "4b4e42f7-d408-4c6d-989f-3922e2ed61d3", date: "2026-06-13T10:00:00Z" },
         { slug: "manger-fruits-de-mer-essaouira", path: "/blog/manger-fruits-de-mer-essaouira", title: "Manger des fruits de mer à Essaouira", bizId: "d00d119b-a5b2-492b-bdbd-f0872e5701d7", date: "2026-06-20T08:00:00Z" },
+        { slug: "louer-villa-complexe-hotelier-marrakech", path: "/blog/louer-villa-complexe-hotelier-marrakech", title: "Louer une villa dans un complexe hôtelier à Marrakech", bizId: "e7019579-408a-4b3c-90d7-41c6dbff9063", date: "2026-06-21T08:00:00Z" },
         { slug: "beach-clubs-marrakech", path: "/blog/beach-clubs-marrakech", title: "Beach Clubs à Marrakech", bizId: "03dfb3bd-2021-418a-99d6-aec1fb0f7ac6", date: "2026-06-13T08:00:00Z" },
         { slug: "shopping-fashion-gueliz", path: "/blog/shopping-fashion-gueliz", title: "Shopping fashion à Guéliz, Marrakech", bizId: "7924a190-679d-4981-a12a-b56c257cd680", date: "2026-06-13T03:00:00Z" },
         { slug: "street-food-marrakech", path: "/blog/street-food-marrakech", title: "Le meilleur de la Street Food à Marrakech", bizId: "6f48e2fa-bf01-4ce4-a51c-0e986ce17e18", date: "2026-06-13T02:00:00Z" },

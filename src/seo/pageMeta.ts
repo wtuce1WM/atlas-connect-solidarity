@@ -65,6 +65,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "Dix-sept adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
   },
+  "/blog/louer-villa-complexe-hotelier-marrakech": {
+    title: `Louer une villa dans un complexe hôtelier à Marrakech — ${BRAND}`,
+    description:
+      "Dix-huit adresses pour des vacances en famille à Marrakech, alliant l'isolement d'une villa privative aux services hôteliers d'un palace cinq étoiles.",
+  },
   "/blog/manger-fruits-de-mer-essaouira": {
     title: `Manger des fruits de mer à Essaouira — ${BRAND}`,
     description:

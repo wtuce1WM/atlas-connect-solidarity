@@ -32,7 +32,7 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; galeries?: string; fermes?: string; enfants?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string; sidikaouki?: string; agafay?: string; rated?: string; fruitsmer?: string }>({});
+  const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; galeries?: string; fermes?: string; enfants?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string; sidikaouki?: string; agafay?: string; rated?: string; fruitsmer?: string; villas?: string }>({});
 
   useSEO({
     title: "Blog – Actualités et guides",
@@ -165,6 +165,14 @@ const Blog = () => {
         .maybeSingle();
       const fmImg = (fmRow as any)?.images?.[0];
 
+      // Hero Louer une villa dans un complexe hôtelier à Marrakech : 1ʳᵉ fiche (Amanjena)
+      const { data: villaRow } = await supabase
+        .from("businesses")
+        .select("images")
+        .eq("id", "e7019579-408a-4b3c-90d7-41c6dbff9063")
+        .maybeSingle();
+      const villaImg = (villaRow as any)?.images?.[0];
+
        setStaticHeroes({
         essaouira: essImg,
         marrakech: (mrkRes.data as any)?.images?.[0],
@@ -180,6 +188,7 @@ const Blog = () => {
         agafay: agImg,
         rated: ratedRes.data?.[0]?.images?.[0],
         fruitsmer: essaouiraLobsterAsset.url,
+        villas: villaImg,
       });
     };
     fetchStaticHeroes();
@@ -373,6 +382,45 @@ const Blog = () => {
                         </h2>
                         <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
                           Trois adresses à quelques minutes de la ville ocre, pour une vraie journée de nature en famille — entre animaux, ateliers et plantes aromatiques.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
+
+              // Carte Louer une villa dans un complexe hôtelier à Marrakech
+              items.push({
+                key: "static-villa-complexe-hotelier-marrakech",
+                date: "2026-06-21T08:00:00Z",
+                node: (
+                  <Link key="static-villa-complexe-hotelier-marrakech" to="/blog/louer-villa-complexe-hotelier-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-amber-50 to-stone-50 dark:from-amber-950/30 dark:to-stone-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        {staticHeroes.villas ? (
+                          <img
+                            src={staticHeroes.villas}
+                            alt="Louer une villa dans un complexe hôtelier à Marrakech"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <MapPin className="h-16 w-16 text-primary" />
+                        )}
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Louer une villa dans un complexe hôtelier à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Dix-huit adresses pour des vacances en famille à Marrakech, alliant l'isolement d'une villa privative aux services hôteliers d'un palace cinq étoiles.
                         </p>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 text-primary font-medium">

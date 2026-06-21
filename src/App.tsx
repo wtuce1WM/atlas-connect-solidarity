@@ -52,6 +52,7 @@ const HotelsRiadsVueMerEssaouira = lazy(() => import("./pages/HotelsRiadsVueMerE
 const FruitsDeMerEssaouira = lazy(() => import("./pages/FruitsDeMerEssaouira"));
 const HebergementsSidiKaouki = lazy(() => import("./pages/HebergementsSidiKaouki"));
 const AgafayDream = lazy(() => import("./pages/AgafayDream"));
+const LouerVillaComplexeHotelierMarrakech = lazy(() => import("./pages/LouerVillaComplexeHotelierMarrakech"));
 const BlogAnimations = lazy(() => import("./pages/BlogAnimations"));
 const BlogTypography = lazy(() => import("./pages/BlogTypography"));
 const BlogBrummellTypography = lazy(() => import("./pages/BlogBrummellTypography"));
@@ -195,6 +196,7 @@ const AppContent = () => {
               <Route path="/blog/manger-fruits-de-mer-essaouira" element={renderLazyRoute(<FruitsDeMerEssaouira />)} />
               <Route path="/blog/hebergements-sidi-kaouki" element={renderLazyRoute(<HebergementsSidiKaouki />)} />
               <Route path="/blog/agafay-dream" element={renderLazyRoute(<AgafayDream />)} />
+              <Route path="/blog/louer-villa-complexe-hotelier-marrakech" element={renderLazyRoute(<LouerVillaComplexeHotelierMarrakech />)} />
               <Route path="/staff/animations" element={<StaffRouteGuard>{renderLazyRoute(<BlogAnimations />)}</StaffRouteGuard>} />
               <Route path="/staff/carousel-nav-demo" element={<StaffRouteGuard>{renderLazyRoute(<CarouselNavDemo />)}</StaffRouteGuard>} />
               <Route path="/blog/ancien-accueil" element={renderLazyRoute(<AncienAccueil />)} />
