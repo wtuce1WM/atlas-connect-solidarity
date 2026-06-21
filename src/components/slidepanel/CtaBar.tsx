@@ -270,7 +270,7 @@ export function CtaBar({
       );
     }
   }
-  if (!cardsHidden && showGoogleMap && business.latitude && business.longitude) {
+  if (!cardsHidden && showGoogleMap && business.latitude && business.longitude && !hideDirections) {
     ctaItems.push(
       <button
         key="directions"
