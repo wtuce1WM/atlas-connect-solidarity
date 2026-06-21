@@ -318,8 +318,10 @@ const BookOnlineSlidePanelInner = ({
   const [bookingOverlayLoaded, setBookingOverlayLoaded] = useState(false);
   const [bookingOverlayHideContact, setBookingOverlayHideContact] = useState(false);
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+  const [popupSlide, setPopupSlide] = useState(0);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const welcomePopupShownRef = useRef<string | null>(null);
+  const businessPromotions = useBusinessPromotions(business?.id);
   useEffect(() => {
     const url = (business as any)?.popup_image_url;
     // Defensive: only trigger the popup if the URL is still part of the business images
