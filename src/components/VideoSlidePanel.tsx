@@ -74,6 +74,8 @@ interface VideoSlidePanelProps {
   compactBusinessHeader?: boolean;
   /** Whether to hide directions button (Itinéraire) */
   hideDirections?: boolean;
+  /** Hide the entire left-side CTAs column (e.g. YouTube button) */
+  hideLeftCtas?: boolean;
 }
 
 
