@@ -15,6 +15,25 @@ import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
+const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
+
+export interface BlogArticleVideo {
+  id: string;
+  url: string;
+  title: string;
+  description: string | null;
+  price?: string | null;
+  thumbnailUrl?: string | null;
+  isGeneric: boolean;
+  businessId?: string | null;
+  businessName?: string | null;
+}
+
+export interface BlogArticleVideoSection {
+  title: string;
+  intro?: ReactNode;
+  videos: BlogArticleVideo[];
+}
 
 export interface BlogArticleBusiness {
   id: string;
@@ -58,6 +77,7 @@ export interface BlogArticleTemplateProps {
   siteUrl?: string;
   defaultOgImage?: string;
   customHeroImage?: string;
+  videoSection?: BlogArticleVideoSection;
 }
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
@@ -78,12 +98,15 @@ const BlogArticleTemplate = ({
   siteUrl = DEFAULT_SITE_URL,
   defaultOgImage,
   customHeroImage,
+  videoSection,
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   // Pre-load the lazy panel chunk early to avoid Suspense flash on first open
   useEffect(() => {
     const t = setTimeout(() => { import("@/components/BookOnlineSlidePanel"); }, 1200);
@@ -535,6 +558,61 @@ const BlogArticleTemplate = ({
               </section>
             );
           })}
+
+          {videoSection && videoSection.videos.length > 0 && (
+            <section className="py-16 bg-background">
+              <div className="container mx-auto px-4 max-w-6xl">
+                <p className="text-sm uppercase tracking-wider mb-2 text-primary">
+                  Vidéos
+                </p>
+                <h2 className="text-2xl md:text-4xl font-bold mb-4 font-['Playfair_Display'] italic leading-tight text-foreground">
+                  {videoSection.title}
+                </h2>
+                {videoSection.intro && (
+                  <p className="text-foreground/80 text-base md:text-lg leading-relaxed mb-8 max-w-3xl">
+                    {videoSection.intro}
+                  </p>
+                )}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {videoSection.videos.map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      onClick={() => { setVideoCurrentTime(0); setActiveVideoId(v.id); }}
+                      className="block text-left group"
+                    >
+                      <div className="relative aspect-[9/16] overflow-hidden rounded-lg bg-muted">
+                        {v.thumbnailUrl ? (
+                          <img
+                            src={v.thumbnailUrl}
+                            alt={v.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground p-2 text-center">
+                            {v.title}
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                        {v.price && (
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-gold text-black text-[11px] font-semibold shadow">
+                            {v.price}
+                          </span>
+                        )}
+                        <div className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium line-clamp-2 drop-shadow">
+                          {v.title}
+                        </div>
+                      </div>
+                      {v.businessName && (
+                        <div className="mt-2 text-xs text-muted-foreground line-clamp-1">{v.businessName}</div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
         </>
       )}
 
@@ -583,6 +661,40 @@ const BlogArticleTemplate = ({
           </div>
         </div>
       )}
+
+      {videoSection && activeVideoId && (() => {
+        const list = videoSection.videos.map((v) => ({
+          id: v.id,
+          url: v.url,
+          business_name: v.businessName || v.title,
+          pageBusinessName: v.businessName ?? null,
+          pageBusinessId: v.businessId ?? null,
+          owner: v.businessId && v.businessName
+            ? { id: v.businessId, name: v.businessName, logo_url: null, logo_bg: null }
+            : null,
+          social: null,
+          showSocialBadge: false,
+          description: v.description ?? null,
+          manualCard: null,
+          _isGeneric: v.isGeneric,
+        }));
+        const active = list.find((v) => v.id === activeVideoId) || null;
+        return (
+          <Suspense fallback={null}>
+            <HomeVideoSlidePanel
+              open={!!active}
+              onClose={() => setActiveVideoId(null)}
+              activeVideo={active as any}
+              activeList={list as any}
+              onActiveVideoChange={(v: any) => { setActiveVideoId(v.id); setVideoCurrentTime(0); }}
+              isActiveGeneric={!!active?._isGeneric}
+              currentTime={videoCurrentTime}
+              onTimeUpdate={setVideoCurrentTime}
+              returnContext={null}
+            />
+          </Suspense>
+        );
+      })()}
     </div>
   );
 };
