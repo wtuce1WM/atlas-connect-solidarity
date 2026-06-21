@@ -1,4 +1,5 @@
 import BlogArticleTemplate, { type BlogArticleEntry } from "@/components/blog/BlogArticleTemplate";
+import heroLobster from "@/assets/essaouira-lobster-hero.jpg.asset.json";
 
 // Texte immersif rédigé à partir des descriptions, hooks, avis clients, textes
 // associés aux vidéos et horaires de chaque fiche.
