@@ -626,13 +626,23 @@ const BlogArticleTemplate = ({
                           </span>
                         </div>
                         {v.title && v.title !== "Vidéo" && v.title !== "video" ? (
-                          <div className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium line-clamp-2 drop-shadow">
-                            {v.title}
+                          <div className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium tracking-normal normal-case line-clamp-2 drop-shadow">
+                            {(() => {
+                              const t = v.title.trim();
+                              if (!t) return "";
+                              const sentence = t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+                              return sentence.replace(/\bmad\b/g, "MAD").replace(/\beur\b/g, "EUR");
+                            })()}
                           </div>
                         ) : (
                           v.businessName && (
-                            <div className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium line-clamp-2 drop-shadow">
-                              {v.businessName}
+                            <div className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium tracking-normal normal-case line-clamp-2 drop-shadow">
+                              {(() => {
+                                const b = v.businessName.trim();
+                                if (!b) return "";
+                                const sentence = b.charAt(0).toUpperCase() + b.slice(1).toLowerCase();
+                                return sentence.replace(/\bmad\b/g, "MAD").replace(/\beur\b/g, "EUR");
+                              })()}
                             </div>
                           )
                         )}
