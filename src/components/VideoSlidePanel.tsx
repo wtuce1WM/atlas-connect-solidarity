@@ -137,6 +137,7 @@ const VideoSlidePanel = ({
   returnContext,
   compactBusinessHeader = false,
   hideDirections = false,
+  hideLeftCtas = false,
 }: VideoSlidePanelProps) => {
 
   const navigate = useNavigate();
