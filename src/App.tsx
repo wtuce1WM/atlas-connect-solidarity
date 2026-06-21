@@ -53,6 +53,7 @@ const FruitsDeMerEssaouira = lazy(() => import("./pages/FruitsDeMerEssaouira"));
 const HebergementsSidiKaouki = lazy(() => import("./pages/HebergementsSidiKaouki"));
 const AgafayDream = lazy(() => import("./pages/AgafayDream"));
 const LouerVillaComplexeHotelierMarrakech = lazy(() => import("./pages/LouerVillaComplexeHotelierMarrakech"));
+const LouerVillaVacancesMarrakech = lazy(() => import("./pages/LouerVillaVacancesMarrakech"));
 const BlogAnimations = lazy(() => import("./pages/BlogAnimations"));
 const BlogTypography = lazy(() => import("./pages/BlogTypography"));
 const BlogBrummellTypography = lazy(() => import("./pages/BlogBrummellTypography"));
