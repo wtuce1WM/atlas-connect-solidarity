@@ -1672,8 +1672,8 @@ const BookOnlineSlidePanelInner = ({
           setBookingOverlayTitle={setBookingOverlayTitle}
         />
 
-         {/* Offres B2B (entre badge Avis et CTAs URL 2-5) */}
-         <BusinessPromotionsList businessId={business?.id} cardsHidden={cardsHidden || showWelcomePopup} />
+         {/* Offres B2B (entre badge Avis et CTAs URL 2-5). Quand un popup d'accueil existe, les offres sont déplacées dans le popup (slides). */}
+         <BusinessPromotionsList businessId={business?.id} cardsHidden={cardsHidden || showWelcomePopup || (!!(business as any)?.popup_image_url && businessPromotions.length > 0)} />
 
         {/* CTA Bar */}
         <CtaBar
