@@ -2979,7 +2979,7 @@ const BookOnlineSlidePanelInner = ({
                       {currentPromo.title}
                     </h3>
                     {promoAmount && (
-                      <div className="shrink-0 text-[28px] md:text-[34px] font-black text-[#C04F17] whitespace-nowrap leading-none" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                      <div className="shrink-0 text-[28px] md:text-[34px] font-black text-[#D4AF37] whitespace-nowrap leading-none" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         {promoAmount}
                       </div>
                     )}
