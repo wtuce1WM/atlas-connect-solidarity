@@ -3076,6 +3076,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         compactBusinessHeader={props.compactBusinessHeader}
         hideDirections={props.hideDirections}
         hideLeftCtas={props.hideLeftCtas}
+        manualCardLabel={props.manualCardLabel}
       />
     );
   }
