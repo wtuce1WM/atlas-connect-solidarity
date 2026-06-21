@@ -164,6 +164,10 @@ interface BookOnlineSlidePanelProps {
   onTimeUpdate?: (t: number) => void;
   /** Controls open state externally (parent unmounts when closed) */
   open?: boolean;
+  /** Whether to hide directions button (Itinéraire) */
+  hideDirections?: boolean;
+  /** Whether to hide secondary CTAs (URLs 2-5) */
+  hideSecondaryCtas?: boolean;
 }
 
 const BookOnlineSlidePanelInner = ({
