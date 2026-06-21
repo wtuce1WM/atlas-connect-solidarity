@@ -126,6 +126,18 @@ const SEAFOOD: BlogArticleEntry[] = [
     ],
   },
   {
+    id: "cd6cb650-dcf5-4c78-8bce-374f8b7fd9a9",
+    pretitle: "Plage, Boulevard Mohammed V",
+    title: "Le Chalet de la Plage — Chez Jeannot, l'institution centenaire au bord de l'Atlantique",
+    hours: "Ouvert tous les jours, de 9h00 à 22h30 — déjeuner et dîner.",
+    paragraphs: [
+      "Posé en bord de plage depuis 1893, Le Chalet de la Plage est l'un des plus anciens restaurants de la ville — une bâtisse de bois construite à l'époque par la famille Farraud, reprise en 1965 par la famille Jeannot qui en est aujourd'hui à sa quatrième génération. Quatre générations sur la même table, face au même océan : il y a peu d'adresses, à Essaouira, qui peuvent en dire autant.",
+      "Depuis la terrasse, la vue est imprenable : l'Atlantique au premier plan, l'île de Mogador qui se découpe au large, la plage où mouettes et goélands viennent se poser à marée basse. On comprend tout de suite pourquoi le monde entier pousse la porte — artistes, sportifs, hommes politiques, voyageurs de passage — et pourquoi le mur de photos du fond, où Jeannot pose avec ses célèbres clients, est devenu une attraction à part entière.",
+      "Dans l'assiette, la promesse est tenue : cuisine méditerranéenne tournée vers la mer, oursins en saison, sardines grillées comme nulle part ailleurs, crustacés, gambas, calamars, langoustes et poissons entiers cuits à l'instinct. La salle, vaste, accepte aussi bien le déjeuner de famille, le repas d'affaires que le dîner entre amis — et l'accueil chaleureux de Jeannot, véritable capitaine du Chalet, fait partie intégrante du charme des lieux.",
+      "C'est l'une de ces adresses dont on dit, à juste titre, qu'on ne peut pas venir à Essaouira sans s'y asseoir. Une institution, au sens plein du terme — vivante, généreuse, intacte.",
+    ],
+  },
+  {
     id: "ee3e78fd-46d9-4828-9006-c4e8c9f11cda",
     pretitle: "Plage, vue océan",
     title: "Zahra's Grill — le menu fruits de mer généreux dans un décor de riad",
