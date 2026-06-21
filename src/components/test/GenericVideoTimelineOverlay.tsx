@@ -106,12 +106,9 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     return () => subscription.unsubscribe();
   }, []);
 
-  // Allow external triggers (e.g. SlidePanelHome top-right Heart button) to open the same popup
-  useEffect(() => {
-    const handler = () => setClubOpen(true);
-    window.addEventListener("open-generic-club-popup", handler);
-    return () => window.removeEventListener("open-generic-club-popup", handler);
-  }, []);
+  // Note: this overlay no longer listens to "open-generic-club-popup".
+  // That global event is handled by ClubLoginPopup to avoid showing two
+  // identical popups when the Profil CTA is clicked.
 
   useEffect(() => {
     let cancelled = false;
