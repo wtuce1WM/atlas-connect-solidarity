@@ -658,10 +658,10 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     left: 125%;
   }
 
-  /* Automatic/Infinite flash shimmer effect */
-  @keyframes flash-sweep {
+  /* Automatic/Once flash shimmer effect (subtle) */
+  @keyframes flash-sweep-once {
     0% { left: -75%; }
-    30%, 100% { left: 125%; }
+    100% { left: 125%; }
   }
   .btn-flash-auto {
     position: relative;
@@ -675,11 +675,11 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     left: -75%;
     width: 50%;
     height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
     transform: skewX(-20deg);
     pointer-events: none;
     z-index: 10;
-    animation: flash-sweep 3.5s infinite ease-in-out;
+    animation: flash-sweep-once 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
   }
 }
 
