@@ -76,6 +76,8 @@ interface VideoSlidePanelProps {
   hideDirections?: boolean;
   /** Hide the entire left-side CTAs column (e.g. YouTube button) */
   hideLeftCtas?: boolean;
+  /** Editorial label coming from the thumbnail manualCard badge (e.g. "Offre du moment") */
+  manualCardLabel?: string | null;
 }
 
 
