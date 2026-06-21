@@ -67,7 +67,8 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
             <div className={`${positionClass} w-full flex justify-center`} key={p.id}>
             <div
               aria-hidden={!active}
-              className={`w-fit ${maxWClass} rounded-xl border border-white/40 p-3 text-left transition-all duration-700 ease-out overflow-hidden btn-flash-auto ${
+              key={active ? `active-${index}` : `inactive-${p.id}`}
+              className={`w-fit ${maxWClass} rounded-xl border border-white/40 p-3 text-left transition-all duration-700 ease-out overflow-hidden ${active ? "btn-flash-auto" : ""} ${
                 active ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-[0.97] pointer-events-none"
               }`}
               style={{
