@@ -606,13 +606,19 @@ const BlogArticleTemplate = ({
                             })()}
                           </span>
                         </div>
-                        {v.title && v.title !== "Vidéo" && v.title !== "video" && (
+                        {v.title && v.title !== "Vidéo" && v.title !== "video" ? (
                           <div className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium line-clamp-2 drop-shadow">
                             {v.title}
                           </div>
+                        ) : (
+                          v.businessName && (
+                            <div className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium line-clamp-2 drop-shadow">
+                              {v.businessName}
+                            </div>
+                          )
                         )}
                       </div>
-                      {v.businessName && (
+                      {v.businessName && v.title && v.title !== "Vidéo" && v.title !== "video" && (
                         <div className="mt-2 text-xs text-muted-foreground line-clamp-1">{v.businessName}</div>
                       )}
                     </button>
