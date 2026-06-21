@@ -955,7 +955,7 @@ const VideoSlidePanel = ({
                     <ExternalLink className="h-3.5 w-3.5" />
                     <span className="truncate">En savoir +</span>
                   </button>
-                  {ctaBusiness.latitude && ctaBusiness.longitude && (
+                  {ctaBusiness.latitude && ctaBusiness.longitude && !hideDirections && (
                     <button
                       type="button"
                       onClick={() => setDirectionsBusiness(ctaBusiness)}
