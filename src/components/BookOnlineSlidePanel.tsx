@@ -925,7 +925,7 @@ const BookOnlineSlidePanelInner = ({
     showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
-    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted || showWelcomePopup;
+    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted || showWelcomePopup || showPromosPopup;
 
   // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
   // so they can disable business navigation while an overlay is open above the panel.
