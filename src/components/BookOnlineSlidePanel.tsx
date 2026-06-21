@@ -59,7 +59,7 @@ import SubstackIcon from "@/components/icons/SubstackIcon";
 import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
-import LocationPickerDialog from "@/components/LocationPickerDialog";
+
 
 import { useHotelAvailability } from "@/hooks/useHotelAvailability";
 import { useOpenStatus } from "@/hooks/useOpenStatus";
@@ -359,12 +359,7 @@ const BookOnlineSlidePanelInner = ({
   const poiOpenedFromMapRef = useRef(false);
   const geo = useGeolocation();
   const { coords: userCoords } = geo;
-  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
-  useEffect(() => {
-    const h = () => setLocationDialogOpen(true);
-    window.addEventListener("open-location-picker", h);
-    return () => window.removeEventListener("open-location-picker", h);
-  }, []);
+  // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
@@ -3036,25 +3031,8 @@ const BookOnlineSlidePanelInner = ({
         </OverlayShell>
       )}
 
-      <LocationPickerDialog
-        open={locationDialogOpen}
-        onOpenChange={setLocationDialogOpen}
-        coords={geo.coords}
-        detectedCity={geo.confirmedAddress || geo.detectedCity}
-        isEnabled={geo.isEnabled}
-        isDetecting={geo.isDetecting}
-        onUseCurrentPosition={() => { if (!geo.isEnabled) geo.accept(); }}
-        onConfirm={(confirmedCoords, address) => {
-          geo.setManualLocation(confirmedCoords, address);
-        }}
-        onDisableGeo={() => {
-          try {
-            localStorage.removeItem("geo_manual_coords");
-            localStorage.removeItem("geo_manual_address");
-          } catch { /* noop */ }
-          geo.decline();
-        }}
-      />
+      {/* LocationPickerDialog mounted globally on SearchPage — removed here to avoid double overlay */}
+
 
     </div>
   );
