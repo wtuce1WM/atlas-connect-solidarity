@@ -1323,32 +1323,6 @@ const BookOnlineSlidePanelInner = ({
         )}
       </div>
 
-      <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} hideOnMobile={availabilityConfirmationShown} />
-
-      {(effectiveOnPrev || effectiveOnNext) && (
-        <div className={`absolute top-1/2 -translate-y-1/2 right-3 z-30 ${cardsHidden ? 'flex' : 'hidden'} ${availabilityConfirmationShown ? 'max-lg:hidden' : ''} flex-col gap-2 pointer-events-none`}>
-          <button
-            type="button"
-            onClick={effectiveOnPrev}
-            disabled={!effectiveHasPrev}
-            className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
-            aria-label="Établissement précédent"
-          >
-            <ChevronUp className="h-5 w-5" />
-          </button>
-          {/* Spacer reserving room for the centered right media-arrow */}
-          <div className="w-9 h-9" />
-          <button
-            type="button"
-            onClick={effectiveOnNext}
-            disabled={!effectiveHasNext}
-            className="pointer-events-auto w-9 h-9 rounded-full bg-white hover:bg-white/80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-black shadow-lg transition-colors"
-            aria-label="Établissement suivant"
-          >
-            <ChevronDown className="h-5 w-5" />
-          </button>
-        </div>
-      )}
 
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
