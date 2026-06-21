@@ -143,6 +143,7 @@ const VideoSlidePanel = ({
   hideDirections = false,
   hideLeftCtas = false,
   manualCardLabel = null,
+  price = null,
 }: VideoSlidePanelProps) => {
 
   const navigate = useNavigate();
