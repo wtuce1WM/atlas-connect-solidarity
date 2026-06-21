@@ -173,6 +173,8 @@ interface BookOnlineSlidePanelProps {
   hideLeftCtas?: boolean;
   /** Editorial label coming from the thumbnail manualCard badge */
   manualCardLabel?: string | null;
+  /** Price value for the price badge */
+  price?: string | null;
 }
 
 const BookOnlineSlidePanelInner = ({
