@@ -612,13 +612,16 @@ const BlogArticleTemplate = ({
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                         <div className="absolute top-2 left-1/2 -translate-x-1/2 pointer-events-none z-10">
-                          <span className="px-2.5 py-0.5 rounded-full bg-[#F1F1F1] text-black text-[11px] font-semibold shadow-sm whitespace-nowrap">
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#F1F1F1] text-black text-[11px] font-semibold tracking-normal normal-case shadow-sm whitespace-nowrap">
                             {(() => {
-                              if (!v.price) return "Prix: nous consulter";
-                              const p = v.price.toLowerCase().trim();
-                              if (p === "sur demande" || p === "prix sur demande") return "Prix sur demande";
-                              if (p === "nous consulter" || p === "prix: nous consulter") return "Prix: nous consulter";
-                              return v.price;
+                              if (!v.price) return "Prix : nous consulter";
+                              const p = v.price.trim();
+                              if (!p) return "Prix : nous consulter";
+                              const lower = p.toLowerCase();
+                              if (lower === "sur demande" || lower === "prix sur demande") return "Prix sur demande";
+                              if (lower === "nous consulter" || lower === "prix: nous consulter" || lower === "prix : nous consulter") return "Prix : nous consulter";
+                              const sentence = p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
+                              return sentence.replace(/\bmad\b/g, "MAD").replace(/\beur\b/g, "EUR");
                             })()}
                           </span>
                         </div>
