@@ -662,7 +662,7 @@ const VideoSlidePanel = ({
           </div>
         )}
 
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !headerVideoTitle && (videoName || manualCardLabel || price) && !(isGeneric && social?.account && videoName === `@${social.account}` && !manualCardLabel && !price) && (() => {
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && ((!headerVideoTitle && (videoName || manualCardLabel)) || price !== undefined && price !== null) && !(isGeneric && social?.account && videoName === `@${social.account}` && !manualCardLabel && (price === undefined || price === null)) && (() => {
           const dateStr = eventId && eventInfo ? formatEventDateRange(eventInfo.start_date, eventInfo.end_date) : null;
           const daysStr = eventId && eventInfo ? formatDaysOfWeek(eventInfo.days_of_week) : null;
           const timeStr = eventId && eventInfo ? formatTimeRange(eventInfo.start_time, eventInfo.end_time) : null;
