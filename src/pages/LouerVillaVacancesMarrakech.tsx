@@ -7,6 +7,11 @@ import BlogArticleTemplate, {
 
 // Badge "Villas" id
 const BADGE_VILLAS = "6a1b0b32-e325-4468-a0f6-e6da61e28c97";
+// City ids — Marrakech + Agafay (alias géographique)
+const CITY_IDS_MARRAKECH = [
+  "41545fd3-2c2c-4609-8d55-842fd7e2edde",
+  "e615a53d-568d-4cc1-85ea-7286571de35b",
+];
 
 // 18 villas (sous-catégorie par défaut = "Villas") + 8 agences immobilières
 // (sous-catégorie par défaut = "Agences immobilières" avec service "Location vacances").
