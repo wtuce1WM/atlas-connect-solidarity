@@ -206,7 +206,7 @@ export function CtaBar({
   }
 
   // URL 4 CTA
-  if (url4Cta && !cardsHidden) {
+  if (url4Cta && !cardsHidden && !hideSecondaryCtas) {
     const label = url4CtaLabel || 'URL 4';
     if (isWhatsAppCta(label) && business?.whatsapp) {
       ctaItems.push(
