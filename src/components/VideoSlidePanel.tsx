@@ -940,7 +940,7 @@ const VideoSlidePanel = ({
                 }
                 return null;
               })()}
-              {ctaBusiness && !compactBusinessHeader && (
+              {ctaBusiness && !compactBusinessHeader && !hideDirections && (
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
                   <button
                     type="button"
@@ -955,7 +955,7 @@ const VideoSlidePanel = ({
                     <ExternalLink className="h-3.5 w-3.5" />
                     <span className="truncate">En savoir +</span>
                   </button>
-                  {ctaBusiness.latitude && ctaBusiness.longitude && !hideDirections && (
+                  {ctaBusiness.latitude && ctaBusiness.longitude && (
                     <button
                       type="button"
                       onClick={() => setDirectionsBusiness(ctaBusiness)}
