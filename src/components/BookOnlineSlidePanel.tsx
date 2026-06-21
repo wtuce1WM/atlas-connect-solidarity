@@ -77,6 +77,7 @@ import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
+import { useBusinessPromotions } from "@/hooks/useBusinessPromotions";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
