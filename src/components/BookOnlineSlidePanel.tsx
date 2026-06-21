@@ -146,6 +146,8 @@ interface BookOnlineSlidePanelProps {
   description?: string | null;
   /** Video title to display at the top */
   videoName?: string | null;
+  /** Si défini, affiche ce titre dans le rectangle BusinessHeader à la place du nom+adresse (mode vidéo uniquement) */
+  headerVideoTitle?: string | null;
   /** When set, displays the Agenda card for this city */
   agendaCity?: string | null;
   /** When set, displays CTAs for the event's linked business */
