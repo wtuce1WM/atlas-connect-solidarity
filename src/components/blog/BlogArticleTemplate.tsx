@@ -661,6 +661,40 @@ const BlogArticleTemplate = ({
           </div>
         </div>
       )}
+
+      {videoSection && activeVideoId && (() => {
+        const list = videoSection.videos.map((v) => ({
+          id: v.id,
+          url: v.url,
+          business_name: v.businessName || v.title,
+          pageBusinessName: v.businessName ?? null,
+          pageBusinessId: v.businessId ?? null,
+          owner: v.businessId && v.businessName
+            ? { id: v.businessId, name: v.businessName, logo_url: null, logo_bg: null }
+            : null,
+          social: null,
+          showSocialBadge: false,
+          description: v.description ?? null,
+          manualCard: null,
+          _isGeneric: v.isGeneric,
+        }));
+        const active = list.find((v) => v.id === activeVideoId) || null;
+        return (
+          <Suspense fallback={null}>
+            <HomeVideoSlidePanel
+              open={!!active}
+              onClose={() => setActiveVideoId(null)}
+              activeVideo={active as any}
+              activeList={list as any}
+              onActiveVideoChange={(v: any) => { setActiveVideoId(v.id); setVideoCurrentTime(0); }}
+              isActiveGeneric={!!active?._isGeneric}
+              currentTime={videoCurrentTime}
+              onTimeUpdate={setVideoCurrentTime}
+              returnContext={null}
+            />
+          </Suspense>
+        );
+      })()}
     </div>
   );
 };
