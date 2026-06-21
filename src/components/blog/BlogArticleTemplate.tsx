@@ -412,7 +412,7 @@ const BlogArticleTemplate = ({
                   }
                 }}
                 aria-label="Découvrir"
-                className="absolute bottom-6 sm:bottom-8 left-1/2 z-20 -translate-x-1/2 text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition hover:text-white pointer-events-auto"
+                className="absolute bottom-6 sm:bottom-8 left-1/2 z-20 -translate-x-1/2 text-black/80 hover:text-black drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] transition pointer-events-auto"
               >
                 <span className="block font-josefin text-xs uppercase tracking-[0.3em] font-bold text-center">Découvrir</span>
                 <ArrowDown className="mx-auto mt-2 h-5 w-5 animate-bounce" />
