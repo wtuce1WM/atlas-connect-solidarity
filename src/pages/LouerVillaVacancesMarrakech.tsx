@@ -319,16 +319,26 @@ const LouerVillaVacancesMarrakech = () => {
             businessName: bizMap[d.business_id] || null,
           };
         });
+        }
       }
 
-      // 2) Generic videos with badge Villas
+      // 2) Generic videos with badge Villas, filtrées sur Marrakech (+ Agafay)
       const { data: badgedGen } = await supabase
         .from("generic_video_badges")
         .select("generic_video_id")
         .eq("badge_id", BADGE_VILLAS);
-      const genIds = (badgedGen || []).map((g: any) => g.generic_video_id);
+      const genIdsAll = (badgedGen || []).map((g: any) => g.generic_video_id);
       let generic: BlogArticleVideo[] = [];
-      if (genIds.length > 0) {
+      if (genIdsAll.length > 0) {
+        const { data: genCities } = await supabase
+          .from("generic_video_cities")
+          .select("generic_video_id")
+          .in("generic_video_id", genIdsAll)
+          .in("city_id", CITY_IDS_MARRAKECH);
+        const genIds = Array.from(
+          new Set((genCities || []).map((g: any) => g.generic_video_id))
+        );
+        if (genIds.length > 0) {
         const { data: gens } = await supabase
           .from("generic_videos")
           .select("id, title, name, description, url, thumbnail_url")
