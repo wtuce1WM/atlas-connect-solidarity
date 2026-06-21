@@ -3073,6 +3073,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         returnContext={props.returnContext ?? null}
         compactBusinessHeader={props.compactBusinessHeader}
         hideDirections={props.hideDirections}
+        hideLeftCtas={props.hideLeftCtas}
       />
     );
   }
