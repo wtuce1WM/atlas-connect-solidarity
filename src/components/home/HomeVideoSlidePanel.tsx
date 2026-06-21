@@ -88,6 +88,8 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       hasNext={hasNext}
       eventId={eventId}
       returnContext={returnContext}
+      hideDirections={hideDirections}
+      hideSecondaryCtas={hideSecondaryCtas}
     />
   );
 }
