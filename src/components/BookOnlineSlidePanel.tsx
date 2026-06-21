@@ -323,6 +323,7 @@ const BookOnlineSlidePanelInner = ({
   const [popupSlide, setPopupSlide] = useState(0);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const welcomePopupShownRef = useRef<string | null>(null);
+  const promosPopupShownRef = useRef<string | null>(null);
   const businessPromotions = useBusinessPromotions(business?.id);
   useEffect(() => {
     const url = (business as any)?.popup_image_url;
@@ -345,6 +346,22 @@ const BookOnlineSlidePanelInner = ({
         });
     }
   }, [business?.id, (business as any)?.popup_image_url, (business as any)?.images]);
+
+  // Auto-open the promotions popup when a business has offers but no welcome popup image.
+  // Mirrors the welcome popup behavior: shown once per business, mutes background video.
+  useEffect(() => {
+    if (!business?.id) return;
+    const hasWelcomePopup = !!(business as any)?.popup_image_url
+      && Array.isArray((business as any)?.images)
+      && (business as any).images.includes((business as any).popup_image_url);
+    if (hasWelcomePopup) return;
+    if (businessPromotions.length === 0) return;
+    if (promosPopupShownRef.current === business.id) return;
+    promosPopupShownRef.current = business.id;
+    setPopupSlide(0);
+    setShowPromosPopup(true);
+  }, [business?.id, businessPromotions.length, (business as any)?.popup_image_url, (business as any)?.images]);
+
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
@@ -908,7 +925,7 @@ const BookOnlineSlidePanelInner = ({
     showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
-    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted || showWelcomePopup;
+    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted || showWelcomePopup || showPromosPopup;
 
   // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
   // so they can disable business navigation while an overlay is open above the panel.
@@ -923,13 +940,13 @@ const BookOnlineSlidePanelInner = ({
 
   // Expose popup state so we can remove the slide panel container's shadow when a welcome popup is active
   useEffect(() => {
-    if (showWelcomePopup) {
+    if (showWelcomePopup || showPromosPopup) {
       document.body.dataset.slidepanelPopupOpen = "1";
     } else {
       delete document.body.dataset.slidepanelPopupOpen;
     }
     return () => { delete document.body.dataset.slidepanelPopupOpen; };
-  }, [showWelcomePopup]);
+  }, [showWelcomePopup, showPromosPopup]);
 
 
   // Pause/mute background media when an overlay is open — same mute gate as the Search overlay.
