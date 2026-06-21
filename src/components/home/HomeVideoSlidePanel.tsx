@@ -12,6 +12,7 @@ interface VideoLike {
   showSocialBadge?: boolean;
   description: string | null;
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
+  title?: string | null;
 }
 
 interface Props<T extends VideoLike> {
