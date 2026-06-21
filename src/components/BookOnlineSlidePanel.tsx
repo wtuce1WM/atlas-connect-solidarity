@@ -2964,6 +2964,26 @@ const BookOnlineSlidePanelInner = ({
         </OverlayShell>
       )}
 
+      <LocationPickerDialog
+        open={locationDialogOpen}
+        onOpenChange={setLocationDialogOpen}
+        coords={geo.coords}
+        detectedCity={geo.confirmedAddress || geo.detectedCity}
+        isEnabled={geo.isEnabled}
+        isDetecting={geo.isDetecting}
+        onUseCurrentPosition={() => { if (!geo.isEnabled) geo.accept(); }}
+        onConfirm={(confirmedCoords, address) => {
+          geo.setManualLocation(confirmedCoords, address);
+        }}
+        onDisableGeo={() => {
+          try {
+            localStorage.removeItem("geo_manual_coords");
+            localStorage.removeItem("geo_manual_address");
+          } catch { /* noop */ }
+          geo.decline();
+        }}
+      />
+
     </div>
   );
 };
