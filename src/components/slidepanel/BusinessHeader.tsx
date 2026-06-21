@@ -53,7 +53,7 @@ const BusinessHeader = React.memo(function BusinessHeader({
   return (
     <div
       key={businessId}
-      className="relative overflow-hidden mx-auto w-fit max-w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white h-[4.5rem] md:h-[5.5rem] pointer-events-auto -mt-1 md:mt-0 animate-slide-in-right flex items-center justify-center gap-4 before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-b before:from-white/20 before:via-transparent before:to-white/5 before:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-2xl after:bg-gradient-to-b after:from-white/25 after:to-transparent after:blur-[1px] after:pointer-events-none [&>*]:relative [&>*]:z-10"
+      className="relative overflow-hidden mx-auto w-fit max-w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white min-h-[4.5rem] h-auto py-3 md:py-0 md:h-[5.5rem] pointer-events-auto -mt-1 md:mt-0 animate-slide-in-right flex items-center justify-center gap-4 before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-b before:from-white/20 before:via-transparent before:to-white/5 before:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-1/2 after:rounded-t-2xl after:bg-gradient-to-b after:from-white/25 after:to-transparent after:blur-[1px] after:pointer-events-none [&>*]:relative [&>*]:z-10"
       style={{ boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.35), inset 0 -1px 0 0 rgba(0,0,0,0.25), 0 4px 14px -2px rgba(0,0,0,0.35)' }}
     >
       <div className="min-w-0 text-center">
