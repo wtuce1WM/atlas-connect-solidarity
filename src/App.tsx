@@ -196,6 +196,7 @@ const AppContent = () => {
               <Route path="/blog/manger-fruits-de-mer-essaouira" element={renderLazyRoute(<FruitsDeMerEssaouira />)} />
               <Route path="/blog/hebergements-sidi-kaouki" element={renderLazyRoute(<HebergementsSidiKaouki />)} />
               <Route path="/blog/agafay-dream" element={renderLazyRoute(<AgafayDream />)} />
+              <Route path="/blog/louer-villa-complexe-hotelier-marrakech" element={renderLazyRoute(<LouerVillaComplexeHotelierMarrakech />)} />
               <Route path="/staff/animations" element={<StaffRouteGuard>{renderLazyRoute(<BlogAnimations />)}</StaffRouteGuard>} />
               <Route path="/staff/carousel-nav-demo" element={<StaffRouteGuard>{renderLazyRoute(<CarouselNavDemo />)}</StaffRouteGuard>} />
               <Route path="/blog/ancien-accueil" element={renderLazyRoute(<AncienAccueil />)} />
