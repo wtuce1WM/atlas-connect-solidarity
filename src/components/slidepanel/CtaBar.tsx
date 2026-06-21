@@ -172,7 +172,7 @@ export function CtaBar({
     }
   }
 
-  if (shopCta && !cardsHidden) {
+  if (shopCta && !cardsHidden && !hideSecondaryCtas) {
     if (isWhatsAppCta(shopCtaLabel) && business?.whatsapp) {
       ctaItems.push(
         <a key="shop" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
