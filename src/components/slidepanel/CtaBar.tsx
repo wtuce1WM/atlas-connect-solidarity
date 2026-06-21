@@ -70,6 +70,10 @@ interface CtaBarProps {
   setActiveBusinessId: (id: string) => void;
   /** Skip rendering the play/mute VideoControls (they may be rendered elsewhere, e.g. in PanelSearchBar) */
   hideVideoControls?: boolean;
+  /** Whether to hide directions button (Itinéraire) */
+  hideDirections?: boolean;
+  /** Whether to hide secondary CTAs (URLs 2-5, shopCta, etc.) */
+  hideSecondaryCtas?: boolean;
 }
 
 export function CtaBar({
