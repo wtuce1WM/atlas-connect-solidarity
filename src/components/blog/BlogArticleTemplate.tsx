@@ -716,6 +716,7 @@ const BlogArticleTemplate = ({
           showSocialBadge: false,
           description: v.description ?? null,
           manualCard: null,
+          title: v.title,
           _isGeneric: v.isGeneric,
         }));
         const active = list.find((v) => v.id === activeVideoId) || null;

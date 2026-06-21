@@ -12,6 +12,7 @@ interface VideoLike {
   showSocialBadge?: boolean;
   description: string | null;
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
+  title?: string | null;
 }
 
 interface Props<T extends VideoLike> {
@@ -74,6 +75,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       social={activeVideo?.social || null}
       showSocialBadge={!!activeVideo?.showSocialBadge}
       description={activeVideo?.description || null}
+      videoName={activeVideo?.title ?? null}
       currentTime={currentTime}
       onTimeUpdate={onTimeUpdate}
       onPrev={goPrev}
