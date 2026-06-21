@@ -1,4 +1,5 @@
 import BlogArticleTemplate, { type BlogArticleEntry } from "@/components/blog/BlogArticleTemplate";
+import heroLobster from "@/assets/essaouira-lobster-hero.jpg.asset.json";
 
 // Texte immersif rédigé à partir des descriptions, hooks, avis clients, textes
 // associés aux vidéos et horaires de chaque fiche.
@@ -197,6 +198,8 @@ const FruitsDeMerEssaouira = () => (
     intro="Essaouira a la mer dans les veines. On l'entend dès qu'on franchit les remparts, on la voit partout — dans les barques bleues alignées au port, dans les filets posés à sécher, dans le sel sur les murs blancs de la médina. Et l'on s'en aperçoit surtout dans l'assiette : ici, le poisson n'a jamais voyagé. Il a été pêché à l'aube, débarqué au pied de la Scala, et il arrive sur la table quelques heures plus tard, simplement grillé ou sublimé par un chef. Voici nos seize adresses préférées pour vivre Essaouira par les fruits de mer — des plus légendaires aux plus secrètes, du dîner gastronomique au burger de poisson sur le pouce."
     datePublished="2026-06-20T08:00:00+01:00"
     dateModified="2026-06-20T08:00:00+01:00"
+    customHeroImage={heroLobster.url}
+    defaultOgImage={heroLobster.url}
   />
 );
 
