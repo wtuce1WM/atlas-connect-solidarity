@@ -662,20 +662,39 @@ const VideoSlidePanel = ({
           </div>
         )}
 
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !headerVideoTitle && (videoName || manualCardLabel) && !(isGeneric && social?.account && videoName === `@${social.account}` && !manualCardLabel) && (() => {
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !headerVideoTitle && (videoName || manualCardLabel || price) && !(isGeneric && social?.account && videoName === `@${social.account}` && !manualCardLabel && !price) && (() => {
           const dateStr = eventId && eventInfo ? formatEventDateRange(eventInfo.start_date, eventInfo.end_date) : null;
           const daysStr = eventId && eventInfo ? formatDaysOfWeek(eventInfo.days_of_week) : null;
           const timeStr = eventId && eventInfo ? formatTimeRange(eventInfo.start_time, eventInfo.end_time) : null;
           const textShadow = "0 1px 2px rgba(0,0,0,0.4)";
           const showVideoName = !!videoName && !(isGeneric && social?.account && videoName === `@${social.account}`);
+
+          let badgeText = manualCardLabel;
+          if (price !== undefined && price !== null) {
+            const p = price.trim();
+            if (!p) {
+              badgeText = "Prix : nous consulter";
+            } else {
+              const lower = p.toLowerCase();
+              if (lower === "sur demande" || lower === "prix sur demande") {
+                badgeText = "Prix sur demande";
+              } else if (lower === "nous consulter" || lower === "prix: nous consulter" || lower === "prix : nous consulter") {
+                badgeText = "Prix : nous consulter";
+              } else {
+                const sentence = p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
+                badgeText = sentence.replace(/\bmad\b/g, "MAD").replace(/\beur\b/g, "EUR");
+              }
+            }
+          }
+
           return (
             <div className="absolute top-40 md:top-40 lg:top-44 left-4 right-4 z-[60] pointer-events-none flex flex-col items-center gap-1.5 text-center">
-              {manualCardLabel && (
+              {badgeText && (
                 <span
                   className="pointer-events-none inline-flex items-center rounded-full bg-black/70 backdrop-blur-md border border-white/15 px-2.5 py-0.5 text-[11px] md:text-xs font-extrabold uppercase text-white tracking-wide"
                   style={{ fontFamily: "'Montserrat',system-ui,sans-serif", textShadow }}
                 >
-                  {manualCardLabel}
+                  {badgeText}
                 </span>
               )}
               {showVideoName && (
