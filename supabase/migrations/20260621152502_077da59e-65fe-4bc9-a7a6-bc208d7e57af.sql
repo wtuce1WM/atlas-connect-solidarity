@@ -1,0 +1,1 @@
+DELETE FROM public.search_intent_words WHERE lower(word) = 'faire';
