@@ -618,9 +618,6 @@ const BlogArticleTemplate = ({
                           )
                         )}
                       </div>
-                      {v.businessName && v.title && v.title !== "Vidéo" && v.title !== "video" && (
-                        <div className="mt-2 text-xs text-muted-foreground line-clamp-1">{v.businessName}</div>
-                      )}
                     </button>
                   ))}
                 </div>
