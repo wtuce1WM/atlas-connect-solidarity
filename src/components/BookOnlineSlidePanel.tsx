@@ -344,7 +344,14 @@ const BookOnlineSlidePanelInner = ({
   const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
   const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
   const poiOpenedFromMapRef = useRef(false);
-  const { coords: userCoords } = useGeolocation();
+  const geo = useGeolocation();
+  const { coords: userCoords } = geo;
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  useEffect(() => {
+    const h = () => setLocationDialogOpen(true);
+    window.addEventListener("open-location-picker", h);
+    return () => window.removeEventListener("open-location-picker", h);
+  }, []);
   const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
