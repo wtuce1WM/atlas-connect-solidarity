@@ -117,8 +117,10 @@ export function CtaBar({
   setBookingOverlayTitle,
   setActiveBusinessId,
   hideVideoControls,
+  hideDirections = false,
+  hideSecondaryCtas = false,
 }: CtaBarProps) {
-  const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || !!shopCta || !!url4Cta || !!url5Cta)) || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
+  const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || (!hideSecondaryCtas && (!!shopCta || !!url4Cta || !!url5Cta)))) || (!cardsHidden && showGoogleMap && !hideDirections && business?.latitude && business?.longitude);
 
   // Hide when cards hidden + availability confirmed
   const hideStyle = (cardsHidden && fallbackPanelData && (() => {
