@@ -359,12 +359,7 @@ const BookOnlineSlidePanelInner = ({
   const poiOpenedFromMapRef = useRef(false);
   const geo = useGeolocation();
   const { coords: userCoords } = geo;
-  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
-  useEffect(() => {
-    const h = () => setLocationDialogOpen(true);
-    window.addEventListener("open-location-picker", h);
-    return () => window.removeEventListener("open-location-picker", h);
-  }, []);
+  // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
