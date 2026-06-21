@@ -3096,19 +3096,27 @@ const BookOnlineSlidePanelInner = ({
             >
               <div className="absolute inset-0 bg-black/55 pointer-events-none" />
 
-              <div className="relative pt-16 px-6 pb-6 text-white flex-1">
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <h3 className="text-3xl md:text-4xl font-extrabold leading-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                    {currentPromo.title}
-                  </h3>
-                </div>
-                {currentPromo.promotion_message && (
-                  <div
-                    className="prose prose-invert prose-base max-w-none text-base md:text-lg leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
-                    dangerouslySetInnerHTML={{ __html: currentPromo.promotion_message }}
-                  />
-                )}
-              </div>
+              {(() => {
+                const hasMessage = currentPromo.promotion_message && currentPromo.promotion_message.trim() !== "";
+                return (
+                  <div className={`relative pt-16 px-6 pb-6 text-white flex-1 flex flex-col ${!hasMessage ? 'justify-center' : ''}`}>
+                    <div className={`flex items-start gap-3 ${!hasMessage ? 'justify-center mb-0' : 'justify-between mb-4'}`}>
+                      <h3 
+                        className={`text-3xl md:text-4xl font-extrabold ${!hasMessage ? 'text-center leading-[1.6] md:leading-[1.8]' : 'leading-tight'}`} 
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
+                      >
+                        {currentPromo.title}
+                      </h3>
+                    </div>
+                    {hasMessage && (
+                      <div
+                        className="prose prose-invert prose-base max-w-none text-base md:text-lg leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
+                        dangerouslySetInnerHTML={{ __html: currentPromo.promotion_message }}
+                      />
+                    )}
+                  </div>
+                );
+              })()}
 
               {promoAmount && (
                 <div 
