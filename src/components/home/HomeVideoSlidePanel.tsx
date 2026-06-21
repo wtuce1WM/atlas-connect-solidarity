@@ -93,6 +93,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       hideSecondaryCtas={hideSecondaryCtas}
       hideLeftCtas
       manualCardLabel={activeVideo?.manualCard?.label || null}
+      price={activeVideo?.price || null}
     />
   );
 }
