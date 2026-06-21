@@ -306,12 +306,11 @@ const LouerVillaVacancesMarrakech = () => {
         internal = docs2.map((d: any) => {
           const url =
             d.youtube_video_url || d.instagram_video_url || d.tiktok_video_url || d.url || "";
-          const stripped = (d.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
           return {
             id: d.id,
             url,
             title: d.name || "Vidéo",
-            description: stripped || null,
+            description: d.description || null,
             price: d.price || null,
             thumbnailUrl: d.thumbnail_url || null,
             isGeneric: false,
