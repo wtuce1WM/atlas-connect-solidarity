@@ -239,7 +239,7 @@ export function CtaBar({
   }
 
   // URL 5 CTA
-  if (url5Cta && !cardsHidden) {
+  if (url5Cta && !cardsHidden && !hideSecondaryCtas) {
     const label = url5CtaLabel || 'URL 5';
     if (isWhatsAppCta(label) && business?.whatsapp) {
       ctaItems.push(
