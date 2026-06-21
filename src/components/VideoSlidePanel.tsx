@@ -70,6 +70,8 @@ interface VideoSlidePanelProps {
   returnContext?: string | null;
   /** Compact business header (background hugs the name, centered) */
   compactBusinessHeader?: boolean;
+  /** Whether to hide directions button (Itinéraire) */
+  hideDirections?: boolean;
 }
 
 
