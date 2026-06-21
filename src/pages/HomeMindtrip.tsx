@@ -293,13 +293,8 @@ const HomeMindtrip = () => {
       const staticItems = staticArticles.map((a) => ({
         slug: a.path,
         title: a.title,
-        image: a.slug === "etablissements-notes" 
-          ? ratedHeroAsset.url 
-          : a.slug === "hotels-riads-vue-mer-essaouira" 
-          ? essaouiraSunsetAsset.url 
-          : a.slug === "manger-fruits-de-mer-essaouira"
-          ? essaouiraLobsterAsset.url
-          : (a.bizId ? imgById.get(a.bizId) : undefined),
+        image: STATIC_BLOG_HERO_OVERRIDES[a.slug] 
+          ?? (a.bizId ? imgById.get(a.bizId) : undefined),
         date: a.date,
       }));
       const dbItems = (dbPosts || []).map((p: any) => ({
