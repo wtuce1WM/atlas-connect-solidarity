@@ -705,7 +705,7 @@ const VideoSlidePanel = ({
         )}
 
         {/* Left sidebar — YouTube button (hover-expand, mirror of BookOnlineSlidePanel) */}
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && ctaBusiness?.youtube_url && (
+        {!hideLeftCtas && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && ctaBusiness?.youtube_url && (
           <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
             <div
               onClick={() => { setShowYoutubeOverlay(true); }}
