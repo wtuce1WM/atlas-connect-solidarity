@@ -75,7 +75,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       social={activeVideo?.social || null}
       showSocialBadge={!!activeVideo?.showSocialBadge}
       description={activeVideo?.description || null}
-      videoName={activeVideo?.title ?? null}
+      headerVideoTitle={activeVideo?.title ?? null}
       currentTime={currentTime}
       onTimeUpdate={onTimeUpdate}
       onPrev={goPrev}
