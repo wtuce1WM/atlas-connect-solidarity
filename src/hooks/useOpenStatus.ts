@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
+import { isCurrentlyOpen, getMoroccoNow } from "@/lib/formatOpeningHours";
 
 interface UseOpenStatusParams {
   business: any;
@@ -29,8 +29,8 @@ export function useOpenStatus({ business, language }: UseOpenStatusParams) {
     }, {} as Record<string, any>);
 
     const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-    const now = new Date();
-    const todayKey = days[now.getDay()];
+    const moroccoNow = getMoroccoNow();
+    const todayKey = days[moroccoNow.dayOfWeek];
     const currentlyOpen = isCurrentlyOpen(todayKey ? hours[todayKey] : null);
 
     if (currentlyOpen) {
@@ -38,7 +38,7 @@ export function useOpenStatus({ business, language }: UseOpenStatusParams) {
       return { text: label, isOpen: true };
     }
 
-    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const nowMin = moroccoNow.minutes;
     const dh = hours[todayKey];
     let foundToday = false;
     let badgeText: string | null = null;
@@ -68,7 +68,7 @@ export function useOpenStatus({ business, language }: UseOpenStatusParams) {
           ? ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
           : ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
       for (let i = 1; i <= 7; i++) {
-        const idx = (now.getDay() + i) % 7;
+        const idx = (moroccoNow.dayOfWeek + i) % 7;
         const nextDh = hours[days[idx]];
         if (nextDh && !nextDh.closed && nextDh.open) {
           const prefix = language === "en" ? "Opens" : language === "ar" ? "يفتح" : "Ouvre";

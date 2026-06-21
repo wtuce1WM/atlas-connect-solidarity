@@ -47,7 +47,32 @@ export function formatDayHours(
 }
 
 /**
+ * Returns the current time in Morocco (Africa/Casablanca, UTC+1, no DST)
+ * as { minutes, dayOfWeek } where dayOfWeek matches Date.getDay() (0=Sun).
+ * Business opening hours stored in DB are local Morocco time.
+ */
+export function getMoroccoNow(): { minutes: number; dayOfWeek: number } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Africa/Casablanca",
+    hour: "2-digit",
+    minute: "2-digit",
+    weekday: "short",
+    hour12: false,
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find((p) => p.type === t)?.value || "";
+  let h = parseInt(get("hour"), 10);
+  if (h === 24) h = 0; // some locales output "24" for midnight
+  const m = parseInt(get("minute"), 10);
+  const weekdayMap: Record<string, number> = {
+    Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+  };
+  const dayOfWeek = weekdayMap[get("weekday")] ?? new Date().getDay();
+  return { minutes: h * 60 + m, dayOfWeek };
+}
+
+/**
  * Check if the business is currently open, supporting dual slots.
+ * Uses Morocco local time (Africa/Casablanca) regardless of user timezone.
  */
 export function isCurrentlyOpen(
   dh: DayHoursData | null | undefined
@@ -55,8 +80,7 @@ export function isCurrentlyOpen(
   if (!dh || dh.closed) return false;
   if (!dh.open || !dh.close) return false;
 
-  const now = new Date();
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const nowMinutes = getMoroccoNow().minutes;
 
   // Check slot 1
   const [oh, om] = dh.open.split(":").map(Number);
