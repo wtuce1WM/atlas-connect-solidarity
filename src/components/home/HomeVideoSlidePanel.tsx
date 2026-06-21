@@ -13,6 +13,7 @@ interface VideoLike {
   description: string | null;
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
   title?: string | null;
+  price?: string | null;
 }
 
 interface Props<T extends VideoLike> {
@@ -92,6 +93,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       hideSecondaryCtas={hideSecondaryCtas}
       hideLeftCtas
       manualCardLabel={activeVideo?.manualCard?.label || null}
+      price={activeVideo?.price || null}
     />
   );
 }
