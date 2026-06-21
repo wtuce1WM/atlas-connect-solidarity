@@ -132,6 +132,7 @@ const VideoSlidePanel = ({
   eventId,
   returnContext,
   compactBusinessHeader = false,
+  hideDirections = false,
 }: VideoSlidePanelProps) => {
 
   const navigate = useNavigate();
