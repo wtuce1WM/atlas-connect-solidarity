@@ -3030,6 +3030,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         showSocialBadge={props.showSocialBadge}
         description={props.description ?? null}
         videoName={props.videoName ?? null}
+        headerVideoTitle={props.headerVideoTitle ?? null}
         agendaCity={props.agendaCity ?? null}
         eventId={props.eventId ?? null}
         returnContext={props.returnContext ?? null}
