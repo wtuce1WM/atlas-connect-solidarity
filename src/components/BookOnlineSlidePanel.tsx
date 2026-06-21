@@ -169,6 +169,8 @@ interface BookOnlineSlidePanelProps {
   hideDirections?: boolean;
   /** Whether to hide secondary CTAs (URLs 2-5) */
   hideSecondaryCtas?: boolean;
+  /** Hide the entire left-side CTAs column (e.g. YouTube button) */
+  hideLeftCtas?: boolean;
 }
 
 const BookOnlineSlidePanelInner = ({
@@ -3071,6 +3073,7 @@ const BookOnlineSlidePanel = (props: BookOnlineSlidePanelProps) => {
         returnContext={props.returnContext ?? null}
         compactBusinessHeader={props.compactBusinessHeader}
         hideDirections={props.hideDirections}
+        hideLeftCtas={props.hideLeftCtas}
       />
     );
   }

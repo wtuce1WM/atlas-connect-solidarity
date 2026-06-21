@@ -90,6 +90,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       returnContext={returnContext}
       hideDirections={hideDirections}
       hideSecondaryCtas={hideSecondaryCtas}
+      hideLeftCtas
     />
   );
 }

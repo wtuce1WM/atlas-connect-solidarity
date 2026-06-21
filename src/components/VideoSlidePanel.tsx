@@ -74,6 +74,8 @@ interface VideoSlidePanelProps {
   compactBusinessHeader?: boolean;
   /** Whether to hide directions button (Itinéraire) */
   hideDirections?: boolean;
+  /** Hide the entire left-side CTAs column (e.g. YouTube button) */
+  hideLeftCtas?: boolean;
 }
 
 
@@ -135,6 +137,7 @@ const VideoSlidePanel = ({
   returnContext,
   compactBusinessHeader = false,
   hideDirections = false,
+  hideLeftCtas = false,
 }: VideoSlidePanelProps) => {
 
   const navigate = useNavigate();
@@ -702,7 +705,7 @@ const VideoSlidePanel = ({
         )}
 
         {/* Left sidebar — YouTube button (hover-expand, mirror of BookOnlineSlidePanel) */}
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && ctaBusiness?.youtube_url && (
+        {!hideLeftCtas && !descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !hashtagsOverlayOpen && !aiOverlayOpen && !poiOverlayBusinessId && !showYoutubeOverlay && ctaBusiness?.youtube_url && (
           <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
             <div
               onClick={() => { setShowYoutubeOverlay(true); }}
