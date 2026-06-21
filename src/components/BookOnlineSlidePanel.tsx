@@ -2958,7 +2958,7 @@ const BookOnlineSlidePanelInner = ({
               {showOverlay && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
 
               {isPopupSlide && hasMeta && (
-                <div className="relative overflow-y-auto p-6 text-white">
+                <div className="relative overflow-y-auto pt-14 px-6 pb-6 text-white">
                   {popupMeta.title && (
                     <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                       {popupMeta.title}
@@ -2973,20 +2973,20 @@ const BookOnlineSlidePanelInner = ({
               )}
 
               {!isPopupSlide && currentPromo && (
-                <div className="relative overflow-y-auto p-6 text-white flex-1">
+                <div className="relative overflow-y-auto pt-14 px-6 pb-6 text-white flex-1">
                   <div className="flex items-start justify-between gap-3 mb-4 pr-12">
                     <h3 className="text-3xl md:text-4xl font-extrabold leading-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                       {currentPromo.title}
                     </h3>
                     {promoAmount && (
-                      <div className="shrink-0 text-[28px] md:text-[34px] font-black text-[#FFB088] whitespace-nowrap leading-none" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                      <div className="shrink-0 text-[28px] md:text-[34px] font-black text-[#C04F17] whitespace-nowrap leading-none" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         {promoAmount}
                       </div>
                     )}
                   </div>
                   {currentPromo.promotion_message && (
                     <div
-                      className="prose prose-base max-w-none text-base md:text-lg leading-relaxed text-white/98 font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#FFB088] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
+                      className="prose prose-base max-w-none text-base md:text-lg leading-relaxed text-white/98 font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
                       dangerouslySetInnerHTML={{ __html: currentPromo.promotion_message }}
                     />
                   )}
