@@ -98,6 +98,7 @@ const BlogArticleTemplate = ({
   siteUrl = DEFAULT_SITE_URL,
   defaultOgImage,
   customHeroImage,
+  videoSection,
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
