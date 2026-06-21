@@ -15,6 +15,25 @@ import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
+const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
+
+export interface BlogArticleVideo {
+  id: string;
+  url: string;
+  title: string;
+  description: string | null;
+  price?: string | null;
+  thumbnailUrl?: string | null;
+  isGeneric: boolean;
+  businessId?: string | null;
+  businessName?: string | null;
+}
+
+export interface BlogArticleVideoSection {
+  title: string;
+  intro?: ReactNode;
+  videos: BlogArticleVideo[];
+}
 
 export interface BlogArticleBusiness {
   id: string;
