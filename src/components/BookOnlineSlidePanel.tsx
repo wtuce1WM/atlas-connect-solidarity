@@ -1718,6 +1718,8 @@ const BookOnlineSlidePanelInner = ({
           setBookingOverlayTitle={setBookingOverlayTitle}
           setActiveBusinessId={setActiveBusinessId}
           hideVideoControls={showSearchBar}
+          hideDirections={hideDirections}
+          hideSecondaryCtas={hideSecondaryCtas}
         />
 
       </div>
