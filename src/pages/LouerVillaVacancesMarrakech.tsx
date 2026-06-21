@@ -343,12 +343,11 @@ const LouerVillaVacancesMarrakech = () => {
           .select("id, title, name, description, url, thumbnail_url")
           .in("id", genIds);
         generic = (gens || []).map((g: any) => {
-          const stripped = (g.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
           return {
             id: g.id,
             url: g.url,
             title: g.title || g.name || "Vidéo",
-            description: stripped || null,
+            description: g.description || null,
             price: null,
             thumbnailUrl: g.thumbnail_url || null,
             isGeneric: true,
