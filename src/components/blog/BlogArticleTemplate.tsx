@@ -77,6 +77,7 @@ export interface BlogArticleTemplateProps {
   siteUrl?: string;
   defaultOgImage?: string;
   customHeroImage?: string;
+  videoSection?: BlogArticleVideoSection;
 }
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
