@@ -34,6 +34,7 @@ import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
+import essaouiraLobsterAsset from "@/assets/essaouira-lobster-hero.jpg.asset.json";
 import step3MockupAsset from "@/assets/step3-mockup.webp.asset.json";
 import destinationsMapAsset from "@/assets/destinations_map1.webp.asset.json";
 import poiMapAsset from "@/assets/poi_map.webp.asset.json";
@@ -298,6 +299,8 @@ const HomeMindtrip = () => {
           ? ratedHeroAsset.url 
           : a.slug === "hotels-riads-vue-mer-essaouira" 
           ? essaouiraSunsetAsset.url 
+          : a.slug === "manger-fruits-de-mer-essaouira"
+          ? essaouiraLobsterAsset.url
           : (a.bizId ? imgById.get(a.bizId) : undefined),
         date: a.date,
       }));
