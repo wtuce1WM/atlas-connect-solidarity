@@ -376,7 +376,7 @@ const BlogArticleTemplate = ({
 
           {/* Full-width map */}
           <section className="bg-background relative">
-            <div className="w-full h-[320px] sm:h-[520px] relative group">
+            <div className="w-full h-[520px] relative group">
               {(() => {
                 const pois: PoiMapItem[] = Object.values(businesses)
                   .filter((b) => b.latitude != null && b.longitude != null)
