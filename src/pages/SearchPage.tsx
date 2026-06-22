@@ -855,9 +855,17 @@ const SearchPage = () => {
         ? { lat: geo.coords.lat, lng: geo.coords.lng }
         : undefined;
 
+      // Sur un tour de proximité ("près de la koutoubia"), on envoie à l'IA
+      // l'intention cumulée (ex. "je veux manger une langouste à Marrakech près de la koutoubia")
+      // au lieu du seul tour brut, sinon elle perd le critère initial et choisit
+      // n'importe quel établissement du pool proche du point d'ancrage.
+      const isProximityTurnForAi = proxLat !== undefined && proxLng !== undefined;
+      const aiQueryPayload = isProximityTurnForAi
+        ? [refinedQuery, q].filter(Boolean).join(" — ")
+        : q;
       const { data, error } = await supabase.functions.invoke("ai-search-answer", {
         body: {
-          query: q,
+          query: aiQueryPayload,
           businesses,
           language,
           history: nextHistory,
