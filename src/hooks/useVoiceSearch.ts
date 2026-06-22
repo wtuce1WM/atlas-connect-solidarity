@@ -549,7 +549,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       scribePartialRef.current = "";
       setLiveTranscript("");
       setStatus("recording");
-      setMicReady(true);
+      // Do NOT set micReady=true yet — wait for the mic warm-up to complete
+      // (see setupScribeMicrophoneFromStream). Otherwise the user starts
+      // speaking immediately, and the first ~700ms of audio (which is dropped
+      // during AGC/AEC warm-up) eats the first words → "langouste Essaouira"
+      // → "Ypa!" on cold start.
+      setMicReady(false);
 
       if (!mediaStream) {
         mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -563,7 +568,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
       setScribeMicrophoneSetup(async (_config: ScribeMicrophoneConfig, onAudioData) => {
         if (!mediaStream || !audioContext) throw new Error("Microphone indisponible");
-        const result = await setupScribeMicrophoneFromStream(mediaStream, audioContext, onAudioData);
+        const result = await setupScribeMicrophoneFromStream(
+          mediaStream,
+          audioContext,
+          onAudioData,
+          () => setMicReady(true),
+        );
         mediaStream = null;
         audioContext = null;
         return result;
