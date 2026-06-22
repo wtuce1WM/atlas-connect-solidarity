@@ -214,11 +214,23 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
     if (!ch) return;
     autoOpenedRef.current = true;
     handleChannelClick(ch);
-    const next = new URLSearchParams(searchParams);
-    next.delete("openChannel");
-    setSearchParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groups, loading, searchParams]);
+
+  // Keep ?openChannel=<id> in sync with the active channel so the URL is shareable.
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    if (active?.owner.id) {
+      if (next.get("openChannel") === active.owner.id) return;
+      next.set("openChannel", active.owner.id);
+      setSearchParams(next, { replace: true });
+    } else {
+      if (!next.has("openChannel")) return;
+      next.delete("openChannel");
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
   const handleChannelClick = async (ch: Channel) => {
     // Pick the latest video for this business: prefer most-recent short,
