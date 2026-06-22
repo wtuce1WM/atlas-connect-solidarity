@@ -1167,6 +1167,10 @@ const BookOnlineSlidePanelInner = ({
 
   // Video info via extracted hook
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
+  // Force sound ON at slide panel mount (overrides any stored "off" preference).
+  useEffect(() => {
+    setGlobalSoundOn(true);
+  }, [setGlobalSoundOn]);
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
   const activeInternalVideoLikeId = activeVideoOverlay?.url || (
     effectiveMedia?.kind === "video" && videoInfo?.type !== "youtube" ? effectiveMedia.url : null
