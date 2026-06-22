@@ -16,19 +16,6 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
       "Notre conseil : passer en fin de matinée pour la dégustation, puis terminer par la boutique. Les coffrets s'emportent en cabine, voyagent bien, et continuent de raconter Marrakech pendant des semaines, à chaque tasse, dans la cuisine de celui ou celle à qui on les a offerts.",
     ],
   },
-  {
-    id: "08f848fc-83ee-48c5-9636-fb80e68f0218",
-    pretitle: "Souks de Marrakech — guidé par un local",
-    title: "Tarik Belasri — l'expérience cadeau : ramener des babouches faites main, choisies comme un local",
-    hours: "Visites guidées des souks et itinéraires personnalisés sur réservation.",
-    paragraphs: [
-      "On peut entrer dans les souks de Marrakech de deux manières : seul, en se faisant attraper par le premier rabatteur venu, ou avec quelqu'un comme Tarik Belasri. Guide local, créateur de contenu et photographe, Tarik a fait de la transmission du Maroc authentique sa marque de fabrique : sur son site, sur YouTube, et surtout sur le terrain, il accompagne voyageurs solos, couples et familles dans une découverte hors des clichés. « Comme si vous étiez accompagné par un ami sur place » — c'est son mot d'ordre, et c'est exactement ce qu'on ressent.",
-      "Là où ses contenus prennent tout leur sens, c'est au moment du cadeau. Sa vidéo « Handmade baboushe in Marrakech » montre, sans filtre, comment se fabrique une babouche traditionnelle dans une échoppe de la médina : la coupe du cuir, l'assemblage, la couture à la main, les modèles brodés, les couleurs déclinées du blanc cassé au bleu Majorelle. On comprend en quelques minutes pourquoi ces chaussons sont l'un des plus beaux cadeaux qu'on puisse rapporter du Maroc — et pourquoi il vaut la peine d'aller les choisir au bon endroit, au bon prix, auprès du bon artisan.",
-      "Avec Tarik, c'est précisément ce qu'on obtient : un itinéraire personnalisé selon l'envie du moment et le budget, des adresses cachées, des artisans qu'il connaît personnellement, et la garantie de ne pas payer le « prix touriste ». Babouches faites main, plateaux en cuivre martelé, lanternes ciselées, tapis berbères, céramiques de Tamegroute, huiles essentielles, épices, savons noirs : la liste des cadeaux possibles devient claire, et l'on choisit en connaissance de cause.",
-      "L'autre option qu'il propose, et qu'on offre souvent comme cadeau d'expérience à un couple ou à des amis de passage à Marrakech : un shooting photo professionnel dans la médina, à Bahia, à la Koutoubia ou dans la palmeraie. On repart avec des images soignées, esthétiques, qu'on ne pourrait jamais obtenir au smartphone — et c'est, là encore, l'un de ces souvenirs qu'on continue d'offrir longtemps après le voyage.",
-      "Pour qui veut transformer une simple journée shopping en un vrai moment, et repartir avec un cadeau dont on connaît l'histoire, l'adresse à contacter avant l'arrivée est celle-là. Tarik répond directement, sa pédagogie est simple, son énergie communicative, et l'on en ressort avec la sensation d'avoir compris Marrakech de l'intérieur — et d'avoir choisi un cadeau qui le raconte vraiment.",
-    ],
-  },
 ];
 
 const IdeeCadeauMarrakech = () => (
