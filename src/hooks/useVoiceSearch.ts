@@ -682,7 +682,8 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         scribePartialRef.current = "";
         setLiveTranscript("");
         setStatus("recording");
-        setMicReady(true);
+        // micReady reste false jusqu'à la fin du warm-up (voir startScribeRecording).
+        setMicReady(false);
 
         const audioContext = new AudioContext();
         void audioContext.resume();
