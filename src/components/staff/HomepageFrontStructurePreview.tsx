@@ -666,7 +666,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       cardId: card.id,
       videoId: doc?.id || null,
       videoUrl: doc?.url || null,
-      thumbnail: doc ? (doc.thumbnail_url || deriveThumbnail(doc.url)) : null,
+      thumbnail: card.image_url || (doc ? (doc.thumbnail_url || deriveThumbnail(doc.url)) : null),
       businessName: dispBiz?.name || null,
       ownerLogo: ownerBiz && ownerBiz.id !== displayBusinessId ? ownerBiz.logo_url : null,
       ownerName: ownerBiz && ownerBiz.id !== displayBusinessId ? ownerBiz.name : null,
@@ -680,6 +680,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       event_id: card.event_id,
       eventName,
       search_query: card.search_query,
+      image_url: card.image_url,
     }));
   };
 
