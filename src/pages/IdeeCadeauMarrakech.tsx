@@ -6,7 +6,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "af896f57-d96d-47a1-a241-e0d4a45fe2a1",
     pretitle: "Marrakech — Medina",
-    title: "91 Leather Store — notre sélection idée cadeau",
+    title: "91 Leather Store — le cadeau cuir à porter au quotidien",
     hours: "Ouvert tous les jours, 10:00–21:00.",
     paragraphs: [
       "Notre passion pour le cuir se reflète dans chaque produit que nous vous proposons ✨ À Marrakech, dans le quartier de Medina, l'adresse joue la carte de chaussures, bagagerie avec personnalité.",
@@ -16,7 +16,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "28de4d8c-1ea8-4375-a3d7-14d6c37e5ac1",
     pretitle: "Marrakech — Route de l’Ourika",
-    title: "Air Babouche — notre sélection idée cadeau",
+    title: "Air Babouche — le cadeau qui chausse aussi bien à Marrakech qu'ailleurs",
     hours: "Ouvert 09:30–18:30 — fermé le dimanche",
     paragraphs: [
       "Un voyage entre tradition et modernité, des babouches uniques, faites main à Marrakech. À Marrakech, dans le quartier de Route de l’Ourika, l'adresse joue la carte de chaussures avec personnalité.",
@@ -27,7 +27,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "ffa400b7-436b-4215-b01a-19cee4cecb91",
     pretitle: "Marrakech — Medina",
-    title: "Ali Batrah — notre sélection idée cadeau",
+    title: "Ali Batrah — le cadeau d'une pièce à porter, signée Marrakech",
     hours: "Ouvert 10:00–20:00 — fermé le vendredi",
     paragraphs: [
       "Savoir-faire marocain 🇲🇦 Artisanat authentique. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode avec personnalité.",
@@ -37,7 +37,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "ff80f49c-adbf-4977-981f-ec8d9a80986a",
     pretitle: "Marrakech — Hivernage",
-    title: "Alwardeh Alshamieh Menara Mall — notre sélection idée cadeau",
+    title: "Alwardeh Alshamieh Menara Mall — une idée cadeau repérée à Marrakech",
     hours: "Ouvert tous les jours, 10:00–22:00.",
     paragraphs: [
       "À Marrakech, dans le quartier de Hivernage, cette adresse s'est imposée comme l'une des bonnes pistes cadeau de la ville — repérée par notre équipe parce qu'une de ses vidéos figure dans la sélection « Idée Cadeau ».",
@@ -47,7 +47,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "f17c357f-8613-4503-a768-e7cbde0bcdcd",
     pretitle: "Marrakech — Medina",
-    title: "Bacha Coffee — notre sélection idée cadeau",
+    title: "Bacha Coffee — le cadeau gourmand à rapporter de Marrakech",
     hours: "Ouvert 10:00–18:00 — fermé le lundi",
     paragraphs: [
       "Parmi les plus beaux cafés historiques du monde, on trouve cette beauté endormie à Marrakech. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de café, salon de thé avec personnalité.",
@@ -58,7 +58,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "ed3376f0-5009-4d76-93ec-9d916cab6ad7",
     pretitle: "Marrakech — Medina",
-    title: "Bazar El Bouanani — notre sélection idée cadeau",
+    title: "Bazar El Bouanani — le cadeau souvenir, vraiment fait à Marrakech",
     hours: "Ouvert 09:00–00:00 — fermé le mercredi",
     paragraphs: [
       "Souvenirs de Marrakech en tous genres depuis 1959 🌴 Boutique en ligne. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de souvenir avec personnalité.",
@@ -69,7 +69,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "64ecdc1e-bfce-43f1-bc8c-9aeef728ac80",
     pretitle: "Marrakech — Gueliz",
-    title: "Beauty Plaza — notre sélection idée cadeau",
+    title: "Beauty Plaza — le cadeau qui se respire",
     hours: "Ouvert 10:00–21:00 — fermé le samedi",
     paragraphs: [
       "Boutique de parfums de luxe dédiée à l'art de la fragrance. Nous proposons une sélection raffinée de parfums rares. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de parfumerie, cosmétiques avec personnalité.",
@@ -79,7 +79,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "ab2964f7-18de-447c-b6e4-f82422cd56e7",
     pretitle: "Marrakech — Medina",
-    title: "Beldi Boom — notre sélection idée cadeau",
+    title: "Beldi Boom — le cadeau bien-être inspiré du Maroc",
     hours: "Ouvert tous les jours, 09:00–21:00.",
     paragraphs: [
       "Soins naturels marocains 🇲🇦 Beauty • Body • Hair • Lifestyle Born in Marrakech. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de cosmétiques, beauté et hygiène avec personnalité.",
@@ -90,7 +90,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "641ab942-63a5-499e-999a-e09915b1d02f",
     pretitle: "Marrakech — Medina",
-    title: "Boutique El Fenn — notre sélection idée cadeau",
+    title: "Boutique El Fenn — le cadeau cuir à porter au quotidien",
     hours: "Ouvert tous les jours, 11:00–22:00.",
     paragraphs: [
       "Objets d’art, design et artisanat marocain sélectionnés avec goût dans une atmosphère bohème chic À Marrakech, dans le quartier de Medina, l'adresse joue la carte de décoration, mode, chaussures, bagagerie avec personnalité.",
@@ -101,7 +101,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "dbf029c4-c683-452d-ae54-5647212436a0",
     pretitle: "Marrakech — Medina",
-    title: "Capital of Perfume — notre sélection idée cadeau",
+    title: "Capital of Perfume — une idée cadeau repérée à Marrakech",
     hours: "Horaires sur la fiche établissement.",
     paragraphs: [
       "À Marrakech, dans le quartier de Medina, cette adresse s'est imposée comme l'une des bonnes pistes cadeau de la ville — repérée par notre équipe parce qu'une de ses vidéos figure dans la sélection « Idée Cadeau ».",
@@ -111,7 +111,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "40a6fff6-8b0e-4f46-8447-e0e6ef18372e",
     pretitle: "Marrakech — Medina",
-    title: "Chez Zouhair — notre sélection idée cadeau",
+    title: "Chez Zouhair — le cadeau qui se porte au poignet ou au cou",
     hours: "Ouvert 10:00–21:00 — fermé le lundi",
     paragraphs: [
       "Porter des bijoux est une façon de s'exprimer sans dire un mot. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de bijouterie avec personnalité.",
@@ -121,7 +121,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "50d1d7e2-d72c-4c18-ace4-d1cc557eea0b",
     pretitle: "Marrakech — Tamesloht",
-    title: "Coopérative Artisanale ART TISSAGE TAM — notre sélection idée cadeau",
+    title: "Coopérative Artisanale ART TISSAGE TAM — le cadeau qui se porte au poignet ou au cou",
     hours: "Ouvert tous les jours, 10:00–19:00.",
     paragraphs: [
       "Artisanat marocaine de luxe À Marrakech, dans le quartier de Tamesloht, l'adresse joue la carte de décoration, coopératives, tissage, broderie, poterie / céramique, bijouterie avec personnalité.",
@@ -131,7 +131,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "1ce2a5de-2b06-4a28-929d-2f300e884a7d",
     pretitle: "Marrakech — Route de l’Ourika",
-    title: "Cooperative Tilboura — notre sélection idée cadeau",
+    title: "Cooperative Tilboura — le cadeau qui habille la maison au retour",
     hours: "Ouvert tous les jours, 09:30–18:30.",
     paragraphs: [
       "📦Articles faits main uniquement 🧑‍🎨 Personnalisation sur commande 🌍 Livraison internationale. À Marrakech, dans le quartier de Route de l’Ourika, l'adresse joue la carte de décoration avec personnalité.",
@@ -141,7 +141,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "4bcc002a-6081-4940-bbb3-cecbd5d14568",
     pretitle: "Marrakech — Sidi Ghanem",
-    title: "Elite & Chic Showroom — notre sélection idée cadeau",
+    title: "Elite & Chic Showroom — le cadeau qui se porte au poignet ou au cou",
     hours: "Ouvert 09:00–18:00 — fermé le dimanche",
     paragraphs: [
       "💍 Bijoux, vêtements, chaussures et décoration d'intérieur haut de gamme faits main. À Marrakech, dans le quartier de Sidi Ghanem, l'adresse joue la carte de décoration, mode, bijouterie, meubles avec personnalité.",
@@ -151,7 +151,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "3f243262-7bfd-4f27-9942-46ad98b705be",
     pretitle: "Marrakech — Route de l’Ourika",
-    title: "Galerie de Céramique — notre sélection idée cadeau",
+    title: "Galerie de Céramique — le cadeau qui habille la maison au retour",
     hours: "Ouvert tous les jours, 09:30–20:00.",
     paragraphs: [
       "Nos produits sont faits à la main par nos artisans marocain 💕 À Marrakech, dans le quartier de Route de l’Ourika, l'adresse joue la carte de décoration avec personnalité.",
@@ -161,7 +161,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "13ebf3b7-dedb-4940-8a01-3c2eac4234ec",
     pretitle: "Marrakech — Medina",
-    title: "Galerie du Caftan — notre sélection idée cadeau",
+    title: "Galerie du Caftan — une idée cadeau repérée à Marrakech",
     hours: "Ouvert tous les jours, 10:00–23:00.",
     paragraphs: [
       "À Marrakech, dans le quartier de Medina, cette adresse s'est imposée comme l'une des bonnes pistes cadeau de la ville — repérée par notre équipe parce qu'une de ses vidéos figure dans la sélection « Idée Cadeau ».",
@@ -172,7 +172,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "da5770b4-a583-4e27-a4aa-51de147dc507",
     pretitle: "Marrakech — Gueliz",
-    title: "Héritage Berbère Majorelle — notre sélection idée cadeau",
+    title: "Héritage Berbère Majorelle — le cadeau qui se respire",
     hours: "Ouvert tous les jours, 10:00–21:00.",
     paragraphs: [
       "Parfums d'exception et bougies artisanales inspirés du Maroc À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de parfumerie, décoration avec personnalité.",
@@ -183,7 +183,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "48bbda3a-1a4c-4ce1-832b-9b9337b8ab69",
     pretitle: "Marrakech — Gueliz",
-    title: "Jnane Bleu Majorelle — notre sélection idée cadeau",
+    title: "Jnane Bleu Majorelle — le cadeau qui se porte au poignet ou au cou",
     hours: "Ouvert tous les jours, 09:00–19:00.",
     paragraphs: [
       "Un concept-store mode et artisanat contemporain à Marrakech. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de mode, chaussures, décoration, bijouterie, bagagerie avec personnalité.",
@@ -194,7 +194,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "50a71c7a-50d4-4b5b-a705-0ca4c37199ef",
     pretitle: "Marrakech — Medina",
-    title: "Karim Bouriad Bazar — notre sélection idée cadeau",
+    title: "Karim Bouriad Bazar — une idée cadeau repérée à Marrakech",
     hours: "Ouvert tous les jours, 09:00–20:00.",
     paragraphs: [
       "À Marrakech, dans le quartier de Medina, cette adresse s'est imposée comme l'une des bonnes pistes cadeau de la ville — repérée par notre équipe parce qu'une de ses vidéos figure dans la sélection « Idée Cadeau ».",
@@ -205,7 +205,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "05304d1f-7019-4545-8eae-e4568d7bf7a5",
     pretitle: "Marrakech — Medina",
-    title: "Khmissa Marrakech — notre sélection idée cadeau",
+    title: "Khmissa Marrakech — une idée cadeau repérée à Marrakech",
     hours: "Ouvert tous les jours, 10:00–21:00.",
     paragraphs: [
       "À Marrakech, dans le quartier de Medina, cette adresse s'est imposée comme l'une des bonnes pistes cadeau de la ville — repérée par notre équipe parce qu'une de ses vidéos figure dans la sélection « Idée Cadeau ».",
@@ -215,7 +215,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "7d05266e-48b7-4452-9f08-510ab7471391",
     pretitle: "Marrakech — Gueliz",
-    title: "La boutique du Jardin Majorelle — notre sélection idée cadeau",
+    title: "La boutique du Jardin Majorelle — une idée cadeau repérée à Marrakech",
     hours: "Ouvert tous les jours, 08:00–18:30.",
     paragraphs: [
       "À Marrakech, dans le quartier de Gueliz, cette adresse s'est imposée comme l'une des bonnes pistes cadeau de la ville — repérée par notre équipe parce qu'une de ses vidéos figure dans la sélection « Idée Cadeau ».",
@@ -226,7 +226,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "6a3c51ce-a96e-49af-8f62-c83fe628a54a",
     pretitle: "Marrakech — Medina",
-    title: "La Boutique Mamounia — notre sélection idée cadeau",
+    title: "La Boutique Mamounia — le cadeau qui se respire",
     hours: "Horaires sur la fiche établissement.",
     paragraphs: [
       "L'art de vivre à la marocaine dans l'état pur — la boutique exclusive du palace La Mamounia à Marrakech. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de décoration, parfumerie, cosmétiques, jouets, librairie, maroquinerie, bagagerie avec personnalité.",
@@ -237,7 +237,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "1d626730-9ea7-4e88-aeb3-3547e7169315",
     pretitle: "Marrakech — Medina",
-    title: "La Cave à Huile — notre sélection idée cadeau",
+    title: "La Cave à Huile — le cadeau du terroir marocain à glisser dans la valise",
     hours: "Ouvert tous les jours, 10:00–22:00.",
     paragraphs: [
       "Les meilleures huiles d’olive du Maroc ! À Marrakech, dans le quartier de Medina, l'adresse joue la carte de épicerie, cosmétiques avec personnalité.",
@@ -248,7 +248,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "0bc4a2ea-5a6f-4638-a980-72d00284efa0",
     pretitle: "Marrakech — Gueliz",
-    title: "La Dragée D'or — notre sélection idée cadeau",
+    title: "La Dragée D'or — le cadeau gourmand à rapporter de Marrakech",
     hours: "Ouvert tous les jours, 09:30–20:00.",
     paragraphs: [
       "Depuis 1997, l’histoire d’un artisan de douceurs continue à faire la joie des amateurs de grands chocolats. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de pâtisserie avec personnalité.",
@@ -259,7 +259,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "cba52b9c-95e7-46bf-87fe-7bd16428197e",
     pretitle: "Marrakech — Medina",
-    title: "Layal Concept Store — notre sélection idée cadeau",
+    title: "Layal Concept Store — le cadeau qui se respire",
     hours: "Ouvert tous les jours, 09:00–21:00.",
     paragraphs: [
       "Marque de maroquinerie et de créations originales | Based in Marrakech | Handmade créations | Limited Editions À Marrakech, dans le quartier de Medina, l'adresse joue la carte de bagagerie, mode, chaussures, parfumerie, bijouterie avec personnalité.",
@@ -269,7 +269,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "72aabf3b-7334-4aeb-b5e7-a3677c8025e0",
     pretitle: "Marrakech — Medina",
-    title: "Le 110 Medina — notre sélection idée cadeau",
+    title: "Le 110 Medina — le cadeau cuir à porter au quotidien",
     hours: "Horaires sur la fiche établissement.",
     paragraphs: [
       "Depuis le cœur animé du plus grand marché d'Afrique, nous perpétuons un héritage du cuir commencé en 1940. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de maroquinerie, bagagerie avec personnalité.",
@@ -279,7 +279,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "68d45bf5-c9c5-444a-bbf3-f88533b8b798",
     pretitle: "Marrakech — Medina",
-    title: "Le Jardin Secret — notre sélection idée cadeau",
+    title: "Le Jardin Secret — le cadeau gourmand à rapporter de Marrakech",
     hours: "Ouvert tous les jours, 09:30–19:30.",
     paragraphs: [
       "Jardin historique et havre de paix au cœur de la médina — Cafés, art et panorama sur l'Atlas. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de jardin botanique, monuments, musées avec personnalité.",
@@ -290,7 +290,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "92c6dece-9b6d-4b2d-a4f8-59a8f8e26df1",
     pretitle: "Marrakech — Sidi Ghanem",
-    title: "Les Dix Doigts Marrakech — notre sélection idée cadeau",
+    title: "Les Dix Doigts Marrakech — le cadeau déco grand format pour la maison",
     hours: "Ouvert 09:30–18:30 — fermé le dimanche",
     paragraphs: [
       "Création, Design et Fabrication. Un temple du mobilier contemporain et de l’artisanat haut de gamme. À Marrakech, dans le quartier de Sidi Ghanem, l'adresse joue la carte de meubles, décoration avec personnalité.",
@@ -300,7 +300,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "b7357628-f617-4fe4-afa8-8232b6c337d3",
     pretitle: "Marrakech — Medina",
-    title: "Les Sens de Marrakech Riad Laârous — notre sélection idée cadeau",
+    title: "Les Sens de Marrakech Riad Laârous — le cadeau qui se respire",
     hours: "Ouvert tous les jours, 10:00–20:00.",
     paragraphs: [
       "🌱 Produits cosmétiques & maison à ingrédients d’origine naturelle. Certifié ISO 22716. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de cosmétiques, beauté et hygiène, parfumerie avec personnalité.",
@@ -311,7 +311,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "6ac94eff-6a29-428d-b8bd-2f2db45c1ddb",
     pretitle: "Marrakech — Medina",
-    title: "Maison Baboucha Vintage Store — notre sélection idée cadeau",
+    title: "Maison Baboucha Vintage Store — le cadeau d'une pièce à porter, signée Marrakech",
     hours: "Ouvert tous les jours, 10:00–21:00.",
     paragraphs: [
       "Vêtements et accessoires vintage, de seconde main et neufs, sélectionnés avec soin… À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode avec personnalité.",
@@ -321,7 +321,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "f841aa06-c298-4b7a-b3d3-71f6afb9b1dd",
     pretitle: "Marrakech — Medina",
-    title: "Maison du Caftan — notre sélection idée cadeau",
+    title: "Maison du Caftan — le cadeau d'une pièce à porter, signée Marrakech",
     hours: "Ouvert 09:00–20:00 — fermé le samedi, dimanche",
     paragraphs: [
       "L'élégance marocaine intemporelle caftans, takchitas et djellabas sur-mesure au cœur du souk de Marrakech. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode avec personnalité.",
@@ -332,7 +332,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "bfc76b95-740a-4abd-a7de-5fb7848a4049",
     pretitle: "Marrakech — Medina",
-    title: "Maison Sucrée — notre sélection idée cadeau",
+    title: "Maison Sucrée — le cadeau gourmand à rapporter de Marrakech",
     hours: "Ouvert tous les jours, 10:00–19:00.",
     paragraphs: [
       "Pâtisserie Marocaine. Cornes de Gazelle artisanales. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de pâtisserie avec personnalité.",
@@ -343,7 +343,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "77e9f1f4-7848-46b5-a8b0-e3d7e48da945",
     pretitle: "Marrakech — Medina",
-    title: "Marie Bastide Medina — notre sélection idée cadeau",
+    title: "Marie Bastide Medina — le cadeau cuir à porter au quotidien",
     hours: "Ouvert 10:00–19:00 — fermé le dimanche",
     paragraphs: [
       "Boutique d'art et d'artisanat marocain d'exception dans la Medina. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de décoration, mode, galeries d'art, bagagerie avec personnalité.",
@@ -354,7 +354,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "5c1513d5-50b0-4d3f-b89c-795d457b6209",
     pretitle: "Marrakech — Medina",
-    title: "Marrakech Mon Amour — notre sélection idée cadeau",
+    title: "Marrakech Mon Amour — le cadeau cuir à porter au quotidien",
     hours: "Ouvert tous les jours, 10:00–19:00.",
     paragraphs: [
       "Marque lifestyle made in Maroc, en boutique Place des Épices et en ligne. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode, bagagerie avec personnalité.",
@@ -365,7 +365,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "27af0702-4115-4a6e-8244-76cc9b960530",
     pretitle: "Marrakech — Gueliz",
-    title: "Natus Marrakech Gueliz — notre sélection idée cadeau",
+    title: "Natus Marrakech Gueliz — le cadeau du terroir marocain à glisser dans la valise",
     hours: "Ouvert tous les jours, 10:00–21:00.",
     paragraphs: [
       "Magasin à Gueliz de la marque n°1 de la cosmétique naturelle au Maroc. Soins à l'Huile d'Argan. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de cosmétiques, parfumerie, épicerie, beauté et hygiène avec personnalité.",
@@ -376,7 +376,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "21a66bd1-7a83-43e0-a198-11d1e0769b9f",
     pretitle: "Marrakech — Medina",
-    title: "Natus Marrakech Medina Mall — notre sélection idée cadeau",
+    title: "Natus Marrakech Medina Mall — le cadeau du terroir marocain à glisser dans la valise",
     hours: "Ouvert tous les jours, 10:00–21:00.",
     paragraphs: [
       "Magasin dans la médina de la marque n°1 de la cosmétique naturelle au Maroc. Soins à l'Huile d'Argan. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de cosmétiques, parfumerie, beauté et hygiène, épicerie avec personnalité.",
@@ -387,7 +387,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "8b993369-9532-43b9-87d5-9aaeb5892ce7",
     pretitle: "Marrakech — Gueliz",
-    title: "Norya ayroN Gueliz — notre sélection idée cadeau",
+    title: "Norya ayroN Gueliz — le cadeau qui se porte au poignet ou au cou",
     hours: "Ouvert 10:30–18:30 — fermé le dimanche",
     paragraphs: [
       "Des essentiels intemporels signés Norya ayroN — mode fluide et élégante, entre Marrakech et le monde. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de mode, bijouterie avec personnalité.",
@@ -398,7 +398,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "effa57d8-b030-4219-a98e-aca34cf1df41",
     pretitle: "Marrakech — Medina",
-    title: "Norya ayroN Medina — notre sélection idée cadeau",
+    title: "Norya ayroN Medina — le cadeau qui se porte au poignet ou au cou",
     hours: "Ouvert 10:30–18:00 — fermé le mardi",
     paragraphs: [
       "Des essentiels intemporels signés Norya ayroN — mode fluide et élégante, entre Marrakech et le monde. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode, bijouterie avec personnalité.",
@@ -409,7 +409,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "9bb18653-33f6-44f3-87d5-030f14f39be1",
     pretitle: "Marrakech — Medina",
-    title: "Patisserie Belkabir Medina — notre sélection idée cadeau",
+    title: "Patisserie Belkabir Medina — le cadeau gourmand à rapporter de Marrakech",
     hours: "Ouvert tous les jours, 09:00–22:30.",
     paragraphs: [
       "🌸 Plus de 100 ans et 4 générations 🍰 Première pâtisserie de la Médina À Marrakech, dans le quartier de Medina, l'adresse joue la carte de pâtisserie avec personnalité.",
@@ -419,7 +419,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "e51c3176-742b-4cf2-a3d6-0d4674f2cf4a",
     pretitle: "Marrakech — Medina",
-    title: "Patisserie Corne de Gazelle Chez Brahim — notre sélection idée cadeau",
+    title: "Patisserie Corne de Gazelle Chez Brahim — le cadeau gourmand à rapporter de Marrakech",
     hours: "Ouvert tous les jours, 09:00–22:00.",
     paragraphs: [
       "Pâtisserie, Restaurant, Snack et Café. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de pâtisserie, café, street food, restaurant avec personnalité.",
@@ -429,7 +429,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "6937b23b-96c5-4241-bb10-187120ab9158",
     pretitle: "Marrakech — Medina",
-    title: "Raqas — notre sélection idée cadeau",
+    title: "Raqas — le cadeau cuir à porter au quotidien",
     hours: "Ouvert 09:00–19:00 — fermé le dimanche",
     paragraphs: [
       "Marque de mode et d'accessoires en commerce équitable créée par des artisans de Marrakech. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode, bagagerie, chaussures avec personnalité.",
@@ -439,7 +439,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "8538b17a-2508-4a29-b235-efca3e0c783a",
     pretitle: "Marrakech — Gueliz",
-    title: "Sook Paris — notre sélection idée cadeau",
+    title: "Sook Paris — le cadeau qui se porte au poignet ou au cou",
     hours: "Ouvert tous les jours, 10:00–19:00.",
     paragraphs: [
       "Concept store à Guéliz — vêtements intemporels et accessoires mêlant style parisien et artisanat marocain. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de mode, décoration, bagagerie, bijouterie avec personnalité.",
@@ -450,7 +450,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "4e19dfb4-3a68-44ed-9476-f8d733aa90cc",
     pretitle: "Marrakech — Medina",
-    title: "Tamegroute Pottery — notre sélection idée cadeau",
+    title: "Tamegroute Pottery — le cadeau artisanal directement sorti de l'atelier",
     hours: "Ouvert tous les jours, 10:00–19:30.",
     paragraphs: [
       "Poterie spécialisé dans la céramique traditionnelle verte de Tamegroute, dans la vallée du Draa. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de décoration avec personnalité.",
@@ -461,7 +461,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "066d94c7-ed3a-4306-bfbf-abd3a208df7f",
     pretitle: "Marrakech — Medina",
-    title: "Terra Mano — notre sélection idée cadeau",
+    title: "Terra Mano — le cadeau artisanal directement sorti de l'atelier",
     hours: "Ouvert tous les jours, 10:00–21:00.",
     paragraphs: [
       "Céramiques et poteries artisanales, où chaque pièce raconte une histoire unique ✨ À Marrakech, dans le quartier de Medina, l'adresse joue la carte de décoration avec personnalité.",
@@ -471,7 +471,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "38326de6-83a1-438e-884c-c655cf781371",
     pretitle: "Marrakech — Medina",
-    title: "We'are Concept Store — notre sélection idée cadeau",
+    title: "We'are Concept Store — le cadeau qui se respire",
     hours: "Ouvert tous les jours, 09:30–19:00.",
     paragraphs: [
       "🧑‍🎨 Marque de mode marocaine (créateurs, artisans, décoration…) 🇲🇦 Fabriqué à la main au Maroc. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode, décoration, bagagerie, chaussures, galeries d'art, opticien, parfumerie avec personnalité.",
@@ -481,7 +481,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "2aae5cdc-0c6c-4a42-a526-f2d89279adb4",
     pretitle: "Marrakech — Medina",
-    title: "Yasalam Medina — notre sélection idée cadeau",
+    title: "Yasalam Medina — le cadeau qui habille la maison au retour",
     hours: "Ouvert 10:00–19:00 — fermé le dimanche",
     paragraphs: [
       "Boutique d'affiches qui œuvre pour rendre l'art accessible à tous. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de galeries d'art, décoration avec personnalité.",
@@ -492,7 +492,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
   {
     id: "62375ede-df15-430e-a36a-0e8ea6892069",
     pretitle: "Marrakech — Gueliz",
-    title: "Yasalam Store — notre sélection idée cadeau",
+    title: "Yasalam Store — le cadeau qui habille la maison au retour",
     hours: "Ouvert 10:00–19:00 — fermé le dimanche",
     paragraphs: [
       "YASALAM s'appuie sur une équipe pluridisciplinaire qui œuvre pour rendre l'art accessible à tous. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de galeries d'art, décoration avec personnalité.",
