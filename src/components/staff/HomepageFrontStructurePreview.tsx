@@ -152,7 +152,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
         (supabase as any)
           .from("front_structure_homepage_overrides")
-          .select("front_structure_id, business_id")
+          .select("front_structure_id, business_id, image_url")
           .eq("city", city),
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
