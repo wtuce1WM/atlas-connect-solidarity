@@ -334,8 +334,11 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
             query,
             spokenText: spokenText || undefined,
             businesses: sortedForAI.map(b => ({
+              id: b.id,
               name: b.name,
               city: b.city,
+              neighborhood: b.neighborhood ?? null,
+              address: b.address ?? null,
               main_category: b.main_category,
               categories: b.categories,
               hook_fr: b.hook_fr,
