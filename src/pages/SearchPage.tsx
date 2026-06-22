@@ -1019,11 +1019,22 @@ const SearchPage = () => {
     }, []);
 
    // When landing on /search?tab=ai without a query, restore the last AI suggestion from session
+   // or display a shareable welcome message when ?welcome=1 is present.
    useEffect(() => {
      if (searchParams.get("tab") !== "ai") return;
      const hasContext = !!(searchParams.get("q") || searchParams.get("category") || searchParams.get("city") || searchParams.get("subcats") || searchParams.get("badgeId"));
      if (hasContext) return;
      if (aiAnswerText) return;
+     // Shareable welcome entry point: /search?tab=ai&welcome=1
+     if (searchParams.get("welcome") === "1") {
+       const welcome = language === "en"
+         ? "What are you looking for? Where are you looking for it?"
+         : language === "ar"
+           ? "ماذا تبحث عنه؟ وأين تبحث عنه؟"
+           : "Que cherchez-vous ? Où le cherchez-vous ?";
+       setAiAnswerText(welcome);
+       return;
+     }
      try {
        const cached = sessionStorage.getItem("ai_suggestion_text");
        if (cached) setAiAnswerText(cached);
@@ -1036,7 +1047,8 @@ const SearchPage = () => {
        }
      } catch { /* ignore */ }
      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [searchParams]);
+   }, [searchParams, language]);
+
     useEffect(() => {
       if (openDestinationParam && activeTab !== "destinations") {
         setActiveTab("destinations");
