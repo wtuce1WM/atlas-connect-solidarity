@@ -23,13 +23,13 @@ const IdeeCadeauMarrakech = () => (
     entries={IDEES_CADEAUX}
     articlePath="/blog/idee-cadeau-marrakech"
     articleTitle="Trouver une bonne idée cadeau à Marrakech"
-    articleDescription="Deux adresses sélectionnées par notre équipe pour rapporter de Marrakech un cadeau qui a du sens : le café d'exception en coffret signature de Bacha Coffee, et les babouches faites main choisies dans les souks avec Tarik Belasri."
+    articleDescription="Une adresse sélectionnée par notre équipe pour rapporter de Marrakech un cadeau qui a du sens : le café d'exception en coffret signature de Bacha Coffee."
     bookmarkSlug="idee-cadeau-marrakech"
     heroAlt="Idées cadeaux à Marrakech"
     heroTitleTop="Trouver une bonne idée cadeau"
     heroTitleBottom="à Marrakech"
-    heroSubtitle="Deux adresses sélectionnées pour rapporter de Marrakech un cadeau qui a du sens : un coffret de café d'exception, ou des babouches faites main choisies comme un local."
-    intro="Trouver le bon cadeau à Marrakech, c'est facile en apparence — les souks débordent — mais terriblement difficile en pratique : entre les imitations, les prix flottants et les milliers d'échoppes, on finit souvent par rapporter un objet qu'on n'aime déjà plus à l'aéroport. Voici deux adresses qui jouent dans une autre catégorie, repérées parce qu'une de leurs vidéos est explicitement consacrée à l'idée cadeau. Deux univers très différents — l'écrin doré d'un café historique d'un côté, l'authenticité du souk guidé par un local de l'autre — mais une même promesse : repartir avec un cadeau qu'on est fier d'offrir."
+    heroSubtitle="Une adresse choisie pour rapporter de Marrakech un cadeau qui a du sens : un coffret de café d'exception, à offrir comme un bijou."
+    intro="Trouver le bon cadeau à Marrakech, c'est facile en apparence — les souks débordent — mais terriblement difficile en pratique : entre les imitations, les prix flottants et les milliers d'échoppes, on finit souvent par rapporter un objet qu'on n'aime déjà plus à l'aéroport. Voici une adresse qui joue dans une autre catégorie, repérée parce qu'une de ses vidéos est explicitement consacrée à l'idée cadeau — un écrin doré, dans un palais historique de la médina, où le café devient un présent qu'on offre comme un bijou."
     datePublished="2026-06-22T08:00:00+01:00"
     dateModified="2026-06-22T08:00:00+01:00"
   />
