@@ -607,8 +607,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
           mediaStream,
           audioContext,
           onAudioData,
-          () => setMicReady(true),
+          () => {
+            setMicReady(true);
+            playReadyBeep();
+          },
         );
+
         mediaStream = null;
         audioContext = null;
         return result;
