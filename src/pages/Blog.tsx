@@ -419,7 +419,7 @@ const Blog = () => {
                           Trouver une bonne idée cadeau à Marrakech
                         </h2>
                         <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                          Deux adresses sélectionnées pour rapporter de Marrakech un cadeau qui a du sens : un coffret de café d'exception, ou des babouches faites main choisies comme un local.
+                          Une adresse choisie pour rapporter de Marrakech un cadeau qui a du sens : un coffret de café d'exception, à offrir comme un bijou.
                         </p>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 text-primary font-medium">
