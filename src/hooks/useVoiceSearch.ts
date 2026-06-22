@@ -134,6 +134,7 @@ async function setupScribeMicrophoneFromStream(
   stream: MediaStream,
   audioContext: AudioContext,
   onAudioData: (base64Audio: string) => void,
+  onWarmupComplete?: () => void,
 ) {
   const [audioTrack] = stream.getAudioTracks();
   if (!audioTrack || audioTrack.readyState === "ended") throw new Error("Microphone indisponible");
@@ -157,6 +158,7 @@ async function setupScribeMicrophoneFromStream(
     if (!warmupLogged) {
       console.log("[Scribe] mic warm-up done, streaming audio");
       warmupLogged = true;
+      onWarmupComplete?.();
     }
     const input = event.inputBuffer.getChannelData(0);
     const resampled = resampleAudio(input, audioContext.sampleRate, SCRIBE_SAMPLE_RATE);
