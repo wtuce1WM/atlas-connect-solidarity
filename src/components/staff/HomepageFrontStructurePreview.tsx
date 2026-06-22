@@ -47,6 +47,7 @@ interface PreviewItem {
   rating: number | null;
   reviewCount: number | null;
   overrideBusinessId: string | null;
+  overrideImageUrl: string | null;
   isOverride: boolean;
 }
 
