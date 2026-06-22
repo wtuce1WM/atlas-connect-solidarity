@@ -49,6 +49,23 @@ const MediaBackground = React.memo(function MediaBackground({
         v.play().catch(() => {});
       });
     }
+
+    // If the browser forced mute (autoplay policy), unmute on the next user gesture.
+    if (!soundOn) return;
+    const tryUnmute = () => {
+      if (!v.muted) return;
+      v.muted = false;
+      v.play().catch(() => {});
+    };
+    const opts: AddEventListenerOptions = { once: true, capture: true };
+    document.addEventListener("pointerdown", tryUnmute, opts);
+    document.addEventListener("touchstart", tryUnmute, opts);
+    document.addEventListener("keydown", tryUnmute, opts);
+    return () => {
+      document.removeEventListener("pointerdown", tryUnmute, true);
+      document.removeEventListener("touchstart", tryUnmute, true);
+      document.removeEventListener("keydown", tryUnmute, true);
+    };
   }, [soundOn, effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, videoRef, anyOverlayOpen]);
 
   // For YouTube iframes, proactively unmute on mount when the user preference is sound-on.
