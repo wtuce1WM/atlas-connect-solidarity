@@ -2648,7 +2648,14 @@ const BookOnlineSlidePanelInner = ({
                       {poiSubcatFilter ? <span className="opacity-60"> / {poiSubcatFilter}</span> : null}
                     </>
                   ) : (
-                    language === "en" ? `Near ${business?.name}` : `À proximité de ${business?.name}`
+                    <>
+                      <span className="sm:hidden">
+                        {language === "en" ? "Nearby" : "À proximité"}
+                      </span>
+                      <span className="hidden sm:inline">
+                        {language === "en" ? `Near ${business?.name}` : `À proximité de ${business?.name}`}
+                      </span>
+                    </>
                   )}
                 </div>
               </div>
