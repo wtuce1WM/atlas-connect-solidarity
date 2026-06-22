@@ -19,6 +19,7 @@ import FrontStructureNavBar from "@/components/FrontStructureNavBar";
 import FrontStructureSubNavBar from "@/components/FrontStructureSubNavBar";
 import FrontStructureSubFilterContent from "@/components/FrontStructureSubFilterContent";
 import FiltersOverlayFlow from "@/components/FiltersOverlayFlow";
+import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import type { Business } from "@/pages/search/types";
