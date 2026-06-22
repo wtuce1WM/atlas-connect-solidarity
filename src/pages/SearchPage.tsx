@@ -2824,17 +2824,23 @@ const SearchPage = () => {
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
-    if (aiCitedMapPool.length > 0 || aiRefinementBusinessPool.length > 0) return mapPoiItemsSearch;
+    if (aiCitedMapPool.length > 0 || aiRefinementBusinessPool.length > 0) {
+      // AI tab: markers must mirror the AI refinement/citation pool exactly,
+      // not the original search page slice.
+      return buildMapPoiItems(searchMapPool, true);
+    }
     if (!fsFilterSubcategories) return mapPoiItemsSearch;
     return buildFsCategoryItems(true);
-  }, [aiCitedMapPool.length, aiRefinementBusinessPool.length, mapPoiItemsSearch, fsFilterSubcategories, buildFsCategoryItems]);
+  }, [aiCitedMapPool.length, aiRefinementBusinessPool.length, searchMapPool, buildMapPoiItems, mapPoiItemsSearch, fsFilterSubcategories, buildFsCategoryItems]);
 
   // Mobile/tablet map items
   const mobileMapPoiItemsFinal: PoiMapItem[] = useMemo(() => {
-    if (aiCitedMapPool.length > 0 || aiRefinementBusinessPool.length > 0) return mobileMapPoiItems;
+    if (aiCitedMapPool.length > 0 || aiRefinementBusinessPool.length > 0) {
+      return buildMapPoiItems(searchMapPool, false);
+    }
     if (!fsFilterSubcategories) return mobileMapPoiItems;
     return buildFsCategoryItems(false);
-  }, [aiCitedMapPool.length, aiRefinementBusinessPool.length, mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
+  }, [aiCitedMapPool.length, aiRefinementBusinessPool.length, searchMapPool, buildMapPoiItems, mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
 
   // The top-ranked business ID for Gold marker (always highlight #1)
   const fsTopBusinessId: string | null = useMemo(() => {
