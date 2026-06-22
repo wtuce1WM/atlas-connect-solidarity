@@ -17,7 +17,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "28de4d8c-1ea8-4375-a3d7-14d6c37e5ac1",
     pretitle: "Marrakech — Route de l’Ourika",
     title: "Air Babouche — notre sélection idée cadeau",
-    hours: "Ouvert 09:30–18:30 — fermé le dim..",
+    hours: "Ouvert 09:30–18:30 — fermé le dimanche",
     paragraphs: [
       "Un voyage entre tradition et modernité, des babouches uniques, faites main à Marrakech. À Marrakech, dans le quartier de Route de l’Ourika, l'adresse joue la carte de chaussures avec personnalité.",
       "Quand la babouche marocaine rencontre le design contemporain. L’idée d’Air Babouche prend forme lorsque son fondateur Adil Bouarbi redécouvre l’artisanat marocain dans les ateliers de la médina. Face à ce savoir-faire ancestral, une conviction se développe : la babouche marocaine doit s’inscrire dans son époque. Air Babouche naît ainsi avec une ambition claire : transformer une babouche traditionnelle en une babouche moderne en cuir, pensée pour un usage actuel, entre design, confort et identité culturelle. UNE VISION Air Babouche vise à faire évoluer la perception de la babouche marocaine au-delà de son usage traditionnel.",
@@ -28,7 +28,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "ffa400b7-436b-4215-b01a-19cee4cecb91",
     pretitle: "Marrakech — Medina",
     title: "Ali Batrah — notre sélection idée cadeau",
-    hours: "Ouvert 10:00–20:00 — fermé le ven..",
+    hours: "Ouvert 10:00–20:00 — fermé le vendredi",
     paragraphs: [
       "Savoir-faire marocain 🇲🇦 Artisanat authentique. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode avec personnalité.",
       "« Ali a été très gentil, amical et serviable. Il nous a fourni de beaux vêtements traditionnels et la qualité était vraiment bonne. Il a une grande variété de tenues traditionnelles et des prix justes. Je recommande… », résume belasri kaoutar.",
@@ -48,7 +48,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "f17c357f-8613-4503-a768-e7cbde0bcdcd",
     pretitle: "Marrakech — Medina",
     title: "Bacha Coffee — notre sélection idée cadeau",
-    hours: "Ouvert 10:00–18:00 — fermé le lun..",
+    hours: "Ouvert 10:00–18:00 — fermé le lundi",
     paragraphs: [
       "Parmi les plus beaux cafés historiques du monde, on trouve cette beauté endormie à Marrakech. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de café, salon de thé avec personnalité.",
       "Laissez-vous surprendre par notre vaste gamme de cafés aux Arômes Délicats où l'arabica se marie à des saveurs exquises. Des notes fruitées rafraîchissantes aux tonalités riches de chocolat, chaque café est méticuleusement préparé avec des essences naturelles pour sublimer les arômes et les saveurs des grains 100 % Arabica. Quel que soit le choix, il y en a pour tous les palais. Présentés dans d'élégants coffrets illustrés aux finitions soignées, chaque café de spécialité 100 % Arabica de notre collection Signature Nomad est un billet pour une destination à travers le monde. Succombez au charme d’un iconique Bacha Coffee, aussi éclatant à l’extérieur que le trésor qu’il renferme.",
@@ -59,7 +59,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "ed3376f0-5009-4d76-93ec-9d916cab6ad7",
     pretitle: "Marrakech — Medina",
     title: "Bazar El Bouanani — notre sélection idée cadeau",
-    hours: "Ouvert 09:00–00:00 — fermé le mer..",
+    hours: "Ouvert 09:00–00:00 — fermé le mercredi",
     paragraphs: [
       "Souvenirs de Marrakech en tous genres depuis 1959 🌴 Boutique en ligne. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de souvenir avec personnalité.",
       "Célébrons l'artisanat marocain à travers chaque pièce unique. Fondé en 1959 sur la place Jemaa el-Fna, le Bazar El Bouanani met à l'honneur les savoir-faire artisanaux traditionnels marocains. Nous proposons des produits authentiques et de qualité, élaborés selon des méthodes ancestrales, témoignant de notre engagement à préserver le patrimoine et l'excellence. Découvrez l'artisanat marocain authentique. Suivez le programme riche et varié du Bazar El Bouanani : ateliers d'artisans, événements culturels et lancements de produits exclusifs célèbrent le patrimoine marocain.",
@@ -70,7 +70,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "64ecdc1e-bfce-43f1-bc8c-9aeef728ac80",
     pretitle: "Marrakech — Gueliz",
     title: "Beauty Plaza — notre sélection idée cadeau",
-    hours: "Ouvert 10:00–21:00 — fermé le sam..",
+    hours: "Ouvert 10:00–21:00 — fermé le samedi",
     paragraphs: [
       "Boutique de parfums de luxe dédiée à l'art de la fragrance. Nous proposons une sélection raffinée de parfums rares. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de parfumerie, cosmétiques avec personnalité.",
       "Une adresse à garder en tête au moment de choisir un cadeau à offrir, ou à se faire offrir, en rentrant de Marrakech.",
@@ -112,7 +112,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "40a6fff6-8b0e-4f46-8447-e0e6ef18372e",
     pretitle: "Marrakech — Medina",
     title: "Chez Zouhair — notre sélection idée cadeau",
-    hours: "Ouvert 10:00–21:00 — fermé le lun..",
+    hours: "Ouvert 10:00–21:00 — fermé le lundi",
     paragraphs: [
       "Porter des bijoux est une façon de s'exprimer sans dire un mot. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de bijouterie avec personnalité.",
       "« Marrakech + Zouhair = ma nouvelle bague préférée. Cette saison signifie tout pour moi, et je cherchais un rappel que je pouvais regarder tous les jours. Zouhair avait la pièce parfaite pour moi : une qui respire la… », résume I Am Melissa.",
@@ -142,10 +142,10 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "4bcc002a-6081-4940-bbb3-cecbd5d14568",
     pretitle: "Marrakech — Sidi Ghanem",
     title: "Elite & Chic Showroom — notre sélection idée cadeau",
-    hours: "Ouvert 09:00–18:00 — fermé le dim..",
+    hours: "Ouvert 09:00–18:00 — fermé le dimanche",
     paragraphs: [
       "💍 Bijoux, vêtements, chaussures et décoration d'intérieur haut de gamme faits main. À Marrakech, dans le quartier de Sidi Ghanem, l'adresse joue la carte de décoration, mode, bijouterie, meubles avec personnalité.",
-      "« J'ai acheté des bracelets et un sac et après avoir payé, j'ai demandé au caissier la permission de photographier 2 sacs car je voulais les offrir en cadeau à mon 'auto' (probablement un taxi). Le caissier m'a dit oui,… », confie G. T..",
+      "« J'ai acheté des bracelets et un sac et après avoir payé, j'ai demandé au caissier la permission de photographier 2 sacs car je voulais les offrir en cadeau à mon 'auto' (probablement un taxi). Le caissier m'a dit oui,… », confie G. T.",
     ],
   },
   {
@@ -291,7 +291,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "92c6dece-9b6d-4b2d-a4f8-59a8f8e26df1",
     pretitle: "Marrakech — Sidi Ghanem",
     title: "Les Dix Doigts Marrakech — notre sélection idée cadeau",
-    hours: "Ouvert 09:30–18:30 — fermé le dim..",
+    hours: "Ouvert 09:30–18:30 — fermé le dimanche",
     paragraphs: [
       "Création, Design et Fabrication. Un temple du mobilier contemporain et de l’artisanat haut de gamme. À Marrakech, dans le quartier de Sidi Ghanem, l'adresse joue la carte de meubles, décoration avec personnalité.",
       "« Super découverte ! Je recommande sans aucune réserve. », confie Hiba Benkhattab.",
@@ -322,7 +322,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "f841aa06-c298-4b7a-b3d3-71f6afb9b1dd",
     pretitle: "Marrakech — Medina",
     title: "Maison du Caftan — notre sélection idée cadeau",
-    hours: "Ouvert 09:00–20:00 — fermé le sam., dim..",
+    hours: "Ouvert 09:00–20:00 — fermé le samedi, dimanche",
     paragraphs: [
       "L'élégance marocaine intemporelle caftans, takchitas et djellabas sur-mesure au cœur du souk de Marrakech. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode avec personnalité.",
       "Issu d'une alliance harmonieuse entre tradition et modernité, Maison du Caftan Marrakech tire son origine de la maison fondée par Haj Abdellah Benbrahim, répondant depuis 1981 aux attentes d'une clientèle toujours plus variée et sophistiquée. L'atelier, situé dans le souk de Marrakech, réunit une équipe d'artisans et de jeunes talents issus de l'école locale de design : cette fusion de savoir-faire constitue le fondement de sa philosophie, liant modernité et tradition.",
@@ -344,7 +344,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "77e9f1f4-7848-46b5-a8b0-e3d7e48da945",
     pretitle: "Marrakech — Medina",
     title: "Marie Bastide Medina — notre sélection idée cadeau",
-    hours: "Ouvert 10:00–19:00 — fermé le dim..",
+    hours: "Ouvert 10:00–19:00 — fermé le dimanche",
     paragraphs: [
       "Boutique d'art et d'artisanat marocain d'exception dans la Medina. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de décoration, mode, galeries d'art, bagagerie avec personnalité.",
       "Depuis sa création en 2018, Marie Bastide Marrakech incarne la beauté et l'artisanat du Maroc à travers ses produits. Fière de ses racines marocaines, la marque s'engage à offrir des articles 100% locaux, reflétant l'authenticité et la richesse de la culture marocaine. Studio de design et boutique d'art à Guéliz proposant des créations originales inspirées du Maroc : photographies artistiques, illustrations, objets artisanaux, foulards en soie, bougies naturelles, arts de la table, papeterie et décoration. Entreprise familiale, indépendante et engagée dans la préservation de la production locale. LIVRAISON INTERNATIONALE Nous proposons la livraison dans le monde entier.",
@@ -359,7 +359,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     paragraphs: [
       "Marque lifestyle made in Maroc, en boutique Place des Épices et en ligne. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode, bagagerie avec personnalité.",
       "Marrakech Mon Amour est une marque lifestyle née pendant la crise sanitaire, par amour pour Marrakech et ses artisans. La boutique propose des créations casuals et unisexes confectionnées localement dans des matières naturelles : t-shirts, hoodies, tote bags, pochettes, casquettes, chaussettes, maillots de bain, mugs et parfums. 100% made in Maroc, disponibles en boutique Place des Épices et en ligne avec livraison worldwide. Marque lifestyle made in Maroc — t-shirts, hoodies, tote bags et accessoires confectionnés par les artisans de Marrakech, en boutique Place des Épices et en ligne.",
-      "« Boutique ravissante sur une petite place du souk. Les produits sont plus beaux les uns que les autres et la jeune fille qui y travaille est très compétente et d'une grande gentillesse ! Un endroit parfait pour acheter… », résume Claire F..",
+      "« Boutique ravissante sur une petite place du souk. Les produits sont plus beaux les uns que les autres et la jeune fille qui y travaille est très compétente et d'une grande gentillesse ! Un endroit parfait pour acheter… », résume Claire F.",
     ],
   },
   {
@@ -370,7 +370,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     paragraphs: [
       "Magasin à Gueliz de la marque n°1 de la cosmétique naturelle au Maroc. Soins à l'Huile d'Argan. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de cosmétiques, parfumerie, épicerie, beauté et hygiène avec personnalité.",
       "Natus Marrakech propose une large gamme de soins naturels formulés à partir d'un ingrédient phare : l'Huile d'Argan. Riche en antioxydants, vitamines, minéraux et acides gras essentiels, elle offre des bienfaits exceptionnels : hydratation intense, nutrition profonde, revitalisation et action anti-âge. Fondée il y a 15 ans par Taouba Meqqadmi (ingénieure chimiste), la marque est N°1 de la cosmétique naturelle au Maroc. Gammes : visage, corps, cheveux, hammam, parfums, ambiance, hommes, enfants, solaire et gourmet. La Marque Natus Marrakech voit le jour pour la première fois il y a un peu plus de dix ans à Marrakech, au Maroc.",
-      "« Merveilleuses senteurs orientales qui me rappellent un voyage coloré au Maroc. Cela vaut la peine d'essayer les gels douche, lotions, huiles corporelles - des arômes persistants et coûteux comme dans un bon spa marocain. », résume Krystyna I..",
+      "« Merveilleuses senteurs orientales qui me rappellent un voyage coloré au Maroc. Cela vaut la peine d'essayer les gels douche, lotions, huiles corporelles - des arômes persistants et coûteux comme dans un bon spa marocain. », résume Krystyna I.",
     ],
   },
   {
@@ -388,7 +388,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "8b993369-9532-43b9-87d5-9aaeb5892ce7",
     pretitle: "Marrakech — Gueliz",
     title: "Norya ayroN Gueliz — notre sélection idée cadeau",
-    hours: "Ouvert 10:30–18:30 — fermé le dim..",
+    hours: "Ouvert 10:30–18:30 — fermé le dimanche",
     paragraphs: [
       "Des essentiels intemporels signés Norya ayroN — mode fluide et élégante, entre Marrakech et le monde. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de mode, bijouterie avec personnalité.",
       "Norya ayroN est une griffe de mode marocaine fondée par la créatrice franco-algérienne Norya Nemiche, basée à Marrakech. La maison propose des abayas, gandouras, kimonos et pièces prêt-à-porter aux matières fluides et au design épuré, pensées pour être portées au quotidien. Les collections allient l'élégance intemporelle à l'héritage artisanal africain. Présente dans les plus grands hôtels (La Mamounia, Four Seasons Rabat) et dans des boutiques multimarques en Europe (Milan, Paris, Lyon, Ibiza, Corse), la marque s'exporte à l'international tout en restant ancrée dans son terreau marocain. Deux boutiques à Marrakech : Guéliz (17 Rue Tariq Bnou Ziad) Médina (32 Souk, Rte Sidi Abdelaziz).",
@@ -399,7 +399,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "effa57d8-b030-4219-a98e-aca34cf1df41",
     pretitle: "Marrakech — Medina",
     title: "Norya ayroN Medina — notre sélection idée cadeau",
-    hours: "Ouvert 10:30–18:00 — fermé le mar..",
+    hours: "Ouvert 10:30–18:00 — fermé le mardi",
     paragraphs: [
       "Des essentiels intemporels signés Norya ayroN — mode fluide et élégante, entre Marrakech et le monde. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode, bijouterie avec personnalité.",
       "Norya ayroN est une griffe de mode marocaine fondée par la créatrice franco-algérienne Norya Nemiche, basée à Marrakech. La maison propose des abayas, gandouras, kimonos et pièces prêt-à-porter aux matières fluides et au design épuré, pensées pour être portées au quotidien. Les collections allient l'élégance intemporelle à l'héritage artisanal africain. Présente dans les plus grands hôtels (La Mamounia, Four Seasons Rabat) et dans des boutiques multimarques en Europe (Milan, Paris, Lyon, Ibiza, Corse), la marque s'exporte à l'international tout en restant ancrée dans son terreau marocain. Deux boutiques à Marrakech : Guéliz (17 Rue Tariq Bnou Ziad) Médina (32 Souk, Rte Sidi Abdelaziz).",
@@ -430,7 +430,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "6937b23b-96c5-4241-bb10-187120ab9158",
     pretitle: "Marrakech — Medina",
     title: "Raqas — notre sélection idée cadeau",
-    hours: "Ouvert 09:00–19:00 — fermé le dim..",
+    hours: "Ouvert 09:00–19:00 — fermé le dimanche",
     paragraphs: [
       "Marque de mode et d'accessoires en commerce équitable créée par des artisans de Marrakech. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de mode, bagagerie, chaussures avec personnalité.",
       "« Qualité incroyable et motifs uniques réunis en un seul endroit pour hommes et femmes. J'ai acheté deux chemises d'été. Merveilleuse expérience d'achat. », résume John Tatum.",
@@ -482,7 +482,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "2aae5cdc-0c6c-4a42-a526-f2d89279adb4",
     pretitle: "Marrakech — Medina",
     title: "Yasalam Medina — notre sélection idée cadeau",
-    hours: "Ouvert 10:00–19:00 — fermé le dim..",
+    hours: "Ouvert 10:00–19:00 — fermé le dimanche",
     paragraphs: [
       "Boutique d'affiches qui œuvre pour rendre l'art accessible à tous. À Marrakech, dans le quartier de Medina, l'adresse joue la carte de galeries d'art, décoration avec personnalité.",
       "YASALAM réunit une équipe passionnée d'artistes arabes et numériques. Forts d'un sens aigu de la créativité et d'une profonde connaissance de la richesse culturelle de la région, nous concevons, imaginons et réalisons des projets artistiques sur mesure. Nos relations privilégiées avec des artistes du monde arabe nous permettent de mettre en lumière leurs talents et de donner vie à leurs visions. Fondée à Marrakech en 2024 par Oussama Laftimi et Abdellah Aboulhamid, tous deux issus des milieux artistiques et entrepreneuriaux, YASALAM s'appuie sur une équipe pluridisciplinaire qui œuvre pour rendre l'art accessible à tous, quel que soit le budget.",
@@ -493,7 +493,7 @@ const IDEES_CADEAUX: BlogArticleEntry[] = [
     id: "62375ede-df15-430e-a36a-0e8ea6892069",
     pretitle: "Marrakech — Gueliz",
     title: "Yasalam Store — notre sélection idée cadeau",
-    hours: "Ouvert 10:00–19:00 — fermé le dim..",
+    hours: "Ouvert 10:00–19:00 — fermé le dimanche",
     paragraphs: [
       "YASALAM s'appuie sur une équipe pluridisciplinaire qui œuvre pour rendre l'art accessible à tous. À Marrakech, dans le quartier de Gueliz, l'adresse joue la carte de galeries d'art, décoration avec personnalité.",
       "YASALAM réunit une équipe passionnée d'artistes arabes et numériques. Forts d'un sens aigu de la créativité et d'une profonde connaissance de la richesse culturelle de la région, nous concevons, imaginons et réalisons des projets artistiques sur mesure. Nos relations privilégiées avec des artistes du monde arabe nous permettent de mettre en lumière leurs talents et de donner vie à leurs visions. Fondée à Marrakech en 2024 par Oussama Laftimi et Abdellah Aboulhamid, tous deux issus des milieux artistiques et entrepreneuriaux, YASALAM s'appuie sur une équipe pluridisciplinaire qui œuvre pour rendre l'art accessible à tous, quel que soit le budget.",
