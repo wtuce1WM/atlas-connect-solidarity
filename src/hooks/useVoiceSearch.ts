@@ -708,7 +708,10 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
   // ====================== Web Speech API path (default) ======================
   const startRecording = useCallback(() => {
+    // Prime l'AudioContext du beep dans le geste utilisateur
+    ensureBeepContext();
     if (useScribePath) {
+
       try {
         pendingScribeStreamRef.current?.getTracks().forEach((track) => track.stop());
         pendingScribeStreamRef.current = null;
