@@ -1562,6 +1562,8 @@ const SearchPage = () => {
           const rect = el.getBoundingClientRect();
           const isOverPanel = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
           const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+          // Let Google Maps handle its own wheel zoom (gestureHandling: greedy)
+          if (e.target instanceof Element && e.target.closest('.gm-style')) return;
           if (document.body.dataset.slidepanelOverlayOpen === "1") {
             // While an overlay is open above the slidepanel, allow its own
             // scrollable area to receive wheel events, but block scroll bleed
@@ -1583,6 +1585,7 @@ const SearchPage = () => {
             }
             return;
           }
+
           if (!isOverPanel) return;
           e.preventDefault();
           e.stopPropagation();
