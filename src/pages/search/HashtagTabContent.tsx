@@ -310,7 +310,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
           _isInternal: false,
 
           url: g.url,
-          name: g.title || g.name || (ownerId ? bizMap[ownerId]?.hook_fr || null : null) || (account ? `@${account}` : null),
+          name: g.title || g.name || (account ? `@${account}` : null),
           description: g.description || null,
           thumbnail_url: g.thumbnail_url || null,
           owner_business_id: ownerId,
@@ -573,18 +573,6 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         returnContext={null}
-        onPrev={() => {
-          if (!activeItem) return;
-          const idx = items.findIndex(i => i._id === activeItem._id);
-          if (idx > 0) { setCurrentTime(0); setActiveItem(items[idx - 1]); }
-        }}
-        onNext={() => {
-          if (!activeItem) return;
-          const idx = items.findIndex(i => i._id === activeItem._id);
-          if (idx >= 0 && idx < items.length - 1) { setCurrentTime(0); setActiveItem(items[idx + 1]); }
-        }}
-        hasPrev={!!activeItem && items.findIndex(i => i._id === activeItem._id) > 0}
-        hasNext={!!activeItem && items.findIndex(i => i._id === activeItem._id) < items.length - 1}
       />
     </div>
   );
