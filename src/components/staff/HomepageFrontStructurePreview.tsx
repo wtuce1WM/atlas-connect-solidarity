@@ -60,6 +60,7 @@ interface ExtraCard {
   sort_order: number;
   event_id: string | null;
   search_query: string | null;
+  image_url: string | null;
 }
 
 interface ExtraCardPreview {
@@ -80,6 +81,7 @@ interface ExtraCardPreview {
   event_id: string | null;
   eventName: string | null;
   search_query: string | null;
+  image_url: string | null;
 }
 
 interface BizLite { id: string; name: string }
@@ -154,7 +156,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id, search_query")
+          .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id, search_query, image_url")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
         supabase
@@ -250,7 +252,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const extraRows: ExtraCard[] = ((extraRes as any).data || []).map((r: any) => ({
         id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id,
         video_document_id: r.video_document_id, title: r.title ?? null, sort_order: r.sort_order,
-        event_id: r.event_id ?? null, search_query: r.search_query ?? null,
+        event_id: r.event_id ?? null, search_query: r.search_query ?? null, image_url: r.image_url ?? null,
       }));
       const eventsList: EventLite[] = (((eventsRes as any).data) || []).map((e: any) => ({ id: e.id, name: e.name }));
       const eventMap = new Map(eventsList.map((e) => [e.id, e]));
@@ -392,7 +394,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             cardId: card.id,
             videoId: null,
             videoUrl: null,
-            thumbnail: null,
+            thumbnail: card.image_url || null,
             businessName: biz?.name || null,
             ownerLogo: null,
             ownerName: null,
@@ -406,6 +408,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             event_id: card.event_id,
             eventName,
             search_query: card.search_query,
+            image_url: card.image_url,
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
@@ -415,7 +418,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           cardId: card.id,
           videoId: doc.id,
           videoUrl: doc.url,
-          thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
+          thumbnail: card.image_url || doc.thumbnail_url || deriveThumbnail(doc.url),
           businessName: dispBiz?.name || null,
           ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
           ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
@@ -429,6 +432,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           event_id: card.event_id,
           eventName,
           search_query: card.search_query,
+          image_url: card.image_url,
         };
       });
 
@@ -541,7 +545,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   const refreshExtraCard = async (cardId: string) => {
     const { data: row, error: rowError } = await (supabase as any)
       .from("front_structure_homepage_extra_cards")
-      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, popular_search_id, event_id, search_query")
+      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, popular_search_id, event_id, search_query, image_url")
       .eq("id", cardId)
       .maybeSingle();
 
@@ -557,6 +561,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       sort_order: row.sort_order,
       event_id: row.event_id ?? null,
       search_query: row.search_query ?? null,
+      image_url: row.image_url ?? null,
     };
 
     const badgeName = card.badge_id
@@ -661,7 +666,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       cardId: card.id,
       videoId: doc?.id || null,
       videoUrl: doc?.url || null,
-      thumbnail: doc ? (doc.thumbnail_url || deriveThumbnail(doc.url)) : null,
+      thumbnail: card.image_url || (doc ? (doc.thumbnail_url || deriveThumbnail(doc.url)) : null),
       businessName: dispBiz?.name || null,
       ownerLogo: ownerBiz && ownerBiz.id !== displayBusinessId ? ownerBiz.logo_url : null,
       ownerName: ownerBiz && ownerBiz.id !== displayBusinessId ? ownerBiz.name : null,
@@ -675,10 +680,11 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       event_id: card.event_id,
       eventName,
       search_query: card.search_query,
+      image_url: card.image_url,
     }));
   };
 
-  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; event_id?: string | null; search_query?: string | null }) => {
+  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; event_id?: string | null; search_query?: string | null; image_url?: string | null }) => {
       if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(patch.video_document_id)) {
@@ -723,6 +729,8 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         eventName: nextEvent?.name || (patch.event_id !== undefined ? null : card.eventName),
         businessName: nextBusiness?.name || (patch.business_id !== undefined ? null : card.businessName),
         search_query: patch.search_query !== undefined ? patch.search_query : card.search_query,
+        image_url: patch.image_url !== undefined ? patch.image_url : card.image_url,
+        thumbnail: patch.image_url !== undefined ? (patch.image_url || card.thumbnail) : card.thumbnail,
       };
     }));
     await refreshExtraCard(cardId);
@@ -1050,6 +1058,36 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                       />
                       {card.video_document_id && (
                         <button type="button" className="shrink-0" onClick={() => updateExtraCard(card.cardId, { video_document_id: null })} title="Retirer">
+                          <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-muted-foreground">
+                      Image forcée {card.image_url && <span className="text-primary">(prioritaire)</span>}
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+                          const path = `homepage-extra-cards/${card.cardId}-${Date.now()}.${ext}`;
+                          const { error: upErr } = await supabase.storage
+                            .from("sponsor-assets")
+                            .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+                          if (upErr) { toast({ title: "Upload échoué", description: upErr.message, variant: "destructive" }); return; }
+                          const { data: pub } = supabase.storage.from("sponsor-assets").getPublicUrl(path);
+                          await updateExtraCard(card.cardId, { image_url: pub.publicUrl });
+                          e.target.value = "";
+                        }}
+                        className="h-5 text-[9px] flex-1"
+                      />
+                      {card.image_url && (
+                        <button type="button" className="shrink-0" onClick={() => updateExtraCard(card.cardId, { image_url: null })} title="Retirer l'image">
                           <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
                         </button>
                       )}

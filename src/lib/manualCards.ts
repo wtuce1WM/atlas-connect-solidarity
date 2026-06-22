@@ -5,6 +5,7 @@ export interface ManualCardInfo {
   label: string;
   badgeId: string | null;
   eventId?: string | null;
+  imageUrl?: string | null;
 }
 
 /**
@@ -22,6 +23,7 @@ interface CityExtraCardsCacheEntry {
     title: string | null;
     sort_order: number | null;
     event_id?: string | null;
+    image_url?: string | null;
   }>;
   badgeNameById: Map<string, string>;
   docIdsByBadgeId: Map<string, Set<string>>;
@@ -45,7 +47,7 @@ async function loadCityExtraCards(city: City): Promise<CityExtraCardsCacheEntry>
 
   const { data: extraRows } = await (supabase as any)
     .from("front_structure_homepage_extra_cards")
-    .select("id, business_id, badge_id, video_document_id, title, sort_order, event_id")
+    .select("id, business_id, badge_id, video_document_id, title, sort_order, event_id, image_url")
     .eq("city", city)
     .order("sort_order", { ascending: true });
 
@@ -100,10 +102,11 @@ export async function getManualCardMap(city: City, docs: any[]): Promise<Map<str
 
   cards.forEach((card) => {
     const label = pickLabel(card);
+    const imageUrl = card.image_url || null;
 
     if (card.video_document_id) {
-      if (label && !manualMap.has(card.video_document_id)) {
-        manualMap.set(card.video_document_id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
+      if ((label || imageUrl) && !manualMap.has(card.video_document_id)) {
+        manualMap.set(card.video_document_id, { label: label || "", badgeId: card.badge_id, eventId: card.event_id ?? null, imageUrl });
       }
       return;
     }
@@ -118,8 +121,8 @@ export async function getManualCardMap(city: City, docs: any[]): Promise<Map<str
     if (matchingDocs.length === 0) return;
 
     const selectedDoc = [...matchingDocs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
-    if (selectedDoc && label && !manualMap.has(selectedDoc.id)) {
-      manualMap.set(selectedDoc.id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
+    if (selectedDoc && (label || imageUrl) && !manualMap.has(selectedDoc.id)) {
+      manualMap.set(selectedDoc.id, { label: label || "", badgeId: card.badge_id, eventId: card.event_id ?? null, imageUrl });
     }
   });
 

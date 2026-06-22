@@ -3059,6 +3059,7 @@ export type Database = {
           created_at: string
           event_id: string | null
           id: string
+          image_url: string | null
           search_query: string | null
           sort_order: number
           title: string | null
@@ -3072,6 +3073,7 @@ export type Database = {
           created_at?: string
           event_id?: string | null
           id?: string
+          image_url?: string | null
           search_query?: string | null
           sort_order?: number
           title?: string | null
@@ -3085,6 +3087,7 @@ export type Database = {
           created_at?: string
           event_id?: string | null
           id?: string
+          image_url?: string | null
           search_query?: string | null
           sort_order?: number
           title?: string | null

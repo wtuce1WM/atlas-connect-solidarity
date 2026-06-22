@@ -61,7 +61,7 @@ export interface BuildDocVideoItemArgs {
   /** Pass strict to mirror resolveVideoEstablishment({ strict: true }). */
   strict?: boolean;
   /** Optional manualCard map (homepage editorial overlay). */
-  manualCardMap?: Map<string, { label: string; badgeId: string | null; eventId?: string | null }>;
+  manualCardMap?: Map<string, { label: string; badgeId: string | null; eventId?: string | null; imageUrl?: string | null }>;
   /** Doc id → badge ids. */
   docBadgesByDocId?: Record<string, string[]>;
   /** service_id → name_fr. */
@@ -85,17 +85,18 @@ export function buildDocVideoItem(args: BuildDocVideoItemArgs): any {
     args;
   const biz = resolveVideoEstablishment(d, bizMap, { strict });
   const social = extractSocial(d);
+  const manualCard = manualCardMap?.get(d.id) || null;
   const item: any = {
     id: d.id,
     url: d.url,
     business_name: biz?.name || "—",
-    thumbnail_url: d.thumbnail_url,
+    thumbnail_url: manualCard?.imageUrl || d.thumbnail_url,
     business: biz,
     owner: toOwner(biz),
     social,
     showSocialBadge: isDifferentDisplayedBusinessSocial(social, biz),
     description: d.description ?? null,
-    manualCard: manualCardMap?.get(d.id) || null,
+    manualCard,
     subcategory_id: d.subcategory_id ?? null,
     service_id: d.service_id ?? null,
     service_name: d.service_id ? serviceNameById?.get(d.service_id) ?? null : null,
