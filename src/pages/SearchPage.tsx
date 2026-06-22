@@ -4060,24 +4060,27 @@ const SearchPage = () => {
                       </button>
                     </div>
                   )}
-                  <p className="text-muted-foreground text-sm mt-6">
-                    {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
-                  </p>
+                   {!isWelcomeText && (
+                    <>
+                      <p className="text-muted-foreground text-sm mt-6">
+                        {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
+                      </p>
 
-                  <p className="text-lg md:text-xl font-bold text-foreground mt-1">
-                    {(() => {
-                      const fallbackLabel = (labelFromUrl || badgeLabelParam || "").replace(/^#+/, "").trim();
-                      const fallbackCity = (selectedCity && selectedCity !== "all" ? selectedCity : "") || cityFromUrlForThumbs || "";
-                      const display = (spokenText || searchQuery) || [fallbackCity, fallbackLabel].filter(Boolean).join(" ");
-                      return <>«&nbsp;{display}&nbsp;»</>;
-                    })()}
-                  </p>
+                      <p className="text-lg md:text-xl font-bold text-foreground mt-1">
+                        {(() => {
+                          const fallbackLabel = (labelFromUrl || badgeLabelParam || "").replace(/^#+/, "").trim();
+                          const fallbackCity = (selectedCity && selectedCity !== "all" ? selectedCity : "") || cityFromUrlForThumbs || "";
+                          const display = (spokenText || searchQuery) || [fallbackCity, fallbackLabel].filter(Boolean).join(" ");
+                          return <>«&nbsp;{display}&nbsp;»</>;
+                        })()}
+                      </p>
 
-
-                  {!isLoading && (
-                    <p className="text-primary font-semibold mt-2">
-                      {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
-                    </p>
+                      {!isLoading && (
+                        <p className="text-primary font-semibold mt-2">
+                          {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+                        </p>
+                      )}
+                    </>
                   )}
                 </>
               )}
