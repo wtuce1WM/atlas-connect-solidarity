@@ -404,6 +404,37 @@ const Blog = () => {
                 ),
               });
 
+              // Carte Trouver une bonne idée cadeau à Marrakech
+              items.push({
+                key: "static-idee-cadeau-marrakech",
+                date: "2026-06-22T08:00:00Z",
+                node: (
+                  <Link key="static-idee-cadeau-marrakech" to="/blog/idee-cadeau-marrakech">
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-rose-50 to-amber-50 dark:from-rose-950/30 dark:to-amber-950/30">
+                      <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        <MapPin className="h-16 w-16 text-primary" />
+                      </div>
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                          Trouver une bonne idée cadeau à Marrakech
+                        </h2>
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          Deux adresses sélectionnées pour rapporter de Marrakech un cadeau qui a du sens : un coffret de café d'exception, ou des babouches faites main choisies comme un local.
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <MapPin className="h-3 w-3" /> Marrakech
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ),
+              });
+
+
+
 
               // Carte Louer une villa dans un complexe hôtelier à Marrakech
               items.push({
