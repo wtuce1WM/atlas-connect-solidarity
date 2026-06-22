@@ -4248,6 +4248,13 @@ const SearchPage = () => {
                       </div>
                     );
                   }
+                  if (isWelcomeText) {
+                    return (
+                      <div className="text-center font-bold text-lg md:text-xl text-foreground py-8">
+                        {currentAiText}
+                      </div>
+                    );
+                  }
                   const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === -1;
                   const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
                   // Build data source for link matching based on active tab
