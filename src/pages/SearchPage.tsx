@@ -1025,27 +1025,15 @@ const SearchPage = () => {
      const hasContext = !!(searchParams.get("q") || searchParams.get("category") || searchParams.get("city") || searchParams.get("subcats") || searchParams.get("badgeId"));
      if (hasContext) return;
      if (aiAnswerText) return;
-     // Shareable welcome entry point: /search?tab=ai&welcome=1
-     if (searchParams.get("welcome") === "1") {
-       const welcome = language === "en"
-         ? "What are you looking for? Where are you looking for it?"
-         : language === "ar"
-           ? "ماذا تبحث عنه؟ وأين تبحث عنه؟"
-           : "Que cherchez-vous ? Où le cherchez-vous ?";
-       setAiAnswerText(welcome);
-       return;
-     }
-     try {
-       const cached = sessionStorage.getItem("ai_suggestion_text");
-       if (cached) setAiAnswerText(cached);
-       const cachedBiz = sessionStorage.getItem("ai_suggestion_businesses");
-       if (cachedBiz) {
-         try {
-           const parsed = JSON.parse(cachedBiz);
-           if (Array.isArray(parsed)) setRestoredAiBusinessPool(parsed as unknown as Business[]);
-         } catch { /* ignore */ }
-       }
-     } catch { /* ignore */ }
+      // Always show the welcome prompt when arriving on /search?tab=ai without context,
+      // instead of restoring a previous random AI suggestion.
+      const welcome = language === "en"
+        ? "What are you looking for? Where are you looking for it?"
+        : language === "ar"
+          ? "ماذا تبحث عنه؟ وأين تبحث عنه؟"
+          : "Que cherchez-vous ? Où le cherchez-vous ?";
+      setAiAnswerText(welcome);
+
      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [searchParams, language]);
 
