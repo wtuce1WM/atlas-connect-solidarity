@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { readLastHomepageCity } from "@/lib/cityHomepage";
+import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
 
 interface HashtagBadge {
   id: string;
