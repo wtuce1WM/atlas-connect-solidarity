@@ -156,11 +156,10 @@ serve(async (req) => {
     const noResultsCfg = cfg.no_results_instructions || "";
     const boostVerified = cfg.boost_verified !== "false";
 
-    // For the initial suggestion we keep 10 businesses to stay concise.
-    // For chat refinements (history present), expose the full pool so the model can
-    // pick relevant matches across ALL results — not just the first 10.
+    // Keep enough businesses for the model to cite real DB results, especially when
+    // the first visible page/ranking is broader than the user's text intent.
     const isRefinement = Array.isArray(history) && history.length > 0;
-    const topBusinesses = businesses.slice(0, isRefinement ? 60 : 10);
+    const topBusinesses = businesses.slice(0, isRefinement ? 60 : 30);
     const hasResults = topBusinesses.length > 0;
 
     // --- Topic-change detection (refinement turns only) ---
@@ -604,6 +603,7 @@ RÈGLES :
 - Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.
 - Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${modeInstructions || (effectiveHasRenderResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
+- Cite OBLIGATOIREMENT au moins 3 établissements de la liste par leur nom exact si la liste en contient 3 ou plus. Ne dis JAMAIS que tu n'as pas d'établissement spécifique ou que l'annuaire est vide quand cette liste est fournie.
 - Cite jusqu'à 10 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.).
 - CRITIQUE : Écris chaque nom EXACTEMENT comme dans la liste fournie, caractère pour caractère (mêmes accents, majuscules, ponctuation). N'ajoute JAMAIS de suffixe, de ville, de quartier, de parenthèses, de tiret descriptif, ni d'article ("Le", "La", "Restaurant", etc.) qui ne figure pas dans le nom original. Pas de reformulation, pas de traduction du nom.
 - Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : '')}${boostVerified && effectiveHasRenderResults && !mode ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${!mode && !effectiveHasRenderResults ? `\n- ${noResultsCfg || "Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles."}
