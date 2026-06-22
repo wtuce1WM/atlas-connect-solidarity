@@ -220,12 +220,12 @@ export function ToolbarPortals({
             <Bookmark className="h-4 w-4" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
           </button>
           {(() => {
-            // If opened from the YouTube channels tab (URL carries ?openChannel=<this business>),
+            // If opened from the YouTube channels tab (URL carries ?openChannel=...),
             // share the full search URL so the recipient lands on the same channel panel.
             let shareUrl: string | undefined;
             try {
               const params = new URLSearchParams(window.location.search);
-              if (params.get("openChannel") === String(business.id)) {
+              if (params.has("openChannel")) {
                 shareUrl = `https://oneworldmorocco.com${window.location.pathname}${window.location.search}`;
               }
             } catch {/* noop */}
