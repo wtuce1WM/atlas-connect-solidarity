@@ -4713,7 +4713,7 @@ const SearchPage = () => {
                           <button
                             type="submit"
                             disabled={aiChatLoading || !aiChatInput.trim()}
-                            className="flex items-center justify-center w-14 h-14 rounded-xl transition-all hover:opacity-90 shrink-0 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all hover:opacity-90 shrink-0 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
                             style={{ backgroundColor: "hsl(var(--primary))" }}
                             aria-label={language === "en" ? "Send" : "Envoyer"}
                             title={language === "en" ? "Send" : "Envoyer"}
