@@ -2989,7 +2989,7 @@ const BookOnlineSlidePanelInner = ({
 
         return (
         <div
-          className={`absolute inset-0 z-[120] flex items-center justify-center p-4 animate-fade-in ${showOverlay ? 'bg-black/70 backdrop-blur-sm' : ''}`}
+          className="absolute inset-0 z-[150] flex items-center justify-center p-4 animate-fade-in bg-black/75 backdrop-blur-sm"
           onClick={() => setShowWelcomePopup(false)}
         >
           <div className={`relative flex items-center justify-center w-full px-10 sm:px-16 ${isPopupSlide && !hasMeta ? "max-w-xl md:max-w-2xl" : "max-w-lg md:max-w-xl"}`} onClick={(e) => e.stopPropagation()}>
@@ -3106,7 +3106,7 @@ const BookOnlineSlidePanelInner = ({
 
         return (
         <div
-          className="absolute inset-0 z-[120] flex items-center justify-center p-4 animate-fade-in bg-black/70 backdrop-blur-sm"
+          className="absolute inset-0 z-[150] flex items-center justify-center p-4 animate-fade-in bg-black/75 backdrop-blur-sm"
           onClick={() => setShowPromosPopup(false)}
         >
           <div className="relative flex items-center justify-center w-full max-w-lg md:max-w-xl px-10 sm:px-16" onClick={(e) => e.stopPropagation()}>
