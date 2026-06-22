@@ -3124,7 +3124,7 @@ const BookOnlineSlidePanelInner = ({
               {(() => {
                 const hasMessage = !!currentPromo.promotion_message && currentPromo.promotion_message.replace(/<[^>]*>/g, '').trim() !== "";
                 return (
-                  <div className={`relative pt-16 px-6 pb-6 text-white flex-1 flex flex-col ${!hasMessage ? 'justify-center' : ''}`}>
+                  <div className={`relative pt-28 px-6 pb-6 text-white flex-1 flex flex-col ${!hasMessage ? 'justify-center' : ''}`}>
                     <div className={`flex items-start gap-3 ${!hasMessage ? 'justify-center mb-0' : 'justify-between mb-4'}`}>
                       <h3 
                         className={`text-3xl md:text-4xl font-extrabold ${!hasMessage ? 'text-center leading-[1.6] md:leading-[1.8]' : 'leading-tight'}`} 
@@ -3145,7 +3145,7 @@ const BookOnlineSlidePanelInner = ({
 
               {promoAmount && (
                 <div 
-                  className="absolute top-2.5 left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-10 text-white bg-black/65 backdrop-blur-md px-5 py-2 rounded-xl border border-white/10 shadow-xl min-w-max"
+                  className="absolute top-3 left-6 flex flex-col items-center justify-center z-10 text-white bg-black/65 backdrop-blur-md px-5 py-2 rounded-xl border border-white/10 shadow-xl min-w-max"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
                   <span className="text-white font-black text-[11px] sm:text-[12px] tracking-widest uppercase leading-none whitespace-nowrap">économisez</span>
