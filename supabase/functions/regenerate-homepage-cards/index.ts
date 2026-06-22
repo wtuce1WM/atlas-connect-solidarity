@@ -58,8 +58,10 @@ async function buildSnapshot(supabase: any, city: string) {
   });
 
   const overrideByEntry: Record<string, string> = {};
+  const overrideImageByEntry: Record<string, string | null> = {};
   (overridesRes.data || []).forEach((o: any) => {
-    overrideByEntry[o.front_structure_id] = o.business_id;
+    if (o.business_id) overrideByEntry[o.front_structure_id] = o.business_id;
+    if (o.image_url) overrideImageByEntry[o.front_structure_id] = o.image_url;
   });
 
   const badgeMap = new Map<string, string>(
