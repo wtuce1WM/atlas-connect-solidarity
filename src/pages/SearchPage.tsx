@@ -4402,7 +4402,7 @@ const SearchPage = () => {
 
               {/* Liquid-glass Speaker (TTS) — placé sous le dernier carousel, AVANT "Affinez votre demande" */}
               {activeTab !== "poi" && activeTab !== "destinations" && aiAnswerText && !isAiRegenerating && !isWelcomeText && (
-                <div className="mt-8 flex justify-center">
+                <div className="mt-8 max-w-3xl mx-auto w-full flex justify-center">
                   <div className="relative flex items-center justify-center">
                     {/* Outer expanding glass ring */}
                     <div
@@ -4490,7 +4490,7 @@ const SearchPage = () => {
                 const userTurns = aiChat.filter((m) => m.role === "user").length;
                 const reachedCap = userTurns >= AI_CHAT_MAX_TURNS;
                 return (
-                  <div ref={aiRefinementRef} className="mt-8 pt-6 border-t border-border/60">
+                  <div ref={aiRefinementRef} className="mt-8 pt-6 border-t border-border/60 max-w-3xl mx-auto w-full">
                     {/* Chat history */}
                     {aiChat.length > 0 && (
                       <div className="flex flex-col gap-4 mb-4">
@@ -4713,12 +4713,12 @@ const SearchPage = () => {
                           <button
                             type="submit"
                             disabled={aiChatLoading || !aiChatInput.trim()}
-                            className="flex items-center justify-center w-14 h-14 rounded-xl transition-all hover:opacity-90 shrink-0 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl transition-all hover:opacity-90 shrink-0 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] disabled:opacity-40 disabled:cursor-not-allowed"
                             style={{ backgroundColor: "hsl(var(--primary))" }}
                             aria-label={language === "en" ? "Send" : "Envoyer"}
                             title={language === "en" ? "Send" : "Envoyer"}
                           >
-                            {aiChatLoading ? <Loader2 className="h-6 w-6 text-white animate-spin" /> : <Send className="h-6 w-6 text-white" />}
+                            {aiChatLoading ? <Loader2 className="h-5 w-5 md:h-6 md:w-6 text-white animate-spin" /> : <Send className="h-5 w-5 md:h-6 md:w-6 text-white" />}
                           </button>
                           <div className="relative flex items-center justify-center shrink-0">
                             <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
