@@ -241,8 +241,8 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
   return (
     <>
       {/* Unified dock pill at the bottom of the panel */}
-      <div className="absolute left-1/2 -translate-x-1/2 z-[85]" style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
-        <div className="relative flex items-center gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-2 py-1">
+      <div className="absolute left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 max-w-[440px] mx-auto z-[85]" style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
+        <div className="relative flex items-center justify-between sm:justify-start gap-1 sm:gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-3 sm:px-2 py-1">
           {renderVideoCells()}
           {leadingControls}
           <Cell
