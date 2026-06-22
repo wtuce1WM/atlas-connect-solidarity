@@ -61,7 +61,7 @@ export interface BuildDocVideoItemArgs {
   /** Pass strict to mirror resolveVideoEstablishment({ strict: true }). */
   strict?: boolean;
   /** Optional manualCard map (homepage editorial overlay). */
-  manualCardMap?: Map<string, { label: string; badgeId: string | null; eventId?: string | null }>;
+  manualCardMap?: Map<string, { label: string; badgeId: string | null; eventId?: string | null; imageUrl?: string | null }>;
   /** Doc id → badge ids. */
   docBadgesByDocId?: Record<string, string[]>;
   /** service_id → name_fr. */
