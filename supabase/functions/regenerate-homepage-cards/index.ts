@@ -232,6 +232,7 @@ async function buildSnapshot(supabase: any, city: string) {
   const entryCards = entries.map((entry: any) => {
     const doc = firstDocByEntry[entry.id];
     const overrideBusinessId = overrideByEntry[entry.id] || null;
+    const overrideImage = overrideImageByEntry[entry.id] || null;
     const subcategoryNames = (entry.subcategory_ids || [])
       .map((id: string) => subcatNameById.get(id))
       .filter(Boolean) as string[];
@@ -239,7 +240,7 @@ async function buildSnapshot(supabase: any, city: string) {
       return {
         key: `entry:${entry.id}`, kind: "entry",
         data: {
-          videoId: null, videoUrl: null, thumbnail: null,
+          videoId: null, videoUrl: null, thumbnail: overrideImage,
           businessName: overrideBusinessId ? (bizMap.get(overrideBusinessId)?.name || null) : null,
           ownerLogo: null, ownerName: null, ownerId: null,
           rating: null, reviewCount: null, label: entry.name,
@@ -254,7 +255,7 @@ async function buildSnapshot(supabase: any, city: string) {
       key: `entry:${entry.id}`, kind: "entry",
       data: {
         videoId: doc.id, videoUrl: doc.url,
-        thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
+        thumbnail: overrideImage || doc.thumbnail_url || deriveThumbnail(doc.url),
         businessName: dispBiz?.name || null,
         ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
         ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
