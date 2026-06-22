@@ -6,10 +6,14 @@ import { useDragScroll } from "@/hooks/useDragScroll";
  * Drop-in replacement for `<div className="flex overflow-x-auto ...">`.
  */
 const HScroll = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ children, ...props }, _ref) => {
+  ({ children, style, ...props }, _ref) => {
     const ref = useDragScroll<HTMLDivElement>();
     return (
-      <div ref={ref} {...props}>
+      <div
+        ref={ref}
+        {...props}
+        style={{ touchAction: "pan-x", overscrollBehaviorX: "contain", ...style }}
+      >
         {children}
       </div>
     );
