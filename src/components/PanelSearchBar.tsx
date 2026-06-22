@@ -154,7 +154,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
         type="button"
         onClick={onClick}
         aria-label={ariaLabel}
-        className="group shrink-0 flex flex-col items-center justify-start gap-1 w-12 h-14 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
+        className="group flex-1 sm:flex-none flex flex-col items-center justify-start gap-1 min-w-[44px] max-w-[56px] sm:w-14 h-14 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
       >
         <span
           className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
@@ -241,8 +241,8 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
   return (
     <>
       {/* Unified dock pill at the bottom of the panel */}
-      <div className="absolute left-1/2 -translate-x-1/2 z-[85]" style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
-        <div className="relative flex items-center gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-2 py-1">
+      <div className="absolute left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 max-w-[440px] mx-auto z-[85]" style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
+        <div className="relative flex items-center justify-between sm:justify-start gap-1 sm:gap-0.5 rounded-[28px] border border-white/20 bg-black/40 px-3 sm:px-2 py-1">
           {renderVideoCells()}
           {leadingControls}
           <Cell
