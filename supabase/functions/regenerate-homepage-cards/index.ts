@@ -26,7 +26,7 @@ async function buildSnapshot(supabase: any, city: string) {
     supabase.from("cities").select("id").in("name_fr", aliasNames),
     supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
     supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
-    supabase.from("front_structure_homepage_overrides").select("front_structure_id, business_id").eq("city", city),
+    supabase.from("front_structure_homepage_overrides").select("front_structure_id, business_id, image_url").eq("city", city),
     supabase.from("badges").select("id, name_fr"),
     supabase
       .from("front_structure_homepage_extra_cards")
