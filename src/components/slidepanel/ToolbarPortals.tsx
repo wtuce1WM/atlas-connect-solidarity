@@ -221,12 +221,14 @@ export function ToolbarPortals({
           </button>
           {(() => {
             // If opened from the YouTube channels tab (URL carries ?openChannel=...),
-            // share the full search URL so the recipient lands on the same channel panel.
+            // share the short /y/<slug> URL that resolves back to this channel panel.
             let shareUrl: string | undefined;
             try {
               const params = new URLSearchParams(window.location.search);
               if (params.has("openChannel")) {
-                shareUrl = `https://oneworldmorocco.com${window.location.pathname}${window.location.search}`;
+                shareUrl = business.slug
+                  ? `https://oneworldmorocco.com/y/${business.slug}`
+                  : `https://oneworldmorocco.com/search?tab=youtube&openChannel=${params.get("openChannel")}`;
               }
             } catch {/* noop */}
             if (!shareUrl) {
