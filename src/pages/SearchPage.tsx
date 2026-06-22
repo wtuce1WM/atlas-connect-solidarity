@@ -3735,6 +3735,17 @@ const SearchPage = () => {
     () => aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " "),
     [aiAnswerText]
   );
+  const isWelcomeText = useMemo(() => {
+    const welcomeEn = "What are you looking for? Where are you looking for it?";
+    const welcomeAr = "ماذا تبحث عنه؟ وأين تبحث عنه؟";
+    const welcomeFr = "Que cherchez-vous ? Où le cherchez-vous ?";
+    return activeTab === "ai" && (
+      aiAnswerText === welcomeFr ||
+      aiAnswerText === welcomeEn ||
+      aiAnswerText === welcomeAr ||
+      !aiAnswerText
+    );
+  }, [activeTab, aiAnswerText]);
   const stickyAiWordCount = useMemo(
     () => stickyAiText.split(/\s+/).filter(Boolean).length,
     [stickyAiText]
@@ -4049,24 +4060,27 @@ const SearchPage = () => {
                       </button>
                     </div>
                   )}
-                  <p className="text-muted-foreground text-sm mt-6">
-                    {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
-                  </p>
+                   {!isWelcomeText && (
+                    <>
+                      <p className="text-muted-foreground text-sm mt-6">
+                        {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
+                      </p>
 
-                  <p className="text-lg md:text-xl font-bold text-foreground mt-1">
-                    {(() => {
-                      const fallbackLabel = (labelFromUrl || badgeLabelParam || "").replace(/^#+/, "").trim();
-                      const fallbackCity = (selectedCity && selectedCity !== "all" ? selectedCity : "") || cityFromUrlForThumbs || "";
-                      const display = (spokenText || searchQuery) || [fallbackCity, fallbackLabel].filter(Boolean).join(" ");
-                      return <>«&nbsp;{display}&nbsp;»</>;
-                    })()}
-                  </p>
+                      <p className="text-lg md:text-xl font-bold text-foreground mt-1">
+                        {(() => {
+                          const fallbackLabel = (labelFromUrl || badgeLabelParam || "").replace(/^#+/, "").trim();
+                          const fallbackCity = (selectedCity && selectedCity !== "all" ? selectedCity : "") || cityFromUrlForThumbs || "";
+                          const display = (spokenText || searchQuery) || [fallbackCity, fallbackLabel].filter(Boolean).join(" ");
+                          return <>«&nbsp;{display}&nbsp;»</>;
+                        })()}
+                      </p>
 
-
-                  {!isLoading && (
-                    <p className="text-primary font-semibold mt-2">
-                      {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
-                    </p>
+                      {!isLoading && (
+                        <p className="text-primary font-semibold mt-2">
+                          {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+                        </p>
+                      )}
+                    </>
                   )}
                 </>
               )}
@@ -4237,6 +4251,13 @@ const SearchPage = () => {
                       </div>
                     );
                   }
+                  if (isWelcomeText) {
+                    return (
+                      <div className="text-center font-bold text-lg md:text-xl text-foreground py-8">
+                        {currentAiText}
+                      </div>
+                    );
+                  }
                   const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === -1;
                   const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
                   // Build data source for link matching based on active tab
@@ -4362,7 +4383,7 @@ const SearchPage = () => {
               */}
 
               {/* Liquid-glass Speaker (TTS) — placé sous le dernier carousel, AVANT "Affinez votre demande" */}
-              {activeTab !== "poi" && activeTab !== "destinations" && aiAnswerText && !isAiRegenerating && (
+              {activeTab !== "poi" && activeTab !== "destinations" && aiAnswerText && !isAiRegenerating && !isWelcomeText && (
                 <div className="mt-8 flex justify-center">
                   <div className="relative flex items-center justify-center">
                     {/* Outer expanding glass ring */}
