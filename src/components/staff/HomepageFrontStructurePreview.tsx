@@ -545,7 +545,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   const refreshExtraCard = async (cardId: string) => {
     const { data: row, error: rowError } = await (supabase as any)
       .from("front_structure_homepage_extra_cards")
-      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, popular_search_id, event_id, search_query")
+      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, popular_search_id, event_id, search_query, image_url")
       .eq("id", cardId)
       .maybeSingle();
 
@@ -561,6 +561,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       sort_order: row.sort_order,
       event_id: row.event_id ?? null,
       search_query: row.search_query ?? null,
+      image_url: row.image_url ?? null,
     };
 
     const badgeName = card.badge_id
