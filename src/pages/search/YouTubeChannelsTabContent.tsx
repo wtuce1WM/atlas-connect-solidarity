@@ -225,6 +225,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
       next.set("openChannel", active.owner.id);
       setSearchParams(next, { replace: true });
     } else {
+      if (next.has("openChannel") && !autoOpenedRef.current) return;
       if (!next.has("openChannel")) return;
       next.delete("openChannel");
       setSearchParams(next, { replace: true });
