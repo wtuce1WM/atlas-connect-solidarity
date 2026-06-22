@@ -60,6 +60,7 @@ interface ExtraCard {
   sort_order: number;
   event_id: string | null;
   search_query: string | null;
+  image_url: string | null;
 }
 
 interface ExtraCardPreview {
@@ -80,6 +81,7 @@ interface ExtraCardPreview {
   event_id: string | null;
   eventName: string | null;
   search_query: string | null;
+  image_url: string | null;
 }
 
 interface BizLite { id: string; name: string }
