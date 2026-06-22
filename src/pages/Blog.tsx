@@ -419,7 +419,7 @@ const Blog = () => {
                           Trouver une bonne idée cadeau à Marrakech
                         </h2>
                         <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                          Une adresse choisie pour rapporter de Marrakech un cadeau qui a du sens : un coffret de café d'exception, à offrir comme un bijou.
+                          Notre sélection de 47 adresses à Marrakech, du palais historique au showroom de créateur, pour rapporter un cadeau qui a du sens.
                         </p>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 text-primary font-medium">
