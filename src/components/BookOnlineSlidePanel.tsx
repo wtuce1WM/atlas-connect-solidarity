@@ -2676,13 +2676,27 @@ const BookOnlineSlidePanelInner = ({
               >
                 <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
               </button>
-              <ShareButton
-                title={business?.name || (language === "en" ? "Nearby" : "À proximité")}
-                variant="dark"
-                className="shrink-0"
-                previewImage={business?.images?.[0] || null}
-                shareUrl={business?.slug ? `https://oneworldmorocco.com/${business.slug}` : undefined}
-              />
+              {(() => {
+                let shareUrl: string | undefined;
+                try {
+                  const params = new URLSearchParams(window.location.search);
+                  if (business?.id && params.get("openChannel") === String(business.id)) {
+                    shareUrl = `https://oneworldmorocco.com${window.location.pathname}${window.location.search}`;
+                  }
+                } catch {/* noop */}
+                if (!shareUrl) {
+                  shareUrl = business?.slug ? `https://oneworldmorocco.com/${business.slug}` : undefined;
+                }
+                return (
+                  <ShareButton
+                    title={business?.name || (language === "en" ? "Nearby" : "À proximité")}
+                    variant="dark"
+                    className="shrink-0"
+                    previewImage={business?.images?.[0] || null}
+                    shareUrl={shareUrl}
+                  />
+                );
+              })()}
             </div>
             {(business?.name || activeFrontTab) && (
               <div className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
