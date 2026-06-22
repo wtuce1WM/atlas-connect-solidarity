@@ -311,7 +311,7 @@ const VideoSlidePanel = ({
     if (!ctaBusiness?.slug) return undefined;
     try {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("openChannel") === String(ctaBusiness.id)) {
+      if (params.get("openChannel") === String(ctaBusiness.id) || params.get("tab") === "youtube") {
         return `https://oneworldmorocco.com/y/${ctaBusiness.slug}`;
       }
     } catch {/* noop */}
