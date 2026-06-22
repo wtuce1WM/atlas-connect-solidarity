@@ -3004,7 +3004,7 @@ const BookOnlineSlidePanelInner = ({
             )}
 
             <div
-              className="relative w-full max-w-md max-h-[85vh] sm:max-h-[80vh] max-sm:aspect-[1333/2000] sm:aspect-[1333/1737] h-auto rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-contain bg-no-repeat bg-center"
+              className="relative w-full max-w-md max-h-[90vh] sm:max-h-[80vh] sm:aspect-[1333/1737] h-auto rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-contain bg-no-repeat bg-center"
               style={{ backgroundImage: `url(${isPopupSlide ? (business as any).popup_image_url : promoBg})`, ...(isPopupSlide ? {} : { backgroundSize: 'cover' }) }}
             >
               {showOverlay && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
