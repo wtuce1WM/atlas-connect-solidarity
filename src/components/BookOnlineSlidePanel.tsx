@@ -587,6 +587,51 @@ const BookOnlineSlidePanelInner = ({
     return () => { cancelled = true; };
   }, [businessId]);
 
+  // --- Shareable YouTube tab URL sync ---------------------------------------
+  // Read ?tab=youtube[&video=<id>] from the URL once videos are loaded,
+  // and reflect overlay state back into the URL (cosmetic replaceState).
+  const ytUrlAppliedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!businessId) return;
+    if (ytUrlAppliedRef.current === businessId) return;
+    if (allYoutubeVideos.length === 0) return;
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      if ((sp.get("tab") || "").toLowerCase() === "youtube") {
+        const videoId = sp.get("video");
+        const target = videoId ? allYoutubeVideos.find(v => v.videoId === videoId) : null;
+        const fallback = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
+        const picked = target || fallback;
+        if (picked) {
+          setActiveYoutubeVideo(picked);
+          setShowYoutubeOverlay(true);
+          setYoutubeIsPlaying(true);
+        }
+      }
+    } catch {}
+    ytUrlAppliedRef.current = businessId;
+  }, [businessId, allYoutubeVideos]);
+
+  useEffect(() => {
+    if (!businessId) return;
+    try {
+      const url = new URL(window.location.href);
+      const before = url.search;
+      if (showYoutubeOverlay) {
+        url.searchParams.set("tab", "youtube");
+        if (activeYoutubeVideo?.videoId) url.searchParams.set("video", activeYoutubeVideo.videoId);
+        else url.searchParams.delete("video");
+      } else {
+        if (url.searchParams.get("tab") === "youtube") url.searchParams.delete("tab");
+        url.searchParams.delete("video");
+      }
+      if (url.search !== before) {
+        window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+      }
+    } catch {}
+  }, [businessId, showYoutubeOverlay, activeYoutubeVideo?.videoId]);
+  // -------------------------------------------------------------------------
+
   const [availabilityOverlayCtx, setAvailabilityOverlayCtx] = useState<{
     liteApiHotelId: string;
     businessName: string;
