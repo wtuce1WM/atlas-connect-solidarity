@@ -14,7 +14,7 @@ import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { businessUrl, buildOgShareUrl } from "@/lib/businessUrl";
+import { buildOgShareUrl } from "@/lib/businessUrl";
 import { formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
 import { buildKpSearchUrl } from "@/lib/buildKpSearchUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
@@ -307,6 +307,16 @@ const VideoSlidePanel = ({
   }, [open, eventId, isGeneric, pageBusinessId]);
 
   const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
+  const ctaShareUrl = (() => {
+    if (!ctaBusiness?.slug) return undefined;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("openChannel") === String(ctaBusiness.id)) {
+        return `https://oneworldmorocco.com/y/${ctaBusiness.slug}`;
+      }
+    } catch {/* noop */}
+    return buildOgShareUrl(ctaBusiness.slug);
+  })();
   const normalizeHeaderName = (value: string | null | undefined) =>
     (value || "").trim().toLocaleLowerCase("fr-FR");
   const shouldShowOwnerLogoInHeader =
@@ -602,7 +612,7 @@ const VideoSlidePanel = ({
                 title={ctaBusiness?.name || businessName}
                 variant="dark"
                 className="shrink-0"
-                shareUrl={ctaBusiness?.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
+                shareUrl={ctaShareUrl}
               />
             </div>
           </>
@@ -626,7 +636,7 @@ const VideoSlidePanel = ({
                     title={ctaBusiness?.name || businessName}
                     variant="dark"
                     className="shrink-0"
-                    shareUrl={ctaBusiness?.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
+                    shareUrl={ctaShareUrl}
                   />
                 </div>,
                 rightEl
