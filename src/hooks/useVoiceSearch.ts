@@ -788,7 +788,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       setStatus("recording");
       setLiveTranscript("");
       setMicReady(true);
+      playReadyBeep();
     };
+
 
     recognition.onresult = (event) => {
       // Android Chrome emits multiple distinct non-final result entries that
