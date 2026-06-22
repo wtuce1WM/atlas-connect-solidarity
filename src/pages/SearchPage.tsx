@@ -673,6 +673,18 @@ const SearchPage = () => {
         }
       }
 
+      // Si ce tour porte une contrainte géographique (ex. "près de la Koutoubia"),
+      // on filtre le pool par distance haversine et on exclut ses tokens du AND
+      // textuel (sinon on exigerait "koutoubia" dans le blob des restaurants).
+      const isProximityTurn = proxLat !== undefined && proxLng !== undefined;
+      if (isProximityTurn) {
+        const radius = proxRadiusKm ?? 2;
+        refinementPool = refinementPool.filter(
+          (b) => b.latitude != null && b.longitude != null &&
+            haversineKm(proxLat!, proxLng!, b.latitude as number, b.longitude as number) <= radius,
+        );
+      }
+
       // Accumulate criteria with AND semantics: each refinement turn (previous + current)
       // must match the business. A business is kept only if every turn has at least one
       // matching token in its blob.
@@ -680,7 +692,8 @@ const SearchPage = () => {
         normalizeText(text).split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !REFINEMENT_STOPWORDS.has(t))
       ));
       const previousUserQs = aiChat.filter((m) => m.role === "user").map((m) => m.content);
-      const turnsTokens = [...previousUserQs, q].map(tokenize).filter((arr) => arr.length > 0);
+      const rawTurns = isProximityTurn ? previousUserQs : [...previousUserQs, q];
+      const turnsTokens = rawTurns.map(tokenize).filter((arr) => arr.length > 0);
       const allTokens = Array.from(new Set(turnsTokens.flat()));
       const dedupedPool = Array.from(new globalThis.Map<string, Business>(refinementPool.map((b) => [b.id, b])).values());
       // Load synonym/keyword enrichment maps once (services keywords, subcategories keywords,
