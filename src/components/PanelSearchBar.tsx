@@ -154,7 +154,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
         type="button"
         onClick={onClick}
         aria-label={ariaLabel}
-        className="group shrink-0 flex flex-col items-center justify-start gap-1 w-12 h-14 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
+        className="group flex-1 sm:flex-none flex flex-col items-center justify-start gap-1 min-w-[44px] max-w-[56px] sm:w-14 h-14 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
       >
         <span
           className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
