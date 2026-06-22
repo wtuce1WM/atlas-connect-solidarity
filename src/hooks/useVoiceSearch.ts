@@ -934,7 +934,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         // No permission / not supported: fall back to direct start
         startNow();
       });
-  }, [lang, clearSilenceTimer, processTranscript, status, useScribePath, startScribeRecording, startFallbackRecorder, stopFallbackRecorderAndGetBlob, transcribeFallbackBlob]);
+  }, [lang, clearSilenceTimer, processTranscript, status, useScribePath, startScribeRecording, startFallbackRecorder, stopFallbackRecorderAndGetBlob, transcribeFallbackBlob, ensureBeepContext, playReadyBeep]);
 
   const stopRecording = useCallback(() => {
     if (useScribePath) {
