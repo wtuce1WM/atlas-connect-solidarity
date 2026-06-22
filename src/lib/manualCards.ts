@@ -5,6 +5,7 @@ export interface ManualCardInfo {
   label: string;
   badgeId: string | null;
   eventId?: string | null;
+  imageUrl?: string | null;
 }
 
 /**
@@ -22,6 +23,7 @@ interface CityExtraCardsCacheEntry {
     title: string | null;
     sort_order: number | null;
     event_id?: string | null;
+    image_url?: string | null;
   }>;
   badgeNameById: Map<string, string>;
   docIdsByBadgeId: Map<string, Set<string>>;
