@@ -351,19 +351,21 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const previews: PreviewItem[] = entries.map((entry) => {
         const doc = firstDocByEntry[entry.id];
         const overrideBusinessId = overrideByEntry[entry.id] || null;
+        const overrideImageUrl = overrideImageByEntry[entry.id] || null;
         if (!doc) {
           return {
             entryId: entry.id,
             entryName: entry.name,
             videoId: null,
             videoUrl: null,
-            thumbnail: null,
+            thumbnail: overrideImageUrl,
             businessName: overrideBusinessId ? (bizMap.get(overrideBusinessId)?.name || null) : null,
             ownerLogo: null,
             ownerName: null,
             rating: null,
             reviewCount: null,
             overrideBusinessId,
+            overrideImageUrl,
             isOverride: !!overrideBusinessId,
           };
         }
@@ -376,13 +378,14 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           entryName: entry.name,
           videoId: doc.id,
           videoUrl: doc.url,
-          thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
+          thumbnail: overrideImageUrl || doc.thumbnail_url || deriveThumbnail(doc.url),
           businessName: dispBiz?.name || null,
           ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
           ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
           rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
           reviewCount: dispBiz?.total_review_count ?? null,
           overrideBusinessId,
+          overrideImageUrl,
           isOverride: !!overrideBusinessId,
         };
       });
