@@ -3157,27 +3157,30 @@ export type Database = {
       }
       front_structure_homepage_overrides: {
         Row: {
-          business_id: string
+          business_id: string | null
           city: string
           created_at: string
           front_structure_id: string
           id: string
+          image_url: string | null
           updated_at: string
         }
         Insert: {
-          business_id: string
+          business_id?: string | null
           city: string
           created_at?: string
           front_structure_id: string
           id?: string
+          image_url?: string | null
           updated_at?: string
         }
         Update: {
-          business_id?: string
+          business_id?: string | null
           city?: string
           created_at?: string
           front_structure_id?: string
           id?: string
+          image_url?: string | null
           updated_at?: string
         }
         Relationships: [
