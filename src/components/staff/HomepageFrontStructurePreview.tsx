@@ -514,11 +514,13 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   }, [openSearchEntry, searchByEntry]);
 
   const setOverride = async (entryId: string, businessId: string | null) => {
-    if (businessId) {
+    const current = items.find((i) => i.entryId === entryId);
+    const currentImage = current?.overrideImageUrl || null;
+    if (businessId || currentImage) {
       const { error } = await (supabase as any)
         .from("front_structure_homepage_overrides")
         .upsert(
-          { front_structure_id: entryId, city, business_id: businessId },
+          { front_structure_id: entryId, city, business_id: businessId, image_url: currentImage },
           { onConflict: "front_structure_id,city" }
         );
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
@@ -532,6 +534,28 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     }
     setOpenSearchEntry(null);
     setSearchByEntry((p) => ({ ...p, [entryId]: "" }));
+    setEntriesReloadKey((k) => k + 1);
+  };
+
+  const setOverrideImage = async (entryId: string, imageUrl: string | null) => {
+    const current = items.find((i) => i.entryId === entryId);
+    const currentBusiness = current?.overrideBusinessId || null;
+    if (imageUrl || currentBusiness) {
+      const { error } = await (supabase as any)
+        .from("front_structure_homepage_overrides")
+        .upsert(
+          { front_structure_id: entryId, city, business_id: currentBusiness, image_url: imageUrl },
+          { onConflict: "front_structure_id,city" }
+        );
+      if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    } else {
+      const { error } = await (supabase as any)
+        .from("front_structure_homepage_overrides")
+        .delete()
+        .eq("front_structure_id", entryId)
+        .eq("city", city);
+      if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    }
     setEntriesReloadKey((k) => k + 1);
   };
 
