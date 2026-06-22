@@ -556,10 +556,15 @@ const SearchPage = () => {
       let proxRadiusKm: number | undefined;
       if (proxMatch) {
         const targetName = proxMatch[1].trim().replace(/[?.!,;:]+$/, "");
-        refinedQuery = queryWithoutDistance.replace(proximityRe, "").trim() || lastAiProximityRef.current?.query || queryWithoutDistance || q;
+        const proximityLeftover = queryWithoutDistance.replace(proximityRe, "").trim();
+        // Quand le tour ne contient QUE la proximité (ex. "près de la koutoubia"),
+        // on conserve l'intention initiale ("je veux manger une langouste…") en
+        // repartant du searchQuery seed plutôt que du tour précédent ou du tour vide.
+        refinedQuery = proximityLeftover || lastAiProximityRef.current?.query || searchQuery.trim() || queryWithoutDistance || q;
         const targetVariants = [...new Set([
           targetName,
-          targetName.replace(/^(riad|hôtel|hotel|appartement|villa|maison\s+d['’ ]?hôtes?)\s+/i, "").trim(),
+          targetName.replace(/^(la|le|les|l['’])\s+/i, "").trim(),
+          targetName.replace(/^(riad|hôtel|hotel|appartement|villa|maison\s+d['’ ]?hôtes?|mosqu[ée]e|place|jardin|palais|tombeaux|m[ée]dersa)\s+/i, "").trim(),
         ].filter(Boolean))];
         let targets: any[] = [];
         for (const variant of targetVariants) {
@@ -571,6 +576,23 @@ const SearchPage = () => {
             .not("longitude", "is", null)
             .limit(5);
           if (data?.length) { targets = data as any[]; break; }
+        }
+        // Fallback : si aucune entreprise ne porte ce nom, chercher dans les
+        // points d'intérêt (monuments, places, jardins…) — ex. "la Koutoubia".
+        if (!targets.length) {
+          for (const variant of targetVariants) {
+            const { data } = await supabase
+              .from("points_of_interest")
+              .select("id, name_fr, latitude, longitude")
+              .ilike("name_fr", `%${variant}%`)
+              .not("latitude", "is", null)
+              .not("longitude", "is", null)
+              .limit(5);
+            if (data?.length) {
+              targets = (data as any[]).map((p) => ({ id: p.id, name: p.name_fr, latitude: p.latitude, longitude: p.longitude, city: cityFromUrl || null }));
+              break;
+            }
+          }
         }
         const target = (targets || []).find((t: any) => !cityFromUrl || (t.city && t.city.toLowerCase() === cityFromUrl.toLowerCase())) || (targets || [])[0];
         if (target?.latitude && target?.longitude) {
