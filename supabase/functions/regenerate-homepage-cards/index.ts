@@ -26,7 +26,7 @@ async function buildSnapshot(supabase: any, city: string) {
     supabase.from("cities").select("id").in("name_fr", aliasNames),
     supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
     supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
-    supabase.from("front_structure_homepage_overrides").select("front_structure_id, business_id").eq("city", city),
+    supabase.from("front_structure_homepage_overrides").select("front_structure_id, business_id, image_url").eq("city", city),
     supabase.from("badges").select("id, name_fr"),
     supabase
       .from("front_structure_homepage_extra_cards")
@@ -58,8 +58,10 @@ async function buildSnapshot(supabase: any, city: string) {
   });
 
   const overrideByEntry: Record<string, string> = {};
+  const overrideImageByEntry: Record<string, string | null> = {};
   (overridesRes.data || []).forEach((o: any) => {
-    overrideByEntry[o.front_structure_id] = o.business_id;
+    if (o.business_id) overrideByEntry[o.front_structure_id] = o.business_id;
+    if (o.image_url) overrideImageByEntry[o.front_structure_id] = o.image_url;
   });
 
   const badgeMap = new Map<string, string>(
@@ -230,6 +232,7 @@ async function buildSnapshot(supabase: any, city: string) {
   const entryCards = entries.map((entry: any) => {
     const doc = firstDocByEntry[entry.id];
     const overrideBusinessId = overrideByEntry[entry.id] || null;
+    const overrideImage = overrideImageByEntry[entry.id] || null;
     const subcategoryNames = (entry.subcategory_ids || [])
       .map((id: string) => subcatNameById.get(id))
       .filter(Boolean) as string[];
@@ -237,7 +240,7 @@ async function buildSnapshot(supabase: any, city: string) {
       return {
         key: `entry:${entry.id}`, kind: "entry",
         data: {
-          videoId: null, videoUrl: null, thumbnail: null,
+          videoId: null, videoUrl: null, thumbnail: overrideImage,
           businessName: overrideBusinessId ? (bizMap.get(overrideBusinessId)?.name || null) : null,
           ownerLogo: null, ownerName: null, ownerId: null,
           rating: null, reviewCount: null, label: entry.name,
@@ -252,7 +255,7 @@ async function buildSnapshot(supabase: any, city: string) {
       key: `entry:${entry.id}`, kind: "entry",
       data: {
         videoId: doc.id, videoUrl: doc.url,
-        thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
+        thumbnail: overrideImage || doc.thumbnail_url || deriveThumbnail(doc.url),
         businessName: dispBiz?.name || null,
         ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
         ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,

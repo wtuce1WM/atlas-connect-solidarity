@@ -47,6 +47,7 @@ interface PreviewItem {
   rating: number | null;
   reviewCount: number | null;
   overrideBusinessId: string | null;
+  overrideImageUrl: string | null;
   isOverride: boolean;
 }
 
@@ -151,7 +152,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
         (supabase as any)
           .from("front_structure_homepage_overrides")
-          .select("front_structure_id, business_id")
+          .select("front_structure_id, business_id, image_url")
           .eq("city", city),
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
@@ -171,8 +172,10 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       });
 
       const overrideByEntry: Record<string, string> = {};
+      const overrideImageByEntry: Record<string, string> = {};
       ((overridesRes as any).data || []).forEach((o: any) => {
-        overrideByEntry[o.front_structure_id] = o.business_id;
+        if (o.business_id) overrideByEntry[o.front_structure_id] = o.business_id;
+        if (o.image_url) overrideImageByEntry[o.front_structure_id] = o.image_url;
       });
 
       const badges: BadgeLite[] = ((badgesRes.data as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr }));
@@ -348,19 +351,21 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const previews: PreviewItem[] = entries.map((entry) => {
         const doc = firstDocByEntry[entry.id];
         const overrideBusinessId = overrideByEntry[entry.id] || null;
+        const overrideImageUrl = overrideImageByEntry[entry.id] || null;
         if (!doc) {
           return {
             entryId: entry.id,
             entryName: entry.name,
             videoId: null,
             videoUrl: null,
-            thumbnail: null,
+            thumbnail: overrideImageUrl,
             businessName: overrideBusinessId ? (bizMap.get(overrideBusinessId)?.name || null) : null,
             ownerLogo: null,
             ownerName: null,
             rating: null,
             reviewCount: null,
             overrideBusinessId,
+            overrideImageUrl,
             isOverride: !!overrideBusinessId,
           };
         }
@@ -373,13 +378,14 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           entryName: entry.name,
           videoId: doc.id,
           videoUrl: doc.url,
-          thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
+          thumbnail: overrideImageUrl || doc.thumbnail_url || deriveThumbnail(doc.url),
           businessName: dispBiz?.name || null,
           ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
           ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
           rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
           reviewCount: dispBiz?.total_review_count ?? null,
           overrideBusinessId,
+          overrideImageUrl,
           isOverride: !!overrideBusinessId,
         };
       });
@@ -508,11 +514,13 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   }, [openSearchEntry, searchByEntry]);
 
   const setOverride = async (entryId: string, businessId: string | null) => {
-    if (businessId) {
+    const current = items.find((i) => i.entryId === entryId);
+    const currentImage = current?.overrideImageUrl || null;
+    if (businessId || currentImage) {
       const { error } = await (supabase as any)
         .from("front_structure_homepage_overrides")
         .upsert(
-          { front_structure_id: entryId, city, business_id: businessId },
+          { front_structure_id: entryId, city, business_id: businessId, image_url: currentImage },
           { onConflict: "front_structure_id,city" }
         );
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
@@ -526,6 +534,28 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     }
     setOpenSearchEntry(null);
     setSearchByEntry((p) => ({ ...p, [entryId]: "" }));
+    setEntriesReloadKey((k) => k + 1);
+  };
+
+  const setOverrideImage = async (entryId: string, imageUrl: string | null) => {
+    const current = items.find((i) => i.entryId === entryId);
+    const currentBusiness = current?.overrideBusinessId || null;
+    if (imageUrl || currentBusiness) {
+      const { error } = await (supabase as any)
+        .from("front_structure_homepage_overrides")
+        .upsert(
+          { front_structure_id: entryId, city, business_id: currentBusiness, image_url: imageUrl },
+          { onConflict: "front_structure_id,city" }
+        );
+      if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    } else {
+      const { error } = await (supabase as any)
+        .from("front_structure_homepage_overrides")
+        .delete()
+        .eq("front_structure_id", entryId)
+        .eq("city", city);
+      if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    }
     setEntriesReloadKey((k) => k + 1);
   };
 
@@ -941,6 +971,36 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                           )}
                         </>
                       )}
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-muted-foreground">
+                        Image forcée {it.overrideImageUrl && <span className="text-primary">(prioritaire)</span>}
+                      </label>
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+                            const path = `homepage-entries/${it.entryId}-${Date.now()}.${ext}`;
+                            const { error: upErr } = await supabase.storage
+                              .from("sponsor-assets")
+                              .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+                            if (upErr) { toast({ title: "Upload échoué", description: upErr.message, variant: "destructive" }); return; }
+                            const { data: pub } = supabase.storage.from("sponsor-assets").getPublicUrl(path);
+                            await setOverrideImage(it.entryId, pub.publicUrl);
+                            e.target.value = "";
+                          }}
+                          className="h-5 text-[9px] flex-1"
+                        />
+                        {it.overrideImageUrl && (
+                          <button type="button" className="shrink-0" onClick={() => setOverrideImage(it.entryId, null)} title="Retirer l'image">
+                            <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </SortableCell>
                 );
