@@ -286,7 +286,7 @@ async function buildSnapshot(supabase: any, city: string) {
         key: `extra:${card.id}`, kind: "extra",
         data: {
           videoId: null, videoUrl: null,
-          thumbnail: event?.images?.[0] || null,
+          thumbnail: card.image_url || event?.images?.[0] || null,
           businessName: event?.name || biz?.name || null,
           ownerLogo: null, ownerName: null, ownerId: null,
           rating: null, reviewCount: null, label,
@@ -306,7 +306,7 @@ async function buildSnapshot(supabase: any, city: string) {
       key: `extra:${card.id}`, kind: "extra",
       data: {
         videoId: doc.id, videoUrl: doc.url,
-        thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
+        thumbnail: card.image_url || doc.thumbnail_url || deriveThumbnail(doc.url),
         businessName: dispBiz?.name || null,
         ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
         ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
