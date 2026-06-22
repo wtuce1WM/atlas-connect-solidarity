@@ -52,7 +52,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
   return (
     <div
       className="absolute inset-0 h-full min-h-0 bg-background bg-no-repeat bg-cover bg-center animate-slide-up-from-bottom"
-      style={{ backgroundImage: "url('/hero_magical_realism_v3.jpg')" }}
+      style={{ backgroundImage: `url('${koutoubiaVerticalBgAsset.url}')` }}
     >
       <button
         type="button"
