@@ -1063,6 +1063,36 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                       )}
                     </div>
                   </div>
+                  <div>
+                    <label className="text-[9px] text-muted-foreground">
+                      Image forcée {card.image_url && <span className="text-primary">(prioritaire)</span>}
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+                          const path = `homepage-extra-cards/${card.cardId}-${Date.now()}.${ext}`;
+                          const { error: upErr } = await supabase.storage
+                            .from("sponsor-assets")
+                            .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+                          if (upErr) { toast({ title: "Upload échoué", description: upErr.message, variant: "destructive" }); return; }
+                          const { data: pub } = supabase.storage.from("sponsor-assets").getPublicUrl(path);
+                          await updateExtraCard(card.cardId, { image_url: pub.publicUrl });
+                          e.target.value = "";
+                        }}
+                        className="h-5 text-[9px] flex-1"
+                      />
+                      {card.image_url && (
+                        <button type="button" className="shrink-0" onClick={() => updateExtraCard(card.cardId, { image_url: null })} title="Retirer l'image">
+                          <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </SortableCell>
               );
             })}
