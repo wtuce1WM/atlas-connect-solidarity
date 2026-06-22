@@ -1168,9 +1168,12 @@ const BookOnlineSlidePanelInner = ({
   // Video info via extracted hook
   const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
   // Force sound ON at slide panel mount (overrides any stored "off" preference).
+  // Defer while a Popup/Offre overlay is open — sound activates only once the card is closed,
+  // mirroring how video autoplay is neutralized during overlays.
   useEffect(() => {
+    if (anyOverlayOpen) return;
     setGlobalSoundOn(true);
-  }, [setGlobalSoundOn]);
+  }, [setGlobalSoundOn, anyOverlayOpen]);
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
   const activeInternalVideoLikeId = activeVideoOverlay?.url || (
     effectiveMedia?.kind === "video" && videoInfo?.type !== "youtube" ? effectiveMedia.url : null
