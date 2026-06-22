@@ -2992,7 +2992,7 @@ const BookOnlineSlidePanelInner = ({
           className={`absolute inset-0 z-[120] flex items-center justify-center p-4 animate-fade-in ${showOverlay ? 'bg-black/70 backdrop-blur-sm' : ''}`}
           onClick={() => setShowWelcomePopup(false)}
         >
-          <div className="relative flex items-center justify-center w-full max-w-lg md:max-w-xl px-10 sm:px-16" onClick={(e) => e.stopPropagation()}>
+          <div className={`relative flex items-center justify-center w-full px-10 sm:px-16 ${isPopupSlide && !hasMeta ? "max-w-xl md:max-w-2xl" : "max-w-lg md:max-w-xl"}`} onClick={(e) => e.stopPropagation()}>
             {totalSlides > 1 && (
               <button
                 onClick={(e) => { e.stopPropagation(); goPrev(); }}
@@ -3004,7 +3004,11 @@ const BookOnlineSlidePanelInner = ({
             )}
 
             <div
-              className="relative w-full max-w-md max-h-[90vh] sm:max-h-[80vh] sm:aspect-[1333/1737] h-auto rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center"
+              className={`relative w-full h-auto rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center ${
+                isPopupSlide && !hasMeta 
+                  ? "max-w-lg md:max-w-xl aspect-[1333/1737] max-h-[90vh] sm:max-h-[85vh]" 
+                  : "max-w-md max-h-[90vh] sm:max-h-[80vh] sm:aspect-[1333/1737]"
+              }`}
               style={{ backgroundImage: `url(${isPopupSlide ? (business as any).popup_image_url : promoBg})` }}
             >
               {showOverlay && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
