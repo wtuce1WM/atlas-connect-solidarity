@@ -313,12 +313,9 @@ const VideoSlidePanel = ({
     !!owner?.logo_url &&
     normalizeHeaderName(businessName) === normalizeHeaderName(owner.name);
 
-  const storeReturnToTest = () => {
-    try {
-      if (videoId) sessionStorage.setItem("returnToTestVideoId", videoId);
-      if (returnContext) sessionStorage.setItem("returnToTestContext", returnContext);
-    } catch {}
-  };
+  // /test return flow removed — no-op kept to preserve call sites.
+  const storeReturnToTest = () => {};
+
 
   useEffect(() => {
     if (!open || !agendaCity) {
