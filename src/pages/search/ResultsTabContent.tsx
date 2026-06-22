@@ -19,6 +19,7 @@ import FrontStructureNavBar from "@/components/FrontStructureNavBar";
 import FrontStructureSubNavBar from "@/components/FrontStructureSubNavBar";
 import FrontStructureSubFilterContent from "@/components/FrontStructureSubFilterContent";
 import FiltersOverlayFlow from "@/components/FiltersOverlayFlow";
+import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import type { Business } from "@/pages/search/types";
@@ -805,7 +806,7 @@ export default function ResultsTabContent({
           return (
             <div
               className="fixed inset-0 z-[230] shadow-2xl flex flex-col bg-no-repeat bg-cover bg-center animate-slide-up-from-bottom lg:left-1/2"
-              style={{ backgroundImage: "linear-gradient(180deg,rgba(12,8,5,.55),rgba(12,8,5,.15) 30%,rgba(12,8,5,.85) 65%,rgba(12,8,5,1)), url('/hero_magical_realism_v1.jpg')" }}
+              style={{ backgroundImage: `linear-gradient(180deg,rgba(12,8,5,.55),rgba(12,8,5,.15) 30%,rgba(12,8,5,.85) 65%,rgba(12,8,5,1)), url('${koutoubiaVerticalBgAsset.url}')` }}
             >
               <FiltersOverlayFlow
                 frontTabs={frontTabs}
