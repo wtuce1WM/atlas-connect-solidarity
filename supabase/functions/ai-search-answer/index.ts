@@ -38,6 +38,21 @@ serve(async (req) => {
     const geoIntent = nearMeIntent || maxDistanceKm !== null;
     const hasUserCoords = !!(userCoords && typeof userCoords.lat === "number" && typeof userCoords.lng === "number");
 
+    // Ville par défaut : Essaouira si l'utilisateur est dans un rayon de 80 km autour
+    // d'Essaouira, sinon TOUJOURS Marrakech (même sans géolocalisation).
+    const ESSAOUIRA = { lat: 31.5085, lng: -9.7595 };
+    const haversineKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const toRad = (d: number) => (d * Math.PI) / 180;
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    };
+    const defaultCity = (hasUserCoords && haversineKm(userCoords.lat, userCoords.lng, ESSAOUIRA.lat, ESSAOUIRA.lng) <= 80)
+      ? "Essaouira"
+      : "Marrakech";
+
     // Si l'utilisateur exprime une intention de proximité physique mais que sa position
     // n'est pas connue → on demande l'autorisation de géolocalisation côté UI.
     if (geoIntent && !hasUserCoords) {
