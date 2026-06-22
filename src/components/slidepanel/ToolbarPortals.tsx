@@ -219,14 +219,31 @@ export function ToolbarPortals({
           >
             <Bookmark className="h-4 w-4" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
           </button>
-          <ShareButton
-            title={business.name}
-            variant="dark"
-            className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black"
-            buttonClassName="glass-toolbar-btn"
-            shareUrl={business.slug ? `https://oneworldmorocco.com/${business.slug}` : undefined}
-            previewImage={images?.[0] || business?.images?.[0] || null}
-          />
+          {(() => {
+            // If opened from the YouTube channels tab (URL carries ?openChannel=<this business>),
+            // share the full search URL so the recipient lands on the same channel panel.
+            let shareUrl: string | undefined;
+            try {
+              const params = new URLSearchParams(window.location.search);
+              if (params.get("openChannel") === String(business.id)) {
+                shareUrl = `https://oneworldmorocco.com${window.location.pathname}${window.location.search}`;
+              }
+            } catch {/* noop */}
+            if (!shareUrl) {
+              shareUrl = business.slug ? `https://oneworldmorocco.com/${business.slug}` : undefined;
+            }
+            return (
+              <ShareButton
+                title={business.name}
+                variant="dark"
+                className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black"
+                buttonClassName="glass-toolbar-btn"
+                shareUrl={shareUrl}
+                previewImage={images?.[0] || business?.images?.[0] || null}
+              />
+            );
+          })()}
+
         </div>,
         toolbarPortal
       )}
