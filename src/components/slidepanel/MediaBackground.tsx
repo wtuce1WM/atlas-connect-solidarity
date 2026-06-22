@@ -51,6 +51,37 @@ const MediaBackground = React.memo(function MediaBackground({
     }
   }, [soundOn, effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, videoRef, anyOverlayOpen]);
 
+  // For YouTube iframes, proactively unmute on mount when the user preference is sound-on.
+  // The embed URL is generated with mute=0 already, but browsers may still start muted; this
+  // postMessage acts as a belt-and-braces guarantee that the slidepanel video plays with sound.
+  useEffect(() => {
+    if (effectiveMedia?.kind !== "video" || videoInfo?.type !== "youtube") return;
+    if (anyOverlayOpen || !soundOn) return;
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const send = () => {
+      try {
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: "command", func: "unMute", args: [] }),
+          "*"
+        );
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: "command", func: "setVolume", args: [100] }),
+          "*"
+        );
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: "command", func: "playVideo", args: [] }),
+          "*"
+        );
+      } catch {/* ignore */}
+    };
+    // Send a few times to cover the player's onReady timing window.
+    const t1 = setTimeout(send, 200);
+    const t2 = setTimeout(send, 800);
+    const t3 = setTimeout(send, 1800);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [soundOn, effectiveMedia?.url, effectiveMedia?.kind, videoInfo?.type, iframeRef, anyOverlayOpen]);
+
   if (!effectiveMedia) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-muted">
