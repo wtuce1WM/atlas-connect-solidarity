@@ -38,6 +38,21 @@ serve(async (req) => {
     const geoIntent = nearMeIntent || maxDistanceKm !== null;
     const hasUserCoords = !!(userCoords && typeof userCoords.lat === "number" && typeof userCoords.lng === "number");
 
+    // Ville par défaut : Essaouira si l'utilisateur est dans un rayon de 80 km autour
+    // d'Essaouira, sinon TOUJOURS Marrakech (même sans géolocalisation).
+    const ESSAOUIRA = { lat: 31.5085, lng: -9.7595 };
+    const haversineKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const toRad = (d: number) => (d * Math.PI) / 180;
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    };
+    const defaultCity = (hasUserCoords && haversineKm(userCoords.lat, userCoords.lng, ESSAOUIRA.lat, ESSAOUIRA.lng) <= 80)
+      ? "Essaouira"
+      : "Marrakech";
+
     // Si l'utilisateur exprime une intention de proximité physique mais que sa position
     // n'est pas connue → on demande l'autorisation de géolocalisation côté UI.
     if (geoIntent && !hasUserCoords) {
@@ -593,8 +608,8 @@ RÈGLES :
 - CRITIQUE : Écris chaque nom EXACTEMENT comme dans la liste fournie, caractère pour caractère (mêmes accents, majuscules, ponctuation). N'ajoute JAMAIS de suffixe, de ville, de quartier, de parenthèses, de tiret descriptif, ni d'article ("Le", "La", "Restaurant", etc.) qui ne figure pas dans le nom original. Pas de reformulation, pas de traduction du nom.
 - Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : '')}${boostVerified && effectiveHasRenderResults && !mode ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${!mode && !effectiveHasRenderResults ? `\n- ${noResultsCfg || "Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles."}
 - IMPORTANT : Ne cite AUCUN nom d'établissement spécifique. Tu ne connais pas notre annuaire, donc n'invente pas de noms. Donne uniquement des conseils généraux sur la thématique ou la destination.
-- Si la recherche mentionne une ville marocaine, partage ce que tu sais sur cette ville en rapport avec la requête.
-- Propose à l'utilisateur d'affiner sa recherche ou de chercher avec d'autres mots-clés.` : (!mode ? `\n- Si la liste contient peu de résultats (1-2), complète ta réponse avec des conseils généraux sur la destination/thématique pour enrichir l'expérience.` : '')}
+- VILLE PAR DÉFAUT : La recherche concerne ${defaultCity}. Ne suggère JAMAIS à l'utilisateur de chercher dans une autre ville (ni Fès, ni Casablanca, ni Rabat, ni aucune autre). Ne propose JAMAIS de "préciser une ville" ou de "choisir une ville comme Marrakech ou Fès" — la ville est déjà ${defaultCity}. Concentre toute ta réponse exclusivement sur ${defaultCity}.
+- Propose à l'utilisateur d'affiner sa recherche avec d'autres mots-clés (quartier, type de cuisine, ambiance, budget…), mais TOUJOURS dans ${defaultCity}.` : (!mode ? `\n- Si la liste contient peu de résultats (1-2), complète ta réponse avec des conseils généraux sur la destination/thématique pour enrichir l'expérience.` : '')}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - Entoure chaque nom de doubles astérisques, par exemple **Nom**.
 - FORMATAGE : Utilise du markdown riche pour structurer ta réponse. Gras (**texte**), italique (*texte*), listes à puces (- item), listes numérotées (1. item), et sauts de paragraphe. Pas de titres (#). Structure bien ta réponse avec des paragraphes et des listes quand c'est pertinent.
