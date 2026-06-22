@@ -573,7 +573,6 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         returnContext={null}
-        returnContext={null}
       />
     </div>
   );
