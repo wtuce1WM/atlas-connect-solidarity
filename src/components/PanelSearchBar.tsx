@@ -73,6 +73,31 @@ const enrichParamsWithCityFromQuery = (params: Record<string, string>): Record<s
   return params;
 };
 
+// Single cell used inside the unified dock pill: round icon + small label below.
+// Declared at module scope so React doesn't remount it on every parent render
+// (which would otherwise drop click events between mousedown/mouseup).
+const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media" }) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className="group flex-1 sm:flex-none flex flex-col items-center justify-start gap-1 min-w-[44px] max-w-[56px] sm:w-14 h-14 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
+    >
+      <span
+        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+          active
+            ? "bg-[#C04F17] text-white group-hover:bg-[#C04F17]/90"
+            : "bg-black/60 text-white group-hover:bg-black/75"
+        }`}
+      >
+        {icon}
+      </span>
+      <span className="block w-full text-center text-[9px] font-bold tracking-normal leading-none whitespace-nowrap font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] text-white">{label}</span>
+    </button>
+  );
+};
+
 const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
   const navigate = useNavigate();
@@ -147,28 +172,6 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
 
   const isBlack = iconVariant === "black";
 
-  // Single cell used inside the unified dock pill: round icon + small label below
-  const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; label: string; onClick: () => void; ariaLabel: string; active?: boolean; variant?: "media" }) => {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label={ariaLabel}
-        className="group flex-1 sm:flex-none flex flex-col items-center justify-start gap-1 min-w-[44px] max-w-[56px] sm:w-14 h-14 pt-1 pb-0.5 rounded-2xl hover:bg-white/10 transition-colors"
-      >
-        <span
-          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-            active
-              ? "bg-[#C04F17] text-white group-hover:bg-[#C04F17]/90"
-              : "bg-black/60 text-white group-hover:bg-black/75"
-          }`}
-        >
-          {icon}
-        </span>
-        <span className="block w-full text-center text-[9px] font-bold tracking-normal leading-none whitespace-nowrap font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] text-white">{label}</span>
-      </button>
-    );
-  };
 
   // Render play/mute cells from the typed videoControls prop
   const renderVideoCells = (): ReactNode => {
