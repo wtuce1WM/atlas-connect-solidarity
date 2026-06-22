@@ -3735,6 +3735,17 @@ const SearchPage = () => {
     () => aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " "),
     [aiAnswerText]
   );
+  const isWelcomeText = useMemo(() => {
+    const welcomeEn = "What are you looking for? Where are you looking for it?";
+    const welcomeAr = "ماذا تبحث عنه؟ وأين تبحث عنه؟";
+    const welcomeFr = "Que cherchez-vous ? Où le cherchez-vous ?";
+    return activeTab === "ai" && (
+      aiAnswerText === welcomeFr ||
+      aiAnswerText === welcomeEn ||
+      aiAnswerText === welcomeAr ||
+      !aiAnswerText
+    );
+  }, [activeTab, aiAnswerText]);
   const stickyAiWordCount = useMemo(
     () => stickyAiText.split(/\s+/).filter(Boolean).length,
     [stickyAiText]
