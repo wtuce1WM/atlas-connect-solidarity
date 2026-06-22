@@ -172,8 +172,10 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       });
 
       const overrideByEntry: Record<string, string> = {};
+      const overrideImageByEntry: Record<string, string> = {};
       ((overridesRes as any).data || []).forEach((o: any) => {
-        overrideByEntry[o.front_structure_id] = o.business_id;
+        if (o.business_id) overrideByEntry[o.front_structure_id] = o.business_id;
+        if (o.image_url) overrideImageByEntry[o.front_structure_id] = o.image_url;
       });
 
       const badges: BadgeLite[] = ((badgesRes.data as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr }));
