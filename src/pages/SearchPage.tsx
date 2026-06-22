@@ -1887,6 +1887,20 @@ const SearchPage = () => {
     }
   }, [searchQuery, categoryFromUrl, queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity, cityFromUrl]);
 
+  // /search?tab=ai default city: Essaouira if user is geolocated within 80km of
+  // Essaouira, otherwise Marrakech. Only applies when no city is explicitly set
+  // (URL param, query mention, or manual selection).
+  useEffect(() => {
+    if (activeTab !== "ai") return;
+    if (cityFromUrl || queryHasExplicitCity) return;
+    if (selectedCity && selectedCity !== "all") return;
+    const ESSAOUIRA = { lat: 31.5085, lng: -9.7595 };
+    const nearEssaouira = !!geo.coords && haversineKm(geo.coords.lat, geo.coords.lng, ESSAOUIRA.lat, ESSAOUIRA.lng) <= 80;
+    const target = nearEssaouira ? "Essaouira" : "Marrakech";
+    setSelectedCity(target);
+    setIsGeoCityAutoSelected(true);
+  }, [activeTab, cityFromUrl, queryHasExplicitCity, selectedCity, geo.coords]);
+
   // If query explicitly mentions a city (e.g. voice search "à Essaouira"), override selectedCity
   useEffect(() => {
     if (cityFromUrl) return;
