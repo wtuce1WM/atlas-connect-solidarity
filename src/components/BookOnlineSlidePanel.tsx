@@ -3025,17 +3025,19 @@ const BookOnlineSlidePanelInner = ({
               )}
 
               {!isPopupSlide && currentPromo && (
-                <div className="relative pt-12 px-6 pb-6 text-white flex-1">
-                  <div className="flex items-start justify-between gap-3 mb-4 pr-12">
-                    <h3 className="text-3xl md:text-4xl font-extrabold leading-tight" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                      {currentPromo.title}
-                    </h3>
-                    {promoAmount && (
-                      <div className="shrink-0 text-[28px] md:text-[34px] font-black text-[#D4AF37] whitespace-nowrap leading-none" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        {promoAmount}
-                      </div>
-                    )}
-                  </div>
+                <div className="relative pt-20 px-6 pb-6 text-white flex-1">
+                  {promoAmount && (
+                    <div
+                      className="absolute top-3 left-6 flex flex-col items-center justify-center z-10 text-white bg-black/65 backdrop-blur-md px-5 py-2 rounded-xl border border-white/10 shadow-xl min-w-max"
+                      style={{ fontFamily: "'Montserrat', sans-serif" }}
+                    >
+                      <span className="text-white font-black text-[11px] sm:text-[12px] tracking-widest uppercase leading-none whitespace-nowrap">économisez</span>
+                      <span className="text-[#D4AF37] font-black text-2xl sm:text-3xl leading-none mt-1.5 whitespace-nowrap">{promoAmount}</span>
+                    </div>
+                  )}
+                  <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    {currentPromo.title}
+                  </h3>
                   {currentPromo.promotion_message && (
                     <div
                       className="prose prose-invert prose-base max-w-none text-base md:text-lg leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_blockquote]:border-l-2 [&_blockquote]:border-white/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
