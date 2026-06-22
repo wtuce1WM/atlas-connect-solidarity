@@ -47,7 +47,7 @@ async function loadCityExtraCards(city: City): Promise<CityExtraCardsCacheEntry>
 
   const { data: extraRows } = await (supabase as any)
     .from("front_structure_homepage_extra_cards")
-    .select("id, business_id, badge_id, video_document_id, title, sort_order, event_id")
+    .select("id, business_id, badge_id, video_document_id, title, sort_order, event_id, image_url")
     .eq("city", city)
     .order("sort_order", { ascending: true });
 
