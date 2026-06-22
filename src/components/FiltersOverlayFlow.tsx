@@ -193,7 +193,7 @@ export default function FiltersOverlayFlow({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="relative z-10 shrink-0 flex items-center px-4 py-3 border-b border-border">
+      <div className="relative z-10 shrink-0 flex items-center px-4 py-3">
         <button
           type="button"
           onClick={handleBack}
