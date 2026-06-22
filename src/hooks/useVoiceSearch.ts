@@ -326,6 +326,41 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   const levelCtxRef = useRef<AudioContext | null>(null);
   const levelRafRef = useRef<number | null>(null);
 
+  // Beep de signal "micro prêt, parlez maintenant". Sur iOS/desktop il n'y a
+  // pas de cue système comme sur Android, on en synthétise un.
+  const beepCtxRef = useRef<AudioContext | null>(null);
+  const ensureBeepContext = useCallback(() => {
+    // Doit être créé dans un user gesture (start du recording) pour pouvoir
+    // jouer plus tard sans être bloqué par les autoplay policies.
+    if (!beepCtxRef.current || beepCtxRef.current.state === "closed") {
+      try {
+        const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        beepCtxRef.current = new Ctx();
+      } catch { /* ignore */ }
+    }
+    if (beepCtxRef.current?.state === "suspended") {
+      void beepCtxRef.current.resume();
+    }
+  }, []);
+  const playReadyBeep = useCallback(() => {
+    const ctx = beepCtxRef.current;
+    if (!ctx || ctx.state === "closed") return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, now);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.18);
+    } catch { /* ignore */ }
+  }, []);
+
+
   const stopAudioLevelMonitor = useCallback(() => {
     if (levelRafRef.current != null) {
       cancelAnimationFrame(levelRafRef.current);
