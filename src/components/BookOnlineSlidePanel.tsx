@@ -3145,7 +3145,7 @@ const BookOnlineSlidePanelInner = ({
 
               {promoAmount && (
                 <div 
-                  className="absolute top-2.5 left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-10 text-white bg-black/65 backdrop-blur-md px-5 py-2 rounded-xl border border-white/10 shadow-xl min-w-max"
+                  className="absolute top-3 left-6 flex flex-col items-center justify-center z-10 text-white bg-black/65 backdrop-blur-md px-5 py-2 rounded-xl border border-white/10 shadow-xl min-w-max"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
                   <span className="text-white font-black text-[11px] sm:text-[12px] tracking-widest uppercase leading-none whitespace-nowrap">économisez</span>
