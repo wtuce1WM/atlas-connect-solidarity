@@ -35,12 +35,17 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
   if (!open) return null;
 
   const goBadge = (badge: HashtagBadge) => {
-    const city = readLastHomepageCity() || "Marrakech";
-    const sp = new URLSearchParams(location.pathname === "/search" ? location.search : "");
-    if (!sp.get("city")) sp.set("city", city);
+    // Build a clean, shareable URL: only city + badge params. We intentionally
+    // drop subcats/label/category/q/_t/openBusiness so the resulting URL is
+    // a pure "hashtag view" that can be copied and shared as-is.
+    const currentCity = location.pathname === "/search"
+      ? new URLSearchParams(location.search).get("city")
+      : null;
+    const city = currentCity || readLastHomepageCity() || "Marrakech";
+    const sp = new URLSearchParams();
+    sp.set("city", city);
     sp.set("badgeId", badge.id);
     sp.set("badgeLabel", badge.name_fr);
-    sp.delete("openBusiness");
     // Close any previously opened slide panel so it doesn't reappear over the hashtag results.
     try { window.dispatchEvent(new CustomEvent("close-compact-panel")); } catch {}
     navigate(`/search?${sp.toString()}`);
