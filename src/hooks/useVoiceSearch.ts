@@ -658,7 +658,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
         onErrorRef.current?.(`Erreur vocale: ${msg}`);
       }
     }
-  }, [scribe]);
+  }, [scribe, playReadyBeep]);
 
   const stopScribeRecording = useCallback(async () => {
     console.log("[Scribe] stop (user)");
