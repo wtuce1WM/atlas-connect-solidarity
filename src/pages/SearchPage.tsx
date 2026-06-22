@@ -4718,7 +4718,7 @@ const SearchPage = () => {
                             aria-label={language === "en" ? "Send" : "Envoyer"}
                             title={language === "en" ? "Send" : "Envoyer"}
                           >
-                            {aiChatLoading ? <Loader2 className="h-6 w-6 text-white animate-spin" /> : <Send className="h-6 w-6 text-white" />}
+                            {aiChatLoading ? <Loader2 className="h-5 w-5 md:h-6 md:w-6 text-white animate-spin" /> : <Send className="h-5 w-5 md:h-6 md:w-6 text-white" />}
                           </button>
                           <div className="relative flex items-center justify-center shrink-0">
                             <span className="absolute w-12 h-12 md:w-14 md:h-14 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
