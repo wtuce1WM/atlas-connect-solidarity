@@ -1303,29 +1303,17 @@ const SearchPage = () => {
       const closeCompactPanel = useCallback(() => {
         hasInteractedWithCompactPanelRef.current = true;
         hasAutoAlignedResultsRef.current = true;
-        // Return-to-Test flow: if user came from SlidePanelHome (Test page),
-        // navigate back to /test and reopen the original video panel.
-        // Read the flag BEFORE unmounting the panel (whose cleanup rewrites the URL).
-        let returnVideoId: string | null = null;
-        let returnContext: string | null = null;
+        // Return-to-Blog flow only. /test return flow has been removed.
         let returnBlogPath: string | null = null;
         let returnBlogEntryId: string | null = null;
-        // Neutralisation onglet IA : ne pas renvoyer vers /test depuis l'onglet IA.
-        const skipReturnToTest = activeTab === "ai";
         try {
-          returnVideoId = skipReturnToTest ? null : sessionStorage.getItem("returnToTestVideoId");
-          returnContext = skipReturnToTest ? null : sessionStorage.getItem("returnToTestContext");
-          if (skipReturnToTest) {
-            sessionStorage.removeItem("returnToTestVideoId");
-            sessionStorage.removeItem("returnToTestContext");
-          } else {
-            if (returnVideoId) sessionStorage.removeItem("returnToTestVideoId");
-            if (returnContext) sessionStorage.removeItem("returnToTestContext");
-          }
           returnBlogPath = sessionStorage.getItem("returnToBlogPath");
           returnBlogEntryId = sessionStorage.getItem("returnToBlogEntryId");
           if (returnBlogPath) sessionStorage.removeItem("returnToBlogPath");
           if (returnBlogEntryId) sessionStorage.removeItem("returnToBlogEntryId");
+          // Clean up any stale /test flags from previous sessions.
+          sessionStorage.removeItem("returnToTestVideoId");
+          sessionStorage.removeItem("returnToTestContext");
         } catch { /* sessionStorage unavailable */ }
 
         setCompactPanelBusiness(null);
@@ -1333,21 +1321,7 @@ const SearchPage = () => {
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
         setHideResultsMap(false);
-        // Conserver la position de scroll actuelle pour rester sur la vignette précédemment sélectionnée.
-        if (returnVideoId) {
-          // Defer navigation so BookOnlineSlidePanel's unmount cleanup
-          // (which calls history.replaceState to the original URL) runs FIRST.
-          // Note: we intentionally do NOT re-add `openVideo` so the
-          // SlidePanelHome does not auto-reopen when the user returns to Home.
-          setTimeout(() => {
-            const params = new URLSearchParams(returnContext || "");
-            params.delete("openVideo");
-            const qs = params.toString();
-            navigate(`/test${qs ? `?${qs}` : ""}`, { replace: true });
-          }, 0);
-        } else if (returnBlogPath) {
-          // Return-to-Blog flow: navigate back to the originating blog article
-          // and scroll to the previously clicked entry.
+        if (returnBlogPath) {
           if (returnBlogEntryId) {
             try { sessionStorage.setItem("returnToBlogScrollId", returnBlogEntryId); } catch {}
           }
@@ -1355,7 +1329,8 @@ const SearchPage = () => {
             navigate(returnBlogPath!, { replace: true });
           }, 0);
         }
-      }, [navigate, activeTab]);
+      }, [navigate]);
+
 
       // Listen for external requests to close the slide panel (e.g. from the
       // hashtags overlay inside the panel itself).
