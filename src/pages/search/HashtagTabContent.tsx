@@ -310,7 +310,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
           _isInternal: false,
 
           url: g.url,
-          name: g.title || g.name || (ownerId ? bizMap[ownerId]?.hook_fr || null : null) || (account ? `@${account}` : null),
+          name: g.title || g.name || (account ? `@${account}` : null),
           description: g.description || null,
           thumbnail_url: g.thumbnail_url || null,
           owner_business_id: ownerId,
