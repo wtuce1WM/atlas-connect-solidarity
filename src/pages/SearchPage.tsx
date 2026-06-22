@@ -537,6 +537,35 @@ const SearchPage = () => {
     try {
       let refinementPool: Business[] = allBusinesses || [];
       let dedicatedRefinementSearchSucceeded = false;
+      if (refinementPool.length === 0) {
+        try {
+          const ESSAOUIRA = { lat: 31.5085, lng: -9.7595 };
+          const defaultCity = cityFromUrl || (
+            geo.isEnabled && geo.coords && haversineKm(geo.coords.lat, geo.coords.lng, ESSAOUIRA.lat, ESSAOUIRA.lng) <= 80
+              ? "Essaouira"
+              : "Marrakech"
+          );
+          const { data: initialData, error: initialError } = await supabase.functions.invoke<SearchResult>("business-search", {
+            body: {
+              query: q,
+              spoken: q,
+              language,
+              pageSize: 100,
+              offset: 0,
+              compact: "card",
+              city: defaultCity,
+            }
+          });
+          if (!initialError && initialData?.businesses?.length) {
+            refinementPool = initialData.businesses;
+            setAllBusinesses(initialData.businesses);
+            setTotalCount(initialData.totalCount ?? initialData.businesses.length);
+            setAiRefinementBusinessPool(initialData.businesses);
+          }
+        } catch (initialSearchError) {
+          console.warn("AI initial business-search failed:", initialSearchError);
+        }
+      }
         const distanceRe = /(?:à\s+)?moins\s+de\s+(\d+(?:[.,]\d+)?)\s*(kilom[èe]tres?|m[èe]tres?|km|m)\b/i;
         const altDistanceRe = /\b(?:dans\s+un\s+rayon\s+de|rayon\s+de|within)\s+(\d+(?:[.,]\d+)?)\s*(kilom[èe]tres?|m[èe]tres?|km|m)\b/i;
         const distMatch = q.match(distanceRe) || q.match(altDistanceRe);
