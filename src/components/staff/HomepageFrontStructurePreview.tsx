@@ -394,7 +394,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             cardId: card.id,
             videoId: null,
             videoUrl: null,
-            thumbnail: null,
+            thumbnail: card.image_url || null,
             businessName: biz?.name || null,
             ownerLogo: null,
             ownerName: null,
@@ -408,6 +408,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             event_id: card.event_id,
             eventName,
             search_query: card.search_query,
+            image_url: card.image_url,
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
@@ -417,7 +418,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           cardId: card.id,
           videoId: doc.id,
           videoUrl: doc.url,
-          thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
+          thumbnail: card.image_url || doc.thumbnail_url || deriveThumbnail(doc.url),
           businessName: dispBiz?.name || null,
           ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
           ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
@@ -431,6 +432,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           event_id: card.event_id,
           eventName,
           search_query: card.search_query,
+          image_url: card.image_url,
         };
       });
 
