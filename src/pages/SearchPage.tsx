@@ -4402,7 +4402,7 @@ const SearchPage = () => {
 
               {/* Liquid-glass Speaker (TTS) — placé sous le dernier carousel, AVANT "Affinez votre demande" */}
               {activeTab !== "poi" && activeTab !== "destinations" && aiAnswerText && !isAiRegenerating && !isWelcomeText && (
-                <div className="mt-8 flex justify-center">
+                <div className="mt-8 max-w-3xl mx-auto w-full flex justify-center">
                   <div className="relative flex items-center justify-center">
                     {/* Outer expanding glass ring */}
                     <div
