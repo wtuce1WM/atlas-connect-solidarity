@@ -4308,6 +4308,9 @@ const SearchPage = () => {
                       </div>
                     );
                   }
+                  const displayAiText = activeTab !== "poi" && activeTab !== "destinations"
+                    ? addAiReadableBreaks(currentAiText, aiInlineBusinessPool)
+                    : currentAiText;
                   const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === -1;
                   const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
                   // Build data source for link matching based on active tab
@@ -4317,7 +4320,7 @@ const SearchPage = () => {
                     ? allDestItems.map(d => ({ id: d.id, name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: "", main_category: null, categories: null, hook_fr: d.hook, rating: null, wtuce_status: null, images: d.images ?? (d.image_url ? [d.image_url] : null) }))
                     : aiInlineBusinessPool;
                   return parseInline(
-                    currentAiText,
+                    displayAiText,
                     linkDataSource,
                     (b: AIBusinessData) => {
                       if (activeTab === "poi") {
@@ -4350,7 +4353,7 @@ const SearchPage = () => {
               {/* Horizontal scroll of cited businesses */}
               {activeTab !== "poi" && activeTab !== "destinations" && (() => {
                   const lastAssistantMessage = [...aiChat].reverse().find((m) => m.role === "assistant");
-                  const currentAiText = lastAssistantMessage?.content || aiAnswerText;
+                  const currentAiText = addAiReadableBreaks(lastAssistantMessage?.content || aiAnswerText, aiInlineBusinessPool);
                 if (!currentAiText) return null;
                   const cited = lastAssistantMessage?.citedBusinesses?.length
                     ? lastAssistantMessage.citedBusinesses
