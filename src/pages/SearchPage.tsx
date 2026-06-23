@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useState, useMemo, useCallback, useRef } fr
 import { useSEO } from "@/hooks/useSEO";
 import { useIsMobile } from "@/hooks/use-mobile";
 import HScroll from "@/components/HScroll";
+import { useWheelHijackWhenCentered } from "@/hooks/useWheelHijackWhenCentered";
 import { useGeolocation } from "@/hooks/useGeolocation";
 
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
@@ -75,6 +76,7 @@ import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
 import ResultsTabContent from "@/pages/search/ResultsTabContent";
 import HashtagTabContent from "@/pages/search/HashtagTabContent";
+import CitedBusinessesCarousel from "@/pages/search/CitedBusinessesCarousel";
 import YouTubeChannelsTabContent from "@/pages/search/YouTubeChannelsTabContent";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { getCityAliases } from "@/lib/homeHelpers";
@@ -4322,43 +4324,18 @@ const SearchPage = () => {
                 const cited = extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
                 return (
-                  <div className="mt-6 -mx-4 sm:mx-0">
-                    <div
-                      className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 scrollbar-hide"
-                      onWheel={(e) => {
-                        const el = e.currentTarget;
-                        if (e.deltaX !== 0) return;
-                        if (el.scrollWidth <= el.clientWidth) return;
-                        const atStart = el.scrollLeft <= 0 && e.deltaY < 0;
-                        const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1 && e.deltaY > 0;
-                        if (atStart || atEnd) return;
-                        e.preventDefault();
-                        el.scrollLeft += e.deltaY;
-                      }}
-                    >
-                      {cited.map((b, idx) => {
-                        const full = (aiInlineBusinessPool as unknown as Business[]).find(x => x.id === b.id);
-                        if (!full) return null;
-                        return (
-                          <div key={b.id} className="shrink-0 w-64 sm:w-72">
-                            <SearchResultCard
-                              business={{ ...(full as any), engagements: [] }}
-                              index={idx}
-                              labelLogos={businessLabelLogos[b.id] || []}
-                              distanceKm={getDistanceKm(full)}
-                              onClick={() => {
-                                setShowAiPopup(false);
-                                setOverlaySelectedBusiness(null);
-                                openCompactPanel(full as any);
-                              }}
-                              onMouseEnter={() => setHoveredResultId(b.id)}
-                              onMouseLeave={() => setHoveredResultId(null)}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  <CitedBusinessesCarousel
+                    cited={cited}
+                    aiInlineBusinessPool={aiInlineBusinessPool}
+                    businessLabelLogos={businessLabelLogos}
+                    getDistanceKm={getDistanceKm}
+                    onOpen={(full) => {
+                      setShowAiPopup(false);
+                      setOverlaySelectedBusiness(null);
+                      openCompactPanel(full as any);
+                    }}
+                    onHover={setHoveredResultId}
+                  />
                 );
               })()}
 
