@@ -769,9 +769,9 @@ serve(async (req) => {
               const h = matchedByBusinessId.get(biz.id);
               if (!h || !biz?.name) return;
               if (matched.some((x) => x.name === biz.name)) return;
-            const amt = h.ratePerNight?.amount;
-            const cur = h.ratePerNight?.currency || "EUR";
-            const price = amt ? `${amt} ${cur}/nuit` : undefined;
+              const amt = h.ratePerNight?.amount;
+              const cur = h.ratePerNight?.currency || "EUR";
+              const price = amt ? `${amt} ${cur}/nuit` : undefined;
               matched.push({ name: biz.name, price, rating: h.overallRating, reviews: h.reviewCount });
             });
           }
