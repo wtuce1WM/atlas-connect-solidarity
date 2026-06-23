@@ -374,19 +374,19 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
 
             <style>{`
               @keyframes clubShimmerOnce {
-                0% { transform: translateX(-120%); }
-                100% { transform: translateX(120%); }
+                0% { transform: translateX(-150%) skewX(-20deg); }
+                100% { transform: translateX(300%) skewX(-20deg); }
               }
               .club-popup-body { position: relative; overflow: hidden; background: linear-gradient(to bottom, #194CFF 0%, #6E8FFF 12%, #BED1FF 32%, #BED1FF 100%); }
               .club-popup-body::before {
                 content: "";
                 position: absolute;
                 top: 0; bottom: 0;
-                width: 40%;
+                width: 50%;
                 left: 0;
-                background: linear-gradient(110deg, transparent 0%, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%, transparent 100%);
-                transform: translateX(-120%);
-                animation: clubShimmerOnce 1.6s ease-out 0.45s 1 forwards;
+                background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 20%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.1) 80%, transparent 100%);
+                transform: translateX(-150%) skewX(-20deg);
+                animation: clubShimmerOnce 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.45s 1 forwards;
                 pointer-events: none;
                 z-index: 0;
               }
