@@ -64,6 +64,19 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
     } catch {/* noop */}
   };
   useEffect(() => { setActiveItem(null); }, [badgeId]);
+  // Auto-open the video referenced by ?openVideo=<id> once items are loaded
+  const [autoOpened, setAutoOpened] = useState(false);
+  useEffect(() => { setAutoOpened(false); }, [badgeId]);
+  useEffect(() => {
+    if (autoOpened || items.length === 0) return;
+    try {
+      const target = new URL(window.location.href).searchParams.get("openVideo");
+      if (!target) { setAutoOpened(true); return; }
+      const found = items.find((it) => it._id === target);
+      if (found) setActiveItemRaw(found);
+      setAutoOpened(true);
+    } catch { setAutoOpened(true); }
+  }, [items, autoOpened]);
   const [currentTime, setCurrentTime] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
