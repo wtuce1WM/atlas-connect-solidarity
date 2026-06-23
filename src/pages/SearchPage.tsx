@@ -4969,10 +4969,16 @@ const SearchPage = () => {
                       >
                         <X className="h-4 w-4" />
                       </button>
-                      <div className="absolute top-3 left-14 right-24 z-[10] flex justify-center w-[calc(100%-152px)]">
-                        <div className="px-3 py-1.5 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate shadow-sm pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                          {(spokenText || searchQuery || labelFromUrl || "").trim() || "Suggestions IA"}
-                        </div>
+                       <div className="absolute top-3 left-14 right-24 z-[10] flex justify-center w-[calc(100%-152px)]">
+                        {(() => {
+                          const txt = (spokenText || searchQuery || labelFromUrl || "").trim();
+                          if (!txt) return null;
+                          return (
+                            <div className="px-3 py-1.5 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate shadow-sm pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                              {txt}
+                            </div>
+                          );
+                        })()}
                       </div>
                       <div className="absolute top-3 right-3 z-[15] flex items-center gap-2 pointer-events-auto shrink-0">
                         <button
