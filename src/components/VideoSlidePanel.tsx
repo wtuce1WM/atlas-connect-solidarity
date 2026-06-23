@@ -627,6 +627,7 @@ const VideoSlidePanel = ({
           </>
         )}
         {!descOverlayOpen && !searchOverlayOpen && !aiOverlayOpen && !hashtagsOverlayOpen && !compactBusinessHeader && typeof document !== "undefined" && (() => {
+          const _trigger = toolbarMounted;
           const rightEl = document.getElementById("slide-panel-home-toolbar-right");
           return (
             <>
