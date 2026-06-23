@@ -507,9 +507,9 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
                         className="flex items-center justify-center"
                         style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
                       >
-                        {item.social.platform === "instagram" && <InstagramIcon className="h-14 w-14" />}
-                        {item.social.platform === "youtube" && <Youtube className="h-14 w-14" />}
-                        {item.social.platform === "tiktok" && <SiTiktok className="h-14 w-14" />}
+                        {item.social.platform === "instagram" && <InstagramIcon className="h-10 w-10" />}
+                        {item.social.platform === "youtube" && <Youtube className="h-10 w-10" />}
+                        {item.social.platform === "tiktok" && <SiTiktok className="h-9 w-9" />}
                       </div>
                       {item.social.account && (
                         <div className="flex items-center gap-1 rounded-full bg-black/80 border border-white/15 px-2 py-0.5">
