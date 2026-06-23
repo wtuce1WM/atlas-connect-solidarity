@@ -5019,36 +5019,36 @@ const SearchPage = () => {
                       <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2 flex-wrap">
                         {showTopToggle && (
                           <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (showAllSearchMarkers) setShowAllSearchMarkers(false);
-                                scheduleResultsGridScroll("auto", activeTab);
-                              }}
-                              className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
-                            >
-                              Top 20
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (!showAllSearchMarkers) setShowAllSearchMarkers(true);
-                                scheduleResultsGridScroll("auto", activeTab);
-                              }}
-                              className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
-                            >
-                              Tous <span className="ml-0.5 opacity-70">{total}</span>
-                            </button>
-                          </div>
-                        )}
-                        {proxHasAny && (
-                          <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button
-                                  type="button"
-                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proxActive ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
-                                >
+                             <button
+                               type="button"
+                               onClick={() => {
+                                 if (showAllSearchMarkers) setShowAllSearchMarkers(false);
+                                 scheduleResultsGridScroll("auto", activeTab);
+                               }}
+                               className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#C04F17] text-white" : "text-white/80 hover:text-white"}`}
+                             >
+                               Top 20
+                             </button>
+                             <button
+                               type="button"
+                               onClick={() => {
+                                 if (!showAllSearchMarkers) setShowAllSearchMarkers(true);
+                                 scheduleResultsGridScroll("auto", activeTab);
+                               }}
+                               className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
+                             >
+                               Tous <span className="ml-0.5 opacity-70">{total}</span>
+                             </button>
+                           </div>
+                         )}
+                         {proxHasAny && (
+                           <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                             <DropdownMenu>
+                               <DropdownMenuTrigger asChild>
+                                 <button
+                                   type="button"
+                                   className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proxActive ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
+                                 >
                                   <Navigation className="h-3.5 w-3.5" />
                                   {proxActiveOpt ? proxActiveOpt.label : "À proximité"}
                                   {proxActive && (
@@ -5642,7 +5642,7 @@ const SearchPage = () => {
                             setShowMobileMap(false);
                             scheduleResultsGridScroll("auto", "suggestions");
                           }}
-                          className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers && !mobileFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers && !mobileFsSubId ? "bg-[#C04F17] text-white" : "text-white/80 hover:text-white"}`}
                         >
                           Top 20
                         </button>
@@ -5654,7 +5654,7 @@ const SearchPage = () => {
                             setShowMobileMap(false);
                             scheduleResultsGridScroll("auto", "suggestions");
                           }}
-                          className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers && !mobileFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers && !mobileFsSubId ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                         >
                           Tous <span className="ml-0.5 opacity-70">{total}</span>
                         </button>
@@ -5666,7 +5666,7 @@ const SearchPage = () => {
                           <DropdownMenuTrigger asChild>
                             <button
                               type="button"
-                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${mobileFsSubId ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${mobileFsSubId ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                             >
                               <SlidersHorizontal className="h-3.5 w-3.5" />
                               {activeSubName}
@@ -5715,7 +5715,7 @@ const SearchPage = () => {
                           <DropdownMenuTrigger asChild>
                             <button
                               type="button"
-                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                             >
                               <Navigation className="h-3.5 w-3.5" />
                               {proxActiveOpt ? proxActiveOpt.label : "À proximité"}
@@ -5806,7 +5806,7 @@ const SearchPage = () => {
                           <DropdownMenuTrigger asChild>
                             <button
                               type="button"
-                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${mobilePoiSubcat ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${mobilePoiSubcat ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                             >
                               <SlidersHorizontal className="h-3.5 w-3.5" />
                               {mobilePoiSubcat ?? "Attractions"}
@@ -5834,7 +5834,7 @@ const SearchPage = () => {
                           <DropdownMenuTrigger asChild>
                             <button
                               type="button"
-                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityActive ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityActive ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                             >
                               <Navigation className="h-3.5 w-3.5" />
                               {poiProxActiveOpt ? poiProxActiveOpt.label : "À proximité"}
