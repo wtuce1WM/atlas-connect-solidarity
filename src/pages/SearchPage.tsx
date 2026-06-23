@@ -4337,31 +4337,6 @@ const SearchPage = () => {
                   />
                 );
               })()}
-                      {cited.map((b, idx) => {
-                        const full = (aiInlineBusinessPool as unknown as Business[]).find(x => x.id === b.id);
-                        if (!full) return null;
-                        return (
-                          <div key={b.id} className="shrink-0 w-64 sm:w-72">
-                            <SearchResultCard
-                              business={{ ...(full as any), engagements: [] }}
-                              index={idx}
-                              labelLogos={businessLabelLogos[b.id] || []}
-                              distanceKm={getDistanceKm(full)}
-                              onClick={() => {
-                                setShowAiPopup(false);
-                                setOverlaySelectedBusiness(null);
-                                openCompactPanel(full as any);
-                              }}
-                              onMouseEnter={() => setHoveredResultId(b.id)}
-                              onMouseLeave={() => setHoveredResultId(null)}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })()}
 
 
 
