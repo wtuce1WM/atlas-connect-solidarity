@@ -629,8 +629,15 @@ const SearchPage = () => {
     for (const b of restoredAiBusinessPool) byId.set(b.id, b);
     for (const b of allBusinesses || []) byId.set(b.id, b);
     for (const b of aiRefinementBusinessPool) byId.set(b.id, b);
+    // Also include businesses cited inside each assistant message — ensures inline
+    // chips render after restoring a shared chat even when the global pool is empty.
+    for (const m of aiChat) {
+      if (m.role === "assistant" && Array.isArray(m.citedBusinesses)) {
+        for (const b of m.citedBusinesses) byId.set((b as any).id, b as unknown as Business);
+      }
+    }
     return Array.from(byId.values()) as unknown as AIBusinessData[];
-  }, [allBusinesses, aiRefinementBusinessPool, restoredAiBusinessPool]);
+  }, [allBusinesses, aiRefinementBusinessPool, restoredAiBusinessPool, aiChat]);
 
   // Submit a refinement turn — calls ai-search-answer with history of past turns
   const submitAiRefinement = useCallback(async (explicitText?: string) => {
