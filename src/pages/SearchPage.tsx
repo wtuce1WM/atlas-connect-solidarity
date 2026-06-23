@@ -4261,39 +4261,12 @@ const SearchPage = () => {
                               <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
                             </button>
                           )}
-                          {aiPersist.isOwner && aiPersist.chatId ? (
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                const url = await aiPersist.makeShareUrl();
-                                if (!url) return;
-                                let shared = false;
-                                if (navigator.share) {
-                                  try {
-                                    await navigator.share({ title: aiPersist.title || searchQuery || "Conversation IA", url });
-                                    shared = true;
-                                  } catch (err: any) {
-                                    if (err?.name === "AbortError") return;
-                                  }
-                                }
-                                if (!shared) {
-                                  try { await navigator.clipboard.writeText(url); } catch { window.prompt("Copiez le lien :", url); }
-                                  window.dispatchEvent(new CustomEvent("toast", { detail: { message: "Lien copié" } }));
-                                }
-                              }}
-                              className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
-                              title="Partager la conversation"
-                              aria-label="Share chat"
-                            >
-                              <Share2 className="h-4 w-4 text-foreground" strokeWidth={2.5} />
-                            </button>
-                          ) : (
-                            <ShareButton
-                              title={searchQuery || "Recherche"}
-                              variant="dark"
-                              className="shrink-0 shadow-lg"
-                            />
-                          )}
+                          <ShareButton
+                            title={aiPersist.title || searchQuery || "Recherche"}
+                            variant="dark"
+                            className="shrink-0 shadow-lg"
+                          />
+
                         </>
                     </div>
                   )}
