@@ -485,6 +485,14 @@ const SearchPage = () => {
   const aiRefinementRef = useRef<HTMLDivElement | null>(null);
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
+  const aiPersist = useAiChatPersistence({
+    aiAnswerText,
+    aiChat,
+    searchQuery,
+    city: cityFromUrl,
+    setAiAnswerText,
+    setAiChat,
+  });
   const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
   const [restoredAiBusinessPool, setRestoredAiBusinessPool] = useState<Business[]>([]);
   const lastAiProximityRef = useRef<{ lat: number; lng: number; radiusKm: number; targetName: string; query: string } | null>(null);
