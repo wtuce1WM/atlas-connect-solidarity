@@ -4988,31 +4988,101 @@ const SearchPage = () => {
                   </div>
                   {(() => {
                     const total = fsFilteredList?.length ?? totalCount ?? filteredBusinesses.length;
-                    if (total <= 20) return null;
+                    const showTopToggle = total > 20;
+                    const userCenter = geo.isEnabled && geo.coords ? geo.coords : null;
+                    // Pool used by the AI map to compute proximity counts
+                    const cityPois = allCityMapBusinesses.filter((b: any) => b.is_poi);
+                    const aiWelcome = isWelcomeText && mapPoiItems.length === 0 && cityPois.length > 0;
+                    const basePois = aiWelcome ? buildMapPoiItems(cityPois, true) : mapPoiItems;
+                    const proxOpts: { km: number; label: string }[] = [
+                      { km: 0.5, label: "Moins de 500 m" },
+                      { km: 1, label: "Moins de 1 km" },
+                      { km: 5, label: "Moins de 5 km" },
+                      { km: 10, label: "Moins de 10 km" },
+                    ];
+                    const proxCounts: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
+                    if (userCenter) {
+                      for (const p of basePois as any[]) {
+                        if (p.latitude == null || p.longitude == null) continue;
+                        const d = haversineKm(userCenter.lat, userCenter.lng, p.latitude, p.longitude);
+                        if (d <= 0.5) proxCounts[0.5]++;
+                        if (d <= 1) proxCounts[1]++;
+                        if (d <= 5) proxCounts[5]++;
+                        if (d <= 10) proxCounts[10]++;
+                      }
+                    }
+                    const proxHasAny = !!userCenter && (proxCounts[10] ?? 0) > 0;
+                    const proxActive = !!(userCenter && aiProximityKm);
+                    const proxActiveOpt = proxOpts.find(o => o.km === aiProximityKm);
+                    if (!showTopToggle && !proxHasAny) return null;
                     return (
-                      <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2">
-                        <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (showAllSearchMarkers) setShowAllSearchMarkers(false);
-                              scheduleResultsGridScroll("auto", activeTab);
-                            }}
-                            className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
-                          >
-                            Top 20
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (!showAllSearchMarkers) setShowAllSearchMarkers(true);
-                              scheduleResultsGridScroll("auto", activeTab);
-                            }}
-                            className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
-                          >
-                            Tous <span className="ml-0.5 opacity-70">{total}</span>
-                          </button>
-                        </div>
+                      <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2 flex-wrap">
+                        {showTopToggle && (
+                          <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (showAllSearchMarkers) setShowAllSearchMarkers(false);
+                                scheduleResultsGridScroll("auto", activeTab);
+                              }}
+                              className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                            >
+                              Top 20
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!showAllSearchMarkers) setShowAllSearchMarkers(true);
+                                scheduleResultsGridScroll("auto", activeTab);
+                              }}
+                              className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                            >
+                              Tous <span className="ml-0.5 opacity-70">{total}</span>
+                            </button>
+                          </div>
+                        )}
+                        {proxHasAny && (
+                          <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proxActive ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                                >
+                                  <Navigation className="h-3.5 w-3.5" />
+                                  {proxActiveOpt ? proxActiveOpt.label : "À proximité"}
+                                  {proxActive && (
+                                    <span className="ml-0.5 opacity-70">{proxCounts[aiProximityKm!] ?? 0}</span>
+                                  )}
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="z-[95]">
+                                {aiProximityKm != null && (
+                                  <DropdownMenuItem onSelect={() => setAiProximityKm(null)}>
+                                    Toutes distances
+                                  </DropdownMenuItem>
+                                )}
+                                {proxOpts.map(o => {
+                                  const count = proxCounts[o.km] ?? 0;
+                                  const disabled = count === 0;
+                                  return (
+                                    <DropdownMenuItem
+                                      key={o.km}
+                                      disabled={disabled}
+                                      onSelect={(e) => {
+                                        if (disabled) { e.preventDefault(); return; }
+                                        setAiProximityKm(o.km);
+                                      }}
+                                      className={disabled ? "opacity-40 pointer-events-none" : ""}
+                                    >
+                                      {o.label} <span className="ml-1 opacity-60">({count})</span>
+                                    </DropdownMenuItem>
+                                  );
+                                })}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
