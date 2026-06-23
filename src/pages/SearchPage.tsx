@@ -4924,22 +4924,31 @@ const SearchPage = () => {
           {isInline && hasKnownLocation && !overlaySelectedBusiness && !hideResultsMap && (
             <div className="w-1/2 sticky top-0 h-screen z-[50] overflow-hidden">
               <div className="relative h-full min-h-0">
-                <PoiGoogleMap
-                  pois={mapPoiItems}
-                  selectedPoiId={null}
-                  hoveredPoiId={hoveredResultId || null}
-                  onPoiClick={(poiId) => {
-                    const biz = searchMapPool.find(b => b.id === poiId)
-                      || aiInlineBusinessPool.find(b => b.id === poiId)
-                      || filteredBusinesses.find(b => b.id === poiId)
-                      || allCityMapBusinesses?.find(b => b.id === poiId);
-                    if (biz) openCompactPanel({ id: biz.id, name: biz.name } as any);
-                  }}
-                  center={mapCenterForResults}
-                  fitToMarkers
-
-                  userLocation={geo.isEnabled && geo.coords ? geo.coords : null}
-                />
+                {(() => {
+                  // On AI welcome (no AI answer/citations yet), show every POI of the
+                  // city and center the map on the user's "Vous êtes ici" marker.
+                  const aiWelcome = isWelcomeText && mapPoiItems.length === 0 && allCityMapBusinesses.length > 0;
+                  const welcomePois = aiWelcome ? buildMapPoiItems(allCityMapBusinesses, true) : mapPoiItems;
+                  const userCenter = geo.isEnabled && geo.coords ? geo.coords : null;
+                  const effectiveCenter = aiWelcome && userCenter ? userCenter : mapCenterForResults;
+                  return (
+                    <PoiGoogleMap
+                      pois={welcomePois}
+                      selectedPoiId={null}
+                      hoveredPoiId={hoveredResultId || null}
+                      onPoiClick={(poiId) => {
+                        const biz = searchMapPool.find(b => b.id === poiId)
+                          || aiInlineBusinessPool.find(b => b.id === poiId)
+                          || filteredBusinesses.find(b => b.id === poiId)
+                          || allCityMapBusinesses?.find(b => b.id === poiId);
+                        if (biz) openCompactPanel({ id: biz.id, name: biz.name } as any);
+                      }}
+                      center={effectiveCenter}
+                      fitToMarkers={!(aiWelcome && userCenter)}
+                      userLocation={userCenter}
+                    />
+                  );
+                })()}
 
                  <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col">
                    <div className="relative z-10 flex items-center gap-3 px-3 py-3 bg-transparent">
