@@ -2971,12 +2971,24 @@ const SearchPage = () => {
 
   // Mobile/tablet map items
   const mobileMapPoiItemsFinal: PoiMapItem[] = useMemo(() => {
-    if (aiCitedMapPool.length > 0 || aiRefinementBusinessPool.length > 0) {
-      return buildMapPoiItems(searchMapPool, false);
+    const isAiTab = activeTab === "ai" || showAiPopup;
+    if (isAiTab || aiCitedMapPool.length > 0 || aiRefinementBusinessPool.length > 0) {
+      const pools = [
+        searchMapPool,
+        aiInlineBusinessPool as unknown as Business[],
+        filteredBusinesses,
+        allBusinesses,
+        allCityMapBusinesses.filter((b: any) => b.is_poi),
+      ];
+      for (const pool of pools) {
+        const items = buildMapPoiItems(pool, false);
+        if (items.length > 0) return items;
+      }
+      return [];
     }
     if (!fsFilterSubcategories) return mobileMapPoiItems;
     return buildFsCategoryItems(false);
-  }, [aiCitedMapPool.length, aiRefinementBusinessPool.length, searchMapPool, buildMapPoiItems, mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
+  }, [activeTab, showAiPopup, aiCitedMapPool.length, aiRefinementBusinessPool.length, searchMapPool, aiInlineBusinessPool, filteredBusinesses, allBusinesses, allCityMapBusinesses, buildMapPoiItems, mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
 
   // The top-ranked business ID for Gold marker (always highlight #1)
   const fsTopBusinessId: string | null = useMemo(() => {
