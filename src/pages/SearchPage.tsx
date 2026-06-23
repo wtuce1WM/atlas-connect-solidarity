@@ -1008,7 +1008,31 @@ const SearchPage = () => {
       });
       if (error) throw error;
       const answer = (data as any)?.answer || "";
-      const citedBusinesses = Array.isArray((data as any)?.citedBusinesses) ? (data as any).citedBusinesses as AIBusinessData[] : [];
+      const rawCitedBusinesses = Array.isArray((data as any)?.citedBusinesses) ? (data as any).citedBusinesses as AIBusinessData[] : [];
+      // Intersect backend-returned citedBusinesses with names actually cited (**bold**)
+      // in the answer text. The hotel-availability backend returns the FULL availability
+      // list (ignoring the user's narrative refinement like "dans la medina"), so we must
+      // restrict it to what the LLM actually mentioned — otherwise the map markers and
+      // carousel show all hotels while the text only mentions a filtered subset.
+      const citedNamesInText = (() => {
+        const names = new Set<string>();
+        const re = /\*\*(.+?)\*\*/g;
+        let mm: RegExpExecArray | null;
+        while ((mm = re.exec(answer)) !== null) {
+          names.add(mm[1].trim().toLowerCase());
+        }
+        return names;
+      })();
+      const citedBusinesses = rawCitedBusinesses.length > 0 && citedNamesInText.size > 0
+        ? rawCitedBusinesses.filter((b) => {
+            const n = (b?.name || "").trim().toLowerCase();
+            if (!n) return false;
+            for (const cited of citedNamesInText) {
+              if (cited === n || cited.includes(n) || n.includes(cited)) return true;
+            }
+            return false;
+          })
+        : rawCitedBusinesses;
       if (citedBusinesses.length > 0) {
         setAiRefinementBusinessPool((prev) => {
           const byId = new globalThis.Map<string, Business>();
@@ -1024,6 +1048,7 @@ const SearchPage = () => {
         setAiChatError(language === "en" ? "No answer received." : "Aucune réponse reçue.");
       } else {
         setAiChat((prev) => [...prev, { role: "assistant", content: answer, citedBusinesses }]);
+
         // Scroll the latest user "terracotta" bubble to the top of the viewport
         setTimeout(() => {
           const bubbles = document.querySelectorAll<HTMLElement>("[data-ai-user-bubble]");
