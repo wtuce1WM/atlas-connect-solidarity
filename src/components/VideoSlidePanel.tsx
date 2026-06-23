@@ -269,7 +269,7 @@ const VideoSlidePanel = ({
 
   // Fallback owner-based business lookup (used when no eventId is provided)
   useEffect(() => {
-    if (!open || eventId || isGeneric || !owner?.id) {
+    if (!open || eventId || !owner?.id) {
       setOwnerBusiness(null);
       return;
     }
