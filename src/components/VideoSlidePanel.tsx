@@ -916,9 +916,9 @@ const VideoSlidePanel = ({
                       key={`credit-social-${videoId || videoUrl}`}
                       className="flex flex-col items-center justify-center gap-2 px-4 pointer-events-none"
                     >
-                      {visibleSocial.platform === "instagram" && <InstagramIcon className="w-8 h-8 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                      {visibleSocial.platform === "tiktok" && <SiTiktok className="w-8 h-8 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                      {visibleSocial.platform === "youtube" && <Youtube className="w-8 h-8 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                      {visibleSocial.platform === "instagram" && <InstagramIcon className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                      {visibleSocial.platform === "tiktok" && <SiTiktok className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                      {visibleSocial.platform === "youtube" && <Youtube className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                       <a
                         href={visibleSocial.url || undefined}
                         target="_blank"
@@ -940,9 +940,9 @@ const VideoSlidePanel = ({
                     >
                     {isGeneric && social && (
                       <>
-                        {social.platform === "instagram" && <InstagramIcon className="w-9 h-9 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                        {social.platform === "tiktok" && <SiTiktok className="w-9 h-9 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                        {social.platform === "youtube" && <Youtube className="w-9 h-9 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "instagram" && <InstagramIcon className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "tiktok" && <SiTiktok className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "youtube" && <Youtube className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                       </>
                     )}
                     {isGeneric && social ? (
