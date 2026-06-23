@@ -98,6 +98,7 @@ const findBusiness = (name: string, businesses: BusinessData[]): BusinessData | 
       if (bTokens.size === 0) continue;
       let inter = 0;
       queryTokens.forEach(t => { if (bTokens.has(t)) inter++; });
+      if (queryTokens.size === 1 && inter > 0 && (tokenFrequency.get(Array.from(queryTokens)[0]) || 0) > 2) continue;
       const union = queryTokens.size + bTokens.size - inter;
       const jaccard = inter / union;
       const queryCoverage = inter / queryTokens.size;
