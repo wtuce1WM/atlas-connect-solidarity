@@ -183,7 +183,7 @@ export function useAiChatPersistence({
       setIsPublic(true);
     }
     const url = new URL(window.location.href);
-    url.searchParams.set("tab", "ia");
+    url.searchParams.set("tab", "ai");
     url.searchParams.set("aiChat", chatId);
     url.searchParams.delete("_t");
     return url.toString();
