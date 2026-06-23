@@ -284,7 +284,7 @@ const VideoSlidePanel = ({
       setOwnerBusiness((bizRow as any) || null);
     })();
     return () => { cancelled = true; };
-  }, [open, eventId, isGeneric, owner?.id]);
+  }, [open, eventId, owner?.id]);
 
   // Page business lookup: when pageBusinessId is provided, load the consulted
   // fiche so all CTAs (En savoir +, Itinéraire, WhatsApp, partage) target it
