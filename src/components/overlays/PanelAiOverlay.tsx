@@ -416,7 +416,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
           <button
             type="button"
             onClick={() => { onOpenMap(); handleClose(); }}
-            className="lg:hidden ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+            className="lg:hidden ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#3B3B3B] text-white text-xs font-medium shadow-lg hover:bg-[#3B3B3B]/90 transition-colors"
           >
             <MapIcon className="h-4 w-4" />
             {T.map}
