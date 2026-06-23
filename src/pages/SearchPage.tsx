@@ -4334,9 +4334,12 @@ const SearchPage = () => {
 
               {/* Horizontal scroll of cited businesses */}
               {activeTab !== "poi" && activeTab !== "destinations" && (() => {
-                  const currentAiText = [...aiChat].reverse().find((m) => m.role === "assistant")?.content || aiAnswerText;
+                  const lastAssistantMessage = [...aiChat].reverse().find((m) => m.role === "assistant");
+                  const currentAiText = lastAssistantMessage?.content || aiAnswerText;
                 if (!currentAiText) return null;
-                const cited = extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
+                  const cited = lastAssistantMessage?.citedBusinesses?.length
+                    ? lastAssistantMessage.citedBusinesses
+                    : extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
                 return (
                   <CitedBusinessesCarousel
