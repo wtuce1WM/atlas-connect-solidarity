@@ -4542,7 +4542,9 @@ const SearchPage = () => {
                                 )}
                                 {(() => {
                                   if (m.clarify) return null;
-                                  const cited = extractCitedBusinesses(m.content, aiInlineBusinessPool);
+                                   const cited = m.citedBusinesses?.length
+                                     ? m.citedBusinesses
+                                     : extractCitedBusinesses(m.content, aiInlineBusinessPool);
                                   if (cited.length === 0) return null;
                                   return (
                                     <CitedBusinessesCarousel
