@@ -404,7 +404,7 @@ const SearchPage = () => {
   const aiRefinementSpokenText = searchParams.get("spoken") || "";
   type AiClarifyOption = { id: string; label: string; text: string };
   type AiClarify = { type: string; question: string; options: AiClarifyOption[] };
-  type AiChatMessage = { role: "user" | "assistant"; content: string; clarify?: AiClarify };
+  type AiChatMessage = { role: "user" | "assistant"; content: string; clarify?: AiClarify; citedBusinesses?: AIBusinessData[] };
   const [aiChat, setAiChat] = useState<AiChatMessage[]>([]);
   const [aiChatInput, setAiChatInput] = useState("");
   const submitAiRefinementRef = useRef<((t?: string) => void) | null>(null);
@@ -914,13 +914,22 @@ const SearchPage = () => {
       });
       if (error) throw error;
       const answer = (data as any)?.answer || "";
+      const citedBusinesses = Array.isArray((data as any)?.citedBusinesses) ? (data as any).citedBusinesses as AIBusinessData[] : [];
+      if (citedBusinesses.length > 0) {
+        setAiRefinementBusinessPool((prev) => {
+          const byId = new globalThis.Map<string, Business>();
+          for (const b of prev) byId.set(b.id, b);
+          for (const b of citedBusinesses) byId.set(b.id, b as unknown as Business);
+          return Array.from(byId.values());
+        });
+      }
       const clarify = (data as any)?.clarify as AiClarify | undefined;
       if (clarify && Array.isArray(clarify.options) && clarify.options.length > 0) {
         setAiChat((prev) => [...prev, { role: "assistant", content: clarify.question || "", clarify }]);
       } else if (!answer) {
         setAiChatError(language === "en" ? "No answer received." : "Aucune réponse reçue.");
       } else {
-        setAiChat((prev) => [...prev, { role: "assistant", content: answer }]);
+        setAiChat((prev) => [...prev, { role: "assistant", content: answer, citedBusinesses }]);
         // Scroll the latest user "terracotta" bubble to the top of the viewport
         setTimeout(() => {
           const bubbles = document.querySelectorAll<HTMLElement>("[data-ai-user-bubble]");
@@ -2702,8 +2711,9 @@ const SearchPage = () => {
   // When AI has produced an assistant answer with cited businesses (in **bold**),
   // restrict the map to those exact cited results so markers match what the user reads.
   const aiCitedMapPool = useMemo(() => {
-    const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant")?.content;
-    const sourceText = lastAssistant || aiAnswerText;
+    const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant");
+    if (lastAssistant?.citedBusinesses?.length) return lastAssistant.citedBusinesses as unknown as Business[];
+    const sourceText = lastAssistant?.content || aiAnswerText;
     if (!sourceText) return [] as Business[];
     const cited = extractCitedBusinesses(sourceText, aiInlineBusinessPool);
     return cited as unknown as Business[];
@@ -4324,9 +4334,12 @@ const SearchPage = () => {
 
               {/* Horizontal scroll of cited businesses */}
               {activeTab !== "poi" && activeTab !== "destinations" && (() => {
-                  const currentAiText = [...aiChat].reverse().find((m) => m.role === "assistant")?.content || aiAnswerText;
+                  const lastAssistantMessage = [...aiChat].reverse().find((m) => m.role === "assistant");
+                  const currentAiText = lastAssistantMessage?.content || aiAnswerText;
                 if (!currentAiText) return null;
-                const cited = extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
+                  const cited = lastAssistantMessage?.citedBusinesses?.length
+                    ? lastAssistantMessage.citedBusinesses
+                    : extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
                 return (
                   <CitedBusinessesCarousel
@@ -4532,7 +4545,9 @@ const SearchPage = () => {
                                 )}
                                 {(() => {
                                   if (m.clarify) return null;
-                                  const cited = extractCitedBusinesses(m.content, aiInlineBusinessPool);
+                                   const cited = m.citedBusinesses?.length
+                                     ? m.citedBusinesses
+                                     : extractCitedBusinesses(m.content, aiInlineBusinessPool);
                                   if (cited.length === 0) return null;
                                   return (
                                     <CitedBusinessesCarousel
