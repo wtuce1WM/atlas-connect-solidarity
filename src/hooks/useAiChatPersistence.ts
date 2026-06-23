@@ -59,7 +59,10 @@ export function useAiChatPersistence({
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const isOwner = !!userId && !!ownerId && userId === ownerId;
+  // For anonymous chats (user_id IS NULL in DB), anyone with the chatId can edit (and the local creator is the de-facto owner).
+  // For signed-in chats, only the auth user matches.
+  const isAnonChat = ownerId === null && !!chatId;
+  const isOwner = isAnonChat || (!!userId && !!ownerId && userId === ownerId);
 
   // Hydrate from URL chatId
   const hydratedRef = useRef<string | null>(null);
