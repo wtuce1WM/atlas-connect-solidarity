@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Building2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Map, Clock, MapPin, X, Heart, SlidersHorizontal, Navigation } from "lucide-react";
+import { Building2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Map, Clock, MapPin, X, Heart, Bookmark, SlidersHorizontal, Navigation } from "lucide-react";
 import { haversineKm } from "@/lib/haversine";
 import ShareButton from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
@@ -629,7 +629,7 @@ export default function ResultsTabContent({
                       className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
                       aria-label="Le Club OWM"
                     >
-                      <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                      <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
                     </button>
                     <ShareButton
                       title={spokenText || searchQuery || "Recherche"}

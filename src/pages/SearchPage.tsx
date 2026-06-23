@@ -35,7 +35,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash, Heart, Bot, Send, Play, Pause, Navigation } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash, Heart, Bookmark, Bot, Send, Play, Pause, Navigation } from "lucide-react";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 import ShareButton from "@/components/ShareButton";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
@@ -4883,7 +4883,7 @@ const SearchPage = () => {
                         className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
                         aria-label="Le Club OWM"
                       >
-                        <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                        <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
                       </button>
                       <ShareButton
                         title={searchQuery || "Recherche"}
@@ -5407,7 +5407,7 @@ const SearchPage = () => {
                     className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
                     aria-label="Le Club OWM"
                   >
-                    <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                    <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
                   </button>
                   <ShareButton title={searchQuery || "Recherche"} variant="dark" className="shrink-0" />
                 </div>
