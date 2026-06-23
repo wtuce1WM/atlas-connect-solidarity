@@ -359,7 +359,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
             className="w-full max-w-md max-h-[calc(100dvh-12rem)] md:max-h-[calc(100dvh-14rem)] lg:max-h-none overflow-y-auto rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ backgroundColor: "#6050DC" }} className="p-3 sm:p-6 text-white relative">
+            <div style={{ backgroundColor: "#194CFF" }} className="p-3 sm:p-6 text-white relative">
               <button
                 type="button"
                 onClick={() => setClubOpen(false)}
@@ -396,9 +396,9 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                     <style>{`
                       .club-scroll::-webkit-scrollbar { width: 6px; }
                       .club-scroll::-webkit-scrollbar-track { background: transparent; }
-                      .club-scroll::-webkit-scrollbar-thumb { background: #6050DC; border-radius: 9999px; }
-                      .club-scroll::-webkit-scrollbar-thumb:hover { background: #4d3fc4; }
-                      .club-scroll { scrollbar-width: thin; scrollbar-color: #6050DC transparent; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+                      .club-scroll::-webkit-scrollbar-thumb { background: #194CFF; border-radius: 9999px; }
+                      .club-scroll::-webkit-scrollbar-thumb:hover { background: #1244e6; }
+                      .club-scroll { scrollbar-width: thin; scrollbar-color: #194CFF transparent; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
                       .club-scroll-mask { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%); }
                     `}</style>
                     <div className="club-scroll club-scroll-mask max-h-[40vh] overflow-y-auto space-y-2 mb-4 pr-2 py-2">
@@ -425,13 +425,13 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                               onClick={() => toggleBookmark(it.id)}
                               disabled={isSaving}
                               className="h-9 w-9 flex items-center justify-center rounded-full transition-colors disabled:opacity-50"
-                              style={{ backgroundColor: isSaved ? "#6050DC" : "transparent", border: isSaved ? "none" : "1.5px solid #6050DC" }}
+                              style={{ backgroundColor: isSaved ? "#194CFF" : "transparent", border: isSaved ? "none" : "1.5px solid #194CFF" }}
                               aria-label={isSaved ? t.saved : t.saveBtn}
                             >
                               {isSaved ? (
                                 <Check className="h-4 w-4 text-white" strokeWidth={3} />
                               ) : (
-                                <Heart className="h-4 w-4" style={{ color: "#6050DC" }} strokeWidth={2.5} />
+                                <Heart className="h-4 w-4" style={{ color: "#194CFF" }} strokeWidth={2.5} />
                               )}
                             </button>
                           </div>
@@ -444,7 +444,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                         type="button"
                         onClick={saveAll}
                         disabled={savingAll}
-                        style={{ backgroundColor: "#6050DC" }}
+                        style={{ backgroundColor: "#194CFF" }}
                         className="w-full rounded-full px-6 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md disabled:opacity-50"
                       >
                         {t.saveAll} ({unsavedCount})
