@@ -150,7 +150,8 @@ serve(async (req) => {
     const tone = cfg.tone || "Sois naturel et enthousiaste, comme un ami local passionné qui partage ses meilleures adresses.";
     const responseLength = cfg.response_length || "5-8";
     const model = cfg.model || "google/gemini-3-flash-preview";
-    const maxTokens = parseInt(cfg.max_tokens || "1200", 10);
+    const configuredMaxTokens = parseInt(cfg.max_tokens || "1200", 10);
+    const maxTokens = Math.max(Number.isFinite(configuredMaxTokens) ? configuredMaxTokens : 0, 3200);
     const temperature = parseFloat(cfg.temperature || "0.7");
     const extraInstructions = cfg.extra_instructions || "";
     const noResultsCfg = cfg.no_results_instructions || "";
@@ -803,11 +804,11 @@ serve(async (req) => {
 
 RÈGLES :
 - ${langInstructions}
-- Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.
+- ${effectiveHasRenderResults ? "Réponds avec une accroche courte puis un paragraphe distinct par établissement cité. Ne te limite pas artificiellement à 5-8 phrases quand plusieurs adresses nécessitent chacune une vraie description." : `Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.`}
 - Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${modeInstructions || (effectiveHasRenderResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
 - Cite OBLIGATOIREMENT au moins 3 établissements de la liste par leur nom exact si la liste en contient 3 ou plus. Ne dis JAMAIS que tu n'as pas d'établissement spécifique ou que l'annuaire est vide quand cette liste est fournie.
-- Cite jusqu'à 10 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.).
+- Cite 3 à 6 établissements maximum de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.). Si la liste en contient davantage, privilégie les plus pertinents plutôt que de tout citer sans description.
 - CRITIQUE : Écris chaque nom EXACTEMENT comme dans la liste fournie, caractère pour caractère (mêmes accents, majuscules, ponctuation). N'ajoute JAMAIS de suffixe, de ville, de quartier, de parenthèses, de tiret descriptif, ni d'article ("Le", "La", "Restaurant", etc.) qui ne figure pas dans le nom original. Pas de reformulation, pas de traduction du nom.
 - Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : '')}${boostVerified && effectiveHasRenderResults && !mode ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${!mode && !effectiveHasRenderResults ? `\n- ${noResultsCfg || "Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles."}
 - IMPORTANT : Ne cite AUCUN nom d'établissement spécifique. Tu ne connais pas notre annuaire, donc n'invente pas de noms. Donne uniquement des conseils généraux sur la thématique ou la destination.
@@ -815,7 +816,7 @@ RÈGLES :
 - Propose à l'utilisateur d'affiner sa recherche avec d'autres mots-clés (quartier, type de cuisine, ambiance, budget…), mais TOUJOURS dans ${defaultCity}.` : (!mode ? `\n- Si la liste contient peu de résultats (1-2), complète ta réponse avec des conseils généraux sur la destination/thématique pour enrichir l'expérience.` : '')}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - Entoure chaque nom de doubles astérisques, par exemple **Nom**.
-- FORMATAGE STRICT : Rédige UNIQUEMENT en prose fluide, avec des sauts de paragraphe (\\n\\n) entre chaque établissement. INTERDICTION ABSOLUE d'utiliser des listes à puces ("- ", "* ", "• ") ou numérotées ("1.", "2.") en début de ligne. INTERDICTION ABSOLUE d'utiliser l'italique simple (*texte*) — n'utilise QUE le gras avec doubles astérisques (**texte**) et uniquement pour les noms d'établissements, prix, distances ou horaires. Pas de titres (#). Pour CHAQUE établissement cité, donne une description immersive et sensorielle (2-3 phrases : ambiance, spécialités, ce qui le rend unique, vue/cadre, expérience vécue) avant de passer au suivant.
+- FORMATAGE STRICT : Rédige UNIQUEMENT en prose fluide, avec des sauts de paragraphe (\\n\\n) entre chaque établissement. INTERDICTION ABSOLUE d'utiliser des listes à puces ("- ", "* ", "• ") ou numérotées ("1.", "2.") en début de ligne. INTERDICTION ABSOLUE d'utiliser l'italique simple (*texte*) — n'utilise QUE le gras avec doubles astérisques (**texte**) et uniquement pour les noms d'établissements, prix, distances ou horaires. Pas de titres (#). Pour CHAQUE établissement cité, commence un nouveau paragraphe par son nom en gras puis donne une description immersive et sensorielle complète (2-3 phrases : ambiance, spécialités, ce qui le rend unique, vue/cadre, expérience vécue) avant de passer au suivant. Ne regroupe JAMAIS deux établissements dans la même phrase ou le même paragraphe.
 - Commence par une phrase d'accroche engageante liée à la recherche, puis laisse DEUX lignes vides avant de continuer avec les recommandations.
 - ${tone}
 - Commence par une accroche engageante liée à la recherche de l'utilisateur.${geoInstruction}${hoursInstruction}${hotelAvailabilityInstruction}${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}${vary ? `\n- IMPORTANT : L'utilisateur demande une suggestion DIFFÉRENTE (tentative #${vary}). Change l'angle d'approche, l'ordre de présentation, le style d'accroche et mets en avant des établissements différents ou des aspects différents. Sois créatif et surprenant.` : ''}${isRefinement && topicChange ? `\n- CHANGEMENT DE SUJET DÉTECTÉ : La nouvelle question de l'utilisateur porte sur un lieu ou un sujet qui n'est PAS représenté dans la liste d'établissements fournie. N'essaie PAS de piocher un établissement de la liste pour répondre. Réponds librement en t'appuyant sur tes connaissances générales du Maroc (paysages, activités, culture, conseils pratiques). Ne cite AUCUN nom d'établissement de la liste — ils ne sont pas pertinents pour cette question. Invite l'utilisateur à lancer une nouvelle recherche s'il souhaite des adresses concrètes sur ce sujet.` : isRefinement ? `\n- AFFINEMENT : L'utilisateur précise sa recherche initiale avec un nouveau critère. Filtre STRICTEMENT la liste fournie pour ne citer QUE les établissements qui correspondent réellement à ce critère. Analyse TOUS les champs disponibles pour chaque établissement : nom, ville, quartier, adresse, sous-catégories, hook, Services, Engagements (RSE/certifications), Badges (badges de l'établissement) et Badges vidéos (thématiques des vidéos liées). Si le critère est un lieu (quartier, route, rue, avenue, secteur…), considère qu'un établissement correspond dès que ce lieu apparaît dans son adresse OU son quartier. Cite TOUS les établissements pertinents de la liste (jusqu'à 10), pas seulement 2 ou 3 — la liste fournie peut contenir jusqu'à 60 candidats. N'hésite PAS à re-citer un établissement déjà mentionné précédemment s'il correspond au nouveau critère — la pertinence prime sur la nouveauté. Si AUCUN établissement de la liste ne correspond clairement au critère, dis-le honnêtement plutôt que d'en citer qui ne correspondent pas. Ne cite jamais un établissement uniquement parce qu'il n'a pas encore été mentionné.` : ''}${hotelAvailabilityBlock}
@@ -896,8 +897,10 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
       .replace(/N['']?utilise pas d['']autre formatage markdown[^.!?\n]*[.!?]?/gi, "")
       .replace(/[ÉE]cris en texte simple avec [ée]mojis\.?[\s✨]*/gi, "")
       .replace(/Pas de (titres?|listes? [àa] puces?|#)[^.!?\n]*[.!?]?/gi, "")
-      .replace(/\s{2,}/g, " ")
-      .replace(/\s+([,.;!?])/g, "$1")
+      .replace(/[ \t]{2,}/g, " ")
+      .replace(/[ \t]+([,.;!?])/g, "$1")
+      .replace(/[ \t]*\n[ \t]*/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
       .trim();
 
     console.log(`AI answer for "${query}": ${answer.substring(0, 100)}...`);
