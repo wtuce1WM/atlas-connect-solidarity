@@ -478,8 +478,10 @@ const SearchPage = () => {
   }, []);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
-  const handleAiAnswerReady = useCallback((answer: string) => {
-    const cited = extractCitedBusinesses(answer, allBusinesses as unknown as AIBusinessData[]);
+  const handleAiAnswerReady = useCallback((answer: string, citedBusinesses?: AIBusinessData[]) => {
+    const cited = citedBusinesses?.length
+      ? citedBusinesses
+      : extractCitedBusinesses(answer, allBusinesses as unknown as AIBusinessData[]);
     if (cited.length > 0) setAiRefinementBusinessPool(cited as unknown as Business[]);
     setAiAnswerText(answer);
     setPrevAiAnswerText("");
