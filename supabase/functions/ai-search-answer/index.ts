@@ -710,21 +710,20 @@ serve(async (req) => {
 
         console.log(`Hotel availability intent: ${cityName} ${checkIn}→${checkOut} adults=${adults}`);
 
-        const idToBusinessName = new Map<string, string>();
-        (effectiveBusinesses as any[]).forEach((b) => { if (b.id && b.name) idToBusinessName.set(b.id, b.name); });
-
         // Load SerpAPI name → business mappings for this city
         const { data: mappingRows } = await sb
           .from("hotel_mappings")
           .select("serp_hotel_name, business_id, city")
           .ilike("city", cityName);
+        const allMappings = (mappingRows || []) as any[];
+        const optimalMaxPages = Math.max(1, Math.ceil(allMappings.length / 20));
 
         const normalize = (s: string) => s.toLowerCase()
           .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
           .replace(/[^a-z0-9]+/g, " ").trim();
 
         const serpNameToBiz = new Map<string, string>();
-        (mappingRows || []).forEach((r: any) => {
+        allMappings.forEach((r: any) => {
           if (r.serp_hotel_name && r.business_id) serpNameToBiz.set(normalize(r.serp_hotel_name), r.business_id);
         });
 
@@ -740,7 +739,7 @@ serve(async (req) => {
             currency: "EUR",
             language: "fr",
             country: "ma",
-            maxPages: 3,
+            maxPages: optimalMaxPages,
           },
         });
 
@@ -748,19 +747,34 @@ serve(async (req) => {
           console.error("serpapi-hotels invoke error:", serpErr);
         } else {
           const hotels = (serpData?.data || []) as any[];
+          const matchedByBusinessId = new Map<string, any>();
           hotels.forEach((h: any) => {
             const key = normalize(String(h.name || ""));
             if (!key) return;
             const bizId = serpNameToBiz.get(key);
             if (!bizId) return;
-            const bizName = idToBusinessName.get(bizId);
-            if (!bizName) return;
-            if (matched.some((x) => x.name === bizName)) return;
-            const amt = h.ratePerNight?.amount;
-            const cur = h.ratePerNight?.currency || "EUR";
-            const price = amt ? `${amt} ${cur}/nuit` : undefined;
-            matched.push({ name: bizName, price, rating: h.overallRating, reviews: h.reviewCount });
+            if (!matchedByBusinessId.has(bizId)) matchedByBusinessId.set(bizId, h);
           });
+
+          const matchedBizIds = Array.from(matchedByBusinessId.keys());
+          if (matchedBizIds.length > 0) {
+            const { data: matchedBusinesses } = await sb
+              .from("businesses")
+              .select("id, name")
+              .in("id", matchedBizIds)
+              .eq("is_active", true)
+              .eq("main_category", "Hôtellerie");
+
+            (matchedBusinesses || []).forEach((biz: any) => {
+              const h = matchedByBusinessId.get(biz.id);
+              if (!h || !biz?.name) return;
+              if (matched.some((x) => x.name === biz.name)) return;
+              const amt = h.ratePerNight?.amount;
+              const cur = h.ratePerNight?.currency || "EUR";
+              const price = amt ? `${amt} ${cur}/nuit` : undefined;
+              matched.push({ name: biz.name, price, rating: h.overallRating, reviews: h.reviewCount });
+            });
+          }
         }
 
         if (matched.length > 0) {
