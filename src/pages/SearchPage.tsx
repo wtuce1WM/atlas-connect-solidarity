@@ -4323,20 +4323,20 @@ const SearchPage = () => {
                 const cited = extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
                 return (
-                  <div className="mt-6 -mx-4 sm:mx-0">
-                    <div
-                      className="flex gap-4 overflow-x-auto px-4 sm:px-0 pb-3 scrollbar-hide"
-                      onWheel={(e) => {
-                        const el = e.currentTarget;
-                        if (e.deltaX !== 0) return;
-                        if (el.scrollWidth <= el.clientWidth) return;
-                        const atStart = el.scrollLeft <= 0 && e.deltaY < 0;
-                        const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1 && e.deltaY > 0;
-                        if (atStart || atEnd) return;
-                        e.preventDefault();
-                        el.scrollLeft += e.deltaY;
-                      }}
-                    >
+                  <CitedBusinessesCarousel
+                    cited={cited}
+                    aiInlineBusinessPool={aiInlineBusinessPool}
+                    businessLabelLogos={businessLabelLogos}
+                    getDistanceKm={getDistanceKm}
+                    onOpen={(full) => {
+                      setShowAiPopup(false);
+                      setOverlaySelectedBusiness(null);
+                      openCompactPanel(full as any);
+                    }}
+                    onHover={setHoveredResultId}
+                  />
+                );
+              })()}
                       {cited.map((b, idx) => {
                         const full = (aiInlineBusinessPool as unknown as Business[]).find(x => x.id === b.id);
                         if (!full) return null;
