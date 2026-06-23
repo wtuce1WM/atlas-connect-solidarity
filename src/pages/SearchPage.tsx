@@ -4519,8 +4519,9 @@ const SearchPage = () => {
                                   {(() => {
                                     const isMsgTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === idx;
                                     const msgKaraokeTarget = isMsgTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
+                                    const displayContent = addAiReadableBreaks(m.content, aiInlineBusinessPool);
                                     return parseInline(
-                                      m.content,
+                                      displayContent,
                                       aiInlineBusinessPool,
                                       (b: AIBusinessData) => {
                                         setShowAiPopup(false);
