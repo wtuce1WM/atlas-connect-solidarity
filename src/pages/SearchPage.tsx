@@ -5974,7 +5974,9 @@ const SearchPage = () => {
                   setShowMobileMap(false);
                   openCompactPanel({ id: poiId, name: "" } as AIBusinessData);
                 } else {
-                  const biz = filteredBusinesses.find(b => b.id === poiId)
+                  const biz = searchMapPool.find(b => b.id === poiId)
+                    || aiInlineBusinessPool.find(b => b.id === poiId)
+                    || filteredBusinesses.find(b => b.id === poiId)
                     || allCityMapBusinesses.find(b => b.id === poiId);
                   if (biz) {
                     setShowMobileMap(false);
