@@ -59,7 +59,10 @@ export function useAiChatPersistence({
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const isOwner = !!userId && !!ownerId && userId === ownerId;
+  // For anonymous chats (user_id IS NULL in DB), anyone with the chatId can edit (and the local creator is the de-facto owner).
+  // For signed-in chats, only the auth user matches.
+  const isAnonChat = ownerId === null && !!chatId;
+  const isOwner = isAnonChat || (!!userId && !!ownerId && userId === ownerId);
 
   // Hydrate from URL chatId
   const hydratedRef = useRef<string | null>(null);
@@ -83,7 +86,9 @@ export function useAiChatPersistence({
         setIsPublic(!!data.is_public);
         if (typeof payload.aiAnswerText === "string") setAiAnswerText(payload.aiAnswerText);
         if (Array.isArray(payload.aiChat)) setAiChat(payload.aiChat);
-        const ownsIt = !!userId && data.user_id === userId;
+        // Anonymous chats (user_id NULL) are editable by anyone who has the link.
+        // Signed-in chats are read-only unless the viewer is the owner.
+        const ownsIt = data.user_id === null || (!!userId && data.user_id === userId);
         setIsReadOnly(!ownsIt);
       }
       setHydrating(false);
@@ -94,8 +99,7 @@ export function useAiChatPersistence({
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef<string>("");
   useEffect(() => {
-    if (!userId) return; // anonymous = no persistence
-    if (isReadOnly) return; // viewing someone else's chat
+    if (isReadOnly) return; // viewing someone else's signed-in chat
     if (!aiAnswerText && aiChat.length === 0) return;
 
     const payload = { aiAnswerText, aiChat, searchQuery };
@@ -104,7 +108,6 @@ export function useAiChatPersistence({
 
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
-      // Auto title = first user message OR truncated answer
       const autoTitle =
         aiChat.find((m) => m.role === "user")?.content ||
         searchQuery ||
@@ -113,14 +116,17 @@ export function useAiChatPersistence({
       const finalTitle = (title && title.trim()) ? title : autoTitle.slice(0, 80);
 
       if (!chatId) {
+        // Anonymous chats are public by default so the share link works without auth.
+        const insertPayload: any = {
+          user_id: userId,
+          title: finalTitle,
+          messages: payload as any,
+          city: city ?? null,
+          is_public: userId ? false : true,
+        };
         const { data, error } = await supabase
           .from("ai_chats")
-          .insert({
-            user_id: userId,
-            title: finalTitle,
-            messages: payload as any,
-            city: city ?? null,
-          })
+          .insert(insertPayload)
           .select("id,title,user_id,is_bookmarked,is_public")
           .single();
         if (!error && data) {
@@ -177,7 +183,7 @@ export function useAiChatPersistence({
   }, [userId, chatId, isOwner, isBookmarked]);
 
   const makeShareUrl = useCallback(async (): Promise<string | null> => {
-    if (!userId || !chatId || !isOwner) return null;
+    if (!chatId || !isOwner) return null;
     if (!isPublic) {
       await supabase.from("ai_chats").update({ is_public: true }).eq("id", chatId);
       setIsPublic(true);
@@ -187,7 +193,7 @@ export function useAiChatPersistence({
     url.searchParams.set("aiChat", chatId);
     url.searchParams.delete("_t");
     return url.toString();
-  }, [userId, chatId, isOwner, isPublic]);
+  }, [chatId, isOwner, isPublic]);
 
   return {
     userId,
