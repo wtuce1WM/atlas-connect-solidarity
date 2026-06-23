@@ -372,8 +372,28 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
               <h2 className="text-xl sm:text-2xl font-bold mt-0.5 sm:mt-1 !font-sans !not-italic">{t.clubName}</h2>
             </div>
 
+            <style>{`
+              @keyframes clubShimmerOnce {
+                0% { transform: translateX(-120%); }
+                100% { transform: translateX(120%); }
+              }
+              .club-popup-body { position: relative; overflow: hidden; background: linear-gradient(to bottom, #194CFF 0%, #6E8FFF 12%, #BED1FF 32%, #BED1FF 100%); }
+              .club-popup-body::before {
+                content: "";
+                position: absolute;
+                top: 0; bottom: 0;
+                width: 40%;
+                left: 0;
+                background: linear-gradient(110deg, transparent 0%, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%, transparent 100%);
+                transform: translateX(-120%);
+                animation: clubShimmerOnce 1.6s ease-out 0.45s 1 forwards;
+                pointer-events: none;
+                z-index: 0;
+              }
+              .club-popup-body > * { position: relative; z-index: 1; }
+            `}</style>
             {!isLoggedIn ? (
-              <div style={{ backgroundColor: "#ECD6B8" }} className="p-3 sm:p-6 text-stone-900">
+              <div className="club-popup-body p-3 sm:p-6 text-stone-900">
                 <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 !font-sans text-stone-900 text-center">
                   {t.memberTitle}
                 </h3>
@@ -381,7 +401,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                 <ClubAuthPanel redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"} />
               </div>
             ) : (
-              <div style={{ backgroundColor: "#ECD6B8" }} className="p-6 text-stone-900">
+              <div className="club-popup-body p-6 text-stone-900">
                 <h3 className="text-lg font-semibold mb-1 !font-sans text-stone-900 text-center">
                   {t.saveTitle}
                 </h3>
