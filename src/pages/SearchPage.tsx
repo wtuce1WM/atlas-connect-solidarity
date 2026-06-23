@@ -4269,7 +4269,7 @@ const SearchPage = () => {
                             </button>
                           )}
                           <ShareButton
-                            title={"Que cherchez-vous ? Où le cherchez-vous ?\nAgent IA One World Morocco"}
+                            title={"Agent IA\nOne World Morocco"}
                             variant="dark"
                             className="shrink-0 shadow-lg"
                           />
