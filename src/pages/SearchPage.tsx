@@ -4930,9 +4930,16 @@ const SearchPage = () => {
                   // the city (businesses with is_poi=true) and center on the user.
                   const cityPois = allCityMapBusinesses.filter((b: any) => b.is_poi);
                   const aiWelcome = isWelcomeText && mapPoiItems.length === 0 && cityPois.length > 0;
-                  const welcomePois = aiWelcome ? buildMapPoiItems(cityPois, true) : mapPoiItems;
+                  const basePois = aiWelcome ? buildMapPoiItems(cityPois, true) : mapPoiItems;
                   const userCenter = geo.isEnabled && geo.coords ? geo.coords : null;
-                  const effectiveCenter = aiWelcome && userCenter ? userCenter : mapCenterForResults;
+                  const aiProxActive = !!(userCenter && aiProximityKm);
+                  const welcomePois = aiProxActive
+                    ? basePois.filter((p: any) => {
+                        if (p.latitude == null || p.longitude == null) return false;
+                        return haversineKm(userCenter!.lat, userCenter!.lng, p.latitude, p.longitude) <= aiProximityKm!;
+                      })
+                    : basePois;
+                  const effectiveCenter = (aiWelcome || aiProxActive) && userCenter ? userCenter : mapCenterForResults;
                   return (
                     <PoiGoogleMap
                       pois={welcomePois}
@@ -4946,7 +4953,7 @@ const SearchPage = () => {
                         if (biz) openCompactPanel({ id: biz.id, name: biz.name } as any);
                       }}
                       center={effectiveCenter}
-                      fitToMarkers={!(aiWelcome && userCenter)}
+                      fitToMarkers={!((aiWelcome || aiProxActive) && userCenter)}
                       userLocation={userCenter}
                     />
                   );
