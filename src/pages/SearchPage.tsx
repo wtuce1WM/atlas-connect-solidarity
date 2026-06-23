@@ -505,6 +505,13 @@ const SearchPage = () => {
     setAiAnswerText,
     setAiChat,
   });
+  // Ensure the owner's chat is publicly shareable so the ShareButton link works.
+  useEffect(() => {
+    if (aiPersist.isOwner && aiPersist.chatId && !aiPersist.isPublic) {
+      aiPersist.makeShareUrl();
+    }
+  }, [aiPersist.isOwner, aiPersist.chatId, aiPersist.isPublic]);
+
   const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
   const [restoredAiBusinessPool, setRestoredAiBusinessPool] = useState<Business[]>([]);
   const lastAiProximityRef = useRef<{ lat: number; lng: number; radiusKm: number; targetName: string; query: string } | null>(null);
