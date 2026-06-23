@@ -310,15 +310,25 @@ const VideoSlidePanel = ({
 
   const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
   const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(ctaBusiness?.id ? String(ctaBusiness.id) : undefined);
+  const videoLikeSource = isGeneric ? "generic" as const : "business" as const;
+  const videoLikeId = videoId || null;
+  const { isLiked: isVideoLiked, count: videoLikeCount, isLoggedIn: isVideoLikeLoggedIn, toggle: toggleVideoLike } = useVideoLike(videoLikeId, videoLikeSource);
+  const [likeBurst, setLikeBurst] = useState(0);
   const ctaShareUrl = (() => {
-    if (!ctaBusiness?.slug) return undefined;
     try {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("openChannel") === String(ctaBusiness.id) || params.get("tab") === "youtube") {
+      if (ctaBusiness?.slug && (params.get("openChannel") === String(ctaBusiness.id) || params.get("tab") === "youtube")) {
         return `https://oneworldmorocco.com/y/${ctaBusiness.slug}`;
       }
     } catch {/* noop */}
-    return buildOgShareUrl(ctaBusiness.slug);
+    if (ctaBusiness?.slug) return buildOgShareUrl(ctaBusiness.slug);
+    // Fallback : reconstruire l'URL canonique sur oneworldmorocco.com (jamais l'host supabase de preview)
+    try {
+      const { pathname, search } = window.location;
+      return `https://oneworldmorocco.com${pathname}${search}`;
+    } catch {
+      return "https://oneworldmorocco.com/";
+    }
   })();
   const normalizeHeaderName = (value: string | null | undefined) =>
     (value || "").trim().toLocaleLowerCase("fr-FR");
