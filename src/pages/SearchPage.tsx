@@ -2711,8 +2711,9 @@ const SearchPage = () => {
   // When AI has produced an assistant answer with cited businesses (in **bold**),
   // restrict the map to those exact cited results so markers match what the user reads.
   const aiCitedMapPool = useMemo(() => {
-    const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant")?.content;
-    const sourceText = lastAssistant || aiAnswerText;
+    const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant");
+    if (lastAssistant?.citedBusinesses?.length) return lastAssistant.citedBusinesses as unknown as Business[];
+    const sourceText = lastAssistant?.content || aiAnswerText;
     if (!sourceText) return [] as Business[];
     const cited = extractCitedBusinesses(sourceText, aiInlineBusinessPool);
     return cited as unknown as Business[];
