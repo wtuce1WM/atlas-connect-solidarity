@@ -4269,10 +4269,11 @@ const SearchPage = () => {
                             </button>
                           )}
                           <ShareButton
-                            title={aiPersist.title || searchQuery || "Recherche"}
+                            title="Que cherchez-vous ? Où le cherchez-vous ?\nAgent IA One World Morocco"
                             variant="dark"
                             className="shrink-0 shadow-lg"
                           />
+
 
                         </>
                     </div>
@@ -5032,7 +5033,7 @@ const SearchPage = () => {
                           <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
                         </button>
                         <ShareButton
-                          title={searchQuery || "Recherche"}
+                          title="Recherche\nAgent IA One World Morocco"
                           variant="dark"
                           className="shrink-0 shadow-lg"
                         />
@@ -5625,7 +5626,7 @@ const SearchPage = () => {
                   >
                     <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
                   </button>
-                  <ShareButton title={searchQuery || "Recherche"} variant="dark" className="shrink-0" />
+                  <ShareButton title="Recherche\nAgent IA One World Morocco" variant="dark" className="shrink-0" />
                 </div>
               </div>
               {(() => {
