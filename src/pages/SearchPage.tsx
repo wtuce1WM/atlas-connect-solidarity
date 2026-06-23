@@ -4533,14 +4533,10 @@ const SearchPage = () => {
                 })()}
               </div>
 
-              {/* Horizontal scroll of cited businesses */}
-              {activeTab !== "poi" && activeTab !== "destinations" && (() => {
-                  const lastAssistantMessage = [...aiChat].reverse().find((m) => m.role === "assistant");
-                  const currentAiText = addAiReadableBreaks(lastAssistantMessage?.content || aiAnswerText, aiInlineBusinessPool);
-                if (!currentAiText) return null;
-                  const cited = lastAssistantMessage?.citedBusinesses?.length
-                    ? lastAssistantMessage.citedBusinesses
-                    : extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
+              {/* Horizontal scroll of cited businesses — bound to the initial AI answer only.
+                  Refinement turns render their own per-message carousel below. */}
+              {activeTab !== "poi" && activeTab !== "destinations" && !isWelcomeText && aiAnswerText && (() => {
+                const cited = extractCitedBusinesses(aiAnswerText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
                 return (
                   <CitedBusinessesCarousel
