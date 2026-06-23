@@ -234,7 +234,7 @@ const PoiTabContent = ({
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcat ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcat ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                       >
                         <SlidersHorizontal className="h-3.5 w-3.5" />
                         {poiSubcat ?? "Attractions"}
@@ -262,7 +262,7 @@ const PoiTabContent = ({
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#D4AF37] text-black" : "text-white/90 hover:text-white"}`}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                       >
                         <Navigation className="h-3.5 w-3.5" />
                         {proxActiveOpt ? proxActiveOpt.label : "À proximité"}
