@@ -88,12 +88,9 @@ type SearchTabKey = "suggestions" | "map" | "poi" | "destinations" | "hashtag" |
 
 const addAiReadableBreaks = (text: string, businesses: AIBusinessData[]) => {
   if (!text || /\n\s*\n/.test(text)) return text;
-  let businessMentionCount = 0;
 
   return text.replace(/\s*(\*\*(.+?)\*\*)/g, (match, boldText: string, innerText: string, offset: number, source: string) => {
     if (!findBusiness(innerText, businesses)) return match;
-
-    businessMentionCount += 1;
     const before = source.slice(0, offset).trim();
     if (!before) return boldText;
 
