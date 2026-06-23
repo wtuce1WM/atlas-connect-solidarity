@@ -3868,7 +3868,16 @@ const SearchPage = () => {
   const resultsEndResult = fsFilteredList ? Math.min(fsPageStart + ITEMS_PER_PAGE, fsFilteredList.length) : endResult;
   const resultsDisplayedCount = fsFilteredList ? fsFilteredList.length : displayedResultsCount;
   const stickyAiText = useMemo(
-    () => aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " "),
+    () => aiAnswerText
+      .replace(/^[-•]\s+/gm, "")
+      .replace(/^\d+[.)]\s+/gm, "")
+      .replace(/\*\*(.*?)\*\*/g, "$1")
+      .replace(/\*(.*?)\*/g, "$1")
+      .replace(/\n+/g, " ")
+      .replace(/\s*:\s*[-–—]\s+/g, " ")
+      .replace(/\s+[-–—]\s+/g, " ")
+      .replace(/\s{2,}/g, " ")
+      .trim(),
     [aiAnswerText]
   );
   const isWelcomeText = useMemo(() => {
