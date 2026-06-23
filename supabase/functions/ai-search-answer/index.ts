@@ -897,8 +897,10 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
       .replace(/N['']?utilise pas d['']autre formatage markdown[^.!?\n]*[.!?]?/gi, "")
       .replace(/[ÉE]cris en texte simple avec [ée]mojis\.?[\s✨]*/gi, "")
       .replace(/Pas de (titres?|listes? [àa] puces?|#)[^.!?\n]*[.!?]?/gi, "")
-      .replace(/\s{2,}/g, " ")
-      .replace(/\s+([,.;!?])/g, "$1")
+      .replace(/[ \t]{2,}/g, " ")
+      .replace(/[ \t]+([,.;!?])/g, "$1")
+      .replace(/[ \t]*\n[ \t]*/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
       .trim();
 
     console.log(`AI answer for "${query}": ${answer.substring(0, 100)}...`);
