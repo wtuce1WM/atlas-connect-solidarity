@@ -800,6 +800,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </TabsContent>
 
+        <TabsContent value="ai-chats" className="mt-6">
+          <AiChatsList userId={user.id} />
+        </TabsContent>
+
+
         <TabsContent value="notifications" className="mt-6">
           <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
             {language === "en" ? "No notifications yet." : language === "ar" ? "لا توجد إشعارات بعد." : "Aucune notification pour le moment."}
