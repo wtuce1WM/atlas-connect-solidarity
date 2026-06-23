@@ -4464,6 +4464,16 @@ const SearchPage = () => {
                     );
                   }
                   if (isWelcomeText) {
+                    const parts = currentAiText.split("?");
+                    if (parts.length > 1) {
+                      return (
+                        <div className="text-center font-bold text-lg md:text-xl text-foreground py-8 leading-relaxed">
+                          {parts[0]}?
+                          <br className="sm:hidden" />
+                          <span className="inline-block sm:inline sm:ml-1.5">{parts.slice(1).join("?")}</span>
+                        </div>
+                      );
+                    }
                     return (
                       <div className="text-center font-bold text-lg md:text-xl text-foreground py-8">
                         {currentAiText}
