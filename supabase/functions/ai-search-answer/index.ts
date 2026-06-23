@@ -521,8 +521,8 @@ serve(async (req) => {
 
     let effectiveHasRenderResults = renderBusinesses.length > 0;
 
-    const businessContext = effectiveHasRenderResults
-      ? renderBusinesses.map((b: any, i: number) => {
+    const buildBusinessContext = (items: any[], hasItems: boolean) => hasItems
+      ? items.map((b: any, i: number) => {
           const parts = [`${i + 1}. ${b.name}`];
           if (b.wtuce_status === "verified") parts.push(`[CONFIANCE]`);
           if (b.city) parts.push(`(${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""})`);
@@ -555,6 +555,7 @@ serve(async (req) => {
       : (geoIntent && hasUserCoords && maxDistanceKm !== null
           ? `(Aucun établissement trouvé dans un rayon de ${maxDistanceKm < 1 ? Math.round(maxDistanceKm * 1000) + " m" : maxDistanceKm + " km"} autour de la position de l'utilisateur)`
           : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)");
+    let businessContext = buildBusinessContext(renderBusinesses, effectiveHasRenderResults);
 
     const langInstructions = language === "en"
       ? "Answer in English."
