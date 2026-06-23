@@ -52,8 +52,31 @@ const ytThumb = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefaul
 export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountChange, onOpenBusiness }: Props) {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VideoItem[]>([]);
-  const [activeItem, setActiveItem] = useState<VideoItem | null>(null);
+  const [activeItem, setActiveItemRaw] = useState<VideoItem | null>(null);
+  // Sync ?openVideo=<id> in the URL so the share link reopens the same video
+  const setActiveItem = (item: VideoItem | null) => {
+    setActiveItemRaw(item);
+    try {
+      const url = new URL(window.location.href);
+      if (item) url.searchParams.set("openVideo", item._id);
+      else url.searchParams.delete("openVideo");
+      window.history.replaceState({}, "", url.toString());
+    } catch {/* noop */}
+  };
   useEffect(() => { setActiveItem(null); }, [badgeId]);
+  // Auto-open the video referenced by ?openVideo=<id> once items are loaded
+  const [autoOpened, setAutoOpened] = useState(false);
+  useEffect(() => { setAutoOpened(false); }, [badgeId]);
+  useEffect(() => {
+    if (autoOpened || items.length === 0) return;
+    try {
+      const target = new URL(window.location.href).searchParams.get("openVideo");
+      if (!target) { setAutoOpened(true); return; }
+      const found = items.find((it) => it._id === target);
+      if (found) setActiveItemRaw(found);
+      setAutoOpened(true);
+    } catch { setAutoOpened(true); }
+  }, [items, autoOpened]);
   const [currentTime, setCurrentTime] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
