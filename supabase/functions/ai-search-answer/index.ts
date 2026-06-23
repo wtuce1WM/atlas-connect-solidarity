@@ -804,11 +804,11 @@ serve(async (req) => {
 
 RÈGLES :
 - ${langInstructions}
-- Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.
+- ${effectiveHasRenderResults ? "Réponds avec une accroche courte puis un paragraphe distinct par établissement cité. Ne te limite pas artificiellement à 5-8 phrases quand plusieurs adresses nécessitent chacune une vraie description." : `Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.`}
 - Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${modeInstructions || (effectiveHasRenderResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
 - Cite OBLIGATOIREMENT au moins 3 établissements de la liste par leur nom exact si la liste en contient 3 ou plus. Ne dis JAMAIS que tu n'as pas d'établissement spécifique ou que l'annuaire est vide quand cette liste est fournie.
-- Cite jusqu'à 10 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.).
+- Cite 3 à 6 établissements maximum de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.). Si la liste en contient davantage, privilégie les plus pertinents plutôt que de tout citer sans description.
 - CRITIQUE : Écris chaque nom EXACTEMENT comme dans la liste fournie, caractère pour caractère (mêmes accents, majuscules, ponctuation). N'ajoute JAMAIS de suffixe, de ville, de quartier, de parenthèses, de tiret descriptif, ni d'article ("Le", "La", "Restaurant", etc.) qui ne figure pas dans le nom original. Pas de reformulation, pas de traduction du nom.
 - Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : '')}${boostVerified && effectiveHasRenderResults && !mode ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${!mode && !effectiveHasRenderResults ? `\n- ${noResultsCfg || "Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles."}
 - IMPORTANT : Ne cite AUCUN nom d'établissement spécifique. Tu ne connais pas notre annuaire, donc n'invente pas de noms. Donne uniquement des conseils généraux sur la thématique ou la destination.
