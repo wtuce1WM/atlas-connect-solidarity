@@ -940,9 +940,9 @@ const VideoSlidePanel = ({
                     >
                     {isGeneric && social && (
                       <>
-                        {social.platform === "instagram" && <InstagramIcon className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                        {social.platform === "tiktok" && <SiTiktok className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                        {social.platform === "youtube" && <Youtube className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "instagram" && <InstagramIcon className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "tiktok" && <SiTiktok className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "youtube" && <Youtube className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                       </>
                     )}
                     {isGeneric && social ? (
