@@ -4255,10 +4255,17 @@ const SearchPage = () => {
                               onClick={async () => {
                                 const url = await aiPersist.makeShareUrl();
                                 if (!url) return;
+                                let shared = false;
                                 if (navigator.share) {
-                                  try { await navigator.share({ title: aiPersist.title || searchQuery || "Conversation IA", url }); } catch {/* noop */}
-                                } else {
-                                  await navigator.clipboard.writeText(url);
+                                  try {
+                                    await navigator.share({ title: aiPersist.title || searchQuery || "Conversation IA", url });
+                                    shared = true;
+                                  } catch (err: any) {
+                                    if (err?.name === "AbortError") return;
+                                  }
+                                }
+                                if (!shared) {
+                                  try { await navigator.clipboard.writeText(url); } catch { window.prompt("Copiez le lien :", url); }
                                   window.dispatchEvent(new CustomEvent("toast", { detail: { message: "Lien copié" } }));
                                 }
                               }}
