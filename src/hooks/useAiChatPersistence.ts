@@ -86,7 +86,9 @@ export function useAiChatPersistence({
         setIsPublic(!!data.is_public);
         if (typeof payload.aiAnswerText === "string") setAiAnswerText(payload.aiAnswerText);
         if (Array.isArray(payload.aiChat)) setAiChat(payload.aiChat);
-        const ownsIt = !!userId && data.user_id === userId;
+        // Anonymous chats (user_id NULL) are editable by anyone who has the link.
+        // Signed-in chats are read-only unless the viewer is the owner.
+        const ownsIt = data.user_id === null || (!!userId && data.user_id === userId);
         setIsReadOnly(!ownsIt);
       }
       setHydrating(false);
