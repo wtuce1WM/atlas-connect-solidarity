@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Building2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Map, Clock, MapPin, X, Heart, SlidersHorizontal, Navigation } from "lucide-react";
+import { Building2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Map, Clock, MapPin, X, Heart, Bookmark, SlidersHorizontal, Navigation } from "lucide-react";
 import { haversineKm } from "@/lib/haversine";
 import ShareButton from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
