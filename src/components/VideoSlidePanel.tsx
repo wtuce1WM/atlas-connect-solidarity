@@ -269,7 +269,7 @@ const VideoSlidePanel = ({
 
   // Fallback owner-based business lookup (used when no eventId is provided)
   useEffect(() => {
-    if (!open || eventId || !owner?.id) {
+    if (!open || eventId || isGeneric || !owner?.id) {
       setOwnerBusiness(null);
       return;
     }
@@ -284,7 +284,7 @@ const VideoSlidePanel = ({
       setOwnerBusiness((bizRow as any) || null);
     })();
     return () => { cancelled = true; };
-  }, [open, eventId, owner?.id]);
+  }, [open, eventId, isGeneric, owner?.id]);
 
   // Page business lookup: when pageBusinessId is provided, load the consulted
   // fiche so all CTAs (En savoir +, Itinéraire, WhatsApp, partage) target it
