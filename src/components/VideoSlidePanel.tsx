@@ -27,6 +27,7 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
 import { Phone, Heart, Bookmark } from "lucide-react";
 import { useBookmark } from "@/hooks/useBookmark";
+import { useVideoLike } from "@/hooks/useVideoLike";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { groupImagesWithHeadings } from "@/lib/groupImagesWithHeadings";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
