@@ -152,6 +152,71 @@ export type Database = {
           },
         ]
       }
+      ai_chat_bookmarks: {
+        Row: {
+          chat_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          chat_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          chat_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_chat_bookmarks_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "ai_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_chats: {
+        Row: {
+          city: string | null
+          created_at: string
+          id: string
+          is_bookmarked: boolean
+          is_public: boolean
+          messages: Json
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_bookmarked?: boolean
+          is_public?: boolean
+          messages?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_bookmarked?: boolean
+          is_public?: boolean
+          messages?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ai_config: {
         Row: {
           description: string | null
