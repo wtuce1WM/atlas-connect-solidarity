@@ -212,8 +212,8 @@ const HeroSection = () => {
                 );
               })()}
 
-              {/* Play video CTA + Inspirez-vous */}
-              <div className="mt-20 md:mt-5 flex flex-wrap items-center gap-x-6 gap-y-4 justify-center md:justify-start">
+              {/* Play video CTA */}
+              <div className="mt-20 md:mt-5 flex justify-center md:justify-start">
                 <button
                   type="button"
                   onClick={() => setVideoOpen(true)}
@@ -229,29 +229,6 @@ const HeroSection = () => {
                     {language === "ar" ? "تشغيل الفيديو" : language === "en" ? "Play video" : "Voir la vidéo"}
                   </span>
                 </button>
-
-                <Link
-                  to="/blog/idee-cadeau-marrakech"
-                  className="group inline-flex items-center gap-3 text-black hover:opacity-80 transition-opacity"
-                  aria-label={language === "en" ? "Get inspired — gift ideas in Marrakech" : language === "ar" ? "استلهم — أفكار هدايا في مراكش" : "Inspirez-vous — idée cadeau à Marrakech"}
-                >
-                  <span className="relative h-11 w-11 overflow-hidden rounded-full ring-2 ring-black/10 group-hover:ring-black/30 transition">
-                    <img
-                      src={ideeCadeauHeroAsset.url}
-                      alt=""
-                      className="absolute inset-0 h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  </span>
-                  <span className="flex flex-col leading-tight text-left">
-                    <span className="text-base font-medium">
-                      {language === "ar" ? "استلهم" : language === "en" ? "Get inspired" : "Inspirez-vous"}
-                    </span>
-                    <span className="text-xs text-black/60">
-                      {language === "ar" ? "أفكار هدايا في مراكش" : language === "en" ? "Gift ideas in Marrakech" : "Idée cadeau à Marrakech"}
-                    </span>
-                  </span>
-                </Link>
               </div>
             </div>
           </div>
