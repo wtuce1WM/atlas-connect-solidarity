@@ -356,10 +356,10 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           onClick={() => setClubOpen(false)}
         >
           <div
-            className="w-full max-w-md max-h-[calc(100dvh-12rem)] md:max-h-[calc(100dvh-14rem)] lg:max-h-none overflow-y-auto rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200"
+            className="club-popup-body w-full max-w-md max-h-[calc(100dvh-12rem)] md:max-h-[calc(100dvh-14rem)] lg:max-h-none overflow-y-auto rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ backgroundColor: "#194CFF" }} className="p-3 sm:p-6 text-white relative">
+            <div className="p-3 sm:p-6 text-white relative bg-transparent">
               <button
                 type="button"
                 onClick={() => setClubOpen(false)}
@@ -393,7 +393,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
               .club-popup-body > * { position: relative; z-index: 1; }
             `}</style>
             {!isLoggedIn ? (
-              <div className="club-popup-body p-3 sm:p-6 text-stone-900">
+              <div className="p-3 sm:p-6 text-stone-900 bg-transparent">
                 <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 !font-sans text-stone-900 text-center">
                   {t.memberTitle}
                 </h3>
@@ -401,7 +401,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                 <ClubAuthPanel redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"} />
               </div>
             ) : (
-              <div className="club-popup-body p-6 text-stone-900">
+              <div className="p-6 text-stone-900 bg-transparent">
                 <h3 className="text-lg font-semibold mb-1 !font-sans text-stone-900 text-center">
                   {t.saveTitle}
                 </h3>
