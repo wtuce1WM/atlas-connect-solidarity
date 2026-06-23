@@ -4215,7 +4215,13 @@ const SearchPage = () => {
                   {activeTab === "ai" && (
                     <div className="flex items-center justify-center gap-2 mb-3 mt-1 sm:mt-2">
                        <button
-                         onClick={() => setHideResultsMap(v => !v)}
+                         onClick={() => {
+                           if (isMobile || isSubDesktop) {
+                             setShowMobileMap(v => !v);
+                           } else {
+                             setHideResultsMap(v => !v);
+                           }
+                         }}
                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#3B3B3B] text-white text-xs font-medium shadow-lg hover:bg-[#3B3B3B]/90 transition-colors"
                        >
                          <Map className="h-4 w-4" />
