@@ -479,7 +479,7 @@ const SearchPage = () => {
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
-    const cited = extractCitedBusinesses(answer, aiInlineBusinessPool);
+    const cited = extractCitedBusinesses(answer, allBusinesses as unknown as AIBusinessData[]);
     if (cited.length > 0) setAiRefinementBusinessPool(cited as unknown as Business[]);
     setAiAnswerText(answer);
     setPrevAiAnswerText("");
@@ -505,7 +505,7 @@ const SearchPage = () => {
     setStickyAiAnimationNonce((prev) => prev + 1);
     // NOTE: TTS preloading removed — it consumed ElevenLabs credits on every search
     // even when the user never clicked the speaker. Audio is now generated on demand.
-  }, [language, searchQuery, allBusinesses, totalCount, aiInlineBusinessPool]);
+  }, [language, searchQuery, allBusinesses, totalCount]);
 
   // Reset refinement chat whenever the seed AI text changes (= new search/regeneration)
   useEffect(() => {
