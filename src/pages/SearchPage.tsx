@@ -4959,33 +4959,37 @@ const SearchPage = () => {
                   );
                 })()}
 
-                 <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col">
-                   <div className="relative z-10 flex items-center gap-3 px-3 py-3 bg-transparent">
-                    <button
-                      type="button"
-                      onClick={() => setHideResultsMap(true)}
-                      className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
-                      aria-label={language === "en" ? "Hide map" : "Masquer la carte"}
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                    <div className="flex-1" />
-                    <div className="flex items-center gap-2 shrink-0">
+                  <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col pointer-events-none">
+                    <div className="relative h-[52px] w-full flex-shrink-0">
                       <button
                         type="button"
-                        onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
-                        className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                        aria-label="Le Club OWM"
+                        onClick={() => setHideResultsMap(true)}
+                        className="absolute top-3 left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity pointer-events-auto shrink-0"
+                        aria-label={language === "en" ? "Hide map" : "Masquer la carte"}
                       >
-                        <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                        <X className="h-4 w-4" />
                       </button>
-                      <ShareButton
-                        title={searchQuery || "Recherche"}
-                        variant="dark"
-                        className="shrink-0"
-                      />
+                      <div className="absolute top-3 left-14 right-24 z-[10] flex justify-center w-[calc(100%-152px)]">
+                        <div className="px-3 py-1.5 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate shadow-sm pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                          {(spokenText || searchQuery || labelFromUrl || "").trim() || "Suggestions IA"}
+                        </div>
+                      </div>
+                      <div className="absolute top-3 right-3 z-[15] flex items-center gap-2 pointer-events-auto shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                          className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                          aria-label="Le Club OWM"
+                        >
+                          <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                        </button>
+                        <ShareButton
+                          title={searchQuery || "Recherche"}
+                          variant="dark"
+                          className="shrink-0 shadow-lg"
+                        />
+                      </div>
                     </div>
-                  </div>
                   {(() => {
                     const total = fsFilteredList?.length ?? totalCount ?? filteredBusinesses.length;
                     const showTopToggle = total > 20;
@@ -5014,10 +5018,10 @@ const SearchPage = () => {
                     const proxHasAny = !!userCenter && (proxCounts[10] ?? 0) > 0;
                     const proxActive = !!(userCenter && aiProximityKm);
                     const proxActiveOpt = proxOpts.find(o => o.km === aiProximityKm);
-                    if (!showTopToggle && !proxHasAny) return null;
-                    return (
-                      <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2 flex-wrap">
-                        {showTopToggle && (
+                     if (!showTopToggle && !proxHasAny) return null;
+                     return (
+                       <div className="pointer-events-auto flex items-center justify-center gap-2 px-3 pt-3 pb-2 flex-wrap">
+                         {showTopToggle && (
                           <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                              <button
                                type="button"
