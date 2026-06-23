@@ -4269,10 +4269,11 @@ const SearchPage = () => {
                             </button>
                           )}
                           <ShareButton
-                            title={aiPersist.title || searchQuery || "Recherche"}
+                            title="Que cherchez-vous ? Où le cherchez-vous ?\nAgent IA One World Morocco"
                             variant="dark"
                             className="shrink-0 shadow-lg"
                           />
+
 
                         </>
                     </div>
