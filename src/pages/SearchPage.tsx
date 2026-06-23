@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useState, useMemo, useCallback, useRef } fr
 import { useSEO } from "@/hooks/useSEO";
 import { useIsMobile } from "@/hooks/use-mobile";
 import HScroll from "@/components/HScroll";
+import { useWheelHijackWhenCentered } from "@/hooks/useWheelHijackWhenCentered";
 import { useGeolocation } from "@/hooks/useGeolocation";
 
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
