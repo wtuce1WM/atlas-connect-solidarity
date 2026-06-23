@@ -596,6 +596,170 @@ serve(async (req) => {
         ? `\n- AUCUN RÉSULTAT À PROXIMITÉ : ${maxDistanceKm !== null ? `Aucun établissement dans un rayon de ${maxDistanceKm < 1 ? Math.round(maxDistanceKm * 1000) + " m" : maxDistanceKm + " km"} autour de la position de l'utilisateur.` : "Aucun établissement proche de la position de l'utilisateur."} Dis-le clairement et propose d'élargir la zone de recherche.`
         : '');
 
+    // ============================================================
+    // HOTEL AVAILABILITY (SerpAPI Google Hotels)
+    // Detect a date range + adults in the query/history. If present and the
+    // current pool contains lodging businesses, call serpapi-hotels for the
+    // detected city, match returned properties to our businesses via
+    // hotel_mappings (serp_hotel_name + city → business_id), and inject the
+    // availability/price block into the prompt with a strict filter.
+    // ============================================================
+    let hotelAvailabilityInstruction = "";
+    let hotelAvailabilityBlock = "";
+    try {
+      const availHaystack = [
+        query,
+        ...(Array.isArray(history)
+          ? history.filter((m: any) => m && typeof m.content === "string").slice(-4).map((m: any) => m.content)
+          : []),
+      ].join(" \n ");
+      const availNorm = availHaystack.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+      const MONTHS_FR: Record<string, number> = {
+        janvier: 1, fevrier: 2, mars: 3, avril: 4, mai: 5, juin: 6,
+        juillet: 7, aout: 8, septembre: 9, octobre: 10, novembre: 11, decembre: 12,
+        january: 1, february: 2, march: 3, april: 4, june: 6, july: 7,
+        august: 8, september: 9, october: 10, november: 11, december: 12,
+      };
+      const monthAlt = Object.keys(MONTHS_FR).join("|");
+
+      // Patterns:
+      //  - "du 20 au 25 juillet" / "du 20 au 25 juillet 2026"
+      //  - "du 20 juillet au 25 juillet"
+      //  - "du 30 juillet au 5 aout"
+      //  - "20-25 juillet"
+      //  - "from july 20 to july 25" → harder, skip — covered by "20 to 25 july"
+      let checkIn: string | null = null;
+      let checkOut: string | null = null;
+      const today = new Date();
+      const pad = (n: number) => String(n).padStart(2, "0");
+      const buildISO = (d: number, m: number, y?: number) => {
+        let year = y ?? today.getFullYear();
+        const candidate = new Date(`${year}-${pad(m)}-${pad(d)}T00:00:00Z`);
+        if (!y && candidate.getTime() < today.getTime() - 86400000) year += 1;
+        return `${year}-${pad(m)}-${pad(d)}`;
+      };
+
+      // 1. "du D1 au D2 MONTH (YEAR)?" — same month
+      let m: RegExpMatchArray | null = null;
+      m = availNorm.match(new RegExp(`du\\s+(\\d{1,2})\\s+au\\s+(\\d{1,2})\\s+(${monthAlt})(?:\\s+(\\d{4}))?`));
+      if (m) {
+        const d1 = parseInt(m[1], 10), d2 = parseInt(m[2], 10);
+        const mo = MONTHS_FR[m[3]];
+        const y = m[4] ? parseInt(m[4], 10) : undefined;
+        checkIn = buildISO(d1, mo, y);
+        checkOut = buildISO(d2, mo, y);
+      }
+      // 2. "du D1 MONTH1 au D2 MONTH2 (YEAR)?"
+      if (!checkIn) {
+        m = availNorm.match(new RegExp(`du\\s+(\\d{1,2})\\s+(${monthAlt})\\s+au\\s+(\\d{1,2})\\s+(${monthAlt})(?:\\s+(\\d{4}))?`));
+        if (m) {
+          const d1 = parseInt(m[1], 10), mo1 = MONTHS_FR[m[2]];
+          const d2 = parseInt(m[3], 10), mo2 = MONTHS_FR[m[4]];
+          const y = m[5] ? parseInt(m[5], 10) : undefined;
+          checkIn = buildISO(d1, mo1, y);
+          checkOut = buildISO(d2, mo2, y);
+        }
+      }
+      // 3. "D1-D2 MONTH" or "D1 au D2 MONTH" without "du"
+      if (!checkIn) {
+        m = availNorm.match(new RegExp(`(\\d{1,2})\\s*(?:-|au|to)\\s*(\\d{1,2})\\s+(${monthAlt})(?:\\s+(\\d{4}))?`));
+        if (m) {
+          const d1 = parseInt(m[1], 10), d2 = parseInt(m[2], 10);
+          const mo = MONTHS_FR[m[3]];
+          const y = m[4] ? parseInt(m[4], 10) : undefined;
+          checkIn = buildISO(d1, mo, y);
+          checkOut = buildISO(d2, mo, y);
+        }
+      }
+      // 4. ISO-ish "YYYY-MM-DD au YYYY-MM-DD" or "DD/MM(/YYYY)? au DD/MM(/YYYY)?"
+      if (!checkIn) {
+        m = availNorm.match(/(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?\s*(?:au|-|to|->)\s*(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?/);
+        if (m) {
+          const d1 = parseInt(m[1], 10), mo1 = parseInt(m[2], 10);
+          const y1 = m[3] ? parseInt(m[3].length === 2 ? `20${m[3]}` : m[3], 10) : undefined;
+          const d2 = parseInt(m[4], 10), mo2 = parseInt(m[5], 10);
+          const y2 = m[6] ? parseInt(m[6].length === 2 ? `20${m[6]}` : m[6], 10) : y1;
+          checkIn = buildISO(d1, mo1, y1);
+          checkOut = buildISO(d2, mo2, y2);
+        }
+      }
+
+      // adults
+      let adults = 2;
+      const adultsMatch = availNorm.match(/(\d+)\s*(adultes?|adults?|personnes?|people|pax|voyageurs?|guests?)/);
+      if (adultsMatch) adults = Math.max(1, Math.min(10, parseInt(adultsMatch[1], 10)));
+
+      // Detect lodging intent: either query mentions lodging keywords OR
+      // at least one cited business is a lodging.
+      const LODGING_RE = /\b(hotel|hôtel|riad|riads|hebergement|hébergement|auberge|maison\s*d'?hote|guesthouse|lodge|villa|appart|camping|bivouac|ecolodge|écolodge)\b/i;
+      const lodgingInQuery = LODGING_RE.test(query) || LODGING_RE.test(availHaystack);
+      const lodgingBusinesses = (effectiveBusinesses as any[]).filter((b) => {
+        const hay = `${b.main_category || ""} ${(b.categories || []).join(" ")}`.toLowerCase();
+        return /hebergement|hébergement|hotel|hôtel|riad|villa|appartement|camping|bivouac|ecolodge|écolodge/.test(hay);
+      });
+      const hasLodgingContext = lodgingInQuery || lodgingBusinesses.length >= 3;
+
+      if (checkIn && checkOut && hasLodgingContext) {
+        // Most common city among (lodging) businesses, fallback to defaultCity
+        const cityCounts: Record<string, number> = {};
+        (lodgingBusinesses.length ? lodgingBusinesses : effectiveBusinesses).forEach((b: any) => {
+          if (b?.city) cityCounts[b.city] = (cityCounts[b.city] || 0) + 1;
+        });
+        const cityName = Object.entries(cityCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || defaultCity;
+
+        console.log(`Hotel availability intent: ${cityName} ${checkIn}→${checkOut} adults=${adults}`);
+
+        const { data: serpData, error: serpErr } = await sb.functions.invoke("serpapi-hotels", {
+          body: { cityName, checkIn, checkOut, adults, currency: "EUR", language: "fr", country: "ma", maxPages: 3 },
+        });
+
+        if (serpErr) {
+          console.error("serpapi-hotels invoke error:", serpErr);
+        } else {
+          const properties = (serpData?.data || []) as any[];
+          const { data: mappingRows } = await sb
+            .from("hotel_mappings")
+            .select("serp_hotel_name, business_id")
+            .eq("city", cityName);
+
+          const normName = (s: string) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+          const nameToBiz = new Map<string, string>();
+          (mappingRows || []).forEach((r: any) => {
+            if (r.serp_hotel_name && r.business_id) nameToBiz.set(normName(r.serp_hotel_name), r.business_id);
+          });
+
+          const idToBusinessName = new Map<string, string>();
+          (effectiveBusinesses as any[]).forEach((b) => { if (b.id && b.name) idToBusinessName.set(b.id, b.name); });
+
+          type AvailRow = { name: string; price?: string; rating?: number; reviews?: number };
+          const matched: AvailRow[] = [];
+          properties.forEach((p: any) => {
+            const bizId = nameToBiz.get(normName(p.name));
+            if (!bizId) return;
+            const bizName = idToBusinessName.get(bizId);
+            if (!bizName) return; // not in the current pool
+            if (matched.some((x) => x.name === bizName)) return;
+            const price = p.ratePerNight?.amount
+              ? `${p.ratePerNight.amount} ${p.ratePerNight.currency || "EUR"}/nuit`
+              : (p.totalRate?.amount ? `${p.totalRate.amount} ${p.totalRate.currency || "EUR"} total` : undefined);
+            matched.push({ name: bizName, price, rating: p.overallRating, reviews: p.reviewCount });
+          });
+
+          if (matched.length > 0) {
+            hotelAvailabilityBlock = `\n\nDISPONIBILITÉ HÔTELS (SerpAPI Google Hotels — ${cityName}, ${checkIn} → ${checkOut}, ${adults} adulte${adults > 1 ? "s" : ""}) :\n` +
+              matched.map((r) => `- ${r.name}${r.price ? ` — ${r.price}` : ""}${r.rating ? ` — ${r.rating}/5${r.reviews ? ` (${r.reviews} avis)` : ""}` : ""}`).join("\n");
+            hotelAvailabilityInstruction = `\n- DISPONIBILITÉ HÔTELS : L'utilisateur demande des hôtels disponibles du ${checkIn} au ${checkOut} pour ${adults} adulte${adults > 1 ? "s" : ""}. Cite UNIQUEMENT les hôtels listés dans la section "DISPONIBILITÉ HÔTELS" ci-dessous (les autres n'ont pas de dispo confirmée pour ces dates). Pour chaque hôtel cité, indique en gras son prix par nuit (ex. **120 EUR/nuit**) tel que fourni. Si la liste de disponibilités est vide ou très courte, dis-le honnêtement et propose d'élargir les dates ou de changer de ville.`;
+          } else {
+            hotelAvailabilityInstruction = `\n- DISPONIBILITÉ HÔTELS : Aucun hôtel de l'annuaire n'a de disponibilité confirmée via Google Hotels du ${checkIn} au ${checkOut} pour ${adults} adulte${adults > 1 ? "s" : ""}. Dis-le clairement et propose d'élargir les dates ou de vérifier directement sur les fiches des établissements.`;
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Hotel availability block failed:", e);
+    }
+
+
     const systemPrompt = `${persona}
 
 RÈGLES :
