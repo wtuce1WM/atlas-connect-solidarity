@@ -5945,7 +5945,76 @@ const SearchPage = () => {
                   </div>
                 );
               })()}
+              {activeTab === "ai" && (() => {
+                const uc = geo.isEnabled && geo.coords ? geo.coords : null;
+                const aiProxOpts = [
+                  { km: 0.5, label: "Moins de 500 m" },
+                  { km: 1, label: "Moins de 1 km" },
+                  { km: 5, label: "Moins de 5 km" },
+                  { km: 10, label: "Moins de 10 km" },
+                ];
+                const aiProxCounts: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
+                if (uc) {
+                  for (const p of mobileMapPoiItemsFinal) {
+                    if (p.latitude == null || p.longitude == null) continue;
+                    const d = haversineKm(uc.lat, uc.lng, p.latitude, p.longitude);
+                    if (d <= 0.5) aiProxCounts[0.5]++;
+                    if (d <= 1) aiProxCounts[1]++;
+                    if (d <= 5) aiProxCounts[5]++;
+                    if (d <= 10) aiProxCounts[10]++;
+                  }
+                }
+                const aiProxHasAny = !!uc && (aiProxCounts[10] ?? 0) > 0;
+                const aiProxActiveOpt = aiProxOpts.find(o => o.km === aiProximityKm);
+                const aiProximityActive = !!(uc && aiProximityKm);
+                if (!aiProxHasAny) return null;
+                return (
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[60] flex flex-wrap items-center justify-center gap-2">
+                    <div className="inline-flex rounded-full bg-black/60 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${aiProximityActive ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
+                          >
+                            <Navigation className="h-3.5 w-3.5" />
+                            {aiProxActiveOpt ? aiProxActiveOpt.label : "À proximité"}
+                            {aiProximityActive && (
+                              <span className="ml-0.5 opacity-70">{aiProxCounts[aiProximityKm!] ?? 0}</span>
+                            )}
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="center" className="z-[210]">
+                          {aiProximityKm != null && (
+                            <DropdownMenuItem onSelect={() => setAiProximityKm(null)}>
+                              Toutes distances
+                            </DropdownMenuItem>
+                          )}
+                          {aiProxOpts.map(o => {
+                            const count = aiProxCounts[o.km] ?? 0;
+                            const disabled = count === 0;
+                            return (
+                              <DropdownMenuItem
+                                key={o.km}
+                                disabled={disabled}
+                                onSelect={(e) => {
+                                  if (disabled) { e.preventDefault(); return; }
+                                  setAiProximityKm(o.km);
+                                }}
+                                className={disabled ? "opacity-40 pointer-events-none" : ""}
+                              >
+                                {o.label} <span className="ml-1 opacity-60">({count})</span>
+                              </DropdownMenuItem>
+                            );
+                          })}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                );
+              })()}
             </>
+
           )}
           {/* Map — full height */}
           <div className="w-full h-full relative">
@@ -5962,11 +6031,18 @@ const SearchPage = () => {
                     return haversineKm(uc.lat, uc.lng, p.latitude, p.longitude) <= mobilePoiProximityKm;
                   });
                 }
+                if (activeTab === "ai" && uc && aiProximityKm) {
+                  base = base.filter(p => {
+                    if (p.latitude == null || p.longitude == null) return false;
+                    return haversineKm(uc.lat, uc.lng, p.latitude, p.longitude) <= aiProximityKm;
+                  });
+                }
                 if (activeTab !== "suggestions" || !uc || !mobileProximityKm) return base;
                 return base.filter(p => {
                   if (p.latitude == null || p.longitude == null) return false;
                   return haversineKm(uc.lat, uc.lng, p.latitude, p.longitude) <= mobileProximityKm;
                 });
+
               })()}
               selectedPoiId={activeTab === "poi" ? (hoveredPoiId || null) : activeTab === "destinations" ? (hoveredDestId || null) : (hoveredResultId || compactPanelBusiness?.id || fsTopBusinessId || null)}
               onPoiClick={(poiId) => {
