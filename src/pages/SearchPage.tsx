@@ -404,7 +404,7 @@ const SearchPage = () => {
   const aiRefinementSpokenText = searchParams.get("spoken") || "";
   type AiClarifyOption = { id: string; label: string; text: string };
   type AiClarify = { type: string; question: string; options: AiClarifyOption[] };
-  type AiChatMessage = { role: "user" | "assistant"; content: string; clarify?: AiClarify };
+  type AiChatMessage = { role: "user" | "assistant"; content: string; clarify?: AiClarify; citedBusinesses?: AIBusinessData[] };
   const [aiChat, setAiChat] = useState<AiChatMessage[]>([]);
   const [aiChatInput, setAiChatInput] = useState("");
   const submitAiRefinementRef = useRef<((t?: string) => void) | null>(null);
@@ -914,13 +914,22 @@ const SearchPage = () => {
       });
       if (error) throw error;
       const answer = (data as any)?.answer || "";
+      const citedBusinesses = Array.isArray((data as any)?.citedBusinesses) ? (data as any).citedBusinesses as AIBusinessData[] : [];
+      if (citedBusinesses.length > 0) {
+        setAiRefinementBusinessPool((prev) => {
+          const byId = new globalThis.Map<string, Business>();
+          for (const b of prev) byId.set(b.id, b);
+          for (const b of citedBusinesses) byId.set(b.id, b as unknown as Business);
+          return Array.from(byId.values());
+        });
+      }
       const clarify = (data as any)?.clarify as AiClarify | undefined;
       if (clarify && Array.isArray(clarify.options) && clarify.options.length > 0) {
         setAiChat((prev) => [...prev, { role: "assistant", content: clarify.question || "", clarify }]);
       } else if (!answer) {
         setAiChatError(language === "en" ? "No answer received." : "Aucune réponse reçue.");
       } else {
-        setAiChat((prev) => [...prev, { role: "assistant", content: answer }]);
+        setAiChat((prev) => [...prev, { role: "assistant", content: answer, citedBusinesses }]);
         // Scroll the latest user "terracotta" bubble to the top of the viewport
         setTimeout(() => {
           const bubbles = document.querySelectorAll<HTMLElement>("[data-ai-user-bubble]");
