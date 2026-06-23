@@ -710,68 +710,67 @@ serve(async (req) => {
 
         console.log(`Hotel availability intent: ${cityName} ${checkIn}→${checkOut} adults=${adults}`);
 
-        // Get LiteAPI hotel IDs for businesses currently in pool
-        const poolIds = (lodgingBusinesses.length ? lodgingBusinesses : effectiveBusinesses)
-          .map((b: any) => b.id)
-          .filter(Boolean);
-        const { data: mappingRows } = await sb
-          .from("hotel_api_mappings")
-          .select("liteapi_hotel_id, business_id")
-          .in("business_id", poolIds);
-
-        const liteIdToBiz = new Map<string, string>();
-        (mappingRows || []).forEach((r: any) => {
-          if (r.liteapi_hotel_id && r.business_id) liteIdToBiz.set(String(r.liteapi_hotel_id), r.business_id);
-        });
-        const liteIds = Array.from(liteIdToBiz.keys());
-
         const idToBusinessName = new Map<string, string>();
         (effectiveBusinesses as any[]).forEach((b) => { if (b.id && b.name) idToBusinessName.set(b.id, b.name); });
+
+        // Load SerpAPI name → business mappings for this city
+        const { data: mappingRows } = await sb
+          .from("hotel_mappings")
+          .select("serp_hotel_name, business_id, city")
+          .ilike("city", cityName);
+
+        const normalize = (s: string) => s.toLowerCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, " ").trim();
+
+        const serpNameToBiz = new Map<string, string>();
+        (mappingRows || []).forEach((r: any) => {
+          if (r.serp_hotel_name && r.business_id) serpNameToBiz.set(normalize(r.serp_hotel_name), r.business_id);
+        });
 
         type AvailRow = { name: string; price?: string; rating?: number; reviews?: number };
         const matched: AvailRow[] = [];
 
-        if (liteIds.length > 0) {
-          const { data: liteData, error: liteErr } = await sb.functions.invoke("liteapi-hotels", {
-            body: {
-              hotelIds: liteIds,
-              checkIn,
-              checkOut,
-              adults,
-              rooms: 1,
-              currency: "EUR",
-              fallbackCityName: cityName,
-            },
-          });
+        const { data: serpData, error: serpErr } = await sb.functions.invoke("serpapi-hotels", {
+          body: {
+            cityName,
+            checkIn,
+            checkOut,
+            adults,
+            currency: "EUR",
+            language: "fr",
+            country: "ma",
+            maxPages: 3,
+          },
+        });
 
-          if (liteErr) {
-            console.error("liteapi-hotels invoke error:", liteErr);
-          } else {
-            const hotels = (liteData?.data || []) as any[];
-            const nights = Math.max(1, Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86400000));
-            hotels.forEach((h: any) => {
-              if (!h.available) return;
-              const bizId = liteIdToBiz.get(String(h.hotelId));
-              if (!bizId) return;
-              const bizName = idToBusinessName.get(bizId);
-              if (!bizName) return;
-              if (matched.some((x) => x.name === bizName)) return;
-              const offer = (h.offers || [])[0];
-              const total = offer?.price?.total ? Number(offer.price.total) : undefined;
-              const currency = offer?.price?.currency || "EUR";
-              const price = total ? `${Math.round(total / nights)} ${currency}/nuit` : undefined;
-              matched.push({ name: bizName, price, rating: h.guestRating, reviews: h.reviewCount });
-            });
-          }
+        if (serpErr) {
+          console.error("serpapi-hotels invoke error:", serpErr);
+        } else {
+          const hotels = (serpData?.data || []) as any[];
+          hotels.forEach((h: any) => {
+            const key = normalize(String(h.name || ""));
+            if (!key) return;
+            const bizId = serpNameToBiz.get(key);
+            if (!bizId) return;
+            const bizName = idToBusinessName.get(bizId);
+            if (!bizName) return;
+            if (matched.some((x) => x.name === bizName)) return;
+            const amt = h.ratePerNight?.amount;
+            const cur = h.ratePerNight?.currency || "EUR";
+            const price = amt ? `${amt} ${cur}/nuit` : undefined;
+            matched.push({ name: bizName, price, rating: h.overallRating, reviews: h.reviewCount });
+          });
         }
 
         if (matched.length > 0) {
-          hotelAvailabilityBlock = `\n\nDISPONIBILITÉ HÔTELS (LiteAPI — ${cityName}, ${checkIn} → ${checkOut}, ${adults} adulte${adults > 1 ? "s" : ""}) :\n` +
+          hotelAvailabilityBlock = `\n\nDISPONIBILITÉ HÔTELS (SerpAPI Google Hotels — ${cityName}, ${checkIn} → ${checkOut}, ${adults} adulte${adults > 1 ? "s" : ""}) :\n` +
             matched.map((r) => `- ${r.name}${r.price ? ` — ${r.price}` : ""}${r.rating ? ` — ${r.rating}/5${r.reviews ? ` (${r.reviews} avis)` : ""}` : ""}`).join("\n");
           hotelAvailabilityInstruction = `\n- DISPONIBILITÉ HÔTELS : L'utilisateur demande des hôtels disponibles du ${checkIn} au ${checkOut} pour ${adults} adulte${adults > 1 ? "s" : ""}. Cite UNIQUEMENT les hôtels listés dans la section "DISPONIBILITÉ HÔTELS" ci-dessous (les autres n'ont pas de dispo confirmée pour ces dates). Pour chaque hôtel cité, indique en gras son prix par nuit (ex. **120 EUR/nuit**) tel que fourni. Si la liste de disponibilités est vide ou très courte, dis-le honnêtement et propose d'élargir les dates ou de changer de ville.`;
         } else {
           hotelAvailabilityInstruction = `\n- DISPONIBILITÉ HÔTELS : Aucun hôtel de l'annuaire n'a de disponibilité confirmée du ${checkIn} au ${checkOut} pour ${adults} adulte${adults > 1 ? "s" : ""}. Dis-le clairement et propose d'élargir les dates ou de vérifier directement sur les fiches des établissements.`;
         }
+
 
       }
     } catch (e) {
