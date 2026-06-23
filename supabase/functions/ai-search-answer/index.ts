@@ -204,7 +204,7 @@ serve(async (req) => {
     // Collect business IDs from results for direct linking.
     // On topic change, hide the previous business pool completely so stale results
     // cannot be cited or enriched back into the answer.
-    const effectiveBusinesses = topicChange ? [] : topBusinesses;
+    let effectiveBusinesses = topicChange ? [] : topBusinesses;
     const effectiveHasResults = effectiveBusinesses.length > 0;
     const businessIds = effectiveBusinesses.map((b: any) => b.id).filter(Boolean);
 
@@ -509,7 +509,7 @@ serve(async (req) => {
       : effectiveBusinesses;
 
     // If a "near me" intent without explicit radius, sort by ascending distance.
-    const renderBusinesses = (geoIntent && hasUserCoords)
+    let renderBusinesses = (geoIntent && hasUserCoords)
       ? [...distanceFilteredBusinesses].sort((a: any, b: any) => {
           const da = a?.id ? distanceFromUser[a.id] : undefined;
           const db = b?.id ? distanceFromUser[b.id] : undefined;
@@ -519,10 +519,10 @@ serve(async (req) => {
         })
       : effectiveBusinesses;
 
-    const effectiveHasRenderResults = renderBusinesses.length > 0;
+    let effectiveHasRenderResults = renderBusinesses.length > 0;
 
-    const businessContext = effectiveHasRenderResults
-      ? renderBusinesses.map((b: any, i: number) => {
+    const buildBusinessContext = (items: any[], hasItems: boolean) => hasItems
+      ? items.map((b: any, i: number) => {
           const parts = [`${i + 1}. ${b.name}`];
           if (b.wtuce_status === "verified") parts.push(`[CONFIANCE]`);
           if (b.city) parts.push(`(${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""})`);
@@ -555,6 +555,7 @@ serve(async (req) => {
       : (geoIntent && hasUserCoords && maxDistanceKm !== null
           ? `(Aucun établissement trouvé dans un rayon de ${maxDistanceKm < 1 ? Math.round(maxDistanceKm * 1000) + " m" : maxDistanceKm + " km"} autour de la position de l'utilisateur)`
           : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)");
+    let businessContext = buildBusinessContext(renderBusinesses, effectiveHasRenderResults);
 
     const langInstructions = language === "en"
       ? "Answer in English."
@@ -606,6 +607,7 @@ serve(async (req) => {
     // ============================================================
     let hotelAvailabilityInstruction = "";
     let hotelAvailabilityBlock = "";
+    let hotelAvailabilityBusinesses: any[] = [];
     try {
       const availHaystack = [
         query,
@@ -727,7 +729,7 @@ serve(async (req) => {
           if (r.serp_hotel_name && r.business_id) serpNameToBiz.set(normalize(r.serp_hotel_name), r.business_id);
         });
 
-        type AvailRow = { name: string; price?: string; rating?: number; reviews?: number };
+        type AvailRow = { id: string; name: string; price?: string; rating?: number; reviews?: number; business?: any };
         const matched: AvailRow[] = [];
 
         const { data: serpData, error: serpErr } = await sb.functions.invoke("serpapi-hotels", {
@@ -760,7 +762,7 @@ serve(async (req) => {
           if (matchedBizIds.length > 0) {
             const { data: matchedBusinesses } = await sb
               .from("businesses")
-              .select("id, name")
+              .select("id, name, city, main_category, categories, hook_fr, wtuce_status, images, logo_url, neighborhood, address, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, latitude, longitude")
               .in("id", matchedBizIds)
               .eq("is_active", true)
               .eq("main_category", "Hôtellerie");
@@ -772,7 +774,7 @@ serve(async (req) => {
               const amt = h.ratePerNight?.amount;
               const cur = h.ratePerNight?.currency || "EUR";
               const price = amt ? `${amt} ${cur}/nuit` : undefined;
-              matched.push({ name: biz.name, price, rating: h.overallRating, reviews: h.reviewCount });
+              matched.push({ id: biz.id, name: biz.name, price, rating: h.overallRating, reviews: h.reviewCount, business: biz });
             });
           }
         }
@@ -781,6 +783,11 @@ serve(async (req) => {
           hotelAvailabilityBlock = `\n\nDISPONIBILITÉ HÔTELS (SerpAPI Google Hotels — ${cityName}, ${checkIn} → ${checkOut}, ${adults} adulte${adults > 1 ? "s" : ""}) :\n` +
             matched.map((r) => `- ${r.name}${r.price ? ` — ${r.price}` : ""}${r.rating ? ` — ${r.rating}/5${r.reviews ? ` (${r.reviews} avis)` : ""}` : ""}`).join("\n");
           hotelAvailabilityInstruction = `\n- DISPONIBILITÉ HÔTELS (RÈGLE STRICTE) : L'utilisateur demande des hôtels disponibles du ${checkIn} au ${checkOut} pour ${adults} adulte${adults > 1 ? "s" : ""}. Cite EXCLUSIVEMENT les hôtels listés dans la section "DISPONIBILITÉ HÔTELS" ci-dessous. Pour CHAQUE hôtel cité, entoure OBLIGATOIREMENT son nom exact de doubles astérisques (ex. **Riad XYZ**) — c'est indispensable pour que la vignette et le marqueur s'affichent. Indique aussi son prix par nuit en gras (ex. **120 EUR/nuit**). INTERDICTION ABSOLUE de mentionner, recommander ou citer d'autres établissements (hôtels, riads, restaurants, lieux à visiter, pépites architecturales, musées, etc.) — ils n'ont pas de disponibilité confirmée et ne sont PAS pertinents pour cette demande. Pas de section "en complément", pas de "à découvrir aussi", pas de suggestions annexes. Termine simplement par une invitation à élargir les dates ou consulter les fiches si besoin.`;
+          effectiveBusinesses = (effectiveBusinesses as any[]).filter((b: any) => matched.some((m) => m.id === b.id));
+          renderBusinesses = (renderBusinesses as any[]).filter((b: any) => matched.some((m) => m.id === b.id));
+          effectiveHasRenderResults = effectiveBusinesses.length > 0;
+          businessContext = buildBusinessContext(renderBusinesses, effectiveHasRenderResults);
+          hotelAvailabilityBusinesses = matched.map((m) => m.business).filter(Boolean);
         } else {
           hotelAvailabilityInstruction = `\n- DISPONIBILITÉ HÔTELS : Aucun hôtel de l'annuaire n'a de disponibilité confirmée du ${checkIn} au ${checkOut} pour ${adults} adulte${adults > 1 ? "s" : ""}. Dis-le clairement et propose d'élargir les dates ou de vérifier directement sur les fiches. NE cite AUCUN autre établissement (restaurants, lieux à visiter, etc.) en complément — la question porte uniquement sur la disponibilité hôtelière.`;
         }
@@ -895,7 +902,7 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
 
     console.log(`AI answer for "${query}": ${answer.substring(0, 100)}...`);
 
-    return new Response(JSON.stringify({ answer }), {
+    return new Response(JSON.stringify({ answer, citedBusinesses: hotelAvailabilityBusinesses }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

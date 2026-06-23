@@ -478,7 +478,11 @@ const SearchPage = () => {
   }, []);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
-  const handleAiAnswerReady = useCallback((answer: string) => {
+  const handleAiAnswerReady = useCallback((answer: string, citedBusinesses?: AIBusinessData[]) => {
+    const cited = citedBusinesses?.length
+      ? citedBusinesses
+      : extractCitedBusinesses(answer, allBusinesses as unknown as AIBusinessData[]);
+    if (cited.length > 0) setAiRefinementBusinessPool(cited as unknown as Business[]);
     setAiAnswerText(answer);
     setPrevAiAnswerText("");
     // Persist for reuse in slide-panel AI overlay
@@ -2699,10 +2703,11 @@ const SearchPage = () => {
   // restrict the map to those exact cited results so markers match what the user reads.
   const aiCitedMapPool = useMemo(() => {
     const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant")?.content;
-    if (!lastAssistant) return [] as Business[];
-    const cited = extractCitedBusinesses(lastAssistant, aiInlineBusinessPool);
+    const sourceText = lastAssistant || aiAnswerText;
+    if (!sourceText) return [] as Business[];
+    const cited = extractCitedBusinesses(sourceText, aiInlineBusinessPool);
     return cited as unknown as Business[];
-  }, [aiChat, aiInlineBusinessPool]);
+  }, [aiChat, aiAnswerText, aiInlineBusinessPool]);
 
   const searchMapPool = useMemo(() => {
     const isAiTab = activeTab === "ai" || showAiPopup;
@@ -4319,7 +4324,7 @@ const SearchPage = () => {
 
               {/* Horizontal scroll of cited businesses */}
               {activeTab !== "poi" && activeTab !== "destinations" && (() => {
-                const currentAiText = aiAnswerText;
+                  const currentAiText = [...aiChat].reverse().find((m) => m.role === "assistant")?.content || aiAnswerText;
                 if (!currentAiText) return null;
                 const cited = extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
@@ -4755,7 +4760,10 @@ const SearchPage = () => {
                   selectedPoiId={null}
                   hoveredPoiId={hoveredResultId || null}
                   onPoiClick={(poiId) => {
-                    const biz = filteredBusinesses.find(b => b.id === poiId) || allCityMapBusinesses?.find(b => b.id === poiId);
+                    const biz = searchMapPool.find(b => b.id === poiId)
+                      || aiInlineBusinessPool.find(b => b.id === poiId)
+                      || filteredBusinesses.find(b => b.id === poiId)
+                      || allCityMapBusinesses?.find(b => b.id === poiId);
                     if (biz) openCompactPanel({ id: biz.id, name: biz.name } as any);
                   }}
                   center={mapCenterForResults}
