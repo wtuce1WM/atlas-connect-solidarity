@@ -45,7 +45,7 @@ import PoiSection from "@/components/PoiSection";
 import DestinationSection, { type DestinationItem } from "@/components/DestinationSection";
 
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
-import AISearchAnswer, { parseInline, extractCitedBusinesses, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
+import AISearchAnswer, { parseInline, extractCitedBusinesses, findBusiness, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import SearchResultCard from "@/components/SearchResultCard";
 import AISuggestionCard from "@/components/AISuggestionCard";
 import SearchAIVideosCarousel from "@/components/SearchAIVideosCarousel";
@@ -85,6 +85,21 @@ import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVE
 import type { Business, SearchResult } from "@/pages/search/types";
 
 type SearchTabKey = "suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai" | "youtube";
+
+const addAiReadableBreaks = (text: string, businesses: AIBusinessData[]) => {
+  if (!text || /\n\s*\n/.test(text)) return text;
+  let businessMentionCount = 0;
+
+  return text.replace(/\s*(\*\*(.+?)\*\*)/g, (match, boldText: string, innerText: string, offset: number, source: string) => {
+    if (!findBusiness(innerText, businesses)) return match;
+
+    businessMentionCount += 1;
+    const before = source.slice(0, offset).trim();
+    if (!before) return boldText;
+
+    return `\n\n${boldText}`;
+  });
+};
 
 
 
