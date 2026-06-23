@@ -405,6 +405,15 @@ const VideoSlidePanel = ({
   const [ytMuted, setYtMuted] = useState(!soundOn);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
+  const [toolbarMounted, setToolbarMounted] = useState(false);
+  useEffect(() => {
+    if (open) {
+      const t = setTimeout(() => {
+        setToolbarMounted(prev => !prev);
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [open, videoId]);
   useEffect(() => { if (!open) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); } }, [open]);
   useEffect(() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); }, [pageBusinessId]);
 
