@@ -110,7 +110,7 @@ export function useAiChatPersistence({
     if (isReadOnly) return; // viewing someone else's signed-in chat
     if (!aiAnswerText && aiChat.length === 0) return;
 
-    const payload = { aiAnswerText, aiChat, searchQuery };
+    const payload = { aiAnswerText, aiChat, searchQuery, businessPool: businessPool ?? [] };
     const signature = JSON.stringify({ chatId, payload });
     if (signature === lastSavedRef.current) return;
 
