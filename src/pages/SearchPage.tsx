@@ -35,7 +35,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash, Heart, Bot, Send, Play, Pause, Navigation } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award, Hash, Heart, Bookmark, Bot, Send, Play, Pause, Navigation } from "lucide-react";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 import ShareButton from "@/components/ShareButton";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
