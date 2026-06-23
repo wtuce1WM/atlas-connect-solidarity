@@ -99,8 +99,7 @@ export function useAiChatPersistence({
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef<string>("");
   useEffect(() => {
-    if (!userId) return; // anonymous = no persistence
-    if (isReadOnly) return; // viewing someone else's chat
+    if (isReadOnly) return; // viewing someone else's signed-in chat
     if (!aiAnswerText && aiChat.length === 0) return;
 
     const payload = { aiAnswerText, aiChat, searchQuery };
@@ -109,7 +108,6 @@ export function useAiChatPersistence({
 
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
-      // Auto title = first user message OR truncated answer
       const autoTitle =
         aiChat.find((m) => m.role === "user")?.content ||
         searchQuery ||
@@ -118,14 +116,17 @@ export function useAiChatPersistence({
       const finalTitle = (title && title.trim()) ? title : autoTitle.slice(0, 80);
 
       if (!chatId) {
+        // Anonymous chats are public by default so the share link works without auth.
+        const insertPayload: any = {
+          user_id: userId,
+          title: finalTitle,
+          messages: payload as any,
+          city: city ?? null,
+          is_public: userId ? false : true,
+        };
         const { data, error } = await supabase
           .from("ai_chats")
-          .insert({
-            user_id: userId,
-            title: finalTitle,
-            messages: payload as any,
-            city: city ?? null,
-          })
+          .insert(insertPayload)
           .select("id,title,user_id,is_bookmarked,is_public")
           .single();
         if (!error && data) {
