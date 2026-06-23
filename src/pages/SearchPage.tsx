@@ -5018,10 +5018,10 @@ const SearchPage = () => {
                     const proxHasAny = !!userCenter && (proxCounts[10] ?? 0) > 0;
                     const proxActive = !!(userCenter && aiProximityKm);
                     const proxActiveOpt = proxOpts.find(o => o.km === aiProximityKm);
-                    if (!showTopToggle && !proxHasAny) return null;
-                    return (
-                      <div className="flex items-center justify-center gap-2 px-3 pt-3 pb-2 flex-wrap">
-                        {showTopToggle && (
+                     if (!showTopToggle && !proxHasAny) return null;
+                     return (
+                       <div className="pointer-events-auto flex items-center justify-center gap-2 px-3 pt-3 pb-2 flex-wrap">
+                         {showTopToggle && (
                           <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                              <button
                                type="button"
