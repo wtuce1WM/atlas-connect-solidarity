@@ -12,6 +12,7 @@ import { fr, enUS, ar } from "date-fns/locale";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
 import essaouiraLobsterAsset from "@/assets/essaouira-lobster-hero.jpg.asset.json";
+import ideeCadeauHeroAsset from "@/assets/idee-cadeau-marrakech-hero.jpg.asset.json";
 
 interface BlogPost {
   id: string;
@@ -412,7 +413,12 @@ const Blog = () => {
                   <Link key="static-idee-cadeau-marrakech" to="/blog/idee-cadeau-marrakech">
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-rose-50 to-amber-50 dark:from-rose-950/30 dark:to-amber-950/30">
                       <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <MapPin className="h-16 w-16 text-primary" />
+                        <img
+                          src={ideeCadeauHeroAsset.url}
+                          alt="Trouver une bonne idée cadeau à Marrakech"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
                       </div>
                       <CardContent className="p-6">
                         <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
