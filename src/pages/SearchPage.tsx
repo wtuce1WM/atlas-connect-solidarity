@@ -4221,57 +4221,55 @@ const SearchPage = () => {
                          <Map className="h-4 w-4" />
                          {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
                        </button>
-                       {hideResultsMap && (
-                         <>
-                           {aiPersist.userId && aiPersist.isOwner ? (
-                             <button
-                               type="button"
-                               onClick={() => aiPersist.toggleBookmark()}
-                               className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
-                               title={aiPersist.isBookmarked ? "Retirer des favoris" : "Sauvegarder dans mon compte"}
-                               aria-label="Bookmark"
-                             >
-                               <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} fill={aiPersist.isBookmarked ? "currentColor" : "none"} />
-                             </button>
-                           ) : (
-                             <button
-                               type="button"
-                               onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
-                               className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
-                               title="Connectez-vous pour sauvegarder"
-                               aria-label="Le Club OWM"
-                             >
-                               <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
-                             </button>
-                           )}
-                           {aiPersist.isOwner && aiPersist.chatId ? (
-                             <button
-                               type="button"
-                               onClick={async () => {
-                                 const url = await aiPersist.makeShareUrl();
-                                 if (!url) return;
-                                 if (navigator.share) {
-                                   try { await navigator.share({ title: aiPersist.title || searchQuery || "Conversation IA", url }); } catch {/* noop */}
-                                 } else {
-                                   await navigator.clipboard.writeText(url);
-                                   window.dispatchEvent(new CustomEvent("toast", { detail: { message: "Lien copié" } }));
-                                 }
-                               }}
-                               className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
-                               title="Partager la conversation"
-                               aria-label="Share chat"
-                             >
-                               <Share2 className="h-4 w-4 text-foreground" strokeWidth={2.5} />
-                             </button>
-                           ) : (
-                             <ShareButton
-                               title={searchQuery || "Recherche"}
-                               variant="dark"
-                               className="shrink-0 shadow-lg"
-                             />
-                           )}
-                         </>
-                       )}
+                        <>
+                          {aiPersist.userId && aiPersist.isOwner ? (
+                            <button
+                              type="button"
+                              onClick={() => aiPersist.toggleBookmark()}
+                              className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                              title={aiPersist.isBookmarked ? "Retirer des favoris" : "Sauvegarder dans mon compte"}
+                              aria-label="Bookmark"
+                            >
+                              <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} fill={aiPersist.isBookmarked ? "currentColor" : "none"} />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                              className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                              title="Connectez-vous pour sauvegarder"
+                              aria-label="Le Club OWM"
+                            >
+                              <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                            </button>
+                          )}
+                          {aiPersist.isOwner && aiPersist.chatId ? (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const url = await aiPersist.makeShareUrl();
+                                if (!url) return;
+                                if (navigator.share) {
+                                  try { await navigator.share({ title: aiPersist.title || searchQuery || "Conversation IA", url }); } catch {/* noop */}
+                                } else {
+                                  await navigator.clipboard.writeText(url);
+                                  window.dispatchEvent(new CustomEvent("toast", { detail: { message: "Lien copié" } }));
+                                }
+                              }}
+                              className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                              title="Partager la conversation"
+                              aria-label="Share chat"
+                            >
+                              <Share2 className="h-4 w-4 text-foreground" strokeWidth={2.5} />
+                            </button>
+                          ) : (
+                            <ShareButton
+                              title={searchQuery || "Recherche"}
+                              variant="dark"
+                              className="shrink-0 shadow-lg"
+                            />
+                          )}
+                        </>
                     </div>
                   )}
                    {!isWelcomeText && (
@@ -4466,6 +4464,16 @@ const SearchPage = () => {
                     );
                   }
                   if (isWelcomeText) {
+                    const parts = currentAiText.split("?");
+                    if (parts.length > 1) {
+                      return (
+                        <div className="text-center font-bold text-lg md:text-xl text-foreground py-8 leading-relaxed">
+                          {parts[0]}?
+                          <br className="sm:hidden" />
+                          <span className="inline-block sm:inline sm:ml-1.5">{parts.slice(1).join("?")}</span>
+                        </div>
+                      );
+                    }
                     return (
                       <div className="text-center font-bold text-lg md:text-xl text-foreground py-8">
                         {currentAiText}
