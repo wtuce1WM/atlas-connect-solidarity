@@ -373,24 +373,24 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
             </div>
 
             {!isLoggedIn ? (
-              <div className="bg-card p-3 sm:p-6">
-                <h3 className="text-base sm:text-lg font-semibold text-card-foreground mb-1 sm:mb-2 !font-sans text-center">
+              <div style={{ backgroundColor: "#ECD6B8" }} className="p-3 sm:p-6 text-stone-900">
+                <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 !font-sans text-stone-900 text-center">
                   {t.memberTitle}
                 </h3>
-                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5 text-center">{t.memberDesc}</p>
+                <p className="text-stone-700 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5 text-center">{t.memberDesc}</p>
                 <ClubAuthPanel redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"} />
               </div>
             ) : (
-              <div className="bg-card p-6">
-                <h3 className="text-lg font-semibold text-card-foreground mb-1 !font-sans text-center">
+              <div style={{ backgroundColor: "#ECD6B8" }} className="p-6 text-stone-900">
+                <h3 className="text-lg font-semibold mb-1 !font-sans text-stone-900 text-center">
                   {t.saveTitle}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-4 text-center">
+                <p className="text-stone-700 text-sm leading-relaxed mb-4 text-center">
                   {t.saveDesc}
                 </p>
 
                 {popupItems.length === 0 ? (
-                  <p className="text-center text-sm text-muted-foreground py-6">{t.noItems}</p>
+                  <p className="text-center text-sm text-stone-600 py-6">{t.noItems}</p>
                 ) : (
                   <>
                     <style>{`
@@ -408,14 +408,14 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                         return (
                           <div
                             key={it.id}
-                            className="flex items-center gap-3 p-2 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors"
+                            className="flex items-center gap-3 p-2 rounded-lg bg-black/5 hover:bg-black/10 transition-colors"
                           >
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-card-foreground truncate">
+                              <p className="text-sm font-semibold text-stone-900 truncate">
                                 {it.name}
                               </p>
                               {it.ratingOn20 != null && (
-                                <p className="text-xs font-bold text-gold">
+                                <p className="text-xs font-bold text-amber-800">
                                   {formatRating(it.ratingOn20)}/20
                                 </p>
                               )}
@@ -444,7 +444,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                         type="button"
                         onClick={saveAll}
                         disabled={savingAll}
-                        style={{ backgroundColor: "#194CFF" }}
+                        style={{ backgroundColor: "#25D366" }}
                         className="w-full rounded-full px-6 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md disabled:opacity-50"
                       >
                         {t.saveAll} ({unsavedCount})
