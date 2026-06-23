@@ -76,6 +76,7 @@ import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
 import ResultsTabContent from "@/pages/search/ResultsTabContent";
 import HashtagTabContent from "@/pages/search/HashtagTabContent";
+import CitedBusinessesCarousel from "@/pages/search/CitedBusinessesCarousel";
 import YouTubeChannelsTabContent from "@/pages/search/YouTubeChannelsTabContent";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { getCityAliases } from "@/lib/homeHelpers";
