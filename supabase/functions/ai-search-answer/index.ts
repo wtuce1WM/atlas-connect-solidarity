@@ -607,6 +607,7 @@ serve(async (req) => {
     // ============================================================
     let hotelAvailabilityInstruction = "";
     let hotelAvailabilityBlock = "";
+    let hotelAvailabilityBusinesses: any[] = [];
     try {
       const availHaystack = [
         query,
@@ -728,7 +729,7 @@ serve(async (req) => {
           if (r.serp_hotel_name && r.business_id) serpNameToBiz.set(normalize(r.serp_hotel_name), r.business_id);
         });
 
-        type AvailRow = { id: string; name: string; price?: string; rating?: number; reviews?: number };
+        type AvailRow = { id: string; name: string; price?: string; rating?: number; reviews?: number; business?: any };
         const matched: AvailRow[] = [];
 
         const { data: serpData, error: serpErr } = await sb.functions.invoke("serpapi-hotels", {
@@ -761,7 +762,7 @@ serve(async (req) => {
           if (matchedBizIds.length > 0) {
             const { data: matchedBusinesses } = await sb
               .from("businesses")
-              .select("id, name")
+              .select("id, name, city, main_category, categories, hook_fr, wtuce_status, images, logo_url, neighborhood, address, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, latitude, longitude")
               .in("id", matchedBizIds)
               .eq("is_active", true)
               .eq("main_category", "Hôtellerie");
@@ -773,7 +774,7 @@ serve(async (req) => {
               const amt = h.ratePerNight?.amount;
               const cur = h.ratePerNight?.currency || "EUR";
               const price = amt ? `${amt} ${cur}/nuit` : undefined;
-              matched.push({ id: biz.id, name: biz.name, price, rating: h.overallRating, reviews: h.reviewCount });
+              matched.push({ id: biz.id, name: biz.name, price, rating: h.overallRating, reviews: h.reviewCount, business: biz });
             });
           }
         }
@@ -786,6 +787,7 @@ serve(async (req) => {
           renderBusinesses = (renderBusinesses as any[]).filter((b: any) => matched.some((m) => m.id === b.id));
           effectiveHasRenderResults = effectiveBusinesses.length > 0;
           businessContext = buildBusinessContext(renderBusinesses, effectiveHasRenderResults);
+          hotelAvailabilityBusinesses = matched.map((m) => m.business).filter(Boolean);
         } else {
           hotelAvailabilityInstruction = `\n- DISPONIBILITÉ HÔTELS : Aucun hôtel de l'annuaire n'a de disponibilité confirmée du ${checkIn} au ${checkOut} pour ${adults} adulte${adults > 1 ? "s" : ""}. Dis-le clairement et propose d'élargir les dates ou de vérifier directement sur les fiches. NE cite AUCUN autre établissement (restaurants, lieux à visiter, etc.) en complément — la question porte uniquement sur la disponibilité hôtelière.`;
         }
@@ -900,7 +902,7 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
 
     console.log(`AI answer for "${query}": ${answer.substring(0, 100)}...`);
 
-    return new Response(JSON.stringify({ answer }), {
+    return new Response(JSON.stringify({ answer, citedBusinesses: hotelAvailabilityBusinesses }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
