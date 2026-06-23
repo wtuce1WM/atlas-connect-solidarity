@@ -906,7 +906,7 @@ const VideoSlidePanel = ({
           <div className={`absolute inset-0 z-30 pointer-events-none ${descOverlayOpen ? "hidden" : ""}`}>
             <div className="fixed lg:absolute inset-x-0 bottom-[calc(120px+env(safe-area-inset-bottom))] lg:bottom-[7rem] z-30 px-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
               {compactBusinessHeader && (
-                <YouTubeIcon className="h-10 w-10 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />
+                <YouTubeIcon className="h-16 w-16 text-red-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />
               )}
               {/* Bloc crédit unifié — priorité : social > owner > eventBusiness (mutuellement exclusifs) */}
               {(() => {
@@ -916,9 +916,9 @@ const VideoSlidePanel = ({
                       key={`credit-social-${videoId || videoUrl}`}
                       className="flex flex-col items-center justify-center gap-2 px-4 pointer-events-none"
                     >
-                      {visibleSocial.platform === "instagram" && <InstagramIcon className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                      {visibleSocial.platform === "tiktok" && <SiTiktok className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                      {visibleSocial.platform === "youtube" && <Youtube className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                      {visibleSocial.platform === "instagram" && <InstagramIcon className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                      {visibleSocial.platform === "tiktok" && <SiTiktok className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                      {visibleSocial.platform === "youtube" && <Youtube className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                       <a
                         href={visibleSocial.url || undefined}
                         target="_blank"
@@ -940,9 +940,9 @@ const VideoSlidePanel = ({
                     >
                     {isGeneric && social && (
                       <>
-                        {social.platform === "instagram" && <InstagramIcon className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                        {social.platform === "tiktok" && <SiTiktok className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-                        {social.platform === "youtube" && <Youtube className="w-12 h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "instagram" && <InstagramIcon className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "tiktok" && <SiTiktok className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+                        {social.platform === "youtube" && <Youtube className="w-16 h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
                       </>
                     )}
                     {isGeneric && social ? (
