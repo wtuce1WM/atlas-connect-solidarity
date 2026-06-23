@@ -4758,7 +4758,10 @@ const SearchPage = () => {
                   selectedPoiId={null}
                   hoveredPoiId={hoveredResultId || null}
                   onPoiClick={(poiId) => {
-                    const biz = filteredBusinesses.find(b => b.id === poiId) || allCityMapBusinesses?.find(b => b.id === poiId);
+                    const biz = searchMapPool.find(b => b.id === poiId)
+                      || aiInlineBusinessPool.find(b => b.id === poiId)
+                      || filteredBusinesses.find(b => b.id === poiId)
+                      || allCityMapBusinesses?.find(b => b.id === poiId);
                     if (biz) openCompactPanel({ id: biz.id, name: biz.name } as any);
                   }}
                   center={mapCenterForResults}
