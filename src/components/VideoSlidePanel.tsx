@@ -25,7 +25,8 @@ import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
-import { Phone, Heart } from "lucide-react";
+import { Phone, Heart, Bookmark } from "lucide-react";
+import { useBookmark } from "@/hooks/useBookmark";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { groupImagesWithHeadings } from "@/lib/groupImagesWithHeadings";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
@@ -307,6 +308,7 @@ const VideoSlidePanel = ({
   }, [open, eventId, isGeneric, pageBusinessId]);
 
   const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
+  const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(ctaBusiness?.id ? String(ctaBusiness.id) : undefined);
   const ctaShareUrl = (() => {
     if (!ctaBusiness?.slug) return undefined;
     try {
@@ -642,6 +644,23 @@ const VideoSlidePanel = ({
                   >
                     <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
                   </button>
+                  {ctaBusiness?.id && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!isBookmarkLoggedIn) {
+                          window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+                          return;
+                        }
+                        await toggleBookmark();
+                      }}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                      aria-label={isBookmarked ? "Retirer des favoris" : "Sauvegarder"}
+                      title={isBookmarked ? "Retirer des favoris" : "Sauvegarder"}
+                    >
+                      <Bookmark className="h-4 w-4 text-black" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
+                    </button>
+                  )}
                   <ShareButton
                     title={ctaBusiness?.name || businessName}
                     variant="dark"
