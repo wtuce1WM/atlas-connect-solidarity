@@ -4926,9 +4926,9 @@ const SearchPage = () => {
               <div className="relative h-full min-h-0">
                 {(() => {
                   // On AI welcome (no AI answer/citations yet), show every POI of the
-                  // city and center the map on the user's "Vous êtes ici" marker.
-                  const aiWelcome = isWelcomeText && mapPoiItems.length === 0 && allCityMapBusinesses.length > 0;
-                  const welcomePois = aiWelcome ? buildMapPoiItems(allCityMapBusinesses, true) : mapPoiItems;
+                  // city (points_of_interest table) and center on the user's marker.
+                  const aiWelcome = isWelcomeText && mapPoiItems.length === 0 && allPois.length > 0;
+                  const welcomePois = aiWelcome ? allPois : mapPoiItems;
                   const userCenter = geo.isEnabled && geo.coords ? geo.coords : null;
                   const effectiveCenter = aiWelcome && userCenter ? userCenter : mapCenterForResults;
                   return (
