@@ -479,6 +479,8 @@ const SearchPage = () => {
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
+    const cited = extractCitedBusinesses(answer, aiInlineBusinessPool);
+    if (cited.length > 0) setAiRefinementBusinessPool(cited as unknown as Business[]);
     setAiAnswerText(answer);
     setPrevAiAnswerText("");
     // Persist for reuse in slide-panel AI overlay
@@ -503,7 +505,7 @@ const SearchPage = () => {
     setStickyAiAnimationNonce((prev) => prev + 1);
     // NOTE: TTS preloading removed — it consumed ElevenLabs credits on every search
     // even when the user never clicked the speaker. Audio is now generated on demand.
-  }, [language, searchQuery, allBusinesses, totalCount]);
+  }, [language, searchQuery, allBusinesses, totalCount, aiInlineBusinessPool]);
 
   // Reset refinement chat whenever the seed AI text changes (= new search/regeneration)
   useEffect(() => {
@@ -2699,10 +2701,11 @@ const SearchPage = () => {
   // restrict the map to those exact cited results so markers match what the user reads.
   const aiCitedMapPool = useMemo(() => {
     const lastAssistant = [...aiChat].reverse().find((m) => m.role === "assistant")?.content;
-    if (!lastAssistant) return [] as Business[];
-    const cited = extractCitedBusinesses(lastAssistant, aiInlineBusinessPool);
+    const sourceText = lastAssistant || aiAnswerText;
+    if (!sourceText) return [] as Business[];
+    const cited = extractCitedBusinesses(sourceText, aiInlineBusinessPool);
     return cited as unknown as Business[];
-  }, [aiChat, aiInlineBusinessPool]);
+  }, [aiChat, aiAnswerText, aiInlineBusinessPool]);
 
   const searchMapPool = useMemo(() => {
     const isAiTab = activeTab === "ai" || showAiPopup;
@@ -4319,7 +4322,7 @@ const SearchPage = () => {
 
               {/* Horizontal scroll of cited businesses */}
               {activeTab !== "poi" && activeTab !== "destinations" && (() => {
-                const currentAiText = aiAnswerText;
+                  const currentAiText = [...aiChat].reverse().find((m) => m.role === "assistant")?.content || aiAnswerText;
                 if (!currentAiText) return null;
                 const cited = extractCitedBusinesses(currentAiText, aiInlineBusinessPool);
                 if (cited.length === 0) return null;
