@@ -19,6 +19,7 @@ export type PersistedAiChat = {
     aiAnswerText: string;
     aiChat: AiChatMessage[];
     searchQuery?: string;
+    businessPool?: any[];
   };
   city?: string | null;
 };
@@ -28,8 +29,10 @@ interface UseAiChatPersistenceArgs {
   aiChat: AiChatMessage[];
   searchQuery: string;
   city?: string | null;
+  businessPool?: any[];
   setAiAnswerText: (s: string) => void;
   setAiChat: (m: AiChatMessage[]) => void;
+  setRestoredBusinessPool?: (b: any[]) => void;
 }
 
 export function useAiChatPersistence({
@@ -37,8 +40,10 @@ export function useAiChatPersistence({
   aiChat,
   searchQuery,
   city,
+  businessPool,
   setAiAnswerText,
   setAiChat,
+  setRestoredBusinessPool,
 }: UseAiChatPersistenceArgs) {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlChatId = searchParams.get("aiChat");
