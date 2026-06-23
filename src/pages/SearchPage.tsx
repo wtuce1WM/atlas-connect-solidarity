@@ -4572,6 +4572,73 @@ const SearchPage = () => {
                 const reachedCap = userTurns >= AI_CHAT_MAX_TURNS;
                 return (
                   <div ref={aiRefinementRef} className="mt-8 pt-6 border-t border-border/60 max-w-3xl mx-auto w-full">
+                    {/* Chat toolbar : title + bookmark + share */}
+                    {(aiPersist.chatId || aiPersist.userId) && (
+                      <div className="flex items-center gap-2 mb-4 px-1">
+                        {aiPersist.isOwner ? (
+                          <input
+                            type="text"
+                            value={aiPersist.title}
+                            onChange={(e) => aiPersist.renameTitle(e.target.value)}
+                            placeholder="Titre de la conversation"
+                            className="flex-1 bg-transparent text-sm font-semibold text-foreground outline-none border-b border-transparent focus:border-border/60 truncate"
+                            style={{ fontFamily: "'Montserrat', sans-serif" }}
+                            maxLength={80}
+                          />
+                        ) : (
+                          <div className="flex-1 text-sm font-semibold text-foreground truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                            {aiPersist.title || "Conversation partagée"}
+                            {aiPersist.isReadOnly && <span className="ml-2 text-[10px] font-normal text-muted-foreground uppercase tracking-wider">Lecture seule</span>}
+                          </div>
+                        )}
+                        {aiPersist.isOwner && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => aiPersist.toggleBookmark()}
+                              className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                              title={aiPersist.isBookmarked ? "Retirer des favoris" : "Sauvegarder dans mon compte"}
+                              aria-label="Bookmark"
+                            >
+                              <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} fill={aiPersist.isBookmarked ? "currentColor" : "none"} />
+                            </button>
+                            {(() => {
+                              const [shareUrl, setShareUrl] = [null as string | null, (_: string | null) => {}];
+                              return (
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const url = await aiPersist.makeShareUrl();
+                                    if (!url) return;
+                                    if (navigator.share) {
+                                      try { await navigator.share({ title: aiPersist.title, url }); } catch {/* noop */}
+                                    } else {
+                                      await navigator.clipboard.writeText(url);
+                                      window.dispatchEvent(new CustomEvent("toast", { detail: { message: "Lien copié" } }));
+                                    }
+                                  }}
+                                  className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                                  title="Partager la conversation"
+                                  aria-label="Share chat"
+                                >
+                                  <Share2 className="h-4 w-4 text-foreground" strokeWidth={2.5} />
+                                </button>
+                              );
+                            })()}
+                          </>
+                        )}
+                        {!aiPersist.userId && (
+                          <button
+                            type="button"
+                            onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                            className="h-9 px-3 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors text-xs font-semibold text-foreground"
+                            style={{ fontFamily: "'Montserrat', sans-serif" }}
+                          >
+                            Connectez-vous pour sauvegarder & partager
+                          </button>
+                        )}
+                      </div>
+                    )}
                     {/* Chat history */}
                     {aiChat.length > 0 && (
                       <div className="flex flex-col gap-4 mb-4">
