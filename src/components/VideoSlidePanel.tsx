@@ -27,6 +27,7 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
 import { Phone, Heart, Bookmark } from "lucide-react";
 import { useBookmark } from "@/hooks/useBookmark";
+import { useVideoLike } from "@/hooks/useVideoLike";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { groupImagesWithHeadings } from "@/lib/groupImagesWithHeadings";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
@@ -309,15 +310,25 @@ const VideoSlidePanel = ({
 
   const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
   const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(ctaBusiness?.id ? String(ctaBusiness.id) : undefined);
+  const videoLikeSource = isGeneric ? "generic" as const : "business" as const;
+  const videoLikeId = videoId || null;
+  const { isLiked: isVideoLiked, count: videoLikeCount, isLoggedIn: isVideoLikeLoggedIn, toggle: toggleVideoLike } = useVideoLike(videoLikeId, videoLikeSource);
+  const [likeBurst, setLikeBurst] = useState(0);
   const ctaShareUrl = (() => {
-    if (!ctaBusiness?.slug) return undefined;
     try {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("openChannel") === String(ctaBusiness.id) || params.get("tab") === "youtube") {
+      if (ctaBusiness?.slug && (params.get("openChannel") === String(ctaBusiness.id) || params.get("tab") === "youtube")) {
         return `https://oneworldmorocco.com/y/${ctaBusiness.slug}`;
       }
     } catch {/* noop */}
-    return buildOgShareUrl(ctaBusiness.slug);
+    if (ctaBusiness?.slug) return buildOgShareUrl(ctaBusiness.slug);
+    // Fallback : reconstruire l'URL canonique sur oneworldmorocco.com (jamais l'host supabase de preview)
+    try {
+      const { pathname, search } = window.location;
+      return `https://oneworldmorocco.com${pathname}${search}`;
+    } catch {
+      return "https://oneworldmorocco.com/";
+    }
   })();
   const normalizeHeaderName = (value: string | null | undefined) =>
     (value || "").trim().toLocaleLowerCase("fr-FR");
@@ -636,35 +647,78 @@ const VideoSlidePanel = ({
 
               {rightEl && createPortal(
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
-                    className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                    aria-label="Le Club OWM"
-                  >
-                    <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
-                  </button>
-                  {ctaBusiness?.id && (
+                  {/* Like vidéo */}
+                  <div className="relative flex flex-col items-center">
                     <button
                       type="button"
                       onClick={async () => {
-                        if (!isBookmarkLoggedIn) {
+                        if (!isVideoLikeLoggedIn) {
                           window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
                           return;
                         }
-                        await toggleBookmark();
+                        if (!videoLikeId) return;
+                        setLikeBurst((b) => b + 1);
+                        await toggleVideoLike();
                       }}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                      aria-label={isBookmarked ? "Retirer des favoris" : "Sauvegarder"}
-                      title={isBookmarked ? "Retirer des favoris" : "Sauvegarder"}
+                      disabled={isVideoLikeLoggedIn && !videoLikeId}
+                      style={{ backgroundColor: "#F1F1F1" }}
+                      className={`relative h-9 w-9 flex items-center justify-center rounded-full shadow-2xl transition-all shrink-0 glass-toolbar-btn ${
+                        isVideoLikeLoggedIn && !videoLikeId ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 active:scale-90"
+                      }`}
+                      title={!isVideoLikeLoggedIn ? "Connectez-vous pour liker" : videoLikeId ? (isVideoLiked ? "Retirer le like" : "Liker") : "Indisponible"}
+                      aria-label="Liker la vidéo"
                     >
-                      <Bookmark className="h-4 w-4 text-black" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
+                      <Heart
+                        key={`h-${likeBurst}`}
+                        className={`h-4 w-4 transition-transform ${isVideoLiked ? "text-red-500 animate-[heart-pop_0.4s_ease-out]" : "text-black"}`}
+                        fill={isVideoLiked ? "currentColor" : "none"}
+                        strokeWidth={2.5}
+                      />
+                      {likeBurst > 0 && isVideoLiked && (
+                        <Heart
+                          key={`fly-${likeBurst}`}
+                          className="pointer-events-none absolute h-4 w-4 text-red-500 animate-[heart-fly_0.8s_ease-out_forwards]"
+                          fill="currentColor"
+                          strokeWidth={0}
+                        />
+                      )}
                     </button>
-                  )}
+                    {videoLikeCount > 0 && (
+                      <span
+                        className="absolute -bottom-4 text-[10px] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] tabular-nums"
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
+                      >
+                        {videoLikeCount}
+                      </span>
+                    )}
+                  </div>
+                  {/* Bookmark business */}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!isBookmarkLoggedIn) {
+                        window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+                        return;
+                      }
+                      if (!ctaBusiness?.id) return;
+                      await toggleBookmark();
+                    }}
+                    disabled={isBookmarkLoggedIn && !ctaBusiness?.id}
+                    style={{ backgroundColor: "#F1F1F1" }}
+                    className={`h-9 w-9 flex items-center justify-center rounded-full text-black shadow-2xl transition-opacity shrink-0 glass-toolbar-btn ${
+                      isBookmarkLoggedIn && !ctaBusiness?.id ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"
+                    }`}
+                    title={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
+                    aria-label="Le Club OWM"
+                  >
+                    <Bookmark className="h-4 w-4" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
+                  </button>
+                  {/* Share */}
                   <ShareButton
                     title={ctaBusiness?.name || businessName}
                     variant="dark"
-                    className="shrink-0"
+                    className="shrink-0 [&>button]:!bg-[#F1F1F1] [&>button]:!text-black"
+                    buttonClassName="glass-toolbar-btn"
                     shareUrl={ctaShareUrl}
                   />
                 </div>,
