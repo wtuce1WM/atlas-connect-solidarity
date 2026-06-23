@@ -79,7 +79,10 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
       );
       const vanityMatch = url.pathname.match(/^\/([^/]+)\/?$/);
       const isVanity = !!vanityMatch && !RESERVED_ROOT.has(vanityMatch[1].toLowerCase());
-      const shouldProxy = !shareUrl && (isPrefixMatch || isVanity);
+      // Skip the og-meta proxy for AI chat shares — they don't need a dynamic
+      // OG preview and the proxy URL is ugly when copied/displayed.
+      const isAiChat = url.searchParams.has("aiChat");
+      const shouldProxy = !shareUrl && !isAiChat && (isPrefixMatch || isVanity);
       if (shouldProxy) {
         const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
         const proxy = new URL(`https://${projectId}.supabase.co/functions/v1/og-meta`);
