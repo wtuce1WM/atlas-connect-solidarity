@@ -45,7 +45,7 @@ import PoiSection from "@/components/PoiSection";
 import DestinationSection, { type DestinationItem } from "@/components/DestinationSection";
 
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
-import AISearchAnswer, { parseInline, extractCitedBusinesses, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
+import AISearchAnswer, { parseInline, extractCitedBusinesses, findBusiness, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import SearchResultCard from "@/components/SearchResultCard";
 import AISuggestionCard from "@/components/AISuggestionCard";
 import SearchAIVideosCarousel from "@/components/SearchAIVideosCarousel";
@@ -85,6 +85,18 @@ import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVE
 import type { Business, SearchResult } from "@/pages/search/types";
 
 type SearchTabKey = "suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai" | "youtube";
+
+const addAiReadableBreaks = (text: string, businesses: AIBusinessData[]) => {
+  if (!text || /\n\s*\n/.test(text)) return text;
+
+  return text.replace(/\s*(\*\*(.+?)\*\*)/g, (match, boldText: string, innerText: string, offset: number, source: string) => {
+    if (!findBusiness(innerText, businesses)) return match;
+    const before = source.slice(0, offset).trim();
+    if (!before) return boldText;
+
+    return `\n\n${boldText}`;
+  });
+};
 
 
 
@@ -4293,6 +4305,9 @@ const SearchPage = () => {
                       </div>
                     );
                   }
+                  const displayAiText = activeTab !== "poi" && activeTab !== "destinations"
+                    ? addAiReadableBreaks(currentAiText, aiInlineBusinessPool)
+                    : currentAiText;
                   const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === -1;
                   const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
                   // Build data source for link matching based on active tab
@@ -4302,7 +4317,7 @@ const SearchPage = () => {
                     ? allDestItems.map(d => ({ id: d.id, name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: "", main_category: null, categories: null, hook_fr: d.hook, rating: null, wtuce_status: null, images: d.images ?? (d.image_url ? [d.image_url] : null) }))
                     : aiInlineBusinessPool;
                   return parseInline(
-                    currentAiText,
+                    displayAiText,
                     linkDataSource,
                     (b: AIBusinessData) => {
                       if (activeTab === "poi") {
@@ -4335,7 +4350,7 @@ const SearchPage = () => {
               {/* Horizontal scroll of cited businesses */}
               {activeTab !== "poi" && activeTab !== "destinations" && (() => {
                   const lastAssistantMessage = [...aiChat].reverse().find((m) => m.role === "assistant");
-                  const currentAiText = lastAssistantMessage?.content || aiAnswerText;
+                  const currentAiText = addAiReadableBreaks(lastAssistantMessage?.content || aiAnswerText, aiInlineBusinessPool);
                 if (!currentAiText) return null;
                   const cited = lastAssistantMessage?.citedBusinesses?.length
                     ? lastAssistantMessage.citedBusinesses
@@ -4501,8 +4516,9 @@ const SearchPage = () => {
                                   {(() => {
                                     const isMsgTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === idx;
                                     const msgKaraokeTarget = isMsgTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
+                                    const displayContent = addAiReadableBreaks(m.content, aiInlineBusinessPool);
                                     return parseInline(
-                                      m.content,
+                                      displayContent,
                                       aiInlineBusinessPool,
                                       (b: AIBusinessData) => {
                                         setShowAiPopup(false);
