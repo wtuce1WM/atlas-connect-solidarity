@@ -356,10 +356,10 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           onClick={() => setClubOpen(false)}
         >
           <div
-            className="club-popup-body w-full max-w-md max-h-[calc(100dvh-12rem)] md:max-h-[calc(100dvh-14rem)] lg:max-h-none overflow-y-auto rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200"
+            className="w-full max-w-md max-h-[calc(100dvh-12rem)] md:max-h-[calc(100dvh-14rem)] lg:max-h-none overflow-y-auto rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-3 sm:p-6 text-white relative bg-transparent">
+            <div style={{ backgroundColor: "#194CFF" }} className="club-header-shimmer p-3 sm:p-6 text-white relative overflow-hidden">
               <button
                 type="button"
                 onClick={() => setClubOpen(false)}
@@ -377,8 +377,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                 0% { transform: translateX(-150%) skewX(-20deg); }
                 100% { transform: translateX(300%) skewX(-20deg); }
               }
-              .club-popup-body { position: relative; overflow: hidden; background: linear-gradient(to bottom, #194CFF 0%, #6E8FFF 12%, #BED1FF 32%, #BED1FF 100%); }
-              .club-popup-body::before {
+              .club-header-shimmer::before {
                 content: "";
                 position: absolute;
                 top: 0; bottom: 0;
@@ -388,12 +387,12 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                 transform: translateX(-150%) skewX(-20deg);
                 animation: clubShimmerOnce 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.45s 1 forwards;
                 pointer-events: none;
-                z-index: 0;
+                z-index: 1;
               }
-              .club-popup-body > * { position: relative; z-index: 1; }
+              .club-header-shimmer > * { position: relative; z-index: 2; }
             `}</style>
             {!isLoggedIn ? (
-              <div className="p-3 sm:p-6 text-stone-900 bg-transparent">
+              <div style={{ backgroundColor: "#ECD6B8" }} className="p-3 sm:p-6 text-stone-900">
                 <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 !font-sans text-stone-900 text-center">
                   {t.memberTitle}
                 </h3>
@@ -401,7 +400,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                 <ClubAuthPanel redirectPath={typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"} />
               </div>
             ) : (
-              <div className="p-6 text-stone-900 bg-transparent">
+              <div style={{ backgroundColor: "#ECD6B8" }} className="p-6 text-stone-900">
                 <h3 className="text-lg font-semibold mb-1 !font-sans text-stone-900 text-center">
                   {t.saveTitle}
                 </h3>
