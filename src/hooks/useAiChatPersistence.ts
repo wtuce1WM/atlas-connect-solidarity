@@ -19,6 +19,7 @@ export type PersistedAiChat = {
     aiAnswerText: string;
     aiChat: AiChatMessage[];
     searchQuery?: string;
+    businessPool?: any[];
   };
   city?: string | null;
 };
@@ -28,8 +29,10 @@ interface UseAiChatPersistenceArgs {
   aiChat: AiChatMessage[];
   searchQuery: string;
   city?: string | null;
+  businessPool?: any[];
   setAiAnswerText: (s: string) => void;
   setAiChat: (m: AiChatMessage[]) => void;
+  setRestoredBusinessPool?: (b: any[]) => void;
 }
 
 export function useAiChatPersistence({
@@ -37,8 +40,10 @@ export function useAiChatPersistence({
   aiChat,
   searchQuery,
   city,
+  businessPool,
   setAiAnswerText,
   setAiChat,
+  setRestoredBusinessPool,
 }: UseAiChatPersistenceArgs) {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlChatId = searchParams.get("aiChat");
@@ -86,6 +91,9 @@ export function useAiChatPersistence({
         setIsPublic(!!data.is_public);
         if (typeof payload.aiAnswerText === "string") setAiAnswerText(payload.aiAnswerText);
         if (Array.isArray(payload.aiChat)) setAiChat(payload.aiChat);
+        if (Array.isArray(payload.businessPool) && setRestoredBusinessPool) {
+          setRestoredBusinessPool(payload.businessPool);
+        }
         // Anonymous chats (user_id NULL) are editable by anyone who has the link.
         // Signed-in chats are read-only unless the viewer is the owner.
         const ownsIt = data.user_id === null || (!!userId && data.user_id === userId);
@@ -93,7 +101,7 @@ export function useAiChatPersistence({
       }
       setHydrating(false);
     })();
-  }, [urlChatId, userId, setAiAnswerText, setAiChat]);
+  }, [urlChatId, userId, setAiAnswerText, setAiChat, setRestoredBusinessPool]);
 
   // Auto-save when content changes and user is owner (or creating own new chat)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -102,7 +110,7 @@ export function useAiChatPersistence({
     if (isReadOnly) return; // viewing someone else's signed-in chat
     if (!aiAnswerText && aiChat.length === 0) return;
 
-    const payload = { aiAnswerText, aiChat, searchQuery };
+    const payload = { aiAnswerText, aiChat, searchQuery, businessPool: businessPool ?? [] };
     const signature = JSON.stringify({ chatId, payload });
     if (signature === lastSavedRef.current) return;
 
@@ -152,7 +160,7 @@ export function useAiChatPersistence({
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [userId, isReadOnly, aiAnswerText, aiChat, searchQuery, chatId, title, city, searchParams, setSearchParams]);
+  }, [userId, isReadOnly, aiAnswerText, aiChat, searchQuery, businessPool, chatId, title, city, searchParams, setSearchParams]);
 
   // Actions
   const renameTitle = useCallback(
