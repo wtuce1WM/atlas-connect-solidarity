@@ -4186,6 +4186,23 @@ const SearchPage = () => {
                          <Map className="h-4 w-4" />
                          {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
                        </button>
+                       {hideResultsMap && (
+                         <>
+                           <button
+                             type="button"
+                             onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                             className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                             aria-label="Le Club OWM"
+                           >
+                             <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                           </button>
+                           <ShareButton
+                             title={searchQuery || "Recherche"}
+                             variant="dark"
+                             className="shrink-0 shadow-lg"
+                           />
+                         </>
+                       )}
                     </div>
                   )}
                    {!isWelcomeText && (
