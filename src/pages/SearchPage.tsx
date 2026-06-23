@@ -4774,13 +4774,7 @@ const SearchPage = () => {
                     >
                       <X className="h-4 w-4" />
                     </button>
-                    <span className="flex-1 text-center text-sm font-medium text-black truncate">
-                      {(() => {
-                        const lastUserTurn = [...aiChat].reverse().find(m => m.role === "user")?.content;
-                        const label = (lastUserTurn || searchQuery || "").trim();
-                        return label;
-                      })()}
-                    </span>
+                    <div className="flex-1" />
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         type="button"
