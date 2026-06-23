@@ -321,7 +321,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                     <img src={logoGold} alt="" className="h-20 w-20 object-contain" />
                   </div>
                 )}
-                <div className="relative font-semibold text-base line-clamp-2 drop-shadow">{shareTitle}</div>
+                <div className="relative font-semibold text-base line-clamp-3 whitespace-pre-wrap drop-shadow">{shareTitle}</div>
               </div>
             )}
 
