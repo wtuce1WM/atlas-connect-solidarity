@@ -92,6 +92,16 @@ const addAiReadableBreaks = (text: string, businesses: AIBusinessData[]) => {
 
   let formatted = text;
 
+  // 0. Strip leftover markdown list markers (model sometimes still emits them despite the prompt)
+  //    - leading bullets: "- ", "* ", "• " at line start (do NOT touch "**bold**")
+  //    - leading numbered list: "1. ", "2) "
+  //    - stray single-asterisk italic "*texte*" → "texte" (preserves **bold**)
+  formatted = formatted
+    .replace(/^[ \t]*(?:[-•]|\*(?!\*))\s+/gm, "")
+    .replace(/^[ \t]*\d+[.)]\s+/gm, "")
+    .replace(/(^|[^*])\*(?!\*)([^*\n]+?)\*(?!\*)/g, "$1$2");
+
+
   // 1. Ensure the first line break has a ":" right before it (if it doesn't have one already)
   const firstNewlineIndex = formatted.indexOf('\n');
   if (firstNewlineIndex > 0) {
