@@ -727,7 +727,7 @@ serve(async (req) => {
           if (r.serp_hotel_name && r.business_id) serpNameToBiz.set(normalize(r.serp_hotel_name), r.business_id);
         });
 
-        type AvailRow = { name: string; price?: string; rating?: number; reviews?: number };
+        type AvailRow = { id: string; name: string; price?: string; rating?: number; reviews?: number };
         const matched: AvailRow[] = [];
 
         const { data: serpData, error: serpErr } = await sb.functions.invoke("serpapi-hotels", {
@@ -772,7 +772,7 @@ serve(async (req) => {
               const amt = h.ratePerNight?.amount;
               const cur = h.ratePerNight?.currency || "EUR";
               const price = amt ? `${amt} ${cur}/nuit` : undefined;
-              matched.push({ name: biz.name, price, rating: h.overallRating, reviews: h.reviewCount });
+              matched.push({ id: biz.id, name: biz.name, price, rating: h.overallRating, reviews: h.reviewCount });
             });
           }
         }
@@ -781,6 +781,8 @@ serve(async (req) => {
           hotelAvailabilityBlock = `\n\nDISPONIBILITÉ HÔTELS (SerpAPI Google Hotels — ${cityName}, ${checkIn} → ${checkOut}, ${adults} adulte${adults > 1 ? "s" : ""}) :\n` +
             matched.map((r) => `- ${r.name}${r.price ? ` — ${r.price}` : ""}${r.rating ? ` — ${r.rating}/5${r.reviews ? ` (${r.reviews} avis)` : ""}` : ""}`).join("\n");
           hotelAvailabilityInstruction = `\n- DISPONIBILITÉ HÔTELS (RÈGLE STRICTE) : L'utilisateur demande des hôtels disponibles du ${checkIn} au ${checkOut} pour ${adults} adulte${adults > 1 ? "s" : ""}. Cite EXCLUSIVEMENT les hôtels listés dans la section "DISPONIBILITÉ HÔTELS" ci-dessous. Pour CHAQUE hôtel cité, entoure OBLIGATOIREMENT son nom exact de doubles astérisques (ex. **Riad XYZ**) — c'est indispensable pour que la vignette et le marqueur s'affichent. Indique aussi son prix par nuit en gras (ex. **120 EUR/nuit**). INTERDICTION ABSOLUE de mentionner, recommander ou citer d'autres établissements (hôtels, riads, restaurants, lieux à visiter, pépites architecturales, musées, etc.) — ils n'ont pas de disponibilité confirmée et ne sont PAS pertinents pour cette demande. Pas de section "en complément", pas de "à découvrir aussi", pas de suggestions annexes. Termine simplement par une invitation à élargir les dates ou consulter les fiches si besoin.`;
+          effectiveBusinesses = (effectiveBusinesses as any[]).filter((b: any) => matched.some((m) => m.id === b.id));
+          effectiveHasRenderResults = effectiveBusinesses.length > 0;
         } else {
           hotelAvailabilityInstruction = `\n- DISPONIBILITÉ HÔTELS : Aucun hôtel de l'annuaire n'a de disponibilité confirmée du ${checkIn} au ${checkOut} pour ${adults} adulte${adults > 1 ? "s" : ""}. Dis-le clairement et propose d'élargir les dates ou de vérifier directement sur les fiches. NE cite AUCUN autre établissement (restaurants, lieux à visiter, etc.) en complément — la question porte uniquement sur la disponibilité hôtelière.`;
         }
