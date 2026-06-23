@@ -6031,11 +6031,18 @@ const SearchPage = () => {
                     return haversineKm(uc.lat, uc.lng, p.latitude, p.longitude) <= mobilePoiProximityKm;
                   });
                 }
+                if (activeTab === "ai" && uc && aiProximityKm) {
+                  base = base.filter(p => {
+                    if (p.latitude == null || p.longitude == null) return false;
+                    return haversineKm(uc.lat, uc.lng, p.latitude, p.longitude) <= aiProximityKm;
+                  });
+                }
                 if (activeTab !== "suggestions" || !uc || !mobileProximityKm) return base;
                 return base.filter(p => {
                   if (p.latitude == null || p.longitude == null) return false;
                   return haversineKm(uc.lat, uc.lng, p.latitude, p.longitude) <= mobileProximityKm;
                 });
+
               })()}
               selectedPoiId={activeTab === "poi" ? (hoveredPoiId || null) : activeTab === "destinations" ? (hoveredDestId || null) : (hoveredResultId || compactPanelBusiness?.id || fsTopBusinessId || null)}
               onPoiClick={(poiId) => {
