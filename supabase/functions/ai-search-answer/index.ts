@@ -204,7 +204,7 @@ serve(async (req) => {
     // Collect business IDs from results for direct linking.
     // On topic change, hide the previous business pool completely so stale results
     // cannot be cited or enriched back into the answer.
-    const effectiveBusinesses = topicChange ? [] : topBusinesses;
+    let effectiveBusinesses = topicChange ? [] : topBusinesses;
     const effectiveHasResults = effectiveBusinesses.length > 0;
     const businessIds = effectiveBusinesses.map((b: any) => b.id).filter(Boolean);
 
@@ -509,7 +509,7 @@ serve(async (req) => {
       : effectiveBusinesses;
 
     // If a "near me" intent without explicit radius, sort by ascending distance.
-    const renderBusinesses = (geoIntent && hasUserCoords)
+    let renderBusinesses = (geoIntent && hasUserCoords)
       ? [...distanceFilteredBusinesses].sort((a: any, b: any) => {
           const da = a?.id ? distanceFromUser[a.id] : undefined;
           const db = b?.id ? distanceFromUser[b.id] : undefined;
@@ -519,7 +519,7 @@ serve(async (req) => {
         })
       : effectiveBusinesses;
 
-    const effectiveHasRenderResults = renderBusinesses.length > 0;
+    let effectiveHasRenderResults = renderBusinesses.length > 0;
 
     const businessContext = effectiveHasRenderResults
       ? renderBusinesses.map((b: any, i: number) => {
