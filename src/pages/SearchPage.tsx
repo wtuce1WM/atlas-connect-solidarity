@@ -5626,7 +5626,7 @@ const SearchPage = () => {
                   >
                     <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
                   </button>
-                  <ShareButton title="Recherche\nAgent IA One World Morocco" variant="dark" className="shrink-0" />
+                  <ShareButton title={"Recherche\nAgent IA One World Morocco"} variant="dark" className="shrink-0" />
                 </div>
               </div>
               {(() => {
