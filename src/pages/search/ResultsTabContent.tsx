@@ -479,7 +479,7 @@ export default function ResultsTabContent({
                       setShowMobileMap(true);
                     }
                   }}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#3B3B3B] text-white text-xs font-medium shadow-lg hover:bg-[#3B3B3B]/90 transition-colors"
                 >
                   <Map className="h-4 w-4" />
                   {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
@@ -494,7 +494,7 @@ export default function ResultsTabContent({
                     }
                     return next;
                   })}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#3B3B3B] text-white text-xs font-medium shadow-lg hover:bg-[#3B3B3B]/90 transition-colors"
                 >
                   <SlidersHorizontal className="h-4 w-4" />
                   {language === "en" ? "Filters" : language === "ar" ? "فلاتر" : "Filtres"}
