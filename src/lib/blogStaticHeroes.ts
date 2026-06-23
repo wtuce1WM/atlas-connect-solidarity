@@ -3,9 +3,11 @@
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import essaouiraSunsetAsset from "@/assets/essaouira-sunset-roof.jpg.asset.json";
 import essaouiraLobsterAsset from "@/assets/essaouira-lobster-hero.jpg.asset.json";
+import ideeCadeauHeroAsset from "@/assets/idee-cadeau-marrakech-hero.jpg.asset.json";
 
 export const STATIC_BLOG_HERO_OVERRIDES: Record<string, string> = {
   "etablissements-notes": ratedHeroAsset.url,
   "hotels-riads-vue-mer-essaouira": essaouiraSunsetAsset.url,
   "manger-fruits-de-mer-essaouira": essaouiraLobsterAsset.url,
+  "idee-cadeau-marrakech": ideeCadeauHeroAsset.url,
 };

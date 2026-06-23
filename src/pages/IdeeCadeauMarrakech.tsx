@@ -1,4 +1,5 @@
 import BlogArticleTemplate, { type BlogArticleEntry } from "@/components/blog/BlogArticleTemplate";
+import ideeCadeauHeroAsset from "@/assets/idee-cadeau-marrakech-hero.jpg.asset.json";
 
 // Texte généré à partir des hooks, descriptions, horaires et avis clients
 // des établissements de Marrakech dont une vidéo porte le badge « Idée Cadeau ».
@@ -516,6 +517,7 @@ const IdeeCadeauMarrakech = () => (
     intro="Trouver le bon cadeau à Marrakech, c'est facile en apparence — les souks débordent — mais terriblement difficile en pratique : entre les imitations, les prix flottants et les milliers d'échoppes, on finit souvent par rapporter un objet qu'on n'aime déjà plus à l'aéroport. Voici les adresses qui jouent dans une autre catégorie, sélectionnées par notre équipe parce qu'au moins une de leurs vidéos est explicitement consacrée à l'idée cadeau. Boutiques de palais, ateliers d'artisans, concept stores contemporains, pâtissiers, parfumeurs et créateurs de mode : voici nos pistes préférées pour repartir de Marrakech avec un présent qu'on est fier d'offrir."
     datePublished="2026-06-22T08:00:00+01:00"
     dateModified="2026-06-22T08:00:00+01:00"
+    customHeroImage={ideeCadeauHeroAsset.url}
   />
 );
 
