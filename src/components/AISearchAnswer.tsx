@@ -40,7 +40,7 @@ interface AISearchAnswerProps {
   spokenText?: string;
   businesses: BusinessData[];
   isSearchLoading: boolean;
-  onAnswerReady?: (answer: string) => void;
+  onAnswerReady?: (answer: string, citedBusinesses?: BusinessData[]) => void;
   highlightWordIndex?: number;
   externalRegenerateKey?: number;
 }
@@ -392,7 +392,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
 
         if (data?.answer) {
           setAnswer(data.answer);
-          onAnswerReady?.(data.answer);
+          onAnswerReady?.(data.answer, Array.isArray(data.citedBusinesses) ? data.citedBusinesses : undefined);
         }
       } catch (err) {
         if (currentFetchId !== fetchIdRef.current) return;
