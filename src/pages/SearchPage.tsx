@@ -4567,13 +4567,13 @@ const SearchPage = () => {
                     {aiChat.length > 0 && (
                       <div className="flex flex-col gap-4 mb-4">
                         {aiChat.map((m, idx) => (
-                          <div key={idx} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
+                          <div key={idx} className={m.role === "user" ? "flex justify-end" : "flex justify-start w-full"}>
                             {m.role === "user" ? (
                               <div data-ai-user-bubble className="max-w-[80%] rounded-2xl bg-primary text-primary-foreground px-4 py-2 text-sm">
                                 {m.content}
                               </div>
                             ) : (
-                              <div className="max-w-[90%] flex flex-col gap-4">
+                              <div className="w-full flex flex-col gap-4">
                                 <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
                                   {(() => {
                                     const isMsgTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0 && ttsSourceIdx === idx;
