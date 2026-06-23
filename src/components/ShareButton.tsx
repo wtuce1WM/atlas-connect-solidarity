@@ -313,17 +313,18 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                     : { backgroundImage: `url(${heroKoutoubiaAsset.url})`, backgroundSize: "cover", backgroundPosition: "center" }
                 }
               >
-                {previewImage && !avatarImage && <div className="absolute inset-0 bg-black/45" aria-hidden="true" />}
+                {/* Léger voile sombre sur l'image de fond */}
+                <div className="absolute inset-0 bg-black/35" aria-hidden="true" />
+                
                 {avatarImage ? (
-                  <div className="relative h-[104px] w-[104px] rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden mb-2 ring-2 ring-white/40 shadow-xl">
+                  <div className="relative h-[104px] w-[104px] rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden mb-2 ring-2 ring-white/40 shadow-xl z-10">
                     <img src={avatarImage} alt="" className="h-full w-full object-cover" />
                   </div>
                 ) : !previewImage && (
-                  <img src={hamsaIconAsset.url} alt="" className="relative h-[120px] w-[120px] object-contain mb-2 drop-shadow-xl" />
+                  <img src={hamsaIconAsset.url} alt="" className="relative h-[120px] w-[120px] object-contain mb-2 drop-shadow-xl z-10" />
                 )}
-                <div className="relative font-semibold text-base line-clamp-3 whitespace-pre-wrap drop-shadow">{shareTitle}</div>
+                <div className="relative font-semibold text-base line-clamp-3 whitespace-pre-wrap drop-shadow z-10">{shareTitle}</div>
               </div>
-
             )}
 
             {/* Share targets */}
