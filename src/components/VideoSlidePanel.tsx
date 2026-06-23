@@ -308,6 +308,7 @@ const VideoSlidePanel = ({
   }, [open, eventId, isGeneric, pageBusinessId]);
 
   const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
+  const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(ctaBusiness?.id ? String(ctaBusiness.id) : undefined);
   const ctaShareUrl = (() => {
     if (!ctaBusiness?.slug) return undefined;
     try {
