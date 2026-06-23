@@ -87,15 +87,77 @@ import type { Business, SearchResult } from "@/pages/search/types";
 type SearchTabKey = "suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai" | "youtube";
 
 const addAiReadableBreaks = (text: string, businesses: AIBusinessData[]) => {
-  if (!text || /\n\s*\n/.test(text)) return text;
+  if (!text) return text;
 
-  return text.replace(/\s*(\*\*(.+?)\*\*)/g, (match, boldText: string, innerText: string, offset: number, source: string) => {
-    if (!findBusiness(innerText, businesses)) return match;
-    const before = source.slice(0, offset).trim();
-    if (!before) return boldText;
+  let formatted = text;
 
-    return `\n\n${boldText}`;
+  // 1. Ensure the first line break has a ":" right before it (if it doesn't have one already)
+  const firstNewlineIndex = formatted.indexOf('\n');
+  if (firstNewlineIndex > 0) {
+    const beforeNewline = formatted.slice(0, firstNewlineIndex).trim();
+    if (beforeNewline && !beforeNewline.endsWith(':')) {
+      const cleanedBefore = beforeNewline.replace(/[.,!?]+$/, '').trim();
+      formatted = `${cleanedBefore} :\n${formatted.slice(firstNewlineIndex + 1)}`;
+    }
+  }
+
+  // 2. If the text does NOT have double line breaks for hotel names, add them
+  if (!/\n\s*\n/.test(formatted)) {
+    formatted = formatted.replace(/\s*(\*\*(.+?)\*\*)/g, (match, boldText: string, innerText: string, offset: number, source: string) => {
+      if (!findBusiness(innerText, businesses)) return match;
+      const before = source.slice(0, offset).trim();
+      if (!before) return boldText;
+      return `\n\n${boldText}`;
+    });
+  }
+
+  // 3. Make sure there is a double line break before the concluding sentence/paragraph
+  const mentions: { name: string; index: number; length: number }[] = [];
+  businesses.forEach((biz) => {
+    if (!biz.name) return;
+    const escapedName = biz.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`\\*\\*${escapedName}\\*\\*`, 'gi');
+    let match;
+    while ((match = regex.exec(formatted)) !== null) {
+      mentions.push({
+        name: biz.name,
+        index: match.index,
+        length: match[0].length
+      });
+    }
   });
+
+  if (mentions.length > 0) {
+    mentions.sort((a, b) => a.index - b.index);
+    const lastMention = mentions[mentions.length - 1];
+    const afterLastMention = formatted.slice(lastMention.index + lastMention.length);
+    
+    const conclusionPatterns = [
+      /n['’]hésitez\s+pas/i,
+      /je\s+reste\s+à/i,
+      /pour\s+affiner/i,
+      /si\s+vous\s+souhaitez/i,
+      /n'hesitez\s+pas/i,
+      /n’hesitez\s+pas/i
+    ];
+
+    let foundConclusionIndex = -1;
+    for (const pat of conclusionPatterns) {
+      const match = pat.exec(afterLastMention);
+      if (match && (foundConclusionIndex === -1 || match.index < foundConclusionIndex)) {
+        foundConclusionIndex = match.index;
+      }
+    }
+
+    if (foundConclusionIndex !== -1) {
+      const absConclusionIndex = lastMention.index + lastMention.length + foundConclusionIndex;
+      const beforeConclusion = formatted.slice(0, absConclusionIndex).trimEnd();
+      const conclusionText = formatted.slice(absConclusionIndex);
+      formatted = `${beforeConclusion}\n\n${conclusionText}`;
+    }
+  }
+
+  return formatted;
 };
 
 
