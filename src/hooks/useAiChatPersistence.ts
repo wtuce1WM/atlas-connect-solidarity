@@ -160,7 +160,7 @@ export function useAiChatPersistence({
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [userId, isReadOnly, aiAnswerText, aiChat, searchQuery, chatId, title, city, searchParams, setSearchParams]);
+  }, [userId, isReadOnly, aiAnswerText, aiChat, searchQuery, businessPool, chatId, title, city, searchParams, setSearchParams]);
 
   // Actions
   const renameTitle = useCallback(
