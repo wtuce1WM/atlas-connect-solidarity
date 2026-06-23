@@ -2735,7 +2735,7 @@ const SearchPage = () => {
     }
     let cancelled = false;
     const fetchAll = async () => {
-      const selectFields = "id, name, city, main_category, categories, services, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count, wtuce_status, priority_score";
+      const selectFields = "id, name, city, main_category, categories, services, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count, wtuce_status, priority_score, is_poi";
       const all: Business[] = [];
       let offset = 0;
       while (true) {
@@ -4925,10 +4925,11 @@ const SearchPage = () => {
             <div className="w-1/2 sticky top-0 h-screen z-[50] overflow-hidden">
               <div className="relative h-full min-h-0">
                 {(() => {
-                  // On AI welcome (no AI answer/citations yet), show every POI of the
-                  // city (points_of_interest table) and center on the user's marker.
-                  const aiWelcome = isWelcomeText && mapPoiItems.length === 0 && allPois.length > 0;
-                  const welcomePois = aiWelcome ? allPois : mapPoiItems;
+                  // On AI welcome (no AI answer/citations yet), show only POIs of
+                  // the city (businesses with is_poi=true) and center on the user.
+                  const cityPois = allCityMapBusinesses.filter((b: any) => b.is_poi);
+                  const aiWelcome = isWelcomeText && mapPoiItems.length === 0 && cityPois.length > 0;
+                  const welcomePois = aiWelcome ? buildMapPoiItems(cityPois, true) : mapPoiItems;
                   const userCenter = geo.isEnabled && geo.coords ? geo.coords : null;
                   const effectiveCenter = aiWelcome && userCenter ? userCenter : mapCenterForResults;
                   return (
