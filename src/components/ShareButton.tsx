@@ -3,6 +3,8 @@ import { Share2, X, Check, Copy, Link as LinkIcon, QrCode, Download, MapPin, Glo
 import { QRCodeSVG } from "qrcode.react";
 import { FacebookIcon, TwitterIcon, WhatsAppIcon, LinkedInIcon } from "@/components/staff/SocialMediaIcons";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
+import heroKoutoubiaAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
+import hamsaIconAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 
 interface ShareButtonProps {
   /** Optional custom title for the share text. Defaults to document.title */
