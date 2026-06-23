@@ -183,7 +183,7 @@ export function useAiChatPersistence({
   }, [userId, chatId, isOwner, isBookmarked]);
 
   const makeShareUrl = useCallback(async (): Promise<string | null> => {
-    if (!userId || !chatId || !isOwner) return null;
+    if (!chatId || !isOwner) return null;
     if (!isPublic) {
       await supabase.from("ai_chats").update({ is_public: true }).eq("id", chatId);
       setIsPublic(true);
@@ -193,7 +193,7 @@ export function useAiChatPersistence({
     url.searchParams.set("aiChat", chatId);
     url.searchParams.delete("_t");
     return url.toString();
-  }, [userId, chatId, isOwner, isPublic]);
+  }, [chatId, isOwner, isPublic]);
 
   return {
     userId,
