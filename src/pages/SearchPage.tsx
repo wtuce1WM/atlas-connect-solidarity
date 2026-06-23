@@ -4197,21 +4197,53 @@ const SearchPage = () => {
                          {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
                        </button>
                        {hideResultsMap && (
-                         <>
-                           <button
-                             type="button"
-                             onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
-                             className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
-                             aria-label="Le Club OWM"
-                           >
-                             <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
-                           </button>
-                           <ShareButton
-                             title={searchQuery || "Recherche"}
-                             variant="dark"
-                             className="shrink-0 shadow-lg"
-                           />
-                         </>
+                         aiPersist.isOwner ? (
+                           <>
+                             <button
+                               type="button"
+                               onClick={() => aiPersist.toggleBookmark()}
+                               className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                               title={aiPersist.isBookmarked ? "Retirer des favoris" : "Sauvegarder dans mon compte"}
+                               aria-label="Bookmark"
+                             >
+                               <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} fill={aiPersist.isBookmarked ? "currentColor" : "none"} />
+                             </button>
+                             <button
+                               type="button"
+                               onClick={async () => {
+                                 const url = await aiPersist.makeShareUrl();
+                                 if (!url) return;
+                                 if (navigator.share) {
+                                   try { await navigator.share({ title: aiPersist.title, url }); } catch {/* noop */}
+                                 } else {
+                                   await navigator.clipboard.writeText(url);
+                                   window.dispatchEvent(new CustomEvent("toast", { detail: { message: "Lien copié" } }));
+                                 }
+                               }}
+                               className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                               title="Partager la conversation"
+                               aria-label="Share chat"
+                             >
+                               <Share2 className="h-4 w-4 text-foreground" strokeWidth={2.5} />
+                             </button>
+                           </>
+                         ) : (
+                           <>
+                             <button
+                               type="button"
+                               onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                               className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                               aria-label="Le Club OWM"
+                             >
+                               <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                             </button>
+                             <ShareButton
+                               title={searchQuery || "Recherche"}
+                               variant="dark"
+                               className="shrink-0 shadow-lg"
+                             />
+                           </>
+                         )
                        )}
                     </div>
                   )}
