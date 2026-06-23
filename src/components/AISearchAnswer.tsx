@@ -46,7 +46,7 @@ interface AISearchAnswerProps {
 }
 
 const normalize = (s: string) =>
-  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['`]/g, "'").trim();
+  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[’‘`]/g, "'").trim();
 
 const STOPWORDS = new Set([
   "le","la","les","l","un","une","des","de","du","d","au","aux","a","à",
@@ -61,37 +61,67 @@ const tokenize = (s: string): string[] =>
     .filter(t => t.length > 1 && !STOPWORDS.has(t));
 
 const findBusiness = (name: string, businesses: BusinessData[]): BusinessData | null => {
-  const n = normalize(name);
-  const exact = businesses.find(b => normalize(b.name) === n);
-  if (exact) return exact;
-  const cityPattern = /(.+?)(?:\s+[àa]\s+|\s*[-–—]\s*|\s*[(［].+?[)］]\s*$)/i;
-  const cityMatch = n.match(cityPattern);
-  if (cityMatch) {
-    const namePart = cityMatch[1].trim();
-    const exactStripped = businesses.find(b => normalize(b.name) === namePart);
-    if (exactStripped) return exactStripped;
-  }
-  const incl = businesses.find(b => n.includes(normalize(b.name)) || normalize(b.name).includes(n));
-  if (incl) return incl;
+  const raw = name.replace(/\s+/g, " ").trim();
+  const candidates = Array.from(new Set([
+    raw,
+    raw.replace(/\s+[—–-]\s+.*$/, ""),
+    raw.replace(/\s+\([^)]*\)\s*$/, ""),
+    raw.replace(/\s+(?:à partir de|from|dès)\s+.*$/i, ""),
+    raw.replace(/\s+\d+[\d\s.,]*(?:eur|€|mad|dh|dhs).*/i, ""),
+  ].map((s) => s.trim()).filter(Boolean)));
 
-  // Token-based fallback (Jaccard on significant words)
-  const queryTokens = new Set(tokenize(name));
-  if (queryTokens.size === 0) return null;
-  let best: { b: BusinessData; score: number } | null = null;
-  for (const b of businesses) {
-    const bTokens = new Set(tokenize(b.name));
-    if (bTokens.size === 0) continue;
-    let inter = 0;
-    queryTokens.forEach(t => { if (bTokens.has(t)) inter++; });
-    const union = queryTokens.size + bTokens.size - inter;
-    const jaccard = inter / union;
-    const coverage = inter / bTokens.size; // share of business name covered
-    const score = Math.max(jaccard, coverage * 0.9);
-    if (score >= 0.6 && (!best || score > best.score)) {
-      best = { b, score };
+  for (const candidate of candidates) {
+    const n = normalize(candidate);
+    const exact = businesses.find(b => normalize(b.name) === n);
+    if (exact) return exact;
+    const cityPattern = /(.+?)(?:\s+[àa]\s+|\s*[-–—]\s*|\s*[(［].+?[)］]\s*$)/i;
+    const cityMatch = n.match(cityPattern);
+    if (cityMatch) {
+      const namePart = cityMatch[1].trim();
+      const exactStripped = businesses.find(b => normalize(b.name) === namePart);
+      if (exactStripped) return exactStripped;
+    }
+    const incl = businesses.find(b => n.includes(normalize(b.name)) || normalize(b.name).includes(n));
+    if (incl) return incl;
+  }
+
+  const businessTokenRows = businesses.map((b) => ({ b, tokens: new Set(tokenize(b.name)) }));
+  const tokenFrequency = new Map<string, number>();
+  businessTokenRows.forEach(({ tokens }) => tokens.forEach((t) => tokenFrequency.set(t, (tokenFrequency.get(t) || 0) + 1)));
+
+  for (const candidate of candidates) {
+    // Token-based fallback (Jaccard on significant words)
+    const queryTokens = new Set(tokenize(candidate));
+    if (queryTokens.size === 0) continue;
+    let best: { b: BusinessData; score: number } | null = null;
+    for (const { b, tokens: bTokens } of businessTokenRows) {
+      if (bTokens.size === 0) continue;
+      let inter = 0;
+      queryTokens.forEach(t => { if (bTokens.has(t)) inter++; });
+      const union = queryTokens.size + bTokens.size - inter;
+      const jaccard = inter / union;
+      const queryCoverage = inter / queryTokens.size;
+      const nameCoverage = inter / bTokens.size;
+      const score = Math.max(jaccard, queryCoverage * 0.92, nameCoverage * 0.9);
+      if (score >= 0.6 && (!best || score > best.score)) {
+        best = { b, score };
+      }
+    }
+    if (best) return best.b;
+
+    // Distinctive-token fallback for shortened hotel names (e.g. "Mövenpick", "Nobu").
+    const distinctiveTokens = Array.from(queryTokens).filter((t) =>
+      (t.length >= 4 || /[a-z]+\d|\d+[a-z]/i.test(t)) && (tokenFrequency.get(t) || 0) <= 2
+    );
+    if (distinctiveTokens.length > 0) {
+      const tokenMatches = businessTokenRows.filter(({ tokens }) =>
+        distinctiveTokens.some((t) => tokens.has(t) || (t.length >= 5 && Array.from(tokens).some((bt) => bt.startsWith(t) || t.startsWith(bt))))
+      );
+      if (tokenMatches.length === 1) return tokenMatches[0].b;
     }
   }
-  return best?.b ?? null;
+
+  return null;
 };
 
 const getImage = (b: BusinessData): string | null => {
