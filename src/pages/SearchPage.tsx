@@ -497,13 +497,20 @@ const SearchPage = () => {
   const aiRefinementRef = useRef<HTMLDivElement | null>(null);
   const [aiChatLoading, setAiChatLoading] = useState(false);
   const [aiChatError, setAiChatError] = useState<string | null>(null);
+  const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
+  const [restoredAiBusinessPool, setRestoredAiBusinessPool] = useState<Business[]>([]);
   const aiPersist = useAiChatPersistence({
     aiAnswerText,
     aiChat,
     searchQuery,
     city: cityFromUrl,
+    // Persist the inline business pool so cited-business chips and the
+    // carousel still render when a shared chat is opened by someone whose
+    // current URL filters don't repopulate the pool.
+    businessPool: aiRefinementBusinessPool as any,
     setAiAnswerText,
     setAiChat,
+    setRestoredBusinessPool: setRestoredAiBusinessPool as any,
   });
   // Ensure the owner's chat is publicly shareable so the ShareButton link works.
   useEffect(() => {
@@ -512,8 +519,6 @@ const SearchPage = () => {
     }
   }, [aiPersist.isOwner, aiPersist.chatId, aiPersist.isPublic]);
 
-  const [aiRefinementBusinessPool, setAiRefinementBusinessPool] = useState<Business[]>([]);
-  const [restoredAiBusinessPool, setRestoredAiBusinessPool] = useState<Business[]>([]);
   const lastAiProximityRef = useRef<{ lat: number; lng: number; radiusKm: number; targetName: string; query: string } | null>(null);
   // Lazy cache for AI-refinement blob enrichment: services keywords, subcategory keywords,
   // and per-business badge names (M2M via business_badges). Loaded once on first refinement.
