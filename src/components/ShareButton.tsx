@@ -3,6 +3,8 @@ import { Share2, X, Check, Copy, Link as LinkIcon, QrCode, Download, MapPin, Glo
 import { QRCodeSVG } from "qrcode.react";
 import { FacebookIcon, TwitterIcon, WhatsAppIcon, LinkedInIcon } from "@/components/staff/SocialMediaIcons";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
+import heroKoutoubiaAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
+import hamsaIconAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 
 interface ShareButtonProps {
   /** Optional custom title for the share text. Defaults to document.title */
@@ -308,7 +310,7 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                 style={
                   previewImage
                     ? { backgroundImage: `url(${previewImage})`, backgroundSize: "cover", backgroundPosition: "center" }
-                    : { backgroundColor: "#194CFF" }
+                    : { backgroundImage: `url(${heroKoutoubiaAsset.url})`, backgroundSize: "cover", backgroundPosition: "center" }
                 }
               >
                 {previewImage && !avatarImage && <div className="absolute inset-0 bg-black/45" aria-hidden="true" />}
@@ -317,12 +319,11 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                     <img src={avatarImage} alt="" className="h-full w-full object-cover" />
                   </div>
                 ) : !previewImage && (
-                  <div className="relative h-[104px] w-[104px] rounded-full bg-white flex items-center justify-center overflow-hidden mb-2">
-                    <img src={logoGold} alt="" className="h-20 w-20 object-contain" />
-                  </div>
+                  <img src={hamsaIconAsset.url} alt="" className="relative h-[120px] w-[120px] object-contain mb-2 drop-shadow-xl" />
                 )}
                 <div className="relative font-semibold text-base line-clamp-3 whitespace-pre-wrap drop-shadow">{shareTitle}</div>
               </div>
+
             )}
 
             {/* Share targets */}
