@@ -22,19 +22,17 @@ const ease = (f: number, a: number, b: number) =>
 const Background: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: COLORS.night, overflow: "hidden" }}>
-      <Loop durationInFrames={150}>
-        <OffthreadVideo
-          src={staticFile("videos/clip-decouvrir.mp4")}
-          muted
-          toneMapped={false}
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
-        />
-      </Loop>
+      <Video
+        src={staticFile("videos/clip-decouvrir.mp4")}
+        muted
+        loop
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
       <AbsoluteFill
         style={{
           background:
