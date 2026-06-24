@@ -1,14 +1,20 @@
-import { loadFont as loadCormorant } from "@remotion/google-fonts/CormorantGaramond";
 import { loadFont as loadMontserrat } from "@remotion/google-fonts/Montserrat";
+import { loadFont as loadNunito } from "@remotion/google-fonts/NunitoSans";
 
-export const { fontFamily: serif } = loadCormorant("normal", {
-  weights: ["300", "400", "500", "600"],
+// Headings / display → Montserrat (brand)
+export const { fontFamily: display } = loadMontserrat("normal", {
+  weights: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
 });
-export const { fontFamily: sans } = loadMontserrat("normal", {
-  weights: ["300", "400", "500", "700"],
+// Body → Nunito Sans (fallback for Avenir, per brand guidelines)
+export const { fontFamily: body } = loadNunito("normal", {
+  weights: ["300", "400", "600", "700"],
   subsets: ["latin"],
 });
+
+// Backward-compat aliases (existing scenes reference `serif` / `sans`)
+export const serif = display;
+export const sans = body;
 
 export const COLORS = {
   night: "#0E0B08",

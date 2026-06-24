@@ -6,7 +6,7 @@ import {
   staticFile,
   useCurrentFrame,
 } from "remotion";
-import { COLORS, serif, sans } from "../theme";
+import { COLORS, display, body } from "../theme";
 
 export const SceneKoutoubia: React.FC = () => {
   const frame = useCurrentFrame();
@@ -50,7 +50,7 @@ export const SceneKoutoubia: React.FC = () => {
         <div
           style={{
             opacity: kickerOp,
-            fontFamily: sans,
+            fontFamily: body,
             color: COLORS.gold,
             letterSpacing: "0.6em",
             fontSize: 16,
@@ -66,32 +66,30 @@ export const SceneKoutoubia: React.FC = () => {
           style={{
             opacity: titleOp,
             transform: `translateY(${titleY}px)`,
-            fontFamily: serif,
+            fontFamily: display,
             color: COLORS.cream,
-            fontStyle: "italic",
             fontWeight: 300,
-            fontSize: 148,
-            lineHeight: 0.95,
-            letterSpacing: "-0.01em",
+            fontSize: 128,
+            lineHeight: 0.98,
+            letterSpacing: "-0.02em",
           }}
         >
-          Le Maroc,
+          Votre Maroc,
         </div>
         <div
           style={{
             opacity: titleOp,
             transform: `translateY(${titleY}px)`,
-            fontFamily: serif,
+            fontFamily: display,
             color: COLORS.terracotta,
-            fontStyle: "italic",
-            fontWeight: 500,
-            fontSize: 148,
-            lineHeight: 0.95,
-            letterSpacing: "-0.01em",
-            marginTop: -10,
+            fontWeight: 600,
+            fontSize: 128,
+            lineHeight: 0.98,
+            letterSpacing: "-0.02em",
+            marginTop: 6,
           }}
         >
-          autrement.
+          sur mesure.
         </div>
 
         <div
