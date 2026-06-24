@@ -507,28 +507,25 @@ const SceneInstall: React.FC = () => {
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 export const ComptoirDarna: React.FC = () => {
-  let from = 0;
   return (
     <AbsoluteFill style={{ background: COLORS.night }}>
-      <Sequence from={from} durationInFrames={S1}>
-        <SceneHook />
-      </Sequence>
-      {(from += S1, null)}
-      <Sequence from={from} durationInFrames={S2}>
-        <SceneDinerSpectacle />
-      </Sequence>
-      {(from += S2, null)}
-      <Sequence from={from} durationInFrames={S3}>
-        <SceneHoraires />
-      </Sequence>
-      {(from += S3, null)}
-      <Sequence from={from} durationInFrames={S4}>
-        <SceneAvis />
-      </Sequence>
-      {(from += S4, null)}
-      <Sequence from={from} durationInFrames={S5}>
-        <SceneInstall />
-      </Sequence>
+      <Series>
+        <Series.Sequence durationInFrames={S1}>
+          <SceneHook />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={S2}>
+          <SceneDinerSpectacle />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={S3}>
+          <SceneHoraires />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={S4}>
+          <SceneAvis />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={S5}>
+          <SceneInstall />
+        </Series.Sequence>
+      </Series>
     </AbsoluteFill>
   );
 };
