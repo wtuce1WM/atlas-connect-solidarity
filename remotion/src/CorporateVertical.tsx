@@ -27,6 +27,7 @@ const Background: React.FC = () => {
         <OffthreadVideo
           src={staticFile("videos/clip-decouvrir.mp4")}
           muted
+          toneMapped={false}
           style={{
             position: "absolute",
             width: "100%",
