@@ -11,7 +11,7 @@ import {
 } from "remotion";
 import { display, body, COLORS } from "./theme";
 
-export const CORP_TOTAL_FRAMES = 660; // 22s at 30fps
+export const CORP_TOTAL_FRAMES = 840; // 28s at 30fps
 
 // ---------- helpers ----------
 const ease = (f: number, a: number, b: number) =>
