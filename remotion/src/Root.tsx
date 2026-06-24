@@ -8,6 +8,7 @@ import { MaisonBrummell, BRUMMELL_TOTAL_FRAMES } from "./MaisonBrummell";
 import { JnaneRumi, JNANE_TOTAL_FRAMES } from "./JnaneRumi";
 import { AgentIaDemo, AGENT_IA_TOTAL_FRAMES } from "./AgentIaDemo";
 import { AgentIaDemoV2, AGENT_IA_V2_TOTAL_FRAMES } from "./AgentIaDemoV2";
+import { NarComplexe, NAR_TOTAL_FRAMES } from "./NarComplexe";
 
 export const RemotionRoot: React.FC = () => (
   <>
