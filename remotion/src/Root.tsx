@@ -76,5 +76,13 @@ export const RemotionRoot: React.FC = () => (
       width={720}
       height={1280}
     />
+    <Composition
+      id="nar-complexe"
+      component={NarComplexe}
+      durationInFrames={NAR_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
+    />
   </>
 );
