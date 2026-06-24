@@ -248,6 +248,7 @@ const HomeMindtrip = () => {
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [latestPosts, setLatestPosts] = useState<Array<{ slug: string; title: string; image?: string }>>([]);
   const [videoOpen, setVideoOpen] = useState(false);
+  const [inlineVoiceActive, setInlineVoiceActive] = useState(false);
   const { toast } = useToast();
   const heroVoice = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
@@ -259,7 +260,7 @@ const HomeMindtrip = () => {
     onError: (message) => toast({ title: "Erreur", description: message, variant: "destructive" }),
   });
 
-  const isVoiceActive = heroVoice.status === "recording" || heroVoice.status === "processing";
+  const isVoiceActive = inlineVoiceActive || heroVoice.status === "recording" || heroVoice.status === "processing";
 
   useEffect(() => {
     let cancelled = false;
@@ -674,6 +675,7 @@ const HomeMindtrip = () => {
                 }}
                 onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
                 onMobileSearchClick={() => heroVoice.toggleRecording()}
+                onVoiceActiveChange={setInlineVoiceActive}
               />
               {!isVoiceActive && (
                 <div className="hidden md:flex mt-5 md:max-lg:justify-start lg:justify-center">
