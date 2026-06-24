@@ -21,34 +21,30 @@ const ease = (f: number, a: number, b: number) =>
 
 // ---------- persistent background ----------
 const Background: React.FC = () => {
-  const frame = useCurrentFrame();
-  const drift = Math.sin(frame / 90) * 12;
   return (
     <AbsoluteFill style={{ background: COLORS.night, overflow: "hidden" }}>
-      <AbsoluteFill
-        style={{
-          background:
-            "radial-gradient(60% 40% at 50% 0%, rgba(192,79,23,0.35) 0%, rgba(14,11,8,0) 60%), radial-gradient(70% 50% at 50% 100%, rgba(212,175,55,0.18) 0%, rgba(14,11,8,0) 60%)",
-        }}
-      />
-      <AbsoluteFill style={{ opacity: 0.07 }}>
-        <Img
-          src={staticFile("images/hamsa.webp")}
+      <Loop durationInFrames={150}>
+        <OffthreadVideo
+          src={staticFile("videos/clip-decouvrir.mp4")}
+          muted
           style={{
             position: "absolute",
-            width: 1400,
-            height: 1400,
-            left: "50%",
-            top: "50%",
-            transform: `translate(-50%, calc(-50% + ${drift}px))`,
-            filter: "blur(2px)",
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
           }}
         />
-      </AbsoluteFill>
+      </Loop>
       <AbsoluteFill
         style={{
           background:
-            "linear-gradient(180deg, rgba(14,11,8,0.55) 0%, rgba(14,11,8,0.1) 35%, rgba(14,11,8,0.1) 65%, rgba(14,11,8,0.7) 100%)",
+            "linear-gradient(180deg, rgba(14,11,8,0.75) 0%, rgba(14,11,8,0.55) 35%, rgba(14,11,8,0.55) 65%, rgba(14,11,8,0.85) 100%)",
+        }}
+      />
+      <AbsoluteFill
+        style={{
+          background:
+            "radial-gradient(60% 40% at 50% 0%, rgba(192,79,23,0.22) 0%, rgba(14,11,8,0) 60%), radial-gradient(70% 50% at 50% 100%, rgba(212,175,55,0.14) 0%, rgba(14,11,8,0) 60%)",
         }}
       />
     </AbsoluteFill>
