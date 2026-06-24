@@ -12,12 +12,13 @@ interface Props {
   onSearch: (params: Record<string, string>) => void;
   onBusinessSelect?: (businessId: string) => void;
   onMobileSearchClick?: () => void;
+  onVoiceActiveChange?: (active: boolean) => void;
 }
 
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props) => {
+const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick, onVoiceActiveChange }: Props) => {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
@@ -88,6 +89,10 @@ const HeroInlineSearch = ({ placeholder, onSearch, onMobileSearchClick }: Props)
   const isBelowDesktop = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
   const useMobileOverlay = isBelowDesktop && !!onMobileSearchClick;
   const showDropdown = !isMobile && focused && popularSuggestions.length > 0;
+
+  useEffect(() => {
+    onVoiceActiveChange?.(!useMobileOverlay && (voice.status === "recording" || voice.status === "processing"));
+  }, [onVoiceActiveChange, useMobileOverlay, voice.status]);
 
   return (
     <div ref={containerRef} className="relative w-full">
