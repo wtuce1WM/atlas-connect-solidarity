@@ -2,6 +2,8 @@ import React from "react";
 import {
   AbsoluteFill,
   Sequence,
+  Loop,
+  OffthreadVideo,
   interpolate,
   spring,
   useCurrentFrame,
