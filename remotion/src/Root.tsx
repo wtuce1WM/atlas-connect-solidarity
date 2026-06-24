@@ -7,6 +7,7 @@ import { RiadDarNajat, NAJAT_TOTAL_FRAMES } from "./RiadDarNajat";
 import { MaisonBrummell, BRUMMELL_TOTAL_FRAMES } from "./MaisonBrummell";
 import { JnaneRumi, JNANE_TOTAL_FRAMES } from "./JnaneRumi";
 import { AgentIaDemo, AGENT_IA_TOTAL_FRAMES } from "./AgentIaDemo";
+import { AgentIaDemoV2, AGENT_IA_V2_TOTAL_FRAMES } from "./AgentIaDemoV2";
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -62,6 +63,14 @@ export const RemotionRoot: React.FC = () => (
       id="agent-ia-demo"
       component={AgentIaDemo}
       durationInFrames={AGENT_IA_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
+    />
+    <Composition
+      id="agent-ia-demo-v2"
+      component={AgentIaDemoV2}
+      durationInFrames={AGENT_IA_V2_TOTAL_FRAMES}
       fps={30}
       width={720}
       height={1280}
