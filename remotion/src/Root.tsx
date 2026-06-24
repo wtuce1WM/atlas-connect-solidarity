@@ -67,5 +67,13 @@ export const RemotionRoot: React.FC = () => (
       width={720}
       height={1280}
     />
+    <Composition
+      id="agent-ia-demo-v2"
+      component={AgentIaDemoV2}
+      durationInFrames={AGENT_IA_V2_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
+    />
   </>
 );
