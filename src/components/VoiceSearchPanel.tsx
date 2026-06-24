@@ -20,11 +20,11 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
     <div className={`w-full flex flex-col gap-6 py-6 ${isStart ? "items-start" : "items-center"}`}>
       {/* Transcript / hint */}
       {liveTranscript ? (
-        <p className={`text-xl md:text-2xl text-black font-semibold leading-relaxed max-w-2xl px-4 ${isStart ? "text-left" : "text-center"}`}>
+        <p className={`text-xl md:text-2xl text-black md:text-white font-semibold leading-relaxed max-w-2xl px-4 ${isStart ? "text-left" : "text-center"}`}>
           {liveTranscript}
         </p>
       ) : (
-        <p className={`text-lg md:text-xl text-black font-semibold ${isStart ? "text-left" : "text-center"}`}>
+        <p className={`text-lg md:text-xl text-black md:text-white font-semibold ${isStart ? "text-left" : "text-center"}`}>
           {hint}
         </p>
       )}
@@ -85,7 +85,7 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
       </div>
 
 
-      <p className={`text-base md:text-lg text-black font-semibold px-4 ${isStart ? "text-left" : "text-center"}`}>
+      <p className={`text-base md:text-lg text-black md:text-white font-semibold px-4 ${isStart ? "text-left" : "text-center"}`}>
         Cliquez sur le micro<br />ou attendez pour lancer la recherche
       </p>
     </div>
