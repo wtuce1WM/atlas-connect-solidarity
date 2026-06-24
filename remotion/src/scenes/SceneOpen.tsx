@@ -67,7 +67,7 @@ export const SceneOpen: React.FC = () => {
           }}
         >
           <Img
-            src={staticFile("images/app-icon-1wm.webp")}
+            src={staticFile("images/app-icon-1wm.png")}
             style={{ width: 240, height: 240, borderRadius: 56 }}
           />
         </div>

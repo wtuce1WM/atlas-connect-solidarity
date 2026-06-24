@@ -1,7 +1,7 @@
 import React from "react";
 import {
   AbsoluteFill,
-  OffthreadVideo,
+  Video,
   interpolate,
   spring,
   staticFile,
@@ -46,7 +46,7 @@ export const SceneTriptych: React.FC = () => {
               clipPath: `inset(${(1 - reveal) * 100}% 0 0 0)`,
             }}
           >
-            <OffthreadVideo
+            <Video
               src={staticFile(p.src)}
               muted
               style={{
