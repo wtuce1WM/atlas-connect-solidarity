@@ -1231,6 +1231,7 @@ const HomeMindtrip = () => {
         isOpen={heroVoice.status === "recording" || heroVoice.status === "processing"}
         liveTranscript={heroVoice.liveTranscript}
         audioLevel={heroVoice.audioLevel}
+        micReady={heroVoice.micReady}
         onClose={heroVoice.toggleRecording}
         onFinish={heroVoice.finishRecording}
       />
