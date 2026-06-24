@@ -8,7 +8,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { COLORS, serif, sans } from "../theme";
+import { COLORS, display, body } from "../theme";
 
 export const SceneOpen: React.FC = () => {
   const frame = useCurrentFrame();
@@ -31,14 +31,13 @@ export const SceneOpen: React.FC = () => {
         background: `radial-gradient(ellipse at 50% 40%, #1c150d 0%, ${COLORS.night} 70%)`,
       }}
     >
-      {/* gold ring */}
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
         <div
           style={{
             position: "absolute",
-            top: "calc(50% - 240px)",
-            width: 360,
-            height: 360,
+            top: "calc(50% - 250px)",
+            width: 380,
+            height: 380,
             borderRadius: "50%",
             border: `1px solid ${COLORS.gold}55`,
             transform: `scale(${interpolate(frame, [0, 90], [0.7, 1.05])})`,
@@ -48,9 +47,9 @@ export const SceneOpen: React.FC = () => {
         <div
           style={{
             position: "absolute",
-            top: "calc(50% - 210px)",
-            width: 300,
-            height: 300,
+            top: "calc(50% - 215px)",
+            width: 310,
+            height: 310,
             borderRadius: "50%",
             border: `1px solid ${COLORS.gold}88`,
             transform: `scale(${interpolate(frame, [0, 90], [0.6, 1])})`,
@@ -62,20 +61,20 @@ export const SceneOpen: React.FC = () => {
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
         <div
           style={{
-            transform: `translateY(-120px) scale(${hamsaScale})`,
+            transform: `translateY(-130px) scale(${hamsaScale})`,
             opacity: hamsaOpacity,
-            filter: "drop-shadow(0 12px 40px rgba(212,175,55,0.35))",
+            filter: "drop-shadow(0 14px 48px rgba(192,79,23,0.45))",
           }}
         >
           <Img
-            src={staticFile("images/hamsa-gold.png")}
-            style={{ width: 200, height: "auto" }}
+            src={staticFile("images/app-icon-1wm.webp")}
+            style={{ width: 240, height: 240, borderRadius: 56 }}
           />
         </div>
 
         <div
           style={{
-            marginTop: 60,
+            marginTop: 70,
             opacity: lineOpacity,
             transform: `scaleX(${lineScale})`,
             transformOrigin: "center",
@@ -87,33 +86,33 @@ export const SceneOpen: React.FC = () => {
 
         <div
           style={{
-            marginTop: 40,
+            marginTop: 38,
             opacity: subOpacity,
             transform: `translateY(${subY}px)`,
-            fontFamily: sans,
+            fontFamily: body,
             color: COLORS.bone,
             letterSpacing: "0.5em",
-            fontSize: 18,
-            fontWeight: 300,
+            fontSize: 16,
+            fontWeight: 400,
             textTransform: "uppercase",
           }}
         >
-          Présente
+          One World Morocco
         </div>
 
         <div
           style={{
-            marginTop: 14,
+            marginTop: 16,
             opacity: subOpacity,
             transform: `translateY(${subY}px)`,
-            fontFamily: serif,
+            fontFamily: display,
             color: COLORS.cream,
-            fontStyle: "italic",
             fontWeight: 300,
-            fontSize: 48,
+            fontSize: 42,
+            letterSpacing: "0.02em",
           }}
         >
-          un voyage au Maroc
+          Un voyage au Maroc
         </div>
       </AbsoluteFill>
     </AbsoluteFill>

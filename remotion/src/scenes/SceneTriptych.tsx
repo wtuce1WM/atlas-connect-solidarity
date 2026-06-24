@@ -1,19 +1,19 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Img,
+  OffthreadVideo,
   interpolate,
   spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { COLORS, serif, sans } from "../theme";
+import { COLORS, display, body } from "../theme";
 
 const PANELS: { src: string; word: string; tone: string }[] = [
-  { src: "images/idee-cadeau.jpg", word: "Découvrir", tone: COLORS.gold },
-  { src: "images/essaouira-sunset.jpg", word: "Vivre", tone: COLORS.cream },
-  { src: "images/essaouira-lobster.jpg", word: "Partager", tone: COLORS.terracotta },
+  { src: "videos/clip-decouvrir.mp4", word: "Découvrir", tone: COLORS.gold },
+  { src: "videos/clip-vivre.mp4", word: "Vivre", tone: COLORS.cream },
+  { src: "videos/clip-partager.mp4", word: "Partager", tone: COLORS.terracotta },
 ];
 
 export const SceneTriptych: React.FC = () => {
@@ -35,7 +35,6 @@ export const SceneTriptych: React.FC = () => {
           config: { damping: 24, stiffness: 110 },
         });
         const wordY = interpolate(wordIn, [0, 1], [40, 0]);
-        const scale = interpolate(frame, [0, 120], [1.08, 1.18]);
 
         return (
           <div
@@ -47,13 +46,13 @@ export const SceneTriptych: React.FC = () => {
               clipPath: `inset(${(1 - reveal) * 100}% 0 0 0)`,
             }}
           >
-            <Img
+            <OffthreadVideo
               src={staticFile(p.src)}
+              muted
               style={{
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                transform: `scale(${scale})`,
               }}
             />
             <AbsoluteFill
@@ -74,7 +73,7 @@ export const SceneTriptych: React.FC = () => {
                 style={{
                   opacity: interpolate(wordIn, [0, 1], [0, 1]),
                   transform: `translateY(${wordY}px)`,
-                  fontFamily: sans,
+                  fontFamily: body,
                   color: COLORS.bone,
                   letterSpacing: "0.5em",
                   fontSize: 12,
@@ -88,12 +87,12 @@ export const SceneTriptych: React.FC = () => {
                 style={{
                   opacity: interpolate(wordIn, [0, 1], [0, 1]),
                   transform: `translateY(${wordY}px)`,
-                  fontFamily: serif,
+                  fontFamily: display,
                   color: p.tone,
-                  fontStyle: "italic",
-                  fontWeight: 400,
-                  fontSize: 86,
+                  fontWeight: 600,
+                  fontSize: 78,
                   lineHeight: 1,
+                  letterSpacing: "-0.01em",
                 }}
               >
                 {p.word}
@@ -107,7 +106,7 @@ export const SceneTriptych: React.FC = () => {
                   top: 0,
                   width: 1,
                   height: "100%",
-                  background: `linear-gradient(180deg, transparent, ${COLORS.gold}44, transparent)`,
+                  background: `linear-gradient(180deg, transparent, ${COLORS.gold}55, transparent)`,
                 }}
               />
             )}
