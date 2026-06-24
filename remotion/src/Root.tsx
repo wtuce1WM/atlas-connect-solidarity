@@ -10,6 +10,7 @@ import { AgentIaDemo, AGENT_IA_TOTAL_FRAMES } from "./AgentIaDemo";
 import { AgentIaDemoV2, AGENT_IA_V2_TOTAL_FRAMES } from "./AgentIaDemoV2";
 import { NarComplexe, NAR_TOTAL_FRAMES } from "./NarComplexe";
 import { Farasha, FARASHA_TOTAL_FRAMES } from "./Farasha";
+import { BoZin, BOZIN_TOTAL_FRAMES } from "./BoZin";
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -89,6 +90,14 @@ export const RemotionRoot: React.FC = () => (
       id="farasha-farmhouse"
       component={Farasha}
       durationInFrames={FARASHA_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
+    />
+    <Composition
+      id="bo-zin"
+      component={BoZin}
+      durationInFrames={BOZIN_TOTAL_FRAMES}
       fps={30}
       width={720}
       height={1280}
