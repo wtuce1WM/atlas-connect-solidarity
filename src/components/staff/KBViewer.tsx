@@ -14,6 +14,7 @@ import collaborationMultiPostesMd from "@/content/kb/collaboration-multi-postes.
 import domaineDnsMd from "@/content/kb/domaine-dns.md?raw";
 import seoMetaTagsLovableMd from "@/content/kb/seo-meta-tags-lovable.md?raw";
 import previewsSocialesBotsMd from "@/content/kb/previews-sociales-bots.md?raw";
+import coutGenerationVideosMd from "@/content/kb/cout-generation-videos.md?raw";
 
 const SECTIONS = [
   { id: "architecture", label: "Règles d'architecture", icon: Building2, content: architectureMd },
@@ -26,6 +27,7 @@ const SECTIONS = [
   { id: "domaine-dns", label: "Domaine & DNS", icon: Globe, content: domaineDnsMd },
   { id: "seo-meta-tags-lovable", label: "SEO & balises meta", icon: Search, content: seoMetaTagsLovableMd },
   { id: "previews-sociales-bots", label: "Previews sociales /b/", icon: Share2, content: previewsSocialesBotsMd },
+  { id: "cout-generation-videos", label: "Coût génération vidéos", icon: Video, content: coutGenerationVideosMd },
 ];
 
 
