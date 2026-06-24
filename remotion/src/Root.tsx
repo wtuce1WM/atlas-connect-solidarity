@@ -31,5 +31,13 @@ export const RemotionRoot: React.FC = () => (
       width={720}
       height={1280}
     />
+    <Composition
+      id="riad-dar-najat"
+      component={RiadDarNajat}
+      durationInFrames={NAJAT_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
+    />
   </>
 );
