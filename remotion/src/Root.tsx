@@ -2,6 +2,7 @@ import React from "react";
 import { Composition } from "remotion";
 import { MainVideo, TOTAL_FRAMES } from "./MainVideo";
 import { CorporateVertical, CORP_TOTAL_FRAMES } from "./CorporateVertical";
+import { ComptoirDarna, COMPTOIR_TOTAL_FRAMES } from "./ComptoirDarna";
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -20,6 +21,14 @@ export const RemotionRoot: React.FC = () => (
       fps={30}
       width={1080}
       height={1920}
+    />
+    <Composition
+      id="comptoir-darna"
+      component={ComptoirDarna}
+      durationInFrames={COMPTOIR_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
     />
   </>
 );
