@@ -13,14 +13,15 @@ import {
 import { display, body, COLORS } from "./theme";
 
 const FPS = 30;
-export const COMPTOIR_TOTAL_FRAMES = 17 * FPS; // 510
 
-// Scene durations
-const S1 = 90;   // 0-3s   Hook
-const S2 = 120;  // 3-7s   Dîner spectacle & gastronomie
-const S3 = 120;  // 7-11s  Horaires
-const S4 = 90;   // 11-14s Avis 18,45/20
-const S5 = 90;   // 14-17s CTA Install
+// Scene durations — sort_order de fond : clip_so2 → clip_so8 → clip1 → clip2 → clip3
+const S1 = 90;   // 0-3s    Hook                       (clip_so2)
+const S2 = 120;  // 3-7s    Dîner spectacle & gastronomie (clip_so8)
+const S3 = 120;  // 7-11s   Horaires                   (clip1)
+const S4 = 150;  // 11-16s  Avis 18,45/20 (+2s)        (clip2)
+const S5 = 90;   // 16-19s  CTA Install                (clip3)
+
+export const COMPTOIR_TOTAL_FRAMES = S1 + S2 + S3 + S4 + S5; // 570 = 19s
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const Veil: React.FC<{ opacity?: number }> = ({ opacity = 0.55 }) => (
