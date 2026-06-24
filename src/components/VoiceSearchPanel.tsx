@@ -32,6 +32,17 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
 
       {/* Mic with liquid glass animated rings */}
       <div className="relative">
+        {/* Ring réactif au niveau audio du micro */}
+        <div
+          className="absolute rounded-full pointer-events-none transition-transform duration-75 ease-out"
+          style={{
+            inset: "-12px",
+            transform: `scale(${1 + audioLevel * 0.9})`,
+            background: `radial-gradient(circle, ${ACCENT}${Math.round(20 + audioLevel * 60).toString(16).padStart(2, "0")} 0%, transparent 70%)`,
+            border: `2px solid ${ACCENT}${Math.round(60 + audioLevel * 180).toString(16).padStart(2, "0").slice(0, 2)}`,
+            opacity: 0.5 + audioLevel * 0.5,
+          }}
+        />
         {/* Outer expanding glass ring */}
         <div
           className="absolute rounded-full animate-ping pointer-events-none backdrop-blur-2xl backdrop-saturate-150"
