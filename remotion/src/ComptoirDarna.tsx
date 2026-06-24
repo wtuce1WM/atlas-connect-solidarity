@@ -194,7 +194,7 @@ const SceneHoraires: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
-      <BgVideo src="comptoir/clip3.mp4" />
+      <BgVideo src="comptoir/clip1.mp4" />
       <Veil opacity={0.7} />
       <AbsoluteFill
         style={{
