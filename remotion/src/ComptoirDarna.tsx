@@ -454,7 +454,7 @@ const SceneInstall: React.FC = () => {
     >
       {/* subtle ambient back layer */}
       <AbsoluteFill style={{ opacity: 0.18 }}>
-        <BgVideo src="comptoir/clip2.mp4" startFrom={150} />
+        <BgVideo src="comptoir/clip3.mp4" />
       </AbsoluteFill>
       <AbsoluteFill
         style={{
