@@ -259,6 +259,8 @@ const HomeMindtrip = () => {
     onError: (message) => toast({ title: "Erreur", description: message, variant: "destructive" }),
   });
 
+  const isVoiceActive = heroVoice.status === "recording" || heroVoice.status === "processing";
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -673,24 +675,26 @@ const HomeMindtrip = () => {
                 onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
                 onMobileSearchClick={() => heroVoice.toggleRecording()}
               />
-              <div className="hidden md:flex mt-5 md:max-lg:justify-start lg:justify-center">
-                <button
-                  type="button"
-                  onClick={() => setVideoOpen(true)}
-                  className="relative inline-flex items-center gap-2.5 text-[#F1F1F1] hover:bg-white/15 transition bg-white/[0.07] backdrop-blur-xl border border-white/20 rounded-full pl-2 pr-4 py-1.5 duration-300 home-hero-video-cta active:scale-95 btn-flash"
-                  style={{
-                    boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 8px 32px 0 rgba(0, 0, 0, 0.3)"
-                  }}
-                  aria-label="Play video"
-                >
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shrink-0">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="ml-0.5">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </span>
-                  <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">Voir la vidéo</span>
-                </button>
-              </div>
+              {!isVoiceActive && (
+                <div className="hidden md:flex mt-5 md:max-lg:justify-start lg:justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setVideoOpen(true)}
+                    className="relative inline-flex items-center gap-2.5 text-[#F1F1F1] hover:bg-white/15 transition bg-white/[0.07] backdrop-blur-xl border border-white/20 rounded-full pl-2 pr-4 py-1.5 duration-300 home-hero-video-cta active:scale-95 btn-flash"
+                    style={{
+                      boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.25), 0 8px 32px 0 rgba(0, 0, 0, 0.3)"
+                    }}
+                    aria-label="Play video"
+                  >
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 shrink-0">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="ml-0.5">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </span>
+                    <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">Voir la vidéo</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -744,15 +748,17 @@ const HomeMindtrip = () => {
           </button>
         </div>
 
-        <button
-          type="button"
-          onClick={scrollToNext}
-          aria-label="Découvrir"
-          className="absolute bottom-6 md:bottom-8 left-1/2 z-30 -translate-x-1/2 text-white/70 transition hover:text-white"
-        >
-          <span className="block font-josefin text-xs uppercase tracking-[0.3em]">Découvrir</span>
-          <ArrowDown className="mx-auto mt-2 h-5 w-5 animate-bounce" />
-        </button>
+        {!isVoiceActive && (
+          <button
+            type="button"
+            onClick={scrollToNext}
+            aria-label="Découvrir"
+            className="absolute bottom-6 md:bottom-8 left-1/2 z-30 -translate-x-1/2 text-white/70 transition hover:text-white"
+          >
+            <span className="block font-josefin text-xs uppercase tracking-[0.3em]">Découvrir</span>
+            <ArrowDown className="mx-auto mt-2 h-5 w-5 animate-bounce" />
+          </button>
+        )}
       </section>
     </div>
 
