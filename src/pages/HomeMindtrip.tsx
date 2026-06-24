@@ -259,6 +259,8 @@ const HomeMindtrip = () => {
     onError: (message) => toast({ title: "Erreur", description: message, variant: "destructive" }),
   });
 
+  const isVoiceActive = heroVoice.status === "recording" || heroVoice.status === "processing";
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
