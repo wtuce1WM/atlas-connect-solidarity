@@ -49,5 +49,13 @@ export const RemotionRoot: React.FC = () => (
       width={720}
       height={1280}
     />
+    <Composition
+      id="jnane-rumi"
+      component={JnaneRumi}
+      durationInFrames={JNANE_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
+    />
   </>
 );
