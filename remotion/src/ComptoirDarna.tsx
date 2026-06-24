@@ -134,7 +134,7 @@ const SceneDinerSpectacle: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
-      <BgVideo src="comptoir/clip2.mp4" />
+      <BgVideo src="comptoir/clip_so8.mp4" />
       <Veil opacity={0.65} />
       <AbsoluteFill
         style={{
@@ -154,8 +154,8 @@ const SceneDinerSpectacle: React.FC = () => {
                 fontFamily: display,
                 fontWeight: isAccent ? 300 : 700,
                 fontStyle: isAccent ? "italic" : "normal",
-                fontSize: isAccent ? 70 : 92,
-                lineHeight: 1.04,
+                fontSize: isAccent ? 48 : 64,
+                lineHeight: 1.05,
                 color: isAccent ? COLORS.gold : COLORS.cream,
                 opacity: s,
                 transform: `translateY(${interpolate(s, [0, 1], [30, 0])}px) scale(${interpolate(s, [0, 1], [0.92, 1])})`,
@@ -169,9 +169,9 @@ const SceneDinerSpectacle: React.FC = () => {
         })}
         <div
           style={{
-            marginTop: 36,
+            marginTop: 28,
             fontFamily: body,
-            fontSize: 26,
+            fontSize: 22,
             letterSpacing: 4,
             textTransform: "uppercase",
             color: COLORS.gold,
