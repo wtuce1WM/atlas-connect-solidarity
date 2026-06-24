@@ -40,5 +40,13 @@ export const RemotionRoot: React.FC = () => (
       width={720}
       height={1280}
     />
+    <Composition
+      id="maison-brummell"
+      component={MaisonBrummell}
+      durationInFrames={BRUMMELL_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
+    />
   </>
 );
