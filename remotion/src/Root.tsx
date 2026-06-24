@@ -94,5 +94,13 @@ export const RemotionRoot: React.FC = () => (
       width={720}
       height={1280}
     />
+    <Composition
+      id="bo-zin"
+      component={BoZin}
+      durationInFrames={BOZIN_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
+    />
   </>
 );
