@@ -1,7 +1,7 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Sequence,
+  Series,
   Video,
   Img,
   staticFile,
