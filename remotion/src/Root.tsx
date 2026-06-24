@@ -4,6 +4,7 @@ import { MainVideo, TOTAL_FRAMES } from "./MainVideo";
 import { CorporateVertical, CORP_TOTAL_FRAMES } from "./CorporateVertical";
 import { ComptoirDarna, COMPTOIR_TOTAL_FRAMES } from "./ComptoirDarna";
 import { RiadDarNajat, NAJAT_TOTAL_FRAMES } from "./RiadDarNajat";
+import { MaisonBrummell, BRUMMELL_TOTAL_FRAMES } from "./MaisonBrummell";
 
 export const RemotionRoot: React.FC = () => (
   <>
