@@ -283,13 +283,13 @@ const SceneAvis: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
-      <BgVideo src="comptoir/clip1.mp4" startFrom={300} />
-      <Veil opacity={0.72} />
-      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: "0 60px" }}>
+      <BgVideo src="comptoir/clip2.mp4" />
+      <Veil opacity={0.6} />
+      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: "0 50px" }}>
         <div
           style={{
             fontFamily: body,
-            fontSize: 24,
+            fontSize: 22,
             letterSpacing: 6,
             textTransform: "uppercase",
             color: COLORS.gold,
@@ -300,80 +300,132 @@ const SceneAvis: React.FC = () => {
           Plébiscité par les voyageurs
         </div>
 
+        {/* Liquid-glass pill — identique au slidepanel /search */}
         <div
           style={{
-            transform: `scale(${interpolate(badge, [0, 1], [0.6, 1])})`,
+            transform: `translateY(${interpolate(badge, [0, 1], [24, 0])}px) scale(${interpolate(badge, [0, 1], [0.85, 1])})`,
             opacity: badge,
-            width: 460,
-            height: 460,
-            borderRadius: "50%",
-            background: `conic-gradient(${COLORS.gold} 0deg, ${COLORS.terracotta} 360deg)`,
-            padding: 6,
+            position: "relative",
+            overflow: "hidden",
+            borderRadius: 9999,
+            background: "rgba(0,0,0,0.4)",
+            padding: "22px 38px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.55)",
+            gap: 18,
+            color: "#FFFFFF",
+            boxShadow:
+              "inset 0 1px 0 0 rgba(255,255,255,0.35), inset 0 -1px 0 0 rgba(0,0,0,0.25), 0 8px 28px -4px rgba(0,0,0,0.55)",
           }}
         >
+          {/* glass highlights */}
           <div
             style={{
-              width: "100%",
-              height: "100%",
-              borderRadius: "50%",
-              background: COLORS.night,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              border: `1px solid ${COLORS.gold}`,
+              position: "absolute",
+              inset: 0,
+              borderRadius: 9999,
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0.05) 100%)",
+              pointerEvents: "none",
             }}
-          >
-            <div
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: "50%",
+              borderTopLeftRadius: 9999,
+              borderTopRightRadius: 9999,
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%)",
+              filter: "blur(1px)",
+              pointerEvents: "none",
+            }}
+          />
+
+          {/* Star */}
+          <svg width="56" height="56" viewBox="0 0 24 24" fill={COLORS.gold} style={{ position: "relative", filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.45))" }}>
+            <path d="M12 2l2.95 6.36L22 9.27l-5.5 4.73L18.18 22 12 18.27 5.82 22 7.5 14 2 9.27l7.05-.91L12 2z" />
+          </svg>
+
+          <div style={{ position: "relative", display: "flex", alignItems: "baseline", gap: 6 }}>
+            <span
               style={{
                 fontFamily: display,
-                fontWeight: 700,
-                fontSize: 150,
+                fontWeight: 800,
+                fontSize: 86,
                 lineHeight: 1,
-                color: COLORS.cream,
-              }}
-            >
-              {ratingNum.toFixed(2).replace(".", ",")}
-            </div>
-            <div
-              style={{
-                fontFamily: body,
-                fontSize: 36,
                 color: COLORS.gold,
-                letterSpacing: 4,
-                marginTop: 4,
+                letterSpacing: -1,
+                textShadow: "0 2px 4px rgba(0,0,0,0.5)",
               }}
             >
-              / 20
-            </div>
+              {ratingNum.toFixed(2)}
+            </span>
+            <span
+              style={{
+                fontFamily: display,
+                fontWeight: 600,
+                fontSize: 38,
+                color: "rgba(255,255,255,0.85)",
+                letterSpacing: 1,
+              }}
+            >
+              /20
+            </span>
           </div>
+
+          <div
+            style={{
+              position: "relative",
+              width: 6,
+              height: 6,
+              borderRadius: 9999,
+              background: "rgba(255,255,255,0.55)",
+              margin: "0 4px",
+            }}
+          />
+
+          <span
+            style={{
+              position: "relative",
+              fontFamily: display,
+              fontWeight: 700,
+              fontSize: 30,
+              color: "#FFFFFF",
+              letterSpacing: 0.5,
+              textShadow: "0 2px 4px rgba(0,0,0,0.5)",
+            }}
+          >
+            53&nbsp;221 avis
+          </span>
         </div>
 
         <div
           style={{
-            marginTop: 40,
-            fontFamily: display,
-            fontWeight: 600,
-            fontSize: 44,
+            marginTop: 44,
+            fontFamily: body,
+            fontStyle: "italic",
+            fontSize: 26,
             color: COLORS.cream,
-            opacity: interpolate(frame, [30, 55], [0, 1], { extrapolateRight: "clamp" }),
+            opacity: interpolate(frame, [40, 65], [0, 1], { extrapolateRight: "clamp" }),
+            textAlign: "center",
+            maxWidth: 560,
           }}
         >
-          53&nbsp;221 avis
+          La référence des nuits marrakchies
         </div>
         <div
           style={{
-            marginTop: 8,
+            marginTop: 10,
             fontFamily: body,
-            fontSize: 22,
-            letterSpacing: 3,
+            fontSize: 18,
+            letterSpacing: 4,
             textTransform: "uppercase",
             color: COLORS.bone,
-            opacity: interpolate(frame, [40, 60], [0, 1], { extrapolateRight: "clamp" }),
+            opacity: interpolate(frame, [55, 80], [0, 1], { extrapolateRight: "clamp" }),
           }}
         >
           clients vérifiés
@@ -382,6 +434,7 @@ const SceneAvis: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
 
 // ── Scene 5 — Install CTA ────────────────────────────────────────────────────
 const SceneInstall: React.FC = () => {
