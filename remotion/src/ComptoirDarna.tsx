@@ -14,12 +14,12 @@ import { display, body, COLORS } from "./theme";
 
 const FPS = 30;
 
-// Scene durations — sort_order de fond : clip_so2 → clip_so8 → clip1 → clip2 → clip3
-const S1 = 90;   // 0-3s    Hook                       (clip_so2)
-const S2 = 120;  // 3-7s    Dîner spectacle & gastronomie (clip_so8)
-const S3 = 120;  // 7-11s   Horaires                   (clip1)
-const S4 = 150;  // 11-16s  Avis 18,45/20 (+2s)        (clip2)
-const S5 = 90;   // 16-19s  CTA Install                (clip3)
+// Scene durations — vrais médias Comptoir Darna Patio & Club, sort_order interne 0 → 4
+const S1 = 90;   // 0-3s    Hook                       (patio_so0)
+const S2 = 120;  // 3-7s    Dîner spectacle & gastronomie (patio_so1)
+const S3 = 120;  // 7-11s   Horaires                   (patio_so2)
+const S4 = 150;  // 11-16s  Avis 18,45/20 (+2s)        (patio_so3)
+const S5 = 90;   // 16-19s  CTA Install                (patio_so4)
 
 export const COMPTOIR_TOTAL_FRAMES = S1 + S2 + S3 + S4 + S5; // 570 = 19s
 
@@ -61,7 +61,7 @@ const SceneHook: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
-      <BgVideo src="comptoir/clip_so2.mp4" />
+      <BgVideo src="comptoir-patio/patio_so0.mp4" />
       <Veil opacity={0.6} />
       <AbsoluteFill
         style={{
@@ -134,7 +134,7 @@ const SceneDinerSpectacle: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
-      <BgVideo src="comptoir/clip_so8.mp4" />
+      <BgVideo src="comptoir-patio/patio_so1.mp4" startFrom={30} />
       <Veil opacity={0.65} />
       <AbsoluteFill
         style={{
@@ -194,7 +194,7 @@ const SceneHoraires: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
-      <BgVideo src="comptoir/clip1.mp4" />
+      <BgVideo src="comptoir-patio/patio_so2.mp4" startFrom={18} />
       <Veil opacity={0.7} />
       <AbsoluteFill
         style={{
@@ -283,7 +283,7 @@ const SceneAvis: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
-      <BgVideo src="comptoir/clip2.mp4" />
+      <BgVideo src="comptoir-patio/patio_so3.mp4" startFrom={24} />
       <Veil opacity={0.6} />
       <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: "0 50px" }}>
         <div
@@ -454,7 +454,7 @@ const SceneInstall: React.FC = () => {
     >
       {/* subtle ambient back layer */}
       <AbsoluteFill style={{ opacity: 0.18 }}>
-        <BgVideo src="comptoir/clip3.mp4" />
+        <BgVideo src="comptoir-patio/patio_so4.mp4" startFrom={18} />
       </AbsoluteFill>
       <AbsoluteFill
         style={{
