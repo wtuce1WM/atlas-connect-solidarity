@@ -22,5 +22,13 @@ export const RemotionRoot: React.FC = () => (
       width={1080}
       height={1920}
     />
+    <Composition
+      id="comptoir-darna"
+      component={ComptoirDarna}
+      durationInFrames={COMPTOIR_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
+    />
   </>
 );
