@@ -140,6 +140,10 @@ export default function StudioVideo() {
             <p className="text-muted-foreground">
               Générez une vidéo verticale 720×1280 (17 à 27 s) à partir d'un prompt et d'un établissement.
             </p>
+            <div className="text-xs text-muted-foreground/80 mt-1 space-y-1 bg-muted/40 p-3 rounded-lg border border-border/50">
+              <p>📌 Il faut savoir avant si l'établissement a un Hook, suffisamment d'images, de vidéos, une offre/popup...</p>
+              <p>💡 Signalisez dans le prompt si vous voulez mettre en avant les horaires, la localisation, une offre/popup.</p>
+            </div>
           </header>
 
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
