@@ -1,0 +1,1 @@
+ALTER TABLE public.video_jobs ADD COLUMN IF NOT EXISTS parent_job_id uuid REFERENCES public.video_jobs(id) ON DELETE SET NULL;

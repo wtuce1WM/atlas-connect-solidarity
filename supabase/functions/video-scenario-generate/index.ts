@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { prompt, business_id, duration_sec = 22, tone = "immersif" } = await req.json();
+    const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id } = await req.json();
 
     if (!prompt || typeof prompt !== "string" || prompt.length > 2000) {
       return json({ error: "prompt invalide" }, 400);
@@ -34,12 +34,22 @@ Deno.serve(async (req) => {
 
     const supa = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-    // Charger le contexte établissement (par id, ou par nom détecté dans le prompt)
+    // Charger un éventuel job parent pour affinage
+    let parentJob: any = null;
+    if (parent_job_id && typeof parent_job_id === "string") {
+      const { data } = await supa
+        .from("video_jobs")
+        .select("id,prompt,template_id,template_props,business_id,duration_sec,tone")
+        .eq("id", parent_job_id)
+        .maybeSingle();
+      if (data) parentJob = data;
+    }
+
+    // Charger le contexte établissement (par id, ou par nom détecté dans le prompt, ou hérité du parent)
     let businessContext: any = null;
-    let resolved_business_id: string | null = business_id ?? null;
+    let resolved_business_id: string | null = business_id ?? parentJob?.business_id ?? null;
 
     // Si pas de business_id fourni, essayer de détecter un nom d'établissement dans le prompt.
-    // On cherche entre guillemets « ... » ou " ..." pour matcher proprement.
     if (!resolved_business_id) {
       const quoteMatch = prompt.match(/[«"']([^»"']{3,80})[»"']/);
       const candidate = quoteMatch?.[1]?.trim();
@@ -116,9 +126,11 @@ CONTRAINTES STRICTES :
 
 Si \`businessContext\` est null, l'établissement est introuvable dans la base : choisis quand même "business-showcase", remplis name/hook/tagline depuis le prompt utilisateur, mets \`"images": []\` et \`"offer": null\`.
 
-Durée demandée : ${duration_sec}s · Ton : ${tone}.`;
+Durée demandée : ${duration_sec}s · Ton : ${tone}.
 
-    const userPrompt = `Demande utilisateur : ${prompt}\n\nÉtablissement (peut être null si demande générique) :\n${JSON.stringify(businessContext, null, 2)}`;
+${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et tu appliques UNIQUEMENT les modifications décrites par l'utilisateur. Conserve template_id et toutes les autres props inchangées. Renvoie le JSON complet modifié.` : ""}`;
+
+    const userPrompt = `Demande utilisateur : ${prompt}\n\nÉtablissement (peut être null si demande générique) :\n${JSON.stringify(businessContext, null, 2)}${parentJob ? `\n\nSCÉNARIO PRÉCÉDENT À AFFINER :\n${JSON.stringify({ template_id: parentJob.template_id, props: parentJob.template_props, prompt: parentJob.prompt }, null, 2)}` : ""}`;
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -197,6 +209,7 @@ Durée demandée : ${duration_sec}s · Ton : ${tone}.`;
         template_props,
         scenario_json: parsed,
         status: "pending",
+        parent_job_id: parentJob?.id ?? null,
       })
       .select()
       .single();
