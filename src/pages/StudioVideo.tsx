@@ -316,14 +316,23 @@ export default function StudioVideo() {
           )}
 
           <section className="space-y-3">
-            <h2 className="font-semibold">Galerie</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {jobs
-                .filter((j) => j.status === "done" && j.output_url)
-                .map((j) => (
-                  <JobCard key={j.id} job={j} />
-                ))}
-            </div>
+            <h2 className="font-semibold">Galerie — dernières vidéos générées</h2>
+            <p className="text-xs text-muted-foreground">
+              Les vidéos produites via ce studio apparaissent ici avec le prompt utilisé.
+            </p>
+            {jobs.filter((j) => j.status === "done" && j.output_url).length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">
+                Aucune vidéo générée pour l'instant. Lancez une génération ci-dessus.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {jobs
+                  .filter((j) => j.status === "done" && j.output_url)
+                  .map((j) => (
+                    <JobCard key={j.id} job={j} />
+                  ))}
+              </div>
+            )}
           </section>
 
           <section className="space-y-3">
