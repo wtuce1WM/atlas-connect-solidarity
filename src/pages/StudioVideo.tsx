@@ -410,9 +410,9 @@ export default function StudioVideo() {
               />
             </div>
 
-            <Button onClick={submit} disabled={submitting} className="gap-2">
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-              Générer la vidéo
+            <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
+              {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+              {hasActiveJob ? "Job déjà lancé…" : "Générer la vidéo"}
             </Button>
           </section>
 
