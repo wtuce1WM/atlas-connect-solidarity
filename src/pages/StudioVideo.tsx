@@ -316,14 +316,23 @@ export default function StudioVideo() {
           )}
 
           <section className="space-y-3">
-            <h2 className="font-semibold">Galerie</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {jobs
-                .filter((j) => j.status === "done" && j.output_url)
-                .map((j) => (
-                  <JobCard key={j.id} job={j} />
-                ))}
-            </div>
+            <h2 className="font-semibold">Galerie — dernières vidéos générées</h2>
+            <p className="text-xs text-muted-foreground">
+              Les vidéos produites via ce studio apparaissent ici avec le prompt utilisé.
+            </p>
+            {jobs.filter((j) => j.status === "done" && j.output_url).length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">
+                Aucune vidéo générée pour l'instant. Lancez une génération ci-dessus.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {jobs
+                  .filter((j) => j.status === "done" && j.output_url)
+                  .map((j) => (
+                    <JobCard key={j.id} job={j} />
+                  ))}
+              </div>
+            )}
           </section>
 
           <section className="space-y-3">
@@ -371,7 +380,7 @@ function JobCard({ job }: { job: Job }) {
         <span>{job.duration_sec}s · {job.tone}</span>
         <span className="uppercase tracking-wide">{job.status}</span>
       </div>
-      <p className="text-sm line-clamp-2">{job.prompt}</p>
+      <p className="text-sm whitespace-pre-line">{job.prompt}</p>
       {job.status === "done" && job.output_url ? (
         <div className="space-y-2">
           <video src={job.output_url} controls className="w-full rounded-md aspect-[9/16] bg-black" />
