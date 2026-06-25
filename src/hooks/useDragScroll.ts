@@ -135,6 +135,7 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
       e.preventDefault();
       stopMomentum();
       el.style.scrollBehavior = "auto";
+      suspendSnap();
       el.scrollLeft += scrollDelta;
     };
 
