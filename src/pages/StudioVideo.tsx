@@ -192,6 +192,16 @@ export default function StudioVideo() {
     };
   }, [selected]);
 
+  // Update prompt automatically when selected business changes
+  useEffect(() => {
+    const businessText = selected ? ` « ${selected.name} »` : "";
+    const newDefaultPrompt = `Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, terminer par une incitation à installer l'app.`;
+    
+    if (!prompt || prompt.startsWith("Présentation immersive mettant en avant le hook et la signature de l'établissement")) {
+      setPrompt(newDefaultPrompt);
+    }
+  }, [selected]);
+
   // Recent jobs + realtime
   useEffect(() => {
     const load = async () => {
