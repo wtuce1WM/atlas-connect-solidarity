@@ -264,8 +264,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
 
     // Injection serveur des options + vraies données BD (l'IA ne fournit pas ces champs)
     if (template_id === "business-showcase" && businessContext) {
-      const rating = businessContext.computed_rating ?? businessContext.google_rating ?? null;
-      const reviewsCount = businessContext.total_review_count ?? businessContext.google_review_count ?? null;
+      const rating = businessContext.google_rating ?? businessContext.computed_rating ?? null;
+      const reviewsCount = businessContext.google_review_count ?? businessContext.total_review_count ?? null;
 
       if (wantsReviews) {
         template_props.showReviews = true;
