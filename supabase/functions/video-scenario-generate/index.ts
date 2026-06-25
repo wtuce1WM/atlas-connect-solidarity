@@ -34,24 +34,50 @@ Deno.serve(async (req) => {
 
     const supa = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-    // Charger le contexte établissement
+    // Charger le contexte établissement (par id, ou par nom détecté dans le prompt)
     let businessContext: any = null;
-    if (business_id) {
+    let resolved_business_id: string | null = business_id ?? null;
+
+    // Si pas de business_id fourni, essayer de détecter un nom d'établissement dans le prompt.
+    // On cherche entre guillemets « ... » ou " ..." pour matcher proprement.
+    if (!resolved_business_id) {
+      const quoteMatch = prompt.match(/[«"']([^»"']{3,80})[»"']/);
+      const candidate = quoteMatch?.[1]?.trim();
+      if (candidate) {
+        const { data: matches } = await supa
+          .from("businesses")
+          .select("id,name")
+          .ilike("name", `%${candidate}%`)
+          .eq("is_active", true)
+          .limit(1);
+        if (matches && matches[0]) resolved_business_id = matches[0].id;
+      }
+    }
+
+    if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,hook,city,main_category,categories,computed_rating,total_review_count,popup_title,popup_description")
-        .eq("id", business_id)
+        .select("id,name,hook,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,computed_rating,total_review_count,popup_title,popup_description,images,popup_image_url")
+        .eq("id", resolved_business_id)
         .maybeSingle();
 
       const { data: docs } = await supa
         .from("business_documents")
         .select("type,url,name,description,thumbnail_url,sort_order,price,popup")
-        .eq("business_id", business_id)
+        .eq("business_id", resolved_business_id)
         .in("type", ["image", "video", "internal-video", "promotion"])
         .order("sort_order", { ascending: true })
         .limit(20);
 
-      businessContext = { ...biz, medias: docs ?? [] };
+      // Fusionner medias business_documents + colonne images + popup_image_url
+      const mergedMedias: any[] = [];
+      if (biz?.popup_image_url) mergedMedias.push({ type: "image", url: biz.popup_image_url, name: "Image principale" });
+      if (Array.isArray(biz?.images)) {
+        for (const url of biz.images) mergedMedias.push({ type: "image", url });
+      }
+      if (docs) mergedMedias.push(...docs);
+
+      businessContext = { ...biz, medias: mergedMedias };
     }
 
     const systemPrompt = `Tu es directeur artistique pour One World Morocco. Tu choisis un template vidéo Remotion et fournis les props.
@@ -62,7 +88,7 @@ ${TEMPLATES.map(t => `- "${t.id}" — ${t.scope} : ${t.description}`).join("\n")
 RÈGLES DE CHOIX :
 1. Si l'établissement correspond à un template dédié (Comptoir Darna, Riad Dar Najat, Maison Brummell, Jnane Rumi, N.A.R, Farasha Farmhouse, Bô Zin) → choisis ce template_id.
 2. Si le prompt est purement corporate 1WM → "corporate-vertical".
-3. Sinon (cas général) → "business-showcase" + props complètes (le template lit ces props).
+3. Sinon (cas général) → "business-showcase" + props complètes.
 
 FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
 {
@@ -73,19 +99,22 @@ FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
     "tagline": "3 à 6 mots, dernier mot accentué (terracotta)",
     "city": "Marrakech",
     "category": "Restaurant",
-    "images": ["url1", "url2", "url3"],
-    "offer": { "title": "Brunch signature", "price": "350 MAD" } 
+    "images": ["url1", "url2"],
+    "offer": { "title": "Brunch signature", "price": "350 MAD" }
   },
   "rationale": "Pourquoi ce template (1 phrase)"
 }
 
-CONTRAINTES PROPS (pour business-showcase) :
-- "images" : 3 à 5 URLs PRISES depuis les médias fournis (type image). Mets l'image la plus iconique en premier.
-- "hook" : court (max 80 caractères), ton 1WM raffiné.
-- "tagline" : 3 à 6 mots, le dernier sera coloré en terracotta automatiquement.
-- "offer" : à remplir UNIQUEMENT s'il y a une promotion ou un prix dans les médias ; sinon null.
-- "name" : utilise EXACTEMENT le nom de l'établissement fourni.
-- Pour les autres templates (dédiés), renvoie des props vides {} : ils sont hardcodés.
+CONTRAINTES STRICTES :
+- "images" : UNIQUEMENT des URLs réelles tirées de la liste \`medias\` fournie (champs url ou thumbnail_url, type image). Si aucune image n'est fournie, renvoie \`"images": []\`. N'INVENTE JAMAIS d'URL (pas de example.com, pas de placeholder).
+- "offer" : UNIQUEMENT s'il existe une vraie promotion/prix dans \`medias\` (type=promotion ou champ price renseigné). Sinon \`"offer": null\`. Ne mets JAMAIS d'horaires ou de quartier dans \`offer\`.
+- "name" : EXACTEMENT le nom de l'établissement fourni (champ businessContext.name).
+- "hook" : utilise le champ \`hook\` du businessContext s'il existe ; sinon génère-en un court (≤80 caractères).
+- "tagline" : 3 à 6 mots, le dernier sera colorisé automatiquement.
+- "city" : champ \`city\` du businessContext (sinon null).
+- Pour les templates dédiés (hors business-showcase), renvoie \`"props": {}\` : ils sont hardcodés.
+
+Si \`businessContext\` est null, l'établissement est introuvable dans la base : choisis quand même "business-showcase", remplis name/hook/tagline depuis le prompt utilisateur, mets \`"images": []\` et \`"offer": null\`.
 
 Durée demandée : ${duration_sec}s · Ton : ${tone}.`;
 
@@ -127,21 +156,46 @@ Durée demandée : ${duration_sec}s · Ton : ${tone}.`;
       : "business-showcase";
     const template_props = parsed.props && typeof parsed.props === "object" ? parsed.props : {};
 
-    // Si l'IA a choisi business-showcase mais sans contexte business, injecter au moins le prompt
+    // Anti-hallucination : ne garder que des URLs réellement présentes dans medias
+    const realMediaUrls = new Set<string>();
+    if (businessContext?.medias) {
+      for (const m of businessContext.medias) {
+        if (m.url) realMediaUrls.add(m.url);
+        if (m.thumbnail_url) realMediaUrls.add(m.thumbnail_url);
+      }
+    }
+    if (Array.isArray(template_props.images)) {
+      template_props.images = template_props.images.filter((u: unknown) =>
+        typeof u === "string" && realMediaUrls.has(u)
+      );
+    } else {
+      template_props.images = [];
+    }
+
+    // Filet de sécurité : si offer ne contient pas un vrai prix MAD/€/$, on jette
+    if (template_props.offer && typeof template_props.offer === "object") {
+      const priceStr = String(template_props.offer.price || "");
+      const looksLikePrice = /(\d+\s*(mad|dhs?|€|\$|eur|usd))|^\d+$/i.test(priceStr.trim());
+      if (!looksLikePrice) template_props.offer = null;
+    }
+
     if (template_id === "business-showcase" && !template_props.name && businessContext?.name) {
       template_props.name = businessContext.name;
+    }
+    if (template_id === "business-showcase" && !template_props.city && businessContext?.city) {
+      template_props.city = businessContext.city;
     }
 
     const { data: job, error } = await supa
       .from("video_jobs")
       .insert({
-        business_id: business_id ?? null,
+        business_id: resolved_business_id,
         prompt,
         duration_sec,
         tone,
         template_id,
         template_props,
-        scenario_json: parsed, // garder la réponse IA brute pour debug
+        scenario_json: parsed,
         status: "pending",
       })
       .select()
@@ -149,7 +203,7 @@ Durée demandée : ${duration_sec}s · Ton : ${tone}.`;
 
     if (error) return json({ error: error.message }, 500);
 
-    return json({ job, template_id, rationale: parsed.rationale });
+    return json({ job, template_id, resolved_business_id, rationale: parsed.rationale });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }
