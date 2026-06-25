@@ -380,7 +380,7 @@ function JobCard({ job }: { job: Job }) {
         <span>{job.duration_sec}s · {job.tone}</span>
         <span className="uppercase tracking-wide">{job.status}</span>
       </div>
-      <p className="text-sm line-clamp-2">{job.prompt}</p>
+      <p className="text-sm whitespace-pre-line">{job.prompt}</p>
       {job.status === "done" && job.output_url ? (
         <div className="space-y-2">
           <video src={job.output_url} controls className="w-full rounded-md aspect-[9/16] bg-black" />
