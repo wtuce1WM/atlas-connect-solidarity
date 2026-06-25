@@ -12,8 +12,9 @@ import {
 } from "remotion";
 import { display, body, COLORS } from "./theme";
 
-// 22s @ 30fps
+// Base 22s @ 30fps — étendu dynamiquement par les options
 export const SHOWCASE_TOTAL_FRAMES = 660;
+export const OPTION_SCENE_FRAMES = 90; // 3s par scène optionnelle
 
 export type ShowcaseProps = {
   name?: string;
@@ -25,7 +26,23 @@ export type ShowcaseProps = {
   videos?: string[];
   offer?: { title?: string; price?: string } | null;
   rating?: number | null;
-  reviews?: number | null;
+  reviewsCount?: number | null;
+  openingHours?: string | Record<string, string> | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  showReviews?: boolean;
+  showOpeningHours?: boolean;
+  showMap?: boolean;
+  showAppInstall?: boolean;
+};
+
+export const computeShowcaseFrames = (p: ShowcaseProps): number => {
+  let extra = 0;
+  if (p.showReviews && (p.rating || p.reviewsCount)) extra += OPTION_SCENE_FRAMES;
+  if (p.showOpeningHours && p.openingHours) extra += OPTION_SCENE_FRAMES;
+  if (p.showMap && p.latitude && p.longitude) extra += OPTION_SCENE_FRAMES;
+  return SHOWCASE_TOTAL_FRAMES + extra;
 };
 
 
