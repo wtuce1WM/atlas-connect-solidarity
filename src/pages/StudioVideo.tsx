@@ -195,13 +195,14 @@ export default function StudioVideo() {
 
   // Update prompt automatically when selected business changes
   useEffect(() => {
+    if (refineFrom) return;
     const businessText = selected ? ` « ${selected.name} »` : "";
     const newDefaultPrompt = `Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, terminer par une incitation à installer l'app.`;
     
     if (!prompt || prompt.startsWith("Présentation immersive mettant en avant le hook et la signature de l'établissement")) {
       setPrompt(newDefaultPrompt);
     }
-  }, [selected]);
+  }, [selected, refineFrom]);
 
   // Recent jobs + realtime
   useEffect(() => {
@@ -408,15 +409,39 @@ export default function StudioVideo() {
 
             <div className="space-y-2">
               <Label>Prompt</Label>
+              {refineFrom && (
+                <div className="flex items-start justify-between gap-2 rounded-md border border-primary/40 bg-primary/5 p-3 text-xs">
+                  <div className="space-y-1">
+                    <div className="font-medium flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5" /> Affinage d'une vidéo précédente
+                    </div>
+                    <p className="text-muted-foreground line-clamp-2">{refineFrom.prompt}</p>
+                    <p className="text-muted-foreground/80">
+                      Décris uniquement les modifications à apporter (le reste sera conservé).
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRefineFrom(null)}
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label="Annuler l'affinage"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
               <Textarea
+                id="prompt-area"
                 rows={5}
-                placeholder="Ex : Présentation immersive mettant en avant le hook et la signature de l'établissement, terminer par une incitation à installer l'app."
+                placeholder={refineFrom
+                  ? "Ex : remplace l'image de couverture par la 2e, raccourcis le hook, ajoute les horaires…"
+                  : "Ex : Présentation immersive mettant en avant le hook et la signature de l'établissement, terminer par une incitation à installer l'app."}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 maxLength={2000}
                 className="text-lg md:text-xl p-4"
                 onFocus={() => {
-                  if (!prompt) {
+                  if (!prompt && !refineFrom) {
                     const businessText = selected ? ` « ${selected.name} »` : "";
                     setPrompt(`Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, terminer par une incitation à installer l'app.`);
                   }
@@ -426,7 +451,7 @@ export default function StudioVideo() {
 
             <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
               {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-              {hasActiveJob ? "Job déjà lancé…" : "Générer la vidéo"}
+              {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
             </Button>
           </section>
 
