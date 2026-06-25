@@ -251,57 +251,6 @@ const BecomeAffiliate = () => {
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section className="container mx-auto px-4 mb-24">
-          <div className="text-center mb-12">
-             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-               {t.pricingSubtitle}
-             </p>
-          </div>
-
-          <div className="max-w-md mx-auto">
-            <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-b from-black/[0.02] to-black/[0.04] p-8 md:p-10 shadow-[0_0_60px_-15px_hsl(43_75%_55%/0.2)]">
-              {/* Badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="inline-block bg-gold text-black text-sm font-bold px-5 py-1.5 rounded-full shadow-lg">
-                  {t.offerBadge}
-                </span>
-              </div>
-
-              {/* Price */}
-              <div className="text-center mt-4 mb-8">
-                <span className="text-5xl md:text-6xl font-extrabold text-foreground">{t.price}</span>
-                <p className="text-muted-foreground mt-2">{t.priceSuffix}</p>
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent mb-8" />
-
-              {/* Features */}
-              <ul className="space-y-4 mb-10">
-                {t.features.map((feat, i) => (
-                  <li key={i} className="flex items-start gap-3 text-foreground/85">
-                    <Check className="h-5 w-5 text-gold mt-0.5 shrink-0" />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* CTA */}
-              <Button
-                className="w-full h-12 text-base font-bold bg-gold hover:bg-gold/90 text-black rounded-xl shadow-lg shadow-gold/20 transition-all hover:shadow-gold/40"
-                onClick={() => {
-                  document.getElementById("affiliate-form")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                {t.cta}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-
-              <p className="text-center text-muted-foreground text-sm mt-4">{t.personalSupport}</p>
-            </div>
-          </div>
-        </section>
 
         {/* Form Section */}
         <section id="affiliate-form" className="container mx-auto px-4 mb-16">
@@ -482,6 +431,108 @@ const BecomeAffiliate = () => {
               </form>
             </>
           )}
+        </section>
+
+        {/* Adhésion professionnelle Section */}
+        <section className="bg-[#3B3B3B] text-white py-20 mt-20" id="abonnements">
+          <div className="container mx-auto px-4 max-w-6xl">
+            <div className="text-center mb-16 max-w-3xl mx-auto">
+              <span className="text-[#D4AF37] uppercase tracking-[0.24em] text-xs font-semibold block mb-4">
+                {language === 'ar' ? 'العضوية المهنية' : language === 'en' ? 'Professional Membership' : 'Adhésion professionnelle'}
+              </span>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                {language === 'ar' ? 'التزام واحد، أربعة مستويات.' : language === 'en' ? 'One commitment, four tiers.' : 'Un engagement, quatre paliers.'}
+              </h2>
+              <p className="text-white/80 text-base md:text-lg leading-relaxed">
+                {language === 'ar' 
+                  ? 'اشتراك شهري، بدون عمولة، و 20% تذهب للقضايا الإنسانية في المغرب — أياً كان مستواك.' 
+                  : language === 'en' 
+                    ? 'A monthly subscription, zero commission, and 20% donated to humanitarian causes in Morocco — whichever tier you choose.' 
+                    : 'Un abonnement mensuel, zéro commission, et 20% reversés à des causes humanitaires au Maroc — quel que soit votre palier.'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border border-[#D4AF37]/20 rounded-xl overflow-hidden divide-y md:divide-y-0 md:divide-x divide-[#D4AF37]/20">
+              {/* Micro */}
+              <div className="p-8 md:p-10 transition-all duration-300 hover:bg-[#D4AF37]/5 flex flex-col justify-between">
+                <div>
+                  <div className="text-[#D4AF37] text-xs tracking-[0.26em] uppercase font-bold mb-6">
+                    {language === 'ar' ? 'مايكرو' : 'Micro'}
+                  </div>
+                  <div className="font-bold text-4xl md:text-5xl text-white leading-none mb-6" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    20€<small className="text-sm font-normal text-white/70 ml-1">/{language === 'ar' ? 'شهر' : language === 'en' ? 'month' : 'mois'}</small>
+                  </div>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    {language === 'ar'
+                      ? 'للمستقلين والمشاريع الصغيرة التي تنضم إلى واجهتنا الأخلاقية.'
+                      : language === 'en'
+                        ? 'For freelancers and small businesses joining the ethical showcase.'
+                        : "Pour l'indépendant et la petite structure qui rejoignent la vitrine éthique."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Intermédiaire */}
+              <div className="p-8 md:p-10 transition-all duration-300 hover:bg-[#D4AF37]/5 flex flex-col justify-between">
+                <div>
+                  <div className="text-[#D4AF37] text-xs tracking-[0.26em] uppercase font-bold mb-6">
+                    {language === 'ar' ? 'متوسط' : language === 'en' ? 'Intermediate' : 'Intermédiaire'}
+                  </div>
+                  <div className="font-bold text-4xl md:text-5xl text-white leading-none mb-6" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    50€<small className="text-sm font-normal text-white/70 ml-1">/{language === 'ar' ? 'شهر' : language === 'en' ? 'month' : 'mois'}</small>
+                  </div>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    {language === 'ar'
+                      ? 'رؤية معززة للمؤسسات النامية.'
+                      : language === 'en'
+                        ? 'Enhanced visibility for growing establishments.'
+                        : 'Visibilité renforcée pour les établissements en croissance.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Premium */}
+              <div className="p-8 md:p-10 bg-[#D4AF37]/10 transition-all duration-300 hover:bg-[#D4AF37]/15 flex flex-col justify-between relative">
+                <div className="absolute top-4 right-4 bg-[#D4AF37] text-[#3B3B3B] text-[9px] tracking-[0.24em] uppercase font-bold px-3 py-1 rounded">
+                  Signature
+                </div>
+                <div>
+                  <div className="text-[#D4AF37] text-xs tracking-[0.26em] uppercase font-bold mb-6">
+                    Premium
+                  </div>
+                  <div className="font-bold text-4xl md:text-5xl text-white leading-none mb-6" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    150€<small className="text-sm font-normal text-white/70 ml-1">/{language === 'ar' ? 'شهر' : language === 'en' ? 'month' : 'mois'}</small>
+                  </div>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    {language === 'ar'
+                      ? 'إبراز ذو أولوية وتواجد تحريري على المنصة.'
+                      : language === 'en'
+                        ? 'Priority featuring and editorial presence on the platform.'
+                        : 'Mise en avant prioritaire et présence éditoriale sur la plateforme.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Branding */}
+              <div className="p-8 md:p-10 transition-all duration-300 hover:bg-[#D4AF37]/5 flex flex-col justify-between">
+                <div>
+                  <div className="text-[#D4AF37] text-xs tracking-[0.26em] uppercase font-bold mb-6">
+                    Branding
+                  </div>
+                  <div className="font-bold text-4xl md:text-5xl text-white leading-none mb-6" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    4 000€<small className="text-sm font-normal text-white/70 ml-1"> +</small>
+                  </div>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    {language === 'ar'
+                      ? 'تنسيق مخصص للعلامات التجارية والمؤسسات السفيرة.'
+                      : language === 'en'
+                        ? 'Tailored setup for ambassador brands and institutions.'
+                        : 'Dispositif sur-mesure pour les marques et institutions ambassadrices.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
       </main>
       <Footer variant="verified" />
