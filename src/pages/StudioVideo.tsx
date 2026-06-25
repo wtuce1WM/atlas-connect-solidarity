@@ -7,6 +7,75 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Wand2, Download } from "lucide-react";
+import maisonBrummellVideo from "@/assets/maison-brummell.mp4";
+import riadDarNajatVideo from "@/assets/riad-dar-najat.mp4";
+import narComplexeVideo from "@/assets/nar-complexe.mp4";
+import farashaVideo from "@/assets/farasha-farmhouse.mp4";
+import boZinVideo from "@/assets/bo-zin.mp4";
+
+const SHOWCASE: { title: string; src: string; prompt: string }[] = [
+  {
+    title: "Comptoir Darna — Patio & Club",
+    src: "/showcase/comptoir-darna-patio-club_v4.mp4",
+    prompt:
+      "Vidéo immersive verticale 720x1280 de ~17s pour présentation de Comptoir Darna Patio & Club. Utiliser d'autres vidéos de fond dans l'ordre du sort-order interne, diminuer la taille du texte « dîner spectacle & gastronomie », prendre 2s de plus pour les avis client, utiliser le même badge que dans le slidepanel de /search avec effet liquidglass.",
+  },
+  {
+    title: "Riad Dar Najat",
+    src: riadDarNajatVideo,
+    prompt:
+      "Vidéo de ~19s pour Riad Dar Najat. Utiliser la vidéo YouTube bbzHKcy5miM à partir de 3:46 en cover plein écran vertical avec un léger pan, garder le son, même squelette que Comptoir Darna. Note/20 et nombre d'avis empilés verticalement pour éviter le saut visuel.",
+  },
+  {
+    title: "Maison Brummell Majorelle",
+    src: maisonBrummellVideo,
+    prompt:
+      "À partir de riad-dar-najat.mp4, créer la vidéo pour Maison Brummell Majorelle en reprenant les vidéos internes (selon sort-order) et en mettant en avant le Titre et le Texte de l'image Popup.",
+  },
+  {
+    title: "Jnane Rumi",
+    src: "https://placeholder-removed-too-large/jnane",
+    prompt:
+      "Vidéo immersive 720x1280 ~17s pour Jnane Rumi avec ses propres vidéos. Utiliser le hook de l'établissement. Mettre en avant le badge des avis client (note/20 + nombre d'avis). Terminer par une incitation à installer l'App.",
+  },
+  {
+    title: "Agent IA — Démo (animation)",
+    src: "/showcase/agent-ia-demo.mp4",
+    prompt:
+      "Démo de l'agent IA en vidéo immersive verticale 720x1280, ~17s. Concept « Pose ta question, vis ton Maroc » : Hook, Question, Réponse magique, Carte vivante, Affinage, CTA final. UI 100% Remotion.",
+  },
+  {
+    title: "Agent IA — Screencast",
+    src: "/showcase/agent-ia-screencast.mp4",
+    prompt:
+      "Démo de l'agent IA — version screencast réel ~25s, capturé via Playwright sur la vraie interface de /search?tab=ai.",
+  },
+  {
+    title: "Agent IA — Démo v2 (carte géolocalisée)",
+    src: "/showcase/agent-ia-demo-v2.mp4",
+    prompt:
+      "Autre version de agent-ia-demo.mp4 avec ce scénario : « je cherche un centre aquatique à Marrakech pour passer la journée avec les enfants + sur la route de l'Ourika + avec un golf à côté ». Montrer l'utilisation de la Google Map en étant géolocalisé (marqueur « vous êtes là »).",
+  },
+  {
+    title: "N.A.R Complexe Sportif",
+    src: narComplexeVideo,
+    prompt:
+      "Vidéo immersive 720x1280 ~17s pour N.A.R Complexe Sportif avec ses propres vidéos. Utiliser le hook. Mettre en avant les 4 offres rattachées et le badge des avis (note/20 + nombre d'avis). Terminer par une incitation à installer l'App avec bouton carré sur fond terracotta inspiré de /install mobile.",
+  },
+  {
+    title: "The Farasha Farmhouse",
+    src: farashaVideo,
+    prompt:
+      "Vidéo immersive 720x1280 ~17s pour The Farasha Farmhouse avec uniquement ses images (pas les vidéos). Utiliser le hook pour mettre en avant le côté Ferme Pédagogique. Mettre en avant le Popup et la seule offre rattachée. Badge des avis (note/20 + nombre d'avis). Terminer par incitation à installer l'App, bouton carré terracotta inspiré de /install mobile.",
+  },
+  {
+    title: "Bô Zin (scénario Signature 27s)",
+    src: boZinVideo,
+    prompt:
+      "Scénario « Signature 27s » en 9 étapes : Hook, Nom, Identité, Wow (Popup), Offres, Preuve sociale (Avis), Localisation, CTA principal, Outro App — appliqué à Bô Zin.",
+  },
+];
+
 
 type Business = { id: string; name: string; city: string | null };
 type Job = {
