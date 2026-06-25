@@ -1,0 +1,1 @@
+UPDATE public.video_jobs SET status = 'pending' WHERE status = 'rendering' AND output_url IS NULL;
