@@ -13,22 +13,37 @@ Deno.serve(async (req) => {
       });
     }
 
+    const ghHeaders = {
+      'Authorization': `Bearer ${pat}`,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+    };
+
+    // 1) Get repo info to detect default branch + confirm PAT access
+    const repoRes = await fetch(`https://api.github.com/repos/${repo}`, { headers: ghHeaders });
+    if (!repoRes.ok) {
+      const body = await repoRes.text();
+      console.error('GitHub repo access failed', repoRes.status, body);
+      return new Response(JSON.stringify({ error: 'Repo access failed', status: repoRes.status, body, repo }), {
+        status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const repoInfo = await repoRes.json();
+    const ref = repoInfo.default_branch ?? 'main';
+
+    // 2) Dispatch workflow
     const url = `https://api.github.com/repos/${repo}/actions/workflows/${workflow}/dispatches`;
     const res = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${pat}`,
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ref: 'main' }),
+      headers: ghHeaders,
+      body: JSON.stringify({ ref }),
     });
 
     const text = await res.text();
     if (!res.ok) {
-      console.error('GitHub dispatch failed', res.status, text);
-      return new Response(JSON.stringify({ error: 'GitHub dispatch failed', status: res.status, body: text }), {
+      console.error('GitHub dispatch failed', res.status, text, 'ref=', ref, 'workflow=', workflow);
+      return new Response(JSON.stringify({ error: 'GitHub dispatch failed', status: res.status, body: text, ref, workflow }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
