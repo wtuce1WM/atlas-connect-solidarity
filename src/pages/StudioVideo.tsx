@@ -146,6 +146,52 @@ export default function StudioVideo() {
     return () => clearTimeout(t);
   }, [query]);
 
+  // Load business stats when selected
+  useEffect(() => {
+    if (!selected) {
+      setBizStats(null);
+      return;
+    }
+    let cancelled = false;
+    setStatsLoading(true);
+    (async () => {
+      const [biz, docs, yt, promos] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("hook_fr,description,images,popup_image_url")
+          .eq("id", selected.id)
+          .maybeSingle(),
+        supabase
+          .from("business_documents")
+          .select("id", { count: "exact", head: true })
+          .eq("business_id", selected.id)
+          .eq("type", "video"),
+        supabase
+          .from("business_youtube_videos")
+          .select("id", { count: "exact", head: true })
+          .eq("business_id", selected.id),
+        supabase
+          .from("affiliate_business_promotions")
+          .select("id", { count: "exact", head: true })
+          .eq("business_id", selected.id),
+      ]);
+      if (cancelled) return;
+      const b: any = biz.data ?? {};
+      setBizStats({
+        hook: b.hook_fr ?? null,
+        descLen: (b.description ?? "").length,
+        images: Array.isArray(b.images) ? b.images.length : 0,
+        videos: (docs.count ?? 0) + (yt.count ?? 0),
+        offers: promos.count ?? 0,
+        popup: !!b.popup_image_url,
+      });
+      setStatsLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selected]);
+
   // Recent jobs + realtime
   useEffect(() => {
     const load = async () => {
