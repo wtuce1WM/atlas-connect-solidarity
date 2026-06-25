@@ -243,7 +243,17 @@ export default function StudioVideo() {
     [jobs, currentJobId]
   );
 
+  const hasActiveJob = useMemo(
+    () => jobs.some((j) => j.status === "pending" || j.status === "rendering"),
+    [jobs]
+  );
+
   const submit = async () => {
+    if (submitting) return;
+    if (hasActiveJob) {
+      toast.error("Job déjà lancé — patientez la fin du rendu en cours.");
+      return;
+    }
     if (!prompt.trim()) {
       toast.error("Décrivez la vidéo souhaitée.");
       return;
@@ -400,9 +410,9 @@ export default function StudioVideo() {
               />
             </div>
 
-            <Button onClick={submit} disabled={submitting} className="gap-2">
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-              Générer la vidéo
+            <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
+              {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+              {hasActiveJob ? "Job déjà lancé…" : "Générer la vidéo"}
             </Button>
           </section>
 
