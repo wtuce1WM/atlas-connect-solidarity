@@ -481,6 +481,47 @@ export default function StudioVideo() {
   );
 }
 
+function VideoWithMeta({ src }: { src: string }) {
+  const [dim, setDim] = useState<{ w: number; h: number } | null>(null);
+  const [size, setSize] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(src, { method: "HEAD" })
+      .then((r) => {
+        const len = r.headers.get("content-length");
+        if (!cancelled && len) setSize(parseInt(len, 10));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+
+  const fmtSize = (b: number) => {
+    if (b < 1024 * 1024) return `${(b / 1024).toFixed(0)} Ko`;
+    return `${(b / (1024 * 1024)).toFixed(2)} Mo`;
+  };
+
+  return (
+    <div className="space-y-1">
+      <video
+        src={src}
+        controls
+        preload="metadata"
+        onLoadedMetadata={(e) => {
+          const v = e.currentTarget;
+          setDim({ w: v.videoWidth, h: v.videoHeight });
+        }}
+        className="rounded-md aspect-[9/16] bg-black max-w-[200px] w-full"
+      />
+      <div className="text-[11px] text-muted-foreground">
+        {dim ? `${dim.w}×${dim.h}` : "…"}{size != null ? ` · ${fmtSize(size)}` : ""}
+      </div>
+    </div>
+  );
+}
+
 function JobCard({ job }: { job: Job }) {
   return (
     <div className="rounded-lg border border-border bg-background p-3 space-y-2">
@@ -491,7 +532,7 @@ function JobCard({ job }: { job: Job }) {
       <p className="text-sm whitespace-pre-line">{job.prompt}</p>
       {job.status === "done" && job.output_url ? (
         <div className="space-y-2">
-          <video src={job.output_url} controls className="w-full rounded-md aspect-[9/16] bg-black" />
+          <VideoWithMeta src={job.output_url} />
           <a
             href={job.output_url}
             download
