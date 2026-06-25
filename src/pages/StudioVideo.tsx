@@ -210,7 +210,7 @@ export default function StudioVideo() {
   useEffect(() => {
     if (refineFrom) return;
     const businessText = selected ? ` « ${selected.name} »` : "";
-    const newDefaultPrompt = `Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, terminer par une incitation à installer l'app.`;
+    const newDefaultPrompt = `Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, ajoutes options cochées ci-dessous.`;
     
     if (!prompt || prompt.startsWith("Présentation immersive mettant en avant le hook et la signature de l'établissement")) {
       setPrompt(newDefaultPrompt);
