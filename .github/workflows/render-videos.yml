@@ -3,7 +3,7 @@ name: Rendu des vidéos Studio
 on:
   schedule:
     - cron: "*/5 * * * *" # Toutes les 5 minutes
-  workflow_dispatch: {} # Permet aussi le déclenchement manuel
+  workflow_dispatch: {}
 
 concurrency:
   group: render-videos
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -20,12 +20,29 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Installer FFmpeg & Chromium deps
+      - name: Installer FFmpeg, Chromium & deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg libnss3 libatk1.0-0 libatk-bridge2.0-0 \
+          sudo apt-get install -y ffmpeg chromium-browser libnss3 libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 libasound2t64 || \
+          sudo apt-get install -y ffmpeg chromium libnss3 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 \
             libgbm1 libpango-1.0-0 libcairo2 libasound2t64
+
+      - name: Cache Bun deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            remotion/node_modules
+          key: bun-${{ runner.os }}-${{ hashFiles('remotion/package.json') }}
+
+      - name: Cache Remotion Chrome
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/remotion
+          key: remotion-chrome-${{ runner.os }}
 
       - name: Installer les dépendances
         working-directory: remotion
@@ -37,5 +54,6 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
           MAX_JOBS: "10"
         run: bun run scripts/render-job.mjs
