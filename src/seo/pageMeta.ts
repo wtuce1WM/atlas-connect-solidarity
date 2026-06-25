@@ -14,7 +14,7 @@ const BRAND = "One World Morocco";
 export const PAGE_META: Record<string, PageMeta> = {
   // Principales
   "/": {
-    title: `${BRAND} — Les meilleures adresses au Maroc`,
+    title: `La Première Plateforme Solidaire du Maroc — ${BRAND}`,
     description:
       "Découvrez hôtels, restaurants, activités et services sélectionnés au Maroc par One World Morocco.",
   },
