@@ -91,14 +91,27 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
       moved = false;
     };
 
-    // Only react to native horizontal wheel (trackpads). Vertical wheel
-    // must keep scrolling the page — never hijack deltaY here.
+    // Trackpads send deltaX natively. For mouse wheels (deltaY dominant),
+    // translate to horizontal scroll — but only consume the event while the
+    // carousel can still scroll in that direction, so the page keeps scrolling
+    // once we hit the edge.
     const onWheel = (e: WheelEvent) => {
       if (el.scrollWidth <= el.clientWidth) return;
       if (Math.abs(e.deltaX) > 0) {
         stopMomentum();
         el.style.scrollBehavior = "auto";
+        return;
       }
+      const dy = e.deltaY;
+      if (Math.abs(dy) < 1) return;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      const atStart = el.scrollLeft <= 0;
+      const atEnd = el.scrollLeft >= maxScroll - 1;
+      if ((dy < 0 && atStart) || (dy > 0 && atEnd)) return;
+      e.preventDefault();
+      stopMomentum();
+      el.style.scrollBehavior = "auto";
+      el.scrollLeft += dy;
     };
 
     el.addEventListener("pointerdown", onPointerDown);
