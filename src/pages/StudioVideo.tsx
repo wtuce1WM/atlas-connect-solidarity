@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Wand2, Download, Sparkles, X } from "lucide-react";
+import { Loader2, Wand2, Download, Sparkles, X, Trash2 } from "lucide-react";
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
 import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
 import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
@@ -311,6 +311,28 @@ export default function StudioVideo() {
     }, 50);
   };
 
+  const deleteJob = async (job: Job) => {
+    if (!window.confirm(`Supprimer définitivement cette vidéo ?\n\n« ${job.prompt.slice(0, 120)}${job.prompt.length > 120 ? "…" : ""} »`)) {
+      return;
+    }
+    // Try to remove the file from storage (best-effort)
+    if (job.output_url) {
+      const marker = "/studio-videos/";
+      const idx = job.output_url.indexOf(marker);
+      if (idx !== -1) {
+        const path = job.output_url.slice(idx + marker.length).split("?")[0];
+        await supabase.storage.from("studio-videos").remove([path]).catch(() => {});
+      }
+    }
+    const { error } = await supabase.from("video_jobs").delete().eq("id", job.id);
+    if (error) {
+      toast.error("Suppression impossible : " + error.message);
+      return;
+    }
+    setJobs((prev) => prev.filter((j) => j.id !== job.id));
+    toast.success("Vidéo supprimée");
+  };
+
   return (
     <>
       <Helmet>
@@ -491,7 +513,7 @@ export default function StudioVideo() {
                 {jobs
                   .filter((j) => j.status === "done" && j.output_url)
                   .map((j) => (
-                    <JobCard key={j.id} job={j} onRefine={startRefine} />
+                    <JobCard key={j.id} job={j} onRefine={startRefine} onDelete={deleteJob} />
                   ))}
               </div>
             )}
@@ -576,7 +598,7 @@ function VideoWithMeta({ src }: { src: string }) {
   );
 }
 
-function JobCard({ job, onRefine }: { job: Job; onRefine?: (job: Job) => void }) {
+function JobCard({ job, onRefine, onDelete }: { job: Job; onRefine?: (job: Job) => void; onDelete?: (job: Job) => void }) {
   return (
     <div className="rounded-lg border border-border bg-background p-3 space-y-2">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -602,6 +624,15 @@ function JobCard({ job, onRefine }: { job: Job; onRefine?: (job: Job) => void })
                 className="inline-flex items-center gap-1 text-xs underline text-primary"
               >
                 <Sparkles className="h-3 w-3" /> Affiner
+              </button>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(job)}
+                className="inline-flex items-center gap-1 text-xs underline text-destructive ml-auto"
+              >
+                <Trash2 className="h-3 w-3" /> Supprimer
               </button>
             )}
           </div>
