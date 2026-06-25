@@ -579,6 +579,7 @@ export default function StudioVideo() {
 function VideoWithMeta({ src }: { src: string }) {
   const [dim, setDim] = useState<{ w: number; h: number } | null>(null);
   const [size, setSize] = useState<number | null>(null);
+  const [duration, setDuration] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -607,11 +608,14 @@ function VideoWithMeta({ src }: { src: string }) {
         onLoadedMetadata={(e) => {
           const v = e.currentTarget;
           setDim({ w: v.videoWidth, h: v.videoHeight });
+          setDuration(v.duration);
         }}
         className="rounded-md aspect-[9/16] bg-black max-w-[200px] w-full"
       />
       <div className="text-[11px] text-muted-foreground">
-        {dim ? `${dim.w}×${dim.h}` : "…"}{size != null ? ` · ${fmtSize(size)}` : ""}
+        {dim ? `${dim.w}×${dim.h}` : "…"}
+        {duration != null ? ` · ${duration.toFixed(1)}s` : ""}
+        {size != null ? ` · ${fmtSize(size)}` : ""}
       </div>
     </div>
   );
@@ -621,14 +625,11 @@ function JobCard({ job, businessName, onRefine, onDelete }: { job: Job; business
   return (
     <div className="rounded-lg border border-border bg-background p-3 space-y-2">
       {businessName && <div className="text-sm font-medium">{businessName}</div>}
-      <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>{job.duration_sec}s · {job.tone}</span>
-        <span className="uppercase tracking-wide">{job.status}</span>
-      </div>
+      
       {job.status === "done" && job.output_url ? (
         <div className="space-y-2">
           <VideoWithMeta src={job.output_url} />
+          <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
           <div className="flex items-center gap-3">
             <a
               href={job.output_url}
@@ -658,11 +659,21 @@ function JobCard({ job, businessName, onRefine, onDelete }: { job: Job; business
           </div>
         </div>
       ) : job.status === "error" ? (
-        <p className="text-xs text-destructive">{job.error_message ?? "Erreur"}</p>
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
+          <p className="text-xs text-destructive">{job.error_message ?? "Erreur"}</p>
+        </div>
       ) : (
-        <p className="text-xs text-muted-foreground">
-          En file d'attente — le worker prendra le job dans quelques secondes.
-        </p>
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{job.duration_sec}s · {job.tone}</span>
+            <span className="uppercase tracking-wide">{job.status}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            En file d'attente — le worker prendra le job dans quelques secondes.
+          </p>
+        </div>
       )}
     </div>
   );
