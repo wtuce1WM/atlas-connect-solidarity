@@ -476,7 +476,7 @@ export default function StudioVideo() {
                 {jobs
                   .filter((j) => j.status === "done" && j.output_url)
                   .map((j) => (
-                    <JobCard key={j.id} job={j} />
+                    <JobCard key={j.id} job={j} onRefine={startRefine} />
                   ))}
               </div>
             )}
@@ -561,7 +561,7 @@ function VideoWithMeta({ src }: { src: string }) {
   );
 }
 
-function JobCard({ job }: { job: Job }) {
+function JobCard({ job, onRefine }: { job: Job; onRefine?: (job: Job) => void }) {
   return (
     <div className="rounded-lg border border-border bg-background p-3 space-y-2">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -572,13 +572,24 @@ function JobCard({ job }: { job: Job }) {
       {job.status === "done" && job.output_url ? (
         <div className="space-y-2">
           <VideoWithMeta src={job.output_url} />
-          <a
-            href={job.output_url}
-            download
-            className="inline-flex items-center gap-1 text-xs underline"
-          >
-            <Download className="h-3 w-3" /> Télécharger
-          </a>
+          <div className="flex items-center gap-3">
+            <a
+              href={job.output_url}
+              download
+              className="inline-flex items-center gap-1 text-xs underline"
+            >
+              <Download className="h-3 w-3" /> Télécharger
+            </a>
+            {onRefine && (
+              <button
+                type="button"
+                onClick={() => onRefine(job)}
+                className="inline-flex items-center gap-1 text-xs underline text-primary"
+              >
+                <Sparkles className="h-3 w-3" /> Affiner
+              </button>
+            )}
+          </div>
         </div>
       ) : job.status === "error" ? (
         <p className="text-xs text-destructive">{job.error_message ?? "Erreur"}</p>
