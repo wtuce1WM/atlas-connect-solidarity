@@ -308,7 +308,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (realHook && typeof realHook === "string" && realHook.trim()) {
         template_props.hook = realHook.trim();
         const shouldUseFullHook = !template_props.offer && !hasInjectablePopup(businessContext);
-        template_props.tagline = shouldUseFullHook ? realHook.trim() : deriveTaglineFromHook(realHook, businessContext.name);
+        template_props.tagline = deriveTaglineFromHook(realHook, businessContext.name);
+        template_props.useFullHookScene = shouldUseFullHook;
       }
     }
 
@@ -331,7 +332,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (realHook) {
         template_props.hook = realHook;
         const shouldUseFullHook = !template_props.offer && !hasInjectablePopup(businessDetails);
-        template_props.tagline = shouldUseFullHook ? realHook : deriveTaglineFromHook(realHook, businessDetails.name);
+        template_props.tagline = deriveTaglineFromHook(realHook, businessDetails.name);
+        template_props.useFullHookScene = shouldUseFullHook;
       }
       template_props.durationSec = Number(duration_sec);
       const googleRating = Number(businessDetails.google_rating);
