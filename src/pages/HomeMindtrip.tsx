@@ -324,7 +324,7 @@ const HomeMindtrip = () => {
   
 
   useSEO({
-    title: "ONE WORLD MOROCCO — Voyagez autrement au Maroc",
+    title: "La Première Plateforme Solidaire du Maroc — ONE WORLD MOROCCO",
     description:
       "Inspirez-vous des meilleures adresses du Maroc : hôtels, restaurants, expériences et itinéraires sélectionnés et vérifiés.",
     canonical: "/",
