@@ -118,8 +118,8 @@ FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
 
 CONTRAINTES STRICTES :
 - RÈGLE MÉDIAS (ABSOLUE, s'applique à TOUS les templates) :
-  1) Utilise EN PRIORITÉ les vidéos de l'établissement (medias où type="video" ou "internal-video"), triées dans l'ordre interne `sort_order`. Renseigne \`videos\` et laisse \`images: []\`.
-  2) Si AUCUNE vidéo n'est disponible, alors et seulement alors utilise les images (medias type="image"), triées par `sort_order`. Renseigne \`images\` et laisse \`videos: []\`.
+  1) Utilise EN PRIORITÉ les vidéos de l'établissement (medias où type="video" ou "internal-video"), triées dans l'ordre interne \`sort_order\`. Renseigne \`videos\` et laisse \`images: []\`.
+  2) Si AUCUNE vidéo n'est disponible, alors et seulement alors utilise les images (medias type="image"), triées par \`sort_order\`. Renseigne \`images\` et laisse \`videos: []\`.
   3) NE JAMAIS mélanger vidéos et images dans une même vidéo : l'un OU l'autre, exclusivement.
 - "videos"/"images" : UNIQUEMENT des URLs réelles tirées de \`medias\`. N'INVENTE JAMAIS d'URL.
 - "offer" : UNIQUEMENT s'il existe une vraie promotion/prix dans \`medias\` (type=promotion ou champ price renseigné). Sinon \`"offer": null\`. Ne mets JAMAIS d'horaires ou de quartier dans \`offer\`.
