@@ -138,9 +138,9 @@ export default function StudioVideo() {
   } | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [optReviews, setOptReviews] = useState(true);
-  const [optHours, setOptHours] = useState(false);
+  const [optHours, setOptHours] = useState(true);
   const [optInstallCta, setOptInstallCta] = useState(true);
-  const [optMapMarker, setOptMapMarker] = useState(false);
+  const [optMapMarker, setOptMapMarker] = useState(true);
 
   // Autocomplete businesses
   useEffect(() => {
