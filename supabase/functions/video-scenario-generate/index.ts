@@ -262,26 +262,48 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       template_props.city = businessContext.city;
     }
 
-    // Injection serveur des options + vraies données BD (l'IA ne fournit pas ces champs)
-    if (template_id === "business-showcase" && businessContext) {
-      const rating = businessContext.google_rating ?? businessContext.computed_rating ?? null;
-      const reviewsCount = businessContext.google_review_count ?? businessContext.total_review_count ?? null;
+    // Injection serveur des options + vraies données BD (l'IA ne fournit pas ces champs).
+    // Relecture dédiée juste avant l'insertion : évite qu'un échec du contexte média empêche
+    // l'injection des avis / horaires / carte.
+    let businessDetails = businessContext;
+    if (resolved_business_id) {
+      const { data: freshBiz } = await supa
+        .from("businesses")
+        .select("id,name,city,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count")
+        .eq("id", resolved_business_id)
+        .maybeSingle();
+      if (freshBiz) businessDetails = { ...(businessContext ?? {}), ...freshBiz };
+    }
+
+    if (template_id === "business-showcase" && businessDetails) {
+      const googleRating = Number(businessDetails.google_rating);
+      const computedRating = Number(businessDetails.computed_rating);
+      const googleReviews = Number(businessDetails.google_review_count);
+      const totalReviews = Number(businessDetails.total_review_count);
+      const rating = Number.isFinite(googleRating) && googleRating > 0
+        ? googleRating
+        : (Number.isFinite(computedRating) && computedRating > 0 ? computedRating : null);
+      const reviewsCount = Number.isFinite(googleReviews) && googleReviews > 0
+        ? googleReviews
+        : (Number.isFinite(totalReviews) && totalReviews > 0 ? totalReviews : null);
 
       if (wantsReviews) {
         template_props.showReviews = true;
         template_props.rating = rating;
         template_props.reviewsCount = reviewsCount;
       }
-      const formattedOpeningHours = formatOpeningHours(businessContext.opening_hours);
+      const formattedOpeningHours = formatOpeningHours(businessDetails.opening_hours);
       if (wantsHours && formattedOpeningHours) {
         template_props.showOpeningHours = true;
         template_props.openingHours = formattedOpeningHours;
       }
-      if (wantsMapMarker && businessContext.latitude && businessContext.longitude) {
+      const latitude = Number(businessDetails.latitude);
+      const longitude = Number(businessDetails.longitude);
+      if (wantsMapMarker && Number.isFinite(latitude) && Number.isFinite(longitude)) {
         template_props.showMap = true;
-        template_props.latitude = Number(businessContext.latitude);
-        template_props.longitude = Number(businessContext.longitude);
-        template_props.address = businessContext.address ?? null;
+        template_props.latitude = latitude;
+        template_props.longitude = longitude;
+        template_props.address = businessDetails.address ?? null;
       }
       if (wantsInstallCta) {
         template_props.showAppInstall = true;
