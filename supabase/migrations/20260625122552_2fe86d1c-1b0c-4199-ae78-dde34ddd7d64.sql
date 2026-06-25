@@ -1,0 +1,1 @@
+UPDATE public.video_jobs SET status='error', error_message='Annulé : hallucination de template (job pré-correctif)' WHERE id='8c757e24-b3da-430a-b5fd-a522e40f7472';
