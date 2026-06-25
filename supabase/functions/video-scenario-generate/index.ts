@@ -34,19 +34,37 @@ Deno.serve(async (req) => {
 
     const supa = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-    // Charger le contexte établissement
+    // Charger le contexte établissement (par id, ou par nom détecté dans le prompt)
     let businessContext: any = null;
-    if (business_id) {
+    let resolved_business_id: string | null = business_id ?? null;
+
+    // Si pas de business_id fourni, essayer de détecter un nom d'établissement dans le prompt.
+    // On cherche entre guillemets « ... » ou " ..." pour matcher proprement.
+    if (!resolved_business_id) {
+      const quoteMatch = prompt.match(/[«"']([^»"']{3,80})[»"']/);
+      const candidate = quoteMatch?.[1]?.trim();
+      if (candidate) {
+        const { data: matches } = await supa
+          .from("businesses")
+          .select("id,name")
+          .ilike("name", `%${candidate}%`)
+          .eq("is_active", true)
+          .limit(1);
+        if (matches && matches[0]) resolved_business_id = matches[0].id;
+      }
+    }
+
+    if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,hook,city,main_category,categories,computed_rating,total_review_count,popup_title,popup_description")
-        .eq("id", business_id)
+        .select("id,name,hook,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,computed_rating,total_review_count,popup_title,popup_description")
+        .eq("id", resolved_business_id)
         .maybeSingle();
 
       const { data: docs } = await supa
         .from("business_documents")
         .select("type,url,name,description,thumbnail_url,sort_order,price,popup")
-        .eq("business_id", business_id)
+        .eq("business_id", resolved_business_id)
         .in("type", ["image", "video", "internal-video", "promotion"])
         .order("sort_order", { ascending: true })
         .limit(20);
@@ -62,7 +80,7 @@ ${TEMPLATES.map(t => `- "${t.id}" — ${t.scope} : ${t.description}`).join("\n")
 RÈGLES DE CHOIX :
 1. Si l'établissement correspond à un template dédié (Comptoir Darna, Riad Dar Najat, Maison Brummell, Jnane Rumi, N.A.R, Farasha Farmhouse, Bô Zin) → choisis ce template_id.
 2. Si le prompt est purement corporate 1WM → "corporate-vertical".
-3. Sinon (cas général) → "business-showcase" + props complètes (le template lit ces props).
+3. Sinon (cas général) → "business-showcase" + props complètes.
 
 FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
 {
@@ -73,19 +91,22 @@ FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
     "tagline": "3 à 6 mots, dernier mot accentué (terracotta)",
     "city": "Marrakech",
     "category": "Restaurant",
-    "images": ["url1", "url2", "url3"],
-    "offer": { "title": "Brunch signature", "price": "350 MAD" } 
+    "images": ["url1", "url2"],
+    "offer": { "title": "Brunch signature", "price": "350 MAD" }
   },
   "rationale": "Pourquoi ce template (1 phrase)"
 }
 
-CONTRAINTES PROPS (pour business-showcase) :
-- "images" : 3 à 5 URLs PRISES depuis les médias fournis (type image). Mets l'image la plus iconique en premier.
-- "hook" : court (max 80 caractères), ton 1WM raffiné.
-- "tagline" : 3 à 6 mots, le dernier sera coloré en terracotta automatiquement.
-- "offer" : à remplir UNIQUEMENT s'il y a une promotion ou un prix dans les médias ; sinon null.
-- "name" : utilise EXACTEMENT le nom de l'établissement fourni.
-- Pour les autres templates (dédiés), renvoie des props vides {} : ils sont hardcodés.
+CONTRAINTES STRICTES :
+- "images" : UNIQUEMENT des URLs réelles tirées de la liste \`medias\` fournie (champs url ou thumbnail_url, type image). Si aucune image n'est fournie, renvoie \`"images": []\`. N'INVENTE JAMAIS d'URL (pas de example.com, pas de placeholder).
+- "offer" : UNIQUEMENT s'il existe une vraie promotion/prix dans \`medias\` (type=promotion ou champ price renseigné). Sinon \`"offer": null\`. Ne mets JAMAIS d'horaires ou de quartier dans \`offer\`.
+- "name" : EXACTEMENT le nom de l'établissement fourni (champ businessContext.name).
+- "hook" : utilise le champ \`hook\` du businessContext s'il existe ; sinon génère-en un court (≤80 caractères).
+- "tagline" : 3 à 6 mots, le dernier sera colorisé automatiquement.
+- "city" : champ \`city\` du businessContext (sinon null).
+- Pour les templates dédiés (hors business-showcase), renvoie \`"props": {}\` : ils sont hardcodés.
+
+Si \`businessContext\` est null, l'établissement est introuvable dans la base : choisis quand même "business-showcase", remplis name/hook/tagline depuis le prompt utilisateur, mets \`"images": []\` et \`"offer": null\`.
 
 Durée demandée : ${duration_sec}s · Ton : ${tone}.`;
 
