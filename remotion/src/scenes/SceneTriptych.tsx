@@ -1,20 +1,19 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Video,
   interpolate,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 import { COLORS, display, body } from "../theme";
 
-const PANELS: { src: string; word: string; tone: string }[] = [
-  { src: "videos/clip-decouvrir.mp4", word: "Découvrir", tone: COLORS.gold },
-  { src: "videos/clip-vivre.mp4", word: "Vivre", tone: COLORS.cream },
-  { src: "videos/clip-partager.mp4", word: "Partager", tone: COLORS.terracotta },
+const PANELS: { bg: string; word: string; tone: string }[] = [
+  { bg: "linear-gradient(160deg, #2a1a0e 0%, #0e0b08 100%)", word: "Découvrir", tone: COLORS.gold },
+  { bg: "linear-gradient(160deg, #1c1612 0%, #0e0b08 100%)", word: "Vivre", tone: COLORS.cream },
+  { bg: "linear-gradient(160deg, #2a0f08 0%, #0e0b08 100%)", word: "Partager", tone: COLORS.terracotta },
 ];
+
 
 export const SceneTriptych: React.FC = () => {
   const frame = useCurrentFrame();
