@@ -300,9 +300,17 @@ export default function StudioVideo() {
     }
     setSubmitting(true);
     try {
+      const directives: string[] = [];
+      if (optReviews) directives.push("Faire figurer le compteur d'avis client et le badge des avis client (note/20 + nombre d'avis).");
+      if (optHours) directives.push("Faire figurer les horaires d'ouverture de l'établissement.");
+      if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
+      if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
+      const finalPrompt = directives.length
+        ? `${prompt.trim()}\n\nContraintes supplémentaires :\n- ${directives.join("\n- ")}`
+        : prompt.trim();
       const { data, error } = await supabase.functions.invoke("video-scenario-generate", {
         body: {
-          prompt: prompt.trim(),
+          prompt: finalPrompt,
           business_id: selected?.id ?? null,
           duration_sec: duration,
           tone,
