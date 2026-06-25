@@ -1,0 +1,41 @@
+name: Rendu des vidéos Studio
+
+on:
+  schedule:
+    - cron: "*/5 * * * *" # Toutes les 5 minutes
+  workflow_dispatch: {} # Permet aussi le déclenchement manuel
+
+concurrency:
+  group: render-videos
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Installer FFmpeg & Chromium deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libnss3 libatk1.0-0 libatk-bridge2.0-0 \
+            libcups2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 \
+            libgbm1 libpango-1.0-0 libcairo2 libasound2t64
+
+      - name: Installer les dépendances
+        working-directory: remotion
+        run: bun install
+
+      - name: Lancer le rendu de la file d'attente
+        working-directory: remotion
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          MAX_JOBS: "10"
+        run: bun run scripts/render-job.mjs
