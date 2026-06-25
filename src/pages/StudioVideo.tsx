@@ -476,7 +476,7 @@ export default function StudioVideo() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 maxLength={2000}
-                className="text-lg md:text-xl p-4"
+                className="text-lg md:text-xl p-4 min-h-[220px] md:min-h-[150px]"
                 onFocus={() => {
                   if (!prompt && !refineFrom) {
                     const businessText = selected ? ` « ${selected.name} »` : "";
