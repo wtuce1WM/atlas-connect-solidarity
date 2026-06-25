@@ -312,13 +312,19 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (resolved_business_id) {
       const { data: freshBiz } = await supa
         .from("businesses")
-        .select("id,name,city,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count")
+        .select("id,name,hook_fr,destination_hook,poi_hook,description,city,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count")
         .eq("id", resolved_business_id)
         .maybeSingle();
       if (freshBiz) businessDetails = { ...(businessContext ?? {}), ...freshBiz };
     }
 
     if (template_id === "business-showcase" && businessDetails) {
+      if (businessDetails.name) template_props.name = businessDetails.name;
+      const realHook = stripHtml(businessDetails.hook_fr || businessDetails.destination_hook || businessDetails.poi_hook || businessDetails.description);
+      if (realHook) {
+        template_props.hook = realHook;
+        template_props.tagline = deriveTaglineFromHook(realHook, businessDetails.name);
+      }
       template_props.durationSec = Number(duration_sec);
       const googleRating = Number(businessDetails.google_rating);
       const computedRating = Number(businessDetails.computed_rating);
