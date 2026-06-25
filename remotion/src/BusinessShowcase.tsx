@@ -3,6 +3,7 @@ import {
   AbsoluteFill,
   Sequence,
   Img,
+  OffthreadVideo,
   interpolate,
   spring,
   useCurrentFrame,
