@@ -1,0 +1,180 @@
+import { createClient } from "@supabase/supabase-js";
+import { bundle } from "@remotion/bundler";
+import { renderMedia, selectComposition, openBrowser } from "@remotion/renderer";
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
+
+// Load environment variables from parent folder's .env (or worker folder's .env)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const rootEnvPath = path.resolve(__dirname, "../../.env");
+const localEnvPath = path.resolve(__dirname, "../.env");
+
+function loadEnv(envPath) {
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, "utf-8");
+    envContent.split("\n").forEach((line) => {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        let value = match[2] || "";
+        if (value.startsWith('"') && value.endsWith('"')) {
+          value = value.slice(1, -1);
+        } else if (value.startsWith("'") && value.endsWith("'")) {
+          value = value.slice(1, -1);
+        }
+        process.env[key] = value;
+      }
+    });
+  }
+}
+
+loadEnv(rootEnvPath);
+loadEnv(localEnvPath);
+
+const {
+  VITE_SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY,
+} = process.env;
+
+const supabaseUrl = VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error("❌ Erreur : SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY manquante.");
+  console.log("Veuillez configurer votre fichier .env avec les clés requises.");
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+const BUCKET = "studio-videos";
+
+async function getNextJob() {
+  const { data, error } = await supabase
+    .from("video_jobs")
+    .update({ status: "rendering" })
+    .eq("status", "pending")
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error("❌ Erreur lors de la récupération d'un job :", error);
+    return null;
+  }
+  return data;
+}
+
+async function renderAndUpload() {
+  console.log("🔍 Recherche d'une vidéo en file d'attente...");
+  const job = await getNextJob();
+
+  if (!job) {
+    console.log("✨ Aucune vidéo en file d'attente.");
+    return;
+  }
+
+  console.log(`🎬 Traitement de la vidéo ${job.id} (${job.template_id || "studio-signature"})...`);
+
+  try {
+    const tempDir = path.resolve(__dirname, "../tmp-render");
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    const outPath = path.join(tempDir, `${job.id}.mp4`);
+    
+    // Configurer les props pour le rendu
+    const props = job.scenario_json || {};
+    const inputPropsFile = path.join(tempDir, `${job.id}-props.json`);
+    fs.writeFileSync(inputPropsFile, JSON.stringify(props, null, 2));
+
+    console.log("📦 Bundling Remotion...");
+    const bundled = await bundle({
+      entryPoint: path.resolve(__dirname, "../src/index.ts"),
+      webpackOverride: (c) => c,
+    });
+
+    console.log("🌐 Ouverture de l'instance Chrome...");
+    const browser = await openBrowser("chrome", {
+      browserExecutable: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      chromiumOptions: {
+        args: ["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
+      },
+      chromeMode: "chrome-for-testing",
+    });
+
+    const compositionId = job.template_id || "studio-signature";
+    console.log(`🎨 Sélection de la composition : ${compositionId}`);
+    
+    const composition = await selectComposition({
+      serveUrl: bundled,
+      id: compositionId,
+      puppeteerInstance: browser,
+      inputProps: props,
+    });
+
+    console.log("🎥 Rendu vidéo en cours (cette étape prend quelques secondes)...");
+    await renderMedia({
+      composition,
+      serveUrl: bundled,
+      codec: "h264",
+      outputLocation: outPath,
+      puppeteerInstance: browser,
+      muted: true,
+      concurrency: 1,
+      inputProps: props,
+    });
+
+    await browser.close({ silent: false });
+
+    console.log("🚀 Téléversement de la vidéo sur le cloud...");
+    const fileBuffer = fs.readFileSync(outPath);
+    const storagePath = `${job.id}.mp4`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(BUCKET)
+      .upload(storagePath, fileBuffer, {
+        contentType: "video/mp4",
+        upsert: true,
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
+    const publicUrl = pub.publicUrl;
+
+    console.log(`✅ Vidéo générée avec succès : ${publicUrl}`);
+
+    // Mettre à jour le statut du job
+    const { error: updateError } = await supabase
+      .from("video_jobs")
+      .update({
+        status: "done",
+        output_url: publicUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", job.id);
+
+    if (updateError) throw updateError;
+
+    // Nettoyage local
+    fs.unlinkSync(outPath);
+    fs.unlinkSync(inputPropsFile);
+
+  } catch (error) {
+    console.error("❌ Erreur pendant le rendu :", error);
+    
+    await supabase
+      .from("video_jobs")
+      .update({
+        status: "error",
+        error_message: error.message || String(error),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", job.id);
+  }
+}
+
+renderAndUpload();
