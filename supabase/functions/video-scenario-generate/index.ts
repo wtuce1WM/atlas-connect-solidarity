@@ -148,21 +148,46 @@ Durée demandée : ${duration_sec}s · Ton : ${tone}.`;
       : "business-showcase";
     const template_props = parsed.props && typeof parsed.props === "object" ? parsed.props : {};
 
-    // Si l'IA a choisi business-showcase mais sans contexte business, injecter au moins le prompt
+    // Anti-hallucination : ne garder que des URLs réellement présentes dans medias
+    const realMediaUrls = new Set<string>();
+    if (businessContext?.medias) {
+      for (const m of businessContext.medias) {
+        if (m.url) realMediaUrls.add(m.url);
+        if (m.thumbnail_url) realMediaUrls.add(m.thumbnail_url);
+      }
+    }
+    if (Array.isArray(template_props.images)) {
+      template_props.images = template_props.images.filter((u: unknown) =>
+        typeof u === "string" && realMediaUrls.has(u)
+      );
+    } else {
+      template_props.images = [];
+    }
+
+    // Filet de sécurité : si offer ne contient pas un vrai prix MAD/€/$, on jette
+    if (template_props.offer && typeof template_props.offer === "object") {
+      const priceStr = String(template_props.offer.price || "");
+      const looksLikePrice = /(\d+\s*(mad|dhs?|€|\$|eur|usd))|^\d+$/i.test(priceStr.trim());
+      if (!looksLikePrice) template_props.offer = null;
+    }
+
     if (template_id === "business-showcase" && !template_props.name && businessContext?.name) {
       template_props.name = businessContext.name;
+    }
+    if (template_id === "business-showcase" && !template_props.city && businessContext?.city) {
+      template_props.city = businessContext.city;
     }
 
     const { data: job, error } = await supa
       .from("video_jobs")
       .insert({
-        business_id: business_id ?? null,
+        business_id: resolved_business_id,
         prompt,
         duration_sec,
         tone,
         template_id,
         template_props,
-        scenario_json: parsed, // garder la réponse IA brute pour debug
+        scenario_json: parsed,
         status: "pending",
       })
       .select()
@@ -170,7 +195,7 @@ Durée demandée : ${duration_sec}s · Ton : ${tone}.`;
 
     if (error) return json({ error: error.message }, 500);
 
-    return json({ job, template_id, rationale: parsed.rationale });
+    return json({ job, template_id, resolved_business_id, rationale: parsed.rationale });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }
