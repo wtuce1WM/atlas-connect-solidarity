@@ -540,21 +540,25 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
       {reviewsFrom !== null && (
         <Sequence from={reviewsFrom} durationInFrames={OPTION_SCENE_FRAMES}>
+          <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
           <SceneReviews rating={rating} count={reviewsCount} />
         </Sequence>
       )}
       {hoursFrom !== null && openingHours && (
         <Sequence from={hoursFrom} durationInFrames={OPTION_SCENE_FRAMES}>
+          <VideoBackdrop src={safeVideos[1] ?? safeVideos[0]} image={safeImages[1] ?? safeImages[0]} />
           <SceneHours openingHours={openingHours} />
         </Sequence>
       )}
       {mapFrom !== null && (
         <Sequence from={mapFrom} durationInFrames={OPTION_SCENE_FRAMES}>
+          <VideoBackdrop src={safeVideos[2] ?? safeVideos[0]} image={safeImages[2] ?? safeImages[0]} />
           <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} />
         </Sequence>
       )}
 
       <Sequence from={ctaFrom} durationInFrames={ctaDuration}>
+        <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
         <SceneCta name={name} />
       </Sequence>
     </AbsoluteFill>
