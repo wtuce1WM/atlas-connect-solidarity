@@ -35,13 +35,14 @@ loadEnv(localEnvPath);
 const {
   VITE_SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY,
+  VITE_SUPABASE_ANON_KEY,
 } = process.env;
 
 const supabaseUrl = VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-const supabaseKey = SUPABASE_SERVICE_ROLE_KEY;
+const supabaseKey = SUPABASE_SERVICE_ROLE_KEY || VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error("❌ Erreur : SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY manquante.");
+  console.error("❌ Erreur : SUPABASE_URL ou SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY manquante.");
   console.log("Veuillez configurer votre fichier .env avec les clés requises.");
   process.exit(1);
 }
