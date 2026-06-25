@@ -123,6 +123,12 @@ Deno.serve(async (req) => {
       return words.slice(0, 6).join(" ").replace(/^[a-zàâäéèêëîïôöùûüç]/, (c) => c.toUpperCase());
     };
 
+    const hasInjectablePopup = (context: any): boolean => {
+      if (!context) return false;
+      if (context.popup_image_url) return true;
+      return Array.isArray(context.medias) && context.medias.some((m: any) => Boolean(m?.popup));
+    };
+
     const promptText = prompt.toLowerCase();
     const wantsReviews = Boolean(options?.reviews) || /avis client|badge des avis|note\/20|nombre d'avis|compteur d'avis/i.test(promptText);
     const wantsHours = Boolean(options?.hours) || /horaires|heures d'ouverture|ouverture de l'établissement/i.test(promptText);
@@ -301,7 +307,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       const realHook = stripHtml(businessContext.hook_fr || businessContext.hook);
       if (realHook && typeof realHook === "string" && realHook.trim()) {
         template_props.hook = realHook.trim();
-        template_props.tagline = deriveTaglineFromHook(realHook, businessContext.name);
+        const shouldUseFullHook = !template_props.offer && !hasInjectablePopup(businessContext);
+        template_props.tagline = shouldUseFullHook ? realHook.trim() : deriveTaglineFromHook(realHook, businessContext.name);
       }
     }
 
@@ -323,7 +330,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       const realHook = stripHtml(businessDetails.hook_fr || businessDetails.destination_hook || businessDetails.poi_hook || businessDetails.description);
       if (realHook) {
         template_props.hook = realHook;
-        template_props.tagline = deriveTaglineFromHook(realHook, businessDetails.name);
+        const shouldUseFullHook = !template_props.offer && !hasInjectablePopup(businessDetails);
+        template_props.tagline = shouldUseFullHook ? realHook : deriveTaglineFromHook(realHook, businessDetails.name);
       }
       template_props.durationSec = Number(duration_sec);
       const googleRating = Number(businessDetails.google_rating);
