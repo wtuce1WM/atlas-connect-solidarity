@@ -311,6 +311,32 @@ export default function StudioVideo() {
                   ))}
                 </div>
               )}
+
+              {selected && (
+                <div className="rounded-md border border-border bg-muted/30 p-3 text-sm space-y-2">
+                  {statsLoading || !bizStats ? (
+                    <p className="text-xs text-muted-foreground">Chargement des informations…</p>
+                  ) : (
+                    <>
+                      <div>
+                        <span className="font-medium">Hook : </span>
+                        {bizStats.hook ? (
+                          <span className="italic">« {bizStats.hook} »</span>
+                        ) : (
+                          <span className="text-destructive">Aucun</span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                        <span><span className="font-medium">Texte :</span> {bizStats.descLen} car.</span>
+                        <span><span className="font-medium">Images :</span> {bizStats.images}</span>
+                        <span><span className="font-medium">Vidéos :</span> {bizStats.videos}</span>
+                        <span><span className="font-medium">Offres :</span> {bizStats.offers}</span>
+                        <span><span className="font-medium">Popup :</span> {bizStats.popup ? "oui" : "non"}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
