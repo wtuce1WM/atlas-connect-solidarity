@@ -124,6 +124,12 @@ CONTRAINTES STRICTES :
 - "city" : champ \`city\` du businessContext (sinon null).
 - Pour les templates dédiés (hors business-showcase), renvoie \`"props": {}\` : ils sont hardcodés.
 
+OPTIONS SÉLECTIONNÉES PAR L'UTILISATEUR À ACTIVER DANS LE SCÉNARIO :
+${options?.reviews ? `- Activer explicitement l'affichage des avis clients (note et nombre d'avis de l'établissement).` : `- Désactiver l'affichage des avis clients.`}
+${options?.hours ? `- Activer explicitement l'affichage des horaires d'ouverture de l'établissement.` : `- Désactiver les horaires.`}
+${options?.map_marker ? `- Activer explicitement la visualisation de la Google Map avec le marqueur.` : `- Désactiver le marqueur de carte.`}
+${options?.install_cta ? `- Activer l'incitation à installer l'app (One World Morocco) à la fin.` : `- Désactiver l'incitation de fin d'installation.`}
+
 Si \`businessContext\` est null, l'établissement est introuvable dans la base : choisis quand même "business-showcase", remplis name/hook/tagline depuis le prompt utilisateur, mets \`"images": []\` et \`"offer": null\`.
 
 Durée demandée : ${duration_sec}s · Ton : ${tone}.
