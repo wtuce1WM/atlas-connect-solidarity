@@ -314,6 +314,22 @@ export default function StudioVideo() {
                 ))}
             </div>
           </section>
+
+          <section className="space-y-3">
+            <h2 className="font-semibold">Showcase — vidéos déjà produites</h2>
+            <p className="text-xs text-muted-foreground">
+              Exemples générés manuellement, avec le prompt d'origine.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {SHOWCASE.map((s) => (
+                <div key={s.title} className="rounded-lg border border-border bg-background p-3 space-y-2">
+                  <div className="text-sm font-medium">{s.title}</div>
+                  <video src={s.src} controls preload="metadata" className="w-full rounded-md aspect-[9/16] bg-black" />
+                  <p className="text-xs text-muted-foreground whitespace-pre-line">{s.prompt}</p>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     </>
