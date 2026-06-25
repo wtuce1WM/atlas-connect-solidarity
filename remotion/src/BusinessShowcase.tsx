@@ -365,8 +365,8 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const mapO = ease(frame, 10, 30);
-  // OpenStreetMap static — pas de clé requise
-  const mapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=15&size=720x720&maptype=mapnik&markers=${lat},${lng},red-pushpin`;
+  // Google Maps Static via edge proxy (clé stockée côté serveur)
+  const mapUrl = `https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/static-map?lat=${lat}&lng=${lng}&zoom=16&size=640x640&scale=2&maptype=roadmap`;
   const pinScale = spring({ frame: frame - 28, fps: 30, config: { damping: 10, stiffness: 180 } });
   return (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", padding: 50 }}>
