@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,hook,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,computed_rating,total_review_count,popup_title,popup_description,images,popup_image_url")
+        .select("id,name,hook,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,popup_title,popup_description,images,popup_image_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
 
@@ -79,7 +79,6 @@ Deno.serve(async (req) => {
         .order("sort_order", { ascending: true })
         .limit(20);
 
-      // Fusionner medias business_documents + colonne images + popup_image_url
       const mergedMedias: any[] = [];
       if (biz?.popup_image_url) mergedMedias.push({ type: "image", url: biz.popup_image_url, name: "Image principale" });
       if (Array.isArray(biz?.images)) {
@@ -208,6 +207,31 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     }
     if (template_id === "business-showcase" && !template_props.city && businessContext?.city) {
       template_props.city = businessContext.city;
+    }
+
+    // Injection serveur des options + vraies données BD (l'IA ne fournit pas ces champs)
+    if (template_id === "business-showcase" && businessContext) {
+      const rating = businessContext.computed_rating ?? businessContext.google_rating ?? null;
+      const reviewsCount = businessContext.total_review_count ?? businessContext.google_review_count ?? null;
+
+      if (options?.reviews) {
+        template_props.showReviews = true;
+        template_props.rating = rating;
+        template_props.reviewsCount = reviewsCount;
+      }
+      if (options?.hours && businessContext.opening_hours) {
+        template_props.showOpeningHours = true;
+        template_props.openingHours = businessContext.opening_hours;
+      }
+      if (options?.map_marker && businessContext.latitude && businessContext.longitude) {
+        template_props.showMap = true;
+        template_props.latitude = Number(businessContext.latitude);
+        template_props.longitude = Number(businessContext.longitude);
+        template_props.address = businessContext.address ?? null;
+      }
+      if (options?.install_cta) {
+        template_props.showAppInstall = true;
+      }
     }
 
     const { data: job, error } = await supa
