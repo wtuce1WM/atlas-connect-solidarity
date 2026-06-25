@@ -608,8 +608,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
           audioContext,
           onAudioData,
           () => {
-            setMicReady(true);
+            // Beep d'abord, "Parlez maintenant" ensuite (cf. onstart Web Speech).
             playReadyBeep();
+            setTimeout(() => setMicReady(true), 450);
           },
         );
 
