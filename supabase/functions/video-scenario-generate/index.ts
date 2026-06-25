@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,hook_fr,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,popup_title,popup_description,images,popup_image_url")
+        .select("id,name,hook_fr,destination_hook,poi_hook,description,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,images,popup_image_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
 
@@ -88,10 +88,40 @@ Deno.serve(async (req) => {
 
       businessContext = {
         ...biz,
-        hook: biz?.hook_fr ?? biz?.popup_title ?? biz?.popup_description ?? null,
+        hook: biz?.hook_fr ?? biz?.destination_hook ?? biz?.poi_hook ?? biz?.description ?? null,
         medias: mergedMedias,
       };
     }
+
+    const stripHtml = (value: unknown): string | null => {
+      if (typeof value !== "string") return null;
+      return value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() || null;
+    };
+
+    const cleanDisplayText = (value: unknown): string | null => {
+      if (typeof value !== "string") return null;
+      return value
+        .replace(/\bterracotta(?:é|e|s)?\b/gi, "")
+        .replace(/\s+([,.:;!?])/g, "$1")
+        .replace(/\s{2,}/g, " ")
+        .replace(/^[\s,.:;!?-]+|[\s,.:;!?-]+$/g, "")
+        .trim() || null;
+    };
+
+    const deriveTaglineFromHook = (hook: string | null, name?: string | null): string => {
+      const fallback = name ? `L'expérience ${name}` : "Une adresse à découvrir";
+      const cleanedHook = cleanDisplayText(stripHtml(hook) ?? "");
+      if (!cleanedHook) return fallback;
+      const afterColon = cleanedHook.includes(":") ? cleanedHook.split(":").pop()?.trim() : cleanedHook;
+      let candidate = afterColon || cleanedHook;
+      if (name) {
+        const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        candidate = candidate.replace(new RegExp(`\\b(au|à|chez|pour)?\\s*${escapedName}\\b`, "gi"), "");
+      }
+      candidate = cleanDisplayText(candidate) || cleanedHook;
+      const words = candidate.split(/\s+/).filter(Boolean);
+      return words.slice(0, 6).join(" ").replace(/^[a-zàâäéèêëîïôöùûüç]/, (c) => c.toUpperCase());
+    };
 
     const promptText = prompt.toLowerCase();
     const wantsReviews = Boolean(options?.reviews) || /avis client|badge des avis|note\/20|nombre d'avis|compteur d'avis/i.test(promptText);
@@ -150,8 +180,8 @@ FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
   "template_id": "business-showcase",
   "props": {
     "name": "Nom de l'établissement",
-    "hook": "Une phrase courte, ciselée, immersive",
-    "tagline": "3 à 6 mots, dernier mot accentué (terracotta)",
+    "hook": "Hook exact de l'établissement, sans paraphrase",
+    "tagline": "3 à 6 mots tirés du hook, sans ajout stylistique",
     "city": "Marrakech",
     "category": "Restaurant",
     "videos": ["url1", "url2"],
@@ -169,8 +199,8 @@ CONTRAINTES STRICTES :
 - "videos"/"images" : UNIQUEMENT des URLs réelles tirées de \`medias\`. N'INVENTE JAMAIS d'URL.
 - "offer" : UNIQUEMENT s'il existe une vraie promotion/prix dans \`medias\` (type=promotion ou champ price renseigné). Sinon \`"offer": null\`. Ne mets JAMAIS d'horaires ou de quartier dans \`offer\`.
 - "name" : EXACTEMENT le nom de l'établissement fourni (champ businessContext.name).
-- "hook" : utilise le champ \`hook\` du businessContext s'il existe ; sinon génère-en un court (≤80 caractères).
-- "tagline" : 3 à 6 mots, le dernier sera colorisé automatiquement.
+- "hook" : utilise le champ \`hook\` du businessContext s'il existe ; sinon génère-en un court (≤80 caractères). Ne paraphrase JAMAIS le hook existant.
+- "tagline" : 3 à 6 mots tirés du hook réel. N'ajoute JAMAIS de mot décoratif comme "terracotta", "bohème" ou "sauvage" s'il n'est pas déjà dans le hook.
 - "city" : champ \`city\` du businessContext (sinon null).
 - Pour les templates dédiés (hors business-showcase), renvoie \`"props": {}\` : ils sont hardcodés (ils respectent déjà la règle médias en interne).
 
@@ -225,6 +255,10 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       : "business-showcase";
     const template_props = parsed.props && typeof parsed.props === "object" ? parsed.props : {};
 
+    // Nettoyage anti-hallucination des textes visibles.
+    template_props.hook = cleanDisplayText(template_props.hook) || undefined;
+    template_props.tagline = cleanDisplayText(template_props.tagline) || undefined;
+
     // Anti-hallucination : ne garder que des URLs réellement présentes dans medias
     const realMediaUrls = new Set<string>();
     if (businessContext?.medias) {
@@ -262,11 +296,12 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (template_id === "business-showcase" && !template_props.city && businessContext?.city) {
       template_props.city = businessContext.city;
     }
-    // Forcer le hook réel de l'établissement (hook_fr / popup_title) — interdire toute paraphrase IA.
+    // Forcer le hook réel de l'établissement (hook_fr en priorité) — interdire toute paraphrase IA.
     if (template_id === "business-showcase" && businessContext) {
-      const realHook = businessContext.hook_fr || businessContext.popup_title || businessContext.hook;
+      const realHook = stripHtml(businessContext.hook_fr || businessContext.hook);
       if (realHook && typeof realHook === "string" && realHook.trim()) {
         template_props.hook = realHook.trim();
+        template_props.tagline = deriveTaglineFromHook(realHook, businessContext.name);
       }
     }
 
@@ -284,6 +319,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     }
 
     if (template_id === "business-showcase" && businessDetails) {
+      template_props.durationSec = Number(duration_sec);
       const googleRating = Number(businessDetails.google_rating);
       const computedRating = Number(businessDetails.computed_rating);
       const googleReviews = Number(businessDetails.google_review_count);
