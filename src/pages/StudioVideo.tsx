@@ -7,11 +7,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Wand2, Download } from "lucide-react";
-import maisonBrummellVideo from "@/assets/maison-brummell.mp4";
-import riadDarNajatVideo from "@/assets/riad-dar-najat.mp4";
-import narComplexeVideo from "@/assets/nar-complexe.mp4";
-import farashaVideo from "@/assets/farasha-farmhouse.mp4";
-import boZinVideo from "@/assets/bo-zin.mp4";
+import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
+import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
+import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
+import farashaAsset from "@/assets/farasha-farmhouse.mp4.asset.json";
+import boZinAsset from "@/assets/bo-zin.mp4.asset.json";
+
+const maisonBrummellVideo = maisonBrummellAsset.url;
+const riadDarNajatVideo = riadDarNajatAsset.url;
+const narComplexeVideo = narComplexeAsset.url;
+const farashaVideo = farashaAsset.url;
+const boZinVideo = boZinAsset.url;
 
 const SHOWCASE: { title: string; src: string; prompt: string }[] = [
   {
