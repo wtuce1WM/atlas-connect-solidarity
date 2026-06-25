@@ -534,9 +534,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
 
 
   // On iOS, the native Web Speech API uses Siri's local dictation which is
-  // very poor in French and on proper nouns. We use ElevenLabs Scribe realtime
-  // instead, which gives desktop-grade quality.
-  const useScribePath = isIOS();
+  // very poor in French and on proper nouns. On Android (Samsung Chrome
+  // notably), Web Speech is also unreliable: multiple concurrent getUserMedia
+  // streams (recognition + fallback recorder + VU-meter) often fail, and the
+  // native STT mangles French proper nouns. We use ElevenLabs Scribe realtime
+  // on both platforms — desktop-grade quality, single mic stream.
+  const useScribePath = isIOS() || isAndroid();
   const scribeFinalRef = useRef<string>("");
   const scribePartialRef = useRef<string>("");
 
