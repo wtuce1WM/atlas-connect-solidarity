@@ -1,74 +1,64 @@
-# Fusion `SlidePanelHome` → `BookOnlineSlidePanel`
 
-Scénario **B** validé : on supprime `SlidePanelHome` (~1064 lignes + son wrapper `HomeVideoSlidePanel`). On garde `DestinationSlidePanel` (table `destinations` distincte, déjà importée par Book).
+# Studio Vidéo IA — Plan
 
-## Constat clé (avant de planifier les étapes)
+Page front `/studio-video` (noindex, accessible à tous pour l'instant) pour générer des vidéos verticales 720x1280 de 17 à 30s à partir d'un prompt + sélection d'établissement.
 
-Les deux panels n'ont **pas la même clé d'entrée** :
+## Architecture
 
-| | `BookOnlineSlidePanel` | `SlidePanelHome` |
-|---|---|---|
-| Clé d'entrée | `businessId` (obligatoire) | `videoUrl` + `videoId` + `owner?` |
-| Cas couverts | 1 fiche business | vidéo business, vidéo "sociale" (pas de business), événement (`eventId`), agenda ville, document/POI (`pageBusinessId`) |
+```text
+[Front /studio-video]
+     │  prompt + business_id + durée (17/22/27s) + ton
+     ▼
+[Edge function: video-scenario-generate]
+     │  Claude (Lovable AI Gateway) → JSON scénario
+     │  Insert video_jobs (status=pending, scenario_json)
+     ▼
+[Worker externe (Render/Fly/Railway)]
+     │  Poll video_jobs WHERE status=pending
+     │  Render Remotion (template Signature paramétrique)
+     │  Upload MP4 → storage bucket `studio-videos`
+     │  Update video_jobs (status=done, output_url)
+     ▼
+[Front] Realtime sur video_jobs → affiche progression + lecteur MP4
+```
 
-Donc « fusion » = élargir Book pour accepter une **entrée vidéo** quand il n'y a pas (encore) de `businessId`, sans alourdir le composant. C'est plus qu'un simple renommage de props.
+## Étapes
 
-## Approche
+### 1. Base de données
+- Table `video_jobs` : id, user_id (nullable), business_id, prompt, duration_sec, tone, scenario_json, status (pending/rendering/done/error), output_url, error_message, created_at, updated_at.
+- Bucket public `studio-videos`.
+- RLS : lecture publique des jobs `done` ; insert ouvert (tout le monde pour l'instant) ; update réservé au service_role (worker).
+- GRANT explicites (anon/authenticated/service_role).
 
-Pour rester **minimal et direct** :
+### 2. Edge function `video-scenario-generate`
+- Entrée : `{ prompt, business_id, duration_sec, tone }`.
+- Charge la fiche établissement (hook, popup, offres, avis, médias internes triés par sort_order).
+- Appelle Claude via Lovable AI Gateway → JSON beats structuré (timeline, textes, médias choisis).
+- Insère un `video_jobs` (status=pending) et retourne son id.
 
-1. Étendre l'API de `BookOnlineSlidePanel` avec un bloc de props vidéo optionnel (ré-export des champs vidéo de SlidePanelHome) :
-   - `videoUrl?`, `videoId?`, `isGeneric?`, `owner?`, `social?`, `showSocialBadge?`, `description?`, `videoName?`, `eventId?`, `agendaCity?`, `pageBusinessName?`, `pageBusinessId?`, `compactBusinessHeader?`, `returnContext?`.
-   - Renommer (alias) les props de nav existantes Book pour matcher Home : ajouter `onPrev/onNext/hasPrev/hasNext` comme alias de `onPrevBusiness/...` (les deux acceptés le temps de migrer).
-   - Rendre `businessId` optionnel : si absent → résoudre via `owner?.id` ou `pageBusinessId`, sinon mode "vidéo seule" (pas de carte booking).
+### 3. Template Remotion paramétrique
+- `remotion/src/StudioSignature.tsx` : un seul composant qui consomme le JSON scénario (props) et compose les beats du template "Signature 27s" déjà éprouvé (hook, identité, signature, avis, CTA install).
+- Durées ajustables 17/22/27s.
 
-2. Réintégrer dans Book les **sous-blocs propres à Home** non présents dans Book :
-   - rendu Agenda (`agendaCity`)
-   - rendu Event (`eventId` → fiche événement)
-   - badge social / owner quand pas de business résolu
-   - header compact (déjà présent dans `BusinessHeader` via `compact`)
-   - `returnContext` (sérialisation/restauration du contexte Test/Home)
+### 4. Worker de rendu (externe, simple)
+- Petit service Node lisant `video_jobs` toutes les 5s.
+- Télécharge les médias, lance `npx remotion render` avec props JSON, upload sur bucket, met à jour le job.
+- Déployable sur Render/Fly/Railway (~5–10 €/mois). Documenté dans un README dédié — déploiement manuel à part par l'utilisateur.
 
-   Extraire ces sous-blocs depuis `SlidePanelHome` vers de petits composants `slidepanel/` (`AgendaCard`, `EventCard`, `SocialBadgeCard`, etc.) plutôt que de copier-coller dans Book. Book les conditionne sur la présence des props.
-
-3. Migrer les 5 appelants vers `BookOnlineSlidePanel`, un par un :
-   - `src/components/home/HomeVideoSlidePanel.tsx` (wrapper Home)
-   - `src/components/HomepageCardsFront.tsx`
-   - `src/components/SearchAIVideosCarousel.tsx`
-   - `src/pages/search/YouTubeChannelsTabContent.tsx`
-   - `src/pages/search/HashtagTabContent.tsx`
-
-   Chaque migration = renommage d'import + passage des mêmes props (l'API étant un sur-ensemble).
-
-4. Supprimer `src/components/SlidePanelHome.tsx`. Garder ou supprimer `HomeVideoSlidePanel` selon usage final (la logique prev/next y est utile, elle reste).
-
-5. Vérifications :
-   - Recherche `rg "SlidePanelHome"` doit ne renvoyer que des commentaires.
-   - Build TS clean.
-   - Test manuel ciblé : Home (lecture vidéo + prev/next + retour depuis fiche), Test/AI carousel, YouTube tab, Hashtag tab, HomepageCardsFront ("En savoir +").
+### 5. Front `/studio-video`
+- Route ajoutée + `<meta name="robots" content="noindex">`.
+- Formulaire guidé : sélecteur établissement (autocomplete businesses actifs), durée (17/22/27), ton (immersif/dynamique/élégant), zone prompt libre.
+- Bouton "Générer" → appelle edge function, écoute Supabase Realtime sur le job, affiche statut + preview MP4 + bouton télécharger.
+- Galerie des derniers jobs `done`.
 
 ## Détails techniques
 
-- **Pas de mode-switch (`mode="home"|"booking"`)** : on garde une API unique pilotée par la présence/absence de props. C'est ce qui évite la prolifération de `if (mode === ...)` dans un fichier déjà à 2815 lignes.
-- **Taille cible Book** après fusion : ~3200-3500 lignes (vs 2815 + 1064 aujourd'hui répartis). Le gain réel vient des sous-composants extraits + suppression des duplications (header, media background, URL cosmétique, swipe, flèches desktop, hooks vidéo).
-- **URL cosmétique** : déjà OK côté Book (`/fiche/:slug`). Pour les vidéos sans business (`owner` social pur), pas de rewrite — comportement Home actuel.
-- **`returnContext`** : Book n'en a pas besoin aujourd'hui mais doit le propager au CTA "En savoir +" comme le fait SlidePanelHome (sessionStorage `returnTo`).
-- **Risques** :
-  - Régression sur la lecture vidéo "sociale" (pas de business) si la résolution `businessId` n'est pas bien court-circuitée.
-  - Tabs YouTube/Hashtag utilisent `compactBusinessHeader` → vérifier que Book le branche bien sur `BusinessHeader compact`.
-  - Le `useBookOnlineData` hook ne doit pas être appelé si `businessId` est absent.
+- Auth : non requise pour l'instant (tout le monde). Le `user_id` reste optionnel pour pouvoir restreindre plus tard.
+- Coût IA : ~0,02–0,05 € par scénario Claude.
+- Le worker externe doit être déployé manuellement (hors sandbox Lovable). Je fournis le code + README.
+- Pas de rendu Lambda dans cette V1 — ajout possible en V2.
 
-## Découpage en commits suggérés
-
-```text
-1. Étendre l'API BookOnlineSlidePanel (props vidéo + alias nav)
-2. Extraire AgendaCard / EventCard / SocialBadgeCard depuis SlidePanelHome
-3. Brancher ces sous-composants + mode "vidéo seule" dans Book
-4. Migrer HomeVideoSlidePanel → Book
-5. Migrer HomepageCardsFront → Book
-6. Migrer SearchAIVideosCarousel → Book
-7. Migrer YouTubeChannelsTabContent + HashtagTabContent → Book
-8. Supprimer SlidePanelHome.tsx, nettoyer imports/commentaires
-```
-
-Chaque commit est testable indépendamment. Stop possible après n'importe quelle étape sans casser le build.
+## Hors scope V1
+- Quotas, rate-limit utilisateur, paiement.
+- Re-render en 1 clic après tweak (faisable facilement plus tard).
+- Authentification staff (à activer quand vous voudrez restreindre).

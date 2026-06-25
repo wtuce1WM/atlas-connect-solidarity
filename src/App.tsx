@@ -78,6 +78,7 @@ const StaffB2B = lazy(() => import("./pages/StaffB2B"));
 const SearchLayoutDemo = lazy(() => import("./pages/SearchLayoutDemo"));
 
 const StrictModePage = lazy(() => import("./pages/StrictModePage"));
+const StudioVideo = lazy(() => import("./pages/StudioVideo"));
 const IconPreview = lazy(() => import("./pages/IconPreview"));
 const BlogPresentation = lazy(() => import("./pages/BlogPresentation"));
 const BlogPresentationFR = lazy(() => import("./pages/BlogPresentationFR"));
@@ -228,6 +229,7 @@ const AppContent = () => {
               <Route path="/fiche/:slug" element={renderLazyRoute(<FicheImmersive />)} />
               <Route path="/test" element={renderLazyRoute(<Test />)} />
               <Route path="/install" element={renderLazyRoute(<Install />)} />
+              <Route path="/studio-video" element={renderLazyRoute(<StudioVideo />)} />
               <Route path="/corporate" element={renderLazyRoute(<Corporate />)} />
               <Route path="/join" element={renderLazyRoute(<Join />)} />
               <Route path="/card" element={renderLazyRoute(<Card />)} />

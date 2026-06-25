@@ -5506,6 +5506,66 @@ export type Database = {
         }
         Relationships: []
       }
+      video_jobs: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          duration_sec: number
+          error_message: string | null
+          id: string
+          output_url: string | null
+          prompt: string
+          scenario_json: Json | null
+          status: string
+          tone: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          duration_sec?: number
+          error_message?: string | null
+          id?: string
+          output_url?: string | null
+          prompt: string
+          scenario_json?: Json | null
+          status?: string
+          tone?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          duration_sec?: number
+          error_message?: string | null
+          id?: string
+          output_url?: string | null
+          prompt?: string
+          scenario_json?: Json | null
+          status?: string
+          tone?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_jobs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_jobs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       video_likes: {
         Row: {
           created_at: string
