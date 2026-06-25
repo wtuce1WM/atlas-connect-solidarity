@@ -117,6 +117,7 @@ export default function StudioVideo() {
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [businessNames, setBusinessNames] = useState<Record<string, string>>({});
   const [currentJobId, setCurrentJobIdState] = useState<string | null>(
     () => (typeof window !== "undefined" ? localStorage.getItem("studio-video:currentJobId") : null)
   );
