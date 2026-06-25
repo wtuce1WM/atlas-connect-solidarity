@@ -243,7 +243,17 @@ export default function StudioVideo() {
     [jobs, currentJobId]
   );
 
+  const hasActiveJob = useMemo(
+    () => jobs.some((j) => j.status === "pending" || j.status === "processing"),
+    [jobs]
+  );
+
   const submit = async () => {
+    if (submitting) return;
+    if (hasActiveJob) {
+      toast.error("Job déjà lancé — patientez la fin du rendu en cours.");
+      return;
+    }
     if (!prompt.trim()) {
       toast.error("Décrivez la vidéo souhaitée.");
       return;
