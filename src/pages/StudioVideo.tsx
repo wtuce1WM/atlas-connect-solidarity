@@ -598,7 +598,7 @@ function VideoWithMeta({ src }: { src: string }) {
   );
 }
 
-function JobCard({ job, onRefine }: { job: Job; onRefine?: (job: Job) => void }) {
+function JobCard({ job, onRefine, onDelete }: { job: Job; onRefine?: (job: Job) => void; onDelete?: (job: Job) => void }) {
   return (
     <div className="rounded-lg border border-border bg-background p-3 space-y-2">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -624,6 +624,15 @@ function JobCard({ job, onRefine }: { job: Job; onRefine?: (job: Job) => void })
                 className="inline-flex items-center gap-1 text-xs underline text-primary"
               >
                 <Sparkles className="h-3 w-3" /> Affiner
+              </button>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(job)}
+                className="inline-flex items-center gap-1 text-xs underline text-destructive ml-auto"
+              >
+                <Trash2 className="h-3 w-3" /> Supprimer
               </button>
             )}
           </div>
