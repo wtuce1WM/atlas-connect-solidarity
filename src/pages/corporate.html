@@ -337,6 +337,7 @@
       <a href="#villes">Villes Pionnières</a>
     </nav>
     <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="navPanel"><span></span></button>
+    <div class="nav-panel" id="navPanel">
       <a href="/" onclick="event.preventDefault();window.parent.postMessage({type:'owm-nav',to:'/'},'*');">Page d'accueil</a>
       <a href="/club" onclick="event.preventDefault();window.parent.postMessage({type:'owm-nav',to:'/club'},'*');">Le club OWM</a>
       <a href="/install" onclick="event.preventDefault();window.parent.postMessage({type:'owm-nav',to:'/install'},'*');">Application</a>
