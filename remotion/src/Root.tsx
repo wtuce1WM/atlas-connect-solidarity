@@ -11,6 +11,7 @@ import { AgentIaDemoV2, AGENT_IA_V2_TOTAL_FRAMES } from "./AgentIaDemoV2";
 import { NarComplexe, NAR_TOTAL_FRAMES } from "./NarComplexe";
 import { Farasha, FARASHA_TOTAL_FRAMES } from "./Farasha";
 import { BoZin, BOZIN_TOTAL_FRAMES } from "./BoZin";
+import { BusinessShowcase, SHOWCASE_TOTAL_FRAMES } from "./BusinessShowcase";
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -101,6 +102,22 @@ export const RemotionRoot: React.FC = () => (
       fps={30}
       width={720}
       height={1280}
+    />
+    <Composition
+      id="business-showcase"
+      component={BusinessShowcase}
+      durationInFrames={SHOWCASE_TOTAL_FRAMES}
+      fps={30}
+      width={720}
+      height={1280}
+      defaultProps={{
+        name: "Établissement",
+        hook: "Une adresse à découvrir.",
+        tagline: "L'art de vivre marocain.",
+        city: undefined,
+        images: [],
+        offer: null,
+      }}
     />
   </>
 );
