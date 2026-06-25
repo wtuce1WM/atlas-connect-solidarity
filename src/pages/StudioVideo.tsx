@@ -34,7 +34,7 @@ const SHOWCASE: { title: string; src: string; prompt: string }[] = [
   },
   {
     title: "Jnane Rumi",
-    src: "https://placeholder-removed-too-large/jnane",
+    src: "/showcase/jnane-rumi.mp4",
     prompt:
       "Vidéo immersive 720x1280 ~17s pour Jnane Rumi avec ses propres vidéos. Utiliser le hook de l'établissement. Mettre en avant le badge des avis client (note/20 + nombre d'avis). Terminer par une incitation à installer l'App.",
   },
