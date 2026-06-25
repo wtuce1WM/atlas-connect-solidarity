@@ -253,6 +253,13 @@ export default function StudioVideo() {
     [jobs, currentJobId]
   );
 
+  // Clear persisted job id once finished
+  useEffect(() => {
+    if (currentJob && (currentJob.status === "done" || currentJob.status === "error")) {
+      if (typeof window !== "undefined") localStorage.removeItem("studio-video:currentJobId");
+    }
+  }, [currentJob]);
+
   const hasActiveJob = useMemo(
     () => jobs.some((j) => j.status === "pending" || j.status === "rendering"),
     [jobs]
