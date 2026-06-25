@@ -118,6 +118,15 @@ export default function StudioVideo() {
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [bizStats, setBizStats] = useState<{
+    hook: string | null;
+    descLen: number;
+    images: number;
+    videos: number;
+    offers: number;
+    popup: boolean;
+  } | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
 
   // Autocomplete businesses
   useEffect(() => {
@@ -136,6 +145,52 @@ export default function StudioVideo() {
     }, 250);
     return () => clearTimeout(t);
   }, [query]);
+
+  // Load business stats when selected
+  useEffect(() => {
+    if (!selected) {
+      setBizStats(null);
+      return;
+    }
+    let cancelled = false;
+    setStatsLoading(true);
+    (async () => {
+      const [biz, docs, yt, promos] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("hook_fr,description,images,popup_image_url")
+          .eq("id", selected.id)
+          .maybeSingle(),
+        supabase
+          .from("business_documents")
+          .select("id", { count: "exact", head: true })
+          .eq("business_id", selected.id)
+          .eq("type", "video"),
+        supabase
+          .from("business_youtube_videos")
+          .select("id", { count: "exact", head: true })
+          .eq("business_id", selected.id),
+        supabase
+          .from("affiliate_business_promotions")
+          .select("id", { count: "exact", head: true })
+          .eq("business_id", selected.id),
+      ]);
+      if (cancelled) return;
+      const b: any = biz.data ?? {};
+      setBizStats({
+        hook: b.hook_fr ?? null,
+        descLen: (b.description ?? "").length,
+        images: Array.isArray(b.images) ? b.images.length : 0,
+        videos: (docs.count ?? 0) + (yt.count ?? 0),
+        offers: promos.count ?? 0,
+        popup: !!b.popup_image_url,
+      });
+      setStatsLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selected]);
 
   // Recent jobs + realtime
   useEffect(() => {
@@ -254,6 +309,32 @@ export default function StudioVideo() {
                       {b.city && <div className="text-xs text-muted-foreground">{b.city}</div>}
                     </button>
                   ))}
+                </div>
+              )}
+
+              {selected && (
+                <div className="rounded-md border border-border bg-muted/30 p-3 text-sm space-y-2">
+                  {statsLoading || !bizStats ? (
+                    <p className="text-xs text-muted-foreground">Chargement des informations…</p>
+                  ) : (
+                    <>
+                      <div>
+                        <span className="font-medium">Hook : </span>
+                        {bizStats.hook ? (
+                          <span className="italic">« {bizStats.hook} »</span>
+                        ) : (
+                          <span className="text-destructive">Aucun</span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                        <span><span className="font-medium">Texte :</span> {bizStats.descLen} car.</span>
+                        <span><span className="font-medium">Images :</span> {bizStats.images}</span>
+                        <span><span className="font-medium">Vidéos :</span> {bizStats.videos}</span>
+                        <span><span className="font-medium">Offres :</span> {bizStats.offers}</span>
+                        <span><span className="font-medium">Popup :</span> {bizStats.popup ? "oui" : "non"}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
