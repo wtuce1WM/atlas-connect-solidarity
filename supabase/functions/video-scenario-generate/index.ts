@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id } = await req.json();
+    const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id, options } = await req.json();
 
     if (!prompt || typeof prompt !== "string" || prompt.length > 2000) {
       return json({ error: "prompt invalide" }, 400);
@@ -123,6 +123,12 @@ CONTRAINTES STRICTES :
 - "tagline" : 3 à 6 mots, le dernier sera colorisé automatiquement.
 - "city" : champ \`city\` du businessContext (sinon null).
 - Pour les templates dédiés (hors business-showcase), renvoie \`"props": {}\` : ils sont hardcodés.
+
+OPTIONS SÉLECTIONNÉES PAR L'UTILISATEUR À ACTIVER DANS LE SCÉNARIO :
+${options?.reviews ? `- Activer explicitement l'affichage des avis clients (note et nombre d'avis de l'établissement).` : `- Désactiver l'affichage des avis clients.`}
+${options?.hours ? `- Activer explicitement l'affichage des horaires d'ouverture de l'établissement.` : `- Désactiver les horaires.`}
+${options?.map_marker ? `- Activer explicitement la visualisation de la Google Map avec le marqueur.` : `- Désactiver le marqueur de carte.`}
+${options?.install_cta ? `- Activer l'incitation à installer l'app (One World Morocco) à la fin.` : `- Désactiver l'incitation de fin d'installation.`}
 
 Si \`businessContext\` est null, l'établissement est introuvable dans la base : choisis quand même "business-showcase", remplis name/hook/tagline depuis le prompt utilisateur, mets \`"images": []\` et \`"offer": null\`.
 
