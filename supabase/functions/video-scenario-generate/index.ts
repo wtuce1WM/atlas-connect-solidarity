@@ -5,6 +5,20 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
 
+// Templates Remotion disponibles, choisis par l'IA.
+// business-showcase = template générique piloté par props (fallback universel).
+const TEMPLATES = [
+  { id: "business-showcase", scope: "générique", description: "Fallback universel pour tout établissement. Piloté par props (name, hook, tagline, city, images[], offer)." },
+  { id: "comptoir-darna", scope: "Comptoir Darna (Marrakech)", description: "Restaurant emblématique, ambiance orientale festive." },
+  { id: "riad-dar-najat", scope: "Riad Dar Najat (Marrakech)", description: "Riad d'exception, médina." },
+  { id: "maison-brummell", scope: "Maison Brummell (Marrakech)", description: "Boutique-hôtel design contemporain." },
+  { id: "jnane-rumi", scope: "Jnane Rumi (Marrakech)", description: "Maison d'hôtes raffinée, jardin." },
+  { id: "nar-complexe", scope: "N.A.R Complexe (Marrakech)", description: "Complexe lifestyle, beach club." },
+  { id: "farasha-farmhouse", scope: "Farasha Farmhouse (Marrakech)", description: "Farmhouse luxe campagne marrakchie." },
+  { id: "bo-zin", scope: "Bô Zin (Marrakech)", description: "Restaurant lounge route de l'Ourika." },
+  { id: "corporate-vertical", scope: "1WM corporate", description: "Vidéo institutionnelle One World Morocco (modèle économique, villes pionnières, paliers). À utiliser UNIQUEMENT pour des contenus corporate 1WM." },
+];
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -20,7 +34,7 @@ Deno.serve(async (req) => {
 
     const supa = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-    // Charger le contexte établissement (optionnel)
+    // Charger le contexte établissement
     let businessContext: any = null;
     if (business_id) {
       const { data: biz } = await supa
@@ -40,24 +54,42 @@ Deno.serve(async (req) => {
       businessContext = { ...biz, medias: docs ?? [] };
     }
 
-    const systemPrompt = `Tu es directeur artistique pour One World Morocco. Tu produis un scénario JSON pour une vidéo verticale 720x1280 de ${duration_sec} secondes, ton "${tone}".
+    const systemPrompt = `Tu es directeur artistique pour One World Morocco. Tu choisis un template vidéo Remotion et fournis les props.
 
-Structure JSON attendue :
+TEMPLATES DISPONIBLES :
+${TEMPLATES.map(t => `- "${t.id}" — ${t.scope} : ${t.description}`).join("\n")}
+
+RÈGLES DE CHOIX :
+1. Si l'établissement correspond à un template dédié (Comptoir Darna, Riad Dar Najat, Maison Brummell, Jnane Rumi, N.A.R, Farasha Farmhouse, Bô Zin) → choisis ce template_id.
+2. Si le prompt est purement corporate 1WM → "corporate-vertical".
+3. Sinon (cas général) → "business-showcase" + props complètes (le template lit ces props).
+
+FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
 {
-  "duration_sec": ${duration_sec},
-  "beats": [
-    { "type": "hook" | "identity" | "signature" | "reviews" | "cta_install", "start": 0, "duration": 3, "title": "...", "subtitle": "...", "media_url": "...|null", "price": "...|null" }
-  ]
+  "template_id": "business-showcase",
+  "props": {
+    "name": "Nom de l'établissement",
+    "hook": "Une phrase courte, ciselée, immersive",
+    "tagline": "3 à 6 mots, dernier mot accentué (terracotta)",
+    "city": "Marrakech",
+    "category": "Restaurant",
+    "images": ["url1", "url2", "url3"],
+    "offer": { "title": "Brunch signature", "price": "350 MAD" } 
+  },
+  "rationale": "Pourquoi ce template (1 phrase)"
 }
 
-Règles :
-- 5 à 7 beats au total, qui couvrent toute la durée sans trou.
-- Choisis les médias depuis la liste fournie (uniquement leurs URLs).
-- Textes courts, ciselés, ton 1WM (raffiné, immersif).
-- Termine toujours par un beat "cta_install".
-- Renvoie UNIQUEMENT le JSON, sans backticks ni commentaire.`;
+CONTRAINTES PROPS (pour business-showcase) :
+- "images" : 3 à 5 URLs PRISES depuis les médias fournis (type image). Mets l'image la plus iconique en premier.
+- "hook" : court (max 80 caractères), ton 1WM raffiné.
+- "tagline" : 3 à 6 mots, le dernier sera coloré en terracotta automatiquement.
+- "offer" : à remplir UNIQUEMENT s'il y a une promotion ou un prix dans les médias ; sinon null.
+- "name" : utilise EXACTEMENT le nom de l'établissement fourni.
+- Pour les autres templates (dédiés), renvoie des props vides {} : ils sont hardcodés.
 
-    const userPrompt = `Demande utilisateur : ${prompt}\n\nÉtablissement :\n${JSON.stringify(businessContext, null, 2)}`;
+Durée demandée : ${duration_sec}s · Ton : ${tone}.`;
+
+    const userPrompt = `Demande utilisateur : ${prompt}\n\nÉtablissement (peut être null si demande générique) :\n${JSON.stringify(businessContext, null, 2)}`;
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -81,11 +113,23 @@ Règles :
 
     const aiJson = await aiRes.json();
     const content = aiJson.choices?.[0]?.message?.content ?? "{}";
-    let scenario: any;
+    let parsed: any = {};
     try {
-      scenario = JSON.parse(content);
+      parsed = JSON.parse(content);
     } catch {
-      scenario = { duration_sec, beats: [], raw: content };
+      parsed = {};
+    }
+
+    // Validation + fallback robuste
+    const validIds = TEMPLATES.map(t => t.id);
+    let template_id = typeof parsed.template_id === "string" && validIds.includes(parsed.template_id)
+      ? parsed.template_id
+      : "business-showcase";
+    const template_props = parsed.props && typeof parsed.props === "object" ? parsed.props : {};
+
+    // Si l'IA a choisi business-showcase mais sans contexte business, injecter au moins le prompt
+    if (template_id === "business-showcase" && !template_props.name && businessContext?.name) {
+      template_props.name = businessContext.name;
     }
 
     const { data: job, error } = await supa
@@ -95,7 +139,9 @@ Règles :
         prompt,
         duration_sec,
         tone,
-        scenario_json: scenario,
+        template_id,
+        template_props,
+        scenario_json: parsed, // garder la réponse IA brute pour debug
         status: "pending",
       })
       .select()
@@ -103,7 +149,7 @@ Règles :
 
     if (error) return json({ error: error.message }, 500);
 
-    return json({ job });
+    return json({ job, template_id, rationale: parsed.rationale });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }

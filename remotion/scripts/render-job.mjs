@@ -99,8 +99,11 @@ async function renderAndUpload() {
 
     const outPath = path.join(tempDir, `${job.id}.mp4`);
     
-    // Configurer les props pour le rendu
-    const props = job.scenario_json || {};
+    // Configurer les props pour le rendu : priorité à template_props (option B),
+    // fallback sur scenario_json pour compat ascendante.
+    const props = (job.template_props && Object.keys(job.template_props).length > 0)
+      ? job.template_props
+      : (job.scenario_json || {});
     const inputPropsFile = path.join(tempDir, `${job.id}-props.json`);
     fs.writeFileSync(inputPropsFile, JSON.stringify(props, null, 2));
 
@@ -122,6 +125,7 @@ async function renderAndUpload() {
     const validCompositions = [
       "main",
       "corporate-vertical",
+      "business-showcase",
       "comptoir-darna",
       "riad-dar-najat",
       "maison-brummell",
@@ -132,10 +136,10 @@ async function renderAndUpload() {
       "farasha-farmhouse",
       "bo-zin"
     ];
-    let compositionId = job.template_id || "corporate-vertical";
+    let compositionId = job.template_id || "business-showcase";
     if (!validCompositions.includes(compositionId)) {
-      console.log(`⚠️ Composition "${compositionId}" non valide, repli sur "corporate-vertical"`);
-      compositionId = "corporate-vertical";
+      console.log(`⚠️ Composition "${compositionId}" non valide, repli sur "business-showcase"`);
+      compositionId = "business-showcase";
     }
     console.log(`🎨 Sélection de la composition : ${compositionId}`);
     
