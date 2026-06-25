@@ -22,10 +22,12 @@ export type ShowcaseProps = {
   city?: string;
   category?: string;
   images?: string[];
+  videos?: string[];
   offer?: { title?: string; price?: string } | null;
   rating?: number | null;
   reviews?: number | null;
 };
+
 
 const ease = (f: number, a: number, b: number) =>
   interpolate(f, [a, b], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
