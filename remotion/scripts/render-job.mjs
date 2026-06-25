@@ -208,4 +208,12 @@ async function processAllPending() {
   }
 }
 
-processAllPending();
+processAllPending()
+  .then(() => {
+    console.log("👋 Fin du worker.");
+    process.exit(0);
+  })
+  .catch((err) => {
+    console.error("💥 Erreur fatale :", err);
+    process.exit(1);
+  });
