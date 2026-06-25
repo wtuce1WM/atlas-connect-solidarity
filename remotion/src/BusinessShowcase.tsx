@@ -36,6 +36,7 @@ export type ShowcaseProps = {
   showMap?: boolean;
   showAppInstall?: boolean;
   durationSec?: number;
+  useFullHookScene?: boolean;
 };
 
 export const computeShowcaseFrames = (p: ShowcaseProps): number => {
@@ -131,7 +132,7 @@ const SceneHook: React.FC<{ name: string; hook: string; img?: string }> = ({ nam
   );
 };
 
-const SceneTagline: React.FC<{ tagline: string }> = ({ tagline }) => {
+const SceneTagline: React.FC<{ tagline: string; fullHook?: string; showFullHook?: boolean }> = ({ tagline, fullHook, showFullHook }) => {
   const frame = useCurrentFrame();
   const words = tagline.split(" ");
   const out = 1 - ease(frame, 100, 120);
@@ -167,6 +168,22 @@ const SceneTagline: React.FC<{ tagline: string }> = ({ tagline }) => {
           );
         })}
       </div>
+      {showFullHook && fullHook && fullHook !== tagline && (
+        <div
+          style={{
+            opacity: ease(frame, 34, 58),
+            marginTop: 34,
+            fontFamily: body,
+            color: COLORS.gold,
+            fontSize: 28,
+            lineHeight: 1.28,
+            textAlign: "center",
+            maxWidth: 620,
+          }}
+        >
+          {fullHook}
+        </div>
+      )}
     </AbsoluteFill>
   );
 };
@@ -491,7 +508,7 @@ const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({
   const o = Math.min(ease(local, 0, 12), 1 - ease(local, duration - 12, duration));
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
-      <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <OffthreadVideo src={src} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       <AbsoluteFill
         style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.05) 40%,rgba(14,11,8,0.85) 100%)" }}
       />
@@ -504,7 +521,7 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
   if (src) {
     return (
       <AbsoluteFill style={{ overflow: "hidden" }}>
-        <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <OffthreadVideo src={src} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         <AbsoluteFill style={{ background: "rgba(14,11,8,0.72)" }} />
       </AbsoluteFill>
     );
@@ -547,6 +564,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   showMap,
   showAppInstall,
   durationSec,
+  useFullHookScene,
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
@@ -600,7 +618,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         )}
       </Sequence>
       <Sequence from={120} durationInFrames={120}>
-        <SceneTagline tagline={safeTagline} />
+        <SceneTagline tagline={safeTagline} fullHook={hook} showFullHook={useFullHookScene} />
       </Sequence>
       <Sequence from={240} durationInFrames={150}>
         {useVideos ? (
