@@ -97,7 +97,7 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
     // once we hit the edge.
     const onWheel = (e: WheelEvent) => {
       if (el.scrollWidth <= el.clientWidth) return;
-      if (Math.abs(e.deltaX) > 0) {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
         stopMomentum();
         el.style.scrollBehavior = "auto";
         return;
