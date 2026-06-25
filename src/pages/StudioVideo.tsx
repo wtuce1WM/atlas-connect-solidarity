@@ -117,7 +117,15 @@ export default function StudioVideo() {
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [currentJobId, setCurrentJobIdState] = useState<string | null>(
+    () => (typeof window !== "undefined" ? localStorage.getItem("studio-video:currentJobId") : null)
+  );
+  const setCurrentJobId = (id: string | null) => {
+    setCurrentJobIdState(id);
+    if (typeof window === "undefined") return;
+    if (id) localStorage.setItem("studio-video:currentJobId", id);
+    else localStorage.removeItem("studio-video:currentJobId");
+  };
   const [refineFrom, setRefineFrom] = useState<Job | null>(null);
   const [bizStats, setBizStats] = useState<{
     hook: string | null;
