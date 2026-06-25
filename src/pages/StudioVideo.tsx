@@ -315,6 +315,12 @@ export default function StudioVideo() {
           duration_sec: duration,
           tone,
           parent_job_id: refineFrom?.id ?? null,
+          options: {
+            reviews: optReviews,
+            hours: optHours,
+            map_marker: optMapMarker,
+            install_cta: optInstallCta,
+          },
         },
       });
       if (error) throw error;
