@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
     if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,hook,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,computed_rating,total_review_count,popup_title,popup_description")
+        .select("id,name,hook,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,computed_rating,total_review_count,popup_title,popup_description,images,popup_image_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
 
@@ -69,7 +69,15 @@ Deno.serve(async (req) => {
         .order("sort_order", { ascending: true })
         .limit(20);
 
-      businessContext = { ...biz, medias: docs ?? [] };
+      // Fusionner medias business_documents + colonne images + popup_image_url
+      const mergedMedias: any[] = [];
+      if (biz?.popup_image_url) mergedMedias.push({ type: "image", url: biz.popup_image_url, name: "Image principale" });
+      if (Array.isArray(biz?.images)) {
+        for (const url of biz.images) mergedMedias.push({ type: "image", url });
+      }
+      if (docs) mergedMedias.push(...docs);
+
+      businessContext = { ...biz, medias: mergedMedias };
     }
 
     const systemPrompt = `Tu es directeur artistique pour One World Morocco. Tu choisis un template vidéo Remotion et fournis les props.
