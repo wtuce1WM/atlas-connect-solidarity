@@ -117,6 +117,7 @@ export default function StudioVideo() {
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [businessNames, setBusinessNames] = useState<Record<string, string>>({});
   const [currentJobId, setCurrentJobIdState] = useState<string | null>(
     () => (typeof window !== "undefined" ? localStorage.getItem("studio-video:currentJobId") : null)
   );
@@ -247,6 +248,24 @@ export default function StudioVideo() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  // Fetch business names for jobs
+  useEffect(() => {
+    const ids = Array.from(new Set(jobs.map((j) => j.business_id).filter((id): id is string => !!id && !businessNames[id])));
+    if (ids.length === 0) return;
+    supabase
+      .from("businesses")
+      .select("id,name")
+      .in("id", ids)
+      .then(({ data }) => {
+        if (!data) return;
+        setBusinessNames((prev) => {
+          const next = { ...prev };
+          for (const b of data) next[b.id] = b.name;
+          return next;
+        });
+      });
+  }, [jobs, businessNames]);
 
   const currentJob = useMemo(
     () => jobs.find((j) => j.id === currentJobId) ?? null,
@@ -495,7 +514,7 @@ export default function StudioVideo() {
           {currentJob && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-3">
               <h2 className="font-semibold">Job en cours</h2>
-              <JobCard job={currentJob} />
+              <JobCard job={currentJob} businessName={currentJob.business_id ? businessNames[currentJob.business_id] : undefined} />
             </section>
           )}
 
@@ -513,7 +532,7 @@ export default function StudioVideo() {
                 {jobs
                   .filter((j) => j.status === "done" && j.output_url)
                   .map((j) => (
-                    <JobCard key={j.id} job={j} onRefine={startRefine} onDelete={deleteJob} />
+                    <JobCard key={j.id} job={j} businessName={j.business_id ? businessNames[j.business_id] : undefined} onRefine={startRefine} onDelete={deleteJob} />
                   ))}
               </div>
             )}
@@ -598,14 +617,15 @@ function VideoWithMeta({ src }: { src: string }) {
   );
 }
 
-function JobCard({ job, onRefine, onDelete }: { job: Job; onRefine?: (job: Job) => void; onDelete?: (job: Job) => void }) {
+function JobCard({ job, businessName, onRefine, onDelete }: { job: Job; businessName?: string; onRefine?: (job: Job) => void; onDelete?: (job: Job) => void }) {
   return (
     <div className="rounded-lg border border-border bg-background p-3 space-y-2">
+      {businessName && <div className="text-sm font-medium">{businessName}</div>}
+      <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{job.duration_sec}s · {job.tone}</span>
         <span className="uppercase tracking-wide">{job.status}</span>
       </div>
-      <p className="text-sm whitespace-pre-line">{job.prompt}</p>
       {job.status === "done" && job.output_url ? (
         <div className="space-y-2">
           <VideoWithMeta src={job.output_url} />
