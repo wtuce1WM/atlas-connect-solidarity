@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id } = await req.json();
+    const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id, options } = await req.json();
 
     if (!prompt || typeof prompt !== "string" || prompt.length > 2000) {
       return json({ error: "prompt invalide" }, 400);
