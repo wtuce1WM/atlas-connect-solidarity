@@ -290,8 +290,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         <SceneTagline tagline={tagline} />
       </Sequence>
       <Sequence from={240} durationInFrames={150}>
-        <SceneGallery images={galleryImgs.length ? galleryImgs : images} />
+        <SceneGallery images={galleryImgs.length ? galleryImgs : safeImages} />
       </Sequence>
+
       {offer && (
         <Sequence from={390} durationInFrames={120}>
           <SceneOffer offer={offer} city={city} />
