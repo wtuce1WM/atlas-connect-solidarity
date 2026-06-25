@@ -249,6 +249,24 @@ export default function StudioVideo() {
     };
   }, []);
 
+  // Fetch business names for jobs
+  useEffect(() => {
+    const ids = Array.from(new Set(jobs.map((j) => j.business_id).filter((id): id is string => !!id && !businessNames[id])));
+    if (ids.length === 0) return;
+    supabase
+      .from("businesses")
+      .select("id,name")
+      .in("id", ids)
+      .then(({ data }) => {
+        if (!data) return;
+        setBusinessNames((prev) => {
+          const next = { ...prev };
+          for (const b of data) next[b.id] = b.name;
+          return next;
+        });
+      });
+  }, [jobs, businessNames]);
+
   const currentJob = useMemo(
     () => jobs.find((j) => j.id === currentJobId) ?? null,
     [jobs, currentJobId]
