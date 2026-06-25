@@ -178,4 +178,21 @@ async function renderAndUpload() {
   }
 }
 
-renderAndUpload();
+// Boucle : traite tous les jobs en attente (utile pour GitHub Actions)
+async function processAllPending() {
+  const maxJobs = parseInt(process.env.MAX_JOBS || "5", 10);
+  for (let i = 0; i < maxJobs; i++) {
+    const { data: pending } = await supabase
+      .from("video_jobs")
+      .select("id")
+      .eq("status", "pending")
+      .limit(1);
+    if (!pending || pending.length === 0) {
+      console.log("✨ File d'attente vide.");
+      return;
+    }
+    await renderAndUpload();
+  }
+}
+
+processAllPending();
