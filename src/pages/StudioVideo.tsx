@@ -244,7 +244,7 @@ export default function StudioVideo() {
   );
 
   const hasActiveJob = useMemo(
-    () => jobs.some((j) => j.status === "pending" || j.status === "processing"),
+    () => jobs.some((j) => j.status === "pending" || j.status === "rendering"),
     [jobs]
   );
 
