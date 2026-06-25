@@ -119,7 +119,7 @@ async function renderAndUpload() {
       chromeMode: "chrome-for-testing",
     });
 
-    const compositionId = job.template_id || "studio-signature";
+    const compositionId = job.template_id || "corporate-vertical";
     console.log(`🎨 Sélection de la composition : ${compositionId}`);
     
     const composition = await selectComposition({
