@@ -78,6 +78,7 @@ const StaffB2B = lazy(() => import("./pages/StaffB2B"));
 const SearchLayoutDemo = lazy(() => import("./pages/SearchLayoutDemo"));
 
 const StrictModePage = lazy(() => import("./pages/StrictModePage"));
+const StudioVideo = lazy(() => import("./pages/StudioVideo"));
 const IconPreview = lazy(() => import("./pages/IconPreview"));
 const BlogPresentation = lazy(() => import("./pages/BlogPresentation"));
 const BlogPresentationFR = lazy(() => import("./pages/BlogPresentationFR"));
