@@ -5514,6 +5514,7 @@ export type Database = {
           error_message: string | null
           id: string
           output_url: string | null
+          parent_job_id: string | null
           prompt: string
           scenario_json: Json | null
           status: string
@@ -5530,6 +5531,7 @@ export type Database = {
           error_message?: string | null
           id?: string
           output_url?: string | null
+          parent_job_id?: string | null
           prompt: string
           scenario_json?: Json | null
           status?: string
@@ -5546,6 +5548,7 @@ export type Database = {
           error_message?: string | null
           id?: string
           output_url?: string | null
+          parent_job_id?: string | null
           prompt?: string
           scenario_json?: Json | null
           status?: string
@@ -5568,6 +5571,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_jobs_parent_job_id_fkey"
+            columns: ["parent_job_id"]
+            isOneToOne: false
+            referencedRelation: "video_jobs"
             referencedColumns: ["id"]
           },
         ]
