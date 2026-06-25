@@ -279,6 +279,141 @@ const SceneCta: React.FC<{ name: string }> = ({ name }) => {
   );
 };
 
+const SceneReviews: React.FC<{ rating?: number | null; count?: number | null }> = ({ rating, count }) => {
+  const frame = useCurrentFrame();
+  const labelO = ease(frame, 0, 18);
+  const ratingS = spring({ frame: frame - 8, fps: 30, config: { damping: 14 } });
+  const note20 = rating ? (rating * 4).toFixed(1) : null;
+  // compteur animé du nombre d'avis
+  const countProgress = ease(frame, 14, 50);
+  const animatedCount = count ? Math.round(count * countProgress) : 0;
+  return (
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 60 }}>
+      <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
+        Avis clients
+      </div>
+      {note20 && (
+        <div
+          style={{
+            opacity: ratingS,
+            transform: `scale(${interpolate(ratingS, [0, 1], [0.7, 1])})`,
+            marginTop: 30,
+            fontFamily: display,
+            fontWeight: 700,
+            color: COLORS.terracotta,
+            fontSize: 180,
+            lineHeight: 1,
+          }}
+        >
+          {note20}
+          <span style={{ fontSize: 70, color: COLORS.cream }}>/20</span>
+        </div>
+      )}
+      {count != null && count > 0 && (
+        <div style={{ marginTop: 30, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 56 }}>
+          {animatedCount.toLocaleString("fr-FR")}
+          <span style={{ fontSize: 26, color: COLORS.gold, marginLeft: 14, letterSpacing: 3, textTransform: "uppercase" }}>avis</span>
+        </div>
+      )}
+    </AbsoluteFill>
+  );
+};
+
+const SceneHours: React.FC<{ openingHours: string | Record<string, string> }> = ({ openingHours }) => {
+  const frame = useCurrentFrame();
+  const labelO = ease(frame, 0, 18);
+  const entries: Array<[string, string]> = typeof openingHours === "string"
+    ? openingHours.split(/\n|;/).map((l) => l.trim()).filter(Boolean).map((l) => {
+        const m = l.match(/^([^:]+):\s*(.+)$/);
+        return m ? [m[1].trim(), m[2].trim()] : ["", l];
+      }).slice(0, 7) as Array<[string, string]>
+    : Object.entries(openingHours).slice(0, 7);
+  return (
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 60 }}>
+      <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
+        Horaires
+      </div>
+      <div style={{ marginTop: 30, width: "85%", maxWidth: 620 }}>
+        {entries.map(([day, hours], i) => {
+          const o = ease(frame, 12 + i * 4, 26 + i * 4);
+          const y = interpolate(o, [0, 1], [20, 0]);
+          return (
+            <div
+              key={i}
+              style={{
+                opacity: o,
+                transform: `translateY(${y}px)`,
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "14px 0",
+                borderBottom: "1px solid rgba(212,175,55,0.18)",
+                fontFamily: body,
+                fontSize: 28,
+              }}
+            >
+              <span style={{ color: COLORS.cream, fontWeight: 600 }}>{day}</span>
+              <span style={{ color: COLORS.gold }}>{hours}</span>
+            </div>
+          );
+        })}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: string | null }> = ({ lat, lng, name, address }) => {
+  const frame = useCurrentFrame();
+  const labelO = ease(frame, 0, 18);
+  const mapO = ease(frame, 10, 30);
+  // OpenStreetMap static — pas de clé requise
+  const mapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=15&size=720x720&maptype=mapnik&markers=${lat},${lng},red-pushpin`;
+  const pinScale = spring({ frame: frame - 28, fps: 30, config: { damping: 10, stiffness: 180 } });
+  return (
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", padding: 50 }}>
+      <div style={{ opacity: labelO, marginTop: 30, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
+        Localisation
+      </div>
+      <div
+        style={{
+          opacity: mapO,
+          marginTop: 30,
+          width: 620,
+          height: 620,
+          borderRadius: 24,
+          overflow: "hidden",
+          position: "relative",
+          border: `2px solid ${COLORS.gold}`,
+          boxShadow: "0 18px 60px rgba(0,0,0,0.6)",
+        }}
+      >
+        <Img src={mapUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        {/* Pin custom au-dessus */}
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: `translate(-50%, -100%) scale(${interpolate(pinScale, [0, 1], [0, 1])})`,
+            transformOrigin: "bottom center",
+            fontSize: 80,
+            filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.6))",
+          }}
+        >
+          📍
+        </div>
+      </div>
+      <div style={{ opacity: mapO, marginTop: 24, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 32, textAlign: "center" }}>
+        {name}
+      </div>
+      {address && (
+        <div style={{ opacity: mapO, marginTop: 8, fontFamily: body, color: COLORS.gold, fontSize: 22, textAlign: "center" }}>
+          {address}
+        </div>
+      )}
+    </AbsoluteFill>
+  );
+};
+
 const BAD_HOSTS = ["example.com", "example.org", "placeholder", "test.com", "localhost"];
 const sanitizeUrls = (arr: string[]): string[] =>
   (arr || []).filter((u) => {
