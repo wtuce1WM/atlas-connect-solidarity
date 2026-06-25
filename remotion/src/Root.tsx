@@ -11,7 +11,7 @@ import { AgentIaDemoV2, AGENT_IA_V2_TOTAL_FRAMES } from "./AgentIaDemoV2";
 import { NarComplexe, NAR_TOTAL_FRAMES } from "./NarComplexe";
 import { Farasha, FARASHA_TOTAL_FRAMES } from "./Farasha";
 import { BoZin, BOZIN_TOTAL_FRAMES } from "./BoZin";
-import { BusinessShowcase, SHOWCASE_TOTAL_FRAMES } from "./BusinessShowcase";
+import { BusinessShowcase, SHOWCASE_TOTAL_FRAMES, computeShowcaseFrames, type ShowcaseProps } from "./BusinessShowcase";
 
 export const RemotionRoot: React.FC = () => (
   <>
