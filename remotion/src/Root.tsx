@@ -117,7 +117,11 @@ export const RemotionRoot: React.FC = () => (
         city: undefined,
         images: [],
         offer: null,
-      }}
+      } as ShowcaseProps}
+      calculateMetadata={({ props }) => ({
+        durationInFrames: computeShowcaseFrames(props as ShowcaseProps),
+        props,
+      })}
     />
   </>
 );
