@@ -251,57 +251,6 @@ const BecomeAffiliate = () => {
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section className="container mx-auto px-4 mb-24">
-          <div className="text-center mb-12">
-             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-               {t.pricingSubtitle}
-             </p>
-          </div>
-
-          <div className="max-w-md mx-auto">
-            <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-b from-black/[0.02] to-black/[0.04] p-8 md:p-10 shadow-[0_0_60px_-15px_hsl(43_75%_55%/0.2)]">
-              {/* Badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="inline-block bg-gold text-black text-sm font-bold px-5 py-1.5 rounded-full shadow-lg">
-                  {t.offerBadge}
-                </span>
-              </div>
-
-              {/* Price */}
-              <div className="text-center mt-4 mb-8">
-                <span className="text-5xl md:text-6xl font-extrabold text-foreground">{t.price}</span>
-                <p className="text-muted-foreground mt-2">{t.priceSuffix}</p>
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent mb-8" />
-
-              {/* Features */}
-              <ul className="space-y-4 mb-10">
-                {t.features.map((feat, i) => (
-                  <li key={i} className="flex items-start gap-3 text-foreground/85">
-                    <Check className="h-5 w-5 text-gold mt-0.5 shrink-0" />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* CTA */}
-              <Button
-                className="w-full h-12 text-base font-bold bg-gold hover:bg-gold/90 text-black rounded-xl shadow-lg shadow-gold/20 transition-all hover:shadow-gold/40"
-                onClick={() => {
-                  document.getElementById("affiliate-form")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                {t.cta}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-
-              <p className="text-center text-muted-foreground text-sm mt-4">{t.personalSupport}</p>
-            </div>
-          </div>
-        </section>
 
         {/* Form Section */}
         <section id="affiliate-form" className="container mx-auto px-4 mb-16">
