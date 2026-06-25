@@ -521,19 +521,19 @@ export default function StudioVideo() {
               <Label className="text-sm">Éléments à inclure dans la vidéo</Label>
               <div className="flex flex-col gap-2 text-sm">
                 <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" className="mt-1 rounded border-gray-300 text-primary focus:ring-primary h-4 w-4" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
+                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
                   <span>Compteur d'avis client + badge avis (note/20)</span>
                 </label>
                 <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" className="mt-1 rounded border-gray-300 text-primary focus:ring-primary h-4 w-4" checked={optHours} onChange={(e) => setOptHours(e.target.checked)} />
+                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optHours} onChange={(e) => setOptHours(e.target.checked)} />
                   <span>Horaires d'ouverture</span>
                 </label>
                 <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" className="mt-1 rounded border-gray-300 text-primary focus:ring-primary h-4 w-4" checked={optMapMarker} onChange={(e) => setOptMapMarker(e.target.checked)} />
+                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optMapMarker} onChange={(e) => setOptMapMarker(e.target.checked)} />
                   <span>Marqueur sur la Google Map</span>
                 </label>
                 <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" className="mt-1 rounded border-gray-300 text-primary focus:ring-primary h-4 w-4" checked={optInstallCta} onChange={(e) => setOptInstallCta(e.target.checked)} />
+                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optInstallCta} onChange={(e) => setOptInstallCta(e.target.checked)} />
                   <span>Incitation finale à installer l'app</span>
                 </label>
               </div>
