@@ -91,27 +91,34 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
       moved = false;
     };
 
-    // Trackpads send deltaX natively. For mouse wheels (deltaY dominant),
-    // translate to horizontal scroll — but only consume the event while the
-    // carousel can still scroll in that direction, so the page keeps scrolling
-    // once we hit the edge.
+    // Trackpads/Shift+wheel can emit horizontal intent as deltaX, while classic
+    // mouse wheels emit deltaY. We always apply the intended axis manually so
+    // nested carousel children cannot swallow native horizontal scrolling.
     const onWheel = (e: WheelEvent) => {
       if (el.scrollWidth <= el.clientWidth) return;
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        stopMomentum();
-        el.style.scrollBehavior = "auto";
-        return;
-      }
-      const dy = e.deltaY;
-      if (Math.abs(dy) < 1) return;
+
+      const normalizeDelta = (value: number) => {
+        if (e.deltaMode === WheelEvent.DOM_DELTA_LINE) return value * 16;
+        if (e.deltaMode === WheelEvent.DOM_DELTA_PAGE) return value * el.clientWidth;
+        return value;
+      };
+
+      const dx = normalizeDelta(e.deltaX);
+      const dy = normalizeDelta(e.deltaY);
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+      const horizontalIntent = absX > 1 && absX >= absY * 0.5;
+      const scrollDelta = e.shiftKey && absY >= absX ? dy : horizontalIntent ? dx : dy;
+
+      if (Math.abs(scrollDelta) < 1) return;
       const maxScroll = el.scrollWidth - el.clientWidth;
       const atStart = el.scrollLeft <= 0;
       const atEnd = el.scrollLeft >= maxScroll - 1;
-      if ((dy < 0 && atStart) || (dy > 0 && atEnd)) return;
+      if ((scrollDelta < 0 && atStart) || (scrollDelta > 0 && atEnd)) return;
       e.preventDefault();
       stopMomentum();
       el.style.scrollBehavior = "auto";
-      el.scrollLeft += dy;
+      el.scrollLeft += scrollDelta;
     };
 
     el.addEventListener("pointerdown", onPointerDown);
