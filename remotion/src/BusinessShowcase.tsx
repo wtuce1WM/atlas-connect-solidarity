@@ -259,6 +259,15 @@ const SceneCta: React.FC<{ name: string }> = ({ name }) => {
   );
 };
 
+const BAD_HOSTS = ["example.com", "example.org", "placeholder", "test.com", "localhost"];
+const sanitizeImages = (arr: string[]): string[] =>
+  (arr || []).filter((u) => {
+    if (typeof u !== "string") return false;
+    if (!/^https?:\/\//i.test(u)) return false;
+    const lower = u.toLowerCase();
+    return !BAD_HOSTS.some((h) => lower.includes(h));
+  });
+
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   name = "Établissement",
   hook = "Une adresse à découvrir.",
@@ -267,8 +276,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   images = [],
   offer = null,
 }) => {
-  const heroImg = images[0];
-  const galleryImgs = images.slice(1);
+  const safeImages = sanitizeImages(images);
+  const heroImg = safeImages[0];
+  const galleryImgs = safeImages.slice(1);
+
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
       <Background />
@@ -279,8 +290,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         <SceneTagline tagline={tagline} />
       </Sequence>
       <Sequence from={240} durationInFrames={150}>
-        <SceneGallery images={galleryImgs.length ? galleryImgs : images} />
+        <SceneGallery images={galleryImgs.length ? galleryImgs : safeImages} />
       </Sequence>
+
       {offer && (
         <Sequence from={390} durationInFrames={120}>
           <SceneOffer offer={offer} city={city} />

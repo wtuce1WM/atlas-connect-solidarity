@@ -1,0 +1,1 @@
+DELETE FROM video_jobs WHERE id = '1996c3da-85e8-4fda-b660-be5882156057';
