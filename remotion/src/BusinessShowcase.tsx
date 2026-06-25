@@ -440,6 +440,27 @@ const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({
   );
 };
 
+// Fond vidéo en boucle + voile sombre — pour scènes Avis / Horaires / Map / CTA
+const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image }) => {
+  if (src) {
+    return (
+      <AbsoluteFill style={{ overflow: "hidden" }}>
+        <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <AbsoluteFill style={{ background: "rgba(14,11,8,0.72)" }} />
+      </AbsoluteFill>
+    );
+  }
+  if (image) {
+    return (
+      <AbsoluteFill style={{ overflow: "hidden" }}>
+        <Img src={image} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <AbsoluteFill style={{ background: "rgba(14,11,8,0.72)" }} />
+      </AbsoluteFill>
+    );
+  }
+  return null;
+};
+
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   name = "Établissement",
   hook = "Une adresse à découvrir.",
