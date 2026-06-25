@@ -517,6 +517,28 @@ export default function StudioVideo() {
               />
             </div>
 
+            <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
+              <Label className="text-sm">Éléments à inclure dans la vidéo</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" className="mt-1" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
+                  <span>Compteur d'avis client + badge avis (note/20)</span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" className="mt-1" checked={optHours} onChange={(e) => setOptHours(e.target.checked)} />
+                  <span>Horaires d'ouverture</span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" className="mt-1" checked={optMapMarker} onChange={(e) => setOptMapMarker(e.target.checked)} />
+                  <span>Marqueur sur la Google Map</span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" className="mt-1" checked={optInstallCta} onChange={(e) => setOptInstallCta(e.target.checked)} />
+                  <span>Incitation finale à installer l'app</span>
+                </label>
+              </div>
+            </div>
+
             <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
               {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
               {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
