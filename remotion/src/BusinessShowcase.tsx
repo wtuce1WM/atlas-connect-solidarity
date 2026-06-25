@@ -282,9 +282,11 @@ const SceneCta: React.FC<{ name: string }> = ({ name }) => {
 const SceneReviews: React.FC<{ rating?: number | null; count?: number | null }> = ({ rating, count }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
-  const ratingS = spring({ frame: frame - 8, fps: 30, config: { damping: 14 } });
-  const note20 = rating ? (rating > 5 ? rating : rating * 4).toFixed(1) : null;
-  // compteur animé du nombre d'avis
+  const noteTarget = rating ? (rating > 5 ? rating : rating * 4) : null;
+  // Défilement visuel de la note /20 (comme le compteur d'avis)
+  const noteProgress = ease(frame, 8, 50);
+  const animatedNote = noteTarget != null ? (noteTarget * noteProgress).toFixed(1) : null;
+  const noteScale = interpolate(ease(frame, 8, 30), [0, 1], [0.7, 1]);
   const countProgress = ease(frame, 14, 50);
   const animatedCount = count ? Math.round(count * countProgress) : 0;
   return (
@@ -292,25 +294,26 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null }> 
       <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
         Avis clients
       </div>
-      {note20 && (
+      {animatedNote && (
         <div
           style={{
-            opacity: ratingS,
-            transform: `scale(${interpolate(ratingS, [0, 1], [0.7, 1])})`,
+            opacity: ease(frame, 8, 24),
+            transform: `scale(${noteScale})`,
             marginTop: 30,
             fontFamily: display,
             fontWeight: 700,
             color: COLORS.terracotta,
             fontSize: 180,
             lineHeight: 1,
+            textShadow: "0 4px 24px rgba(0,0,0,0.6)",
           }}
         >
-          {note20}
+          {animatedNote}
           <span style={{ fontSize: 70, color: COLORS.cream }}>/20</span>
         </div>
       )}
       {count != null && count > 0 && (
-        <div style={{ marginTop: 30, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 56 }}>
+        <div style={{ marginTop: 30, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 56, textShadow: "0 2px 12px rgba(0,0,0,0.7)" }}>
           {animatedCount.toLocaleString("fr-FR")}
           <span style={{ fontSize: 26, color: COLORS.gold, marginLeft: 14, letterSpacing: 3, textTransform: "uppercase" }}>avis</span>
         </div>
@@ -437,6 +440,27 @@ const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({
   );
 };
 
+// Fond vidéo en boucle + voile sombre — pour scènes Avis / Horaires / Map / CTA
+const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image }) => {
+  if (src) {
+    return (
+      <AbsoluteFill style={{ overflow: "hidden" }}>
+        <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <AbsoluteFill style={{ background: "rgba(14,11,8,0.72)" }} />
+      </AbsoluteFill>
+    );
+  }
+  if (image) {
+    return (
+      <AbsoluteFill style={{ overflow: "hidden" }}>
+        <Img src={image} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <AbsoluteFill style={{ background: "rgba(14,11,8,0.72)" }} />
+      </AbsoluteFill>
+    );
+  }
+  return null;
+};
+
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   name = "Établissement",
   hook = "Une adresse à découvrir.",
@@ -516,21 +540,25 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
       {reviewsFrom !== null && (
         <Sequence from={reviewsFrom} durationInFrames={OPTION_SCENE_FRAMES}>
+          <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
           <SceneReviews rating={rating} count={reviewsCount} />
         </Sequence>
       )}
       {hoursFrom !== null && openingHours && (
         <Sequence from={hoursFrom} durationInFrames={OPTION_SCENE_FRAMES}>
+          <VideoBackdrop src={safeVideos[1] ?? safeVideos[0]} image={safeImages[1] ?? safeImages[0]} />
           <SceneHours openingHours={openingHours} />
         </Sequence>
       )}
       {mapFrom !== null && (
         <Sequence from={mapFrom} durationInFrames={OPTION_SCENE_FRAMES}>
+          <VideoBackdrop src={safeVideos[2] ?? safeVideos[0]} image={safeImages[2] ?? safeImages[0]} />
           <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} />
         </Sequence>
       )}
 
       <Sequence from={ctaFrom} durationInFrames={ctaDuration}>
+        <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
         <SceneCta name={name} />
       </Sequence>
     </AbsoluteFill>

@@ -255,11 +255,19 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (!looksLikePrice) template_props.offer = null;
     }
 
-    if (template_id === "business-showcase" && !template_props.name && businessContext?.name) {
+    if (template_id === "business-showcase" && businessContext?.name) {
+      // Toujours forcer le nom réel — l'IA n'a pas le droit de réécrire.
       template_props.name = businessContext.name;
     }
     if (template_id === "business-showcase" && !template_props.city && businessContext?.city) {
       template_props.city = businessContext.city;
+    }
+    // Forcer le hook réel de l'établissement (hook_fr / popup_title) — interdire toute paraphrase IA.
+    if (template_id === "business-showcase" && businessContext) {
+      const realHook = businessContext.hook_fr || businessContext.popup_title || businessContext.hook;
+      if (realHook && typeof realHook === "string" && realHook.trim()) {
+        template_props.hook = realHook.trim();
+      }
     }
 
     // Injection serveur des options + vraies données BD (l'IA ne fournit pas ces champs).
