@@ -381,6 +381,12 @@ export default function StudioVideo() {
                 onChange={(e) => setPrompt(e.target.value)}
                 maxLength={2000}
                 className="text-lg md:text-xl p-4"
+                onFocus={() => {
+                  if (!prompt) {
+                    const businessText = selected ? ` « ${selected.name} »` : "";
+                    setPrompt(`Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, terminer par une incitation à installer l'app.`);
+                  }
+                }}
               />
             </div>
 
