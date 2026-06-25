@@ -311,6 +311,28 @@ export default function StudioVideo() {
     }, 50);
   };
 
+  const deleteJob = async (job: Job) => {
+    if (!window.confirm(`Supprimer définitivement cette vidéo ?\n\n« ${job.prompt.slice(0, 120)}${job.prompt.length > 120 ? "…" : ""} »`)) {
+      return;
+    }
+    // Try to remove the file from storage (best-effort)
+    if (job.output_url) {
+      const marker = "/studio-videos/";
+      const idx = job.output_url.indexOf(marker);
+      if (idx !== -1) {
+        const path = job.output_url.slice(idx + marker.length).split("?")[0];
+        await supabase.storage.from("studio-videos").remove([path]).catch(() => {});
+      }
+    }
+    const { error } = await supabase.from("video_jobs").delete().eq("id", job.id);
+    if (error) {
+      toast.error("Suppression impossible : " + error.message);
+      return;
+    }
+    setJobs((prev) => prev.filter((j) => j.id !== job.id));
+    toast.success("Vidéo supprimée");
+  };
+
   return (
     <>
       <Helmet>
