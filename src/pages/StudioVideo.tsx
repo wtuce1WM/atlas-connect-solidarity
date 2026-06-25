@@ -256,7 +256,7 @@ export default function StudioVideo() {
   // Clear persisted job id once finished
   useEffect(() => {
     if (currentJob && (currentJob.status === "done" || currentJob.status === "error")) {
-      if (typeof window !== "undefined") localStorage.removeItem("studio-video:currentJobId");
+      setCurrentJobId(null);
     }
   }, [currentJob]);
 
