@@ -617,14 +617,15 @@ function VideoWithMeta({ src }: { src: string }) {
   );
 }
 
-function JobCard({ job, onRefine, onDelete }: { job: Job; onRefine?: (job: Job) => void; onDelete?: (job: Job) => void }) {
+function JobCard({ job, businessName, onRefine, onDelete }: { job: Job; businessName?: string; onRefine?: (job: Job) => void; onDelete?: (job: Job) => void }) {
   return (
     <div className="rounded-lg border border-border bg-background p-3 space-y-2">
+      {businessName && <div className="text-sm font-medium">{businessName}</div>}
+      <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{job.duration_sec}s · {job.tone}</span>
         <span className="uppercase tracking-wide">{job.status}</span>
       </div>
-      <p className="text-sm whitespace-pre-line">{job.prompt}</p>
       {job.status === "done" && job.output_url ? (
         <div className="space-y-2">
           <VideoWithMeta src={job.output_url} />
