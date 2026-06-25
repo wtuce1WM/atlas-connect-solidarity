@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,hook,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,popup_title,popup_description,images,popup_image_url")
+        .select("id,name,hook_fr,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,popup_title,popup_description,images,popup_image_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
 
@@ -86,7 +86,11 @@ Deno.serve(async (req) => {
       }
       if (docs) mergedMedias.push(...docs);
 
-      businessContext = { ...biz, medias: mergedMedias };
+      businessContext = {
+        ...biz,
+        hook: biz?.hook_fr ?? biz?.popup_title ?? biz?.popup_description ?? null,
+        medias: mergedMedias,
+      };
     }
 
     const promptText = prompt.toLowerCase();
@@ -235,6 +239,13 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       );
     } else {
       template_props.images = [];
+    }
+    if (Array.isArray(template_props.videos)) {
+      template_props.videos = template_props.videos.filter((u: unknown) =>
+        typeof u === "string" && realMediaUrls.has(u)
+      );
+    } else {
+      template_props.videos = [];
     }
 
     // Filet de sécurité : si offer ne contient pas un vrai prix MAD/€/$, on jette
