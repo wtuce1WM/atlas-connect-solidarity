@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Wand2, Download } from "lucide-react";
+import { Loader2, Wand2, Download, Sparkles, X } from "lucide-react";
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
 import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
 import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
@@ -118,6 +118,7 @@ export default function StudioVideo() {
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [refineFrom, setRefineFrom] = useState<Job | null>(null);
   const [bizStats, setBizStats] = useState<{
     hook: string | null;
     descLen: number;
@@ -266,12 +267,14 @@ export default function StudioVideo() {
           business_id: selected?.id ?? null,
           duration_sec: duration,
           tone,
+          parent_job_id: refineFrom?.id ?? null,
         },
       });
       if (error) throw error;
       const job = (data as any)?.job as Job;
       if (job) {
         setCurrentJobId(job.id);
+        setRefineFrom(null);
         toast.success("Scénario généré. Rendu en attente du worker.");
       }
     } catch (e: any) {
@@ -279,6 +282,17 @@ export default function StudioVideo() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const startRefine = (job: Job) => {
+    setRefineFrom(job);
+    setDuration(job.duration_sec as 17 | 22 | 27);
+    setTone(job.tone);
+    setPrompt("");
+    setTimeout(() => {
+      document.getElementById("prompt-area")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document.getElementById("prompt-area")?.focus();
+    }, 50);
   };
 
   return (
