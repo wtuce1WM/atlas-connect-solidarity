@@ -608,8 +608,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
           audioContext,
           onAudioData,
           () => {
-            setMicReady(true);
+            // Beep d'abord, "Parlez maintenant" ensuite (cf. onstart Web Speech).
             playReadyBeep();
+            setTimeout(() => setMicReady(true), 450);
           },
         );
 
@@ -788,8 +789,12 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     recognition.onstart = () => {
       setStatus("recording");
       setLiveTranscript("");
-      setMicReady(true);
+      // Jouer le bip d'abord, puis basculer "Attendez…" → "Parlez maintenant"
+      // après un court délai. Sur Samsung/Android le bip natif est légèrement
+      // retardé : sans délai, le texte change avant que l'utilisateur entende
+      // le signal, ce qui donne l'impression d'un ordre inversé.
       playReadyBeep();
+      setTimeout(() => setMicReady(true), 450);
     };
 
 
