@@ -95,10 +95,10 @@ Deno.serve(async (req) => {
 TEMPLATES DISPONIBLES :
 ${TEMPLATES.map(t => `- "${t.id}" — ${t.scope} : ${t.description}`).join("\n")}
 
-RÈGLES DE CHOIX :
-1. Si l'établissement correspond à un template dédié (Comptoir Darna, Riad Dar Najat, Maison Brummell, Jnane Rumi, N.A.R, Farasha Farmhouse, Bô Zin) → choisis ce template_id.
-2. Si le prompt est purement corporate 1WM → "corporate-vertical".
-3. Sinon (cas général) → "business-showcase" + props complètes.
+RÈGLES DE CHOIX (STRICTES) :
+1. Templates dédiés UNIQUEMENT si \`businessContext.name\` correspond EXACTEMENT (insensible à la casse) au scope : "Comptoir Darna", "Riad Dar Najat", "Maison Brummell", "Jnane Rumi", "N.A.R", "Farasha Farmhouse", "Bô Zin". Toute autre valeur → INTERDIT d'utiliser ces templates.
+2. Si le prompt est purement corporate 1WM (sans \`businessContext\`) → "corporate-vertical".
+3. DANS TOUS LES AUTRES CAS (défaut absolu) → "business-showcase" avec props complètes basées sur \`businessContext\`. NE JAMAIS substituer un autre nom d'établissement.
 
 FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
 {
