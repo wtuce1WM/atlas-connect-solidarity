@@ -644,7 +644,7 @@ const HomeMindtrip = () => {
 
         <div className="absolute left-0 right-0 top-28 z-30 px-6 text-center md:hidden transition-all duration-700 animate-fade-in">
           <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
-            L’écosystème digital éthique & solidaire dédié à l'économie marocaine
+            La Première Plateforme Solidaire du Maroc
           </h1>
           <p className="mt-6 max-w-2xl mx-auto font-roboto text-base font-normal text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
             Faites de chaque achat<br /> un acte de générosité.<br /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
@@ -656,7 +656,7 @@ const HomeMindtrip = () => {
           <div className="home-hero-copy hidden w-full md:block md:max-lg:max-w-[75%] md:max-lg:mb-6">
             {/* Mobile Title - placed under the header in normal flow to avoid overlap */}
             <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2 hero-rise">
-              L’écosystème digital éthique & solidaire dédié à l'économie marocaine
+              La Première Plateforme Solidaire du Maroc
             </h1>
 
             <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] hero-rise">
