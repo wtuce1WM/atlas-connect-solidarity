@@ -109,20 +109,26 @@ FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
     "tagline": "3 à 6 mots, dernier mot accentué (terracotta)",
     "city": "Marrakech",
     "category": "Restaurant",
-    "images": ["url1", "url2"],
+    "videos": ["url1", "url2"],
+    "images": [],
     "offer": { "title": "Brunch signature", "price": "350 MAD" }
   },
   "rationale": "Pourquoi ce template (1 phrase)"
 }
 
 CONTRAINTES STRICTES :
-- "images" : UNIQUEMENT des URLs réelles tirées de la liste \`medias\` fournie (champs url ou thumbnail_url, type image). Si aucune image n'est fournie, renvoie \`"images": []\`. N'INVENTE JAMAIS d'URL (pas de example.com, pas de placeholder).
+- RÈGLE MÉDIAS (ABSOLUE, s'applique à TOUS les templates) :
+  1) Utilise EN PRIORITÉ les vidéos de l'établissement (medias où type="video" ou "internal-video"), triées dans l'ordre interne \`sort_order\`. Renseigne \`videos\` et laisse \`images: []\`.
+  2) Si AUCUNE vidéo n'est disponible, alors et seulement alors utilise les images (medias type="image"), triées par \`sort_order\`. Renseigne \`images\` et laisse \`videos: []\`.
+  3) NE JAMAIS mélanger vidéos et images dans une même vidéo : l'un OU l'autre, exclusivement.
+- "videos"/"images" : UNIQUEMENT des URLs réelles tirées de \`medias\`. N'INVENTE JAMAIS d'URL.
 - "offer" : UNIQUEMENT s'il existe une vraie promotion/prix dans \`medias\` (type=promotion ou champ price renseigné). Sinon \`"offer": null\`. Ne mets JAMAIS d'horaires ou de quartier dans \`offer\`.
 - "name" : EXACTEMENT le nom de l'établissement fourni (champ businessContext.name).
 - "hook" : utilise le champ \`hook\` du businessContext s'il existe ; sinon génère-en un court (≤80 caractères).
 - "tagline" : 3 à 6 mots, le dernier sera colorisé automatiquement.
 - "city" : champ \`city\` du businessContext (sinon null).
-- Pour les templates dédiés (hors business-showcase), renvoie \`"props": {}\` : ils sont hardcodés.
+- Pour les templates dédiés (hors business-showcase), renvoie \`"props": {}\` : ils sont hardcodés (ils respectent déjà la règle médias en interne).
+
 
 OPTIONS SÉLECTIONNÉES PAR L'UTILISATEUR À ACTIVER DANS LE SCÉNARIO :
 ${options?.reviews ? `- Activer explicitement l'affichage des avis clients (note et nombre d'avis de l'établissement).` : `- Désactiver l'affichage des avis clients.`}

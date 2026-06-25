@@ -3,6 +3,7 @@ import {
   AbsoluteFill,
   Sequence,
   Img,
+  OffthreadVideo,
   interpolate,
   spring,
   useCurrentFrame,
@@ -21,10 +22,12 @@ export type ShowcaseProps = {
   city?: string;
   category?: string;
   images?: string[];
+  videos?: string[];
   offer?: { title?: string; price?: string } | null;
   rating?: number | null;
   reviews?: number | null;
 };
+
 
 const ease = (f: number, a: number, b: number) =>
   interpolate(f, [a, b], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -260,7 +263,7 @@ const SceneCta: React.FC<{ name: string }> = ({ name }) => {
 };
 
 const BAD_HOSTS = ["example.com", "example.org", "placeholder", "test.com", "localhost"];
-const sanitizeImages = (arr: string[]): string[] =>
+const sanitizeUrls = (arr: string[]): string[] =>
   (arr || []).filter((u) => {
     if (typeof u !== "string") return false;
     if (!/^https?:\/\//i.test(u)) return false;
@@ -268,29 +271,63 @@ const sanitizeImages = (arr: string[]): string[] =>
     return !BAD_HOSTS.some((h) => lower.includes(h));
   });
 
+const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({ src, from, duration }) => {
+  const frame = useCurrentFrame();
+  const local = frame - from;
+  const o = Math.min(ease(local, 0, 12), 1 - ease(local, duration - 12, duration));
+  return (
+    <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
+      <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <AbsoluteFill
+        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.05) 40%,rgba(14,11,8,0.85) 100%)" }}
+      />
+    </AbsoluteFill>
+  );
+};
+
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   name = "Établissement",
   hook = "Une adresse à découvrir.",
   tagline = "L'art de vivre marocain.",
   city,
   images = [],
+  videos = [],
   offer = null,
 }) => {
-  const safeImages = sanitizeImages(images);
-  const heroImg = safeImages[0];
-  const galleryImgs = safeImages.slice(1);
+  const safeVideos = sanitizeUrls(videos);
+  const safeImages = sanitizeUrls(images);
+  // Règle: vidéos prioritaires, sinon images. Jamais les deux mélangés.
+  const useVideos = safeVideos.length > 0;
+  const heroMedia = useVideos ? safeVideos[0] : safeImages[0];
+  const galleryMedia = useVideos ? safeVideos.slice(1) : safeImages.slice(1);
+  const galleryList = galleryMedia.length ? galleryMedia : (useVideos ? safeVideos : safeImages);
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
       <Background />
       <Sequence from={0} durationInFrames={120}>
-        <SceneHook name={name} hook={hook} img={heroImg} />
+        {useVideos && heroMedia ? (
+          <AbsoluteFill>
+            <VideoCover src={heroMedia} from={0} duration={120} />
+            <SceneHook name={name} hook={hook} />
+          </AbsoluteFill>
+        ) : (
+          <SceneHook name={name} hook={hook} img={heroMedia} />
+        )}
       </Sequence>
       <Sequence from={120} durationInFrames={120}>
         <SceneTagline tagline={tagline} />
       </Sequence>
       <Sequence from={240} durationInFrames={150}>
-        <SceneGallery images={galleryImgs.length ? galleryImgs : safeImages} />
+        {useVideos ? (
+          <AbsoluteFill>
+            {galleryList.slice(0, 3).map((src, i) => (
+              <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
+            ))}
+          </AbsoluteFill>
+        ) : (
+          <SceneGallery images={galleryList} />
+        )}
       </Sequence>
 
       {offer && (
@@ -304,3 +341,4 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     </AbsoluteFill>
   );
 };
+
