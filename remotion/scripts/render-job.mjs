@@ -119,7 +119,24 @@ async function renderAndUpload() {
       chromeMode: "chrome-for-testing",
     });
 
-    const compositionId = job.template_id || "corporate-vertical";
+    const validCompositions = [
+      "main",
+      "corporate-vertical",
+      "comptoir-darna",
+      "riad-dar-najat",
+      "maison-brummell",
+      "jnane-rumi",
+      "agent-ia-demo",
+      "agent-ia-demo-v2",
+      "nar-complexe",
+      "farasha-farmhouse",
+      "bo-zin"
+    ];
+    let compositionId = job.template_id || "corporate-vertical";
+    if (!validCompositions.includes(compositionId)) {
+      console.log(`⚠️ Composition "${compositionId}" non valide, repli sur "corporate-vertical"`);
+      compositionId = "corporate-vertical";
+    }
     console.log(`🎨 Sélection de la composition : ${compositionId}`);
     
     const composition = await selectComposition({
