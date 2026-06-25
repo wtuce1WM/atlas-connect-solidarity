@@ -5517,6 +5517,8 @@ export type Database = {
           prompt: string
           scenario_json: Json | null
           status: string
+          template_id: string | null
+          template_props: Json | null
           tone: string
           updated_at: string
           user_id: string | null
@@ -5531,6 +5533,8 @@ export type Database = {
           prompt: string
           scenario_json?: Json | null
           status?: string
+          template_id?: string | null
+          template_props?: Json | null
           tone?: string
           updated_at?: string
           user_id?: string | null
@@ -5545,6 +5549,8 @@ export type Database = {
           prompt?: string
           scenario_json?: Json | null
           status?: string
+          template_id?: string | null
+          template_props?: Json | null
           tone?: string
           updated_at?: string
           user_id?: string | null
