@@ -91,18 +91,14 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
       moved = false;
     };
 
+    // Only react to native horizontal wheel (trackpads). Vertical wheel
+    // must keep scrolling the page — never hijack deltaY here.
     const onWheel = (e: WheelEvent) => {
       if (el.scrollWidth <= el.clientWidth) return;
-      stopMomentum();
-      el.style.scrollBehavior = "auto";
-
-      // Trackpads already emit horizontal deltaX with native momentum.
-      // Let the browser handle it instead of cancelling the gesture.
-      if (Math.abs(e.deltaX) > 0) return;
-
-      if (e.deltaY === 0) return;
-      el.scrollLeft += e.deltaY;
-      e.preventDefault();
+      if (Math.abs(e.deltaX) > 0) {
+        stopMomentum();
+        el.style.scrollBehavior = "auto";
+      }
     };
 
     el.addEventListener("pointerdown", onPointerDown);
