@@ -3,6 +3,9 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "studio:render": "node scripts/render-job.mjs"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/react": "^19.2.17",
