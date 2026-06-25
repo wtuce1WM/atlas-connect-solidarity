@@ -19,7 +19,9 @@ const narComplexeVideo = narComplexeAsset.url;
 const farashaVideo = farashaAsset.url;
 const boZinVideo = boZinAsset.url;
 
-const SHOWCASE: { title: string; src: string; prompt: string }[] = [
+type ShowcaseItem = { title: string; src: string; prompt: string };
+
+const SHOWCASE_BUSINESS: ShowcaseItem[] = [
   {
     title: "Comptoir Darna — Patio & Club",
     src: "/showcase/comptoir-darna-patio-club_v4.mp4",
@@ -45,24 +47,6 @@ const SHOWCASE: { title: string; src: string; prompt: string }[] = [
       "Vidéo immersive 720x1280 ~17s pour Jnane Rumi avec ses propres vidéos. Utiliser le hook de l'établissement. Mettre en avant le badge des avis client (note/20 + nombre d'avis). Terminer par une incitation à installer l'App.",
   },
   {
-    title: "Agent IA — Démo (animation)",
-    src: "/showcase/agent-ia-demo.mp4",
-    prompt:
-      "Démo de l'agent IA en vidéo immersive verticale 720x1280, ~17s. Concept « Pose ta question, vis ton Maroc » : Hook, Question, Réponse magique, Carte vivante, Affinage, CTA final. UI 100% Remotion.",
-  },
-  {
-    title: "Agent IA — Screencast",
-    src: "/showcase/agent-ia-screencast.mp4",
-    prompt:
-      "Démo de l'agent IA — version screencast réel ~25s, capturé via Playwright sur la vraie interface de /search?tab=ai.",
-  },
-  {
-    title: "Agent IA — Démo v2 (carte géolocalisée)",
-    src: "/showcase/agent-ia-demo-v2.mp4",
-    prompt:
-      "Autre version de agent-ia-demo.mp4 avec ce scénario : « je cherche un centre aquatique à Marrakech pour passer la journée avec les enfants + sur la route de l'Ourika + avec un golf à côté ». Montrer l'utilisation de la Google Map en étant géolocalisé (marqueur « vous êtes là »).",
-  },
-  {
     title: "N.A.R Complexe Sportif",
     src: narComplexeVideo,
     prompt:
@@ -79,6 +63,27 @@ const SHOWCASE: { title: string; src: string; prompt: string }[] = [
     src: boZinVideo,
     prompt:
       "Scénario « Signature 27s » en 9 étapes : Hook, Nom, Identité, Wow (Popup), Offres, Preuve sociale (Avis), Localisation, CTA principal, Outro App — appliqué à Bô Zin.",
+  },
+];
+
+const SHOWCASE_FEATURES: ShowcaseItem[] = [
+  {
+    title: "Agent IA — Démo (animation)",
+    src: "/showcase/agent-ia-demo.mp4",
+    prompt:
+      "Démo de l'agent IA en vidéo immersive verticale 720x1280, ~17s. Concept « Pose ta question, vis ton Maroc » : Hook, Question, Réponse magique, Carte vivante, Affinage, CTA final. UI 100% Remotion.",
+  },
+  {
+    title: "Agent IA — Screencast",
+    src: "/showcase/agent-ia-screencast.mp4",
+    prompt:
+      "Démo de l'agent IA — version screencast réel ~25s, capturé via Playwright sur la vraie interface de /search?tab=ai.",
+  },
+  {
+    title: "Agent IA — Démo v2 (carte géolocalisée)",
+    src: "/showcase/agent-ia-demo-v2.mp4",
+    prompt:
+      "Autre version de agent-ia-demo.mp4 avec ce scénario : « je cherche un centre aquatique à Marrakech pour passer la journée avec les enfants + sur la route de l'Ourika + avec un golf à côté ». Montrer l'utilisation de la Google Map en étant géolocalisé (marqueur « vous êtes là »).",
   },
 ];
 
