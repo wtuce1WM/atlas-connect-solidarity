@@ -282,9 +282,11 @@ const SceneCta: React.FC<{ name: string }> = ({ name }) => {
 const SceneReviews: React.FC<{ rating?: number | null; count?: number | null }> = ({ rating, count }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
-  const ratingS = spring({ frame: frame - 8, fps: 30, config: { damping: 14 } });
-  const note20 = rating ? (rating > 5 ? rating : rating * 4).toFixed(1) : null;
-  // compteur animé du nombre d'avis
+  const noteTarget = rating ? (rating > 5 ? rating : rating * 4) : null;
+  // Défilement visuel de la note /20 (comme le compteur d'avis)
+  const noteProgress = ease(frame, 8, 50);
+  const animatedNote = noteTarget != null ? (noteTarget * noteProgress).toFixed(1) : null;
+  const noteScale = interpolate(ease(frame, 8, 30), [0, 1], [0.7, 1]);
   const countProgress = ease(frame, 14, 50);
   const animatedCount = count ? Math.round(count * countProgress) : 0;
   return (
@@ -292,25 +294,26 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null }> 
       <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
         Avis clients
       </div>
-      {note20 && (
+      {animatedNote && (
         <div
           style={{
-            opacity: ratingS,
-            transform: `scale(${interpolate(ratingS, [0, 1], [0.7, 1])})`,
+            opacity: ease(frame, 8, 24),
+            transform: `scale(${noteScale})`,
             marginTop: 30,
             fontFamily: display,
             fontWeight: 700,
             color: COLORS.terracotta,
             fontSize: 180,
             lineHeight: 1,
+            textShadow: "0 4px 24px rgba(0,0,0,0.6)",
           }}
         >
-          {note20}
+          {animatedNote}
           <span style={{ fontSize: 70, color: COLORS.cream }}>/20</span>
         </div>
       )}
       {count != null && count > 0 && (
-        <div style={{ marginTop: 30, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 56 }}>
+        <div style={{ marginTop: 30, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 56, textShadow: "0 2px 12px rgba(0,0,0,0.7)" }}>
           {animatedCount.toLocaleString("fr-FR")}
           <span style={{ fontSize: 26, color: COLORS.gold, marginLeft: 14, letterSpacing: 3, textTransform: "uppercase" }}>avis</span>
         </div>
