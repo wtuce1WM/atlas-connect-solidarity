@@ -46,10 +46,8 @@ export const SceneTriptych: React.FC = () => {
               background: p.bg,
             }}
           >
-
-              }}
-            />
             <AbsoluteFill
+
               style={{
                 background:
                   "linear-gradient(180deg, rgba(14,11,8,0.15) 0%, rgba(14,11,8,0.85) 100%)",
