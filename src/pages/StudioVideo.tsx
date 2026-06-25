@@ -118,6 +118,15 @@ export default function StudioVideo() {
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [bizStats, setBizStats] = useState<{
+    hook: string | null;
+    descLen: number;
+    images: number;
+    videos: number;
+    offers: number;
+    popup: boolean;
+  } | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
 
   // Autocomplete businesses
   useEffect(() => {
