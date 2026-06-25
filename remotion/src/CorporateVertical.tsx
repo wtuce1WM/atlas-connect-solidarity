@@ -22,21 +22,10 @@ const ease = (f: number, a: number, b: number) =>
 const Background: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: COLORS.night, overflow: "hidden" }}>
-      <Video
-        src={staticFile("videos/clip-decouvrir.mp4")}
-        muted
-        loop
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
-      />
       <AbsoluteFill
         style={{
           background:
-            "linear-gradient(180deg, rgba(14,11,8,0.75) 0%, rgba(14,11,8,0.55) 35%, rgba(14,11,8,0.55) 65%, rgba(14,11,8,0.85) 100%)",
+            "linear-gradient(180deg, #1a120a 0%, #0e0b08 50%, #1a120a 100%)",
         }}
       />
       <AbsoluteFill
