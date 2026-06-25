@@ -154,7 +154,6 @@ async function renderAndUpload() {
     await renderMedia({
       composition,
       serveUrl: bundled,
-      calculateMetadata: true,
       codec: "h264",
       outputLocation: outPath,
       puppeteerInstance: browser,
