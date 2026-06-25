@@ -51,17 +51,30 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const BUCKET = "studio-videos";
 
 async function getNextJob() {
-  const { data, error } = await supabase
+  const { data: candidate, error: selErr } = await supabase
     .from("video_jobs")
-    .update({ status: "rendering" })
+    .select("id")
     .eq("status", "pending")
     .order("created_at", { ascending: true })
     .limit(1)
+    .maybeSingle();
+
+  if (selErr) {
+    console.error("❌ Erreur lors de la sélection d'un job :", selErr);
+    return null;
+  }
+  if (!candidate) return null;
+
+  const { data, error } = await supabase
+    .from("video_jobs")
+    .update({ status: "rendering" })
+    .eq("id", candidate.id)
+    .eq("status", "pending")
     .select()
     .maybeSingle();
 
   if (error) {
-    console.error("❌ Erreur lors de la récupération d'un job :", error);
+    console.error("❌ Erreur lors du verrouillage du job :", error);
     return null;
   }
   return data;
