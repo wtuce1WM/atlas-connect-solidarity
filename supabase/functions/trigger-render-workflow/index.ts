@@ -42,8 +42,11 @@ Deno.serve(async (req) => {
 
     const text = await res.text();
     if (!res.ok) {
-      console.error('GitHub dispatch failed', res.status, text, 'ref=', ref, 'workflow=', workflow);
-      return new Response(JSON.stringify({ error: 'GitHub dispatch failed', status: res.status, body: text, ref, workflow }), {
+      // List workflows to help debug
+      const listRes = await fetch(`https://api.github.com/repos/${repo}/actions/workflows`, { headers: ghHeaders });
+      const listBody = await listRes.text();
+      console.error('GitHub dispatch failed', res.status, text, 'ref=', ref, 'workflow=', workflow, 'workflows=', listBody);
+      return new Response(JSON.stringify({ error: 'GitHub dispatch failed', status: res.status, body: text, ref, workflow, workflows_list_status: listRes.status, workflows: listBody }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
