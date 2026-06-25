@@ -19,7 +19,9 @@ const narComplexeVideo = narComplexeAsset.url;
 const farashaVideo = farashaAsset.url;
 const boZinVideo = boZinAsset.url;
 
-const SHOWCASE: { title: string; src: string; prompt: string }[] = [
+type ShowcaseItem = { title: string; src: string; prompt: string };
+
+const SHOWCASE_BUSINESS: ShowcaseItem[] = [
   {
     title: "Comptoir Darna — Patio & Club",
     src: "/showcase/comptoir-darna-patio-club_v4.mp4",
@@ -45,24 +47,6 @@ const SHOWCASE: { title: string; src: string; prompt: string }[] = [
       "Vidéo immersive 720x1280 ~17s pour Jnane Rumi avec ses propres vidéos. Utiliser le hook de l'établissement. Mettre en avant le badge des avis client (note/20 + nombre d'avis). Terminer par une incitation à installer l'App.",
   },
   {
-    title: "Agent IA — Démo (animation)",
-    src: "/showcase/agent-ia-demo.mp4",
-    prompt:
-      "Démo de l'agent IA en vidéo immersive verticale 720x1280, ~17s. Concept « Pose ta question, vis ton Maroc » : Hook, Question, Réponse magique, Carte vivante, Affinage, CTA final. UI 100% Remotion.",
-  },
-  {
-    title: "Agent IA — Screencast",
-    src: "/showcase/agent-ia-screencast.mp4",
-    prompt:
-      "Démo de l'agent IA — version screencast réel ~25s, capturé via Playwright sur la vraie interface de /search?tab=ai.",
-  },
-  {
-    title: "Agent IA — Démo v2 (carte géolocalisée)",
-    src: "/showcase/agent-ia-demo-v2.mp4",
-    prompt:
-      "Autre version de agent-ia-demo.mp4 avec ce scénario : « je cherche un centre aquatique à Marrakech pour passer la journée avec les enfants + sur la route de l'Ourika + avec un golf à côté ». Montrer l'utilisation de la Google Map en étant géolocalisé (marqueur « vous êtes là »).",
-  },
-  {
     title: "N.A.R Complexe Sportif",
     src: narComplexeVideo,
     prompt:
@@ -79,6 +63,27 @@ const SHOWCASE: { title: string; src: string; prompt: string }[] = [
     src: boZinVideo,
     prompt:
       "Scénario « Signature 27s » en 9 étapes : Hook, Nom, Identité, Wow (Popup), Offres, Preuve sociale (Avis), Localisation, CTA principal, Outro App — appliqué à Bô Zin.",
+  },
+];
+
+const SHOWCASE_FEATURES: ShowcaseItem[] = [
+  {
+    title: "Agent IA — Démo (animation)",
+    src: "/showcase/agent-ia-demo.mp4",
+    prompt:
+      "Démo de l'agent IA en vidéo immersive verticale 720x1280, ~17s. Concept « Pose ta question, vis ton Maroc » : Hook, Question, Réponse magique, Carte vivante, Affinage, CTA final. UI 100% Remotion.",
+  },
+  {
+    title: "Agent IA — Screencast",
+    src: "/showcase/agent-ia-screencast.mp4",
+    prompt:
+      "Démo de l'agent IA — version screencast réel ~25s, capturé via Playwright sur la vraie interface de /search?tab=ai.",
+  },
+  {
+    title: "Agent IA — Démo v2 (carte géolocalisée)",
+    src: "/showcase/agent-ia-demo-v2.mp4",
+    prompt:
+      "Autre version de agent-ia-demo.mp4 avec ce scénario : « je cherche un centre aquatique à Marrakech pour passer la journée avec les enfants + sur la route de l'Ourika + avec un golf à côté ». Montrer l'utilisation de la Google Map en étant géolocalisé (marqueur « vous êtes là »).",
   },
 ];
 
@@ -322,12 +327,12 @@ export default function StudioVideo() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="font-semibold">Showcase — vidéos déjà produites</h2>
+            <h2 className="font-semibold">Showcase — établissements</h2>
             <p className="text-xs text-muted-foreground">
-              Exemples générés manuellement, avec le prompt d'origine.
+              Exemples générés manuellement pour des établissements réels, avec le prompt d'origine.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {SHOWCASE.map((s) => (
+              {SHOWCASE_BUSINESS.map((s) => (
                 <div key={s.title} className="rounded-lg border border-border bg-background p-3 space-y-2">
                   <div className="text-sm font-medium">{s.title}</div>
                   <video src={s.src} controls preload="metadata" className="w-full rounded-md aspect-[9/16] bg-black" />
@@ -336,6 +341,23 @@ export default function StudioVideo() {
               ))}
             </div>
           </section>
+
+          <section className="space-y-3">
+            <h2 className="font-semibold">Showcase — features & démos génériques</h2>
+            <p className="text-xs text-muted-foreground">
+              Vidéos qui illustrent une fonctionnalité du produit (agent IA, etc.).
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {SHOWCASE_FEATURES.map((s) => (
+                <div key={s.title} className="rounded-lg border border-border bg-background p-3 space-y-2">
+                  <div className="text-sm font-medium">{s.title}</div>
+                  <video src={s.src} controls preload="metadata" className="w-full rounded-md aspect-[9/16] bg-black" />
+                  <p className="text-xs text-muted-foreground whitespace-pre-line">{s.prompt}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
         </div>
       </div>
     </>
