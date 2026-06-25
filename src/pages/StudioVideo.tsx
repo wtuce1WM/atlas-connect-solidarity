@@ -513,7 +513,7 @@ export default function StudioVideo() {
                 {jobs
                   .filter((j) => j.status === "done" && j.output_url)
                   .map((j) => (
-                    <JobCard key={j.id} job={j} onRefine={startRefine} />
+                    <JobCard key={j.id} job={j} onRefine={startRefine} onDelete={deleteJob} />
                   ))}
               </div>
             )}
