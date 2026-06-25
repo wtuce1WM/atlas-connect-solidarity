@@ -20,6 +20,23 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
     let velocity = 0;
     let momentumRAF = 0;
     let moved = false;
+    let snapRestoreTimer: number | null = null;
+    let originalSnap: string | null = null;
+
+    const suspendSnap = () => {
+      if (originalSnap === null) {
+        originalSnap = el.style.scrollSnapType;
+        el.style.scrollSnapType = "none";
+      }
+      if (snapRestoreTimer) window.clearTimeout(snapRestoreTimer);
+      snapRestoreTimer = window.setTimeout(() => {
+        if (originalSnap !== null) {
+          el.style.scrollSnapType = originalSnap;
+          originalSnap = null;
+        }
+        snapRestoreTimer = null;
+      }, 140);
+    };
 
     const stopMomentum = () => {
       if (momentumRAF) {
