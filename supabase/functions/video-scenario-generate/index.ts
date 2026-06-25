@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,hook,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,popup_title,popup_description,images,popup_image_url")
+        .select("id,name,hook_fr,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,popup_title,popup_description,images,popup_image_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
 
@@ -86,8 +86,54 @@ Deno.serve(async (req) => {
       }
       if (docs) mergedMedias.push(...docs);
 
-      businessContext = { ...biz, medias: mergedMedias };
+      businessContext = {
+        ...biz,
+        hook: biz?.hook_fr ?? biz?.popup_title ?? biz?.popup_description ?? null,
+        medias: mergedMedias,
+      };
     }
+
+    const promptText = prompt.toLowerCase();
+    const wantsReviews = Boolean(options?.reviews) || /avis client|badge des avis|note\/20|nombre d'avis|compteur d'avis/i.test(promptText);
+    const wantsHours = Boolean(options?.hours) || /horaires|heures d'ouverture|ouverture de l'établissement/i.test(promptText);
+    const wantsMapMarker = Boolean(options?.map_marker) || /google\s*map|marqueur de l'établissement|marqueur.*carte|localisation/i.test(promptText);
+    const wantsInstallCta = Boolean(options?.install_cta) || /installer l'app|installation de l'app|incitation à installer/i.test(promptText);
+
+    const formatOpeningHours = (value: unknown): string | null => {
+      if (!value) return null;
+      if (typeof value === "string") return value.trim() || null;
+      if (typeof value !== "object") return null;
+
+      const dayLabels: Record<string, string> = {
+        monday: "Lundi",
+        tuesday: "Mardi",
+        wednesday: "Mercredi",
+        thursday: "Jeudi",
+        friday: "Vendredi",
+        saturday: "Samedi",
+        sunday: "Dimanche",
+      };
+      const orderedDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+      const source = value as Record<string, any>;
+
+      const formatSlot = (day: string, raw: any) => {
+        const label = dayLabels[day] ?? day;
+        if (typeof raw === "string") return `${label}: ${raw}`;
+        if (!raw || typeof raw !== "object") return null;
+        if (raw.closed) return `${label}: Fermé`;
+        const first = raw.open && raw.close ? `${raw.open}–${raw.close}` : "";
+        const second = raw.open2 && raw.close2 ? `${raw.open2}–${raw.close2}` : "";
+        const hours = raw.continuous ? first : [first, second].filter(Boolean).join(" / ");
+        return hours ? `${label}: ${hours}` : null;
+      };
+
+      const lines = orderedDays
+        .filter((day) => day in source)
+        .map((day) => formatSlot(day, source[day]))
+        .filter(Boolean);
+
+      return lines.length ? lines.join("\n") : null;
+    };
 
     const systemPrompt = `Tu es directeur artistique pour One World Morocco. Tu choisis un template vidéo Remotion et fournis les props.
 
@@ -129,11 +175,11 @@ CONTRAINTES STRICTES :
 - Pour les templates dédiés (hors business-showcase), renvoie \`"props": {}\` : ils sont hardcodés (ils respectent déjà la règle médias en interne).
 
 
-OPTIONS SÉLECTIONNÉES PAR L'UTILISATEUR À ACTIVER DANS LE SCÉNARIO :
-${options?.reviews ? `- Activer explicitement l'affichage des avis clients (note et nombre d'avis de l'établissement).` : `- Désactiver l'affichage des avis clients.`}
-${options?.hours ? `- Activer explicitement l'affichage des horaires d'ouverture de l'établissement.` : `- Désactiver les horaires.`}
-${options?.map_marker ? `- Activer explicitement la visualisation de la Google Map avec le marqueur.` : `- Désactiver le marqueur de carte.`}
-${options?.install_cta ? `- Activer l'incitation à installer l'app (One World Morocco) à la fin.` : `- Désactiver l'incitation de fin d'installation.`}
+OPTIONS / CONTRAINTES À ACTIVER DANS LE SCÉNARIO :
+${wantsReviews ? `- Activer explicitement l'affichage des avis clients (note/20 et nombre d'avis de l'établissement).` : `- Désactiver l'affichage des avis clients.`}
+${wantsHours ? `- Activer explicitement l'affichage des horaires d'ouverture de l'établissement.` : `- Désactiver les horaires.`}
+${wantsMapMarker ? `- Activer explicitement la visualisation de la Google Map avec le marqueur.` : `- Désactiver le marqueur de carte.`}
+${wantsInstallCta ? `- Activer l'incitation à installer l'app (One World Morocco) à la fin.` : `- Désactiver l'incitation de fin d'installation.`}
 
 Si \`businessContext\` est null, l'établissement est introuvable dans la base : choisis quand même "business-showcase", remplis name/hook/tagline depuis le prompt utilisateur, mets \`"images": []\` et \`"offer": null\`.
 
@@ -194,6 +240,13 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     } else {
       template_props.images = [];
     }
+    if (Array.isArray(template_props.videos)) {
+      template_props.videos = template_props.videos.filter((u: unknown) =>
+        typeof u === "string" && realMediaUrls.has(u)
+      );
+    } else {
+      template_props.videos = [];
+    }
 
     // Filet de sécurité : si offer ne contient pas un vrai prix MAD/€/$, on jette
     if (template_props.offer && typeof template_props.offer === "object") {
@@ -211,25 +264,26 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
 
     // Injection serveur des options + vraies données BD (l'IA ne fournit pas ces champs)
     if (template_id === "business-showcase" && businessContext) {
-      const rating = businessContext.computed_rating ?? businessContext.google_rating ?? null;
-      const reviewsCount = businessContext.total_review_count ?? businessContext.google_review_count ?? null;
+      const rating = businessContext.google_rating ?? businessContext.computed_rating ?? null;
+      const reviewsCount = businessContext.google_review_count ?? businessContext.total_review_count ?? null;
 
-      if (options?.reviews) {
+      if (wantsReviews) {
         template_props.showReviews = true;
         template_props.rating = rating;
         template_props.reviewsCount = reviewsCount;
       }
-      if (options?.hours && businessContext.opening_hours) {
+      const formattedOpeningHours = formatOpeningHours(businessContext.opening_hours);
+      if (wantsHours && formattedOpeningHours) {
         template_props.showOpeningHours = true;
-        template_props.openingHours = businessContext.opening_hours;
+        template_props.openingHours = formattedOpeningHours;
       }
-      if (options?.map_marker && businessContext.latitude && businessContext.longitude) {
+      if (wantsMapMarker && businessContext.latitude && businessContext.longitude) {
         template_props.showMap = true;
         template_props.latitude = Number(businessContext.latitude);
         template_props.longitude = Number(businessContext.longitude);
         template_props.address = businessContext.address ?? null;
       }
-      if (options?.install_cta) {
+      if (wantsInstallCta) {
         template_props.showAppInstall = true;
       }
     }

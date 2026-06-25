@@ -283,7 +283,7 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null }> 
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const ratingS = spring({ frame: frame - 8, fps: 30, config: { damping: 14 } });
-  const note20 = rating ? (rating * 4).toFixed(1) : null;
+  const note20 = rating ? (rating > 5 ? rating : rating * 4).toFixed(1) : null;
   // compteur animé du nombre d'avis
   const countProgress = ease(frame, 14, 50);
   const animatedCount = count ? Math.round(count * countProgress) : 0;
