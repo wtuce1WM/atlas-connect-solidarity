@@ -35,14 +35,18 @@ export type ShowcaseProps = {
   showOpeningHours?: boolean;
   showMap?: boolean;
   showAppInstall?: boolean;
+  durationSec?: number;
 };
 
 export const computeShowcaseFrames = (p: ShowcaseProps): number => {
-  let extra = 0;
-  if (p.showReviews && (p.rating || p.reviewsCount)) extra += OPTION_SCENE_FRAMES;
-  if (p.showOpeningHours && p.openingHours) extra += OPTION_SCENE_FRAMES;
-  if (p.showMap && p.latitude && p.longitude) extra += OPTION_SCENE_FRAMES;
-  return SHOWCASE_TOTAL_FRAMES + extra;
+  let cursor = 390;
+  if (p.offer) cursor += 120;
+  if (p.showReviews && (p.rating || p.reviewsCount)) cursor += OPTION_SCENE_FRAMES;
+  if (p.showOpeningHours && p.openingHours) cursor += OPTION_SCENE_FRAMES;
+  if (p.showMap && p.latitude && p.longitude) cursor += OPTION_SCENE_FRAMES;
+  const naturalEnd = cursor + 150;
+  const requestedEnd = Number.isFinite(p.durationSec) && p.durationSec ? Math.round(Number(p.durationSec) * 30) : SHOWCASE_TOTAL_FRAMES;
+  return Math.max(naturalEnd, requestedEnd);
 };
 
 
@@ -279,6 +283,61 @@ const SceneCta: React.FC<{ name: string }> = ({ name }) => {
   );
 };
 
+const SceneInstallCta: React.FC<{ name: string }> = ({ name }) => {
+  const frame = useCurrentFrame();
+  const iconS = spring({ frame, fps: 30, config: { damping: 14 } });
+  const titleO = ease(frame, 12, 30);
+  const badgeO = ease(frame, 34, 54);
+  return (
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 64 }}>
+      <Img
+        src={staticFile("images/app-icon-1wm.png")}
+        style={{ width: 190, height: 190, transform: `scale(${interpolate(iconS, [0, 1], [0.72, 1])})`, opacity: iconS }}
+      />
+      <div
+        style={{
+          opacity: titleO,
+          marginTop: 34,
+          fontFamily: display,
+          fontWeight: 700,
+          color: COLORS.cream,
+          fontSize: 46,
+          textAlign: "center",
+          lineHeight: 1.12,
+          textShadow: "0 4px 24px rgba(0,0,0,0.65)",
+        }}
+      >
+        Emportez {name}
+        <br />dans votre Maroc
+      </div>
+      <div
+        style={{
+          opacity: badgeO,
+          marginTop: 38,
+          width: 330,
+          height: 74,
+          borderRadius: 18,
+          background: COLORS.terracotta,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: body,
+          fontWeight: 800,
+          color: COLORS.cream,
+          fontSize: 26,
+          letterSpacing: 1,
+          boxShadow: "0 18px 54px rgba(192,79,23,0.35)",
+        }}
+      >
+        Installer l'app
+      </div>
+      <div style={{ opacity: badgeO, marginTop: 24, fontFamily: body, color: COLORS.gold, fontSize: 24 }}>
+        One World Morocco
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const SceneReviews: React.FC<{ rating?: number | null; count?: number | null }> = ({ rating, count }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
@@ -461,6 +520,14 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
   return null;
 };
 
+const removeDecorativeTaglineWords = (value: string): string =>
+  value
+    .replace(/\bterracotta(?:é|e|s)?\b/gi, "")
+    .replace(/\s+([,.:;!?])/g, "$1")
+    .replace(/\s{2,}/g, " ")
+    .replace(/^[\s,.:;!?-]+|[\s,.:;!?-]+$/g, "")
+    .trim();
+
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   name = "Établissement",
   hook = "Une adresse à découvrir.",
@@ -478,6 +545,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   showReviews,
   showOpeningHours,
   showMap,
+  showAppInstall,
+  durationSec,
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
@@ -485,6 +554,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const heroMedia = useVideos ? safeVideos[0] : safeImages[0];
   const galleryMedia = useVideos ? safeVideos.slice(1) : safeImages.slice(1);
   const galleryList = galleryMedia.length ? galleryMedia : (useVideos ? safeVideos : safeImages);
+  const safeTagline = removeDecorativeTaglineWords(tagline) || hook;
 
   // Position courante après les scènes de base
   let cursor = 390;
@@ -502,7 +572,19 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   if (mapActive) cursor += OPTION_SCENE_FRAMES;
 
   const ctaFrom = cursor;
-  const ctaDuration = 150;
+  const totalFrames = computeShowcaseFrames({
+    offer,
+    rating,
+    reviewsCount,
+    openingHours,
+    latitude,
+    longitude,
+    showReviews,
+    showOpeningHours,
+    showMap,
+    durationSec,
+  });
+  const ctaDuration = Math.max(150, totalFrames - ctaFrom);
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
@@ -518,7 +600,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         )}
       </Sequence>
       <Sequence from={120} durationInFrames={120}>
-        <SceneTagline tagline={tagline} />
+        <SceneTagline tagline={safeTagline} />
       </Sequence>
       <Sequence from={240} durationInFrames={150}>
         {useVideos ? (
@@ -559,7 +641,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
       <Sequence from={ctaFrom} durationInFrames={ctaDuration}>
         <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
-        <SceneCta name={name} />
+        {showAppInstall ? <SceneInstallCta name={name} /> : <SceneCta name={name} />}
       </Sequence>
     </AbsoluteFill>
   );
