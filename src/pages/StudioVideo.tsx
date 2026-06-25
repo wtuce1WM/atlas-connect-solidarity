@@ -503,7 +503,7 @@ export default function StudioVideo() {
                 rows={5}
                 placeholder={refineFrom
                   ? "Ex : remplace l'image de couverture par la 2e, raccourcis le hook, ajoute les horaires…"
-                  : "Ex : Présentation immersive mettant en avant le hook et la signature de l'établissement, terminer par une incitation à installer l'app."}
+                  : "Ex : Présentation immersive mettant en avant le hook et la signature de l'établissement, ajoutes options cochées ci-dessous."}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 maxLength={2000}
@@ -511,7 +511,7 @@ export default function StudioVideo() {
                 onFocus={() => {
                   if (!prompt && !refineFrom) {
                     const businessText = selected ? ` « ${selected.name} »` : "";
-                    setPrompt(`Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, terminer par une incitation à installer l'app.`);
+                    setPrompt(`Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, ajoutes options cochées ci-dessous.`);
                   }
                 }}
               />
