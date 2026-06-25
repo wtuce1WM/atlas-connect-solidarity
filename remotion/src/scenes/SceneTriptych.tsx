@@ -43,15 +43,10 @@ export const SceneTriptych: React.FC = () => {
               position: "relative",
               overflow: "hidden",
               clipPath: `inset(${(1 - reveal) * 100}% 0 0 0)`,
+              background: p.bg,
             }}
           >
-            <Video
-              src={staticFile(p.src)}
-              muted
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
+
               }}
             />
             <AbsoluteFill
