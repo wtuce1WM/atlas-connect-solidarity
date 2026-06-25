@@ -445,14 +445,40 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   images = [],
   videos = [],
   offer = null,
+  rating,
+  reviewsCount,
+  openingHours,
+  address,
+  latitude,
+  longitude,
+  showReviews,
+  showOpeningHours,
+  showMap,
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
-  // Règle: vidéos prioritaires, sinon images. Jamais les deux mélangés.
   const useVideos = safeVideos.length > 0;
   const heroMedia = useVideos ? safeVideos[0] : safeImages[0];
   const galleryMedia = useVideos ? safeVideos.slice(1) : safeImages.slice(1);
   const galleryList = galleryMedia.length ? galleryMedia : (useVideos ? safeVideos : safeImages);
+
+  // Position courante après les scènes de base
+  let cursor = 390;
+  if (offer) cursor += 120;
+
+  const reviewsActive = !!(showReviews && (rating || reviewsCount));
+  const hoursActive = !!(showOpeningHours && openingHours);
+  const mapActive = !!(showMap && latitude && longitude);
+
+  const reviewsFrom = reviewsActive ? cursor : null;
+  if (reviewsActive) cursor += OPTION_SCENE_FRAMES;
+  const hoursFrom = hoursActive ? cursor : null;
+  if (hoursActive) cursor += OPTION_SCENE_FRAMES;
+  const mapFrom = mapActive ? cursor : null;
+  if (mapActive) cursor += OPTION_SCENE_FRAMES;
+
+  const ctaFrom = cursor;
+  const ctaDuration = 150;
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
@@ -487,10 +513,28 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           <SceneOffer offer={offer} city={city} />
         </Sequence>
       )}
-      <Sequence from={offer ? 510 : 390} durationInFrames={offer ? 150 : 270}>
+
+      {reviewsFrom !== null && (
+        <Sequence from={reviewsFrom} durationInFrames={OPTION_SCENE_FRAMES}>
+          <SceneReviews rating={rating} count={reviewsCount} />
+        </Sequence>
+      )}
+      {hoursFrom !== null && openingHours && (
+        <Sequence from={hoursFrom} durationInFrames={OPTION_SCENE_FRAMES}>
+          <SceneHours openingHours={openingHours} />
+        </Sequence>
+      )}
+      {mapFrom !== null && (
+        <Sequence from={mapFrom} durationInFrames={OPTION_SCENE_FRAMES}>
+          <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} />
+        </Sequence>
+      )}
+
+      <Sequence from={ctaFrom} durationInFrames={ctaDuration}>
         <SceneCta name={name} />
       </Sequence>
     </AbsoluteFill>
   );
 };
+
 
