@@ -535,28 +535,28 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </div>
 
         <div>
-          <label className="text-sm text-muted-foreground mb-1 block">{t.emailLabel}</label>
+          <label className="text-sm text-white/90 mb-1 block">{t.emailLabel}</label>
           <Input type="email" value={form.email} onChange={handleChange("email")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm text-muted-foreground mb-1 block">{t.phoneLabel}</label>
+            <label className="text-sm text-white/90 mb-1 block">{t.phoneLabel}</label>
             <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
           <div>
-            <label className="text-sm text-muted-foreground mb-1 block">{t.whatsappLabel}</label>
+            <label className="text-sm text-white/90 mb-1 block">{t.whatsappLabel}</label>
             <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
         </div>
 
         {/* Personas selector */}
         <div className="pt-2">
-          <label className="text-sm text-foreground font-semibold mb-2 flex items-center gap-2">
+          <label className="text-sm text-white font-semibold mb-2 flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-gold" />
             {language === "en" ? "Your traveler profile" : language === "ar" ? "ملفك الشخصي للسفر" : "Votre profil de voyageur"}
           </label>
-          <p className="text-xs text-muted-foreground mb-3">
+          <p className="text-xs text-white/70 mb-3">
             {language === "en"
               ? "Select one or more personas that match you (optional)."
               : language === "ar"
@@ -595,11 +595,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         {/* Description */}
         <div className="pt-2">
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm text-foreground font-semibold flex items-center gap-2">
+            <label className="text-sm text-white font-semibold flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-gold" />
               Description
             </label>
-            <span className={`text-xs ${plainTextLength(form.description) > MAX_DESCRIPTION_LENGTH ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+            <span className={`text-xs ${plainTextLength(form.description) > MAX_DESCRIPTION_LENGTH ? "text-red-300 font-semibold" : "text-white/70"}`}>
               {plainTextLength(form.description)} / {MAX_DESCRIPTION_LENGTH}
             </span>
           </div>
@@ -615,11 +615,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
         {/* External links */}
         <div className="pt-2">
-          <label className="text-sm text-foreground font-semibold mb-2 flex items-center gap-2">
+          <label className="text-sm text-white font-semibold mb-2 flex items-center gap-2">
             <ExternalLink className="h-4 w-4 text-gold" />
             {language === "en" ? "External links" : language === "ar" ? "روابط خارجية" : "Liens externes"}
           </label>
-          <p className="text-xs text-muted-foreground mb-3">
+          <p className="text-xs text-white/70 mb-3">
             {language === "en"
               ? "Add your website and social networks (optional)."
               : language === "ar"
@@ -642,7 +642,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               <div key={key} className="flex items-center gap-3">
                 <div className="w-28 shrink-0 flex items-center gap-2">
                   {key !== "website" && SOCIAL_ICONS[key as string]}
-                  <Label className="text-sm text-muted-foreground">{label}</Label>
+                  <Label className="text-sm text-white/90">{label}</Label>
                 </div>
                 <Input
                   value={form[key]}
