@@ -19,6 +19,7 @@ const HomeBottomBar = () => {
   const geo = useGeolocation();
   const [locationOpen, setLocationOpen] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
+  const [closeTrigger, setCloseTrigger] = useState(0);
 
   useEffect(() => {
     const h = () => setLocationOpen(true);
@@ -28,17 +29,20 @@ const HomeBottomBar = () => {
 
   return (
     <>
-      {/* When closed: bottom-only strip (header stays clickable).
-          When the search overlay opens: expand to full viewport so OverlayShell
-          (absolute inset-0 of nearest positioned ancestor) covers the screen. */}
+      {/* Full-viewport scrim behind the centered overlay column */}
+      {overlayOpen && (
+        <div
+          className="fixed inset-0 z-[199] bg-black/40 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setCloseTrigger((n) => n + 1)}
+          aria-hidden
+        />
+      )}
+
       <div
         className={`fixed z-[200] pointer-events-none ${
           overlayOpen ? "inset-0" : "inset-x-0 bottom-0"
         }`}
       >
-        {/* Centered column: full viewport on mobile, central ~50% on desktop.
-            This becomes the positioned ancestor for OverlayShell so the
-            Search overlay stays bounded to the central column (same as /search). */}
         <div className="relative w-full h-full mx-auto sm:max-w-[640px] lg:max-w-[50vw] pointer-events-auto">
           <PanelSearchBar
             onSearch={(params) => {
@@ -48,6 +52,7 @@ const HomeBottomBar = () => {
             onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
             onAiClick={() => navigate("/search?tab=ai")}
             onOverlayChange={setOverlayOpen}
+            closeTrigger={closeTrigger}
             noToolbarOffset
           />
         </div>
