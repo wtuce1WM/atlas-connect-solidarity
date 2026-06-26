@@ -36,9 +36,13 @@ export type ShowcaseProps = {
   showOpeningHours?: boolean;
   showMap?: boolean;
   showAppInstall?: boolean;
+  showDigitalId?: boolean;
+  slug?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
 };
+
+export const DIGITAL_ID_FRAMES = 180; // 6s — 3 phases (page, share, QR)
 
 const splitHookInTwo = (h: string): [string, string] => {
   const t = (h || "").trim();
