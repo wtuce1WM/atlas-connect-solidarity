@@ -129,7 +129,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     <div className="text-center py-10 px-4 text-[#194CFF]">
       <MessageSquare className="h-8 w-8 mx-auto mb-3 opacity-70" />
       <div className="text-sm font-semibold mb-1">Bonjour 👋</div>
-      <div className="text-xs opacity-80">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou reprenez une conversation précédente.</div>
+      <div className="text-base opacity-80">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou reprenez une conversation précédente.</div>
     </div>
   ), []);
 
