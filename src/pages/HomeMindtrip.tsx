@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play, Pause, Volume2, VolumeX, Percent, User } from "lucide-react";
 
 import Footer from "@/components/Footer";
+import HomeBottomBar from "@/components/HomeBottomBar";
 import HScroll from "@/components/HScroll";
 import SearchInput from "@/components/SearchInput";
 import LiquidAIMoroccoBg from "@/components/LiquidAIMoroccoBg";
