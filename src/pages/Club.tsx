@@ -100,7 +100,16 @@ const Club = () => {
     fetchMemberData();
   }, [user]);
 
-  // Listen for auth state changes + fetch countries
+  // When a connected member lands on /club without ?view=dashboard,
+  // redirect to the AI agent with a personalized greeting.
+  useEffect(() => {
+    if (authLoading || !user || showDashboard) return;
+    const name = (nickname || (user.email ? user.email.split("@")[0] : "")).trim();
+    if (!name) return;
+    navigate(`/search?tab=ai&welcome=1&clubGreeting=${encodeURIComponent(name)}`, { replace: true });
+  }, [authLoading, user, nickname, showDashboard, navigate]);
+
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
