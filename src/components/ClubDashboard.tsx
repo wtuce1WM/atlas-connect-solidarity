@@ -464,6 +464,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 { value: "travel", Icon: Plane, label: language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage" },
                 { value: "inspiration", Icon: Lightbulb, label: language === "en" ? "Inspiration" : language === "ar" ? "إلهام" : "Inspiration" },
                 { value: "ai-chats", Icon: Bot, label: language === "en" ? "AI conversations" : language === "ar" ? "محادثات الذكاء" : "Conversations IA" },
+                { value: "profile", Icon: Sparkles, label: language === "en" ? "Traveler profile" : language === "ar" ? "ملف المسافر" : "Profil de voyageur" },
                 { value: "notifications", Icon: Bell, label: language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications" },
                 { value: "contact", Icon: Mail, label: language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous" },
               ].map(({ value, Icon, label }) => (
@@ -561,47 +562,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </div>
 
-        {/* Personas selector */}
-        <div className="pt-2">
-          <label className="text-sm text-white font-semibold mb-2 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-gold" />
-            {language === "en" ? "Your traveler profile" : language === "ar" ? "ملفك الشخصي للسفر" : "Votre profil de voyageur"}
-          </label>
-          <p className="text-xs text-white/70 mb-3">
-            {language === "en"
-              ? "Select one or more personas that match you (optional)."
-              : language === "ar"
-              ? "اختر شخصية واحدة أو أكثر تناسبك (اختياري)."
-              : "Sélectionnez un ou plusieurs personas qui vous correspondent (facultatif)."}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {personas.map((p) => {
-              const selected = selectedPersonaIds.has(p.id);
-              const label = language === "en" && p.name_en ? p.name_en : language === "ar" && p.name_ar ? p.name_ar : p.name_fr;
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedPersonaIds(prev => {
-                      const next = new Set(prev);
-                      if (next.has(p.id)) next.delete(p.id);
-                      else next.add(p.id);
-                      return next;
-                    });
-                  }}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                    selected
-                      ? "bg-gold text-black border-gold font-semibold"
-                      : "bg-[#BED1FF] text-black border-none hover:bg-[#BED1FF]/80"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+
+
 
         {/* Description */}
         <div className="pt-2">
@@ -816,6 +778,57 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           <AiChatsList userId={user.id} />
         </TabsContent>
 
+
+        <TabsContent value="profile" className="mt-6">
+          <div className="pt-2">
+            <label className="text-sm text-white font-semibold mb-2 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-gold" />
+              {language === "en" ? "Your traveler profile" : language === "ar" ? "ملفك الشخصي للسفر" : "Votre profil de voyageur"}
+            </label>
+            <p className="text-xs text-white/70 mb-3">
+              {language === "en"
+                ? "Select one or more personas that match you (optional)."
+                : language === "ar"
+                ? "اختر شخصية واحدة أو أكثر تناسبك (اختياري)."
+                : "Sélectionnez un ou plusieurs personas qui vous correspondent (facultatif)."}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {personas.map((p) => {
+                const selected = selectedPersonaIds.has(p.id);
+                const label = language === "en" && p.name_en ? p.name_en : language === "ar" && p.name_ar ? p.name_ar : p.name_fr;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedPersonaIds(prev => {
+                        const next = new Set(prev);
+                        if (next.has(p.id)) next.delete(p.id);
+                        else next.add(p.id);
+                        return next;
+                      });
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                      selected
+                        ? "bg-gold text-black border-gold font-semibold"
+                        : "bg-[#BED1FF] text-black border-none hover:bg-[#BED1FF]/80"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="mt-6 w-full bg-[#25D366] text-white hover:bg-[#20bd5a] font-semibold py-6 text-base"
+            >
+              {isSaving ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Save className="h-5 w-5 mr-2" />}
+              {t.save}
+            </Button>
+          </div>
+        </TabsContent>
 
         <TabsContent value="notifications" className="mt-6">
           <div className="rounded-lg border border-dashed border-white/30 bg-white/10 p-10 text-center text-sm text-white/90">
