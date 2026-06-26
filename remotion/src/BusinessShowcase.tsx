@@ -695,6 +695,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   showOpeningHours,
   showMap,
   showAppInstall,
+  showDigitalId,
+  slug,
   durationSec,
   useFullHookScene,
 }) => {
@@ -715,6 +717,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const reviewsActive = !!(showReviews && (rating || reviewsCount));
   const hoursActive = !!(showOpeningHours && openingHours);
   const mapActive = !!(showMap && latitude && longitude);
+  const digitalIdActive = !!(showDigitalId && slug);
 
   const reviewsFrom = reviewsActive ? cursor : null;
   if (reviewsActive) cursor += OPTION_SCENE_FRAMES;
@@ -722,6 +725,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   if (hoursActive) cursor += OPTION_SCENE_FRAMES;
   const mapFrom = mapActive ? cursor : null;
   if (mapActive) cursor += OPTION_SCENE_FRAMES;
+  const digitalIdFrom = digitalIdActive ? cursor : null;
+  if (digitalIdActive) cursor += DIGITAL_ID_FRAMES;
 
   const ctaFrom = cursor;
   const totalFrames = computeShowcaseFrames({
@@ -734,6 +739,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     showReviews,
     showOpeningHours,
     showMap,
+    showDigitalId,
+    slug,
     durationSec,
   });
   const ctaDuration = Math.max(150, totalFrames - ctaFrom);
