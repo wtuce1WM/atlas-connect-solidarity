@@ -1209,11 +1209,22 @@ const SearchPage = () => {
      if (aiAnswerText) return;
       // Always show the welcome prompt when arriving on /search?tab=ai without context,
       // instead of restoring a previous random AI suggestion.
-      const welcome = language === "en"
-        ? "What are you looking for? Where are you looking for it?"
-        : language === "ar"
-          ? "ماذا تبحث عنه؟ وأين تبحث عنه؟"
-          : "Que cherchez-vous ? Où le cherchez-vous ?";
+      const clubGreeting = searchParams.get("clubGreeting");
+      let welcome: string;
+      if (clubGreeting) {
+        const name = clubGreeting.trim();
+        welcome = language === "en"
+          ? `Hi ${name}, what can I do for you today?`
+          : language === "ar"
+            ? `مرحباً ${name}، كيف يمكنني مساعدتك اليوم؟`
+            : `Salut ${name}, que puis-je pour toi aujourd'hui ?`;
+      } else {
+        welcome = language === "en"
+          ? "What are you looking for? Where are you looking for it?"
+          : language === "ar"
+            ? "ماذا تبحث عنه؟ وأين تبحث عنه؟"
+            : "Que cherchez-vous ? Où le cherchez-vous ?";
+      }
       setAiAnswerText(welcome);
 
      // eslint-disable-next-line react-hooks/exhaustive-deps
