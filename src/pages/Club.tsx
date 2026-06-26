@@ -101,21 +101,6 @@ const Club = () => {
     fetchMemberData();
   }, [user]);
 
-  // When a connected member lands on /club without ?view=dashboard,
-  // seed the AI agent params on the same URL so SearchPage renders the
-  // personalized greeting inline (no redirect off /club).
-  useEffect(() => {
-    if (authLoading || !user || showDashboard) return;
-    const name = (nickname || (user.email ? user.email.split("@")[0] : "")).trim();
-    if (!name) return;
-    if (searchParams.get("tab") === "ai" && searchParams.get("clubGreeting") === name) return;
-    const next = new URLSearchParams(searchParams);
-    next.set("tab", "ai");
-    next.set("welcome", "1");
-    next.set("clubGreeting", name);
-    setSearchParams(next, { replace: true });
-  }, [authLoading, user, nickname, showDashboard, searchParams, setSearchParams]);
-
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
