@@ -1,6 +1,7 @@
 import HeroSection from "@/components/HeroSection";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
+import HomeBottomBar from "@/components/HomeBottomBar";
 
 import Footer from "@/components/Footer";
 import { useSEO } from "@/hooks/useSEO";
