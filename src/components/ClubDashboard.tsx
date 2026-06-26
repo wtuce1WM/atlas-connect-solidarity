@@ -438,7 +438,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full" orientation="vertical">
         <div className="flex flex-col gap-6">
-          <div className="hidden md:flex items-center justify-center px-1">
+          <div className="flex items-center justify-center px-1">
             <button
               type="button"
               onClick={() => avatarInputRef.current?.click()}
