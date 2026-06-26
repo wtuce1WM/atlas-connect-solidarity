@@ -485,29 +485,29 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm text-muted-foreground mb-1 block">{t.firstName}</label>
+            <label className="text-sm text-white/90 mb-1 block">{t.firstName}</label>
             <Input value={form.first_name} onChange={handleChange("first_name")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
           <div>
-            <label className="text-sm text-muted-foreground mb-1 block">{t.lastName}</label>
+            <label className="text-sm text-white/90 mb-1 block">{t.lastName}</label>
             <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
         </div>
 
         <div>
-          <label className="text-sm text-foreground font-semibold mb-1 block">
-            {t.nickname} <span className="text-destructive">*</span>
+          <label className="text-sm text-white font-semibold mb-1 block">
+            {t.nickname} <span className="text-red-200">*</span>
           </label>
           <Input value={form.nickname} onChange={handleChange("nickname")} required className="bg-[#BED1FF] text-black placeholder:text-black/60" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm text-muted-foreground mb-1 block">{t.cityLabel}</label>
+            <label className="text-sm text-white/90 mb-1 block">{t.cityLabel}</label>
             <Input value={form.city} onChange={handleChange("city")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
           <div>
-            <label className="text-sm text-muted-foreground mb-1 block">{t.countryLabel}</label>
+            <label className="text-sm text-white/90 mb-1 block">{t.countryLabel}</label>
             <Select
               value={form.country}
               onValueChange={(val) => setForm(prev => ({ ...prev, country: val === "__none__" ? "" : val }))}
