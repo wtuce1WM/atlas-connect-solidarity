@@ -563,7 +563,7 @@ const SceneDigitalId: React.FC<{
   const phase1O = Math.min(ease(frame, 6, 22), 1 - ease(frame, 85, 95));
   const phase2O = ease(frame, 92, 108);
 
-  const ficheScreenshot = "https://oneworldmorocco.com/studio/fiche-mockup.png";
+  const ficheScreenshot = "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/studio-videos/assets/fiche-mockup.png";
 
   return (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 40 }}>
