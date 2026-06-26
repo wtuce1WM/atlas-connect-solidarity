@@ -1227,6 +1227,7 @@ const HomeMindtrip = () => {
 
 
       <Footer variant="verified" />
+      <HomeBottomBar />
 
       <VoiceSearchOverlay
         isOpen={heroVoice.status === "recording" || heroVoice.status === "processing"}
