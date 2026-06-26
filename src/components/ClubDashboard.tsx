@@ -468,7 +468,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               <button
                 type="button"
                 onClick={onLogout}
-                className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm rounded-md text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+                className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm rounded-md text-red-200 hover:text-red-100 hover:bg-red-500/20 transition-colors shrink-0"
               >
                 <LogOut className="h-4 w-4 shrink-0" />
                 <span className="truncate">{t.logout}</span>
