@@ -113,6 +113,11 @@ const Club = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Scroll to top when user logs in
+  useEffect(() => {
+    if (user) window.scrollTo({ top: 0, behavior: "auto" });
+  }, [user]);
+
   // Hero parallax: mouse + scroll → CSS vars on .club-hero
   useEffect(() => {
     const hero = document.querySelector<HTMLElement>(".club-hero");
