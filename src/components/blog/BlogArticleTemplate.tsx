@@ -714,6 +714,7 @@ const BlogArticleTemplate = ({
 
       <Footer />
       </div>
+      <HomeBottomBar />
       <ClubLoginPopup />
 
       {openBusinessId && (
