@@ -437,68 +437,36 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full" orientation="vertical">
-        <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
-          <div className="flex flex-col gap-4">
-
-            <div className="hidden md:flex items-center justify-center px-1">
-              <button
-                type="button"
-                onClick={() => avatarInputRef.current?.click()}
-                disabled={uploadingAvatar}
-                aria-label="Changer la photo de profil"
-                className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
-              >
-                <img
-                  src={avatarUrl || accountAvatar}
-                  alt="Photo de profil"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-                {uploadingAvatar && (
-                  <span className="absolute inset-0 flex items-center justify-center bg-background/60">
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  </span>
-                )}
-              </button>
-              <input
-                ref={avatarInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarUpload}
+        <div className="flex flex-col gap-6">
+          <div className="hidden md:flex items-center justify-center px-1">
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              aria-label="Changer la photo de profil"
+              className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
+            >
+              <img
+                src={avatarUrl || accountAvatar}
+                alt="Photo de profil"
+                className="h-full w-full object-cover"
+                loading="lazy"
               />
-            </div>
-            <TabsList className="flex md:flex-col h-auto bg-transparent p-0 gap-1 md:items-stretch md:justify-start overflow-x-auto md:overflow-visible scrollbar-thin -mx-4 px-4 md:mx-0 md:px-0">
-              {[
-                { value: "assistant", Icon: MessageCircle, label: language === "en" ? "AI Assistant" : language === "ar" ? "مساعد الذكاء" : "Assistant IA" },
-                { value: "account", Icon: UserIcon, label: language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte" },
-                { value: "addresses", Icon: MapPin, label: language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses" },
-                { value: "travel", Icon: Plane, label: language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage" },
-                { value: "inspiration", Icon: Lightbulb, label: language === "en" ? "Inspiration" : language === "ar" ? "إلهام" : "Inspiration" },
-                { value: "ai-chats", Icon: Bot, label: language === "en" ? "AI conversations" : language === "ar" ? "محادثات الذكاء" : "Conversations IA" },
-                { value: "profile", Icon: Sparkles, label: language === "en" ? "Traveler profile" : language === "ar" ? "ملف المسافر" : "Profil de voyageur" },
-                { value: "notifications", Icon: Bell, label: language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications" },
-                { value: "contact", Icon: Mail, label: language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous" },
-              ].map(({ value, Icon, label }) => (
-                <TabsTrigger
-                  key={value}
-                  value={value}
-                  className="shrink-0 md:w-full justify-start gap-2 px-3 py-2 text-sm rounded-md text-white/80 hover:text-white hover:bg-white/10 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:font-semibold transition-all whitespace-nowrap"
-                >
-                  <Icon className="h-4 w-4 shrink-0 text-current" />
-                  <span className="truncate">{label}</span>
-                </TabsTrigger>
-              ))}
-              <button
-                type="button"
-                onClick={onLogout}
-                className="hidden md:flex w-full items-center justify-start gap-2 px-3 py-2 text-sm rounded-md text-red-200 hover:text-red-100 hover:bg-red-500/20 transition-colors shrink-0"
-              >
-                <LogOut className="h-4 w-4 shrink-0" />
-                <span className="truncate">{t.logout}</span>
-              </button>
-            </TabsList>
+              {uploadingAvatar && (
+                <span className="absolute inset-0 flex items-center justify-center bg-background/60">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                </span>
+              )}
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
           </div>
+
 
 
           <div className="min-w-0">
