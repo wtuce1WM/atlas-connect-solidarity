@@ -9,7 +9,7 @@ interface Props {
 
 const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
   const location = useLocation();
-  const isWhiteHeaderPage = location.pathname === "/" || location.pathname === "/corporate" || location.pathname === "/join" || location.pathname === "/card";
+  const isWhiteHeaderPage = location.pathname === "/" || location.pathname === "/corporate" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/club";
   const blackHamburger = (location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/devenir-affilie") && !isWhiteHeaderPage;
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -51,6 +51,12 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         { to: "/corporate", label: "Le concept" },
         { to: "/join", label: "Rejoindre" },
         { to: "/card", label: "Votre carte de visite numérique" },
+      ];
+    } else if (location.pathname === "/club") {
+      return [
+        { to: "/corporate", label: "Le concept" },
+        { to: "/join", label: "Rejoindre" },
+        { to: "/install", label: "Application" },
       ];
     } else {
       const baseLinks = [
@@ -94,6 +100,13 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         { to: "/corporate", label: "Le concept" },
         { to: "/join", label: "Rejoindre" },
         { to: "/card", label: "Votre carte de visite numérique" },
+      ];
+    } else if (location.pathname === "/club") {
+      return [
+        ...base,
+        { to: "/corporate", label: "Le concept" },
+        { to: "/join", label: "Rejoindre" },
+        { to: "/install", label: "Application" },
       ];
     } else {
       const baseLinks = [

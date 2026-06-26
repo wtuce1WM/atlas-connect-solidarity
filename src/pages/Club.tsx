@@ -425,12 +425,7 @@ const Club = () => {
 
   return (
     <div className="min-h-screen bg-[#194CFF] text-white">
-      {user && (
-        <Header 
-          compact 
-        />
-      )}
-      {!user && <HomeMindtripHeader alwaysWhite={!user} />}
+      <HomeMindtripHeader alwaysWhite />
 
       {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
       {!user && (
