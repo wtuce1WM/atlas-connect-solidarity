@@ -188,6 +188,7 @@ export type Database = {
           id: string
           is_bookmarked: boolean
           is_public: boolean
+          kind: string
           messages: Json
           title: string
           updated_at: string
@@ -199,6 +200,7 @@ export type Database = {
           id?: string
           is_bookmarked?: boolean
           is_public?: boolean
+          kind?: string
           messages?: Json
           title?: string
           updated_at?: string
@@ -210,6 +212,7 @@ export type Database = {
           id?: string
           is_bookmarked?: boolean
           is_public?: boolean
+          kind?: string
           messages?: Json
           title?: string
           updated_at?: string

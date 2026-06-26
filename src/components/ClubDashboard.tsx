@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User as UserIcon, MapPin, Plane, Lightbulb, Bell, Home, Bot } from "lucide-react";
 import AiChatsList from "@/components/club/AiChatsList";
+import ClubAiAssistant from "@/components/club/ClubAiAssistant";
+import { MessageCircle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -465,6 +467,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 { value: "inspiration", Icon: Lightbulb, label: language === "en" ? "Inspiration" : language === "ar" ? "إلهام" : "Inspiration" },
                 { value: "ai-chats", Icon: Bot, label: language === "en" ? "AI conversations" : language === "ar" ? "محادثات الذكاء" : "Conversations IA" },
                 { value: "profile", Icon: Sparkles, label: language === "en" ? "Traveler profile" : language === "ar" ? "ملف المسافر" : "Profil de voyageur" },
+                { value: "assistant", Icon: MessageCircle, label: language === "en" ? "AI Assistant" : language === "ar" ? "مساعد الذكاء" : "Assistant IA" },
                 { value: "notifications", Icon: Bell, label: language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications" },
                 { value: "contact", Icon: Mail, label: language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous" },
               ].map(({ value, Icon, label }) => (
@@ -832,6 +835,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               {t.save}
             </Button>
           </div>
+        </TabsContent>
+
+        <TabsContent value="assistant" className="mt-6">
+          <ClubAiAssistant userId={user.id} />
         </TabsContent>
 
         <TabsContent value="notifications" className="mt-6">
