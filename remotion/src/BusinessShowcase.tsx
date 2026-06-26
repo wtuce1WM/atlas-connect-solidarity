@@ -61,6 +61,7 @@ export const computeShowcaseFrames = (p: ShowcaseProps): number => {
   if (p.showReviews && (p.rating || p.reviewsCount)) cursor += OPTION_SCENE_FRAMES;
   if (p.showOpeningHours && p.openingHours) cursor += OPTION_SCENE_FRAMES;
   if (p.showMap && p.latitude && p.longitude) cursor += OPTION_SCENE_FRAMES;
+  if (p.showDigitalId) cursor += DIGITAL_ID_FRAMES;
   const naturalEnd = cursor + 150;
   const requestedEnd = Number.isFinite(p.durationSec) && p.durationSec ? Math.round(Number(p.durationSec) * 30) : SHOWCASE_TOTAL_FRAMES;
   return Math.max(naturalEnd, requestedEnd);
