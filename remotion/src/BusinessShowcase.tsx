@@ -41,6 +41,7 @@ export type ShowcaseProps = {
   logoUrl?: string | null;
   whatsapp?: string | null;
   instagramUrl?: string | null;
+  ficheScreenshotUrl?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
 };
