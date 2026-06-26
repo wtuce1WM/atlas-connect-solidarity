@@ -325,7 +325,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (resolved_business_id) {
       const { data: freshBiz } = await supa
         .from("businesses")
-        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count")
+        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,logo_url,images,whatsapp,instagram_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
       if (freshBiz) businessDetails = { ...(businessContext ?? {}), ...freshBiz };
@@ -375,6 +375,12 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (wantsDigitalId && (businessDetails.slug || businessDetails.id)) {
         template_props.showDigitalId = true;
         template_props.slug = businessDetails.slug || businessDetails.id;
+        const firstImg = Array.isArray(businessDetails.images) ? businessDetails.images.find((u: unknown) => typeof u === "string" && /^https?:\/\//i.test(u)) : null;
+        template_props.logoUrl = businessDetails.logo_url || firstImg || null;
+        template_props.whatsapp = businessDetails.whatsapp || null;
+        template_props.instagramUrl = businessDetails.instagram_url || null;
+        if (rating) template_props.rating = rating;
+        if (reviewsCount) template_props.reviewsCount = reviewsCount;
       }
       if (wantsInstallCta) {
         template_props.showAppInstall = true;
