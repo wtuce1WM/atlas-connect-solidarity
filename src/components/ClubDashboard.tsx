@@ -461,13 +461,13 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             </div>
             <TabsList className="flex md:flex-col h-auto bg-transparent p-0 gap-1 md:items-stretch md:justify-start overflow-x-auto md:overflow-visible scrollbar-thin -mx-4 px-4 md:mx-0 md:px-0">
               {[
+                { value: "assistant", Icon: MessageCircle, label: language === "en" ? "AI Assistant" : language === "ar" ? "مساعد الذكاء" : "Assistant IA" },
                 { value: "account", Icon: UserIcon, label: language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte" },
                 { value: "addresses", Icon: MapPin, label: language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses" },
                 { value: "travel", Icon: Plane, label: language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage" },
                 { value: "inspiration", Icon: Lightbulb, label: language === "en" ? "Inspiration" : language === "ar" ? "إلهام" : "Inspiration" },
                 { value: "ai-chats", Icon: Bot, label: language === "en" ? "AI conversations" : language === "ar" ? "محادثات الذكاء" : "Conversations IA" },
                 { value: "profile", Icon: Sparkles, label: language === "en" ? "Traveler profile" : language === "ar" ? "ملف المسافر" : "Profil de voyageur" },
-                { value: "assistant", Icon: MessageCircle, label: language === "en" ? "AI Assistant" : language === "ar" ? "مساعد الذكاء" : "Assistant IA" },
                 { value: "notifications", Icon: Bell, label: language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications" },
                 { value: "contact", Icon: Mail, label: language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous" },
               ].map(({ value, Icon, label }) => (
