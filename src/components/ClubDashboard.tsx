@@ -406,7 +406,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-2xl font-bold">{t.title}</h2>
-        <Button variant="outline" size="sm" onClick={onLogout} className="gap-2">
+        <Button variant="outline" size="sm" onClick={onLogout} className="gap-2 border-white/30 text-white bg-transparent hover:bg-white/10 hover:text-white">
           <LogOut className="h-4 w-4" />
           {t.logout}
         </Button>
