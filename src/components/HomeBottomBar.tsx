@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
