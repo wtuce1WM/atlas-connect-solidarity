@@ -582,7 +582,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                   className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                     selected
                       ? "bg-gold text-black border-gold font-semibold"
-                      : "bg-background text-foreground border-border hover:bg-muted"
+                      : "bg-[#BED1FF] text-black border-none hover:bg-[#BED1FF]/80"
                   }`}
                 >
                   {label}
