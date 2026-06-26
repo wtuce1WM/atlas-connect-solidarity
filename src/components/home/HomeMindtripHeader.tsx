@@ -52,6 +52,15 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         { to: "/join", label: "Rejoindre" },
         { to: "/card", label: "Votre carte de visite numérique" },
       ];
+    } else if (location.pathname === "/club") {
+      const baseLinks = [
+        { to: "/corporate", label: "Le concept" },
+        { to: "/join", label: "Rejoindre" },
+      ];
+      if (location.pathname !== "/install") {
+        baseLinks.push({ to: "/install", label: "Application" });
+      }
+      return baseLinks;
     } else {
       const baseLinks = [
         { to: "/corporate", label: "Le concept" },
