@@ -431,20 +431,20 @@ const Club = () => {
   const isFormValid = form.first_name.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
 
   if (authLoading) {
-  // Connected member without ?view=dashboard → render the AI agent inline on /club
-  if (user && !showDashboard) {
-    return <SearchPage />;
-  }
-
-  return (
-    <div className="min-h-screen bg-[#194CFF] text-white">
-      <HomeMindtripHeader alwaysWhite />
+    return (
+      <div className="min-h-screen bg-[#194CFF] text-white">
+        <HomeMindtripHeader alwaysWhite />
         <main className="pt-24 pb-16 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         <Footer variant="verified" />
       </div>
     );
+  }
+
+  // Connected member without ?view=dashboard → render the AI agent inline on /club
+  if (user && !showDashboard) {
+    return <SearchPage />;
   }
 
   return (
