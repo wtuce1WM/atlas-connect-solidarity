@@ -170,7 +170,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false }: Pro
       </div>
 
       {menuOpen && (
-        <div className="lg:hidden px-4 pt-3 pb-4">
+        <div className={`${forceHamburger ? "" : "lg:hidden"} px-4 pt-3 pb-4`}>
           <div className="flex flex-col gap-2 rounded-2xl p-3 bg-black/60 backdrop-blur-2xl backdrop-saturate-150 border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.15)]">
             {getMobileLinks()
               .filter((item) => item.to !== location.pathname)
