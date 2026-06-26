@@ -45,7 +45,7 @@ export type ShowcaseProps = {
   useFullHookScene?: boolean;
 };
 
-export const DIGITAL_ID_FRAMES = 180; // 6s — 3 phases (page, share, QR)
+export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
 
 const splitHookInTwo = (h: string): [string, string] => {
   const t = (h || "").trim();
