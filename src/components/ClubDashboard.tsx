@@ -547,8 +547,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </div>
 
         <div>
-          <label className="text-sm text-white/90 mb-1 block">{t.emailLabel}</label>
-          <Input type="email" value={form.email} onChange={handleChange("email")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
+          <label className="text-sm text-white/90 mb-1 block">{t.emailLabel} *</label>
+          <Input type="email" required value={form.email} onChange={handleChange("email")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -561,6 +561,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
         </div>
+
+        <p className="text-xs text-white/80 pt-2">{t.required}</p>
+
+
 
 
 
