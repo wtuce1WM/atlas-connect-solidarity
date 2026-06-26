@@ -12,7 +12,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "@/hooks/use-toast";
 import ClubDashboard from "@/components/ClubDashboard";
-import SearchPage from "@/pages/SearchPage";
 import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
@@ -100,21 +99,6 @@ const Club = () => {
     };
     fetchMemberData();
   }, [user]);
-
-  // When a connected member lands on /club without ?view=dashboard,
-  // seed the AI agent params on the same URL so SearchPage renders the
-  // personalized greeting inline (no redirect off /club).
-  useEffect(() => {
-    if (authLoading || !user || showDashboard) return;
-    const name = (nickname || (user.email ? user.email.split("@")[0] : "")).trim();
-    if (!name) return;
-    if (searchParams.get("tab") === "ai" && searchParams.get("clubGreeting") === name) return;
-    const next = new URLSearchParams(searchParams);
-    next.set("tab", "ai");
-    next.set("welcome", "1");
-    next.set("clubGreeting", name);
-    setSearchParams(next, { replace: true });
-  }, [authLoading, user, nickname, showDashboard, searchParams, setSearchParams]);
 
 
   useEffect(() => {
@@ -442,10 +426,6 @@ const Club = () => {
     );
   }
 
-  // Connected member without ?view=dashboard → render the AI agent inline on /club
-  if (user && !showDashboard) {
-    return <SearchPage />;
-  }
 
   return (
     <div className="min-h-screen bg-[#194CFF] text-white">
