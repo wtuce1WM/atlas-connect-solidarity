@@ -7,6 +7,7 @@ import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 interface FooterProps {
   variant?: "default" | "morocco" | "verified";
+  className?: string;
 }
 
 const SOCIAL_ORDER = [
