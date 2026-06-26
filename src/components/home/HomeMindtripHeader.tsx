@@ -161,7 +161,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false }: Pro
           aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}
-          className={`lg:hidden ${
+          className={`${forceHamburger ? "" : "lg:hidden"} ${
             blackHamburger && !scrolled ? "text-black" : "text-white"
           }`}
         >
