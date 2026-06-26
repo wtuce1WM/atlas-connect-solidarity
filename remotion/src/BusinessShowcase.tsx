@@ -761,6 +761,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   whatsapp,
   instagramUrl,
   ficheScreenshotUrl,
+  durationSec,
   useFullHookScene,
 }) => {
   const safeVideos = sanitizeUrls(videos);
