@@ -415,17 +415,6 @@ const Club = () => {
 
   const isFormValid = form.first_name.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[#194CFF] text-white">
-        <HomeMindtripHeader alwaysWhite />
-        <main className="pt-24 pb-16 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </main>
-        <Footer variant="verified" />
-      </div>
-    );
-  }
   // Connecté + pas de view=dashboard → afficher l'agent IA inline sur /club
   useEffect(() => {
     if (!user || showDashboard) return;
@@ -438,9 +427,22 @@ const Club = () => {
     setSearchParams(next, { replace: true });
   }, [user, showDashboard, nickname, searchParams, setSearchParams]);
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#194CFF] text-white">
+        <HomeMindtripHeader alwaysWhite />
+        <main className="pt-24 pb-16 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+        <Footer variant="verified" />
+      </div>
+    );
+  }
+
   if (user && !showDashboard) {
     return <SearchPage />;
   }
+
 
 
 
