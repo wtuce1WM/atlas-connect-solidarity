@@ -38,6 +38,9 @@ export type ShowcaseProps = {
   showAppInstall?: boolean;
   showDigitalId?: boolean;
   slug?: string | null;
+  logoUrl?: string | null;
+  whatsapp?: string | null;
+  instagramUrl?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
 };
