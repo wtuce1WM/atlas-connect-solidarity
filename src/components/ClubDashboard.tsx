@@ -459,16 +459,16 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 <TabsTrigger
                   key={value}
                   value={value}
-                  className="w-full justify-start gap-2 px-3 py-2 text-sm rounded-md data-[state=active]:bg-muted data-[state=active]:font-semibold hover:bg-muted/50"
+                  className="w-full justify-start gap-2 px-3 py-2 text-sm rounded-md text-white/80 hover:text-white hover:bg-white/10 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:font-semibold transition-all"
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className="h-4 w-4 shrink-0 text-current" />
                   <span className="truncate">{label}</span>
                 </TabsTrigger>
               ))}
               <button
                 type="button"
                 onClick={onLogout}
-                className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm rounded-md text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+                className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm rounded-md text-red-200 hover:text-red-100 hover:bg-red-500/20 transition-colors shrink-0"
               >
                 <LogOut className="h-4 w-4 shrink-0" />
                 <span className="truncate">{t.logout}</span>
