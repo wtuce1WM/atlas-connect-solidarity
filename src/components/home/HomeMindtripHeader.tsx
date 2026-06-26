@@ -178,8 +178,8 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
               customMobileLinks.map((item, idx) => {
                 const baseClass = `rounded-xl px-4 py-3 font-josefin text-sm uppercase tracking-[0.2em] border backdrop-blur-xl transition-all text-left ${
                   item.danger
-                    ? "text-red-200 hover:text-red-100 bg-red-500/10 border-red-400/30 hover:bg-red-500/20"
-                    : "text-white/90 hover:text-white bg-white/5 border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] hover:bg-white/15"
+                    ? "text-white hover:text-white bg-red-500/20 border-red-400/40 hover:bg-red-500/30"
+                    : "text-white hover:text-white bg-white/5 border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] hover:bg-white/15"
                 }`;
                 if (item.to) {
                   return (
