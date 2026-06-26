@@ -87,6 +87,12 @@ import type { Business, SearchResult } from "@/pages/search/types";
 
 type SearchTabKey = "suggestions" | "map" | "poi" | "destinations" | "hashtag" | "ai" | "youtube";
 
+type SearchPageProps = {
+  embeddedInClub?: boolean;
+  clubGreeting?: string;
+  initialTab?: SearchTabKey;
+};
+
 const addAiReadableBreaks = (text: string, businesses: AIBusinessData[]) => {
   if (!text) return text;
 
@@ -176,7 +182,7 @@ const addAiReadableBreaks = (text: string, businesses: AIBusinessData[]) => {
 
 
 
-const SearchPage = () => {
+const SearchPage = ({ embeddedInClub = false, clubGreeting: clubGreetingProp, initialTab }: SearchPageProps = {}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -224,7 +230,7 @@ const SearchPage = () => {
   useSEO({
     title: searchQuery ? `Recherche : ${searchQuery}` : "Recherche",
     description: searchQuery ? `Résultats de recherche pour « ${searchQuery} » au Maroc. Trouvez les meilleures adresses sur ONE WORLD MOROCCO.` : "Recherchez parmi les meilleures adresses au Maroc.",
-    canonical: "/search",
+    canonical: embeddedInClub ? "/club" : "/search",
   });
 
   // Sync searchQuery & inputValue when URL params change (e.g. same query re-submitted with _t)
@@ -511,6 +517,7 @@ const SearchPage = () => {
     setAiAnswerText,
     setAiChat,
     setRestoredBusinessPool: setRestoredAiBusinessPool as any,
+    syncUrl: !embeddedInClub,
   });
   // Ensure the owner's chat is publicly shareable so the ShareButton link works.
   useEffect(() => {
@@ -1152,7 +1159,7 @@ const SearchPage = () => {
     return () => { cancelled = true; };
   }, [aiAnswerText, totalCount, allBusinesses?.length, searchQuery, searchParams, language, categoryFromUrl]);
    const [activeTab, setActiveTab] = useState<SearchTabKey>(
-     searchParams.get("tab") === "ai" ? "ai" : (searchParams.get("tab") === "youtube" ? "youtube" : (searchParams.get("openDestination") ? "destinations" : (searchParams.get("badgeId") ? "hashtag" : "suggestions")))
+     searchParams.get("tab") === "ai" ? "ai" : (searchParams.get("tab") === "youtube" ? "youtube" : (searchParams.get("openDestination") ? "destinations" : (searchParams.get("badgeId") ? "hashtag" : (initialTab || "suggestions"))))
    );
    useEffect(() => {
      if (searchParams.get("tab") === "ai" && activeTab !== "ai") {
@@ -1200,16 +1207,17 @@ const SearchPage = () => {
       return () => el.removeEventListener("wheel", onWheel);
     }, []);
 
-   // When landing on /search?tab=ai without a query, restore the last AI suggestion from session
+   // When landing on /search?tab=ai without a query (or embedded in /club), restore the last AI suggestion from session
    // or display a shareable welcome message when ?welcome=1 is present.
    useEffect(() => {
-     if (searchParams.get("tab") !== "ai") return;
+     const shouldShowAiWelcome = searchParams.get("tab") === "ai" || (initialTab === "ai" && activeTab === "ai");
+     if (!shouldShowAiWelcome) return;
      const hasContext = !!(searchParams.get("q") || searchParams.get("category") || searchParams.get("city") || searchParams.get("subcats") || searchParams.get("badgeId"));
      if (hasContext) return;
      if (aiAnswerText) return;
       // Always show the welcome prompt when arriving on /search?tab=ai without context,
       // instead of restoring a previous random AI suggestion.
-      const clubGreeting = searchParams.get("clubGreeting");
+      const clubGreeting = clubGreetingProp || searchParams.get("clubGreeting");
       let welcome: string;
       if (clubGreeting) {
         const name = clubGreeting.trim();
@@ -1228,7 +1236,7 @@ const SearchPage = () => {
       setAiAnswerText(welcome);
 
      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [searchParams, language]);
+   }, [searchParams, language, initialTab, activeTab, clubGreetingProp]);
 
     useEffect(() => {
       if (openDestinationParam && activeTab !== "destinations") {
