@@ -331,6 +331,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
 
     if (template_id === "business-showcase" && businessDetails) {
       if (businessDetails.name) template_props.name = businessDetails.name;
+      if (businessDetails.city) template_props.city = businessDetails.city;
+      if (businessDetails.neighborhood) template_props.neighborhood = businessDetails.neighborhood;
       const realHook = stripHtml(businessDetails.hook_fr || businessDetails.destination_hook || businessDetails.poi_hook || businessDetails.description);
       if (realHook) {
         template_props.hook = realHook;
