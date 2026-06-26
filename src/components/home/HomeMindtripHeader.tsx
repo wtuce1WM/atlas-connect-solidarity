@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
+type CustomLink = { label: string; to?: string; onClick?: () => void; danger?: boolean };
 
 interface Props {
   alwaysWhite?: boolean;
   forceHamburger?: boolean;
+  customMobileLinks?: CustomLink[];
 }
 
-const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false }: Props) => {
+const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, customMobileLinks }: Props) => {
   const location = useLocation();
   const isWhiteHeaderPage = location.pathname === "/" || location.pathname === "/corporate" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/club";
   const blackHamburger = (location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/devenir-affilie") && !isWhiteHeaderPage;
@@ -172,18 +174,45 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false }: Pro
       {menuOpen && (
         <div className={`${forceHamburger ? "" : "lg:hidden"} px-4 pt-3 pb-4`}>
           <div className="flex flex-col gap-2 rounded-2xl p-3 bg-black/60 backdrop-blur-2xl backdrop-saturate-150 border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.15)]">
-            {getMobileLinks()
-              .filter((item) => item.to !== location.pathname)
-              .map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  onClick={() => setMenuOpen(false)}
-                  className="rounded-xl px-4 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-white/90 bg-white/5 border border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] backdrop-blur-xl transition-all hover:bg-white/15 hover:text-white"
-                >
-                  {item.label}
-                </Link>
-              ))}
+            {customMobileLinks && customMobileLinks.length > 0 ? (
+              customMobileLinks.map((item, idx) => {
+                const baseClass = `rounded-xl px-4 py-3 font-josefin text-sm uppercase tracking-[0.2em] border backdrop-blur-xl transition-all text-left ${
+                  item.danger
+                    ? "text-red-200 hover:text-red-100 bg-red-500/10 border-red-400/30 hover:bg-red-500/20"
+                    : "text-white/90 hover:text-white bg-white/5 border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] hover:bg-white/15"
+                }`;
+                if (item.to) {
+                  return (
+                    <Link key={`${item.label}-${idx}`} to={item.to} onClick={() => setMenuOpen(false)} className={baseClass}>
+                      {item.label}
+                    </Link>
+                  );
+                }
+                return (
+                  <button
+                    key={`${item.label}-${idx}`}
+                    type="button"
+                    onClick={() => { setMenuOpen(false); item.onClick?.(); }}
+                    className={baseClass}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })
+            ) : (
+              getMobileLinks()
+                .filter((item) => item.to !== location.pathname)
+                .map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-xl px-4 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-white/90 bg-white/5 border border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] backdrop-blur-xl transition-all hover:bg-white/15 hover:text-white"
+                  >
+                    {item.label}
+                  </Link>
+                ))
+            )}
           </div>
         </div>
       )}
