@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "@/hooks/use-toast";
 import ClubDashboard from "@/components/ClubDashboard";
+import SearchPage from "@/pages/SearchPage";
 import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
@@ -31,7 +32,7 @@ const Club = () => {
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const showDashboard = searchParams.get("view") === "dashboard";
   useSEO({
     title: "Club – Rejoignez la communauté",
@@ -101,13 +102,19 @@ const Club = () => {
   }, [user]);
 
   // When a connected member lands on /club without ?view=dashboard,
-  // redirect to the AI agent with a personalized greeting.
+  // seed the AI agent params on the same URL so SearchPage renders the
+  // personalized greeting inline (no redirect off /club).
   useEffect(() => {
     if (authLoading || !user || showDashboard) return;
     const name = (nickname || (user.email ? user.email.split("@")[0] : "")).trim();
     if (!name) return;
-    navigate(`/search?tab=ai&welcome=1&clubGreeting=${encodeURIComponent(name)}`, { replace: true });
-  }, [authLoading, user, nickname, showDashboard, navigate]);
+    if (searchParams.get("tab") === "ai" && searchParams.get("clubGreeting") === name) return;
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", "ai");
+    next.set("welcome", "1");
+    next.set("clubGreeting", name);
+    setSearchParams(next, { replace: true });
+  }, [authLoading, user, nickname, showDashboard, searchParams, setSearchParams]);
 
 
   useEffect(() => {
@@ -424,9 +431,14 @@ const Club = () => {
   const isFormValid = form.first_name.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[#194CFF] text-white">
-        <HomeMindtripHeader alwaysWhite />
+  // Connected member without ?view=dashboard → render the AI agent inline on /club
+  if (user && !showDashboard) {
+    return <SearchPage />;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#194CFF] text-white">
+      <HomeMindtripHeader alwaysWhite />
         <main className="pt-24 pb-16 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
