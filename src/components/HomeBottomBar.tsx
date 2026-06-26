@@ -36,7 +36,10 @@ const HomeBottomBar = () => {
           overlayOpen ? "inset-0" : "inset-x-0 bottom-0"
         }`}
       >
-        <div className="relative w-full h-full pointer-events-auto">
+        {/* Centered column: full viewport on mobile, central ~50% on desktop.
+            This becomes the positioned ancestor for OverlayShell so the
+            Search overlay stays bounded to the central column (same as /search). */}
+        <div className="relative w-full h-full mx-auto sm:max-w-[640px] lg:max-w-[50vw] pointer-events-auto">
           <PanelSearchBar
             onSearch={(params) => {
               const qs = new URLSearchParams(params).toString();
