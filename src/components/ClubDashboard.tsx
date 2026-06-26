@@ -648,7 +648,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                   value={form[key]}
                   onChange={handleChange(key)}
                   placeholder={placeholder}
-                  className="flex-1 text-sm"
+                  className="flex-1 text-sm bg-[#BED1FF] text-black placeholder:text-black/60 border-none"
                 />
                 {form[key] && (
                   <a
