@@ -427,10 +427,6 @@ const Club = () => {
     );
   }
 
-  // Connected member without ?view=dashboard → render the AI agent inline on /club
-  if (user && !showDashboard) {
-    return <SearchPage />;
-  }
 
   return (
     <div className="min-h-screen bg-[#194CFF] text-white">
