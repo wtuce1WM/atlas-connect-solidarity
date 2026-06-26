@@ -33,7 +33,6 @@ interface UseAiChatPersistenceArgs {
   setAiAnswerText: (s: string) => void;
   setAiChat: (m: AiChatMessage[]) => void;
   setRestoredBusinessPool?: (b: any[]) => void;
-  syncUrl?: boolean;
 }
 
 export function useAiChatPersistence({
@@ -45,7 +44,6 @@ export function useAiChatPersistence({
   setAiAnswerText,
   setAiChat,
   setRestoredBusinessPool,
-  syncUrl = true,
 }: UseAiChatPersistenceArgs) {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlChatId = searchParams.get("aiChat");
@@ -145,11 +143,9 @@ export function useAiChatPersistence({
           setTitle(data.title);
           setIsBookmarked(!!data.is_bookmarked);
           setIsPublic(!!data.is_public);
-          if (syncUrl) {
-            const next = new URLSearchParams(searchParams);
-            next.set("aiChat", data.id);
-            setSearchParams(next, { replace: true });
-          }
+          const next = new URLSearchParams(searchParams);
+          next.set("aiChat", data.id);
+          setSearchParams(next, { replace: true });
           lastSavedRef.current = JSON.stringify({ chatId: data.id, payload });
         }
       } else {
@@ -164,7 +160,7 @@ export function useAiChatPersistence({
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [userId, isReadOnly, aiAnswerText, aiChat, searchQuery, businessPool, chatId, title, city, searchParams, setSearchParams, syncUrl]);
+  }, [userId, isReadOnly, aiAnswerText, aiChat, searchQuery, businessPool, chatId, title, city, searchParams, setSearchParams]);
 
   // Actions
   const renameTitle = useCallback(
