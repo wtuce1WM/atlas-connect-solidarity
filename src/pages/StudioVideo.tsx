@@ -542,6 +542,10 @@ export default function StudioVideo() {
                   <span>Marqueur sur la Google Map</span>
                 </label>
                 <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optDigitalId} onChange={(e) => setOptDigitalId(e.target.checked)} />
+                  <span>ID numérique (fiche + partage + QR code)</span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optInstallCta} onChange={(e) => setOptInstallCta(e.target.checked)} />
                   <span>Incitation finale à installer l'app</span>
                 </label>
