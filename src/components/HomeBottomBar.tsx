@@ -19,6 +19,12 @@ const HomeBottomBar = () => {
   const geo = useGeolocation();
   const [locationOpen, setLocationOpen] = useState(false);
 
+  useEffect(() => {
+    const h = () => setLocationOpen(true);
+    window.addEventListener("open-location-picker", h);
+    return () => window.removeEventListener("open-location-picker", h);
+  }, []);
+
   return (
     <>
       {/* Fixed full-viewport layer; only the centered column receives clicks */}
