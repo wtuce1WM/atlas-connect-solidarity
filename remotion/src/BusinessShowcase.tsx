@@ -41,6 +41,7 @@ export type ShowcaseProps = {
   logoUrl?: string | null;
   whatsapp?: string | null;
   instagramUrl?: string | null;
+  ficheScreenshotUrl?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
 };
@@ -554,7 +555,8 @@ const SceneDigitalId: React.FC<{
   instagram?: string | null;
   rating?: number | null;
   reviewsCount?: number | null;
-}> = ({ name, slug, city, tagline, hook, image, logoUrl, whatsapp, instagram, rating, reviewsCount }) => {
+  ficheScreenshotUrl?: string | null;
+}> = ({ name, slug, city, tagline, hook, image, logoUrl, ficheScreenshotUrl, rating, reviewsCount }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const shareUrl = `https://oneworldmorocco.com/b/${encodeURIComponent(slug)}`;
@@ -566,6 +568,37 @@ const SceneDigitalId: React.FC<{
   const heroImage = logoUrl || image;
   const ratingStr = rating ? rating.toFixed(1) : null;
   const teaser = (hook || tagline || "").replace(/\s+/g, " ").trim().slice(0, 140);
+
+  // Shimmer animation on CTAs (sweeps left→right then repeats with delay)
+  const shimmerPeriod = 60; // frames
+  const shimmerProgress = ((frame % shimmerPeriod) / shimmerPeriod) * 200 - 50; // -50% → 150%
+
+  const ctaBase: React.CSSProperties = {
+    color: "#fff",
+    fontFamily: body,
+    fontWeight: 700,
+    fontSize: 16,
+    padding: "14px 18px",
+    borderRadius: 14,
+    textAlign: "center",
+    letterSpacing: 1,
+    position: "relative",
+    overflow: "hidden",
+  };
+  const shimmerEl = (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        bottom: 0,
+        left: `${shimmerProgress}%`,
+        width: "40%",
+        background: "linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.45) 50%,rgba(255,255,255,0) 100%)",
+        transform: "skewX(-20deg)",
+        pointerEvents: "none",
+      }}
+    />
+  );
 
   return (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 40 }}>
@@ -585,45 +618,51 @@ const SceneDigitalId: React.FC<{
           boxShadow: "0 24px 80px rgba(0,0,0,0.7)",
         }}
       >
-        {/* Phase 1 — fiche dynamique reconstruite avec les vraies données */}
+        {/* Phase 1 — fiche réelle (screenshot live) sinon mockup reconstruit */}
         <AbsoluteFill style={{ opacity: phase1O, padding: 14 }}>
           <div style={{ width: "100%", height: "100%", borderRadius: 36, overflow: "hidden", background: "#0a0807", display: "flex", flexDirection: "column" }}>
-            {/* Hero image */}
-            <div style={{ position: "relative", width: "100%", height: 360, background: "#1a1410" }}>
-              {heroImage ? (
-                <Img src={heroImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              ) : (
-                <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#3a2418,#1a1006)" }} />
-              )}
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(0,0,0,0.0) 50%,rgba(10,8,7,0.95) 100%)" }} />
-              {ratingStr && (
-                <div style={{ position: "absolute", top: 16, right: 16, background: "rgba(0,0,0,0.65)", color: "#fff", fontFamily: body, fontWeight: 700, fontSize: 18, padding: "6px 12px", borderRadius: 20, display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ color: COLORS.gold }}>★</span> {ratingStr}{reviewsCount ? ` (${reviewsCount})` : ""}
+            {ficheScreenshotUrl ? (
+              <Img src={ficheScreenshotUrl} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }} />
+            ) : (
+              <>
+                <div style={{ position: "relative", width: "100%", height: 360, background: "#1a1410" }}>
+                  {heroImage ? (
+                    <Img src={heroImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#3a2418,#1a1006)" }} />
+                  )}
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(0,0,0,0.0) 50%,rgba(10,8,7,0.95) 100%)" }} />
+                  {ratingStr && (
+                    <div style={{ position: "absolute", top: 16, right: 16, background: "rgba(0,0,0,0.65)", color: "#fff", fontFamily: body, fontWeight: 700, fontSize: 18, padding: "6px 12px", borderRadius: 20, display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ color: COLORS.gold }}>★</span> {ratingStr}{reviewsCount ? ` (${reviewsCount})` : ""}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            {/* Body */}
-            <div style={{ padding: "22px 24px", color: "#fff", flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={{ fontFamily: display, fontWeight: 800, fontSize: 30, lineHeight: 1.1 }}>{name}</div>
-              {city && (
-                <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 16, letterSpacing: 1.5, textTransform: "uppercase" }}>
-                  📍 {city}
+                <div style={{ padding: "22px 24px", color: "#fff", flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div style={{ fontFamily: display, fontWeight: 800, fontSize: 30, lineHeight: 1.1 }}>{name}</div>
+                  {city && (
+                    <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 16, letterSpacing: 1.5, textTransform: "uppercase" }}>
+                      📍 {city}
+                    </div>
+                  )}
+                  {teaser && (
+                    <div style={{ fontFamily: body, fontStyle: "italic", color: "rgba(255,255,255,0.85)", fontSize: 17, lineHeight: 1.4 }}>
+                      « {teaser} »
+                    </div>
+                  )}
+                  <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div style={{ ...ctaBase, background: COLORS.terracotta }}>
+                      Voir la fiche complète
+                      {shimmerEl}
+                    </div>
+                    <div style={{ ...ctaBase, background: "#1a1410", border: "1px solid rgba(212,175,55,0.4)", fontWeight: 600, fontSize: 14 }}>
+                      oneworldmorocco.com/b/{slug}
+                      {shimmerEl}
+                    </div>
+                  </div>
                 </div>
-              )}
-              {teaser && (
-                <div style={{ fontFamily: body, fontStyle: "italic", color: "rgba(255,255,255,0.85)", fontSize: 17, lineHeight: 1.4 }}>
-                  « {teaser} »
-                </div>
-              )}
-              <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ background: COLORS.terracotta, color: "#fff", fontFamily: body, fontWeight: 700, fontSize: 16, padding: "14px 18px", borderRadius: 14, textAlign: "center", letterSpacing: 1 }}>
-                  Voir la fiche complète
-                </div>
-                <div style={{ background: "#1a1410", border: "1px solid rgba(212,175,55,0.4)", color: "#fff", fontFamily: body, fontWeight: 600, fontSize: 14, padding: "12px 18px", borderRadius: 14, textAlign: "center" }}>
-                  oneworldmorocco.com/b/{slug}
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </AbsoluteFill>
 
@@ -721,6 +760,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   logoUrl,
   whatsapp,
   instagramUrl,
+  ficheScreenshotUrl,
   durationSec,
   useFullHookScene,
 }) => {
@@ -847,6 +887,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             instagram={instagramUrl}
             rating={rating}
             reviewsCount={reviewsCount}
+            ficheScreenshotUrl={ficheScreenshotUrl}
           />
         </Sequence>
       )}
