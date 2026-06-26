@@ -21,6 +21,7 @@ export type ShowcaseProps = {
   hook?: string;
   tagline?: string;
   city?: string;
+  neighborhood?: string | null;
   category?: string;
   images?: string[];
   videos?: string[];
@@ -37,6 +38,17 @@ export type ShowcaseProps = {
   showAppInstall?: boolean;
   durationSec?: number;
   useFullHookScene?: boolean;
+};
+
+const splitHookInTwo = (h: string): [string, string] => {
+  const t = (h || "").trim();
+  if (!t) return ["", ""];
+  const m = t.match(/^(.+?[,;:—–-])\s+(.+)$/);
+  if (m && m[1].length > 10 && m[2].length > 10) return [m[1].trim(), m[2].trim()];
+  const words = t.split(/\s+/);
+  if (words.length < 4) return [t, ""];
+  const mid = Math.ceil(words.length / 2);
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
 export const computeShowcaseFrames = (p: ShowcaseProps): number => {
@@ -90,11 +102,11 @@ const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ s
   );
 };
 
-const SceneHook: React.FC<{ name: string; hook: string; img?: string }> = ({ name, hook, img }) => {
+const SceneHook: React.FC<{ name: string; location: string; img?: string }> = ({ name, location, img }) => {
   const frame = useCurrentFrame();
   const titleY = interpolate(spring({ frame: frame - 8, fps: 30, config: { damping: 18 } }), [0, 1], [40, 0]);
   const titleO = ease(frame, 8, 28);
-  const hookO = ease(frame, 30, 55);
+  const locO = ease(frame, 30, 55);
   const out = 1 - ease(frame, 100, 120);
   return (
     <AbsoluteFill style={{ opacity: out }}>
@@ -114,20 +126,49 @@ const SceneHook: React.FC<{ name: string; hook: string; img?: string }> = ({ nam
         >
           {name}
         </div>
-        <div
-          style={{
-            opacity: hookO,
-            marginTop: 18,
-            fontFamily: body,
-            color: COLORS.gold,
-            fontSize: 28,
-            lineHeight: 1.3,
-            textShadow: "0 2px 12px rgba(0,0,0,0.7)",
-          }}
-        >
-          {hook}
-        </div>
+        {location && (
+          <div
+            style={{
+              opacity: locO,
+              marginTop: 18,
+              fontFamily: body,
+              color: COLORS.gold,
+              fontSize: 30,
+              lineHeight: 1.3,
+              textShadow: "0 2px 12px rgba(0,0,0,0.7)",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            <span style={{ fontSize: 32 }}>📍</span>
+            {location}
+          </div>
+        )}
       </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+const HookOverlay: React.FC<{ text: string; duration: number }> = ({ text, duration }) => {
+  const frame = useCurrentFrame();
+  const o = Math.min(ease(frame, 6, 26), 1 - ease(frame, duration - 20, duration - 2));
+  if (!text) return null;
+  return (
+    <AbsoluteFill style={{ justifyContent: "flex-end", padding: 70, paddingBottom: 140, opacity: o }}>
+      <div
+        style={{
+          fontFamily: display,
+          fontWeight: 700,
+          color: COLORS.cream,
+          fontSize: 52,
+          lineHeight: 1.18,
+          textAlign: "center",
+          textShadow: "0 4px 24px rgba(0,0,0,0.75)",
+        }}
+      >
+        {text}
+      </div>
     </AbsoluteFill>
   );
 };
@@ -550,6 +591,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   hook = "Une adresse à découvrir.",
   tagline = "L'art de vivre marocain.",
   city,
+  neighborhood,
   images = [],
   videos = [],
   offer = null,
@@ -572,7 +614,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const heroMedia = useVideos ? safeVideos[0] : safeImages[0];
   const galleryMedia = useVideos ? safeVideos.slice(1) : safeImages.slice(1);
   const galleryList = galleryMedia.length ? galleryMedia : (useVideos ? safeVideos : safeImages);
-  const safeTagline = removeDecorativeTaglineWords(tagline) || hook;
+
+  const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
+  const [hookPart1, hookPart2] = splitHookInTwo(hook);
 
   // Position courante après les scènes de base
   let cursor = 390;
@@ -611,26 +655,37 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         {useVideos && heroMedia ? (
           <AbsoluteFill>
             <VideoCover src={heroMedia} from={0} duration={120} />
-            <SceneHook name={name} hook={hook} />
+            <SceneHook name={name} location={locationLine} />
           </AbsoluteFill>
         ) : (
-          <SceneHook name={name} hook={hook} img={heroMedia} />
+          <SceneHook name={name} location={locationLine} img={heroMedia} />
         )}
       </Sequence>
       <Sequence from={120} durationInFrames={120}>
-        <SceneTagline tagline={safeTagline} fullHook={hook} showFullHook={useFullHookScene} />
+        <AbsoluteFill>
+          {useVideos && galleryList[0] ? (
+            <VideoCover src={galleryList[0]} from={0} duration={120} />
+          ) : galleryList[0] ? (
+            <KenBurns src={galleryList[0]} from={0} duration={120} />
+          ) : null}
+          <HookOverlay text={hookPart1} duration={120} />
+        </AbsoluteFill>
       </Sequence>
       <Sequence from={240} durationInFrames={150}>
-        {useVideos ? (
-          <AbsoluteFill>
-            {galleryList.slice(0, 3).map((src, i) => (
-              <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
-            ))}
-          </AbsoluteFill>
-        ) : (
-          <SceneGallery images={galleryList} />
-        )}
+        <AbsoluteFill>
+          {useVideos ? (
+            <AbsoluteFill>
+              {galleryList.slice(1, 4).map((src, i) => (
+                <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
+              ))}
+            </AbsoluteFill>
+          ) : (
+            <SceneGallery images={galleryList.slice(1)} />
+          )}
+          <HookOverlay text={hookPart2 || hookPart1} duration={150} />
+        </AbsoluteFill>
       </Sequence>
+
 
       {offer && (
         <Sequence from={390} durationInFrames={120}>
