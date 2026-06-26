@@ -562,47 +562,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </div>
 
-        {/* Personas selector */}
-        <div className="pt-2">
-          <label className="text-sm text-white font-semibold mb-2 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-gold" />
-            {language === "en" ? "Your traveler profile" : language === "ar" ? "ملفك الشخصي للسفر" : "Votre profil de voyageur"}
-          </label>
-          <p className="text-xs text-white/70 mb-3">
-            {language === "en"
-              ? "Select one or more personas that match you (optional)."
-              : language === "ar"
-              ? "اختر شخصية واحدة أو أكثر تناسبك (اختياري)."
-              : "Sélectionnez un ou plusieurs personas qui vous correspondent (facultatif)."}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {personas.map((p) => {
-              const selected = selectedPersonaIds.has(p.id);
-              const label = language === "en" && p.name_en ? p.name_en : language === "ar" && p.name_ar ? p.name_ar : p.name_fr;
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedPersonaIds(prev => {
-                      const next = new Set(prev);
-                      if (next.has(p.id)) next.delete(p.id);
-                      else next.add(p.id);
-                      return next;
-                    });
-                  }}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                    selected
-                      ? "bg-gold text-black border-gold font-semibold"
-                      : "bg-[#BED1FF] text-black border-none hover:bg-[#BED1FF]/80"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+
+
 
         {/* Description */}
         <div className="pt-2">
