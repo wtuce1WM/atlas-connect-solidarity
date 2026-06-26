@@ -3961,10 +3961,16 @@ const SearchPage = () => {
     const welcomeEn = "What are you looking for? Where are you looking for it?";
     const welcomeAr = "ماذا تبحث عنه؟ وأين تبحث عنه؟";
     const welcomeFr = "Que cherchez-vous ? Où le cherchez-vous ?";
+    const isClubGreeting = !!aiAnswerText && (
+      aiAnswerText.startsWith("Salut ") ||
+      aiAnswerText.startsWith("Hi ") ||
+      aiAnswerText.startsWith("مرحباً ")
+    );
     return activeTab === "ai" && (
       aiAnswerText === welcomeFr ||
       aiAnswerText === welcomeEn ||
       aiAnswerText === welcomeAr ||
+      isClubGreeting ||
       !aiAnswerText
     );
   }, [activeTab, aiAnswerText]);
