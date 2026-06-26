@@ -32,7 +32,7 @@ const Club = () => {
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const showDashboard = searchParams.get("view") === "dashboard";
   useSEO({
     title: "Club – Rejoignez la communauté",
