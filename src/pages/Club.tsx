@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "@/hooks/use-toast";
 import ClubDashboard from "@/components/ClubDashboard";
+import SearchPage from "@/pages/SearchPage";
 import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
@@ -425,6 +426,22 @@ const Club = () => {
       </div>
     );
   }
+  // Connecté + pas de view=dashboard → afficher l'agent IA inline sur /club
+  useEffect(() => {
+    if (!user || showDashboard) return;
+    if (searchParams.get("tab") === "ai") return;
+    const greetName = (nickname || user.email?.split("@")[0] || "").trim();
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", "ai");
+    next.set("welcome", "1");
+    if (greetName) next.set("clubGreeting", greetName);
+    setSearchParams(next, { replace: true });
+  }, [user, showDashboard, nickname, searchParams, setSearchParams]);
+
+  if (user && !showDashboard) {
+    return <SearchPage />;
+  }
+
 
 
   return (
