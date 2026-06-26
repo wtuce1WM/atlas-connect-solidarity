@@ -7,9 +7,11 @@ type Row = {
   id: string;
   title: string;
   city: string | null;
+  created_at: string;
   updated_at: string;
   is_bookmarked: boolean;
   is_public: boolean;
+  kind: string | null;
 };
 
 interface Props {
@@ -24,12 +26,11 @@ const AiChatsList = ({ userId }: Props) => {
     setLoading(true);
     const { data } = await supabase
       .from("ai_chats")
-      .select("id,title,city,updated_at,is_bookmarked,is_public")
+      .select("id,title,city,created_at,updated_at,is_bookmarked,is_public,kind")
       .eq("user_id", userId)
       .eq("is_bookmarked", true)
-      .neq("kind", "club" as any)
-      .order("updated_at", { ascending: false });
-    setChats((data as Row[]) || []);
+      .order("created_at", { ascending: false });
+    setChats((data as any as Row[]) || []);
     setLoading(false);
   };
 
@@ -44,10 +45,13 @@ const AiChatsList = ({ userId }: Props) => {
     setChats((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const handleShare = async (id: string, title: string) => {
-    const url = `${window.location.origin}/search?tab=ia&aiChat=${id}`;
+  const linkFor = (c: Row) =>
+    c.kind === "club" ? `/club?assistant=${c.id}` : `/search?tab=ia&aiChat=${c.id}`;
+
+  const handleShare = async (c: Row) => {
+    const url = `${window.location.origin}${linkFor(c)}`;
     if (navigator.share) {
-      try { await navigator.share({ title, url }); } catch {/* noop */}
+      try { await navigator.share({ title: c.title, url }); } catch {/* noop */}
     } else {
       await navigator.clipboard.writeText(url);
       alert("Lien copié");
@@ -65,7 +69,7 @@ const AiChatsList = ({ userId }: Props) => {
   if (chats.length === 0) {
     return (
       <div className="text-center py-12 text-white/90 text-sm font-medium">
-        Aucune conversation sauvegardée. Bookmarkez une conversation IA depuis l'onglet IA pour la retrouver ici.
+        Aucune conversation sauvegardée. Bookmarkez une conversation depuis l'Assistant IA ou l'onglet IA pour la retrouver ici.
       </div>
     );
   }
@@ -78,14 +82,17 @@ const AiChatsList = ({ userId }: Props) => {
           <div className="flex-1 min-w-0">
             <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               {c.title}
+              {c.kind === "club" && (
+                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-[#194CFF] text-white align-middle">Club</span>
+              )}
             </div>
             <div className="text-xs text-white/70">
               {c.city ? `${c.city} · ` : ""}
-              {new Date(c.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+              Démarrée le {new Date(c.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
             </div>
           </div>
           <Link
-            to={`/search?tab=ia&aiChat=${c.id}`}
+            to={linkFor(c)}
             className="h-8 w-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
             title="Ouvrir"
           >
@@ -93,7 +100,7 @@ const AiChatsList = ({ userId }: Props) => {
           </Link>
           <button
             type="button"
-            onClick={() => handleShare(c.id, c.title)}
+            onClick={() => handleShare(c)}
             className="h-8 w-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
             title="Partager"
           >
