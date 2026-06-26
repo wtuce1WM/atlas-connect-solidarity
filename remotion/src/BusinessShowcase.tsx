@@ -811,7 +811,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       {digitalIdFrom !== null && slug && (
         <Sequence from={digitalIdFrom} durationInFrames={DIGITAL_ID_FRAMES}>
           <VideoBackdrop src={safeVideos[3] ?? safeVideos[0]} image={safeImages[3] ?? safeImages[0]} />
-          <SceneDigitalId name={name} slug={slug} image={safeImages[0] ?? heroMedia} />
+          <SceneDigitalId name={name} slug={slug} image={safeImages[0]} />
         </Sequence>
       )}
 
