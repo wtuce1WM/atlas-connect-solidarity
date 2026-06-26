@@ -559,16 +559,11 @@ const SceneDigitalId: React.FC<{
   const labelO = ease(frame, 0, 18);
   const shareUrl = `https://oneworldmorocco.com/b/${encodeURIComponent(slug)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=480x480&margin=8&data=${encodeURIComponent(shareUrl)}`;
-  // Phases: 0-60 fiche, 60-120 share modal, 120-180 QR
-  const phase1O = Math.min(ease(frame, 6, 22), 1 - ease(frame, 55, 65));
-  const phase2O = Math.min(ease(frame, 62, 78), 1 - ease(frame, 115, 125));
-  const phase3O = ease(frame, 122, 138);
+  // Phases: 0-90 fiche (screenshot), 90-150 QR
+  const phase1O = Math.min(ease(frame, 6, 22), 1 - ease(frame, 85, 95));
+  const phase2O = ease(frame, 92, 108);
 
-  const avatar = logoUrl || image;
-  const description = hook || tagline || "";
-  const ratingDisplay = rating ? Math.round((rating / 5) * 20) : null;
-  const CREAM = "#E8D9B8";
-  const DARK = "#0a0a0a";
+  const ficheScreenshot = "https://oneworldmorocco.com/studio/fiche-mockup.png";
 
   return (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 40 }}>
@@ -576,100 +571,33 @@ const SceneDigitalId: React.FC<{
         ID numérique
       </div>
 
-      {/* Cream device frame */}
+      {/* Device frame — réduit pour laisser respirer la vidéo de fond */}
       <div
         style={{
-          width: 680,
-          height: 1240,
-          borderRadius: 56,
-          background: CREAM,
-          padding: 28,
+          width: 560,
+          height: 1020,
+          borderRadius: 48,
+          background: "#0a0a0a",
+          padding: 14,
           position: "relative",
           boxShadow: "0 24px 80px rgba(0,0,0,0.7)",
         }}
       >
-        {/* Phase 1 — fiche /b/slug */}
-        <AbsoluteFill style={{ opacity: phase1O, padding: 28 }}>
-          <div style={{ width: "100%", height: "100%", borderRadius: 36, background: "linear-gradient(180deg,#3a2412 0%,#0a0807 38%)", overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 60 }}>
-            {/* Share icon top-right */}
-            <div style={{ position: "absolute", top: 22, right: 22, width: 46, height: 46, borderRadius: 23, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>⤴</div>
-            {/* Avatar */}
-            <div style={{ width: 180, height: 180, borderRadius: 90, overflow: "hidden", border: "3px solid rgba(255,255,255,0.15)", background: "#1a120a" }}>
-              {avatar ? <Img src={avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-            </div>
-            <div style={{ marginTop: 22, fontFamily: display, fontWeight: 800, color: "#fff", fontSize: 44, textAlign: "center" }}>{name}</div>
-            <div style={{ marginTop: 8, fontFamily: body, color: "rgba(255,255,255,0.55)", fontSize: 22 }}>📍 {city || "Maroc"}, Maroc</div>
-            {tagline && (
-              <div style={{ marginTop: 22, padding: "0 36px", fontFamily: body, fontStyle: "italic", color: "#fff", fontSize: 24, textAlign: "center", lineHeight: 1.35 }}>
-                {tagline}
-              </div>
-            )}
-            {ratingDisplay && (
-              <div style={{ marginTop: 22, background: "linear-gradient(180deg,#2a2a2a,#111)", borderRadius: 30, padding: "10px 24px", display: "flex", alignItems: "center", gap: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
-                <span style={{ color: COLORS.gold, fontSize: 22 }}>★</span>
-                <span style={{ fontFamily: display, fontWeight: 800, color: COLORS.gold, fontSize: 26 }}>{ratingDisplay}</span>
-                <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 18 }}>/20</span>
-                {reviewsCount ? <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 18 }}>· {reviewsCount} avis</span> : null}
-              </div>
-            )}
-            {description && (
-              <div style={{ marginTop: 26, padding: "0 32px", fontFamily: body, color: "rgba(255,255,255,0.85)", fontSize: 20, lineHeight: 1.45, textAlign: "left", maxHeight: 130, overflow: "hidden" }}>
-                {description}
-              </div>
-            )}
-            <div style={{ marginTop: 14, fontFamily: body, fontWeight: 700, color: COLORS.terracotta, fontSize: 20, letterSpacing: 2 }}>VOIR +</div>
-            {/* Socials */}
-            <div style={{ marginTop: 18, display: "flex", gap: 22 }}>
-              {whatsapp && <div style={{ width: 48, height: 48, borderRadius: 24, border: "2px solid #25D366", color: "#25D366", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>✆</div>}
-              {instagram && <div style={{ width: 48, height: 48, borderRadius: 12, border: "2px solid #E1306C", color: "#E1306C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>◉</div>}
-            </div>
-            {/* CTAs */}
-            <div style={{ marginTop: "auto", width: "100%", padding: "0 26px 22px", display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ background: COLORS.terracotta, color: "#fff", padding: "16px 18px", borderRadius: 16, fontFamily: body, fontWeight: 700, fontSize: 22, textAlign: "center" }}>Voir la fiche complète</div>
-              <div style={{ background: "#1a120a", border: "1px solid rgba(255,255,255,0.08)", color: "#fff", padding: "14px 18px", borderRadius: 16, fontFamily: body, fontSize: 20, textAlign: "center" }}>G  Laisser un avis sur Google</div>
-              <div style={{ background: CREAM, color: DARK, padding: "12px 18px", borderRadius: 24, fontFamily: body, fontWeight: 700, fontSize: 18, textAlign: "center", margin: "4px auto 0" }}>Un compte One World Morocco ?</div>
-            </div>
+        {/* Phase 1 — screenshot réel de la fiche /b/slug */}
+        <AbsoluteFill style={{ opacity: phase1O, padding: 14 }}>
+          <div style={{ width: "100%", height: "100%", borderRadius: 36, overflow: "hidden", background: "#0a0807" }}>
+            <Img src={ficheScreenshot} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }} />
           </div>
         </AbsoluteFill>
 
-        {/* Phase 2 — Partager modal */}
-        <AbsoluteFill style={{ opacity: phase2O, padding: 28 }}>
-          <div style={{ width: "100%", height: "100%", borderRadius: 36, background: CREAM, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", padding: 22 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <div style={{ fontFamily: display, fontWeight: 800, color: DARK, fontSize: 30 }}>Partager</div>
-              <div style={{ width: 42, height: 42, borderRadius: 21, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: DARK }}>✕</div>
+        {/* Phase 2 — QR code */}
+        <AbsoluteFill style={{ opacity: phase2O, padding: 14 }}>
+          <div style={{ width: "100%", height: "100%", borderRadius: 36, background: "#0e0b08", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 36 }}>
+            <div style={{ fontFamily: display, fontWeight: 800, color: "#fff", fontSize: 30, textAlign: "center", marginBottom: 22 }}>{name}</div>
+            <div style={{ background: "#fff", padding: 18, borderRadius: 22, boxShadow: "0 12px 40px rgba(212,175,55,0.25)" }}>
+              <Img src={qrUrl} style={{ width: 340, height: 340, display: "block" }} />
             </div>
-            <div style={{ flex: 1, borderRadius: 22, overflow: "hidden", position: "relative", background: "#222" }}>
-              {image ? <Img src={image} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(0,0,0,0) 60%,rgba(0,0,0,0.6) 100%)" }} />
-              <div style={{ position: "absolute", bottom: 24, left: 0, right: 0, textAlign: "center", fontFamily: display, fontWeight: 800, color: "#fff", fontSize: 28 }}>{name}</div>
-            </div>
-            <div style={{ marginTop: 22, display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 8 }}>
-              {[
-                { bg: "#f1f1f1", fg: "#222", label: "COPIER", icon: "🔗" },
-                { bg: "#f1f1f1", fg: "#222", label: "QR CODE", icon: "▦" },
-                { bg: "#25D366", fg: "#fff", label: "WhatsApp", icon: "✆" },
-                { bg: "#1877F2", fg: "#fff", label: "Facebook", icon: "f" },
-                { bg: "#000", fg: "#fff", label: "X", icon: "𝕏" },
-                { bg: "#0A66C2", fg: "#fff", label: "LinkedIn", icon: "in" },
-              ].map((s, i) => (
-                <div key={i} style={{ textAlign: "center" }}>
-                  <div style={{ width: 64, height: 64, borderRadius: 32, background: s.bg, color: s.fg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: display, fontWeight: 800, fontSize: 26, margin: "0 auto" }}>{s.icon}</div>
-                  <div style={{ marginTop: 6, fontFamily: body, color: DARK, fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </AbsoluteFill>
-
-        {/* Phase 3 — QR */}
-        <AbsoluteFill style={{ opacity: phase3O, padding: 28 }}>
-          <div style={{ width: "100%", height: "100%", borderRadius: 36, background: "#0e0b08", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40 }}>
-            <div style={{ fontFamily: display, fontWeight: 800, color: "#fff", fontSize: 32, textAlign: "center", marginBottom: 24 }}>{name}</div>
-            <div style={{ background: "#fff", padding: 20, borderRadius: 24, boxShadow: "0 12px 40px rgba(212,175,55,0.25)" }}>
-              <Img src={qrUrl} style={{ width: 380, height: 380, display: "block" }} />
-            </div>
-            <div style={{ marginTop: 22, fontFamily: body, color: COLORS.gold, fontSize: 18, letterSpacing: 4, textTransform: "uppercase" }}>
+            <div style={{ marginTop: 20, fontFamily: body, color: COLORS.gold, fontSize: 17, letterSpacing: 4, textTransform: "uppercase" }}>
               Scannez pour découvrir
             </div>
           </div>
