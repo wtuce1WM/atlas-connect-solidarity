@@ -706,15 +706,15 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         ) : (
           <div className="space-y-2">
             {bookmarks.map((bk) => (
-              <div key={bk.id} className="rounded-lg border bg-background overflow-hidden">
+              <div key={bk.id} className="rounded-lg bg-[#BED1FF] text-black border-none overflow-hidden shadow-sm">
                 <div className="flex items-center justify-between p-3">
-                  <Link to={businessUrl({ id: bk.business_id, slug: bk.slug })} className="flex-1 min-w-0 hover:underline">
-                    <p className="font-medium text-sm truncate">{bk.name}</p>
-                    <p className="text-xs text-muted-foreground">{[bk.city, bk.main_category].filter(Boolean).join(" · ")}</p>
+                  <Link to={businessUrl({ id: bk.business_id, slug: bk.slug })} className="flex-1 min-w-0 hover:underline text-black">
+                    <p className="font-semibold text-sm truncate">{bk.name}</p>
+                    <p className="text-xs text-black/70">{[bk.city, bk.main_category].filter(Boolean).join(" · ")}</p>
                   </Link>
                   <div className="flex items-center gap-1 ml-2">
                     <Link to={businessUrl({ id: bk.business_id, slug: bk.slug })}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-black hover:bg-black/10 hover:text-black">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
                     </Link>
@@ -723,17 +723,17 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                          className="h-8 w-8 p-0 text-red-700 hover:text-red-800 hover:bg-black/10"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent className="bg-white text-black border-none">
                         <AlertDialogHeader>
-                          <AlertDialogTitle>
+                          <AlertDialogTitle className="text-black">
                             {language === "en" ? "Remove saved place?" : language === "ar" ? "إزالة المكان المحفوظ؟" : "Retirer l'adresse sauvegardée ?"}
                           </AlertDialogTitle>
-                          <AlertDialogDescription>
+                          <AlertDialogDescription className="text-black/70">
                             {language === "en"
                               ? `Are you sure you want to remove "${bk.name}" from your saved places?`
                               : language === "ar"
@@ -742,11 +742,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>
+                          <AlertDialogCancel className="bg-black/5 hover:bg-black/10 text-black border-none">
                             {language === "en" ? "Cancel" : language === "ar" ? "إلغاء" : "Annuler"}
                           </AlertDialogCancel>
                           <AlertDialogAction
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            className="bg-red-600 text-white hover:bg-red-700"
                             onClick={async () => {
                               await supabase.from("bookmarks" as any).delete().eq("id", bk.id);
                               setBookmarks(prev => prev.filter(b => b.id !== bk.id));
@@ -762,23 +762,23 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 {bk.promotions.length > 0 && (
                   <div className="px-3 pb-3 pt-0 space-y-2">
                     {bk.promotions.map((promo) => (
-                      <div key={promo.id} className="bg-muted/50 rounded-md p-2.5 border border-dashed border-primary/20">
+                      <div key={promo.id} className="bg-white/50 rounded-md p-2.5 border border-dashed border-black/20">
                         <div className="flex items-center gap-1.5 mb-1">
-                          <Tag className="h-3.5 w-3.5 text-primary" />
+                          <Tag className="h-3.5 w-3.5 text-[#194CFF]" />
                           {promo.type && (
-                            <span className="text-xs font-semibold text-primary">
+                            <span className="text-xs font-bold text-[#194CFF]">
                               {promo.type === "percentage"
                                 ? `-${promo.value}%`
                                 : `-${promo.value} ${promo.currency}`}
                             </span>
                           )}
                           {promo.title && (
-                            <span className="text-xs font-medium text-foreground truncate">{promo.type ? "— " : ""}{promo.title}</span>
+                            <span className="text-xs font-semibold text-black truncate">{promo.type ? "— " : ""}{promo.title}</span>
                           )}
                         </div>
                         {promo.message && (
                           <div
-                            className="text-xs text-muted-foreground prose prose-xs max-w-none [&_p]:m-0 [&_ul]:m-0 [&_li]:m-0"
+                            className="text-xs text-black/80 prose prose-xs max-w-none [&_p]:m-0 [&_ul]:m-0 [&_li]:m-0"
                             dangerouslySetInnerHTML={{ __html: promo.message }}
                           />
                         )}
