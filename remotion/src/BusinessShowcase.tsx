@@ -752,6 +752,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   showAppInstall,
   showDigitalId,
   slug,
+  logoUrl,
+  whatsapp,
+  instagramUrl,
   durationSec,
   useFullHookScene,
 }) => {
