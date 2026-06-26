@@ -18,6 +18,8 @@ import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import accountAvatar from "@/assets/default-avatar.png";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 import { SOCIAL_ICONS } from "@/lib/socialIcons";
+import ShareButton from "@/components/ShareButton";
+import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 
 const MAX_DESCRIPTION_LENGTH = 200;
 const plainTextLength = (html: string) => {
@@ -406,10 +408,19 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-2xl font-bold">{t.title}</h2>
-        <Button variant="outline" size="sm" onClick={onLogout} className="gap-2 border-white/30 text-white bg-transparent hover:bg-white/10 hover:text-white">
-          <LogOut className="h-4 w-4" />
-          {t.logout}
-        </Button>
+        <div className="flex flex-col gap-2 items-end">
+          <Button variant="outline" size="sm" onClick={onLogout} className="gap-2 border-white/30 text-white bg-transparent hover:bg-white/10 hover:text-white">
+            <LogOut className="h-4 w-4" />
+            {t.logout}
+          </Button>
+          <ShareButton 
+            shareUrl={form.nickname ? `https://oneworldmorocco.com/u/${form.nickname}` : `https://oneworldmorocco.com/u/`}
+            title="Mon profil One World Morocco"
+            previewImage={hamsaBlueAsset.url}
+            avatarImage={avatarUrl}
+            variant="dark"
+          />
+        </div>
       </div>
 
 
