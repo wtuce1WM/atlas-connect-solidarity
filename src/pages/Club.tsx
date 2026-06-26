@@ -413,7 +413,7 @@ const Club = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-[#194CFF] text-white">
         <HomeMindtripHeader alwaysWhite />
         <main className="pt-24 pb-16 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -424,7 +424,7 @@ const Club = () => {
   }
 
   return (
-    <div className={`min-h-screen ${user ? "bg-[#BED1FF]" : "bg-background"}`}>
+    <div className="min-h-screen bg-[#194CFF] text-white">
       {user && (
         <Header 
           compact 
@@ -710,13 +710,13 @@ const Club = () => {
             </div>
           ) : (
             <>
-              <p className="text-muted-foreground text-center text-base leading-relaxed mb-6">{t.desc}</p>
-              <h2 className="text-xl font-bold text-center mb-4 !font-sans !not-italic">{t.benefits}</h2>
+              <p className="text-white/90 text-center text-base leading-relaxed mb-6">{t.desc}</p>
+              <h2 className="text-xl font-bold text-center mb-4 !font-sans !not-italic text-white">{t.benefits}</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 {benefits.map((b, i) => (
-                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border shadow-sm">
-                    <Crown className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-card-foreground">{b}</span>
+                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-[#BED1FF] text-black border border-white/20 shadow-sm">
+                    <Crown className="h-5 w-5 text-[#194CFF] mt-0.5 shrink-0" />
+                    <span className="text-black">{b}</span>
                   </div>
                 ))}
               </div>
