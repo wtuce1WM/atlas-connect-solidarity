@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
+import HomeBottomBar from "@/components/HomeBottomBar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Calendar, User, ArrowRight, MapPin, Database } from "lucide-react";
 import { format } from "date-fns";
