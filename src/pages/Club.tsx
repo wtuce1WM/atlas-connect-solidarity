@@ -30,6 +30,9 @@ const heroImageMobile = zelligeBrunAsset.url;
 const Club = () => {
   const { language } = useLanguage();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const showDashboard = searchParams.get("view") === "dashboard";
   useSEO({
     title: "Club – Rejoignez la communauté",
     description: "Rejoignez le Club ONE WORLD MOROCCO pour accéder à des avantages exclusifs et des recommandations personnalisées.",
