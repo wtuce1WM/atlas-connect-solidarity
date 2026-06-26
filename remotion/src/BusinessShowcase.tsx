@@ -36,9 +36,13 @@ export type ShowcaseProps = {
   showOpeningHours?: boolean;
   showMap?: boolean;
   showAppInstall?: boolean;
+  showDigitalId?: boolean;
+  slug?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
 };
+
+export const DIGITAL_ID_FRAMES = 180; // 6s — 3 phases (page, share, QR)
 
 const splitHookInTwo = (h: string): [string, string] => {
   const t = (h || "").trim();
@@ -57,6 +61,7 @@ export const computeShowcaseFrames = (p: ShowcaseProps): number => {
   if (p.showReviews && (p.rating || p.reviewsCount)) cursor += OPTION_SCENE_FRAMES;
   if (p.showOpeningHours && p.openingHours) cursor += OPTION_SCENE_FRAMES;
   if (p.showMap && p.latitude && p.longitude) cursor += OPTION_SCENE_FRAMES;
+  if (p.showDigitalId) cursor += DIGITAL_ID_FRAMES;
   const naturalEnd = cursor + 150;
   const requestedEnd = Number.isFinite(p.durationSec) && p.durationSec ? Math.round(Number(p.durationSec) * 30) : SHOWCASE_TOTAL_FRAMES;
   return Math.max(naturalEnd, requestedEnd);
@@ -534,6 +539,91 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
   );
 };
 
+const SceneDigitalId: React.FC<{ name: string; slug: string; image?: string }> = ({ name, slug, image }) => {
+  const frame = useCurrentFrame();
+  const labelO = ease(frame, 0, 18);
+  const shareUrl = `https://oneworldmorocco.com/fiche/${encodeURIComponent(slug)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=480x480&margin=8&data=${encodeURIComponent(shareUrl)}`;
+  // Phases: 0-60 page, 60-120 share, 120-180 QR
+  const phase1O = Math.min(ease(frame, 6, 22), 1 - ease(frame, 55, 65));
+  const phase2O = Math.min(ease(frame, 62, 78), 1 - ease(frame, 115, 125));
+  const phase3O = ease(frame, 122, 138);
+
+  return (
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 50 }}>
+      <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
+        ID numérique
+      </div>
+
+      {/* Phone frame */}
+      <div
+        style={{
+          marginTop: 30,
+          width: 620,
+          height: 1180,
+          borderRadius: 60,
+          border: `8px solid ${COLORS.gold}`,
+          background: "#0e0b08",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.7)",
+        }}
+      >
+        {/* Phase 1 — page /fiche/slug */}
+        <AbsoluteFill style={{ opacity: phase1O }}>
+          <div style={{ height: 64, background: "#1a120a", display: "flex", alignItems: "center", justifyContent: "center", borderBottom: `1px solid ${COLORS.gold}` }}>
+            <div style={{ background: "#2a1d10", borderRadius: 16, padding: "6px 18px", color: COLORS.cream, fontFamily: body, fontSize: 18, maxWidth: "85%", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+              🔒 oneworldmorocco.com/fiche/{slug}
+            </div>
+          </div>
+          {image ? (
+            <Img src={image} style={{ width: "100%", height: 520, objectFit: "cover" }} />
+          ) : (
+            <div style={{ width: "100%", height: 520, background: "linear-gradient(135deg,#3a2412,#1a120a)" }} />
+          )}
+          <div style={{ padding: 30 }}>
+            <div style={{ fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 42, lineHeight: 1.1 }}>{name}</div>
+            <div style={{ marginTop: 16, fontFamily: body, color: COLORS.gold, fontSize: 22 }}>★★★★★ · One World Morocco</div>
+            <div style={{ marginTop: 22, display: "flex", gap: 12 }}>
+              <div style={{ background: COLORS.terracotta, color: "#fff", padding: "12px 18px", borderRadius: 12, fontFamily: body, fontSize: 20, fontWeight: 600 }}>Réserver</div>
+              <div style={{ background: "rgba(212,175,55,0.18)", color: COLORS.gold, padding: "12px 18px", borderRadius: 12, fontFamily: body, fontSize: 20, fontWeight: 600 }}>Partager</div>
+            </div>
+          </div>
+        </AbsoluteFill>
+
+        {/* Phase 2 — share sheet */}
+        <AbsoluteFill style={{ opacity: phase2O, background: "rgba(0,0,0,0.55)", justifyContent: "flex-end" }}>
+          <div style={{ background: "#1a120a", borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 28, borderTop: `1px solid ${COLORS.gold}` }}>
+            <div style={{ fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 28, marginBottom: 18 }}>Partager cette fiche</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
+              {["💬", "📱", "✉️", "🔗"].map((emoji, i) => (
+                <div key={i} style={{ textAlign: "center" }}>
+                  <div style={{ width: 80, height: 80, borderRadius: 20, background: "rgba(212,175,55,0.14)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 42, margin: "0 auto" }}>{emoji}</div>
+                  <div style={{ marginTop: 8, fontFamily: body, color: COLORS.cream, fontSize: 16 }}>{["WhatsApp", "SMS", "Email", "Lien"][i]}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 22, background: "#2a1d10", borderRadius: 12, padding: 14, color: COLORS.gold, fontFamily: body, fontSize: 16, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+              {shareUrl}
+            </div>
+          </div>
+        </AbsoluteFill>
+
+        {/* Phase 3 — QR code */}
+        <AbsoluteFill style={{ opacity: phase3O, alignItems: "center", justifyContent: "center", padding: 40, background: "#0e0b08" }}>
+          <div style={{ fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 34, textAlign: "center", marginBottom: 24 }}>{name}</div>
+          <div style={{ background: "#fff", padding: 20, borderRadius: 24, boxShadow: "0 12px 40px rgba(212,175,55,0.25)" }}>
+            <Img src={qrUrl} style={{ width: 420, height: 420, display: "block" }} />
+          </div>
+          <div style={{ marginTop: 24, fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 4, textTransform: "uppercase" }}>
+            Scannez pour découvrir
+          </div>
+        </AbsoluteFill>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const BAD_HOSTS = ["example.com", "example.org", "placeholder", "test.com", "localhost"];
 const sanitizeUrls = (arr: string[]): string[] =>
   (arr || []).filter((u) => {
@@ -605,6 +695,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   showOpeningHours,
   showMap,
   showAppInstall,
+  showDigitalId,
+  slug,
   durationSec,
   useFullHookScene,
 }) => {
@@ -625,6 +717,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const reviewsActive = !!(showReviews && (rating || reviewsCount));
   const hoursActive = !!(showOpeningHours && openingHours);
   const mapActive = !!(showMap && latitude && longitude);
+  const digitalIdActive = !!(showDigitalId && slug);
 
   const reviewsFrom = reviewsActive ? cursor : null;
   if (reviewsActive) cursor += OPTION_SCENE_FRAMES;
@@ -632,6 +725,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   if (hoursActive) cursor += OPTION_SCENE_FRAMES;
   const mapFrom = mapActive ? cursor : null;
   if (mapActive) cursor += OPTION_SCENE_FRAMES;
+  const digitalIdFrom = digitalIdActive ? cursor : null;
+  if (digitalIdActive) cursor += DIGITAL_ID_FRAMES;
 
   const ctaFrom = cursor;
   const totalFrames = computeShowcaseFrames({
@@ -644,6 +739,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     showReviews,
     showOpeningHours,
     showMap,
+    showDigitalId,
+    slug,
     durationSec,
   });
   const ctaDuration = Math.max(150, totalFrames - ctaFrom);
@@ -709,6 +806,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         <Sequence from={mapFrom} durationInFrames={OPTION_SCENE_FRAMES}>
           <VideoBackdrop src={safeVideos[2] ?? safeVideos[0]} image={safeImages[2] ?? safeImages[0]} />
           <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} />
+        </Sequence>
+      )}
+      {digitalIdFrom !== null && slug && (
+        <Sequence from={digitalIdFrom} durationInFrames={DIGITAL_ID_FRAMES}>
+          <VideoBackdrop src={safeVideos[3] ?? safeVideos[0]} image={safeImages[3] ?? safeImages[0]} />
+          <SceneDigitalId name={name} slug={slug} image={safeImages[0] ?? heroMedia} />
         </Sequence>
       )}
 

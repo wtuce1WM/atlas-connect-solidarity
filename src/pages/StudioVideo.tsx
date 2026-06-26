@@ -141,6 +141,7 @@ export default function StudioVideo() {
   const [optHours, setOptHours] = useState(true);
   const [optInstallCta, setOptInstallCta] = useState(true);
   const [optMapMarker, setOptMapMarker] = useState(true);
+  const [optDigitalId, setOptDigitalId] = useState(true);
 
   // Autocomplete businesses
   useEffect(() => {
@@ -304,6 +305,7 @@ export default function StudioVideo() {
       if (optReviews) directives.push("Faire figurer le compteur d'avis client et le badge des avis client (note/20 + nombre d'avis).");
       if (optHours) directives.push("Faire figurer les horaires d'ouverture de l'établissement.");
       if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
+      if (optDigitalId) directives.push("Insérer une courte séquence ID numérique (capture mock-up de la fiche /fiche/slug, étape de partage, puis QR code) AVANT l'incitation finale.");
       if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
       const finalPrompt = directives.length
         ? `${prompt.trim()}\n\nContraintes supplémentaires :\n- ${directives.join("\n- ")}`
@@ -319,6 +321,7 @@ export default function StudioVideo() {
             reviews: optReviews,
             hours: optHours,
             map_marker: optMapMarker,
+            digital_id: optDigitalId,
             install_cta: optInstallCta,
           },
         },
@@ -537,6 +540,10 @@ export default function StudioVideo() {
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optMapMarker} onChange={(e) => setOptMapMarker(e.target.checked)} />
                   <span>Marqueur sur la Google Map</span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optDigitalId} onChange={(e) => setOptDigitalId(e.target.checked)} />
+                  <span>ID numérique (fiche + partage + QR code)</span>
                 </label>
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optInstallCta} onChange={(e) => setOptInstallCta(e.target.checked)} />
