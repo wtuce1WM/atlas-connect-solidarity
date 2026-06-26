@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -30,6 +30,9 @@ const heroImageMobile = zelligeBrunAsset.url;
 const Club = () => {
   const { language } = useLanguage();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const showDashboard = searchParams.get("view") === "dashboard";
   useSEO({
     title: "Club – Rejoignez la communauté",
     description: "Rejoignez le Club ONE WORLD MOROCCO pour accéder à des avantages exclusifs et des recommandations personnalisées.",
@@ -97,7 +100,16 @@ const Club = () => {
     fetchMemberData();
   }, [user]);
 
-  // Listen for auth state changes + fetch countries
+  // When a connected member lands on /club without ?view=dashboard,
+  // redirect to the AI agent with a personalized greeting.
+  useEffect(() => {
+    if (authLoading || !user || showDashboard) return;
+    const name = (nickname || (user.email ? user.email.split("@")[0] : "")).trim();
+    if (!name) return;
+    navigate(`/search?tab=ai&welcome=1&clubGreeting=${encodeURIComponent(name)}`, { replace: true });
+  }, [authLoading, user, nickname, showDashboard, navigate]);
+
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
