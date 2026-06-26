@@ -14,7 +14,7 @@ import { MessageCircle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import accountAvatar from "@/assets/default-avatar.png";
@@ -39,6 +39,15 @@ interface ClubDashboardProps {
 
 const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const { language } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const ALLOWED_TABS = ["assistant","account","addresses","travel","inspiration","ai-chats","profile","notifications","contact"];
+  const tabFromUrl = searchParams.get("tab");
+  const activeTab = tabFromUrl && ALLOWED_TABS.includes(tabFromUrl) ? tabFromUrl : "assistant";
+  const handleTabChange = (v: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", v);
+    setSearchParams(next, { replace: true });
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [memberId, setMemberId] = useState<string | null>(null);
@@ -427,7 +436,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
 
 
-      <Tabs defaultValue="assistant" className="w-full" orientation="vertical">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full" orientation="vertical">
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
           <div className="flex flex-col gap-4">
 
