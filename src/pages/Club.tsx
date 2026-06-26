@@ -543,7 +543,7 @@ const Club = () => {
                     <form onSubmit={handleLogin} className="space-y-4">
                       <div>
                         <label className="text-sm text-white font-semibold mb-1 block">{t.emailLabel}</label>
-                        <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" className="bg-white text-black" />
+                        <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" className="bg-[#BED1FF] text-black" />
                       </div>
                       <div>
                         <label className="text-sm text-white font-semibold mb-1 block">{t.passwordLabel}</label>
@@ -554,7 +554,7 @@ const Club = () => {
                              onChange={(e) => setLoginPassword(e.target.value)}
                              required
                              autoComplete="current-password"
-                             className="bg-white text-black pr-10"
+                             className="bg-[#BED1FF] text-black pr-10"
                            />
                            <button
                              type="button"
