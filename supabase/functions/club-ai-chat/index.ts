@@ -190,6 +190,30 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         .limit(20);
       return { results: data || [] };
     }
+    if (name === "get_my_taste_profile") {
+      const t = await computeTasteProfile(ctx.userId, ctx.supabase);
+      const { _bizIds, ...pub } = t;
+      return pub;
+    }
+    if (name === "suggest_similar_to_my_bookmarks") {
+      const t = await computeTasteProfile(ctx.userId, ctx.supabase);
+      const limit = Math.min(Number(args.limit) || 6, 10);
+      if (!t.top_categories.length) return { results: [], note: "Aucun bookmark exploitable." };
+      let q = ctx.supabase
+        .from("businesses")
+        .select("id,name,slug,city,neighborhood,main_category,google_rating,google_review_count,priority_score")
+        .eq("is_active", true)
+        .or(t.top_categories.map((c: string) => `main_category.eq.${c}`).join(","))
+        .order("priority_score", { ascending: false, nullsFirst: false })
+        .limit(limit * 3);
+      if (args.city) q = q.ilike("city", `%${args.city}%`);
+      else if (t.top_cities.length) q = q.in("city", t.top_cities);
+      const { data, error } = await q;
+      if (error) return { error: error.message };
+      const excluded = new Set(t._bizIds);
+      const results = (data || []).filter((b: any) => !excluded.has(b.id)).slice(0, limit);
+      return { results, based_on: { categories: t.top_categories, cities: t.top_cities } };
+    }
   } catch (e) {
     return { error: String(e) };
   }
