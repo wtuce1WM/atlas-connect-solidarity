@@ -101,6 +101,13 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
         { to: "/join", label: "Rejoindre" },
         { to: "/card", label: "Votre carte de visite numérique" },
       ];
+    } else if (location.pathname === "/club") {
+      return [
+        ...base,
+        { to: "/corporate", label: "Le concept" },
+        { to: "/join", label: "Rejoindre" },
+        { to: "/install", label: "Application" },
+      ];
     } else {
       const baseLinks = [
         ...base,
