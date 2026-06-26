@@ -5,9 +5,10 @@ import { Menu, X } from "lucide-react";
 
 interface Props {
   alwaysWhite?: boolean;
+  forceHamburger?: boolean;
 }
 
-const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
+const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false }: Props) => {
   const location = useLocation();
   const isWhiteHeaderPage = location.pathname === "/" || location.pathname === "/corporate" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/club";
   const blackHamburger = (location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/devenir-affilie") && !isWhiteHeaderPage;
