@@ -465,7 +465,7 @@ const Club = () => {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-[#194CFF] text-white">
+    <div className="min-h-screen bg-[#194CFF] text-white overflow-x-hidden">
       <HomeMindtripHeader alwaysWhite forceHamburger={!!user} customMobileLinks={clubMobileLinks} />
 
       {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
