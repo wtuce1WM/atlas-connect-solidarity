@@ -486,11 +486,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-muted-foreground mb-1 block">{t.firstName}</label>
-            <Input value={form.first_name} onChange={handleChange("first_name")} />
+            <Input value={form.first_name} onChange={handleChange("first_name")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
           <div>
             <label className="text-sm text-muted-foreground mb-1 block">{t.lastName}</label>
-            <Input value={form.last_name} onChange={handleChange("last_name")} />
+            <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
         </div>
 
@@ -498,13 +498,13 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           <label className="text-sm text-foreground font-semibold mb-1 block">
             {t.nickname} <span className="text-destructive">*</span>
           </label>
-          <Input value={form.nickname} onChange={handleChange("nickname")} required />
+          <Input value={form.nickname} onChange={handleChange("nickname")} required className="bg-[#BED1FF] text-black placeholder:text-black/60" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-muted-foreground mb-1 block">{t.cityLabel}</label>
-            <Input value={form.city} onChange={handleChange("city")} />
+            <Input value={form.city} onChange={handleChange("city")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
           <div>
             <label className="text-sm text-muted-foreground mb-1 block">{t.countryLabel}</label>
@@ -512,7 +512,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               value={form.country}
               onValueChange={(val) => setForm(prev => ({ ...prev, country: val === "__none__" ? "" : val }))}
             >
-              <SelectTrigger className="bg-background">
+              <SelectTrigger className="bg-[#BED1FF] text-black border-none">
                 <SelectValue placeholder={t.selectCountry} />
               </SelectTrigger>
               <SelectContent className="bg-background z-50">
@@ -536,17 +536,17 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
         <div>
           <label className="text-sm text-muted-foreground mb-1 block">{t.emailLabel}</label>
-          <Input type="email" value={form.email} onChange={handleChange("email")} />
+          <Input type="email" value={form.email} onChange={handleChange("email")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-muted-foreground mb-1 block">{t.phoneLabel}</label>
-            <Input type="tel" value={form.phone} onChange={handleChange("phone")} />
+            <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
           <div>
             <label className="text-sm text-muted-foreground mb-1 block">{t.whatsappLabel}</label>
-            <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} />
+            <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
         </div>
 
@@ -648,7 +648,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                   value={form[key]}
                   onChange={handleChange(key)}
                   placeholder={placeholder}
-                  className="flex-1 text-sm"
+                  className="flex-1 text-sm bg-[#BED1FF] text-black placeholder:text-black/60 border-none"
                 />
                 {form[key] && (
                   <a

@@ -543,7 +543,7 @@ const Club = () => {
                     <form onSubmit={handleLogin} className="space-y-4">
                       <div>
                         <label className="text-sm text-white font-semibold mb-1 block">{t.emailLabel}</label>
-                        <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" className="bg-white text-black" />
+                        <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" className="bg-[#BED1FF] text-black" />
                       </div>
                       <div>
                         <label className="text-sm text-white font-semibold mb-1 block">{t.passwordLabel}</label>
@@ -554,7 +554,7 @@ const Club = () => {
                              onChange={(e) => setLoginPassword(e.target.value)}
                              required
                              autoComplete="current-password"
-                             className="bg-white text-black pr-10"
+                             className="bg-[#BED1FF] text-black pr-10"
                            />
                            <button
                              type="button"
@@ -606,11 +606,11 @@ const Club = () => {
                           <label className="text-sm text-white font-semibold mb-1 block">
                             {t.firstName} <span className="text-white font-bold ml-1">*</span>
                           </label>
-                          <Input value={form.first_name} onChange={handleChange("first_name")} required className="bg-white text-black" />
+                          <Input value={form.first_name} onChange={handleChange("first_name")} required className="bg-[#BED1FF] text-black" />
                         </div>
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">{t.lastName}</label>
-                          <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-white text-black" />
+                          <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-[#BED1FF] text-black" />
                         </div>
                       </div>
 
@@ -619,7 +619,7 @@ const Club = () => {
                         <label className="text-sm text-white font-semibold mb-1 block">
                           {t.emailLabel} <span className="text-white font-bold ml-1">*</span>
                         </label>
-                        <Input type="email" value={form.email} onChange={handleChange("email")} required className="bg-white text-black" />
+                        <Input type="email" value={form.email} onChange={handleChange("email")} required className="bg-[#BED1FF] text-black" />
                       </div>
 
                       <div>
@@ -633,7 +633,7 @@ const Club = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             minLength={6}
-                            className="bg-white text-black pr-10"
+                            className="bg-[#BED1FF] text-black pr-10"
                           />
                           <button
                             type="button"
@@ -656,7 +656,7 @@ const Club = () => {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
                             minLength={6}
-                            className="bg-white text-black pr-10"
+                            className="bg-[#BED1FF] text-black pr-10"
                           />
                           <button
                             type="button"
@@ -674,11 +674,11 @@ const Club = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">{t.phoneLabel}</label>
-                          <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-white text-black" />
+                          <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-[#BED1FF] text-black" />
                         </div>
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">{t.whatsappLabel}</label>
-                          <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-white text-black" />
+                          <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#BED1FF] text-black" />
                         </div>
                       </div>
 
