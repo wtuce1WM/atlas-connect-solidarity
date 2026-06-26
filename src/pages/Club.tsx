@@ -113,9 +113,30 @@ const Club = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Scroll to top when user logs in
+  // Scroll to top when user logs in (retry across paints to beat layout shifts / scroll restoration)
   useEffect(() => {
-    if (user) window.scrollTo({ top: 0, behavior: "auto" });
+    if (!user) return;
+    if ("scrollRestoration" in window.history) {
+      try { window.history.scrollRestoration = "manual"; } catch {}
+    }
+    const scrollTop = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    scrollTop();
+    const r1 = requestAnimationFrame(scrollTop);
+    const r2 = requestAnimationFrame(() => requestAnimationFrame(scrollTop));
+    const t1 = setTimeout(scrollTop, 100);
+    const t2 = setTimeout(scrollTop, 400);
+    const t3 = setTimeout(scrollTop, 900);
+    return () => {
+      cancelAnimationFrame(r1);
+      cancelAnimationFrame(r2);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
   }, [user]);
 
   // Hero parallax: mouse + scroll → CSS vars on .club-hero
