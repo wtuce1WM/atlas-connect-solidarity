@@ -439,7 +439,7 @@ const Club = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#194CFF] text-white">
+      <div className="min-h-screen bg-[#194CFF] text-white overflow-x-hidden">
         <HomeMindtripHeader alwaysWhite />
         <main className="pt-24 pb-16 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -465,7 +465,7 @@ const Club = () => {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-[#194CFF] text-white">
+    <div className="min-h-screen bg-[#194CFF] text-white overflow-x-hidden">
       <HomeMindtripHeader alwaysWhite forceHamburger={!!user} customMobileLinks={clubMobileLinks} />
 
       {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
