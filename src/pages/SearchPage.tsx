@@ -517,6 +517,7 @@ const SearchPage = ({ embeddedInClub = false, clubGreeting: clubGreetingProp, in
     setAiAnswerText,
     setAiChat,
     setRestoredBusinessPool: setRestoredAiBusinessPool as any,
+    syncUrl: !embeddedInClub,
   });
   // Ensure the owner's chat is publicly shareable so the ShareButton link works.
   useEffect(() => {
