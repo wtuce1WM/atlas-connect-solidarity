@@ -457,7 +457,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 onChange={handleAvatarUpload}
               />
             </div>
-            <TabsList className="flex md:flex-col h-auto bg-transparent p-0 gap-1 md:items-stretch md:justify-start overflow-x-auto md:overflow-visible">
+            <TabsList className="flex md:flex-col h-auto bg-transparent p-0 gap-1 md:items-stretch md:justify-start overflow-x-auto md:overflow-visible scrollbar-thin -mx-4 px-4 md:mx-0 md:px-0">
               {[
                 { value: "account", Icon: UserIcon, label: language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte" },
                 { value: "addresses", Icon: MapPin, label: language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses" },
@@ -470,7 +470,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 <TabsTrigger
                   key={value}
                   value={value}
-                  className="w-full justify-start gap-2 px-3 py-2 text-sm rounded-md text-white/80 hover:text-white hover:bg-white/10 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:font-semibold transition-all"
+                  className="shrink-0 md:w-full justify-start gap-2 px-3 py-2 text-sm rounded-md text-white/80 hover:text-white hover:bg-white/10 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:font-semibold transition-all whitespace-nowrap"
                 >
                   <Icon className="h-4 w-4 shrink-0 text-current" />
                   <span className="truncate">{label}</span>
@@ -479,7 +479,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               <button
                 type="button"
                 onClick={onLogout}
-                className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm rounded-md text-red-200 hover:text-red-100 hover:bg-red-500/20 transition-colors shrink-0"
+                className="hidden md:flex w-full items-center justify-start gap-2 px-3 py-2 text-sm rounded-md text-red-200 hover:text-red-100 hover:bg-red-500/20 transition-colors shrink-0"
               >
                 <LogOut className="h-4 w-4 shrink-0" />
                 <span className="truncate">{t.logout}</span>
