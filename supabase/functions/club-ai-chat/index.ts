@@ -252,12 +252,23 @@ serve(async (req) => {
       ? `Profil utilisateur: ${member.first_name || member.nickname || "Membre"}${member.city ? ` · ${member.city}` : ""}${member.country ? ` (${member.country})` : ""}.`
       : "";
 
+    // Compute taste profile once per call (cheap: 5 small queries)
+    let tasteLine = "";
+    try {
+      const taste = await computeTasteProfile(user.id, admin);
+      tasteLine = tasteSummaryLine(taste);
+    } catch (e) {
+      console.error("taste profile error", e);
+    }
+
     const system = `Tu es l'assistant personnel du Club One World Morocco. Tu aides l'utilisateur connecté à retrouver ses adresses sauvegardées, ses conversations précédentes, et tu réponds à ses questions sur le Maroc (météo, lieux, recommandations).
 ${profileLine}
+${tasteLine}
 Règles:
 - Réponds en français par défaut, sauf si l'utilisateur écrit dans une autre langue.
 - Reste concis et chaleureux. Markdown léger autorisé (gras, listes courtes).
-- Utilise les outils quand pertinent: get_weather pour la météo, search_businesses pour trouver un lieu précis, list_my_bookmarks et list_my_saved_chats pour le contexte personnel.
+- Tu connais déjà les goûts du membre (ci-dessus) : utilise-les naturellement pour personnaliser tes suggestions, sans les énumérer mécaniquement.
+- Utilise les outils quand pertinent: get_weather (météo), search_businesses (lieu précis), list_my_bookmarks, list_my_saved_chats, get_my_taste_profile (détail des goûts), suggest_similar_to_my_bookmarks (recommandations alignées sur les bookmarks).
 - Quand tu cites un établissement, mets son nom exact entre **doubles astérisques**.`;
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
