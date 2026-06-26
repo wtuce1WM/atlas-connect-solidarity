@@ -22,6 +22,7 @@ interface RichTextEditorProps {
   onChange: (html: string) => void;
   placeholder?: string;
   maxHeight?: string;
+  bgClass?: string;
 }
 
 const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextEditorProps) => {
