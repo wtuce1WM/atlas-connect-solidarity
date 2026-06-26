@@ -302,6 +302,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (template_id === "business-showcase" && !template_props.city && businessContext?.city) {
       template_props.city = businessContext.city;
     }
+    if (template_id === "business-showcase" && businessContext?.neighborhood) {
+      template_props.neighborhood = businessContext.neighborhood;
+    }
     // Forcer le hook réel de l'établissement (hook_fr en priorité) — interdire toute paraphrase IA.
     if (template_id === "business-showcase" && businessContext) {
       const realHook = stripHtml(businessContext.hook_fr || businessContext.hook);
