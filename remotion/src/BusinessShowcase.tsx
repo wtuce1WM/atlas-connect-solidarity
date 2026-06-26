@@ -591,6 +591,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   hook = "Une adresse à découvrir.",
   tagline = "L'art de vivre marocain.",
   city,
+  neighborhood,
   images = [],
   videos = [],
   offer = null,
@@ -613,7 +614,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const heroMedia = useVideos ? safeVideos[0] : safeImages[0];
   const galleryMedia = useVideos ? safeVideos.slice(1) : safeImages.slice(1);
   const galleryList = galleryMedia.length ? galleryMedia : (useVideos ? safeVideos : safeImages);
-  const safeTagline = removeDecorativeTaglineWords(tagline) || hook;
+
+  const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
+  const [hookPart1, hookPart2] = splitHookInTwo(hook);
 
   // Position courante après les scènes de base
   let cursor = 390;
@@ -652,26 +655,37 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         {useVideos && heroMedia ? (
           <AbsoluteFill>
             <VideoCover src={heroMedia} from={0} duration={120} />
-            <SceneHook name={name} hook={hook} />
+            <SceneHook name={name} location={locationLine} />
           </AbsoluteFill>
         ) : (
-          <SceneHook name={name} hook={hook} img={heroMedia} />
+          <SceneHook name={name} location={locationLine} img={heroMedia} />
         )}
       </Sequence>
       <Sequence from={120} durationInFrames={120}>
-        <SceneTagline tagline={safeTagline} fullHook={hook} showFullHook={useFullHookScene} />
+        <AbsoluteFill>
+          {useVideos && galleryList[0] ? (
+            <VideoCover src={galleryList[0]} from={0} duration={120} />
+          ) : galleryList[0] ? (
+            <KenBurns src={galleryList[0]} from={0} duration={120} />
+          ) : null}
+          <HookOverlay text={hookPart1} duration={120} />
+        </AbsoluteFill>
       </Sequence>
       <Sequence from={240} durationInFrames={150}>
-        {useVideos ? (
-          <AbsoluteFill>
-            {galleryList.slice(0, 3).map((src, i) => (
-              <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
-            ))}
-          </AbsoluteFill>
-        ) : (
-          <SceneGallery images={galleryList} />
-        )}
+        <AbsoluteFill>
+          {useVideos ? (
+            <AbsoluteFill>
+              {galleryList.slice(1, 4).map((src, i) => (
+                <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
+              ))}
+            </AbsoluteFill>
+          ) : (
+            <SceneGallery images={galleryList.slice(1)} />
+          )}
+          <HookOverlay text={hookPart2 || hookPart1} duration={150} />
+        </AbsoluteFill>
       </Sequence>
+
 
       {offer && (
         <Sequence from={390} durationInFrames={120}>
