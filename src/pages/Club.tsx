@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Crown, Loader2, Mail, Eye, EyeOff, Home } from "lucide-react";
+import { Crown, Loader2, Mail, Eye, EyeOff } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,13 +15,10 @@ import SearchPage from "@/pages/SearchPage";
 import type { User } from "@supabase/supabase-js";
 import { useSEO } from "@/hooks/useSEO";
 import ClubSocialButtons from "@/components/club/ClubSocialButtons";
-import ShareButton from "@/components/ShareButton";
-import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
 import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
@@ -30,8 +26,6 @@ const heroImageMobile = zelligeBrunAsset.url;
 
 const Club = () => {
   const { language } = useLanguage();
-  const isMobile = useIsMobile();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const showDashboard = searchParams.get("view") === "dashboard";
   useSEO({
