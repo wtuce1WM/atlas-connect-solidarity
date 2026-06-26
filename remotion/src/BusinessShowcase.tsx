@@ -887,6 +887,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             instagram={instagramUrl}
             rating={rating}
             reviewsCount={reviewsCount}
+            ficheScreenshotUrl={ficheScreenshotUrl}
           />
         </Sequence>
       )}
