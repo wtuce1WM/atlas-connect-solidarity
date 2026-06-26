@@ -547,8 +547,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </div>
 
         <div>
-          <label className="text-sm text-white/90 mb-1 block">{t.emailLabel}</label>
-          <Input type="email" value={form.email} onChange={handleChange("email")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
+          <label className="text-sm text-white/90 mb-1 block">{t.emailLabel} *</label>
+          <Input type="email" required value={form.email} onChange={handleChange("email")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -561,6 +561,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
           </div>
         </div>
+
+        <p className="text-xs text-white/80 pt-2">{t.required}</p>
+
+
 
 
 
@@ -640,12 +644,12 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </div>
 
-        <p className="text-xs text-white/80">{t.required}</p>
+        
 
 
         <Button
           onClick={handleSave}
-          disabled={isSaving || !form.nickname.trim()}
+          disabled={isSaving || !form.nickname.trim() || !form.email.trim()}
           className="w-full bg-[#25D366] text-white hover:bg-[#20bd5a] font-semibold py-6 text-base"
         >
           {isSaving ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Save className="h-5 w-5 mr-2" />}
