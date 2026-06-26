@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import HomeBottomBar from "@/components/HomeBottomBar";
 import { Crown, Loader2, Mail, Eye, EyeOff, Home } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
@@ -750,6 +751,7 @@ const Club = () => {
         </section>
       </main>
       <Footer variant="verified" className="bg-[#BED1FF] text-black" />
+      <HomeBottomBar />
     </div>
   );
 };
