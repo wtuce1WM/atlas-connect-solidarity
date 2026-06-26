@@ -640,7 +640,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </div>
 
-        <p className="text-xs text-white/80">{t.required}</p>
+        
 
 
         <Button
