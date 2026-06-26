@@ -423,9 +423,24 @@ const Club = () => {
     );
   }
 
+  const clubMobileLinks = user
+    ? [
+        { label: language === "en" ? "AI Assistant" : language === "ar" ? "مساعد الذكاء" : "Assistant IA", to: "/club?tab=assistant" },
+        { label: language === "en" ? "My account" : language === "ar" ? "حسابي" : "Mon compte", to: "/club?tab=account" },
+        { label: language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses", to: "/club?tab=addresses" },
+        { label: language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage", to: "/club?tab=travel" },
+        { label: language === "en" ? "Inspiration" : language === "ar" ? "إلهام" : "Inspiration", to: "/club?tab=inspiration" },
+        { label: language === "en" ? "AI conversations" : language === "ar" ? "محادثات الذكاء" : "Conversations IA", to: "/club?tab=ai-chats" },
+        { label: language === "en" ? "Traveler profile" : language === "ar" ? "ملف المسافر" : "Profil de voyageur", to: "/club?tab=profile" },
+        { label: language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications", to: "/club?tab=notifications" },
+        { label: language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous", to: "/club?tab=contact" },
+        { label: language === "en" ? "Sign out" : language === "ar" ? "تسجيل الخروج" : "Se déconnecter", onClick: handleLogout, danger: true },
+      ]
+    : undefined;
+
   return (
     <div className="min-h-screen bg-[#194CFF] text-white">
-      <HomeMindtripHeader alwaysWhite forceHamburger={!!user} />
+      <HomeMindtripHeader alwaysWhite forceHamburger={!!user} customMobileLinks={clubMobileLinks} />
 
       {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
       {!user && (
