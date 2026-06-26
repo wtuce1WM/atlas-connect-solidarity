@@ -375,6 +375,12 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (wantsDigitalId && (businessDetails.slug || businessDetails.id)) {
         template_props.showDigitalId = true;
         template_props.slug = businessDetails.slug || businessDetails.id;
+        const firstImg = Array.isArray(businessDetails.images) ? businessDetails.images.find((u: unknown) => typeof u === "string" && /^https?:\/\//i.test(u)) : null;
+        template_props.logoUrl = businessDetails.logo_url || firstImg || null;
+        template_props.whatsapp = businessDetails.whatsapp || null;
+        template_props.instagramUrl = businessDetails.instagram_url || null;
+        if (rating) template_props.rating = rating;
+        if (reviewsCount) template_props.reviewsCount = reviewsCount;
       }
       if (wantsInstallCta) {
         template_props.showAppInstall = true;
