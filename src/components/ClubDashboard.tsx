@@ -603,12 +603,13 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               {plainTextLength(form.description)} / {MAX_DESCRIPTION_LENGTH}
             </span>
           </div>
-          <div className="[&_.ProseMirror]:text-foreground [&_.ProseMirror]:min-h-[120px] [&_.ProseMirror_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child]:before:text-muted-foreground [&_.ProseMirror_p.is-editor-empty:first-child]:before:float-left [&_.ProseMirror_p.is-editor-empty:first-child]:before:pointer-events-none">
+          <div className="[&_.ProseMirror]:text-black [&_.ProseMirror]:min-h-[120px] [&_.ProseMirror_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child]:before:text-black/60 [&_.ProseMirror_p.is-editor-empty:first-child]:before:float-left [&_.ProseMirror_p.is-editor-empty:first-child]:before:pointer-events-none">
             <RichTextEditor
               content={form.description}
               onChange={(html) => setForm(prev => ({ ...prev, description: html }))}
               placeholder="Quelques mots sur vous (200 caractères max)…"
               maxHeight="220px"
+              bgClass="bg-[#BED1FF] text-black border-none"
             />
           </div>
         </div>
