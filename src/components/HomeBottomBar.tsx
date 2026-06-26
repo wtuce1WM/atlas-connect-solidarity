@@ -28,24 +28,25 @@ const HomeBottomBar = () => {
 
   return (
     <>
-      {/* Full-viewport fixed layer so OverlayShell's absolute inset-0 spans the screen */}
-      <div className="fixed inset-0 z-[200] pointer-events-none">
-        {/* This wrapper is the positioned ancestor for PanelSearchBar overlays.
-            When the search overlay is open, allow clicks on the whole layer; otherwise
-            only the dock pill (its own pointer-events-auto) receives clicks. */}
-        <div className={`absolute inset-0 ${overlayOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
-          <div className="absolute inset-x-0 bottom-0 pointer-events-auto">
-            <PanelSearchBar
-              onSearch={(params) => {
-                const qs = new URLSearchParams(params).toString();
-                navigate(`/search?${qs}`);
-              }}
-              onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-              onAiClick={() => navigate("/search?tab=ai")}
-              onOverlayChange={setOverlayOpen}
-              noToolbarOffset
-            />
-          </div>
+      {/* When closed: bottom-only strip (header stays clickable).
+          When the search overlay opens: expand to full viewport so OverlayShell
+          (absolute inset-0 of nearest positioned ancestor) covers the screen. */}
+      <div
+        className={`fixed z-[200] pointer-events-none ${
+          overlayOpen ? "inset-0" : "inset-x-0 bottom-0"
+        }`}
+      >
+        <div className="relative w-full h-full pointer-events-auto">
+          <PanelSearchBar
+            onSearch={(params) => {
+              const qs = new URLSearchParams(params).toString();
+              navigate(`/search?${qs}`);
+            }}
+            onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+            onAiClick={() => navigate("/search?tab=ai")}
+            onOverlayChange={setOverlayOpen}
+            noToolbarOffset
+          />
         </div>
       </div>
 
