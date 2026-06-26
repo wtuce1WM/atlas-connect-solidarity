@@ -18,6 +18,8 @@ import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import accountAvatar from "@/assets/default-avatar.png";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 import { SOCIAL_ICONS } from "@/lib/socialIcons";
+import ShareButton from "@/components/ShareButton";
+import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 
 const MAX_DESCRIPTION_LENGTH = 200;
 const plainTextLength = (html: string) => {
