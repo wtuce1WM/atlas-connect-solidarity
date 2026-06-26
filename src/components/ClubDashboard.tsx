@@ -406,10 +406,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <h2 className="text-2xl font-bold">{t.title}</h2>
-        <div className="flex flex-col gap-2 items-end">
-          <Button variant="outline" size="sm" onClick={onLogout} className="gap-2 border-white/30 text-white bg-transparent hover:bg-white/10 hover:text-white">
+        <div className="flex flex-row md:flex-col gap-2 items-center md:items-end w-full md:w-auto justify-start md:justify-end">
+          <Button variant="outline" size="sm" onClick={onLogout} className="gap-2 border-white/30 text-white bg-transparent hover:bg-white/10 hover:text-white shrink-0">
             <LogOut className="h-4 w-4" />
             {t.logout}
           </Button>
