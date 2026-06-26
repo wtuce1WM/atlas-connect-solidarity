@@ -70,7 +70,7 @@ const SOCIAL_TITLES: Record<string, string> = {
   social_youtube: "YouTube",
 };
 
-const Footer = ({ variant = "default" }: FooterProps) => {
+const Footer = ({ variant = "default", className }: FooterProps) => {
   const { t, language } = useLanguage();
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
 
@@ -93,7 +93,9 @@ const Footer = ({ variant = "default" }: FooterProps) => {
 
   const isVerified = variant === "verified";
 
-  const footerBg = variant === "morocco" 
+  const footerBg = className 
+    ? className 
+    : variant === "morocco" 
     ? "bg-transparent text-white" 
     : isVerified
     ? "bg-background text-foreground"
