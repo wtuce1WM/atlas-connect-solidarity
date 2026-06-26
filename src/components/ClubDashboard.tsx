@@ -427,7 +427,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
 
 
-      <Tabs defaultValue="account" className="w-full" orientation="vertical">
+      <Tabs defaultValue="assistant" className="w-full" orientation="vertical">
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
           <div className="flex flex-col gap-4">
 
