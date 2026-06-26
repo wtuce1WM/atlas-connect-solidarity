@@ -399,6 +399,45 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.instagramUrl = businessDetails.instagram_url || null;
         if (rating) template_props.rating = rating;
         if (reviewsCount) template_props.reviewsCount = reviewsCount;
+
+        // Capture mobile screenshot of the live published fiche via Firecrawl, upload to storage
+        // and pass the URL to Remotion so SceneDigitalId shows the exact published page.
+        try {
+          const fcKey = Deno.env.get("FIRECRAWL_API_KEY");
+          if (fcKey) {
+            const ficheUrl = `https://oneworldmorocco.com/b/${encodeURIComponent(template_props.slug)}`;
+            const fcRes = await fetch("https://api.firecrawl.dev/v2/scrape", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${fcKey}`, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                url: ficheUrl,
+                formats: ["screenshot"],
+                onlyMainContent: false,
+                mobile: true,
+                waitFor: 2500,
+              }),
+            });
+            const fcJson = await fcRes.json().catch(() => null) as any;
+            const shotUrl: string | undefined = fcJson?.data?.screenshot || fcJson?.screenshot;
+            if (shotUrl && /^https?:\/\//i.test(shotUrl)) {
+              const imgRes = await fetch(shotUrl);
+              if (imgRes.ok) {
+                const bytes = new Uint8Array(await imgRes.arrayBuffer());
+                const path = `fiches/${template_props.slug}-${Date.now()}.png`;
+                const up = await supa.storage.from("studio-videos").upload(path, bytes, {
+                  contentType: "image/png",
+                  upsert: true,
+                });
+                if (!up.error) {
+                  const { data: pub } = supa.storage.from("studio-videos").getPublicUrl(path);
+                  if (pub?.publicUrl) template_props.ficheScreenshotUrl = pub.publicUrl;
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.warn("[digital_id] firecrawl screenshot failed", (e as Error).message);
+        }
       }
       if (wantsInstallCta) {
         template_props.showAppInstall = true;
