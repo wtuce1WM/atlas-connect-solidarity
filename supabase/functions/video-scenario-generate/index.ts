@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,hook_fr,destination_hook,poi_hook,description,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,images,popup_image_url")
+        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,images,popup_image_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
 
