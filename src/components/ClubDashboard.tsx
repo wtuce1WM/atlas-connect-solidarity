@@ -678,7 +678,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </div>
 
-        <p className="text-xs text-muted-foreground">{t.required}</p>
+        <p className="text-xs text-white/80">{t.required}</p>
 
 
         <Button
@@ -700,7 +700,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           {language === "en" ? "My saved places" : language === "ar" ? "أماكني المحفوظة" : "Mes adresses sauvegardées"}
         </h3>
         {bookmarks.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white/90">
             {language === "en" ? "No saved places yet. Browse the directory and click the bookmark icon to save your favorites!" : language === "ar" ? "لا توجد أماكن محفوظة بعد." : "Aucune adresse sauvegardée. Parcourez l'annuaire et cliquez sur l'icône marque-page pour sauvegarder vos favoris !"}
           </p>
         ) : (
@@ -801,13 +801,13 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="travel" className="mt-6">
-          <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
+          <div className="rounded-lg border border-dashed border-white/30 bg-white/10 p-10 text-center text-sm text-white/90">
             {language === "en" ? "Your travel plans will appear here soon." : language === "ar" ? "ستظهر خطط سفرك هنا قريباً." : "Vos projets de voyage apparaîtront ici prochainement."}
           </div>
         </TabsContent>
 
         <TabsContent value="inspiration" className="mt-6">
-          <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
+          <div className="rounded-lg border border-dashed border-white/30 bg-white/10 p-10 text-center text-sm text-white/90">
             {language === "en" ? "Personalized inspiration coming soon." : language === "ar" ? "إلهام شخصي قريباً." : "Inspiration personnalisée bientôt disponible."}
           </div>
         </TabsContent>
@@ -818,7 +818,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
 
         <TabsContent value="notifications" className="mt-6">
-          <div className="rounded-lg border border-dashed bg-muted/20 p-10 text-center text-sm text-muted-foreground">
+          <div className="rounded-lg border border-dashed border-white/30 bg-white/10 p-10 text-center text-sm text-white/90">
             {language === "en" ? "No notifications yet." : language === "ar" ? "لا توجد إشعارات بعد." : "Aucune notification pour le moment."}
           </div>
         </TabsContent>
