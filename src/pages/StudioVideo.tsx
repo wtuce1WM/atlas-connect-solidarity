@@ -305,6 +305,7 @@ export default function StudioVideo() {
       if (optReviews) directives.push("Faire figurer le compteur d'avis client et le badge des avis client (note/20 + nombre d'avis).");
       if (optHours) directives.push("Faire figurer les horaires d'ouverture de l'établissement.");
       if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
+      if (optDigitalId) directives.push("Insérer une courte séquence ID numérique (capture mock-up de la fiche /fiche/slug, étape de partage, puis QR code) AVANT l'incitation finale.");
       if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
       const finalPrompt = directives.length
         ? `${prompt.trim()}\n\nContraintes supplémentaires :\n- ${directives.join("\n- ")}`
@@ -320,6 +321,7 @@ export default function StudioVideo() {
             reviews: optReviews,
             hours: optHours,
             map_marker: optMapMarker,
+            digital_id: optDigitalId,
             install_cta: optInstallCta,
           },
         },
