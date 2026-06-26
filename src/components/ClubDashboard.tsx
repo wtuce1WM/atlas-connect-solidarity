@@ -464,6 +464,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 { value: "travel", Icon: Plane, label: language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage" },
                 { value: "inspiration", Icon: Lightbulb, label: language === "en" ? "Inspiration" : language === "ar" ? "إلهام" : "Inspiration" },
                 { value: "ai-chats", Icon: Bot, label: language === "en" ? "AI conversations" : language === "ar" ? "محادثات الذكاء" : "Conversations IA" },
+                { value: "profile", Icon: Sparkles, label: language === "en" ? "Traveler profile" : language === "ar" ? "ملف المسافر" : "Profil de voyageur" },
                 { value: "notifications", Icon: Bell, label: language === "en" ? "Notifications" : language === "ar" ? "إشعارات" : "Notifications" },
                 { value: "contact", Icon: Mail, label: language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous" },
               ].map(({ value, Icon, label }) => (
