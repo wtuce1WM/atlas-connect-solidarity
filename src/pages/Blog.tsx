@@ -908,6 +908,7 @@ const Blog = () => {
         )}
       </div>
       <Footer />
+      <HomeBottomBar />
     </div>
   );
 };
