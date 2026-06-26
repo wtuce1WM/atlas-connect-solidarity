@@ -55,7 +55,7 @@ const AiChatsList = ({ userId }: Props) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12 text-muted-foreground">
+      <div className="flex items-center justify-center py-12 text-white/70">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     );
@@ -63,7 +63,7 @@ const AiChatsList = ({ userId }: Props) => {
 
   if (chats.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground text-sm">
+      <div className="text-center py-12 text-white/90 text-sm font-medium">
         Aucune conversation sauvegardée. Bookmarkez une conversation IA depuis l'onglet IA pour la retrouver ici.
       </div>
     );
@@ -72,39 +72,39 @@ const AiChatsList = ({ userId }: Props) => {
   return (
     <ul className="flex flex-col gap-2">
       {chats.map((c) => (
-        <li key={c.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors">
-          <Bookmark className="h-4 w-4 text-[#6050DC] shrink-0" fill="currentColor" />
+        <li key={c.id} className="flex items-center gap-3 p-3 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 transition-colors">
+          <Bookmark className="h-4 w-4 text-[#D4AF37] shrink-0" fill="currentColor" />
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-foreground truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+            <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               {c.title}
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-white/70">
               {c.city ? `${c.city} · ` : ""}
               {new Date(c.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
             </div>
           </div>
           <Link
             to={`/search?tab=ia&aiChat=${c.id}`}
-            className="h-8 w-8 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+            className="h-8 w-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
             title="Ouvrir"
           >
-            <ExternalLink className="h-4 w-4 text-foreground" />
+            <ExternalLink className="h-4 w-4" />
           </Link>
           <button
             type="button"
             onClick={() => handleShare(c.id, c.title)}
-            className="h-8 w-8 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+            className="h-8 w-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
             title="Partager"
           >
-            <Share2 className="h-4 w-4 text-foreground" />
+            <Share2 className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={() => handleDelete(c.id)}
-            className="h-8 w-8 flex items-center justify-center rounded-full bg-muted hover:bg-destructive/10 transition-colors"
+            className="h-8 w-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-red-500/20 transition-colors text-red-200"
             title="Supprimer"
           >
-            <Trash2 className="h-4 w-4 text-destructive" />
+            <Trash2 className="h-4 w-4" />
           </button>
         </li>
       ))}
