@@ -147,7 +147,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
           {loadingList ? (
             <div className="flex items-center justify-center py-8 text-[#194CFF]"><Loader2 className="h-4 w-4 animate-spin" /></div>
           ) : chats.length === 0 ? (
-            <div className="text-xs text-[#194CFF] py-4 text-center opacity-70">Aucune conversation pour l'instant.</div>
+            <div className="text-sm text-[#194CFF] py-4 text-center opacity-70">Aucune conversation pour l'instant.</div>
           ) : (
             <ul className="flex flex-col gap-1">
               {chats.map((c) => (
