@@ -371,6 +371,10 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.longitude = longitude;
         template_props.address = businessDetails.address ?? null;
       }
+      if (wantsDigitalId && (businessDetails.slug || businessDetails.id)) {
+        template_props.showDigitalId = true;
+        template_props.slug = businessDetails.slug || businessDetails.id;
+      }
       if (wantsInstallCta) {
         template_props.showAppInstall = true;
       }
