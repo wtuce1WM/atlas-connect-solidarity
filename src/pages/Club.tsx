@@ -32,7 +32,7 @@ const Club = () => {
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const showDashboard = searchParams.get("view") === "dashboard";
   useSEO({
     title: "Club – Rejoignez la communauté",
@@ -415,18 +415,6 @@ const Club = () => {
 
   const isFormValid = form.first_name.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
 
-  // Connecté + pas de view=dashboard → afficher l'agent IA inline sur /club
-  useEffect(() => {
-    if (!user || showDashboard) return;
-    if (searchParams.get("tab") === "ai") return;
-    const greetName = (nickname || user.email?.split("@")[0] || "").trim();
-    const next = new URLSearchParams(searchParams);
-    next.set("tab", "ai");
-    next.set("welcome", "1");
-    if (greetName) next.set("clubGreeting", greetName);
-    setSearchParams(next, { replace: true });
-  }, [user, showDashboard, nickname, searchParams, setSearchParams]);
-
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#194CFF] text-white">
@@ -440,7 +428,8 @@ const Club = () => {
   }
 
   if (user && !showDashboard) {
-    return <SearchPage />;
+    const greetName = (nickname || user.email?.split("@")[0] || "").trim();
+    return <SearchPage embeddedInClub initialTab="ai" clubGreeting={greetName} />;
   }
 
 
