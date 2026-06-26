@@ -20,6 +20,7 @@ const Index = () => {
       <DynamicLabelSections pageType="home" />
       
       <Footer variant="verified" />
+      <HomeBottomBar />
     </div>
   );
 };
