@@ -559,11 +559,13 @@ const SceneDigitalId: React.FC<{
   const labelO = ease(frame, 0, 18);
   const shareUrl = `https://oneworldmorocco.com/b/${encodeURIComponent(slug)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=480x480&margin=8&data=${encodeURIComponent(shareUrl)}`;
-  // Phases: 0-90 fiche (screenshot), 90-150 QR
+  // Phases: 0-90 fiche dynamique, 90-150 QR
   const phase1O = Math.min(ease(frame, 6, 22), 1 - ease(frame, 85, 95));
   const phase2O = ease(frame, 92, 108);
 
-  const ficheScreenshot = "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/studio-videos/assets/fiche-mockup.png";
+  const heroImage = logoUrl || image;
+  const ratingStr = rating ? rating.toFixed(1) : null;
+  const teaser = (hook || tagline || "").replace(/\s+/g, " ").trim().slice(0, 140);
 
   return (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 40 }}>
@@ -571,7 +573,7 @@ const SceneDigitalId: React.FC<{
         ID numérique
       </div>
 
-      {/* Device frame — réduit pour laisser respirer la vidéo de fond */}
+      {/* Device frame */}
       <div
         style={{
           width: 560,
@@ -583,10 +585,45 @@ const SceneDigitalId: React.FC<{
           boxShadow: "0 24px 80px rgba(0,0,0,0.7)",
         }}
       >
-        {/* Phase 1 — screenshot réel de la fiche /b/slug */}
+        {/* Phase 1 — fiche dynamique reconstruite avec les vraies données */}
         <AbsoluteFill style={{ opacity: phase1O, padding: 14 }}>
-          <div style={{ width: "100%", height: "100%", borderRadius: 36, overflow: "hidden", background: "#0a0807" }}>
-            <Img src={ficheScreenshot} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }} />
+          <div style={{ width: "100%", height: "100%", borderRadius: 36, overflow: "hidden", background: "#0a0807", display: "flex", flexDirection: "column" }}>
+            {/* Hero image */}
+            <div style={{ position: "relative", width: "100%", height: 360, background: "#1a1410" }}>
+              {heroImage ? (
+                <Img src={heroImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#3a2418,#1a1006)" }} />
+              )}
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(0,0,0,0.0) 50%,rgba(10,8,7,0.95) 100%)" }} />
+              {ratingStr && (
+                <div style={{ position: "absolute", top: 16, right: 16, background: "rgba(0,0,0,0.65)", color: "#fff", fontFamily: body, fontWeight: 700, fontSize: 18, padding: "6px 12px", borderRadius: 20, display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ color: COLORS.gold }}>★</span> {ratingStr}{reviewsCount ? ` (${reviewsCount})` : ""}
+                </div>
+              )}
+            </div>
+            {/* Body */}
+            <div style={{ padding: "22px 24px", color: "#fff", flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ fontFamily: display, fontWeight: 800, fontSize: 30, lineHeight: 1.1 }}>{name}</div>
+              {city && (
+                <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 16, letterSpacing: 1.5, textTransform: "uppercase" }}>
+                  📍 {city}
+                </div>
+              )}
+              {teaser && (
+                <div style={{ fontFamily: body, fontStyle: "italic", color: "rgba(255,255,255,0.85)", fontSize: 17, lineHeight: 1.4 }}>
+                  « {teaser} »
+                </div>
+              )}
+              <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ background: COLORS.terracotta, color: "#fff", fontFamily: body, fontWeight: 700, fontSize: 16, padding: "14px 18px", borderRadius: 14, textAlign: "center", letterSpacing: 1 }}>
+                  Voir la fiche complète
+                </div>
+                <div style={{ background: "#1a1410", border: "1px solid rgba(212,175,55,0.4)", color: "#fff", fontFamily: body, fontWeight: 600, fontSize: 14, padding: "12px 18px", borderRadius: 14, textAlign: "center" }}>
+                  oneworldmorocco.com/b/{slug}
+                </div>
+              </div>
+            </div>
           </div>
         </AbsoluteFill>
 
@@ -606,6 +643,7 @@ const SceneDigitalId: React.FC<{
     </AbsoluteFill>
   );
 };
+
 
 const BAD_HOSTS = ["example.com", "example.org", "placeholder", "test.com", "localhost"];
 const sanitizeUrls = (arr: string[]): string[] =>
