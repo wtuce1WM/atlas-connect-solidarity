@@ -428,17 +428,6 @@ const Club = () => {
       {user && (
         <Header 
           compact 
-          rightContent={
-            <div className="flex justify-end items-center pr-2 h-10">
-              <ShareButton 
-                shareUrl={nickname ? `https://oneworldmorocco.com/u/${nickname}` : `https://oneworldmorocco.com/u/`}
-                title="Mon profil One World Morocco"
-                previewImage={hamsaBlueAsset.url}
-                avatarImage={avatarUrl}
-                variant="dark"
-              />
-            </div>
-          } 
         />
       )}
       {!user && <HomeMindtripHeader alwaysWhite={!user} />}
