@@ -21,6 +21,7 @@ export type ShowcaseProps = {
   hook?: string;
   tagline?: string;
   city?: string;
+  neighborhood?: string | null;
   category?: string;
   images?: string[];
   videos?: string[];
@@ -37,6 +38,17 @@ export type ShowcaseProps = {
   showAppInstall?: boolean;
   durationSec?: number;
   useFullHookScene?: boolean;
+};
+
+const splitHookInTwo = (h: string): [string, string] => {
+  const t = (h || "").trim();
+  if (!t) return ["", ""];
+  const m = t.match(/^(.+?[,;:—–-])\s+(.+)$/);
+  if (m && m[1].length > 10 && m[2].length > 10) return [m[1].trim(), m[2].trim()];
+  const words = t.split(/\s+/);
+  if (words.length < 4) return [t, ""];
+  const mid = Math.ceil(words.length / 2);
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
 export const computeShowcaseFrames = (p: ShowcaseProps): number => {
