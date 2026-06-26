@@ -325,7 +325,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (resolved_business_id) {
       const { data: freshBiz } = await supa
         .from("businesses")
-        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count")
+        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,logo_url,images,whatsapp,instagram_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
       if (freshBiz) businessDetails = { ...(businessContext ?? {}), ...freshBiz };
