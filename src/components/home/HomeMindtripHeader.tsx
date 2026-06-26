@@ -5,9 +5,10 @@ import { Menu, X } from "lucide-react";
 
 interface Props {
   alwaysWhite?: boolean;
+  forceHamburger?: boolean;
 }
 
-const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
+const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false }: Props) => {
   const location = useLocation();
   const isWhiteHeaderPage = location.pathname === "/" || location.pathname === "/corporate" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/club";
   const blackHamburger = (location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/devenir-affilie") && !isWhiteHeaderPage;
@@ -147,7 +148,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
 
         </Link>
 
-        <div className="hidden items-center gap-6 lg:flex">
+        <div className={`${forceHamburger ? "hidden" : "hidden lg:flex"} items-center gap-6`}>
           {getNavLinks().map((item) => (
             <Link key={item.to} to={item.to} className={linkClass}>
               {item.label}
@@ -160,7 +161,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
           aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}
-          className={`lg:hidden ${
+          className={`${forceHamburger ? "" : "lg:hidden"} ${
             blackHamburger && !scrolled ? "text-black" : "text-white"
           }`}
         >
@@ -169,7 +170,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false }: Props) => {
       </div>
 
       {menuOpen && (
-        <div className="lg:hidden px-4 pt-3 pb-4">
+        <div className={`${forceHamburger ? "" : "lg:hidden"} px-4 pt-3 pb-4`}>
           <div className="flex flex-col gap-2 rounded-2xl p-3 bg-black/60 backdrop-blur-2xl backdrop-saturate-150 border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.15)]">
             {getMobileLinks()
               .filter((item) => item.to !== location.pathname)

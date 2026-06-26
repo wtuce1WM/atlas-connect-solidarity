@@ -425,7 +425,7 @@ const Club = () => {
 
   return (
     <div className="min-h-screen bg-[#194CFF] text-white">
-      <HomeMindtripHeader alwaysWhite />
+      <HomeMindtripHeader alwaysWhite forceHamburger={!!user} />
 
       {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
       {!user && (
