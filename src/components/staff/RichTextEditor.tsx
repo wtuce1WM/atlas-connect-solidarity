@@ -25,7 +25,7 @@ interface RichTextEditorProps {
   bgClass?: string;
 }
 
-const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextEditorProps) => {
+const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: RichTextEditorProps) => {
   const isInternalChange = useRef(false);
 
   const extensions = useMemo(() => [
