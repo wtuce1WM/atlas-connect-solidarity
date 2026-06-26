@@ -102,11 +102,11 @@ const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ s
   );
 };
 
-const SceneHook: React.FC<{ name: string; hook: string; img?: string }> = ({ name, hook, img }) => {
+const SceneHook: React.FC<{ name: string; location: string; img?: string }> = ({ name, location, img }) => {
   const frame = useCurrentFrame();
   const titleY = interpolate(spring({ frame: frame - 8, fps: 30, config: { damping: 18 } }), [0, 1], [40, 0]);
   const titleO = ease(frame, 8, 28);
-  const hookO = ease(frame, 30, 55);
+  const locO = ease(frame, 30, 55);
   const out = 1 - ease(frame, 100, 120);
   return (
     <AbsoluteFill style={{ opacity: out }}>
@@ -126,20 +126,49 @@ const SceneHook: React.FC<{ name: string; hook: string; img?: string }> = ({ nam
         >
           {name}
         </div>
-        <div
-          style={{
-            opacity: hookO,
-            marginTop: 18,
-            fontFamily: body,
-            color: COLORS.gold,
-            fontSize: 28,
-            lineHeight: 1.3,
-            textShadow: "0 2px 12px rgba(0,0,0,0.7)",
-          }}
-        >
-          {hook}
-        </div>
+        {location && (
+          <div
+            style={{
+              opacity: locO,
+              marginTop: 18,
+              fontFamily: body,
+              color: COLORS.gold,
+              fontSize: 30,
+              lineHeight: 1.3,
+              textShadow: "0 2px 12px rgba(0,0,0,0.7)",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            <span style={{ fontSize: 32 }}>📍</span>
+            {location}
+          </div>
+        )}
       </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+const HookOverlay: React.FC<{ text: string; duration: number }> = ({ text, duration }) => {
+  const frame = useCurrentFrame();
+  const o = Math.min(ease(frame, 6, 26), 1 - ease(frame, duration - 20, duration - 2));
+  if (!text) return null;
+  return (
+    <AbsoluteFill style={{ justifyContent: "flex-end", padding: 70, paddingBottom: 140, opacity: o }}>
+      <div
+        style={{
+          fontFamily: display,
+          fontWeight: 700,
+          color: COLORS.cream,
+          fontSize: 52,
+          lineHeight: 1.18,
+          textAlign: "center",
+          textShadow: "0 4px 24px rgba(0,0,0,0.75)",
+        }}
+      >
+        {text}
+      </div>
     </AbsoluteFill>
   );
 };
