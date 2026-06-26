@@ -28,7 +28,7 @@ const HomeBottomBar = () => {
   return (
     <>
       {/* Fixed full-viewport layer; only the centered column receives clicks */}
-      <div className="fixed inset-0 z-[200] pointer-events-none flex justify-center">
+      <div className="fixed inset-x-0 bottom-0 z-[200] pointer-events-none flex justify-center">
         {/* Centered column = "middle half" of the screen used by the Search overlay */}
         <div className="relative w-full max-w-[640px] lg:max-w-[50vw] pointer-events-auto">
           <PanelSearchBar
