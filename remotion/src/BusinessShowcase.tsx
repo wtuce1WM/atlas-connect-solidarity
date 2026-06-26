@@ -808,6 +808,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} />
         </Sequence>
       )}
+      {digitalIdFrom !== null && slug && (
+        <Sequence from={digitalIdFrom} durationInFrames={DIGITAL_ID_FRAMES}>
+          <VideoBackdrop src={safeVideos[3] ?? safeVideos[0]} image={safeImages[3] ?? safeImages[0]} />
+          <SceneDigitalId name={name} slug={slug} image={safeImages[0] ?? heroMedia} />
+        </Sequence>
+      )}
 
       <Sequence from={ctaFrom} durationInFrames={ctaDuration}>
         <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
