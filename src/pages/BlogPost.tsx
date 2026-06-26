@@ -188,6 +188,7 @@ const BlogPost = () => {
         </div>
       </div>
       <Footer />
+      <HomeBottomBar />
     </div>
   );
 };
