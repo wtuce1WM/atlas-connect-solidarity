@@ -223,7 +223,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
             onKeyDown={onKeyDown}
             rows={2}
             placeholder="Demandez la météo, un lieu, ou reprenez un chat…"
-            className="flex-1 resize-none rounded-lg border border-white bg-white px-3 py-2 text-sm text-[#0a1d6b] placeholder:text-[#194CFF]/50 focus:outline-none focus:ring-2 focus:ring-[#194CFF]"
+            className="flex-1 resize-none rounded-lg border border-white bg-white px-3 py-2 text-base text-[#0a1d6b] placeholder:text-[#194CFF]/50 focus:outline-none focus:ring-2 focus:ring-[#194CFF]"
             disabled={sending}
           />
           <button
