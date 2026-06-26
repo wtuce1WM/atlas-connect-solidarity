@@ -57,7 +57,94 @@ const tools = [
       parameters: { type: "object", properties: {} },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "get_my_taste_profile",
+      description: "Renvoie un résumé des goûts du membre (catégories préférées, villes, quartiers, personas) déduit de ses bookmarks, likes vidéos, recherches.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "suggest_similar_to_my_bookmarks",
+      description: "Suggère des établissements 1WM similaires aux bookmarks du membre, en croisant catégories/villes dominantes.",
+      parameters: {
+        type: "object",
+        properties: {
+          city: { type: "string", description: "Restreindre à une ville (optionnel)" },
+          limit: { type: "number", description: "Nombre max de suggestions (max 10)", default: 6 },
+        },
+      },
+    },
+  },
 ];
+
+// ----- Taste profile helper -----
+async function computeTasteProfile(userId: string, supabase: any) {
+  const [bks, vlikes, vbks, sh, personas] = await Promise.all([
+    supabase.from("bookmarks").select("business_id").eq("user_id", userId).limit(100),
+    supabase.from("video_likes").select("video_id").eq("user_id", userId).limit(100),
+    supabase.from("video_bookmarks").select("video_id").eq("user_id", userId).limit(100),
+    supabase.from("search_history").select("query,city").eq("user_id", userId).order("created_at", { ascending: false }).limit(30),
+    supabase
+      .from("club_member_personas")
+      .select("personas:persona_id(slug,name_fr), member:member_id!inner(user_id)")
+      .eq("member.user_id", userId),
+  ]);
+
+  const bizIds = (bks.data || []).map((b: any) => b.business_id).filter(Boolean);
+  const categories: Record<string, number> = {};
+  const cities: Record<string, number> = {};
+  const neighborhoods: Record<string, number> = {};
+  const bookmarkedNames: string[] = [];
+
+  if (bizIds.length) {
+    const { data: bizs } = await supabase
+      .from("businesses")
+      .select("name,main_category,city,neighborhood,categories")
+      .in("id", bizIds);
+    for (const b of bizs || []) {
+      if (b.name) bookmarkedNames.push(b.name);
+      if (b.main_category) categories[b.main_category] = (categories[b.main_category] || 0) + 2;
+      for (const c of b.categories || []) categories[c] = (categories[c] || 0) + 1;
+      if (b.city) cities[b.city] = (cities[b.city] || 0) + 1;
+      if (b.neighborhood) neighborhoods[b.neighborhood] = (neighborhoods[b.neighborhood] || 0) + 1;
+    }
+  }
+
+  const recentSearches = (sh.data || []).map((s: any) => s.query).filter(Boolean).slice(0, 10);
+  const personaNames = (personas.data || [])
+    .map((p: any) => p.personas?.name_fr)
+    .filter(Boolean);
+
+  const top = (obj: Record<string, number>, n = 5) =>
+    Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n).map(([k]) => k);
+
+  return {
+    bookmarks_count: bizIds.length,
+    video_likes_count: (vlikes.data || []).length,
+    video_bookmarks_count: (vbks.data || []).length,
+    top_categories: top(categories, 6),
+    top_cities: top(cities, 4),
+    top_neighborhoods: top(neighborhoods, 4),
+    recent_searches: recentSearches,
+    personas: personaNames,
+    sample_bookmarked: bookmarkedNames.slice(0, 8),
+    _bizIds: bizIds,
+  };
+}
+
+function tasteSummaryLine(t: any): string {
+  if (!t) return "";
+  const parts: string[] = [];
+  if (t.top_categories?.length) parts.push(`catégories favorites ${t.top_categories.join(", ")}`);
+  if (t.top_cities?.length) parts.push(`villes ${t.top_cities.join(", ")}`);
+  if (t.personas?.length) parts.push(`personas ${t.personas.join(", ")}`);
+  if (t.recent_searches?.length) parts.push(`recherches récentes ${t.recent_searches.slice(0, 5).join(" · ")}`);
+  return parts.length ? `Profil de goûts du membre — ${parts.join(" ; ")}.` : "";
+}
 
 async function runTool(name: string, args: any, ctx: { userId: string; supabase: any }) {
   try {
@@ -103,6 +190,30 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         .limit(20);
       return { results: data || [] };
     }
+    if (name === "get_my_taste_profile") {
+      const t = await computeTasteProfile(ctx.userId, ctx.supabase);
+      const { _bizIds, ...pub } = t;
+      return pub;
+    }
+    if (name === "suggest_similar_to_my_bookmarks") {
+      const t = await computeTasteProfile(ctx.userId, ctx.supabase);
+      const limit = Math.min(Number(args.limit) || 6, 10);
+      if (!t.top_categories.length) return { results: [], note: "Aucun bookmark exploitable." };
+      let q = ctx.supabase
+        .from("businesses")
+        .select("id,name,slug,city,neighborhood,main_category,google_rating,google_review_count,priority_score")
+        .eq("is_active", true)
+        .or(t.top_categories.map((c: string) => `main_category.eq.${c}`).join(","))
+        .order("priority_score", { ascending: false, nullsFirst: false })
+        .limit(limit * 3);
+      if (args.city) q = q.ilike("city", `%${args.city}%`);
+      else if (t.top_cities.length) q = q.in("city", t.top_cities);
+      const { data, error } = await q;
+      if (error) return { error: error.message };
+      const excluded = new Set(t._bizIds);
+      const results = (data || []).filter((b: any) => !excluded.has(b.id)).slice(0, limit);
+      return { results, based_on: { categories: t.top_categories, cities: t.top_cities } };
+    }
   } catch (e) {
     return { error: String(e) };
   }
@@ -141,12 +252,23 @@ serve(async (req) => {
       ? `Profil utilisateur: ${member.first_name || member.nickname || "Membre"}${member.city ? ` · ${member.city}` : ""}${member.country ? ` (${member.country})` : ""}.`
       : "";
 
+    // Compute taste profile once per call (cheap: 5 small queries)
+    let tasteLine = "";
+    try {
+      const taste = await computeTasteProfile(user.id, admin);
+      tasteLine = tasteSummaryLine(taste);
+    } catch (e) {
+      console.error("taste profile error", e);
+    }
+
     const system = `Tu es l'assistant personnel du Club One World Morocco. Tu aides l'utilisateur connecté à retrouver ses adresses sauvegardées, ses conversations précédentes, et tu réponds à ses questions sur le Maroc (météo, lieux, recommandations).
 ${profileLine}
+${tasteLine}
 Règles:
 - Réponds en français par défaut, sauf si l'utilisateur écrit dans une autre langue.
 - Reste concis et chaleureux. Markdown léger autorisé (gras, listes courtes).
-- Utilise les outils quand pertinent: get_weather pour la météo, search_businesses pour trouver un lieu précis, list_my_bookmarks et list_my_saved_chats pour le contexte personnel.
+- Tu connais déjà les goûts du membre (ci-dessus) : utilise-les naturellement pour personnaliser tes suggestions, sans les énumérer mécaniquement.
+- Utilise les outils quand pertinent: get_weather (météo), search_businesses (lieu précis), list_my_bookmarks, list_my_saved_chats, get_my_taste_profile (détail des goûts), suggest_similar_to_my_bookmarks (recommandations alignées sur les bookmarks).
 - Quand tu cites un établissement, mets son nom exact entre **doubles astérisques**.`;
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
