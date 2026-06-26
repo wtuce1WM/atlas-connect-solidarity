@@ -148,7 +148,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false }: Pro
 
         </Link>
 
-        <div className="hidden items-center gap-6 lg:flex">
+        <div className={`${forceHamburger ? "hidden" : "hidden lg:flex"} items-center gap-6`}>
           {getNavLinks().map((item) => (
             <Link key={item.to} to={item.to} className={linkClass}>
               {item.label}
