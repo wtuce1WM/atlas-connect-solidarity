@@ -37,6 +37,8 @@ interface BusinessMapProps {
   neighborhoodCenter?: { lat: number; lng: number } | null;
   /** Callback when user clicks "Voir la fiche" in the InfoWindow */
   onBusinessClick?: (business: MapBusiness) => void;
+  /** Override default map styles (e.g. beige theme matching POI map) */
+  mapStyles?: google.maps.MapTypeStyle[];
 }
 
 declare global {
