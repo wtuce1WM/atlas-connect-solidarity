@@ -90,17 +90,28 @@ const ClubAiAssistant = ({ userId }: Props) => {
     setChats((prev) => prev.map((c) => (c.id === activeChat.id ? { ...c, is_bookmarked: next } : c)));
   };
 
-  const send = async () => {
-    const text = input.trim();
+  const send = async (overrideText?: string) => {
+    const text = (overrideText ?? input).trim();
     if (!text || sending) return;
     setSending(true);
     setInput("");
     const newMsgs: Msg[] = [...messages, { role: "user", content: text }];
     setMessages(newMsgs);
 
+    // Lightweight client context for precision (active city + local time + coords if available)
+    const clientContext: any = {
+      localTime: new Date().toLocaleString("fr-FR", { timeZone: "Africa/Casablanca", dateStyle: "full", timeStyle: "short" }),
+    };
+    try {
+      const manual = localStorage.getItem("geo_manual_address");
+      if (manual) clientContext.activeCity = manual;
+      const coordsRaw = localStorage.getItem("geo_manual_coords");
+      if (coordsRaw) { const c = JSON.parse(coordsRaw); if (c?.lat && c?.lng) clientContext.coords = c; }
+    } catch {/* noop */}
+
     try {
       const { data, error } = await supabase.functions.invoke("club-ai-chat", {
-        body: { chatId: activeId, messages: newMsgs },
+        body: { chatId: activeId, messages: newMsgs, clientContext },
       });
       if (error) throw error;
       const answer = (data as any)?.answer || "";
@@ -125,13 +136,32 @@ const ClubAiAssistant = ({ userId }: Props) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
   };
 
+  const suggestions = useMemo(() => [
+    "Mes adresses sauvegardées à Marrakech",
+    "Un dîner romantique ce soir près de moi",
+    "Météo à Essaouira ce weekend",
+    "Suggère-moi un spa similaire à mes favoris",
+  ], []);
+
   const emptyHint = useMemo(() => (
     <div className="text-center py-10 px-4 text-[#194CFF]">
       <MessageSquare className="h-8 w-8 mx-auto mb-3 opacity-70" />
       <div className="text-sm font-semibold mb-1">Bonjour 👋</div>
-      <div className="text-base opacity-80">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou reprenez une conversation précédente.</div>
+      <div className="text-base opacity-80 mb-4">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou explorez le Maroc.</div>
+      <div className="flex flex-wrap gap-2 justify-center max-w-md mx-auto">
+        {suggestions.map((s) => (
+          <button
+            key={s}
+            onClick={() => send(s)}
+            disabled={sending}
+            className="text-xs px-3 py-1.5 rounded-full bg-white text-[#194CFF] hover:bg-[#194CFF] hover:text-white transition-colors border border-[#194CFF]/20"
+          >
+            {s}
+          </button>
+        ))}
+      </div>
     </div>
-  ), []);
+  ), [suggestions, sending]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-4 min-h-[520px]">
@@ -227,7 +257,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
             disabled={sending}
           />
           <button
-            onClick={send}
+            onClick={() => send()}
             disabled={sending || !input.trim()}
             className="h-10 w-10 shrink-0 flex items-center justify-center rounded-lg bg-[#194CFF] text-white hover:bg-[#1240d6] disabled:opacity-50 disabled:cursor-not-allowed"
             title="Envoyer"
