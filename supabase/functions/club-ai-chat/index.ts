@@ -32,14 +32,19 @@ const tools = [
     function: {
       name: "search_businesses",
       description:
-        "Recherche des établissements RÉELS dans la base One World Morocco. À utiliser systématiquement avant de citer un lieu. Combine nom, catégorie, ville, quartier. Tri par pertinence (priority_score).",
+        "Recherche des établissements RÉELS dans la base One World Morocco. À utiliser systématiquement avant de citer un lieu. Combine nom, catégorie, ville, quartier, ET badges (très important : les badges qualifient finement l'expérience — ex: #Authentique, Rooftop, Famille, Cuisine marocaine, Gastronomique, Piscine, Spa, Beach Club, Dîner-Spectacle, Vue sur mer, Démarche éco-responsable, etc.). Si l'utilisateur exprime une intention (« authentique », « pas cher », « romantique », « pour enfants »…), pense à passer le badge correspondant.",
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "Mot-clé ou nom partiel (optionnel si category fourni)" },
+          query: { type: "string", description: "Mot-clé ou nom partiel (optionnel si category/badges fourni)" },
           category: { type: "string", description: "Catégorie principale: restaurant, hotel, spa, activité, bar, café, etc. (optionnel)" },
           city: { type: "string", description: "Ville (ex: Marrakech, Essaouira, Casablanca)" },
           neighborhood: { type: "string", description: "Quartier (ex: Gueliz, Médina, Hivernage)" },
+          badges: {
+            type: "array",
+            items: { type: "string" },
+            description: "Badges (name_fr, avec ou sans #) à matcher. Ex: ['#Authentique'], ['Rooftop','Vue sur mer'], ['Famille']. Plusieurs badges = filtrage AND.",
+          },
           limit: { type: "number", description: "Max 10", default: 6 },
         },
       },
