@@ -191,17 +191,6 @@ const GuestManagement = () => {
                         ) : "—"}
                       </TableCell>
                       <TableCell className="text-sm">{[member.city, member.country].filter(Boolean).join(", ") || "—"}</TableCell>
-                      <TableCell className="text-sm">
-                        {member.personas && member.personas.length > 0 ? (
-                          <div className="flex flex-wrap gap-1 max-w-[200px]">
-                            {member.personas.map((p) => (
-                              <span key={p.id} className="inline-block px-2 py-0.5 rounded-full bg-gold/15 text-gold text-[11px] font-medium border border-gold/30">
-                                {p.name_fr}
-                              </span>
-                            ))}
-                          </div>
-                        ) : "—"}
-                      </TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{formatDate(member.created_at)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                         {member.last_sign_in_at ? formatDate(member.last_sign_in_at) : "—"}
