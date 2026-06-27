@@ -108,6 +108,11 @@ const ClubAiAssistant = ({ userId }: Props) => {
   }, []);
   const isMobile = isMobileHook || isTabletOrBelow;
 
+  // Map slide-panel state (opened when the user clicks a mini-map card in a message).
+  const [openMap, setOpenMap] = useState<MapPayload | null>(null);
+
+
+
 
   const loadChats = async () => {
     setLoadingList(true);
