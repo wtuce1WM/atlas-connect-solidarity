@@ -76,6 +76,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
     },
     onError: (msg) => toast({ title: "Micro", description: msg, variant: "destructive" }),
   });
+  const isMobile = useIsMobile();
+
 
   const loadChats = async () => {
     setLoadingList(true);
