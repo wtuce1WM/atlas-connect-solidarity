@@ -447,7 +447,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full" orientation="vertical">
         <div className="flex flex-col gap-6">
-          <div className={`flex flex-col items-center justify-center px-1 gap-2 transition-[width,max-width] duration-300 ease-out mx-auto ${panelOpen ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)]" : "w-full"}`}>
+          <div className={`flex flex-col items-center justify-center px-1 gap-2 transition-[width,max-width,margin] duration-300 ease-out ${panelOpen ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:mr-auto lg:ml-0" : "w-full"}`}>
             <button
               type="button"
               onClick={() => avatarInputRef.current?.click()}
