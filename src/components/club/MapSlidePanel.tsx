@@ -147,8 +147,10 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile }: MapSlideP
             <BusinessMap
               businesses={mapBusinesses as any}
               height="100%"
+              isLoading={false}
               forceOverview={!cityCenter}
               cityCenter={cityCenter}
+              neighborhoodCenter={null}
               onBusinessClick={(b: any) => {
                 const slug = businesses.find((x) => x.id === b.id)?.slug;
                 if (slug) window.open(`/b/${slug}`, "_blank", "noopener,noreferrer");
