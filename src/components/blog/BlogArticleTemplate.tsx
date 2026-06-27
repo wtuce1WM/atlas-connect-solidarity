@@ -714,7 +714,7 @@ const BlogArticleTemplate = ({
 
       <Footer />
       </div>
-      <HomeBottomBar />
+      {!openBusinessId && !activeVideoId && <HomeBottomBar />}
       <ClubLoginPopup />
 
       {openBusinessId && (
