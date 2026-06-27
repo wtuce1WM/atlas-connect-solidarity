@@ -243,6 +243,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   };
 
   const allSuggestions = useMemo(() => [
+    "Montre-moi sur une carte les hôtels avec piscine à Marrakech",
     "Mes adresses sauvegardées à Marrakech",
     "Un dîner romantique ce soir près de moi",
     "Météo à Essaouira ce weekend",
