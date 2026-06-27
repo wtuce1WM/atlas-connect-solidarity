@@ -1,8 +1,15 @@
 /// <reference types="@types/google.maps" />
 import { useEffect, useMemo, useState } from "react";
-import { X, Share2, Bookmark, BookmarkCheck } from "lucide-react";
+import { X, Share2, Bookmark, BookmarkCheck, Navigation } from "lucide-react";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { haversineKm } from "@/lib/haversine";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export interface MapPanelBusiness {
   id: string;
