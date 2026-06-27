@@ -828,6 +828,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
               <BookOnlineSlidePanel
                 businessId={openBusinessId}
                 onClose={() => setOpenBusinessId(null)}
+                showSearchBar
               />
             </Suspense>
           </div>
