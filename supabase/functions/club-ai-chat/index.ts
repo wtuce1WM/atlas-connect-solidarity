@@ -274,35 +274,54 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       // Échapper les caractères qui cassent la syntaxe PostgREST .or()
       const clean = (s: string) => String(s).replace(/[,()"]/g, " ").trim();
 
-      // Résolution des badges -> business_ids (AND si plusieurs badges)
-      let badgeBizIds: string[] | null = null;
+      // Résolution badges + services -> business_ids (UNION : badge OU service)
+      let poolBizIds: string[] | null = null;
       const badgesIn: string[] = Array.isArray(args.badges) ? args.badges.filter(Boolean) : [];
-      if (badgesIn.length) {
-        const lists: string[][] = [];
+      const servicesIn: string[] = Array.isArray(args.services) ? args.services.filter(Boolean) : [];
+
+      if (badgesIn.length || servicesIn.length) {
+        const unionSet = new Set<string>();
+
+        // Badges
         for (const raw of badgesIn) {
           const term = clean(String(raw).replace(/^#/, ""));
           if (!term) continue;
           const { data: bs } = await ctx.supabase
-            .from("badges")
-            .select("id")
-            .ilike("name_fr", `%${term}%`)
-            .limit(10);
+            .from("badges").select("id").ilike("name_fr", `%${term}%`).limit(10);
           const badgeIds = (bs || []).map((b: any) => b.id);
-          if (!badgeIds.length) { lists.push([]); continue; }
+          if (!badgeIds.length) continue;
           const { data: bb } = await ctx.supabase
-            .from("business_badges")
-            .select("business_id")
-            .in("badge_id", badgeIds);
-          lists.push((bb || []).map((r: any) => r.business_id).filter(Boolean));
+            .from("business_badges").select("business_id").in("badge_id", badgeIds);
+          (bb || []).forEach((r: any) => { if (r.business_id) unionSet.add(r.business_id); });
         }
-        // intersection
-        badgeBizIds = lists.reduce<string[] | null>((acc, cur) => {
-          if (acc === null) return cur;
-          const set = new Set(cur);
-          return acc.filter((id) => set.has(id));
-        }, null);
-        if (!badgeBizIds || badgeBizIds.length === 0) {
-          return { results: [], note: `Aucun établissement ne porte le(s) badge(s) ${badgesIn.join(", ")} avec ces critères. Propose une alternative honnête au lieu d'inventer.` };
+
+        // Services : on résout les noms via la table services (name_fr/en/ar)
+        // puis on filtre les businesses dont le tableau `services` contient l'un de ces noms.
+        for (const raw of servicesIn) {
+          const term = clean(String(raw).replace(/^#/, ""));
+          if (!term) continue;
+          const { data: svcRows } = await ctx.supabase
+            .from("services")
+            .select("name_fr,name_en,name_ar")
+            .or(`name_fr.ilike.%${term}%,name_en.ilike.%${term}%,name_ar.ilike.%${term}%`)
+            .limit(30);
+          const names = new Set<string>();
+          (svcRows || []).forEach((s: any) => {
+            ["name_fr", "name_en", "name_ar"].forEach((k) => { if (s[k]) names.add(s[k]); });
+          });
+          // Fallback : si la table services ne renvoie rien, tente quand même le terme brut
+          if (!names.size) names.add(term);
+
+          for (const nm of names) {
+            const { data: hits } = await ctx.supabase
+              .from("businesses").select("id").contains("services", [nm]).limit(500);
+            (hits || []).forEach((b: any) => { if (b.id) unionSet.add(b.id); });
+          }
+        }
+
+        poolBizIds = Array.from(unionSet);
+        if (poolBizIds.length === 0) {
+          return { results: [], note: `Aucun établissement ne porte le(s) badge(s)/service(s) ${[...badgesIn, ...servicesIn].join(", ")}. Propose une alternative honnête au lieu d'inventer.` };
         }
       }
 
@@ -312,7 +331,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         .eq("is_active", true)
         .order("priority_score", { ascending: false, nullsFirst: false })
         .limit(limit);
-      if (badgeBizIds) q = q.in("id", badgeBizIds.slice(0, 500));
+      if (poolBizIds) q = q.in("id", poolBizIds.slice(0, 1000));
       if (args.city) q = q.ilike("city", `%${clean(args.city)}%`);
       if (args.neighborhood) q = q.ilike("neighborhood", `%${clean(args.neighborhood)}%`);
       // Combiner query + category dans UN SEUL .or() — sinon PostgREST télescope les filtres
