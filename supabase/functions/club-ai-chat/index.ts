@@ -800,7 +800,7 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
         console.error("final synthesis error", e);
       }
       if (!finalAnswer) {
-        finalAnswer = "Désolé, je n'ai pas pu formuler de réponse cette fois-ci. Peux-tu reformuler ta demande (ville, type de cuisine, budget) ?";
+        finalAnswer = "Désolé, je n'ai pas pu formuler de réponse cette fois-ci. Peux-tu reformuler ta demande (ville, type de cuisine, quartier) ?";
       }
     }
 
