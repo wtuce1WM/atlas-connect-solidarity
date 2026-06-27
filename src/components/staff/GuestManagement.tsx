@@ -35,6 +35,7 @@ interface ClubMemberWithSignIn {
   created_at: string;
   user_id: string | null;
   last_sign_in_at: string | null;
+  last_active_at: string | null;
   personas: PersonaTag[] | null;
 }
 
@@ -170,7 +171,7 @@ const GuestManagement = () => {
                     <TableHead><div className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />Localisation</div></TableHead>
                     
                     <TableHead>Inscrit le</TableHead>
-                    <TableHead><div className="flex items-center gap-1"><LogIn className="h-3.5 w-3.5" />Dernière connexion</div></TableHead>
+                    <TableHead><div className="flex items-center gap-1"><LogIn className="h-3.5 w-3.5" />Dernière activité</div></TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -193,7 +194,7 @@ const GuestManagement = () => {
                       <TableCell className="text-sm">{[member.city, member.country].filter(Boolean).join(", ") || "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{formatDate(member.created_at)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                        {member.last_sign_in_at ? formatDate(member.last_sign_in_at) : "—"}
+                        {member.last_active_at ? formatDate(member.last_active_at) : (member.last_sign_in_at ? formatDate(member.last_sign_in_at) : "—")}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">

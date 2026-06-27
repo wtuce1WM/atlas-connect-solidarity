@@ -2397,6 +2397,7 @@ export type Database = {
           first_name: string | null
           id: string
           instagram: string | null
+          last_active_at: string | null
           last_name: string | null
           linkedin: string | null
           nickname: string
@@ -2423,6 +2424,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           instagram?: string | null
+          last_active_at?: string | null
           last_name?: string | null
           linkedin?: string | null
           nickname: string
@@ -2449,6 +2451,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           instagram?: string | null
+          last_active_at?: string | null
           last_name?: string | null
           linkedin?: string | null
           nickname?: string
@@ -6169,6 +6172,7 @@ export type Database = {
           email: string
           first_name: string
           id: string
+          last_active_at: string
           last_name: string
           last_sign_in_at: string
           nickname: string
@@ -6644,6 +6648,7 @@ export type Database = {
           first_name: string | null
           id: string
           instagram: string | null
+          last_active_at: string | null
           last_name: string | null
           linkedin: string | null
           nickname: string
@@ -6666,6 +6671,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      touch_club_member_activity: { Args: never; Returns: undefined }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
