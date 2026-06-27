@@ -1,6 +1,34 @@
+/// <reference types="@types/google.maps" />
 import { useEffect, useMemo, useState } from "react";
 import { X, Share2, Bookmark, BookmarkCheck } from "lucide-react";
 import BusinessMap from "@/components/BusinessMap";
+
+/* Beige map theme — identical to /search POI map (#ECD6B8) */
+const BEIGE_MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", elementType: "labels.icon", stylers: [{ visibility: "on" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ visibility: "on" }, { color: "#e8f0e3" }] },
+  { featureType: "poi.park", elementType: "labels.text", stylers: [{ visibility: "on" }, { color: "#7a8a6e" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#8a7a63" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#ECD6B8" }] },
+  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
+  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#E5CDAB" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#DCC4A1" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
+  { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#D4B98F" }] },
+  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
+  { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#F6E8D0" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#b5b5b5" }] },
+  { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#d9e8f0" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#a8c0cc" }] },
+  { featureType: "administrative", elementType: "geometry", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#1c1510" }] },
+];
 
 export interface MapPanelBusiness {
   id: string;
@@ -160,6 +188,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
             neighborhoodCenter={null}
             forceOverview={!cityCenter && !userPos}
             center={userPos || undefined}
+            mapStyles={BEIGE_MAP_STYLES}
           />
         </div>
       </div>
