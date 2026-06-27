@@ -669,6 +669,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
                     </Link>
+                    <BookmarkTripLinker userId={user.id} businessId={bk.business_id} />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
