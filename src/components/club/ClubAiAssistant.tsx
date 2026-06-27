@@ -238,7 +238,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
             disabled={sending}
           />
           <button
-            onClick={send}
+            onClick={() => send()}
             disabled={sending || !input.trim()}
             className="h-10 w-10 shrink-0 flex items-center justify-center rounded-lg bg-[#194CFF] text-white hover:bg-[#1240d6] disabled:opacity-50 disabled:cursor-not-allowed"
             title="Envoyer"
