@@ -94,3 +94,6 @@ verify_jwt = false
 
 [functions.static-map]
 verify_jwt = false
+
+[functions.club-ai-chat]
+verify_jwt = false
