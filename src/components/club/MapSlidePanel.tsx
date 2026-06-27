@@ -62,6 +62,14 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile }: MapSlideP
 
   const mapBusinesses = useMemo(() => businesses
     .filter((b) => b.latitude != null && b.longitude != null)
+    .filter((b) => {
+      const engs: string[] = b.engagements || [];
+      const isWebOnly = engs.some((e: string) => {
+        const n = e.toLowerCase().trim();
+        return n === "web only" || n === "logistique:web only" || n.endsWith(":web only");
+      });
+      return !isWebOnly;
+    })
     .map((b) => ({
       id: b.id,
       name: b.name,
