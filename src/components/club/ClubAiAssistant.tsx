@@ -240,6 +240,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     arrival_date: string;
     departure_date: string;
     businesses: { id: string; name: string; city: string | null; slug: string }[];
+    is_ongoing?: boolean;
   };
   const [trips, setTrips] = useState<TripCard[]>([]);
   useEffect(() => {
@@ -252,7 +253,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         .eq("user_id", userId)
         .gte("departure_date", today)
         .order("arrival_date", { ascending: true })
-        .limit(4);
+        .limit(6);
       const ids = (t || []).map((x: any) => x.id);
       let linkMap: Record<string, any[]> = {};
       if (ids.length) {
@@ -264,7 +265,16 @@ const ClubAiAssistant = ({ userId }: Props) => {
           if ((l as any).businesses) (linkMap[(l as any).trip_id] ||= []).push((l as any).businesses);
         }
       }
-      setTrips((t || []).map((x: any) => ({ ...x, businesses: linkMap[x.id] || [] })));
+      const cards: TripCard[] = (t || []).map((x: any) => ({
+        ...x,
+        businesses: linkMap[x.id] || [],
+        is_ongoing: x.arrival_date <= today && x.departure_date >= today,
+      }));
+      cards.sort((a, b) => {
+        if (!!a.is_ongoing !== !!b.is_ongoing) return a.is_ongoing ? -1 : 1;
+        return a.arrival_date.localeCompare(b.arrival_date);
+      });
+      setTrips(cards.slice(0, 4));
     })();
   }, [userId]);
 
@@ -307,7 +317,13 @@ const ClubAiAssistant = ({ userId }: Props) => {
               >
                 <div className="text-xs font-semibold flex items-center gap-1.5">
                   <span>✈️</span>
-                  <span className="truncate">{t.title}</span>
+                  <span className="truncate flex-1">{t.title}</span>
+                  {t.is_ongoing && (
+                    <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase tracking-wide">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      En cours
+                    </span>
+                  )}
                 </div>
                 <div className="text-[11px] opacity-80 mt-0.5">
                   {fmtTripDates(t.arrival_date, t.departure_date)}

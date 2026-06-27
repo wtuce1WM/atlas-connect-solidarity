@@ -148,6 +148,23 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "link_business_to_trip",
+      description:
+        "Lie un établissement (par slug) à l'un des voyages du membre (par trip_id ou par titre de voyage). Demande la confirmation du membre avant d'appeler cet outil si la cible n'est pas évidente. Retourne le voyage mis à jour.",
+      parameters: {
+        type: "object",
+        properties: {
+          business_slug: { type: "string", description: "Slug exact de l'établissement (issu de search_businesses)." },
+          trip_id: { type: "string", description: "ID du voyage cible (préféré si connu)." },
+          trip_title: { type: "string", description: "Titre exact ou approchant du voyage (fallback si trip_id absent)." },
+        },
+        required: ["business_slug"],
+      },
+    },
+  },
 ];
 
 
@@ -446,13 +463,64 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
           });
         }
       }
-      const results = (trips || []).map((t: any) => ({
-        ...t,
-        businesses: linksByTrip[t.id] || [],
-        is_ongoing: t.arrival_date <= today && t.departure_date >= today,
-      }));
+      const results = (trips || [])
+        .map((t: any) => ({
+          ...t,
+          businesses: linksByTrip[t.id] || [],
+          is_ongoing: t.arrival_date <= today && t.departure_date >= today,
+        }))
+        .sort((a: any, b: any) => {
+          if (a.is_ongoing !== b.is_ongoing) return a.is_ongoing ? -1 : 1;
+          return String(a.arrival_date).localeCompare(String(b.arrival_date));
+        });
       if (!results.length) return { results: [], note: "Aucun voyage à venir enregistré." };
       return { results };
+    }
+    if (name === "link_business_to_trip") {
+      const slug = String(args.business_slug || "").trim();
+      if (!slug) return { error: "business_slug requis" };
+      const { data: biz } = await ctx.supabase
+        .from("businesses")
+        .select("id,name,slug,city")
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (!biz) return { error: `Établissement '${slug}' introuvable.` };
+
+      let tripId: string | null = args.trip_id || null;
+      let trip: any = null;
+      if (tripId) {
+        const { data } = await ctx.supabase
+          .from("club_trips").select("id,title,arrival_date,departure_date")
+          .eq("id", tripId).eq("user_id", ctx.userId).maybeSingle();
+        trip = data;
+      } else if (args.trip_title) {
+        const { data } = await ctx.supabase
+          .from("club_trips").select("id,title,arrival_date,departure_date")
+          .eq("user_id", ctx.userId)
+          .ilike("title", `%${String(args.trip_title).replace(/[%_]/g, "")}%`)
+          .order("arrival_date", { ascending: true })
+          .limit(1).maybeSingle();
+        trip = data;
+        tripId = data?.id || null;
+      }
+      if (!trip || !tripId) return { error: "Voyage cible introuvable. Demande au membre de préciser le titre exact du voyage." };
+
+      const { data: existing } = await ctx.supabase
+        .from("club_trip_businesses")
+        .select("id").eq("trip_id", tripId).eq("business_id", biz.id).maybeSingle();
+      if (existing) return { ok: true, already_linked: true, trip, business: biz };
+
+      const { data: maxRow } = await ctx.supabase
+        .from("club_trip_businesses").select("sort_order")
+        .eq("trip_id", tripId).order("sort_order", { ascending: false }).limit(1).maybeSingle();
+      const nextOrder = (maxRow?.sort_order ?? -1) + 1;
+
+      const { error: insErr } = await ctx.supabase
+        .from("club_trip_businesses")
+        .insert({ trip_id: tripId, business_id: biz.id, sort_order: nextOrder });
+      if (insErr) return { error: insErr.message };
+      return { ok: true, linked: true, trip, business: biz };
     }
     if (name === "web_search") {
       const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
@@ -569,7 +637,9 @@ RÈGLES DE PRÉCISION (critiques) :
 9. **Recherche web (web_search)** : appelle-la UNIQUEMENT pour des infos factuelles temps réel absentes de 1WM (pharmacie de garde, numéros d'urgence officiels, événements/festivals publics non référencés, horaires transports, démarches admin, actualités). JAMAIS pour recommander des restaurants, hôtels, spas, etc. — ceux-là doivent venir de search_businesses ; et pour l'agenda, passe d'abord par search_events. Maximum 1 appel web_search par message. Cite TOUJOURS les sources sous forme [titre](url) à la fin de ta réponse, et préviens si l'info peut avoir changé.
 10. **Voyages du membre (get_my_trips)** : dès que le membre évoque « mon voyage », « mon séjour », « prépare », « planning », un week-end / des dates précises, ou qu'il faut s'appuyer sur ses adresses sauvegardées pour un séjour, appelle get_my_trips. Croise ensuite ville + dates + établissements liés pour proposer un planning ou des compléments via search_businesses / search_events. Ne réinvente jamais ses dates, ses villes ou ses adresses liées.
 
-Outils disponibles : get_weather, search_businesses, get_business_details, search_events, get_my_trips, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search.`;
+Outils disponibles : get_weather, search_businesses, get_business_details, search_events, get_my_trips, link_business_to_trip, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search.
+
+11. **Lier une adresse à un voyage (link_business_to_trip)** : si le membre demande explicitement « ajoute X à mon voyage Y », appelle d'abord get_my_trips pour récupérer trip_id et search_businesses pour obtenir le slug exact, puis link_business_to_trip. Confirme ensuite poliment ce qui a été ajouté. Si plusieurs voyages possibles, demande au membre lequel cibler avant d'agir.`;
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
