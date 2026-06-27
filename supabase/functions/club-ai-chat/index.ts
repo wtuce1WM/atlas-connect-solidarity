@@ -265,7 +265,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       return data;
     }
     if (name === "search_businesses") {
-      const limit = Math.min(Number(args.limit) || 6, 10);
+      const limit = Math.min(Math.max(Number(args.limit) || 12, 1), 30);
       // Échapper les caractères qui cassent la syntaxe PostgREST .or()
       const clean = (s: string) => String(s).replace(/[,()"]/g, " ").trim();
 
