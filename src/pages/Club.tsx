@@ -771,9 +771,22 @@ const Club = () => {
         )}
       </main>
       <Footer variant="verified" />
-      <HomeBottomBar />
+      <ClubBottomBarSlot />
     </div>
   );
+};
+
+// Hides HomeBottomBar (4 CTAs) when the ClubAiAssistant opens a business slide-panel
+// (which renders its own PanelSearchBar with 6 CTAs at the bottom).
+const ClubBottomBarSlot = () => {
+  const [panelOpen, setPanelOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e: Event) => setPanelOpen(!!(e as CustomEvent).detail?.open);
+    window.addEventListener("club:panel", handler as EventListener);
+    return () => window.removeEventListener("club:panel", handler as EventListener);
+  }, []);
+  if (panelOpen) return null;
+  return <HomeBottomBar />;
 };
 
 export default Club;
