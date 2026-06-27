@@ -160,6 +160,7 @@ const BusinessMap = ({
   cityCenter = null,
   neighborhoodCenter = null,
   onBusinessClick,
+  mapStyles,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
