@@ -95,7 +95,25 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "web_search",
+      description: "Recherche web temps réel via Firecrawl + Google. À utiliser UNIQUEMENT pour des infos factuelles non présentes dans la base 1WM : pharmacies de garde, numéros d'urgence officiels, horaires d'événements publics, transports, démarches administratives, actualités. NE PAS utiliser pour recommander des établissements (utilise search_businesses). Retourne titres, snippets et URLs sources que tu DOIS citer.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Requête de recherche en langage naturel (ex: 'pharmacie de garde Marrakech aujourd'hui')" },
+          limit: { type: "number", description: "Nombre de résultats (3-8, défaut 5)", default: 5 },
+        },
+        required: ["query"],
+      },
+    },
+  },
 ];
+
+
+
 
 // ----- Taste profile helper -----
 async function computeTasteProfile(userId: string, supabase: any) {
@@ -272,6 +290,50 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const results = (data || []).filter((b: any) => !excluded.has(b.id)).slice(0, limit);
       return { results, based_on: { categories: t.top_categories, cities: t.top_cities } };
     }
+    if (name === "web_search") {
+      const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
+      if (!FIRECRAWL_API_KEY) return { error: "FIRECRAWL_API_KEY non configurée" };
+      const limit = Math.min(Math.max(Number(args.limit) || 5, 3), 8);
+      const query = String(args.query || "").trim();
+      if (!query) return { error: "Requête vide" };
+      try {
+        const r = await fetch("https://api.firecrawl.dev/v2/search", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${FIRECRAWL_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ query, limit, lang: "fr", country: "ma" }),
+        });
+        if (!r.ok) {
+          const txt = await r.text();
+          console.error("firecrawl search error", r.status, txt);
+          return { error: `Firecrawl ${r.status}`, results: [] };
+        }
+        const data = await r.json();
+        // v2 retourne { success, data: { web: [...], news: [...], images: [...] } } OU { data: [...] }
+        const rawList: any[] = Array.isArray(data?.data?.web)
+          ? data.data.web
+          : Array.isArray(data?.data)
+          ? data.data
+          : Array.isArray(data?.web)
+          ? data.web
+          : [];
+        const results = rawList.slice(0, limit).map((it: any) => ({
+          title: it.title || it.name || "",
+          url: it.url || it.link || "",
+          snippet: (it.description || it.snippet || it.markdown || "").toString().slice(0, 400),
+        }));
+        return {
+          query,
+          results,
+          instruction: "Synthétise une réponse courte basée sur ces résultats et cite TOUJOURS les sources sous forme [titre](url). Si les résultats sont contradictoires ou incertains, dis-le.",
+        };
+      } catch (e) {
+        console.error("web_search exception", e);
+        return { error: String(e), results: [] };
+      }
+    }
   } catch (e) {
     return { error: String(e) };
   }
@@ -339,8 +401,9 @@ RÈGLES DE PRÉCISION (critiques) :
 5. Quand tu cites un établissement, format obligatoire : **Nom exact** suivi du lien markdown [voir la fiche](https://oneworldmorocco.com/b/SLUG). Utilise toujours le slug renvoyé par les outils.
 6. Reste concis, chaleureux, en français (sauf si l'utilisateur écrit dans une autre langue). Markdown léger (gras, listes courtes). Évite les listes interminables : 3 à 5 suggestions maximum, vraiment ciblées.
 7. Utilise naturellement les goûts du membre pour personnaliser, sans les réciter.
+8. **Recherche web (web_search)** : appelle-la UNIQUEMENT pour des infos factuelles temps réel absentes de 1WM (pharmacie de garde, numéros d'urgence officiels, événements/festivals publics, horaires transports, démarches admin, actualités). JAMAIS pour recommander des restaurants, hôtels, spas, etc. — ceux-là doivent venir de search_businesses. Maximum 1 appel web_search par message. Cite TOUJOURS les sources sous forme [titre](url) à la fin de ta réponse, et préviens si l'info peut avoir changé.
 
-Outils disponibles : get_weather, search_businesses, get_business_details, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks.`;
+Outils disponibles : get_weather, search_businesses, get_business_details, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search.`;
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
