@@ -61,6 +61,8 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
   const geo = useGeolocation();
   const [browserPos, setBrowserPos] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [proximityKm, setProximityKm] = useState<number | null>(null);
 
   // Priorité : coordonnées définies dans le popup de géolocalisation, sinon fallback navigator
   const userPos = (geo.isEnabled && geo.coords) ? geo.coords : browserPos;
