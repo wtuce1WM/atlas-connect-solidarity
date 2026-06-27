@@ -75,7 +75,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile }: MapSlideP
           </button>
         </header>
 
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 [&>div]:h-full">
           {mapBusinesses.length === 0 ? (
             <div className="h-full flex items-center justify-center text-sm text-[#C04F17]/70 p-6 text-center">
               Aucune coordonnée disponible pour ces établissements.
