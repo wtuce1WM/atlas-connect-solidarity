@@ -419,17 +419,17 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 onClick={() => send()}
                 disabled={sending || !input.trim()}
                 title="Envoyer"
-                className="relative w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/40 transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="relative w-12 h-12 rounded-full flex items-center justify-center border border-white/40 transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15))",
-                  boxShadow: "0 8px 24px rgba(25,76,255,0.30), inset 0 1px 0 rgba(255,255,255,0.6)",
+                  background: "linear-gradient(135deg, #C04F17, #A03E0F)",
+                  boxShadow: "0 8px 24px rgba(192,79,23,0.35), inset 0 1px 0 rgba(255,255,255,0.4)",
                 }}
               >
                 <span
                   className="absolute inset-1 rounded-full pointer-events-none"
-                  style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.45) 0%, transparent 45%)" }}
+                  style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.35) 0%, transparent 45%)" }}
                 />
-                {sending ? <Loader2 className="relative h-5 w-5 animate-spin" style={{ color: "#194CFF" }} /> : <Send className="relative h-5 w-5" style={{ color: "#194CFF" }} />}
+                {sending ? <Loader2 className="relative h-5 w-5 animate-spin text-white" /> : <Send className="relative h-5 w-5 text-white" />}
               </button>
             </div>
           </div>
