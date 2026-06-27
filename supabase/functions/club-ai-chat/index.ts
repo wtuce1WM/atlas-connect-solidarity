@@ -45,7 +45,7 @@ const tools = [
             items: { type: "string" },
             description: "Badges (name_fr, avec ou sans #) à matcher. Ex: ['#Authentique'], ['Rooftop','Vue sur mer'], ['Famille']. Plusieurs badges = filtrage AND.",
           },
-          limit: { type: "number", description: "Max 10", default: 6 },
+          limit: { type: "number", description: "Nombre de résultats à retourner (max 30, défaut 12). Augmente jusqu'à 30 si le membre demande une carte ou une vue d'ensemble.", default: 12 },
         },
       },
     },
