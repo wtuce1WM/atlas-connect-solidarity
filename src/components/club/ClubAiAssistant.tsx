@@ -369,7 +369,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
           )}
         </div>
 
-        <div className="p-3 border-t border-white/40 flex items-end gap-2">
+        <div className="p-3 border-t border-white/40 flex flex-col gap-2">
           <textarea
             ref={inputRef}
             value={input}
@@ -377,25 +377,27 @@ const ClubAiAssistant = ({ userId }: Props) => {
             onKeyDown={onKeyDown}
             rows={2}
             placeholder="Demandez la météo, un lieu, ou reprenez un chat…"
-            className="flex-1 resize-none rounded-lg border border-white bg-white px-3 py-2 text-base text-[#0a1d6b] placeholder:text-[#194CFF]/50 focus:outline-none focus:ring-2 focus:ring-[#194CFF]"
+            className="w-full resize-none rounded-lg border border-white bg-white px-3 py-2 text-base text-[#0a1d6b] placeholder:text-[#194CFF]/50 focus:outline-none focus:ring-2 focus:ring-[#194CFF]"
             disabled={sending}
           />
-          <button
-            onClick={() => voice.toggleRecording()}
-            disabled={sending}
-            className={`h-10 w-10 shrink-0 flex items-center justify-center rounded-lg ${voice.status === "recording" ? "bg-red-500 text-white animate-pulse" : "bg-white text-[#194CFF] border border-[#194CFF]/30 hover:bg-[#BED1FF]"} disabled:opacity-50`}
-            title="Parler"
-          >
-            <Mic className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => send()}
-            disabled={sending || !input.trim()}
-            className="h-10 w-10 shrink-0 flex items-center justify-center rounded-lg bg-[#194CFF] text-white hover:bg-[#1240d6] disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Envoyer"
-          >
-            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </button>
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => voice.toggleRecording()}
+              disabled={sending}
+              className={`h-10 w-10 shrink-0 flex items-center justify-center rounded-lg ${voice.status === "recording" ? "bg-red-500 text-white animate-pulse" : "bg-white text-[#194CFF] border border-[#194CFF]/30 hover:bg-[#BED1FF]"} disabled:opacity-50`}
+              title="Parler"
+            >
+              <Mic className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => send()}
+              disabled={sending || !input.trim()}
+              className="h-10 w-10 shrink-0 flex items-center justify-center rounded-lg bg-[#194CFF] text-white hover:bg-[#1240d6] disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Envoyer"
+            >
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
 
         <VoiceSearchOverlay
