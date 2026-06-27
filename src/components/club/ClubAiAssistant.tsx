@@ -153,6 +153,25 @@ const ClubAiAssistant = ({ userId }: Props) => {
     return true;
   };
 
+  const handleOpenBusinessName = async (name: string) => {
+    const n = name.trim();
+    if (!n) return;
+    // Try cached map payloads (name -> slug) first
+    const slug = nameToSlugRef.current.get(n.toLowerCase());
+    if (slug) {
+      const id = await resolveBusinessId(slug);
+      if (id) { setOpenBusinessId(id); return; }
+    }
+    // Fallback: look up by exact name in DB
+    const { data } = await supabase.from("businesses").select("id").ilike("name", n).limit(1).maybeSingle();
+    const id = (data as any)?.id;
+    if (id) setOpenBusinessId(id);
+    else toast({ title: "Fiche introuvable", description: `Aucune fiche trouvée pour "${n}".`, variant: "destructive" });
+  };
+
+  // Index of business name -> slug, fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
+  const nameToSlugRef = useRef<Map<string, string>>(new Map());
+
 
 
 
