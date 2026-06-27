@@ -290,6 +290,50 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const results = (data || []).filter((b: any) => !excluded.has(b.id)).slice(0, limit);
       return { results, based_on: { categories: t.top_categories, cities: t.top_cities } };
     }
+    if (name === "web_search") {
+      const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
+      if (!FIRECRAWL_API_KEY) return { error: "FIRECRAWL_API_KEY non configurée" };
+      const limit = Math.min(Math.max(Number(args.limit) || 5, 3), 8);
+      const query = String(args.query || "").trim();
+      if (!query) return { error: "Requête vide" };
+      try {
+        const r = await fetch("https://api.firecrawl.dev/v2/search", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${FIRECRAWL_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ query, limit, lang: "fr", country: "ma" }),
+        });
+        if (!r.ok) {
+          const txt = await r.text();
+          console.error("firecrawl search error", r.status, txt);
+          return { error: `Firecrawl ${r.status}`, results: [] };
+        }
+        const data = await r.json();
+        // v2 retourne { success, data: { web: [...], news: [...], images: [...] } } OU { data: [...] }
+        const rawList: any[] = Array.isArray(data?.data?.web)
+          ? data.data.web
+          : Array.isArray(data?.data)
+          ? data.data
+          : Array.isArray(data?.web)
+          ? data.web
+          : [];
+        const results = rawList.slice(0, limit).map((it: any) => ({
+          title: it.title || it.name || "",
+          url: it.url || it.link || "",
+          snippet: (it.description || it.snippet || it.markdown || "").toString().slice(0, 400),
+        }));
+        return {
+          query,
+          results,
+          instruction: "Synthétise une réponse courte basée sur ces résultats et cite TOUJOURS les sources sous forme [titre](url). Si les résultats sont contradictoires ou incertains, dis-le.",
+        };
+      } catch (e) {
+        console.error("web_search exception", e);
+        return { error: String(e), results: [] };
+      }
+    }
   } catch (e) {
     return { error: String(e) };
   }
