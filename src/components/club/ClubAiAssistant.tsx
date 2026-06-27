@@ -761,6 +761,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
           } catch { /* user cancelled */ }
         }}
       />
+
+      {openBusinessId && (
+        <Suspense fallback={null}>
+          <BookOnlineSlidePanel
+            businessId={openBusinessId}
+            onClose={() => setOpenBusinessId(null)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };
