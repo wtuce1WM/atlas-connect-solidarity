@@ -95,7 +95,22 @@ const tools = [
       },
     },
   },
-];
+  {
+    type: "function",
+    function: {
+      name: "web_search",
+      description: "Recherche web temps réel via Firecrawl + Google. À utiliser UNIQUEMENT pour des infos factuelles non présentes dans la base 1WM : pharmacies de garde, numéros d'urgence officiels, horaires d'événements publics, transports, démarches administratives, actualités. NE PAS utiliser pour recommander des établissements (utilise search_businesses). Retourne titres, snippets et URLs sources que tu DOIS citer.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Requête de recherche en langage naturel (ex: 'pharmacie de garde Marrakech aujourd'hui')" },
+          limit: { type: "number", description: "Nombre de résultats (3-8, défaut 5)", default: 5 },
+        },
+        required: ["query"],
+      },
+    },
+  },
+
 
 // ----- Taste profile helper -----
 async function computeTasteProfile(userId: string, supabase: any) {
