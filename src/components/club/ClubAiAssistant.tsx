@@ -811,12 +811,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
       />
 
       {openBusinessId && (
-        <Suspense fallback={null}>
-          <BookOnlineSlidePanel
-            businessId={openBusinessId}
-            onClose={() => setOpenBusinessId(null)}
-          />
-        </Suspense>
+        <div
+          className="fixed top-0 left-0 right-0 bottom-0 z-[60] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:left-1/2 lg:bottom-auto lg:h-screen lg:border-l lg:border-border"
+        >
+          <SlidePanelHeader onClose={() => setOpenBusinessId(null)} alwaysDark />
+          <div className="flex-1 min-h-0 overflow-visible">
+            <Suspense fallback={null}>
+              <BookOnlineSlidePanel
+                businessId={openBusinessId}
+                onClose={() => setOpenBusinessId(null)}
+              />
+            </Suspense>
+          </div>
+        </div>
       )}
     </div>
   );
