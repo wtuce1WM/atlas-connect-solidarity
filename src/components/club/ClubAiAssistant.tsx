@@ -7,6 +7,8 @@ import { toast } from "@/hooks/use-toast";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 
 type Msg = { role: "user" | "assistant"; content: string };
 
