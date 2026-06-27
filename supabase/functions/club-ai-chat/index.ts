@@ -595,7 +595,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       if (!slugs.length) return { error: "Aucun slug fourni", count: 0 };
       const { data, error } = await ctx.supabase
         .from("businesses")
-        .select("id,name,slug,city,neighborhood,address,main_category,latitude,longitude")
+        .select("id,name,slug,city,neighborhood,address,phone,whatsapp,main_category,categories,latitude,longitude,wtuce_status,logo_url,images,hook_fr,google_rating,google_review_count,tripadvisor_rating,tripadvisor_review_count")
         .in("slug", slugs)
         .eq("is_active", true);
       if (error) return { error: error.message, count: 0 };
