@@ -45,7 +45,7 @@ const tools = [
             items: { type: "string" },
             description: "Badges (name_fr, avec ou sans #) à matcher. Ex: ['#Authentique'], ['Rooftop','Vue sur mer'], ['Famille']. Plusieurs badges = filtrage AND.",
           },
-          limit: { type: "number", description: "Max 10", default: 6 },
+          limit: { type: "number", description: "Nombre de résultats à retourner (max 30, défaut 12). Augmente jusqu'à 30 si le membre demande une carte ou une vue d'ensemble.", default: 12 },
         },
       },
     },
@@ -178,7 +178,7 @@ const tools = [
           business_slugs: {
             type: "array",
             items: { type: "string" },
-            description: "Liste des slugs (2 à 20) des établissements à afficher sur la carte.",
+            description: "Liste des slugs (2 à 30) des établissements à afficher sur la carte. Passe tous les résultats utiles de search_businesses (jusqu'à 30).",
           },
           title: { type: "string", description: "Titre court de la carte (ex: 'Hôtels avec piscine à Marrakech'). Optionnel." },
         },
@@ -265,7 +265,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       return data;
     }
     if (name === "search_businesses") {
-      const limit = Math.min(Number(args.limit) || 6, 10);
+      const limit = Math.min(Math.max(Number(args.limit) || 12, 1), 30);
       // Échapper les caractères qui cassent la syntaxe PostgREST .or()
       const clean = (s: string) => String(s).replace(/[,()"]/g, " ").trim();
 
@@ -303,7 +303,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
 
       let q = ctx.supabase
         .from("businesses")
-        .select("id,name,slug,city,neighborhood,main_category,categories,description,phone,google_rating,google_review_count,priority_score")
+        .select("id,name,slug,city,neighborhood,main_category,categories,description,phone,google_rating,google_review_count,priority_score", { count: "exact" })
         .eq("is_active", true)
         .order("priority_score", { ascending: false, nullsFirst: false })
         .limit(limit);
@@ -331,16 +331,17 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         }
       }
       if (orParts.length) q = q.or(orParts.join(","));
-      const { data, error } = await q;
+      const { data, error, count } = await q;
       if (error) {
         console.error("search_businesses error", error, "args=", JSON.stringify(args));
         return { results: [], error: error.message, hint: "Réessaie avec des critères plus simples (une seule ville, un mot-clé court)." };
       }
       const results = (data || []).map((b: any) => ({ ...b, url: `https://oneworldmorocco.com/b/${b.slug}` }));
+      const total = typeof count === "number" ? count : results.length;
       if (!results.length) {
-        return { results: [], note: `Aucun établissement trouvé (query="${args.query || ""}", category="${args.category || ""}", city="${args.city || ""}"). Dis-le franchement à l'utilisateur et propose-lui une alternative (autre quartier, élargir la catégorie) au lieu d'inventer.` };
+        return { results: [], total_count: 0, note: `Aucun établissement trouvé (query="${args.query || ""}", category="${args.category || ""}", city="${args.city || ""}"). Dis-le franchement à l'utilisateur et propose-lui une alternative (autre quartier, élargir la catégorie) au lieu d'inventer.` };
       }
-      return { results };
+      return { results, returned_count: results.length, total_count: total, has_more: total > results.length };
     }
     if (name === "get_business_details") {
       const { data, error } = await ctx.supabase
@@ -678,7 +679,7 @@ RÈGLES DE PRÉCISION (critiques) :
 3. Pour donner des détails (horaires, prix, adresse, téléphone), appelle get_business_details avec le slug exact obtenu via search_businesses.
 4. Si une recherche ne renvoie rien, dis-le franchement et propose une reformulation — ne complète pas avec des lieux génériques.
 5. Quand tu cites un établissement, format obligatoire : **Nom exact** suivi du lien markdown [voir la fiche](https://oneworldmorocco.com/b/SLUG). Utilise toujours le slug renvoyé par les outils.
-6. Reste concis, chaleureux, en français (sauf si l'utilisateur écrit dans une autre langue). Markdown léger (gras, listes courtes). Évite les listes interminables : 3 à 5 suggestions maximum, vraiment ciblées.
+6. Reste concis, chaleureux, en français (sauf si l'utilisateur écrit dans une autre langue). Markdown léger (gras, listes courtes). Dans une réponse textuelle, mets en avant 3 à 5 suggestions vraiment ciblées — mais quand le membre demande une carte ou une vue d'ensemble, appelle search_businesses avec limit=30 pour alimenter la carte. Indique TOUJOURS le nombre total de résultats disponibles (`total_count`) et, s'il en reste beaucoup d'autres, propose explicitement d'élargir ou d'affiner la recherche (« Il y a 47 hôtels avec piscine à Marrakech au total — veux-tu que j'élargisse la sélection ou que je filtre par quartier / budget ? »).
 7. Utilise naturellement les goûts du membre pour personnaliser, sans les réciter.
 8. **Événements / agenda** : pour toute demande type « que faire ce soir / ce week-end », « concerts », « festival », « expo », « soirée », « agenda culturel » → appelle search_events (filtre #Agenda + ville + dates). N'invente jamais un événement, et précise toujours la date/horaire renvoyés par l'outil. Si rien ne sort, dis-le franchement.
 9. **Recherche web (web_search)** : appelle-la UNIQUEMENT pour des infos factuelles temps réel absentes de 1WM (pharmacie de garde, numéros d'urgence officiels, événements/festivals publics non référencés, horaires transports, démarches admin, actualités). JAMAIS pour recommander des restaurants, hôtels, spas, etc. — ceux-là doivent venir de search_businesses ; et pour l'agenda, passe d'abord par search_events. Maximum 1 appel web_search par message. Cite TOUJOURS les sources sous forme [titre](url) à la fin de ta réponse, et préviens si l'info peut avoir changé.
@@ -687,7 +688,7 @@ RÈGLES DE PRÉCISION (critiques) :
 Outils disponibles : get_weather, search_businesses, get_business_details, search_events, get_my_trips, link_business_to_trip, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search, show_on_map.
 
 11. **Lier une adresse à un voyage (link_business_to_trip)** : si le membre demande explicitement « ajoute X à mon voyage Y », appelle d'abord get_my_trips pour récupérer trip_id et search_businesses pour obtenir le slug exact, puis link_business_to_trip. Confirme ensuite poliment ce qui a été ajouté. Si plusieurs voyages possibles, demande au membre lequel cibler avant d'agir.
-12. **Affichage sur carte (show_on_map)** : dès que le membre demande explicitement de visualiser des adresses sur une carte (« montre-moi sur une carte », « situe les », « localise », « où sont-ils »), ou quand visualiser géographiquement aide vraiment la décision, appelle show_on_map avec les slugs exacts (issus de search_businesses, list_my_bookmarks ou get_my_trips). La carte et le panneau s'affichent automatiquement côté UI ; tu n'as donc pas à répéter la liste ni à coller une URL Google Maps. Ne l'appelle pas pour 1 seul lieu.`;
+12. **Affichage sur carte (show_on_map)** : dès que le membre demande explicitement de visualiser des adresses sur une carte (« montre-moi sur une carte », « situe les », « localise », « où sont-ils »), ou quand visualiser géographiquement aide vraiment la décision, appelle d'abord search_businesses avec `limit: 30` pour récupérer un maximum de candidats pertinents, puis appelle show_on_map avec TOUS les slugs retournés (jusqu'à 30). La carte et le panneau s'affichent automatiquement côté UI ; tu n'as donc pas à répéter la liste ni à coller une URL Google Maps. Dans ta réponse, indique le nombre total de résultats (`total_count`) — par exemple « Voici 18 hôtels avec piscine à Marrakech affichés sur la carte (sur 47 au total) » — et propose d'élargir si pertinent. Ne l'appelle pas pour 1 seul lieu.`;
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
