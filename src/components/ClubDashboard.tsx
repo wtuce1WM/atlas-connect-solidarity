@@ -62,6 +62,13 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e: Event) => setPanelOpen(!!(e as CustomEvent).detail?.open);
+    window.addEventListener("club:panel", handler);
+    return () => window.removeEventListener("club:panel", handler);
+  }, []);
+
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -440,7 +447,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full" orientation="vertical">
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col items-center justify-center px-1 gap-2">
+          <div className={`flex flex-col items-center justify-center px-1 gap-2 transition-[width,max-width,margin] duration-300 ease-out ${panelOpen ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:mr-auto lg:ml-0" : "w-full"}`}>
             <button
               type="button"
               onClick={() => avatarInputRef.current?.click()}
