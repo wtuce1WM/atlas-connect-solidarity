@@ -114,6 +114,24 @@ const tools = [
         required: ["query"],
       },
     },
+  {
+    type: "function",
+    function: {
+      name: "search_events",
+      description:
+        "Recherche des ÉVÉNEMENTS / AGENDA culturel & festif référencés dans 1WM (concerts, festivals, expositions, soirées, marchés, etc.). Par défaut filtré sur le badge #Agenda et les événements à venir. Utilise systématiquement cet outil quand le membre demande 'que faire ce week-end', 'quoi voir ce soir', 'événements', 'agenda', 'concerts', 'festivals'.",
+      parameters: {
+        type: "object",
+        properties: {
+          city: { type: "string", description: "Ville (ex: Marrakech, Essaouira)" },
+          query: { type: "string", description: "Mot-clé sur le nom/description (optionnel)" },
+          from_date: { type: "string", description: "Date début ISO (YYYY-MM-DD). Défaut : aujourd'hui." },
+          to_date: { type: "string", description: "Date fin ISO (YYYY-MM-DD). Défaut : +30 jours." },
+          include_all_badges: { type: "boolean", description: "Si true, n'applique pas le filtre #Agenda. Défaut false.", default: false },
+          limit: { type: "number", description: "Max 10", default: 8 },
+        },
+      },
+    },
   },
 ];
 
