@@ -141,6 +141,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
   // Map slide-panel state (opened when the user clicks a mini-map card in a message).
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  // Notify the parent Club page so it can hide its 4-CTA HomeBottomBar
+  // while the slide-panel (with its own 6-CTA PanelSearchBar) is open.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("club:panel", { detail: { open: !!openBusinessId } }));
+    return () => {
+      window.dispatchEvent(new CustomEvent("club:panel", { detail: { open: false } }));
+    };
+  }, [openBusinessId]);
   // Index of business name -> slug, fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
   const nameToSlugRef = useRef<Map<string, string>>(new Map());
 
