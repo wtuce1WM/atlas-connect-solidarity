@@ -694,6 +694,7 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
     // Tool-calling loop (max 6 iterations)
     let finalAnswer = "";
     let modelToUse = MODEL;
+    const mapPayloads: Array<{ title?: string; businesses: any[] }> = [];
     for (let i = 0; i < 6; i++) {
       const resp = await fetch(GATEWAY_URL, {
         method: "POST",
@@ -721,6 +722,9 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
           let args: any = {};
           try { args = JSON.parse(tc.function?.arguments || "{}"); } catch {/* noop */}
           const result = await runTool(tc.function?.name, args, ctx);
+          if (tc.function?.name === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses) && (result as any).businesses.length) {
+            mapPayloads.push({ title: args.title, businesses: (result as any).businesses });
+          }
           convo.push({ role: "tool", tool_call_id: tc.id, name: tc.function?.name, content: JSON.stringify(result) });
         }
         continue;
@@ -729,6 +733,15 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
       finalAnswer = (choice.content || "").trim();
       break;
     }
+
+    // Append map markers (hidden HTML comment) for the client to render slide-panel + mini-card.
+    if (mapPayloads.length && finalAnswer) {
+      for (const p of mapPayloads) {
+        const safe = JSON.stringify(p).replace(/-->/g, "--&gt;");
+        finalAnswer += `\n\n<!--SHOW_ON_MAP:${safe}-->`;
+      }
+    }
+
 
     // Safety net: if the model exited tool loop without producing prose, force a final synthesis call without tools.
     if (!finalAnswer) {
