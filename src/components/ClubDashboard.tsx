@@ -751,9 +751,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="travel" className="mt-6">
-          <div className="rounded-lg border border-dashed border-white/30 bg-white/10 p-10 text-center text-sm text-white/90">
-            {language === "en" ? "Your travel plans will appear here soon." : language === "ar" ? "ستظهر خطط سفرك هنا قريباً." : "Vos projets de voyage apparaîtront ici prochainement."}
-          </div>
+          <ClubTrips userId={user.id} />
         </TabsContent>
 
         <TabsContent value="inspiration" className="mt-6">
