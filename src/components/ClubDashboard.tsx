@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User as UserIcon, MapPin, Plane, Lightbulb, Bell, Home, Bot } from "lucide-react";
 import AiChatsList from "@/components/club/AiChatsList";
+import ClubTrips from "@/components/club/ClubTrips";
 import ClubAiAssistant from "@/components/club/ClubAiAssistant";
 import { MessageCircle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
