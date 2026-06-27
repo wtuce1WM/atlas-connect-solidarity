@@ -331,16 +331,17 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         }
       }
       if (orParts.length) q = q.or(orParts.join(","));
-      const { data, error } = await q;
+      const { data, error, count } = await q;
       if (error) {
         console.error("search_businesses error", error, "args=", JSON.stringify(args));
         return { results: [], error: error.message, hint: "Réessaie avec des critères plus simples (une seule ville, un mot-clé court)." };
       }
       const results = (data || []).map((b: any) => ({ ...b, url: `https://oneworldmorocco.com/b/${b.slug}` }));
+      const total = typeof count === "number" ? count : results.length;
       if (!results.length) {
-        return { results: [], note: `Aucun établissement trouvé (query="${args.query || ""}", category="${args.category || ""}", city="${args.city || ""}"). Dis-le franchement à l'utilisateur et propose-lui une alternative (autre quartier, élargir la catégorie) au lieu d'inventer.` };
+        return { results: [], total_count: 0, note: `Aucun établissement trouvé (query="${args.query || ""}", category="${args.category || ""}", city="${args.city || ""}"). Dis-le franchement à l'utilisateur et propose-lui une alternative (autre quartier, élargir la catégorie) au lieu d'inventer.` };
       }
-      return { results };
+      return { results, returned_count: results.length, total_count: total, has_more: total > results.length };
     }
     if (name === "get_business_details") {
       const { data, error } = await ctx.supabase
