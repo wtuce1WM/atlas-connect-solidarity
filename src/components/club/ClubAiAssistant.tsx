@@ -36,6 +36,15 @@ function extractBusinessSlugFromHref(href: string | undefined): string | null {
   return m ? decodeURIComponent(m[1]) : null;
 }
 
+// Remove "[voir la fiche](url)" / "[fiche](url)" markdown links and bare /b/SLUG URLs
+// the model may still emit despite the system prompt.
+function stripFicheLinks(text: string): string {
+  return text
+    .replace(/\s*\[(?:voir\s+la\s+fiche|fiche|voir\s+la\s+fiche\s+complète)\]\([^)]*\)/gi, "")
+    .replace(/\s*\(https?:\/\/[^\s)]*\/(?:b|fiche)\/[^\s)]+\)/gi, "")
+    .replace(/\s+([,.;:!?])/g, "$1");
+}
+
 
 type Msg = { role: "user" | "assistant"; content: string };
 
