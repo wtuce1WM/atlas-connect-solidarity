@@ -114,6 +114,7 @@ const tools = [
         required: ["query"],
       },
     },
+  },
   {
     type: "function",
     function: {
