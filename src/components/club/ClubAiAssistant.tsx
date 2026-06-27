@@ -276,7 +276,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       if (error) throw error;
       const answer = (data as any)?.answer || "";
       const newId = (data as any)?.chatId as string | null;
-      const fullMessages = [...newMsgs, { role: "assistant", content: answer }];
+      const fullMessages: Msg[] = [...newMsgs, { role: "assistant", content: answer }];
       messagesRef.current = fullMessages;
       setMessages(fullMessages);
       if (newId) {
@@ -481,7 +481,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       {/* Threads */}
       <aside className="bg-[#ECD6B8] rounded-xl p-3 flex flex-col gap-2 lg:max-h-[640px]">
         <button
-          onClick={newChat}
+          onClick={() => newChat()}
           className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg bg-[#C04F17] text-white text-sm font-semibold hover:bg-[#1240d6] transition-colors"
         >
           <Plus className="h-4 w-4" /> Nouvelle conversation
