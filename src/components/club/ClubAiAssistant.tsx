@@ -234,7 +234,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   }, [allSuggestions, suggestionPage]);
 
   const emptyHint = useMemo(() => (
-    <div className="text-center py-10 px-4 text-[#194CFF]">
+    <div className="text-center py-10 px-4 text-[#C04F17]">
       <MessageSquare className="h-8 w-8 mx-auto mb-3 opacity-70" />
       <div className="text-sm font-semibold mb-1">Bonjour 👋</div>
       <div className="text-base opacity-80 mb-4">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou explorez le Maroc.</div>
@@ -244,7 +244,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
             key={s}
             onClick={() => send(s)}
             disabled={sending}
-            className="text-xs px-3 py-1.5 rounded-full bg-white text-[#194CFF] hover:bg-[#194CFF] hover:text-white transition-colors border border-[#194CFF]/20"
+            className="text-xs px-3 py-1.5 rounded-full bg-white text-[#C04F17] hover:bg-[#C04F17] hover:text-white transition-colors border border-[#C04F17]/20"
           >
             {s}
           </button>
@@ -253,7 +253,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       <button
         onClick={() => setSuggestionPage((p) => p + 1)}
         disabled={sending}
-        className="mt-4 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[#194CFF] text-white hover:bg-[#194CFF]/90 transition-colors disabled:opacity-50"
+        className="mt-4 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[#C04F17] text-white hover:bg-[#C04F17]/90 transition-colors disabled:opacity-50"
       >
         <RefreshCw className="h-3 w-3" />
         Autres suggestions
@@ -266,28 +266,28 @@ const ClubAiAssistant = ({ userId }: Props) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-4 min-h-[520px]">
       {/* Threads */}
-      <aside className="bg-[#BED1FF] rounded-xl p-3 flex flex-col gap-2 md:max-h-[640px]">
+      <aside className="bg-[#ECD6B8] rounded-xl p-3 flex flex-col gap-2 md:max-h-[640px]">
         <button
           onClick={newChat}
-          className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg bg-[#194CFF] text-white text-sm font-semibold hover:bg-[#1240d6] transition-colors"
+          className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg bg-[#C04F17] text-white text-sm font-semibold hover:bg-[#1240d6] transition-colors"
         >
           <Plus className="h-4 w-4" /> Nouvelle conversation
         </button>
         <div className="flex-1 overflow-y-auto">
           {loadingList ? (
-            <div className="flex items-center justify-center py-8 text-[#194CFF]"><Loader2 className="h-4 w-4 animate-spin" /></div>
+            <div className="flex items-center justify-center py-8 text-[#C04F17]"><Loader2 className="h-4 w-4 animate-spin" /></div>
           ) : chats.length === 0 ? (
-            <div className="text-sm text-[#194CFF] py-4 text-center opacity-70">Aucune conversation pour l'instant.</div>
+            <div className="text-sm text-[#C04F17] py-4 text-center opacity-70">Aucune conversation pour l'instant.</div>
           ) : (
             <ul className="flex flex-col gap-1">
               {chats.map((c) => (
                 <li key={c.id} className={`group flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer transition-colors ${activeId === c.id ? "bg-white" : "hover:bg-white/60"}`}>
                   <button onClick={() => openChat(c.id)} className="flex-1 text-left min-w-0">
-                    <div className="text-xs font-semibold text-[#194CFF] truncate flex items-center gap-1">
+                    <div className="text-xs font-semibold text-[#C04F17] truncate flex items-center gap-1">
                       {c.is_bookmarked && <Bookmark className="h-3 w-3" fill="currentColor" />}
                       {c.title}
                     </div>
-                    <div className="text-[10px] text-[#194CFF]/70">
+                    <div className="text-[10px] text-[#C04F17]/70">
                       {new Date(c.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
                     </div>
                   </button>
@@ -307,9 +307,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
       </aside>
 
       {/* Chat */}
-      <section className="relative bg-[#BED1FF] rounded-xl flex flex-col md:max-h-[640px] min-h-[520px]">
+      <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col md:max-h-[640px] min-h-[520px]">
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
-          <div className="text-sm font-semibold text-[#194CFF] truncate flex-1">
+          <div className="text-sm font-semibold text-[#C04F17] truncate flex-1">
             {activeChat?.title || "Nouvelle conversation"}
           </div>
           <div className="flex items-center gap-1 shrink-0">
@@ -319,7 +319,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 setVoiceMode(next);
                 if (!next) { try { tts.stop(); } catch {/* noop */} }
               }}
-              className={`h-8 px-2.5 flex items-center gap-1.5 rounded-full text-[11px] font-semibold transition-colors ${voiceMode ? "bg-[#194CFF] text-white" : "bg-white/70 text-[#194CFF] hover:bg-white"}`}
+              className={`h-8 px-2.5 flex items-center gap-1.5 rounded-full text-[11px] font-semibold transition-colors ${voiceMode ? "bg-[#C04F17] text-white" : "bg-white/70 text-[#C04F17] hover:bg-white"}`}
               title="Mode vocal : lecture automatique + réouverture du micro"
             >
               <Headphones className="h-3.5 w-3.5" /> Mode vocal
@@ -327,7 +327,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
             {activeChat && (
               <button
                 onClick={toggleBookmark}
-                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-white/60 text-[#194CFF]"
+                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-white/60 text-[#C04F17]"
                 title={activeChat.is_bookmarked ? "Retirer le bookmark" : "Bookmarker"}
               >
                 {activeChat.is_bookmarked ? <BookmarkCheck className="h-4 w-4" fill="currentColor" /> : <Bookmark className="h-4 w-4" />}
@@ -341,17 +341,17 @@ const ClubAiAssistant = ({ userId }: Props) => {
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               {m.role === "user" ? (
-                <div className="max-w-[80%] px-3 py-2 rounded-2xl bg-[#194CFF] text-white text-sm whitespace-pre-wrap">
+                <div className="max-w-[80%] px-3 py-2 rounded-2xl bg-[#C04F17] text-white text-sm whitespace-pre-wrap">
                   {m.content}
                 </div>
               ) : (
                 <div className="max-w-[88%] group">
-                  <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#194CFF] prose-a:text-[#194CFF] prose-a:underline">
+                  <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
                     <ReactMarkdown components={{ a: ({ href, children }) => <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a> }}>{linkifyPhones(m.content)}</ReactMarkdown>
                   </div>
                   <button
                     onClick={() => handleSpeakMessage(m.content)}
-                    className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#194CFF] hover:text-[#0a1d6b] opacity-70 hover:opacity-100 transition-opacity"
+                    className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#C04F17] hover:text-[#0a1d6b] opacity-70 hover:opacity-100 transition-opacity"
                     title={ttsBusy && lastSpokenRef.current === m.content ? "Arrêter la lecture" : "Écouter"}
                   >
                     {ttsBusy && lastSpokenRef.current === m.content
@@ -363,7 +363,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
             </div>
           ))}
           {sending && (
-            <div className="flex items-center gap-2 text-[#194CFF] text-xs">
+            <div className="flex items-center gap-2 text-[#C04F17] text-xs">
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> L'assistant réfléchit…
             </div>
           )}
@@ -377,7 +377,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
             onKeyDown={onKeyDown}
             rows={2}
             placeholder="Demandez la météo, un lieu, ou reprenez un chat…"
-            className="w-full resize-none rounded-lg border border-white bg-white px-3 py-2 text-base text-[#0a1d6b] placeholder:text-[#194CFF]/50 focus:outline-none focus:ring-2 focus:ring-[#194CFF]"
+            className="w-full resize-none rounded-lg border border-white bg-white px-3 py-2 text-base text-[#0a1d6b] placeholder:text-[#C04F17]/50 focus:outline-none focus:ring-2 focus:ring-[#C04F17]"
             disabled={sending}
           />
           <div className="flex items-center justify-center gap-6 pt-1">
@@ -407,7 +407,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                   className="absolute inset-1 rounded-full pointer-events-none"
                   style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.45) 0%, transparent 45%)" }}
                 />
-                <Mic className="relative h-5 w-5" style={{ color: "#194CFF" }} />
+                <Mic className="relative h-5 w-5" style={{ color: "#C04F17" }} />
               </button>
             </div>
 

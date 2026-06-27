@@ -162,18 +162,18 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="flex bg-[#BED1FF] rounded-lg p-1 mb-2">
+      <div className="flex bg-[#ECD6B8] rounded-lg p-1 mb-2">
         <button
           type="button"
           onClick={() => setMode("login")}
-          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "login" ? "bg-[#194CFF] text-white shadow-sm" : "text-[#194CFF] hover:text-[#194CFF]/80"}`}
+          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "login" ? "bg-[#C04F17] text-white shadow-sm" : "text-[#C04F17] hover:text-[#C04F17]/80"}`}
         >
           {t.loginTab}
         </button>
         <button
           type="button"
           onClick={() => setMode("register")}
-          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "register" ? "bg-[#194CFF] text-white shadow-sm" : "text-[#194CFF] hover:text-[#194CFF]/80"}`}
+          className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "register" ? "bg-[#C04F17] text-white shadow-sm" : "text-[#C04F17] hover:text-[#C04F17]/80"}`}
         >
           {t.registerTab}
         </button>

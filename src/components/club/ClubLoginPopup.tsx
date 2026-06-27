@@ -39,7 +39,7 @@ const ClubLoginPopup = () => {
       onClick={() => setOpen(false)}
     >
       <div
-        className="relative w-[98%] sm:w-[90%] max-w-lg bg-[#BED1FF]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-200"
+        className="relative w-[98%] sm:w-[90%] max-w-lg bg-[#ECD6B8]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <button
