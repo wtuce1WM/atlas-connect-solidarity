@@ -22,6 +22,24 @@ interface Props { userId: string }
 
 const VOICE_MODE_KEY = "club_ai_voice_mode";
 
+// Detect Moroccan phone numbers and replace with tappable tel: + WhatsApp markdown links.
+function linkifyPhones(text: string): string {
+  if (!text) return text;
+  const phoneRe = /(\+?212|0)[\s().-]*\d(?:[\s().-]*\d){8}/g;
+  return text.replace(phoneRe, (match) => {
+    const digits = match.replace(/\D/g, "");
+    let intl = digits;
+    if (intl.startsWith("212")) {
+      // ok
+    } else if (intl.startsWith("0")) {
+      intl = "212" + intl.slice(1);
+    }
+    if (intl.length < 11 || intl.length > 13) return match;
+    return `[${match.trim()}](tel:+${intl}) · [💬 WhatsApp](https://wa.me/${intl})`;
+  });
+}
+
+
 const ClubAiAssistant = ({ userId }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeId = searchParams.get("assistant") || null;
