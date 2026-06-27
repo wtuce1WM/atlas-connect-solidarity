@@ -168,7 +168,7 @@ const GuestManagement = () => {
                     <TableHead><div className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" />Email</div></TableHead>
                     <TableHead><div className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />Tél / WhatsApp</div></TableHead>
                     <TableHead><div className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />Localisation</div></TableHead>
-                    <TableHead><div className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />Personas</div></TableHead>
+                    
                     <TableHead>Inscrit le</TableHead>
                     <TableHead><div className="flex items-center gap-1"><LogIn className="h-3.5 w-3.5" />Dernière connexion</div></TableHead>
                     <TableHead className="text-right">Actions</TableHead>
