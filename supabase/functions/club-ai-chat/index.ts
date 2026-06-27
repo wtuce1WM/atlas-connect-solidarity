@@ -463,13 +463,64 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
           });
         }
       }
-      const results = (trips || []).map((t: any) => ({
-        ...t,
-        businesses: linksByTrip[t.id] || [],
-        is_ongoing: t.arrival_date <= today && t.departure_date >= today,
-      }));
+      const results = (trips || [])
+        .map((t: any) => ({
+          ...t,
+          businesses: linksByTrip[t.id] || [],
+          is_ongoing: t.arrival_date <= today && t.departure_date >= today,
+        }))
+        .sort((a: any, b: any) => {
+          if (a.is_ongoing !== b.is_ongoing) return a.is_ongoing ? -1 : 1;
+          return String(a.arrival_date).localeCompare(String(b.arrival_date));
+        });
       if (!results.length) return { results: [], note: "Aucun voyage à venir enregistré." };
       return { results };
+    }
+    if (name === "link_business_to_trip") {
+      const slug = String(args.business_slug || "").trim();
+      if (!slug) return { error: "business_slug requis" };
+      const { data: biz } = await ctx.supabase
+        .from("businesses")
+        .select("id,name,slug,city")
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (!biz) return { error: `Établissement '${slug}' introuvable.` };
+
+      let tripId: string | null = args.trip_id || null;
+      let trip: any = null;
+      if (tripId) {
+        const { data } = await ctx.supabase
+          .from("club_trips").select("id,title,arrival_date,departure_date")
+          .eq("id", tripId).eq("user_id", ctx.userId).maybeSingle();
+        trip = data;
+      } else if (args.trip_title) {
+        const { data } = await ctx.supabase
+          .from("club_trips").select("id,title,arrival_date,departure_date")
+          .eq("user_id", ctx.userId)
+          .ilike("title", `%${String(args.trip_title).replace(/[%_]/g, "")}%`)
+          .order("arrival_date", { ascending: true })
+          .limit(1).maybeSingle();
+        trip = data;
+        tripId = data?.id || null;
+      }
+      if (!trip || !tripId) return { error: "Voyage cible introuvable. Demande au membre de préciser le titre exact du voyage." };
+
+      const { data: existing } = await ctx.supabase
+        .from("club_trip_businesses")
+        .select("id").eq("trip_id", tripId).eq("business_id", biz.id).maybeSingle();
+      if (existing) return { ok: true, already_linked: true, trip, business: biz };
+
+      const { data: maxRow } = await ctx.supabase
+        .from("club_trip_businesses").select("sort_order")
+        .eq("trip_id", tripId).order("sort_order", { ascending: false }).limit(1).maybeSingle();
+      const nextOrder = (maxRow?.sort_order ?? -1) + 1;
+
+      const { error: insErr } = await ctx.supabase
+        .from("club_trip_businesses")
+        .insert({ trip_id: tripId, business_id: biz.id, sort_order: nextOrder });
+      if (insErr) return { error: insErr.message };
+      return { ok: true, linked: true, trip, business: biz };
     }
     if (name === "web_search") {
       const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
