@@ -598,6 +598,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
                   </button>
                   <button
                     type="button"
+                    onClick={(e) => { e.stopPropagation(); renameChat(c.id, c.title); }}
+                    className="opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded text-[#C04F17] hover:bg-white"
+                    title="Renommer"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
                     onClick={(e) => { e.stopPropagation(); deleteChat(c.id); }}
                     className="opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded text-red-600 hover:bg-red-100"
                     title="Supprimer"
