@@ -139,6 +139,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   // Map slide-panel state (opened when the user clicks a mini-map card in a message).
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
+  const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+
+  const handleOpenBusinessLink = async (href: string | undefined) => {
+    const slug = extractBusinessSlugFromHref(href);
+    if (!slug) return false;
+    const id = await resolveBusinessId(slug);
+    if (id) {
+      setOpenBusinessId(id);
+    } else {
+      toast({ title: "Fiche introuvable", description: "Impossible d'ouvrir cette fiche.", variant: "destructive" });
+    }
+    return true;
+  };
 
 
 
