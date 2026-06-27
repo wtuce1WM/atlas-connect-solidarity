@@ -246,7 +246,86 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                 )}
               </div>
             </div>
+
+            {/* Toggle Top 20 / Tous + À proximité */}
+            <div className="pointer-events-auto w-full flex items-center justify-center gap-2 px-3 pt-3 pb-2">
+              {showToggle && (
+                <div
+                  className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider"
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setShowAll(false)}
+                    className={`px-3 py-1 rounded-full transition-colors ${!showAll ? "bg-[#C04F17] text-white" : "text-white/80 hover:text-white"}`}
+                  >
+                    Top 20
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAll(true)}
+                    className={`px-3 py-1 rounded-full transition-colors ${showAll ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
+                  >
+                    Tous <span className="ml-0.5 opacity-70">{total}</span>
+                  </button>
+                </div>
+              )}
+              {userPos && (() => {
+                const opts: { km: number; label: string }[] = [
+                  { km: 0.5, label: "Moins de 500 m" },
+                  { km: 1, label: "Moins de 1 km" },
+                  { km: 5, label: "Moins de 5 km" },
+                  { km: 10, label: "Moins de 10 km" },
+                ];
+                const active = opts.find((o) => o.km === proximityKm);
+                return (
+                  <div
+                    className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
+                        >
+                          <Navigation className="h-3.5 w-3.5" />
+                          {active ? active.label : "À proximité"}
+                          {proximityActive && (
+                            <span className="ml-0.5 opacity-70">{proximityCount}</span>
+                          )}
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="z-[95]">
+                        {proximityKm != null && (
+                          <DropdownMenuItem onSelect={() => setProximityKm(null)}>
+                            Toutes distances
+                          </DropdownMenuItem>
+                        )}
+                        {opts.map((o) => {
+                          const count = proximityCountsByKm[o.km] ?? 0;
+                          const disabled = count === 0;
+                          return (
+                            <DropdownMenuItem
+                              key={o.km}
+                              disabled={disabled}
+                              onSelect={(e) => {
+                                if (disabled) { e.preventDefault(); return; }
+                                setProximityKm(o.km);
+                              }}
+                            >
+                              {o.label} <span className="ml-1 opacity-60">({count})</span>
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
+        </div>
         </div>
       </div>
     </>
