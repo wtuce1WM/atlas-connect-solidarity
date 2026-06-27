@@ -233,11 +233,92 @@ const ClubAiAssistant = ({ userId }: Props) => {
     return Array.from({ length: size }, (_, i) => allSuggestions[(start + i) % allSuggestions.length]);
   }, [allSuggestions, suggestionPage]);
 
+  // Upcoming/ongoing trips for quick-start
+  type TripCard = {
+    id: string;
+    title: string;
+    arrival_date: string;
+    departure_date: string;
+    businesses: { id: string; name: string; city: string | null; slug: string }[];
+  };
+  const [trips, setTrips] = useState<TripCard[]>([]);
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: t } = await supabase
+        .from("club_trips")
+        .select("id,title,arrival_date,departure_date")
+        .eq("user_id", userId)
+        .gte("departure_date", today)
+        .order("arrival_date", { ascending: true })
+        .limit(4);
+      const ids = (t || []).map((x: any) => x.id);
+      let linkMap: Record<string, any[]> = {};
+      if (ids.length) {
+        const { data: links } = await supabase
+          .from("club_trip_businesses")
+          .select("trip_id,businesses:business_id(id,name,city,slug)")
+          .in("trip_id", ids);
+        for (const l of links || []) {
+          if ((l as any).businesses) (linkMap[(l as any).trip_id] ||= []).push((l as any).businesses);
+        }
+      }
+      setTrips((t || []).map((x: any) => ({ ...x, businesses: linkMap[x.id] || [] })));
+    })();
+  }, [userId]);
+
+  const fmtTripDates = (a: string, d: string) => {
+    const opt: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+    const ad = new Date(a).toLocaleDateString("fr-FR", opt);
+    const dd = new Date(d).toLocaleDateString("fr-FR", opt);
+    return ad === dd ? ad : `${ad} – ${dd}`;
+  };
+
+  const startTripPrompt = (t: TripCard) => {
+    const cities = Array.from(new Set(t.businesses.map((b) => b.city).filter(Boolean))).join(", ");
+    const names = t.businesses.map((b) => b.name).slice(0, 6).join(", ");
+    const dates = fmtTripDates(t.arrival_date, t.departure_date);
+    const lines = [
+      `Aide-moi à préparer mon voyage « ${t.title} » (${dates}).`,
+      cities ? `Villes : ${cities}.` : "",
+      names ? `Adresses déjà sauvegardées : ${names}.` : "",
+      `Propose-moi un planning jour par jour, des bonnes adresses complémentaires (restos, activités, vie nocturne) et l'agenda culturel sur place.`,
+    ].filter(Boolean);
+    send(lines.join(" "));
+  };
+
   const emptyHint = useMemo(() => (
     <div className="text-center py-10 px-4 text-[#C04F17]">
       <MessageSquare className="h-8 w-8 mx-auto mb-3 opacity-70" />
       <div className="text-sm font-semibold mb-1">Bonjour 👋</div>
       <div className="text-base opacity-80 mb-4">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou explorez le Maroc.</div>
+
+      {trips.length > 0 && (
+        <div className="max-w-md mx-auto mb-5">
+          <div className="text-[11px] uppercase tracking-wide font-semibold opacity-70 mb-2 text-left">Mes voyages</div>
+          <div className="flex flex-col gap-2">
+            {trips.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => startTripPrompt(t)}
+                disabled={sending}
+                className="w-full text-left bg-white hover:bg-[#C04F17] hover:text-white transition-colors rounded-lg px-3 py-2 border border-[#C04F17]/20 disabled:opacity-50"
+              >
+                <div className="text-xs font-semibold flex items-center gap-1.5">
+                  <span>✈️</span>
+                  <span className="truncate">{t.title}</span>
+                </div>
+                <div className="text-[11px] opacity-80 mt-0.5">
+                  {fmtTripDates(t.arrival_date, t.departure_date)}
+                  {t.businesses.length > 0 && ` · ${t.businesses.length} adresse${t.businesses.length > 1 ? "s" : ""} liée${t.businesses.length > 1 ? "s" : ""}`}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-2 justify-center max-w-md mx-auto">
         {visibleSuggestions.map((s) => (
           <button
@@ -259,7 +340,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         Autres suggestions
       </button>
     </div>
-  ), [visibleSuggestions, sending]);
+  ), [visibleSuggestions, sending, trips]);
 
   const ttsBusy = tts.status === "loading" || tts.status === "playing" || tts.status === "paused";
 

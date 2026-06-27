@@ -133,6 +133,21 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "get_my_trips",
+      description:
+        "Liste les voyages du membre (titre, description, dates, heures, ville(s), établissements liés). Par défaut : voyages en cours ou à venir, triés par date d'arrivée. Utilise-le quand le membre dit 'mon voyage', 'mes voyages', 'mon séjour à X', 'prépare mon week-end à…', 'planning', ou pour personnaliser une recommandation autour de ses dates et adresses déjà sauvegardées.",
+      parameters: {
+        type: "object",
+        properties: {
+          include_past: { type: "boolean", description: "Inclure les voyages passés (défaut false).", default: false },
+          limit: { type: "number", description: "Max 10", default: 6 },
+        },
+      },
+    },
+  },
 ];
 
 
@@ -403,6 +418,42 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}${args.city ? ` à ${args.city}` : ""}.` };
       return { results, period: { from, to } };
     }
+    if (name === "get_my_trips") {
+      const limit = Math.min(Number(args.limit) || 6, 10);
+      const today = new Date().toISOString().slice(0, 10);
+      let q = ctx.supabase
+        .from("club_trips")
+        .select("id,title,description,arrival_date,departure_date,arrival_time,departure_time")
+        .eq("user_id", ctx.userId)
+        .order("arrival_date", { ascending: true, nullsFirst: false })
+        .limit(limit);
+      if (!args.include_past) q = q.gte("departure_date", today);
+      const { data: trips, error } = await q;
+      if (error) return { error: error.message, results: [] };
+      const tripIds = (trips || []).map((t: any) => t.id);
+      let linksByTrip: Record<string, any[]> = {};
+      if (tripIds.length) {
+        const { data: links } = await ctx.supabase
+          .from("club_trip_businesses")
+          .select("trip_id,sort_order,businesses:business_id(id,name,slug,city,neighborhood,main_category)")
+          .in("trip_id", tripIds)
+          .order("sort_order", { ascending: true });
+        for (const l of links || []) {
+          if (!l.businesses) continue;
+          (linksByTrip[l.trip_id] ||= []).push({
+            ...l.businesses,
+            url: `https://oneworldmorocco.com/b/${l.businesses.slug}`,
+          });
+        }
+      }
+      const results = (trips || []).map((t: any) => ({
+        ...t,
+        businesses: linksByTrip[t.id] || [],
+        is_ongoing: t.arrival_date <= today && t.departure_date >= today,
+      }));
+      if (!results.length) return { results: [], note: "Aucun voyage à venir enregistré." };
+      return { results };
+    }
     if (name === "web_search") {
       const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
       if (!FIRECRAWL_API_KEY) return { error: "FIRECRAWL_API_KEY non configurée" };
@@ -516,8 +567,9 @@ RÈGLES DE PRÉCISION (critiques) :
 7. Utilise naturellement les goûts du membre pour personnaliser, sans les réciter.
 8. **Événements / agenda** : pour toute demande type « que faire ce soir / ce week-end », « concerts », « festival », « expo », « soirée », « agenda culturel » → appelle search_events (filtre #Agenda + ville + dates). N'invente jamais un événement, et précise toujours la date/horaire renvoyés par l'outil. Si rien ne sort, dis-le franchement.
 9. **Recherche web (web_search)** : appelle-la UNIQUEMENT pour des infos factuelles temps réel absentes de 1WM (pharmacie de garde, numéros d'urgence officiels, événements/festivals publics non référencés, horaires transports, démarches admin, actualités). JAMAIS pour recommander des restaurants, hôtels, spas, etc. — ceux-là doivent venir de search_businesses ; et pour l'agenda, passe d'abord par search_events. Maximum 1 appel web_search par message. Cite TOUJOURS les sources sous forme [titre](url) à la fin de ta réponse, et préviens si l'info peut avoir changé.
+10. **Voyages du membre (get_my_trips)** : dès que le membre évoque « mon voyage », « mon séjour », « prépare », « planning », un week-end / des dates précises, ou qu'il faut s'appuyer sur ses adresses sauvegardées pour un séjour, appelle get_my_trips. Croise ensuite ville + dates + établissements liés pour proposer un planning ou des compléments via search_businesses / search_events. Ne réinvente jamais ses dates, ses villes ou ses adresses liées.
 
-Outils disponibles : get_weather, search_businesses, get_business_details, search_events, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search.`;
+Outils disponibles : get_weather, search_businesses, get_business_details, search_events, get_my_trips, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search.`;
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
