@@ -46,6 +46,7 @@ const GuestManagement = () => {
   const [editingMember, setEditingMember] = useState<ClubMemberWithSignIn | null>(null);
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMembers();
