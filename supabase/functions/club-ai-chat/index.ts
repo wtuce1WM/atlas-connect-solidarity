@@ -775,10 +775,23 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
     const lastUser = userTurns[userTurns.length - 1]?.content || "";
     const newMessages = [...messages, { role: "assistant", content: finalAnswer }];
 
-    let resultChatId = chatId || null;
+    let resultChatId: string | null = null;
     if (chatId) {
-      await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
-    } else {
+      // Only update when the chat still exists for this user — otherwise
+      // (deleted client-side, stale URL, etc.) fall through to INSERT so we
+      // never "resurrect" a deleted conversation under its old id.
+      const { data: existing } = await admin
+        .from("ai_chats")
+        .select("id")
+        .eq("id", chatId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (existing?.id) {
+        await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+        resultChatId = chatId;
+      }
+    }
+    if (!resultChatId) {
       const title = lastUser.slice(0, 60) || "Nouvelle conversation";
       const { data: inserted } = await admin
         .from("ai_chats")
