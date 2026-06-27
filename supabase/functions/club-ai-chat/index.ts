@@ -418,6 +418,42 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}${args.city ? ` à ${args.city}` : ""}.` };
       return { results, period: { from, to } };
     }
+    if (name === "get_my_trips") {
+      const limit = Math.min(Number(args.limit) || 6, 10);
+      const today = new Date().toISOString().slice(0, 10);
+      let q = ctx.supabase
+        .from("club_trips")
+        .select("id,title,description,arrival_date,departure_date,arrival_time,departure_time")
+        .eq("user_id", ctx.userId)
+        .order("arrival_date", { ascending: true, nullsFirst: false })
+        .limit(limit);
+      if (!args.include_past) q = q.gte("departure_date", today);
+      const { data: trips, error } = await q;
+      if (error) return { error: error.message, results: [] };
+      const tripIds = (trips || []).map((t: any) => t.id);
+      let linksByTrip: Record<string, any[]> = {};
+      if (tripIds.length) {
+        const { data: links } = await ctx.supabase
+          .from("club_trip_businesses")
+          .select("trip_id,sort_order,businesses:business_id(id,name,slug,city,neighborhood,main_category)")
+          .in("trip_id", tripIds)
+          .order("sort_order", { ascending: true });
+        for (const l of links || []) {
+          if (!l.businesses) continue;
+          (linksByTrip[l.trip_id] ||= []).push({
+            ...l.businesses,
+            url: `https://oneworldmorocco.com/b/${l.businesses.slug}`,
+          });
+        }
+      }
+      const results = (trips || []).map((t: any) => ({
+        ...t,
+        businesses: linksByTrip[t.id] || [],
+        is_ongoing: t.arrival_date <= today && t.departure_date >= today,
+      }));
+      if (!results.length) return { results: [], note: "Aucun voyage à venir enregistré." };
+      return { results };
+    }
     if (name === "web_search") {
       const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
       if (!FIRECRAWL_API_KEY) return { error: "FIRECRAWL_API_KEY non configurée" };
