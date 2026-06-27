@@ -544,6 +544,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
           onClose={() => voice.toggleRecording()}
           onFinish={() => voice.finishRecording()}
           contained={!isMobile}
+          bgClassName="bg-[#ECD6B8]"
+
         />
       </section>
     </div>
