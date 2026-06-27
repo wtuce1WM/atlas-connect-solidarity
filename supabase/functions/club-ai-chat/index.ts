@@ -171,19 +171,47 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
     }
     if (name === "search_businesses") {
       const limit = Math.min(Number(args.limit) || 6, 10);
+      // Échapper les caractères qui cassent la syntaxe PostgREST .or()
+      const clean = (s: string) => String(s).replace(/[,()"]/g, " ").trim();
       let q = ctx.supabase
         .from("businesses")
-        .select("id,name,slug,city,neighborhood,main_category,categories,description_fr,google_rating,google_review_count,priority_score")
+        .select("id,name,slug,city,neighborhood,main_category,categories,description_fr,phone,google_rating,google_review_count,priority_score")
         .eq("is_active", true)
         .order("priority_score", { ascending: false, nullsFirst: false })
         .limit(limit);
-      if (args.query) q = q.or(`name.ilike.%${args.query}%,description_fr.ilike.%${args.query}%`);
-      if (args.city) q = q.ilike("city", `%${args.city}%`);
-      if (args.neighborhood) q = q.ilike("neighborhood", `%${args.neighborhood}%`);
-      if (args.category) q = q.or(`main_category.ilike.%${args.category}%,categories.cs.{${args.category}}`);
+      if (args.city) q = q.ilike("city", `%${clean(args.city)}%`);
+      if (args.neighborhood) q = q.ilike("neighborhood", `%${clean(args.neighborhood)}%`);
+      // Combiner query + category dans UN SEUL .or() — sinon PostgREST télescope les filtres
+      const orParts: string[] = [];
+      if (args.query) {
+        const qv = clean(args.query);
+        if (qv) {
+          orParts.push(`name.ilike.%${qv}%`, `description_fr.ilike.%${qv}%`, `main_category.ilike.%${qv}%`);
+          const firstWord = qv.split(/\s+/)[0];
+          if (firstWord && firstWord !== qv) {
+            orParts.push(`name.ilike.%${firstWord}%`, `main_category.ilike.%${firstWord}%`, `description_fr.ilike.%${firstWord}%`);
+          }
+        }
+      }
+      if (args.category) {
+        const cv = clean(args.category);
+        if (cv) {
+          orParts.push(`main_category.ilike.%${cv}%`);
+          const firstWord = cv.split(/\s+/)[0];
+          if (firstWord && firstWord !== cv) orParts.push(`main_category.ilike.%${firstWord}%`);
+        }
+      }
+      if (orParts.length) q = q.or(orParts.join(","));
       const { data, error } = await q;
-      if (error) return { error: error.message };
-      return { results: (data || []).map((b: any) => ({ ...b, url: `https://oneworldmorocco.com/b/${b.slug}` })) };
+      if (error) {
+        console.error("search_businesses error", error, "args=", JSON.stringify(args));
+        return { results: [], error: error.message, hint: "Réessaie avec des critères plus simples (une seule ville, un mot-clé court)." };
+      }
+      const results = (data || []).map((b: any) => ({ ...b, url: `https://oneworldmorocco.com/b/${b.slug}` }));
+      if (!results.length) {
+        return { results: [], note: `Aucun établissement trouvé (query="${args.query || ""}", category="${args.category || ""}", city="${args.city || ""}"). Dis-le franchement à l'utilisateur et propose-lui une alternative (autre quartier, élargir la catégorie) au lieu d'inventer.` };
+      }
+      return { results };
     }
     if (name === "get_business_details") {
       const { data, error } = await ctx.supabase
