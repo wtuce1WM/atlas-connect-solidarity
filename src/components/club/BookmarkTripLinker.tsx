@@ -109,7 +109,7 @@ const BookmarkTripLinker = ({ userId, businessId }: Props) => {
         )}
         {trips.length > 0 && (
           <div className="mt-3 flex justify-end">
-            <Button size="sm" onClick={save} disabled={saving} className="bg-[#194CFF] hover:bg-[#1340d6] text-white h-8">
+            <Button size="sm" onClick={save} disabled={saving} className="bg-[#C04F17] hover:bg-[#1340d6] text-white h-8">
               <Check className="w-3.5 h-3.5 mr-1" />
               {saving ? t("…", "…", "…") : t("Valider", "Save", "حفظ")}
             </Button>

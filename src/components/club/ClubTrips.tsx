@@ -182,7 +182,7 @@ const ClubTrips = ({ userId }: { userId: string }) => {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {trips.map(trip => (
-            <div key={trip.id} className="rounded-xl bg-[#BED1FF] p-4 text-[#0a1d4a] shadow-sm">
+            <div key={trip.id} className="rounded-xl bg-[#ECD6B8] p-4 text-[#0a1d4a] shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold text-base leading-tight">{trip.title}</h3>
                 <div className="flex gap-1 shrink-0">
@@ -294,7 +294,7 @@ const ClubTrips = ({ userId }: { userId: string }) => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("Annuler", "Cancel", "إلغاء")}</Button>
-            <Button onClick={save} disabled={saving} className="bg-[#194CFF] hover:bg-[#1340d6] text-white">
+            <Button onClick={save} disabled={saving} className="bg-[#C04F17] hover:bg-[#1340d6] text-white">
               {saving ? t("Enregistrement…", "Saving…", "حفظ…") : t("Enregistrer", "Save", "حفظ")}
             </Button>
           </DialogFooter>

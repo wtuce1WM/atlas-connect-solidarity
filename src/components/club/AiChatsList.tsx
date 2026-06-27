@@ -83,7 +83,7 @@ const AiChatsList = ({ userId }: Props) => {
             <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               {c.title}
               {c.kind === "club" && (
-                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-[#194CFF] text-white align-middle">Club</span>
+                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-[#C04F17] text-white align-middle">Club</span>
               )}
             </div>
             <div className="text-xs text-white/70">

@@ -440,7 +440,7 @@ const Club = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#194CFF] text-white overflow-x-hidden">
+      <div className="min-h-screen bg-[#C04F17] text-white overflow-x-hidden">
         <HomeMindtripHeader alwaysWhite />
         <main className="pt-24 pb-16 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -466,7 +466,7 @@ const Club = () => {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-[#194CFF] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#C04F17] text-white overflow-x-hidden">
       <HomeMindtripHeader alwaysWhite forceHamburger={!!user} customMobileLinks={clubMobileLinks} />
 
       {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
@@ -526,22 +526,22 @@ const Club = () => {
           <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col md:flex-row items-center md:items-center justify-center gap-8 min-h-[92vh]">
 
 
-            <div className="w-full max-w-md bg-[#BED1FF]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+            <div className="w-full max-w-md bg-[#ECD6B8]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
 
 
                 {/* Tabs */}
-                <div className="flex bg-[#BED1FF] rounded-lg p-1 mb-6">
+                <div className="flex bg-[#ECD6B8] rounded-lg p-1 mb-6">
                   <button
                     type="button"
                     onClick={() => setMode("login")}
-                    className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "login" ? "bg-[#194CFF] text-white shadow-sm" : "text-[#194CFF] hover:text-[#194CFF]/80"}`}
+                    className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "login" ? "bg-[#C04F17] text-white shadow-sm" : "text-[#C04F17] hover:text-[#C04F17]/80"}`}
                   >
                     {tx.loginTab}
                   </button>
                   <button
                     type="button"
                     onClick={() => setMode("register")}
-                    className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "register" ? "bg-[#194CFF] text-white shadow-sm" : "text-[#194CFF] hover:text-[#194CFF]/80"}`}
+                    className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${mode === "register" ? "bg-[#C04F17] text-white shadow-sm" : "text-[#C04F17] hover:text-[#C04F17]/80"}`}
                   >
                     {tx.registerTab}
                   </button>
@@ -569,7 +569,7 @@ const Club = () => {
                     <form onSubmit={handleLogin} className="space-y-4">
                       <div>
                         <label className="text-sm text-white font-semibold mb-1 block">{t.emailLabel}</label>
-                        <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" className="bg-[#BED1FF] text-black" />
+                        <Input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" className="bg-[#ECD6B8] text-black" />
                       </div>
                       <div>
                         <label className="text-sm text-white font-semibold mb-1 block">{t.passwordLabel}</label>
@@ -580,7 +580,7 @@ const Club = () => {
                              onChange={(e) => setLoginPassword(e.target.value)}
                              required
                              autoComplete="current-password"
-                             className="bg-[#BED1FF] text-black pr-10"
+                             className="bg-[#ECD6B8] text-black pr-10"
                            />
                            <button
                              type="button"
@@ -632,11 +632,11 @@ const Club = () => {
                           <label className="text-sm text-white font-semibold mb-1 block">
                             {t.firstName} <span className="text-white font-bold ml-1">*</span>
                           </label>
-                          <Input value={form.first_name} onChange={handleChange("first_name")} required className="bg-[#BED1FF] text-black" />
+                          <Input value={form.first_name} onChange={handleChange("first_name")} required className="bg-[#ECD6B8] text-black" />
                         </div>
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">{t.lastName}</label>
-                          <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-[#BED1FF] text-black" />
+                          <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-[#ECD6B8] text-black" />
                         </div>
                       </div>
 
@@ -645,7 +645,7 @@ const Club = () => {
                         <label className="text-sm text-white font-semibold mb-1 block">
                           {t.emailLabel} <span className="text-white font-bold ml-1">*</span>
                         </label>
-                        <Input type="email" value={form.email} onChange={handleChange("email")} required className="bg-[#BED1FF] text-black" />
+                        <Input type="email" value={form.email} onChange={handleChange("email")} required className="bg-[#ECD6B8] text-black" />
                       </div>
 
                       <div>
@@ -659,7 +659,7 @@ const Club = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             minLength={6}
-                            className="bg-[#BED1FF] text-black pr-10"
+                            className="bg-[#ECD6B8] text-black pr-10"
                           />
                           <button
                             type="button"
@@ -682,7 +682,7 @@ const Club = () => {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
                             minLength={6}
-                            className="bg-[#BED1FF] text-black pr-10"
+                            className="bg-[#ECD6B8] text-black pr-10"
                           />
                           <button
                             type="button"
@@ -700,11 +700,11 @@ const Club = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">{t.phoneLabel}</label>
-                          <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-[#BED1FF] text-black" />
+                          <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-[#ECD6B8] text-black" />
                         </div>
                         <div>
                           <label className="text-sm text-white font-semibold mb-1 block">{t.whatsappLabel}</label>
-                          <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#BED1FF] text-black" />
+                          <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#ECD6B8] text-black" />
                         </div>
                       </div>
 
@@ -740,8 +740,8 @@ const Club = () => {
               <h2 className="text-xl font-bold text-center mb-4 !font-sans !not-italic text-white">{t.benefits}</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 {benefits.map((b, i) => (
-                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-[#BED1FF] text-black border border-white/20 shadow-sm">
-                    <Crown className="h-5 w-5 text-[#194CFF] mt-0.5 shrink-0" />
+                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-[#ECD6B8] text-black border border-white/20 shadow-sm">
+                    <Crown className="h-5 w-5 text-[#C04F17] mt-0.5 shrink-0" />
                     <span className="text-black">{b}</span>
                   </div>
                 ))}

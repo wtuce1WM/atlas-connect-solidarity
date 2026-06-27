@@ -483,11 +483,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-white/90 mb-1 block">{t.firstName}</label>
-            <Input value={form.first_name} onChange={handleChange("first_name")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
+            <Input value={form.first_name} onChange={handleChange("first_name")} className="bg-[#ECD6B8] text-black placeholder:text-black/60" />
           </div>
           <div>
             <label className="text-sm text-white/90 mb-1 block">{t.lastName}</label>
-            <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
+            <Input value={form.last_name} onChange={handleChange("last_name")} className="bg-[#ECD6B8] text-black placeholder:text-black/60" />
           </div>
         </div>
 
@@ -495,13 +495,13 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           <label className="text-sm text-white font-semibold mb-1 block">
             {t.nickname} <span className="text-red-200">*</span>
           </label>
-          <Input value={form.nickname} onChange={handleChange("nickname")} required className="bg-[#BED1FF] text-black placeholder:text-black/60" />
+          <Input value={form.nickname} onChange={handleChange("nickname")} required className="bg-[#ECD6B8] text-black placeholder:text-black/60" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-white/90 mb-1 block">{t.cityLabel}</label>
-            <Input value={form.city} onChange={handleChange("city")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
+            <Input value={form.city} onChange={handleChange("city")} className="bg-[#ECD6B8] text-black placeholder:text-black/60" />
           </div>
           <div>
             <label className="text-sm text-white/90 mb-1 block">{t.countryLabel}</label>
@@ -509,7 +509,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               value={form.country}
               onValueChange={(val) => setForm(prev => ({ ...prev, country: val === "__none__" ? "" : val }))}
             >
-              <SelectTrigger className="bg-[#BED1FF] text-black border-none">
+              <SelectTrigger className="bg-[#ECD6B8] text-black border-none">
                 <SelectValue placeholder={t.selectCountry} />
               </SelectTrigger>
               <SelectContent className="bg-background z-50">
@@ -533,17 +533,17 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
         <div>
           <label className="text-sm text-white/90 mb-1 block">{t.emailLabel} *</label>
-          <Input type="email" required value={form.email} onChange={handleChange("email")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
+          <Input type="email" required value={form.email} onChange={handleChange("email")} className="bg-[#ECD6B8] text-black placeholder:text-black/60" />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-white/90 mb-1 block">{t.phoneLabel}</label>
-            <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
+            <Input type="tel" value={form.phone} onChange={handleChange("phone")} className="bg-[#ECD6B8] text-black placeholder:text-black/60" />
           </div>
           <div>
             <label className="text-sm text-white/90 mb-1 block">{t.whatsappLabel}</label>
-            <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#BED1FF] text-black placeholder:text-black/60" />
+            <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} className="bg-[#ECD6B8] text-black placeholder:text-black/60" />
           </div>
         </div>
 
@@ -571,7 +571,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               onChange={(html) => setForm(prev => ({ ...prev, description: html }))}
               placeholder="Quelques mots sur vous (200 caractères max)…"
               maxHeight="320px"
-              bgClass="bg-[#BED1FF] text-black border-none"
+              bgClass="bg-[#ECD6B8] text-black border-none"
             />
           </div>
         </div>
@@ -611,7 +611,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                   value={form[key]}
                   onChange={handleChange(key)}
                   placeholder={placeholder}
-                  className="flex-1 text-sm bg-[#BED1FF] text-black placeholder:text-black/60 border-none"
+                  className="flex-1 text-sm bg-[#ECD6B8] text-black placeholder:text-black/60 border-none"
                 />
                 {form[key] && (
                   <a
@@ -657,7 +657,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         ) : (
           <div className="space-y-2">
             {bookmarks.map((bk) => (
-              <div key={bk.id} className="rounded-lg bg-[#BED1FF] text-black border-none overflow-hidden shadow-sm">
+              <div key={bk.id} className="rounded-lg bg-[#ECD6B8] text-black border-none overflow-hidden shadow-sm">
                 <div className="flex items-center justify-between p-3">
                   <Link to={businessUrl({ id: bk.business_id, slug: bk.slug })} className="flex-1 min-w-0 hover:underline text-black">
                     <p className="font-semibold text-sm truncate">{bk.name}</p>
@@ -716,9 +716,9 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                     {bk.promotions.map((promo) => (
                       <div key={promo.id} className="bg-white/50 rounded-md p-2.5 border border-dashed border-black/20">
                         <div className="flex items-center gap-1.5 mb-1">
-                          <Tag className="h-3.5 w-3.5 text-[#194CFF]" />
+                          <Tag className="h-3.5 w-3.5 text-[#C04F17]" />
                           {promo.type && (
-                            <span className="text-xs font-bold text-[#194CFF]">
+                            <span className="text-xs font-bold text-[#C04F17]">
                               {promo.type === "percentage"
                                 ? `-${promo.value}%`
                                 : `-${promo.value} ${promo.currency}`}
@@ -799,7 +799,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                     className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                       selected
                         ? "bg-gold text-black border-gold font-semibold"
-                        : "bg-[#BED1FF] text-black border-none hover:bg-[#BED1FF]/80"
+                        : "bg-[#ECD6B8] text-black border-none hover:bg-[#ECD6B8]/80"
                     }`}
                   >
                     {label}
@@ -829,9 +829,9 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="contact" className="mt-6">
-          <div className="rounded-lg bg-[#BED1FF] text-black p-6 text-sm space-y-3 shadow-sm border-none">
+          <div className="rounded-lg bg-[#ECD6B8] text-black p-6 text-sm space-y-3 shadow-sm border-none">
             <h3 className="text-lg font-bold flex items-center gap-2 text-black">
-              <Mail className="h-5 w-5 text-[#194CFF]" />
+              <Mail className="h-5 w-5 text-[#C04F17]" />
               {language === "en" ? "Contact us" : language === "ar" ? "اتصل بنا" : "Contactez-nous"}
             </h3>
             <p className="text-black/80">
@@ -843,7 +843,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             </p>
             <a
               href="mailto:contact@oneworldmorocco.com"
-              className="inline-flex items-center gap-2 text-[#194CFF] hover:underline font-semibold"
+              className="inline-flex items-center gap-2 text-[#C04F17] hover:underline font-semibold"
             >
               <Mail className="h-4 w-4" />
               contact@oneworldmorocco.com
