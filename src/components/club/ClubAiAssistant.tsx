@@ -621,6 +621,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
         title={openMap?.title}
         businesses={openMap?.businesses || []}
         isMobile={isMobile}
+        isBookmarked={!!activeChat?.is_bookmarked}
+        onBookmark={activeChat ? toggleBookmark : undefined}
+        onShare={async () => {
+          const url = window.location.href;
+          try {
+            if (navigator.share) {
+              await navigator.share({ title: activeChat?.title || "Mon espace Club", url });
+            } else {
+              await navigator.clipboard.writeText(url);
+              toast({ title: "Lien copié", description: "Le lien de la conversation a été copié." });
+            }
+          } catch { /* user cancelled */ }
+        }}
       />
     </div>
   );
