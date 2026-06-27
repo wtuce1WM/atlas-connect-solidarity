@@ -7,7 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles, Pencil } from "lucide-react";
+import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles, Pencil, UserCog } from "lucide-react";
+import ClubMemberEditor from "@/components/staff/ClubMemberEditor";
 
 interface PersonaTag {
   id: string;
