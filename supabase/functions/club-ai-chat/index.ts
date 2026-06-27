@@ -31,15 +31,29 @@ const tools = [
     type: "function",
     function: {
       name: "search_businesses",
-      description: "Recherche d'établissements (restaurants, hôtels, activités) par nom ou mot-clé dans la base One World Morocco.",
+      description:
+        "Recherche des établissements RÉELS dans la base One World Morocco. À utiliser systématiquement avant de citer un lieu. Combine nom, catégorie, ville, quartier. Tri par pertinence (priority_score).",
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "Nom ou mot-clé" },
-          city: { type: "string", description: "Ville (optionnel)" },
-          limit: { type: "number", description: "Nombre de résultats (max 8)", default: 5 },
+          query: { type: "string", description: "Mot-clé ou nom partiel (optionnel si category fourni)" },
+          category: { type: "string", description: "Catégorie principale: restaurant, hotel, spa, activité, bar, café, etc. (optionnel)" },
+          city: { type: "string", description: "Ville (ex: Marrakech, Essaouira, Casablanca)" },
+          neighborhood: { type: "string", description: "Quartier (ex: Gueliz, Médina, Hivernage)" },
+          limit: { type: "number", description: "Max 10", default: 6 },
         },
-        required: ["query"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_business_details",
+      description: "Détails complets d'un établissement par son slug : description, horaires, adresse, prix, contact. À utiliser quand l'utilisateur veut en savoir plus sur un lieu précis.",
+      parameters: {
+        type: "object",
+        properties: { slug: { type: "string", description: "Slug exact retourné par search_businesses" } },
+        required: ["slug"],
       },
     },
   },
