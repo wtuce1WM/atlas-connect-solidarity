@@ -193,7 +193,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const clean = (s: string) => String(s).replace(/[,()"]/g, " ").trim();
       let q = ctx.supabase
         .from("businesses")
-        .select("id,name,slug,city,neighborhood,main_category,categories,description_fr,phone,google_rating,google_review_count,priority_score")
+        .select("id,name,slug,city,neighborhood,main_category,categories,description,phone,google_rating,google_review_count,priority_score")
         .eq("is_active", true)
         .order("priority_score", { ascending: false, nullsFirst: false })
         .limit(limit);
@@ -204,10 +204,10 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       if (args.query) {
         const qv = clean(args.query);
         if (qv) {
-          orParts.push(`name.ilike.%${qv}%`, `description_fr.ilike.%${qv}%`, `main_category.ilike.%${qv}%`);
+          orParts.push(`name.ilike.%${qv}%`, `description.ilike.%${qv}%`, `main_category.ilike.%${qv}%`);
           const firstWord = qv.split(/\s+/)[0];
           if (firstWord && firstWord !== qv) {
-            orParts.push(`name.ilike.%${firstWord}%`, `main_category.ilike.%${firstWord}%`, `description_fr.ilike.%${firstWord}%`);
+            orParts.push(`name.ilike.%${firstWord}%`, `main_category.ilike.%${firstWord}%`, `description.ilike.%${firstWord}%`);
           }
         }
       }
@@ -234,7 +234,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
     if (name === "get_business_details") {
       const { data, error } = await ctx.supabase
         .from("businesses")
-        .select("id,name,slug,city,neighborhood,address,main_category,categories,description_fr,phone,website,google_rating,google_review_count,min_price,opening_hours")
+        .select("id,name,slug,city,neighborhood,address,main_category,categories,description,phone,website,google_rating,google_review_count,min_price,opening_hours")
         .eq("slug", args.slug)
         .eq("is_active", true)
         .maybeSingle();
