@@ -78,6 +78,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastSpokenRef = useRef<string>("");
   const shouldReopenMicRef = useRef<boolean>(false);
+  const activeIdRef = useRef<string | null>(activeId);
+  const activeChatIdRef = useRef<string | null>(null);
+  const messagesRef = useRef<Msg[]>([]);
+  const deletedChatIdsRef = useRef<Set<string>>(new Set());
 
   const tts = useTextToSpeech({
     onEnd: () => {
@@ -129,14 +133,44 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   useEffect(() => { if (userId) loadChats(); }, [userId]);
 
+  useEffect(() => { activeIdRef.current = activeId; }, [activeId]);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
+  useEffect(() => { activeChatIdRef.current = activeChat?.id ?? null; }, [activeChat?.id]);
+
+  const updateAssistantParam = (id: string | null, replace = false) => {
+    const next = new URLSearchParams(typeof window !== "undefined" ? window.location.search : searchParams.toString());
+    if (id) next.set("assistant", id);
+    else next.delete("assistant");
+    activeIdRef.current = id;
+    setSearchParams(next, { replace });
+  };
+
   useEffect(() => {
-    if (!activeId) { setActiveChat(null); setMessages([]); return; }
+    if (!activeId) {
+      activeChatIdRef.current = null;
+      messagesRef.current = [];
+      setActiveChat(null);
+      setMessages([]);
+      return;
+    }
     const found = chats.find((c) => c.id === activeId);
     if (found) {
+      deletedChatIdsRef.current.delete(activeId);
+      activeChatIdRef.current = found.id;
+      const nextMessages = Array.isArray(found.messages) ? found.messages : [];
+      messagesRef.current = nextMessages;
       setActiveChat(found);
-      setMessages(Array.isArray(found.messages) ? found.messages : []);
+      setMessages(nextMessages);
+    } else if (!loadingList) {
+      // If the URL still points to a chat removed from the list/DB, clear it
+      // immediately so the next prompt starts a brand-new conversation.
+      updateAssistantParam(null, true);
+      activeChatIdRef.current = null;
+      messagesRef.current = [];
+      setActiveChat(null);
+      setMessages([]);
     }
-  }, [activeId, chats]);
+  }, [activeId, chats, loadingList]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -153,34 +187,47 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   const openChat = (id: string) => {
     try { tts.stop(); } catch {/* noop */}
-    const next = new URLSearchParams(searchParams);
-    next.set("assistant", id);
-    setSearchParams(next, { replace: false });
+    const found = chats.find((c) => c.id === id);
+    if (found) {
+      deletedChatIdsRef.current.delete(id);
+      const nextMessages = Array.isArray(found.messages) ? found.messages : [];
+      activeChatIdRef.current = id;
+      messagesRef.current = nextMessages;
+      setActiveChat(found);
+      setMessages(nextMessages);
+    }
+    updateAssistantParam(id, false);
   };
 
-  const newChat = () => {
+  const newChat = (replace = false) => {
     try { tts.stop(); } catch {/* noop */}
-    const next = new URLSearchParams(searchParams);
-    next.delete("assistant");
-    setSearchParams(next, { replace: false });
-    setMessages([]);
+    updateAssistantParam(null, replace);
+    activeChatIdRef.current = null;
+    messagesRef.current = [];
     setActiveChat(null);
+    setMessages([]);
     setTimeout(() => inputRef.current?.focus(), 50);
   };
 
   const deleteChat = async (id: string) => {
     if (!confirm("Supprimer cette conversation ?")) return;
-    // Always clear local state for the deleted chat — even if it's not the
-    // current activeId — so a fresh prompt can never reuse a stale chatId.
-    const wasActive = activeId === id;
+    deletedChatIdsRef.current.add(id);
+    const urlActiveId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("assistant") : activeId;
+    // Always clear local state for the deleted chat — even if React Router has
+    // not re-rendered yet — so a quick next prompt never reuses a stale chatId.
+    const wasActive = activeIdRef.current === id || activeChatIdRef.current === id || urlActiveId === id;
     setChats((prev) => prev.filter((c) => c.id !== id));
     if (wasActive) {
-      // Clear URL + in-memory messages BEFORE awaiting the DB delete so any
-      // subsequent send() reads activeId === null and creates a brand-new chat.
-      newChat();
+      newChat(true);
     }
-    const { error } = await supabase.from("ai_chats").delete().eq("id", id);
+    const { error } = await supabase
+      .from("ai_chats")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", userId)
+      .select("id");
     if (error) {
+      deletedChatIdsRef.current.delete(id);
       toast({ title: "Suppression impossible", description: error.message, variant: "destructive" });
     }
     // Re-sync with the server so the sidebar reflects the true state.
@@ -201,7 +248,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
     try { tts.stop(); } catch {/* noop */}
     setSending(true);
     setInput("");
-    const newMsgs: Msg[] = [...messages, { role: "user", content: text }];
+    const candidateChatId = activeIdRef.current;
+    const safeChatId = candidateChatId
+      && activeChatIdRef.current === candidateChatId
+      && !deletedChatIdsRef.current.has(candidateChatId)
+        ? candidateChatId
+        : null;
+    const baseMessages = safeChatId ? messagesRef.current : [];
+    const newMsgs: Msg[] = [...baseMessages, { role: "user", content: text }];
+    messagesRef.current = newMsgs;
     setMessages(newMsgs);
 
     const clientContext: any = {
@@ -216,16 +271,24 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
     try {
       const { data, error } = await supabase.functions.invoke("club-ai-chat", {
-        body: { chatId: activeId, messages: newMsgs, clientContext },
+        body: { chatId: safeChatId, messages: newMsgs, clientContext },
       });
       if (error) throw error;
       const answer = (data as any)?.answer || "";
       const newId = (data as any)?.chatId as string | null;
-      setMessages([...newMsgs, { role: "assistant", content: answer }]);
-      if (newId && newId !== activeId) {
-        const params = new URLSearchParams(searchParams);
-        params.set("assistant", newId);
-        setSearchParams(params, { replace: true });
+      const fullMessages = [...newMsgs, { role: "assistant", content: answer }];
+      messagesRef.current = fullMessages;
+      setMessages(fullMessages);
+      if (newId) {
+        deletedChatIdsRef.current.delete(newId);
+        activeChatIdRef.current = newId;
+        setActiveChat((prev) => prev?.id === newId
+          ? { ...prev, messages: fullMessages, updated_at: new Date().toISOString() }
+          : { id: newId, title: text.slice(0, 60) || "Nouvelle conversation", updated_at: new Date().toISOString(), is_bookmarked: false, messages: fullMessages }
+        );
+      }
+      if (newId && newId !== safeChatId) {
+        updateAssistantParam(newId, true);
       }
       loadChats();
 
@@ -237,6 +300,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       }
     } catch (e: any) {
       toast({ title: "Erreur", description: e?.message || "Impossible de joindre l'assistant.", variant: "destructive" });
+      messagesRef.current = newMsgs;
       setMessages(newMsgs);
     } finally {
       setSending(false);
