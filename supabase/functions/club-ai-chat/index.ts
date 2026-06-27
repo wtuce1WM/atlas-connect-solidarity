@@ -165,6 +165,27 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "show_on_map",
+      description:
+        "Affiche une sélection d'établissements sur une carte Google Maps (mini-aperçu dans la bulle + panneau latéral avec carte plein écran). Utilise cet outil dès que le membre dit 'montre-moi sur une carte', 'sur une carte', 'situe les', 'où sont-ils', 'localise', ou quand il est utile de visualiser géographiquement plusieurs adresses citées. Passe UNIQUEMENT des slugs valides obtenus via search_businesses, list_my_bookmarks, get_my_trips ou suggest_similar_to_my_bookmarks. Tu peux ensuite continuer ta réponse textuelle normalement — la carte sera rendue automatiquement.",
+      parameters: {
+        type: "object",
+        properties: {
+          business_slugs: {
+            type: "array",
+            items: { type: "string" },
+            description: "Liste des slugs (2 à 20) des établissements à afficher sur la carte.",
+          },
+          title: { type: "string", description: "Titre court de la carte (ex: 'Hôtels avec piscine à Marrakech'). Optionnel." },
+        },
+        required: ["business_slugs"],
+      },
+    },
+  },
+
 ];
 
 
