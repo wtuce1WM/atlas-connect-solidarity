@@ -268,7 +268,7 @@ const BusinessMap = ({
       zoomControl: true,
       zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
       gestureHandling: "greedy",
-      styles: [
+      styles: mapStyles ?? [
         { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
       ],
     });
