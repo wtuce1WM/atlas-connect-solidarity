@@ -297,8 +297,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 </div>
               ) : (
                 <div className="max-w-[88%] group">
-                  <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#194CFF]">
-                    <ReactMarkdown>{m.content}</ReactMarkdown>
+                  <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#194CFF] prose-a:text-[#194CFF] prose-a:underline">
+                    <ReactMarkdown components={{ a: ({ href, children }) => <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a> }}>{linkifyPhones(m.content)}</ReactMarkdown>
                   </div>
                   <button
                     onClick={() => handleSpeakMessage(m.content)}
