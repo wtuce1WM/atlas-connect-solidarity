@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Plus, Send, Trash2, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon } from "lucide-react";
@@ -9,6 +9,31 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
+const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
+
+// Resolve a business slug (or id) to its UUID, with in-memory cache.
+const slugIdCache = new Map<string, string>();
+async function resolveBusinessId(slugOrId: string): Promise<string | null> {
+  const key = slugOrId.trim();
+  if (!key) return null;
+  if (slugIdCache.has(key)) return slugIdCache.get(key)!;
+  // UUID? use as-is.
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key)) {
+    slugIdCache.set(key, key);
+    return key;
+  }
+  const { data } = await supabase.from("businesses").select("id").eq("slug", key).maybeSingle();
+  const id = (data as any)?.id || null;
+  if (id) slugIdCache.set(key, id);
+  return id;
+}
+
+// Match /b/<slug> or /fiche/<slug>, optionally with full origin.
+function extractBusinessSlugFromHref(href: string | undefined): string | null {
+  if (!href) return null;
+  const m = href.match(/(?:^|\/)(?:b|fiche)\/([^/?#]+)/i);
+  return m ? decodeURIComponent(m[1]) : null;
+}
 
 
 type Msg = { role: "user" | "assistant"; content: string };
