@@ -1,3 +1,5 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -14,11 +16,20 @@ interface SerpApiRequest {
   currency?: string;
   language?: string;
   country?: string;
-  
   minPrice?: number;
   maxPrice?: number;
   rating?: number;
-  maxPages?: number; // max pages to fetch (default 5)
+  maxPages?: number;
+  skipCache?: boolean; // bypass cache for debugging / forced refresh
+}
+
+function normalizeCityKey(city: string): string {
+  return city
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 function mapProperty(p: Record<string, unknown>, idx: number, currency: string) {
@@ -77,7 +88,56 @@ Deno.serve(async (req) => {
     if (!params.checkOut) throw new Error("checkOut is required");
 
     const currency = params.currency || "EUR";
-    const maxPages = Math.min(params.maxPages || 10, 10); // default & cap at 10 pages
+    const language = params.language || "fr";
+    const country = params.country || "ma";
+    const adults = params.adults || 2;
+    const cityKey = normalizeCityKey(params.cityName);
+
+    // Supabase admin client (service role) for cache read/write
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false },
+    });
+
+    // Only cache "broad" queries (no price/rating filters) so cache stays reusable
+    const isCacheable =
+      !params.skipCache &&
+      !params.minPrice &&
+      !params.maxPrice &&
+      !params.rating;
+
+    // 1) Try cache
+    if (isCacheable) {
+      const { data: cached } = await supabase
+        .from("serpapi_hotels_cache")
+        .select("payload, hotel_count, fetched_at, expires_at")
+        .eq("city_key", cityKey)
+        .eq("check_in", params.checkIn)
+        .eq("check_out", params.checkOut)
+        .eq("adults", adults)
+        .eq("currency", currency)
+        .eq("language", language)
+        .eq("country", country)
+        .gt("expires_at", new Date().toISOString())
+        .maybeSingle();
+
+      if (cached?.payload) {
+        console.log(`SerpApi cache HIT: ${cityKey} ${params.checkIn}→${params.checkOut} (${cached.hotel_count} hotels)`);
+        return new Response(
+          JSON.stringify({
+            ...cached.payload,
+            cached: true,
+            fetchedAt: cached.fetched_at,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      console.log(`SerpApi cache MISS: ${cityKey} ${params.checkIn}→${params.checkOut}`);
+    }
+
+    // 2) Cache miss → call SerpAPI
+    const maxPages = Math.min(params.maxPages || 10, 10);
     const allProperties: ReturnType<typeof mapProperty>[] = [];
     let brands: unknown[] = [];
     let nextPageToken: string | null = null;
@@ -89,17 +149,14 @@ Deno.serve(async (req) => {
         q: `Hotels in ${params.cityName}`,
         check_in_date: params.checkIn,
         check_out_date: params.checkOut,
-        adults: String(params.adults || 2),
+        adults: String(adults),
         currency,
-        hl: params.language || "fr",
-        gl: params.country || "ma",
+        hl: language,
+        gl: country,
         api_key: apiKey,
       });
 
-      if (nextPageToken) {
-        searchParams.set("next_page_token", nextPageToken);
-      }
-      
+      if (nextPageToken) searchParams.set("next_page_token", nextPageToken);
       if (params.minPrice) searchParams.set("min_price", String(params.minPrice));
       if (params.maxPrice) searchParams.set("max_price", String(params.maxPrice));
       if (params.rating) searchParams.set("rating", String(params.rating));
@@ -118,7 +175,6 @@ Deno.serve(async (req) => {
       const pageProperties = (body.properties || []).map(
         (p: Record<string, unknown>, idx: number) => mapProperty(p, allProperties.length + idx, currency)
       );
-      // Deduplicate by normalized hotel name
       const seen = new Set(allProperties.map(h => (h.name as string).toLowerCase().trim()));
       for (const h of pageProperties) {
         const key = (h.name as string).toLowerCase().trim();
@@ -128,11 +184,8 @@ Deno.serve(async (req) => {
         }
       }
 
-      if (page === 0) {
-        brands = body.brands || [];
-      }
+      if (page === 0) brands = body.brands || [];
 
-      // Check for next page
       const pagination = body.serpapi_pagination;
       if (pagination?.next_page_token) {
         nextPageToken = pagination.next_page_token;
@@ -144,18 +197,46 @@ Deno.serve(async (req) => {
 
     console.log(`SerpApi: ${allProperties.length} hotels found for ${params.cityName} (${page + 1} page(s))`);
 
+    const responsePayload = {
+      data: allProperties,
+      count: allProperties.length,
+      pages: page + 1,
+      brands,
+      searchInfo: {
+        query: `Hotels in ${params.cityName}`,
+        checkIn: params.checkIn,
+        checkOut: params.checkOut,
+      },
+    };
+
+    // 3) Write to cache (fire-and-forget; never block response on cache write)
+    if (isCacheable && allProperties.length > 0) {
+      supabase
+        .from("serpapi_hotels_cache")
+        .upsert(
+          {
+            city_key: cityKey,
+            check_in: params.checkIn,
+            check_out: params.checkOut,
+            adults,
+            currency,
+            language,
+            country,
+            payload: responsePayload,
+            hotel_count: allProperties.length,
+            fetched_at: new Date().toISOString(),
+            expires_at: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+          },
+          { onConflict: "city_key,check_in,check_out,adults,currency,language,country" }
+        )
+        .then(({ error }) => {
+          if (error) console.error("Cache write failed:", error.message);
+          else console.log(`SerpApi cache WRITE: ${cityKey} ${params.checkIn}→${params.checkOut}`);
+        });
+    }
+
     return new Response(
-      JSON.stringify({
-        data: allProperties,
-        count: allProperties.length,
-        pages: page + 1,
-        brands,
-        searchInfo: {
-          query: `Hotels in ${params.cityName}`,
-          checkIn: params.checkIn,
-          checkOut: params.checkOut,
-        },
-      }),
+      JSON.stringify({ ...responsePayload, cached: false }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
