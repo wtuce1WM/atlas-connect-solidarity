@@ -178,7 +178,7 @@ const tools = [
           business_slugs: {
             type: "array",
             items: { type: "string" },
-            description: "Liste des slugs (2 à 20) des établissements à afficher sur la carte.",
+            description: "Liste des slugs (2 à 30) des établissements à afficher sur la carte. Passe tous les résultats utiles de search_businesses (jusqu'à 30).",
           },
           title: { type: "string", description: "Titre court de la carte (ex: 'Hôtels avec piscine à Marrakech'). Optionnel." },
         },
