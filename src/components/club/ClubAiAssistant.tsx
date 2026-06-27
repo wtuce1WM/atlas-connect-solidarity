@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Send, Trash2, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon } from "lucide-react";
+import { Loader2, Plus, Send, Trash2, Pencil, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "@/hooks/use-toast";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -308,6 +308,23 @@ const ClubAiAssistant = ({ userId }: Props) => {
     await loadChats();
   };
 
+  const renameChat = async (id: string, currentTitle: string) => {
+    const next = window.prompt("Renommer la conversation", currentTitle || "")?.trim();
+    if (!next || next === currentTitle) return;
+    const title = next.slice(0, 200);
+    setChats((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)));
+    if (activeChat?.id === id) setActiveChat({ ...activeChat, title });
+    const { error } = await supabase
+      .from("ai_chats")
+      .update({ title })
+      .eq("id", id)
+      .eq("user_id", userId);
+    if (error) {
+      toast({ title: "Renommage impossible", description: error.message, variant: "destructive" });
+      await loadChats();
+    }
+  };
+
   const toggleBookmark = async () => {
     if (!activeChat) return;
     const next = !activeChat.is_bookmarked;
@@ -578,6 +595,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
                     <div className="text-[10px] text-[#C04F17]/70">
                       {new Date(c.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
                     </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); renameChat(c.id, c.title); }}
+                    className="opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded text-[#C04F17] hover:bg-white"
+                    title="Renommer"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
                     type="button"
