@@ -23,6 +23,7 @@ export interface MapPanelBusiness {
   google_review_count?: number | null;
   tripadvisor_rating?: number | null;
   tripadvisor_review_count?: number | null;
+  engagements?: string[] | null;
 }
 
 interface MapSlidePanelProps {
