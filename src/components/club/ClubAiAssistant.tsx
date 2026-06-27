@@ -76,7 +76,18 @@ const ClubAiAssistant = ({ userId }: Props) => {
     },
     onError: (msg) => toast({ title: "Micro", description: msg, variant: "destructive" }),
   });
-  const isMobile = useIsMobile();
+  const isMobileHook = useIsMobile();
+  const [isTabletOrBelow, setIsTabletOrBelow] = useState<boolean>(
+    () => typeof window !== "undefined" ? window.innerWidth < 1024 : false
+  );
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1023px)");
+    const onChange = () => setIsTabletOrBelow(window.innerWidth < 1024);
+    mql.addEventListener("change", onChange);
+    onChange();
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  const isMobile = isMobileHook || isTabletOrBelow;
 
 
   const loadChats = async () => {
@@ -365,9 +376,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const ttsBusy = tts.status === "loading" || tts.status === "playing" || tts.status === "paused";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-4 min-h-[520px]">
+    <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4 min-h-[520px]">
       {/* Threads */}
-      <aside className="bg-[#ECD6B8] rounded-xl p-3 flex flex-col gap-2 md:max-h-[640px]">
+      <aside className="bg-[#ECD6B8] rounded-xl p-3 flex flex-col gap-2 lg:max-h-[640px]">
         <button
           onClick={newChat}
           className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg bg-[#C04F17] text-white text-sm font-semibold hover:bg-[#1240d6] transition-colors"
@@ -408,7 +419,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       </aside>
 
       {/* Chat */}
-      <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col md:max-h-[820px] min-h-[720px]">
+      <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col lg:max-h-[820px] min-h-[720px]">
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
           <div className="text-sm font-semibold text-[#C04F17] flex-1 break-words">
             {activeChat?.title || "Nouvelle conversation"}
