@@ -404,11 +404,19 @@ const Club = () => {
 
     setIsSubmitting(true);
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { error: authError } = await supabase.auth.signUp({
         email: form.email.trim(),
         password,
         options: {
           emailRedirectTo: window.location.origin + "/club",
+          data: {
+            is_club_signup: true,
+            nickname: form.first_name.trim(),
+            first_name: form.first_name.trim(),
+            last_name: form.last_name.trim() || null,
+            phone: form.phone.trim() || null,
+            whatsapp: form.whatsapp.trim() || null,
+          },
         },
       });
 
@@ -420,20 +428,6 @@ const Club = () => {
         throw authError;
       }
 
-      const payload: Record<string, string> = {
-        nickname: form.first_name.trim(),
-        email: form.email.trim(),
-      };
-      if (authData.user?.id) (payload as any).user_id = authData.user.id;
-      if (form.first_name.trim()) payload.first_name = form.first_name.trim();
-      if (form.last_name.trim()) payload.last_name = form.last_name.trim();
-      if (form.phone.trim()) payload.phone = form.phone.trim();
-      if (form.whatsapp.trim()) payload.whatsapp = form.whatsapp.trim();
-
-
-      const { error } = await supabase.from("club_members" as any).insert(payload as any);
-      if (error) throw error;
-
       setIsRegistered(true);
       toast({ title: t.successTitle, description: t.successMsg });
     } catch (err) {
@@ -443,6 +437,7 @@ const Club = () => {
       setIsSubmitting(false);
     }
   };
+
 
   const isFormValid = form.first_name.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
 
