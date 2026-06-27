@@ -447,6 +447,31 @@ Outils disponibles : get_weather, search_businesses, get_business_details, list_
       break;
     }
 
+    // Safety net: if the model exited tool loop without producing prose, force a final synthesis call without tools.
+    if (!finalAnswer) {
+      try {
+        const finalResp = await fetch(GATEWAY_URL, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: FALLBACK_MODEL,
+            messages: [...convo, { role: "user", content: "Synthétise maintenant une réponse claire et chaleureuse pour le membre, en français, en t'appuyant uniquement sur les résultats d'outils ci-dessus. Si aucun résultat exploitable, propose poliment une reformulation." }],
+            temperature: 0.4,
+            max_tokens: 1500,
+          }),
+        });
+        if (finalResp.ok) {
+          const fd = await finalResp.json();
+          finalAnswer = (fd.choices?.[0]?.message?.content || "").trim();
+        }
+      } catch (e) {
+        console.error("final synthesis error", e);
+      }
+      if (!finalAnswer) {
+        finalAnswer = "Désolé, je n'ai pas pu formuler de réponse cette fois-ci. Peux-tu reformuler ta demande (ville, type de cuisine, budget) ?";
+      }
+    }
+
     // Persist conversation
     const userTurns = messages.filter((m) => m.role === "user");
     const lastUser = userTurns[userTurns.length - 1]?.content || "";
