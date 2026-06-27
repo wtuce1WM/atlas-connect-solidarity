@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { X, Share2, Bookmark, BookmarkCheck } from "lucide-react";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 export interface MapPanelBusiness {
   id: string;
