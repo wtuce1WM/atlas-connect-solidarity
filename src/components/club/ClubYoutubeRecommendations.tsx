@@ -111,7 +111,7 @@ const ClubYoutubeRecommendations = () => {
   }, [nearEssaouira]);
 
   const label = useMemo(
-    () => (nearEssaouira ? "Marrakech & Essaouira" : "Marrakech"),
+    () => (nearEssaouira ? "Essaouira" : "Marrakech"),
     [nearEssaouira],
   );
 
