@@ -13,7 +13,10 @@ interface VoiceSearchOverlayProps {
   onFinish?: () => void;
   /** When true, use absolute positioning to stay contained within its parent element */
   contained?: boolean;
+  /** Override the background color class (default: bg-[#BED1FF]) */
+  bgClassName?: string;
 }
+
 
 const ACCENT = "#194CFF";
 
