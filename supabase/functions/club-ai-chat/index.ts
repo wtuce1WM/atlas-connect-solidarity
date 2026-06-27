@@ -792,7 +792,7 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
       }
     }
     if (!resultChatId) {
-      const title = lastUser.slice(0, 60) || "Nouvelle conversation";
+      const title = lastUser.slice(0, 200) || "Nouvelle conversation";
       const { data: inserted } = await admin
         .from("ai_chats")
         .insert({ user_id: user.id, kind: "club", title, messages: newMessages })

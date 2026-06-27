@@ -349,7 +349,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         activeChatIdRef.current = newId;
         setActiveChat((prev) => prev?.id === newId
           ? { ...prev, messages: fullMessages, updated_at: new Date().toISOString() }
-          : { id: newId, title: text.slice(0, 60) || "Nouvelle conversation", updated_at: new Date().toISOString(), is_bookmarked: false, messages: fullMessages }
+          : { id: newId, title: text.slice(0, 200) || "Nouvelle conversation", updated_at: new Date().toISOString(), is_bookmarked: false, messages: fullMessages }
         );
       }
       if (newId && newId !== safeChatId) {
