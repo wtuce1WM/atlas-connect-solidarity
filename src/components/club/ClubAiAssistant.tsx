@@ -140,6 +140,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
   // Map slide-panel state (opened when the user clicks a mini-map card in a message).
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  // Index of business name -> slug, fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
+  const nameToSlugRef = useRef<Map<string, string>>(new Map());
 
   const handleOpenBusinessLink = async (href: string | undefined) => {
     const slug = extractBusinessSlugFromHref(href);
@@ -151,6 +153,22 @@ const ClubAiAssistant = ({ userId }: Props) => {
       toast({ title: "Fiche introuvable", description: "Impossible d'ouvrir cette fiche.", variant: "destructive" });
     }
     return true;
+  };
+
+  const handleOpenBusinessName = async (name: string) => {
+    const n = name.trim();
+    if (!n) return;
+    // Try cached map payloads (name -> slug) first
+    const slug = nameToSlugRef.current.get(n.toLowerCase());
+    if (slug) {
+      const id = await resolveBusinessId(slug);
+      if (id) { setOpenBusinessId(id); return; }
+    }
+    // Fallback: look up by exact name in DB
+    const { data } = await supabase.from("businesses").select("id").ilike("name", n).limit(1).maybeSingle();
+    const id = (data as any)?.id;
+    if (id) setOpenBusinessId(id);
+    else toast({ title: "Fiche introuvable", description: `Aucune fiche trouvée pour "${n}".`, variant: "destructive" });
   };
 
 
@@ -593,6 +611,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
             const { clean, maps } = m.role === "assistant"
               ? extractMapPayloads(m.content)
               : { clean: m.content, maps: [] as MapPayload[] };
+            // Index business names → slugs for clickable bold names.
+            for (const mp of maps) {
+              for (const b of mp.businesses) {
+                if (b?.name && b?.slug) nameToSlugRef.current.set(b.name.toLowerCase(), b.slug);
+              }
+            }
             return (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 {m.role === "user" ? (
@@ -602,19 +626,40 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 ) : (
                   <div className="max-w-[88%] group w-full">
                     <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
-                      <ReactMarkdown components={{ a: ({ href, children }) => {
-                        const isBusinessLink = !!extractBusinessSlugFromHref(href);
-                        if (isBusinessLink) {
-                          return (
-                            <a
-                              href={href}
-                              onClick={(e) => { e.preventDefault(); void handleOpenBusinessLink(href); }}
-                              className="cursor-pointer"
-                            >{children}</a>
-                          );
-                        }
-                        return <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
-                      } }}>{linkifyPhones(clean)}</ReactMarkdown>
+                      <ReactMarkdown components={{
+                        a: ({ href, children }) => {
+                          const isBusinessLink = !!extractBusinessSlugFromHref(href);
+                          if (isBusinessLink) {
+                            return (
+                              <a
+                                href={href}
+                                onClick={(e) => { e.preventDefault(); void handleOpenBusinessLink(href); }}
+                                className="cursor-pointer"
+                              >{children}</a>
+                            );
+                          }
+                          return <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
+                        },
+                        strong: ({ children }) => {
+                          const text = Array.isArray(children)
+                            ? children.map((c) => (typeof c === "string" ? c : "")).join("")
+                            : (typeof children === "string" ? children : "");
+                          const trimmed = text.trim();
+                          if (trimmed && trimmed.length <= 80) {
+                            return (
+                              <strong
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => void handleOpenBusinessName(trimmed)}
+                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessName(trimmed); } }}
+                                className="cursor-pointer hover:underline"
+                                title="Ouvrir la fiche"
+                              >{children}</strong>
+                            );
+                          }
+                          return <strong>{children}</strong>;
+                        },
+                      }}>{linkifyPhones(clean)}</ReactMarkdown>
                     </div>
                     {maps.map((mp, idx) => (
                       <button
