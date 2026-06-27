@@ -286,6 +286,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             label="Profil"
             ariaLabel="Profil"
             onClick={handleProfileClick}
+            active={isLoggedIn}
           />
 
         </div>
