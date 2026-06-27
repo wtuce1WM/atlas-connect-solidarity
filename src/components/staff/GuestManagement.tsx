@@ -194,7 +194,7 @@ const GuestManagement = () => {
                       <TableCell className="text-sm">{[member.city, member.country].filter(Boolean).join(", ") || "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{formatDate(member.created_at)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                        {member.last_sign_in_at ? formatDate(member.last_sign_in_at) : "—"}
+                        {member.last_active_at ? formatDate(member.last_active_at) : (member.last_sign_in_at ? formatDate(member.last_sign_in_at) : "—")}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
