@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User as UserIcon, MapPin, Plane, Lightbulb, Bell, Home, Bot } from "lucide-react";
 import AiChatsList from "@/components/club/AiChatsList";
 import ClubTrips from "@/components/club/ClubTrips";
+import BookmarkTripLinker from "@/components/club/BookmarkTripLinker";
 import ClubAiAssistant from "@/components/club/ClubAiAssistant";
 import { MessageCircle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -668,6 +669,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
                     </Link>
+                    <BookmarkTripLinker userId={user.id} businessId={bk.business_id} />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
