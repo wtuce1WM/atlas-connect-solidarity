@@ -543,7 +543,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
           micReady={voice.micReady}
           onClose={() => voice.toggleRecording()}
           onFinish={() => voice.finishRecording()}
-          contained
+          contained={!isMobile}
         />
       </section>
     </div>
