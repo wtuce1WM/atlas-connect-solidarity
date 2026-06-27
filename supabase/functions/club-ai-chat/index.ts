@@ -133,6 +133,21 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "get_my_trips",
+      description:
+        "Liste les voyages du membre (titre, description, dates, heures, ville(s), établissements liés). Par défaut : voyages en cours ou à venir, triés par date d'arrivée. Utilise-le quand le membre dit 'mon voyage', 'mes voyages', 'mon séjour à X', 'prépare mon week-end à…', 'planning', ou pour personnaliser une recommandation autour de ses dates et adresses déjà sauvegardées.",
+      parameters: {
+        type: "object",
+        properties: {
+          include_past: { type: "boolean", description: "Inclure les voyages passés (défaut false).", default: false },
+          limit: { type: "number", description: "Max 10", default: 6 },
+        },
+      },
+    },
+  },
 ];
 
 
