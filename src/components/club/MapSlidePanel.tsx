@@ -1,8 +1,15 @@
 /// <reference types="@types/google.maps" />
 import { useEffect, useMemo, useState } from "react";
-import { X, Share2, Bookmark, BookmarkCheck } from "lucide-react";
+import { X, Share2, Bookmark, BookmarkCheck, Navigation } from "lucide-react";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { haversineKm } from "@/lib/haversine";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export interface MapPanelBusiness {
   id: string;
@@ -54,6 +61,8 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
   const geo = useGeolocation();
   const [browserPos, setBrowserPos] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [proximityKm, setProximityKm] = useState<number | null>(null);
 
   // Priorité : coordonnées définies dans le popup de géolocalisation, sinon fallback navigator
   const userPos = (geo.isEnabled && geo.coords) ? geo.coords : browserPos;
@@ -129,7 +138,45 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     return CITY_CENTERS[dominant];
   }, [mapBusinesses]);
 
+  // Top 20 sorted by rating, then "Tous" toggle
+  const rankedPois = useMemo(() => {
+    return [...pois].sort((a, b) => {
+      const ra = a.rating ?? 0;
+      const rb = b.rating ?? 0;
+      if (rb !== ra) return rb - ra;
+      return (b.totalReviews ?? 0) - (a.totalReviews ?? 0);
+    });
+  }, [pois]);
+
+  const proximityCountsByKm = useMemo(() => {
+    const out: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
+    if (!userPos) return out;
+    for (const p of pois) {
+      if (p.latitude == null || p.longitude == null) continue;
+      const d = haversineKm(userPos.lat, userPos.lng, p.latitude, p.longitude);
+      for (const km of [0.5, 1, 5, 10]) if (d <= km) out[km]++;
+    }
+    return out;
+  }, [pois, userPos]);
+
+  const displayedPois = useMemo(() => {
+    let list = showAll ? rankedPois : rankedPois.slice(0, 20);
+    if (userPos && proximityKm != null) {
+      list = list.filter((p) => {
+        if (p.latitude == null || p.longitude == null) return false;
+        return haversineKm(userPos.lat, userPos.lng, p.latitude, p.longitude) <= proximityKm;
+      });
+    }
+    return list;
+  }, [showAll, rankedPois, userPos, proximityKm]);
+
+  const total = pois.length;
+  const showToggle = total > 20;
+  const proximityActive = proximityKm != null;
+  const proximityCount = proximityKm != null ? (proximityCountsByKm[proximityKm] ?? 0) : 0;
+
   if (!open) return null;
+
 
   return (
     <>
@@ -141,7 +188,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
         {/* Map fills the panel; toolbar floats on top */}
         <div className="relative flex-1">
           <PoiGoogleMap
-            pois={pois}
+            pois={displayedPois}
             selectedPoiId={selectedId}
             onPoiClick={(id) => setSelectedId(id)}
             center={cityCenter || userPos || undefined}
@@ -198,6 +245,84 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                   </button>
                 )}
               </div>
+            </div>
+
+            {/* Toggle Top 20 / Tous + À proximité */}
+            <div className="pointer-events-auto w-full flex items-center justify-center gap-2 px-3 pt-3 pb-2">
+              {showToggle && (
+                <div
+                  className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider"
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setShowAll(false)}
+                    className={`px-3 py-1 rounded-full transition-colors ${!showAll ? "bg-[#C04F17] text-white" : "text-white/80 hover:text-white"}`}
+                  >
+                    Top 20
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAll(true)}
+                    className={`px-3 py-1 rounded-full transition-colors ${showAll ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
+                  >
+                    Tous <span className="ml-0.5 opacity-70">{total}</span>
+                  </button>
+                </div>
+              )}
+              {userPos && (() => {
+                const opts: { km: number; label: string }[] = [
+                  { km: 0.5, label: "Moins de 500 m" },
+                  { km: 1, label: "Moins de 1 km" },
+                  { km: 5, label: "Moins de 5 km" },
+                  { km: 10, label: "Moins de 10 km" },
+                ];
+                const active = opts.find((o) => o.km === proximityKm);
+                return (
+                  <div
+                    className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
+                        >
+                          <Navigation className="h-3.5 w-3.5" />
+                          {active ? active.label : "À proximité"}
+                          {proximityActive && (
+                            <span className="ml-0.5 opacity-70">{proximityCount}</span>
+                          )}
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="z-[95]">
+                        {proximityKm != null && (
+                          <DropdownMenuItem onSelect={() => setProximityKm(null)}>
+                            Toutes distances
+                          </DropdownMenuItem>
+                        )}
+                        {opts.map((o) => {
+                          const count = proximityCountsByKm[o.km] ?? 0;
+                          const disabled = count === 0;
+                          return (
+                            <DropdownMenuItem
+                              key={o.km}
+                              disabled={disabled}
+                              onSelect={(e) => {
+                                if (disabled) { e.preventDefault(); return; }
+                                setProximityKm(o.km);
+                              }}
+                            >
+                              {o.label} <span className="ml-1 opacity-60">({count})</span>
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
