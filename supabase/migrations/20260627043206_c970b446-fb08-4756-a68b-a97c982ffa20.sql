@@ -1,0 +1,1 @@
+INSERT INTO public.knowledge_entries (category, title, content, tags, is_active) VALUES ('architecture', 'Agent IA search - Plan alignement sur club', 'Voir details en BO', ARRAY['agent-ia']::text[], true);
