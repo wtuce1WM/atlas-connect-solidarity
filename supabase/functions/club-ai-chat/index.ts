@@ -269,7 +269,7 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { chatId, messages = [] }: { chatId?: string; messages: Msg[] } = await req.json();
+    const { chatId, messages = [], clientContext = {} }: { chatId?: string; messages: Msg[]; clientContext?: { activeCity?: string; localTime?: string; coords?: { lat: number; lng: number } } } = await req.json();
 
     // Load Club member profile (lightweight context)
     const { data: member } = await admin
@@ -282,6 +282,12 @@ serve(async (req) => {
       ? `Profil utilisateur: ${member.first_name || member.nickname || "Membre"}${member.city ? ` · ${member.city}` : ""}${member.country ? ` (${member.country})` : ""}.`
       : "";
 
+    const contextLine = [
+      clientContext.activeCity ? `Ville active: ${clientContext.activeCity}` : "",
+      clientContext.localTime ? `Heure locale: ${clientContext.localTime}` : "",
+      clientContext.coords ? `Position: ${clientContext.coords.lat.toFixed(3)},${clientContext.coords.lng.toFixed(3)}` : "",
+    ].filter(Boolean).join(" · ");
+
     // Compute taste profile once per call (cheap: 5 small queries)
     let tasteLine = "";
     try {
@@ -291,26 +297,34 @@ serve(async (req) => {
       console.error("taste profile error", e);
     }
 
-    const system = `Tu es l'assistant personnel du Club One World Morocco. Tu aides l'utilisateur connecté à retrouver ses adresses sauvegardées, ses conversations précédentes, et tu réponds à ses questions sur le Maroc (météo, lieux, recommandations).
+    const system = `Tu es l'assistant personnel du Club One World Morocco. Tu aides un membre connecté à découvrir et retrouver des établissements RÉELS référencés dans la base 1WM.
+
 ${profileLine}
+${contextLine ? `Contexte session: ${contextLine}.` : ""}
 ${tasteLine}
-Règles:
-- Réponds en français par défaut, sauf si l'utilisateur écrit dans une autre langue.
-- Reste concis et chaleureux. Markdown léger autorisé (gras, listes courtes).
-- Tu connais déjà les goûts du membre (ci-dessus) : utilise-les naturellement pour personnaliser tes suggestions, sans les énumérer mécaniquement.
-- Utilise les outils quand pertinent: get_weather (météo), search_businesses (lieu précis), list_my_bookmarks, list_my_saved_chats, get_my_taste_profile (détail des goûts), suggest_similar_to_my_bookmarks (recommandations alignées sur les bookmarks).
-- Quand tu cites un établissement, mets son nom exact entre **doubles astérisques**.`;
+
+RÈGLES DE PRÉCISION (critiques) :
+1. N'INVENTE JAMAIS un établissement, une adresse, un horaire, un prix ou un numéro. Toutes ces informations DOIVENT provenir d'un appel d'outil (search_businesses, get_business_details, list_my_bookmarks…).
+2. Avant de recommander un lieu, appelle search_businesses avec les filtres pertinents (city, category, neighborhood). Si la ville n'est pas précisée ET pas évidente dans le contexte, pose UNE courte question de clarification au lieu de deviner.
+3. Pour donner des détails (horaires, prix, adresse, téléphone), appelle get_business_details avec le slug exact obtenu via search_businesses.
+4. Si une recherche ne renvoie rien, dis-le franchement et propose une reformulation — ne complète pas avec des lieux génériques.
+5. Quand tu cites un établissement, format obligatoire : **Nom exact** suivi du lien markdown [voir la fiche](https://oneworldmorocco.com/b/SLUG). Utilise toujours le slug renvoyé par les outils.
+6. Reste concis, chaleureux, en français (sauf si l'utilisateur écrit dans une autre langue). Markdown léger (gras, listes courtes). Évite les listes interminables : 3 à 5 suggestions maximum, vraiment ciblées.
+7. Utilise naturellement les goûts du membre pour personnaliser, sans les réciter.
+
+Outils disponibles : get_weather, search_businesses, get_business_details, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks.`;
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
 
-    // Tool-calling loop (max 4 iterations)
+    // Tool-calling loop (max 6 iterations)
     let finalAnswer = "";
-    for (let i = 0; i < 4; i++) {
+    let modelToUse = MODEL;
+    for (let i = 0; i < 6; i++) {
       const resp = await fetch(GATEWAY_URL, {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: MODEL, messages: convo, tools, tool_choice: "auto", temperature: 0.6, max_tokens: 1500 }),
+        body: JSON.stringify({ model: modelToUse, messages: convo, tools, tool_choice: "auto", temperature: 0.3, max_tokens: 2500 }),
       });
 
       if (resp.status === 429) return new Response(JSON.stringify({ error: "rate_limit" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -318,6 +332,8 @@ Règles:
       if (!resp.ok) {
         const txt = await resp.text();
         console.error("gateway error", resp.status, txt);
+        // Fallback once on pro model failure
+        if (modelToUse === MODEL) { modelToUse = FALLBACK_MODEL; continue; }
         return new Response(JSON.stringify({ error: "gateway_error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
