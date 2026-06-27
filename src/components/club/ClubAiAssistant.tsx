@@ -203,12 +203,35 @@ const ClubAiAssistant = ({ userId }: Props) => {
     tts.speak(content);
   };
 
-  const suggestions = useMemo(() => [
+  const allSuggestions = useMemo(() => [
     "Mes adresses sauvegardées à Marrakech",
     "Un dîner romantique ce soir près de moi",
     "Météo à Essaouira ce weekend",
     "Suggère-moi un spa similaire à mes favoris",
+    "Une activité originale en famille demain",
+    "Un rooftop avec vue pour l'apéro",
+    "Numéros d'urgence à Marrakech",
+    "Un brunch healthy dimanche matin",
+    "Une excursion d'une journée depuis Marrakech",
+    "Un riad de charme dans la médina",
+    "Une pharmacie de garde ce soir",
+    "Un restaurant marocain authentique pas cher",
+    "Que faire à Essaouira sous la pluie",
+    "Une boutique d'artisanat éthique",
+    "Un cours de cuisine marocaine",
+    "Un café calme pour télétravailler",
+    "Une soirée avec musique live ce weekend",
+    "Un hammam traditionnel bien noté",
+    "Une plage tranquille près d'Essaouira",
+    "Un spot photo au lever du soleil",
   ], []);
+
+  const [suggestionPage, setSuggestionPage] = useState(0);
+  const visibleSuggestions = useMemo(() => {
+    const size = 4;
+    const start = (suggestionPage * size) % allSuggestions.length;
+    return Array.from({ length: size }, (_, i) => allSuggestions[(start + i) % allSuggestions.length]);
+  }, [allSuggestions, suggestionPage]);
 
   const emptyHint = useMemo(() => (
     <div className="text-center py-10 px-4 text-[#194CFF]">
@@ -216,7 +239,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       <div className="text-sm font-semibold mb-1">Bonjour 👋</div>
       <div className="text-base opacity-80 mb-4">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou explorez le Maroc.</div>
       <div className="flex flex-wrap gap-2 justify-center max-w-md mx-auto">
-        {suggestions.map((s) => (
+        {visibleSuggestions.map((s) => (
           <button
             key={s}
             onClick={() => send(s)}
@@ -227,8 +250,16 @@ const ClubAiAssistant = ({ userId }: Props) => {
           </button>
         ))}
       </div>
+      <button
+        onClick={() => setSuggestionPage((p) => p + 1)}
+        disabled={sending}
+        className="mt-4 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[#194CFF] text-white hover:bg-[#194CFF]/90 transition-colors disabled:opacity-50"
+      >
+        <RefreshCw className="h-3 w-3" />
+        Autres suggestions
+      </button>
     </div>
-  ), [suggestions, sending]);
+  ), [visibleSuggestions, sending]);
 
   const ttsBusy = tts.status === "loading" || tts.status === "playing" || tts.status === "paused";
 
