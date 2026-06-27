@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { Play } from "lucide-react";
 
-const MARRAKECH_DEST_ID = "d0bb2ac7-9fee-4e1d-8625-b23e1d28aa9e";
-const ESSAOUIRA_DEST_ID = "3947db1f-daaa-4f7f-a617-e5988d9d86db";
+const MARRAKECH_CITY_ID = "41545fd3-2c2c-4609-8d55-842fd7e2edde";
+const ESSAOUIRA_CITY_ID = "3f96c12a-0635-4f70-8de0-2578a66bcc07";
 const ESSAOUIRA_COORDS = { lat: 31.5085, lng: -9.7595 };
 const ESSAOUIRA_RADIUS_KM = 80;
 
