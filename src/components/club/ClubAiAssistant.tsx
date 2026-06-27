@@ -474,30 +474,60 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
           {messages.length === 0 && !sending && emptyHint}
-          {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              {m.role === "user" ? (
-                <div className="max-w-[80%] px-3 py-2 rounded-2xl bg-[#C04F17] text-white text-sm whitespace-pre-wrap">
-                  {m.content}
-                </div>
-              ) : (
-                <div className="max-w-[88%] group">
-                  <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
-                    <ReactMarkdown components={{ a: ({ href, children }) => <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a> }}>{linkifyPhones(m.content)}</ReactMarkdown>
+          {messages.map((m, i) => {
+            const { clean, maps } = m.role === "assistant"
+              ? extractMapPayloads(m.content)
+              : { clean: m.content, maps: [] as MapPayload[] };
+            return (
+              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                {m.role === "user" ? (
+                  <div className="max-w-[80%] px-3 py-2 rounded-2xl bg-[#C04F17] text-white text-sm whitespace-pre-wrap">
+                    {m.content}
                   </div>
-                  <button
-                    onClick={() => handleSpeakMessage(m.content)}
-                    className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#C04F17] hover:text-[#0a1d6b] opacity-70 hover:opacity-100 transition-opacity"
-                    title={ttsBusy && lastSpokenRef.current === m.content ? "Arrêter la lecture" : "Écouter"}
-                  >
-                    {ttsBusy && lastSpokenRef.current === m.content
-                      ? (<><Square className="h-3 w-3" /> Stop</>)
-                      : (<><Volume2 className="h-3 w-3" /> Écouter</>)}
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
+                ) : (
+                  <div className="max-w-[88%] group w-full">
+                    <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
+                      <ReactMarkdown components={{ a: ({ href, children }) => <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a> }}>{linkifyPhones(clean)}</ReactMarkdown>
+                    </div>
+                    {maps.map((mp, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setOpenMap(mp)}
+                        className="mt-2 w-full flex items-center gap-3 p-3 rounded-xl bg-white/80 hover:bg-white border border-[#C04F17]/20 transition-colors text-left group/map"
+                      >
+                        <div className="relative h-16 w-20 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-[#C04F17]/15 to-[#D4AF37]/20 flex items-center justify-center">
+                          <MapIcon className="h-6 w-6 text-[#C04F17]" />
+                          <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 30% 40%, rgba(192,79,23,0.35) 0 3px, transparent 4px), radial-gradient(circle at 70% 60%, rgba(212,175,55,0.45) 0 3px, transparent 4px), radial-gradient(circle at 50% 75%, rgba(192,79,23,0.3) 0 3px, transparent 4px)" }} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-semibold text-[#C04F17] truncate">
+                            {mp.title || `${mp.businesses.length} lieux sur la carte`}
+                          </div>
+                          <div className="text-[11px] text-[#0a1d6b]/70 truncate">
+                            {mp.businesses.slice(0, 3).map((b) => b.name).join(" · ")}
+                            {mp.businesses.length > 3 ? ` · +${mp.businesses.length - 3}` : ""}
+                          </div>
+                          <div className="text-[11px] text-[#C04F17] mt-0.5 font-medium group-hover/map:underline">
+                            Ouvrir la carte →
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => handleSpeakMessage(clean)}
+                      className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#C04F17] hover:text-[#0a1d6b] opacity-70 hover:opacity-100 transition-opacity"
+                      title={ttsBusy && lastSpokenRef.current === clean ? "Arrêter la lecture" : "Écouter"}
+                    >
+                      {ttsBusy && lastSpokenRef.current === clean
+                        ? (<><Square className="h-3 w-3" /> Stop</>)
+                        : (<><Volume2 className="h-3 w-3" /> Écouter</>)}
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
           {sending && (
             <div className="flex items-center gap-2 text-[#C04F17] text-xs">
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> L'assistant réfléchit…
