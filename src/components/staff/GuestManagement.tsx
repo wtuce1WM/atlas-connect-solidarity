@@ -207,9 +207,14 @@ const GuestManagement = () => {
                         {member.last_sign_in_at ? formatDate(member.last_sign_in_at) : "—"}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(member)} title="Éditer les personas">
-                          <Pencil className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => setEditingAccountId(member.id)} title="Éditer la fiche complète">
+                            <UserCog className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(member)} title="Éditer les personas">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
