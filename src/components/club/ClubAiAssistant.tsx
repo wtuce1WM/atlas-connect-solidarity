@@ -419,7 +419,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       </aside>
 
       {/* Chat */}
-      <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col md:max-h-[820px] min-h-[720px]">
+      <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col lg:max-h-[820px] min-h-[720px]">
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
           <div className="text-sm font-semibold text-[#C04F17] flex-1 break-words">
             {activeChat?.title || "Nouvelle conversation"}
