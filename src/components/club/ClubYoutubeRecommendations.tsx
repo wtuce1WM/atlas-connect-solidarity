@@ -36,7 +36,23 @@ const ClubYoutubeRecommendations = () => {
   const [videos, setVideos] = useState<Video[]>([]);
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    const tryIpFallback = async () => {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const j = await res.json();
+        if (typeof j?.latitude === "number" && typeof j?.longitude === "number") {
+          const dist = haversineKm(
+            { lat: j.latitude, lng: j.longitude },
+            ESSAOUIRA_COORDS,
+          );
+          if (dist <= ESSAOUIRA_RADIUS_KM) setNearEssaouira(true);
+        }
+      } catch {}
+    };
+    if (!navigator.geolocation) {
+      tryIpFallback();
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const dist = haversineKm(
@@ -45,10 +61,13 @@ const ClubYoutubeRecommendations = () => {
         );
         if (dist <= ESSAOUIRA_RADIUS_KM) setNearEssaouira(true);
       },
-      () => {},
+      () => {
+        tryIpFallback();
+      },
       { timeout: 5000, maximumAge: 5 * 60 * 1000 },
     );
   }, []);
+
 
   useEffect(() => {
     let cancelled = false;
