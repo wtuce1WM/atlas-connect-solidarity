@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Send, Trash2, MessageSquare, Bookmark, BookmarkCheck } from "lucide-react";
+import { Loader2, Plus, Send, Trash2, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "@/hooks/use-toast";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -17,6 +20,8 @@ type ChatRow = {
 
 interface Props { userId: string }
 
+const VOICE_MODE_KEY = "club_ai_voice_mode";
+
 const ClubAiAssistant = ({ userId }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeId = searchParams.get("assistant") || null;
@@ -27,8 +32,30 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const [activeChat, setActiveChat] = useState<ChatRow | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [voiceMode, setVoiceMode] = useState<boolean>(() => {
+    try { return localStorage.getItem(VOICE_MODE_KEY) === "1"; } catch { return false; }
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const lastSpokenRef = useRef<string>("");
+  const shouldReopenMicRef = useRef<boolean>(false);
+
+  const tts = useTextToSpeech({
+    onEnd: () => {
+      // In voice mode, automatically reopen the mic for continuous conversation
+      if (voiceMode && shouldReopenMicRef.current) {
+        shouldReopenMicRef.current = false;
+        setTimeout(() => { try { voice.toggleRecording(); } catch {/* noop */} }, 250);
+      }
+    },
+  });
+
+  const voice = useVoiceSearch({
+    onTranscript: (_keywords, spoken) => {
+      if (spoken?.trim()) send(spoken.trim());
+    },
+    onError: (msg) => toast({ title: "Micro", description: msg, variant: "destructive" }),
+  });
 
   const loadChats = async () => {
     setLoadingList(true);
@@ -60,13 +87,22 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   useEffect(() => { inputRef.current?.focus(); }, [activeId]);
 
+  useEffect(() => {
+    try { localStorage.setItem(VOICE_MODE_KEY, voiceMode ? "1" : "0"); } catch {/* noop */}
+  }, [voiceMode]);
+
+  // Stop TTS when leaving / switching chat
+  useEffect(() => () => { try { tts.stop(); } catch {/* noop */} }, []); // eslint-disable-line
+
   const openChat = (id: string) => {
+    try { tts.stop(); } catch {/* noop */}
     const next = new URLSearchParams(searchParams);
     next.set("assistant", id);
     setSearchParams(next, { replace: false });
   };
 
   const newChat = () => {
+    try { tts.stop(); } catch {/* noop */}
     const next = new URLSearchParams(searchParams);
     next.delete("assistant");
     setSearchParams(next, { replace: false });
@@ -93,12 +129,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const send = async (overrideText?: string) => {
     const text = (overrideText ?? input).trim();
     if (!text || sending) return;
+    try { tts.stop(); } catch {/* noop */}
     setSending(true);
     setInput("");
     const newMsgs: Msg[] = [...messages, { role: "user", content: text }];
     setMessages(newMsgs);
 
-    // Lightweight client context for precision (active city + local time + coords if available)
     const clientContext: any = {
       localTime: new Date().toLocaleString("fr-FR", { timeZone: "Africa/Casablanca", dateStyle: "full", timeStyle: "short" }),
     };
@@ -123,6 +159,13 @@ const ClubAiAssistant = ({ userId }: Props) => {
         setSearchParams(params, { replace: true });
       }
       loadChats();
+
+      // Auto-speak in voice mode (and arm mic reopen)
+      if (voiceMode && answer) {
+        shouldReopenMicRef.current = true;
+        lastSpokenRef.current = answer;
+        setTimeout(() => { try { tts.speak(answer); } catch {/* noop */} }, 100);
+      }
     } catch (e: any) {
       toast({ title: "Erreur", description: e?.message || "Impossible de joindre l'assistant.", variant: "destructive" });
       setMessages(newMsgs);
@@ -134,6 +177,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  };
+
+  const handleSpeakMessage = (content: string) => {
+    if (!content?.trim()) return;
+    shouldReopenMicRef.current = false; // manual play → don't reopen mic after
+    tts.speak(content);
   };
 
   const suggestions = useMemo(() => [
@@ -162,6 +211,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
       </div>
     </div>
   ), [suggestions, sending]);
+
+  const ttsBusy = tts.status === "loading" || tts.status === "playing" || tts.status === "paused";
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-4 min-h-[520px]">
@@ -207,20 +258,33 @@ const ClubAiAssistant = ({ userId }: Props) => {
       </aside>
 
       {/* Chat */}
-      <section className="bg-[#BED1FF] rounded-xl flex flex-col md:max-h-[640px] min-h-[520px]">
-        <header className="flex items-center justify-between px-4 py-3 border-b border-white/40">
-          <div className="text-sm font-semibold text-[#194CFF] truncate">
+      <section className="relative bg-[#BED1FF] rounded-xl flex flex-col md:max-h-[640px] min-h-[520px]">
+        <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
+          <div className="text-sm font-semibold text-[#194CFF] truncate flex-1">
             {activeChat?.title || "Nouvelle conversation"}
           </div>
-          {activeChat && (
+          <div className="flex items-center gap-1 shrink-0">
             <button
-              onClick={toggleBookmark}
-              className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-white/60 text-[#194CFF]"
-              title={activeChat.is_bookmarked ? "Retirer le bookmark" : "Bookmarker"}
+              onClick={() => {
+                const next = !voiceMode;
+                setVoiceMode(next);
+                if (!next) { try { tts.stop(); } catch {/* noop */} }
+              }}
+              className={`h-8 px-2.5 flex items-center gap-1.5 rounded-full text-[11px] font-semibold transition-colors ${voiceMode ? "bg-[#194CFF] text-white" : "bg-white/70 text-[#194CFF] hover:bg-white"}`}
+              title="Mode vocal : lecture automatique + réouverture du micro"
             >
-              {activeChat.is_bookmarked ? <BookmarkCheck className="h-4 w-4" fill="currentColor" /> : <Bookmark className="h-4 w-4" />}
+              <Headphones className="h-3.5 w-3.5" /> Mode vocal
             </button>
-          )}
+            {activeChat && (
+              <button
+                onClick={toggleBookmark}
+                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-white/60 text-[#194CFF]"
+                title={activeChat.is_bookmarked ? "Retirer le bookmark" : "Bookmarker"}
+              >
+                {activeChat.is_bookmarked ? <BookmarkCheck className="h-4 w-4" fill="currentColor" /> : <Bookmark className="h-4 w-4" />}
+              </button>
+            )}
+          </div>
         </header>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
@@ -232,8 +296,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
                   {m.content}
                 </div>
               ) : (
-                <div className="max-w-[88%] text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#194CFF]">
-                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                <div className="max-w-[88%] group">
+                  <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#194CFF]">
+                    <ReactMarkdown>{m.content}</ReactMarkdown>
+                  </div>
+                  <button
+                    onClick={() => handleSpeakMessage(m.content)}
+                    className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#194CFF] hover:text-[#0a1d6b] opacity-70 hover:opacity-100 transition-opacity"
+                    title={ttsBusy && lastSpokenRef.current === m.content ? "Arrêter la lecture" : "Écouter"}
+                  >
+                    {ttsBusy && lastSpokenRef.current === m.content
+                      ? (<><Square className="h-3 w-3" /> Stop</>)
+                      : (<><Volume2 className="h-3 w-3" /> Écouter</>)}
+                  </button>
                 </div>
               )}
             </div>
@@ -257,6 +332,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
             disabled={sending}
           />
           <button
+            onClick={() => voice.toggleRecording()}
+            disabled={sending}
+            className={`h-10 w-10 shrink-0 flex items-center justify-center rounded-lg ${voice.status === "recording" ? "bg-red-500 text-white animate-pulse" : "bg-white text-[#194CFF] border border-[#194CFF]/30 hover:bg-[#BED1FF]"} disabled:opacity-50`}
+            title="Parler"
+          >
+            <Mic className="h-4 w-4" />
+          </button>
+          <button
             onClick={() => send()}
             disabled={sending || !input.trim()}
             className="h-10 w-10 shrink-0 flex items-center justify-center rounded-lg bg-[#194CFF] text-white hover:bg-[#1240d6] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -265,6 +348,16 @@ const ClubAiAssistant = ({ userId }: Props) => {
             {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </button>
         </div>
+
+        <VoiceSearchOverlay
+          isOpen={voice.status === "recording" || voice.status === "processing"}
+          liveTranscript={voice.liveTranscript}
+          audioLevel={voice.audioLevel}
+          micReady={voice.micReady}
+          onClose={() => voice.toggleRecording()}
+          onFinish={() => voice.finishRecording()}
+          contained
+        />
       </section>
     </div>
   );
