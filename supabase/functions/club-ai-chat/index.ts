@@ -8,7 +8,9 @@ const corsHeaders = {
 };
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3-flash-preview";
+// Modèle "pro" pour précision et meilleur raisonnement multi-tools.
+const MODEL = "google/gemini-3-pro-preview";
+const FALLBACK_MODEL = "google/gemini-3-flash-preview";
 
 type Msg = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_calls?: any[]; tool_call_id?: string; name?: string };
 
