@@ -43,7 +43,7 @@ const HomeBottomBar = () => {
           overlayOpen ? "inset-0" : "inset-x-0 bottom-0"
         }`}
       >
-        <div className="relative w-full h-full mx-auto sm:max-w-[640px] lg:max-w-[50vw] pointer-events-auto">
+        <div className={`relative h-full mx-auto pointer-events-auto ${overlayOpen ? "w-full sm:max-w-[640px] lg:max-w-[50vw]" : "w-[90%] sm:max-w-[640px] lg:w-1/2 lg:max-w-[50vw]"}`}>
           <PanelSearchBar
             onSearch={(params) => {
               const qs = new URLSearchParams(params).toString();
