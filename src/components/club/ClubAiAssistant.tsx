@@ -76,7 +76,18 @@ const ClubAiAssistant = ({ userId }: Props) => {
     },
     onError: (msg) => toast({ title: "Micro", description: msg, variant: "destructive" }),
   });
-  const isMobile = useIsMobile();
+  const isMobileHook = useIsMobile();
+  const [isTabletOrBelow, setIsTabletOrBelow] = React.useState<boolean>(
+    () => typeof window !== "undefined" ? window.innerWidth < 1024 : false
+  );
+  React.useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1023px)");
+    const onChange = () => setIsTabletOrBelow(window.innerWidth < 1024);
+    mql.addEventListener("change", onChange);
+    onChange();
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  const isMobile = isMobileHook || isTabletOrBelow;
 
 
   const loadChats = async () => {
