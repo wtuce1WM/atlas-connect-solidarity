@@ -7,6 +7,8 @@ import { toast } from "@/hooks/use-toast";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -74,6 +76,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
     },
     onError: (msg) => toast({ title: "Micro", description: msg, variant: "destructive" }),
   });
+  const isMobile = useIsMobile();
+
 
   const loadChats = async () => {
     setLoadingList(true);
@@ -539,7 +543,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
           micReady={voice.micReady}
           onClose={() => voice.toggleRecording()}
           onFinish={() => voice.finishRecording()}
-          contained
+          contained={!isMobile}
         />
       </section>
     </div>
