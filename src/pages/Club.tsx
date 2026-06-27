@@ -4,7 +4,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
-import { Crown, Loader2, Mail, Eye, EyeOff, Home } from "lucide-react";
+import { Crown, Loader2, Mail, Eye, EyeOff, Home, ArrowUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -749,6 +749,19 @@ const Club = () => {
             </>
           )}
         </section>
+        {user && (
+          <div className="flex justify-center pb-8">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              aria-label="Revenir"
+              className="text-white/70 transition hover:text-white"
+            >
+              <ArrowUp className="mx-auto mb-2 h-5 w-5 animate-bounce" />
+              <span className="block font-josefin text-xs uppercase tracking-[0.3em]">Revenir</span>
+            </button>
+          </div>
+        )}
       </main>
       <Footer variant="verified" className="bg-[#BED1FF] text-black" />
       <HomeBottomBar />
