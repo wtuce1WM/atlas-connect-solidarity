@@ -171,7 +171,7 @@ const GuestManagement = () => {
                     <TableHead><div className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />Localisation</div></TableHead>
                     
                     <TableHead>Inscrit le</TableHead>
-                    <TableHead><div className="flex items-center gap-1"><LogIn className="h-3.5 w-3.5" />Dernière connexion</div></TableHead>
+                    <TableHead><div className="flex items-center gap-1"><LogIn className="h-3.5 w-3.5" />Dernière activité</div></TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
