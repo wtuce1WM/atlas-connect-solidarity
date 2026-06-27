@@ -149,7 +149,20 @@ serve(async (req) => {
     const persona = cfg.persona || "Tu es un concierge expert du Maroc, chaleureux et passionné. Tu aides les utilisateurs à trouver les meilleurs établissements.";
     const tone = cfg.tone || "Sois naturel et enthousiaste, comme un ami local passionné qui partage ses meilleures adresses.";
     const responseLength = cfg.response_length || "5-8";
-    const model = cfg.model || "google/gemini-3-flash-preview";
+    const baseModel = cfg.model || "google/gemini-3-flash-preview";
+    const proModel = cfg.pro_model || "google/gemini-3-pro-preview";
+
+    // --- Hybrid model routing ---
+    // Promote to Pro on complex / open-ended requests where reasoning quality
+    // visibly pays off (planning, multi-criteria, long prose, refinement chains).
+    // Default stays on Flash to keep the ~$0.003/req baseline.
+    // Modes "poi" / "destinations" stay on Flash (formatting-only outputs).
+    const qLen = (query || "").length;
+    const historyTurns = Array.isArray(history) ? history.length : 0;
+    const COMPLEX_RE = /\b(itin[ée]raire|planifi|organise|propose[- ]?moi|recommande[- ]?moi|conseille[- ]?moi|compare|versus|vs\b|meilleur|top\s*\d|journ[ée]e|week[- ]?end|s[ée]jour|programme|sur\s+\d+\s*jours?|romantique|en\s+famille|avec\s+enfants?|budget|luxe|authentique|insolite|secret|cach[ée]|hors[- ]des[- ]sentiers|et\s+(?:aussi|ensuite|apr[èe]s|avant)|d'?abord.+(?:ensuite|puis))/i;
+    const isComplex = !mode && (COMPLEX_RE.test(query || "") || qLen >= 110 || historyTurns >= 4);
+    const model = isComplex ? proModel : baseModel;
+    console.log(`[ai-search-answer] model=${model} complex=${isComplex} qLen=${qLen} turns=${historyTurns}`);
     const configuredMaxTokens = parseInt(cfg.max_tokens || "1200", 10);
     const maxTokens = Math.max(Number.isFinite(configuredMaxTokens) ? configuredMaxTokens : 0, 3200);
     const temperature = parseFloat(cfg.temperature || "0.7");
