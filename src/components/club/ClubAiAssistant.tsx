@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Plus, Send, Trash2, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon } from "lucide-react";
@@ -9,6 +9,31 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
+const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
+
+// Resolve a business slug (or id) to its UUID, with in-memory cache.
+const slugIdCache = new Map<string, string>();
+async function resolveBusinessId(slugOrId: string): Promise<string | null> {
+  const key = slugOrId.trim();
+  if (!key) return null;
+  if (slugIdCache.has(key)) return slugIdCache.get(key)!;
+  // UUID? use as-is.
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key)) {
+    slugIdCache.set(key, key);
+    return key;
+  }
+  const { data } = await supabase.from("businesses").select("id").eq("slug", key).maybeSingle();
+  const id = (data as any)?.id || null;
+  if (id) slugIdCache.set(key, id);
+  return id;
+}
+
+// Match /b/<slug> or /fiche/<slug>, optionally with full origin.
+function extractBusinessSlugFromHref(href: string | undefined): string | null {
+  if (!href) return null;
+  const m = href.match(/(?:^|\/)(?:b|fiche)\/([^/?#]+)/i);
+  return m ? decodeURIComponent(m[1]) : null;
+}
 
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -114,6 +139,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   // Map slide-panel state (opened when the user clicks a mini-map card in a message).
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
+  const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+
+  const handleOpenBusinessLink = async (href: string | undefined) => {
+    const slug = extractBusinessSlugFromHref(href);
+    if (!slug) return false;
+    const id = await resolveBusinessId(slug);
+    if (id) {
+      setOpenBusinessId(id);
+    } else {
+      toast({ title: "Fiche introuvable", description: "Impossible d'ouvrir cette fiche.", variant: "destructive" });
+    }
+    return true;
+  };
 
 
 
@@ -564,7 +602,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 ) : (
                   <div className="max-w-[88%] group w-full">
                     <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
-                      <ReactMarkdown components={{ a: ({ href, children }) => <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a> }}>{linkifyPhones(clean)}</ReactMarkdown>
+                      <ReactMarkdown components={{ a: ({ href, children }) => {
+                        const isBusinessLink = !!extractBusinessSlugFromHref(href);
+                        if (isBusinessLink) {
+                          return (
+                            <a
+                              href={href}
+                              onClick={(e) => { e.preventDefault(); void handleOpenBusinessLink(href); }}
+                              className="cursor-pointer"
+                            >{children}</a>
+                          );
+                        }
+                        return <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
+                      } }}>{linkifyPhones(clean)}</ReactMarkdown>
                     </div>
                     {maps.map((mp, idx) => (
                       <button
@@ -711,6 +761,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
           } catch { /* user cancelled */ }
         }}
       />
+
+      {openBusinessId && (
+        <Suspense fallback={null}>
+          <BookOnlineSlidePanel
+            businessId={openBusinessId}
+            onClose={() => setOpenBusinessId(null)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };
