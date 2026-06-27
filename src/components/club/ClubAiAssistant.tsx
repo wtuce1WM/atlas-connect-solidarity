@@ -613,6 +613,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
         />
       </section>
+
+      <MapSlidePanel
+        open={!!openMap}
+        onClose={() => setOpenMap(null)}
+        title={openMap?.title}
+        businesses={openMap?.businesses || []}
+        isMobile={isMobile}
+      />
     </div>
   );
 };
