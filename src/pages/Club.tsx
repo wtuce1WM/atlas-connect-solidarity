@@ -749,6 +749,19 @@ const Club = () => {
             </>
           )}
         </section>
+        {user && (
+          <div className="flex justify-center pb-8">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              aria-label="Revenir"
+              className="text-white/70 transition hover:text-white"
+            >
+              <ArrowUp className="mx-auto mb-2 h-5 w-5 animate-bounce" />
+              <span className="block font-josefin text-xs uppercase tracking-[0.3em]">Revenir</span>
+            </button>
+          </div>
+        )}
       </main>
       <Footer variant="verified" className="bg-[#BED1FF] text-black" />
       <HomeBottomBar />
