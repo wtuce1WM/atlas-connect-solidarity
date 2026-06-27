@@ -148,6 +148,23 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "link_business_to_trip",
+      description:
+        "Lie un établissement (par slug) à l'un des voyages du membre (par trip_id ou par titre de voyage). Demande la confirmation du membre avant d'appeler cet outil si la cible n'est pas évidente. Retourne le voyage mis à jour.",
+      parameters: {
+        type: "object",
+        properties: {
+          business_slug: { type: "string", description: "Slug exact de l'établissement (issu de search_businesses)." },
+          trip_id: { type: "string", description: "ID du voyage cible (préféré si connu)." },
+          trip_title: { type: "string", description: "Titre exact ou approchant du voyage (fallback si trip_id absent)." },
+        },
+        required: ["business_slug"],
+      },
+    },
+  },
 ];
 
 
