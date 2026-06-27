@@ -1,59 +1,26 @@
 /// <reference types="@types/google.maps" />
 import { useEffect, useMemo, useState } from "react";
 import { X, Share2, Bookmark, BookmarkCheck } from "lucide-react";
-import BusinessMap from "@/components/BusinessMap";
-
-/* Beige map theme — identical to /search POI map (#ECD6B8) */
-const BEIGE_MAP_STYLES: google.maps.MapTypeStyle[] = [
-  { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
-  { featureType: "poi.business", elementType: "labels.icon", stylers: [{ visibility: "on" }] },
-  { featureType: "poi.park", elementType: "geometry", stylers: [{ visibility: "on" }, { color: "#e8f0e3" }] },
-  { featureType: "poi.park", elementType: "labels.text", stylers: [{ visibility: "on" }, { color: "#7a8a6e" }] },
-  { featureType: "transit", stylers: [{ visibility: "off" }] },
-  { elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#8a7a63" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#ECD6B8" }] },
-  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
-  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#E5CDAB" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
-  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#DCC4A1" }] },
-  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
-  { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#D4B98F" }] },
-  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
-  { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#F6E8D0" }] },
-  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#b5b5b5" }] },
-  { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#d9e8f0" }] },
-  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#a8c0cc" }] },
-  { featureType: "administrative", elementType: "geometry", stylers: [{ visibility: "off" }] },
-  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
-  { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#1c1510" }] },
-];
+import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 
 export interface MapPanelBusiness {
   id: string;
   name: string;
-  slug: string;
+  slug?: string;
   city?: string | null;
   neighborhood?: string | null;
-  address?: string | null;
-  phone?: string | null;
-  whatsapp?: string | null;
-  main_category?: string | null;
-  categories?: string[] | null;
   latitude: number | null;
   longitude: number | null;
-  wtuce_status?: string | null;
-  logo_url?: string | null;
   images?: string[] | null;
-  hook_fr?: string | null;
+  main_category?: string | null;
+  categories?: string[] | null;
   google_rating?: number | null;
   google_review_count?: number | null;
   tripadvisor_rating?: number | null;
   tripadvisor_review_count?: number | null;
-  engagements?: string[] | null;
   computed_rating?: number | null;
   total_review_count?: number | null;
+  engagements?: string[] | null;
 }
 
 interface MapSlidePanelProps {
@@ -84,6 +51,7 @@ const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u03
 
 const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked }: MapSlidePanelProps) => {
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -115,16 +83,45 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     [businesses],
   );
 
+  const pois: PoiMapItem[] = useMemo(
+    () =>
+      mapBusinesses.map((b) => {
+        const rating =
+          b.computed_rating ??
+          b.google_rating ??
+          b.tripadvisor_rating ??
+          null;
+        const totalReviews =
+          b.total_review_count ??
+          (b.google_review_count || 0) + (b.tripadvisor_review_count || 0);
+        return {
+          id: b.id,
+          name: b.name,
+          latitude: b.latitude,
+          longitude: b.longitude,
+          images: b.images,
+          city: b.city,
+          neighborhood: b.neighborhood,
+          rating,
+          avgOn20: rating != null ? Math.round(rating * 4 * 10) / 10 : null,
+          totalReviews,
+          subcategory: b.main_category,
+          subcategories: b.categories,
+        };
+      }),
+    [mapBusinesses],
+  );
+
   const cityCenter = useMemo(() => {
-    if (!mapBusinesses.length) return null;
+    if (!mapBusinesses.length) return undefined;
     const counts = new Map<string, number>();
     for (const b of mapBusinesses) {
       if (!b.city) continue;
       counts.set(normalize(b.city), (counts.get(normalize(b.city)) || 0) + 1);
     }
-    if (!counts.size) return null;
+    if (!counts.size) return undefined;
     const [dominant] = Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0];
-    return CITY_CENTERS[dominant] || null;
+    return CITY_CENTERS[dominant];
   }, [mapBusinesses]);
 
   if (!open) return null;
@@ -136,60 +133,68 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
         className={`fixed z-[81] bg-[#ECD6B8] shadow-2xl overflow-hidden flex flex-col
           ${isMobile ? "inset-0" : "top-0 right-0 h-full w-full max-w-[640px] rounded-l-2xl"}`}
       >
-        {/* Toolbar: close left, title center, share+bookmark right */}
-        <div className="shrink-0 flex items-center justify-between px-3 py-2 bg-[#ECD6B8] border-b border-[#C04F17]/15 z-10">
-          <button
-            type="button"
-            onClick={onClose}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-white text-[#C04F17] shadow hover:bg-white/90"
-            title="Fermer"
-            aria-label="Fermer la carte"
-          >
-            <X className="h-4 w-4" />
-          </button>
-
-          <div className="flex-1 px-3 truncate text-center text-xs font-semibold text-[#C04F17]">
-            {title || `${mapBusinesses.length} lieux sur la carte`}
-          </div>
-
-          <div className="flex items-center gap-2">
-            {onShare && (
-              <button
-                type="button"
-                onClick={onShare}
-                className="h-9 w-9 flex items-center justify-center rounded-full bg-white text-[#C04F17] shadow hover:bg-white/90"
-                title="Partager"
-                aria-label="Partager la conversation"
-              >
-                <Share2 className="h-4 w-4" />
-              </button>
-            )}
-            {onBookmark && (
-              <button
-                type="button"
-                onClick={onBookmark}
-                className="h-9 w-9 flex items-center justify-center rounded-full bg-white text-[#C04F17] shadow hover:bg-white/90"
-                title={isBookmarked ? "Retirer le bookmark" : "Bookmarker"}
-                aria-label="Bookmark"
-              >
-                {isBookmarked ? <BookmarkCheck className="h-4 w-4" fill="currentColor" /> : <Bookmark className="h-4 w-4" />}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Map — fills remaining space; force inner shell to 100% height */}
-        <div className="flex-1 relative [&>div]:h-full [&>div]:rounded-none [&>div]:border-0 [&>div>div:last-child]:!h-full">
-          <BusinessMap
-            businesses={mapBusinesses as any}
-            isLoading={false}
-            height="100%"
-            cityCenter={cityCenter || userPos}
-            neighborhoodCenter={null}
-            forceOverview={!cityCenter && !userPos}
-            center={userPos || undefined}
-            mapStyles={BEIGE_MAP_STYLES}
+        {/* Map fills the panel; toolbar floats on top */}
+        <div className="relative flex-1">
+          <PoiGoogleMap
+            pois={pois}
+            selectedPoiId={selectedId}
+            onPoiClick={(id) => setSelectedId(id)}
+            center={cityCenter || userPos || undefined}
+            fitToMarkers
+            userLocation={userPos}
           />
+
+          {/* Floating toolbar — same layout as /search */}
+          <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col pointer-events-none">
+            <div className="relative h-[52px] w-full flex-shrink-0">
+              <button
+                type="button"
+                onClick={onClose}
+                className="absolute top-3 left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity pointer-events-auto"
+                aria-label="Fermer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <div className="absolute top-3 left-14 right-24 z-[10] flex justify-center w-[calc(100%-152px)]">
+                <div
+                  className="px-3 py-1.5 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate shadow-sm pointer-events-auto"
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                >
+                  {title || `${mapBusinesses.length} lieux`}
+                </div>
+              </div>
+
+              <div className="absolute top-3 right-3 z-[15] flex items-center gap-2 pointer-events-auto">
+                {onBookmark && (
+                  <button
+                    type="button"
+                    onClick={onBookmark}
+                    className="h-9 w-9 flex items-center justify-center rounded-full bg-white shadow-lg hover:bg-white/90"
+                    aria-label="Bookmark"
+                    title={isBookmarked ? "Retirer le bookmark" : "Bookmarker"}
+                  >
+                    {isBookmarked ? (
+                      <BookmarkCheck className="h-4 w-4 text-[#6050DC]" fill="currentColor" strokeWidth={2.5} />
+                    ) : (
+                      <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                    )}
+                  </button>
+                )}
+                {onShare && (
+                  <button
+                    type="button"
+                    onClick={onShare}
+                    className="h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90"
+                    aria-label="Partager"
+                    title="Partager"
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
