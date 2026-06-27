@@ -114,6 +114,7 @@ const tools = [
         required: ["query"],
       },
     },
+  },
   {
     type: "function",
     function: {
@@ -165,6 +166,27 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "show_on_map",
+      description:
+        "Affiche une sélection d'établissements sur une carte Google Maps (mini-aperçu dans la bulle + panneau latéral avec carte plein écran). Utilise cet outil dès que le membre dit 'montre-moi sur une carte', 'sur une carte', 'situe les', 'où sont-ils', 'localise', ou quand il est utile de visualiser géographiquement plusieurs adresses citées. Passe UNIQUEMENT des slugs valides obtenus via search_businesses, list_my_bookmarks, get_my_trips ou suggest_similar_to_my_bookmarks. Tu peux ensuite continuer ta réponse textuelle normalement — la carte sera rendue automatiquement.",
+      parameters: {
+        type: "object",
+        properties: {
+          business_slugs: {
+            type: "array",
+            items: { type: "string" },
+            description: "Liste des slugs (2 à 20) des établissements à afficher sur la carte.",
+          },
+          title: { type: "string", description: "Titre court de la carte (ex: 'Hôtels avec piscine à Marrakech'). Optionnel." },
+        },
+        required: ["business_slugs"],
+      },
+    },
+  },
+
 ];
 
 
@@ -566,11 +588,36 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         return { error: String(e), results: [] };
       }
     }
+    if (name === "show_on_map") {
+      const slugs: string[] = Array.isArray(args.business_slugs)
+        ? args.business_slugs.filter((s: any) => typeof s === "string" && s.trim()).slice(0, 20)
+        : [];
+      if (!slugs.length) return { error: "Aucun slug fourni", count: 0 };
+      const { data, error } = await ctx.supabase
+        .from("businesses")
+        .select("id,name,slug,city,neighborhood,address,main_category,latitude,longitude")
+        .in("slug", slugs)
+        .eq("is_active", true);
+      if (error) return { error: error.message, count: 0 };
+      const withCoords = (data || []).filter((b: any) => b.latitude != null && b.longitude != null);
+      const missing = slugs.filter((s) => !(data || []).some((b: any) => b.slug === s));
+      const noCoords = (data || []).filter((b: any) => b.latitude == null || b.longitude == null).map((b: any) => b.slug);
+      return {
+        ok: true,
+        count: withCoords.length,
+        businesses: withCoords,
+        missing_slugs: missing,
+        no_coords_slugs: noCoords,
+        instruction:
+          "La carte sera affichée automatiquement côté UI. Poursuis ta réponse normalement sans recoller la liste si elle vient juste d'être donnée. Mentionne uniquement les établissements éventuellement sans coordonnées (no_coords_slugs) ou introuvables (missing_slugs) si pertinent.",
+      };
+    }
   } catch (e) {
     return { error: String(e) };
   }
   return { error: "unknown tool" };
 }
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -637,9 +684,10 @@ RÈGLES DE PRÉCISION (critiques) :
 9. **Recherche web (web_search)** : appelle-la UNIQUEMENT pour des infos factuelles temps réel absentes de 1WM (pharmacie de garde, numéros d'urgence officiels, événements/festivals publics non référencés, horaires transports, démarches admin, actualités). JAMAIS pour recommander des restaurants, hôtels, spas, etc. — ceux-là doivent venir de search_businesses ; et pour l'agenda, passe d'abord par search_events. Maximum 1 appel web_search par message. Cite TOUJOURS les sources sous forme [titre](url) à la fin de ta réponse, et préviens si l'info peut avoir changé.
 10. **Voyages du membre (get_my_trips)** : dès que le membre évoque « mon voyage », « mon séjour », « prépare », « planning », un week-end / des dates précises, ou qu'il faut s'appuyer sur ses adresses sauvegardées pour un séjour, appelle get_my_trips. Croise ensuite ville + dates + établissements liés pour proposer un planning ou des compléments via search_businesses / search_events. Ne réinvente jamais ses dates, ses villes ou ses adresses liées.
 
-Outils disponibles : get_weather, search_businesses, get_business_details, search_events, get_my_trips, link_business_to_trip, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search.
+Outils disponibles : get_weather, search_businesses, get_business_details, search_events, get_my_trips, link_business_to_trip, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search, show_on_map.
 
-11. **Lier une adresse à un voyage (link_business_to_trip)** : si le membre demande explicitement « ajoute X à mon voyage Y », appelle d'abord get_my_trips pour récupérer trip_id et search_businesses pour obtenir le slug exact, puis link_business_to_trip. Confirme ensuite poliment ce qui a été ajouté. Si plusieurs voyages possibles, demande au membre lequel cibler avant d'agir.`;
+11. **Lier une adresse à un voyage (link_business_to_trip)** : si le membre demande explicitement « ajoute X à mon voyage Y », appelle d'abord get_my_trips pour récupérer trip_id et search_businesses pour obtenir le slug exact, puis link_business_to_trip. Confirme ensuite poliment ce qui a été ajouté. Si plusieurs voyages possibles, demande au membre lequel cibler avant d'agir.
+12. **Affichage sur carte (show_on_map)** : dès que le membre demande explicitement de visualiser des adresses sur une carte (« montre-moi sur une carte », « situe les », « localise », « où sont-ils »), ou quand visualiser géographiquement aide vraiment la décision, appelle show_on_map avec les slugs exacts (issus de search_businesses, list_my_bookmarks ou get_my_trips). La carte et le panneau s'affichent automatiquement côté UI ; tu n'as donc pas à répéter la liste ni à coller une URL Google Maps. Ne l'appelle pas pour 1 seul lieu.`;
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
@@ -647,6 +695,7 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
     // Tool-calling loop (max 6 iterations)
     let finalAnswer = "";
     let modelToUse = MODEL;
+    const mapPayloads: Array<{ title?: string; businesses: any[] }> = [];
     for (let i = 0; i < 6; i++) {
       const resp = await fetch(GATEWAY_URL, {
         method: "POST",
@@ -674,6 +723,9 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
           let args: any = {};
           try { args = JSON.parse(tc.function?.arguments || "{}"); } catch {/* noop */}
           const result = await runTool(tc.function?.name, args, ctx);
+          if (tc.function?.name === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses) && (result as any).businesses.length) {
+            mapPayloads.push({ title: args.title, businesses: (result as any).businesses });
+          }
           convo.push({ role: "tool", tool_call_id: tc.id, name: tc.function?.name, content: JSON.stringify(result) });
         }
         continue;
@@ -682,6 +734,15 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
       finalAnswer = (choice.content || "").trim();
       break;
     }
+
+    // Append map markers (hidden HTML comment) for the client to render slide-panel + mini-card.
+    if (mapPayloads.length && finalAnswer) {
+      for (const p of mapPayloads) {
+        const safe = JSON.stringify(p).replace(/-->/g, "--&gt;");
+        finalAnswer += `\n\n<!--SHOW_ON_MAP:${safe}-->`;
+      }
+    }
+
 
     // Safety net: if the model exited tool loop without producing prose, force a final synthesis call without tools.
     if (!finalAnswer) {
