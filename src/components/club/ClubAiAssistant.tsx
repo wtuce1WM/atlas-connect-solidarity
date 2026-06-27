@@ -380,23 +380,66 @@ const ClubAiAssistant = ({ userId }: Props) => {
             className="w-full resize-none rounded-lg border border-white bg-white px-3 py-2 text-base text-[#0a1d6b] placeholder:text-[#194CFF]/50 focus:outline-none focus:ring-2 focus:ring-[#194CFF]"
             disabled={sending}
           />
-          <div className="flex items-center justify-end gap-2">
-            <button
-              onClick={() => voice.toggleRecording()}
-              disabled={sending}
-              className={`h-10 w-10 shrink-0 flex items-center justify-center rounded-lg ${voice.status === "recording" ? "bg-red-500 text-white animate-pulse" : "bg-white text-[#194CFF] border border-[#194CFF]/30 hover:bg-[#BED1FF]"} disabled:opacity-50`}
-              title="Parler"
-            >
-              <Mic className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => send()}
-              disabled={sending || !input.trim()}
-              className="h-10 w-10 shrink-0 flex items-center justify-center rounded-lg bg-[#194CFF] text-white hover:bg-[#1240d6] disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Envoyer"
-            >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </button>
+          <div className="flex items-center justify-center gap-6 pt-1">
+            {/* Micro */}
+            <div className="relative">
+              <div
+                className="absolute rounded-full animate-ping pointer-events-none"
+                style={{
+                  inset: "-10px",
+                  background: "radial-gradient(circle, rgba(25,76,255,0.18) 0%, transparent 70%)",
+                  border: "1px solid rgba(25,76,255,0.25)",
+                  animationDuration: "2.4s",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => voice.toggleRecording()}
+                disabled={sending}
+                title="Parler"
+                className="relative w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/40 transition-transform hover:scale-105 disabled:opacity-50"
+                style={{
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15))",
+                  boxShadow: "0 8px 24px rgba(25,76,255,0.30), inset 0 1px 0 rgba(255,255,255,0.6)",
+                }}
+              >
+                <span
+                  className="absolute inset-1 rounded-full pointer-events-none"
+                  style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.45) 0%, transparent 45%)" }}
+                />
+                <Mic className="relative h-5 w-5" style={{ color: "#194CFF" }} />
+              </button>
+            </div>
+
+            {/* Envoyer */}
+            <div className="relative">
+              <div
+                className="absolute rounded-full animate-ping pointer-events-none"
+                style={{
+                  inset: "-10px",
+                  background: "radial-gradient(circle, rgba(25,76,255,0.18) 0%, transparent 70%)",
+                  border: "1px solid rgba(25,76,255,0.25)",
+                  animationDuration: "2.4s",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => send()}
+                disabled={sending || !input.trim()}
+                title="Envoyer"
+                className="relative w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/40 transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15))",
+                  boxShadow: "0 8px 24px rgba(25,76,255,0.30), inset 0 1px 0 rgba(255,255,255,0.6)",
+                }}
+              >
+                <span
+                  className="absolute inset-1 rounded-full pointer-events-none"
+                  style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.45) 0%, transparent 45%)" }}
+                />
+                {sending ? <Loader2 className="relative h-5 w-5 animate-spin" style={{ color: "#194CFF" }} /> : <Send className="relative h-5 w-5" style={{ color: "#194CFF" }} />}
+              </button>
+            </div>
           </div>
         </div>
 
