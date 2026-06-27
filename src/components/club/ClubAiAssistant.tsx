@@ -136,13 +136,32 @@ const ClubAiAssistant = ({ userId }: Props) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
   };
 
+  const suggestions = useMemo(() => [
+    "Mes adresses sauvegardées à Marrakech",
+    "Un dîner romantique ce soir près de moi",
+    "Météo à Essaouira ce weekend",
+    "Suggère-moi un spa similaire à mes favoris",
+  ], []);
+
   const emptyHint = useMemo(() => (
     <div className="text-center py-10 px-4 text-[#194CFF]">
       <MessageSquare className="h-8 w-8 mx-auto mb-3 opacity-70" />
       <div className="text-sm font-semibold mb-1">Bonjour 👋</div>
-      <div className="text-base opacity-80">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou reprenez une conversation précédente.</div>
+      <div className="text-base opacity-80 mb-4">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou explorez le Maroc.</div>
+      <div className="flex flex-wrap gap-2 justify-center max-w-md mx-auto">
+        {suggestions.map((s) => (
+          <button
+            key={s}
+            onClick={() => send(s)}
+            disabled={sending}
+            className="text-xs px-3 py-1.5 rounded-full bg-white text-[#194CFF] hover:bg-[#194CFF] hover:text-white transition-colors border border-[#194CFF]/20"
+          >
+            {s}
+          </button>
+        ))}
+      </div>
     </div>
-  ), []);
+  ), [suggestions, sending]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-4 min-h-[520px]">
