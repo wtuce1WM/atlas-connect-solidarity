@@ -347,6 +347,62 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const results = (data || []).filter((b: any) => !excluded.has(b.id)).slice(0, limit);
       return { results, based_on: { categories: t.top_categories, cities: t.top_cities } };
     }
+    if (name === "search_events") {
+      const limit = Math.min(Number(args.limit) || 8, 10);
+      const today = new Date().toISOString().slice(0, 10);
+      const from = (args.from_date && String(args.from_date).slice(0, 10)) || today;
+      const to = (args.to_date && String(args.to_date).slice(0, 10))
+        || new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+
+      let eventIds: string[] | null = null;
+      if (!args.include_all_badges) {
+        // Badge #Agenda
+        const { data: badge } = await ctx.supabase
+          .from("badges").select("id").ilike("name_fr", "%agenda%").limit(1).maybeSingle();
+        if (badge?.id) {
+          const { data: eb } = await ctx.supabase
+            .from("event_badges").select("event_id").eq("badge_id", badge.id);
+          eventIds = (eb || []).map((r: any) => r.event_id).filter(Boolean);
+          if (!eventIds.length) return { results: [], note: "Aucun événement avec le badge #Agenda." };
+        }
+      }
+
+      let q = ctx.supabase
+        .from("events")
+        .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,cities:city_id(name_fr),neighborhoods:neighborhood_id(name_fr)")
+        .or(`and(start_date.gte.${from},start_date.lte.${to}),and(start_date.lte.${to},end_date.gte.${from}),recurrence.not.is.null`)
+        .order("start_date", { ascending: true, nullsFirst: false })
+        .limit(limit * 2);
+      if (eventIds) q = q.in("id", eventIds.slice(0, 500));
+      if (args.query) {
+        const qv = String(args.query).replace(/[,()"]/g, " ").trim();
+        if (qv) q = q.or(`name.ilike.%${qv}%,description.ilike.%${qv}%,hook.ilike.%${qv}%`);
+      }
+      const { data, error } = await q;
+      if (error) { console.error("search_events error", error); return { results: [], error: error.message }; }
+      let results = data || [];
+      if (args.city) {
+        const cv = String(args.city).toLowerCase();
+        results = results.filter((e: any) => (e.cities?.name_fr || "").toLowerCase().includes(cv));
+      }
+      results = results.slice(0, limit).map((e: any) => ({
+        id: e.id,
+        name: e.name,
+        hook: e.hook,
+        description: e.description,
+        start_date: e.start_date,
+        end_date: e.end_date,
+        recurrence: e.recurrence,
+        days_of_week: e.days_of_week,
+        start_time: e.start_time,
+        end_time: e.end_time,
+        city: e.cities?.name_fr || null,
+        neighborhood: e.neighborhoods?.name_fr || null,
+        url: e.url || null,
+      }));
+      if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}${args.city ? ` à ${args.city}` : ""}.` };
+      return { results, period: { from, to } };
+    }
     if (name === "web_search") {
       const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
       if (!FIRECRAWL_API_KEY) return { error: "FIRECRAWL_API_KEY non configurée" };
