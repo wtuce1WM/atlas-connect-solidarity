@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { X, Share2, Bookmark, BookmarkCheck } from "lucide-react";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 export interface MapPanelBusiness {
   id: string;
@@ -50,8 +51,12 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
 const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
 const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked }: MapSlidePanelProps) => {
-  const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null);
+  const geo = useGeolocation();
+  const [browserPos, setBrowserPos] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Priorité : coordonnées définies dans le popup de géolocalisation, sinon fallback navigator
+  const userPos = (geo.isEnabled && geo.coords) ? geo.coords : browserPos;
 
   useEffect(() => {
     if (!open) return;
@@ -63,7 +68,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
   useEffect(() => {
     if (!open || userPos || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (p) => setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      (p) => setBrowserPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
       () => {},
       { enableHighAccuracy: false, timeout: 4000, maximumAge: 600000 },
     );
