@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { Play } from "lucide-react";
 
 const MARRAKECH_DEST_ID = "d0bb2ac7-9fee-4e1d-8625-b23e1d28aa9e";
@@ -13,6 +14,8 @@ type Video = {
   title: string | null;
   thumbnail: string | null;
 };
+
+type DestinationKey = "marrakech" | "essaouira";
 
 const haversineKm = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
   const R = 6371;
@@ -31,11 +34,35 @@ const extractYoutubeId = (url: string): string | null => {
   return m?.[1] ?? null;
 };
 
+const normalizeCity = (value?: string | null): DestinationKey | null => {
+  const normalized = (value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  if (normalized.includes("essaouira")) return "essaouira";
+  if (normalized.includes("marrakech")) return "marrakech";
+  return null;
+};
+
 const ClubYoutubeRecommendations = () => {
-  const [nearEssaouira, setNearEssaouira] = useState(false);
+  const geo = useGeolocation();
+  const [fallbackDestination, setFallbackDestination] = useState<DestinationKey | null>(null);
   const [videos, setVideos] = useState<Video[]>([]);
 
+  const destination = useMemo<DestinationKey | null>(() => {
+    const cityFromGeo = normalizeCity(geo.confirmedAddress) || normalizeCity(geo.detectedCity);
+    if (cityFromGeo) return cityFromGeo;
+    if (geo.coords) {
+      return haversineKm(geo.coords, ESSAOUIRA_COORDS) <= ESSAOUIRA_RADIUS_KM
+        ? "essaouira"
+        : "marrakech";
+    }
+    return fallbackDestination;
+  }, [fallbackDestination, geo.confirmedAddress, geo.coords, geo.detectedCity]);
+
   useEffect(() => {
+    if (destination) return;
+
     const tryIpFallback = async () => {
       try {
         const res = await fetch("https://ipapi.co/json/");
@@ -45,9 +72,11 @@ const ClubYoutubeRecommendations = () => {
             { lat: j.latitude, lng: j.longitude },
             ESSAOUIRA_COORDS,
           );
-          if (dist <= ESSAOUIRA_RADIUS_KM) setNearEssaouira(true);
+          setFallbackDestination(dist <= ESSAOUIRA_RADIUS_KM ? "essaouira" : "marrakech");
+          return;
         }
       } catch {}
+      setFallbackDestination("marrakech");
     };
     if (!navigator.geolocation) {
       tryIpFallback();
@@ -59,20 +88,22 @@ const ClubYoutubeRecommendations = () => {
           { lat: pos.coords.latitude, lng: pos.coords.longitude },
           ESSAOUIRA_COORDS,
         );
-        if (dist <= ESSAOUIRA_RADIUS_KM) setNearEssaouira(true);
+        setFallbackDestination(dist <= ESSAOUIRA_RADIUS_KM ? "essaouira" : "marrakech");
       },
       () => {
         tryIpFallback();
       },
       { timeout: 5000, maximumAge: 5 * 60 * 1000 },
     );
-  }, []);
+  }, [destination]);
 
 
   useEffect(() => {
     let cancelled = false;
     const fetchVideos = async () => {
-      const destIds = nearEssaouira
+      if (!destination) return;
+
+      const destIds = destination === "essaouira"
         ? [ESSAOUIRA_DEST_ID]
         : [MARRAKECH_DEST_ID];
 
@@ -108,11 +139,11 @@ const ClubYoutubeRecommendations = () => {
     return () => {
       cancelled = true;
     };
-  }, [nearEssaouira]);
+  }, [destination]);
 
   const label = useMemo(
-    () => (nearEssaouira ? "Essaouira" : "Marrakech"),
-    [nearEssaouira],
+    () => (destination === "essaouira" ? "Essaouira" : "Marrakech"),
+    [destination],
   );
 
 
