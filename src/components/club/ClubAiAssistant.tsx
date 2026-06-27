@@ -632,11 +632,13 @@ const ClubAiAssistant = ({ userId }: Props) => {
                           const isBusinessLink = !!extractBusinessSlugFromHref(href);
                           if (isBusinessLink) {
                             return (
-                              <a
-                                href={href}
-                                onClick={(e) => { e.preventDefault(); void handleOpenBusinessLink(href); }}
-                                className="cursor-pointer"
-                              >{children}</a>
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => { void handleOpenBusinessLink(href); }}
+                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessLink(href); } }}
+                                className="cursor-pointer underline text-[#C04F17]"
+                              >{children}</span>
                             );
                           }
                           return <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
