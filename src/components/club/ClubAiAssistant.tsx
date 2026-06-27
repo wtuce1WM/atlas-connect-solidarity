@@ -308,6 +308,23 @@ const ClubAiAssistant = ({ userId }: Props) => {
     await loadChats();
   };
 
+  const renameChat = async (id: string, currentTitle: string) => {
+    const next = window.prompt("Renommer la conversation", currentTitle || "")?.trim();
+    if (!next || next === currentTitle) return;
+    const title = next.slice(0, 200);
+    setChats((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)));
+    if (activeChat?.id === id) setActiveChat({ ...activeChat, title });
+    const { error } = await supabase
+      .from("ai_chats")
+      .update({ title })
+      .eq("id", id)
+      .eq("user_id", userId);
+    if (error) {
+      toast({ title: "Renommage impossible", description: error.message, variant: "destructive" });
+      await loadChats();
+    }
+  };
+
   const toggleBookmark = async () => {
     if (!activeChat) return;
     const next = !activeChat.is_bookmarked;
