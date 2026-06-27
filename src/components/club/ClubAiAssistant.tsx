@@ -9,6 +9,7 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 // Resolve a business slug (or id) to its UUID, with in-memory cache.
@@ -631,11 +632,13 @@ const ClubAiAssistant = ({ userId }: Props) => {
                           const isBusinessLink = !!extractBusinessSlugFromHref(href);
                           if (isBusinessLink) {
                             return (
-                              <a
-                                href={href}
-                                onClick={(e) => { e.preventDefault(); void handleOpenBusinessLink(href); }}
-                                className="cursor-pointer"
-                              >{children}</a>
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => { void handleOpenBusinessLink(href); }}
+                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessLink(href); } }}
+                                className="cursor-pointer underline text-[#C04F17]"
+                              >{children}</span>
                             );
                           }
                           return <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
@@ -808,12 +811,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
       />
 
       {openBusinessId && (
-        <Suspense fallback={null}>
-          <BookOnlineSlidePanel
-            businessId={openBusinessId}
-            onClose={() => setOpenBusinessId(null)}
-          />
-        </Suspense>
+        <div
+          className="fixed top-0 left-0 right-0 bottom-0 z-[60] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:left-1/2 lg:bottom-auto lg:h-screen lg:border-l lg:border-border"
+        >
+          <SlidePanelHeader onClose={() => setOpenBusinessId(null)} alwaysDark />
+          <div className="flex-1 min-h-0 overflow-visible">
+            <Suspense fallback={null}>
+              <BookOnlineSlidePanel
+                businessId={openBusinessId}
+                onClose={() => setOpenBusinessId(null)}
+              />
+            </Suspense>
+          </div>
+        </div>
       )}
     </div>
   );
