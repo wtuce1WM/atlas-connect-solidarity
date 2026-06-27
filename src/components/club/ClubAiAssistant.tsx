@@ -612,6 +612,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
             const { clean, maps } = m.role === "assistant"
               ? extractMapPayloads(m.content)
               : { clean: m.content, maps: [] as MapPayload[] };
+            // Index business names → slugs for clickable bold names.
+            for (const mp of maps) {
+              for (const b of mp.businesses) {
+                if (b?.name && b?.slug) nameToSlugRef.current.set(b.name.toLowerCase(), b.slug);
+              }
+            }
             return (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 {m.role === "user" ? (
@@ -621,19 +627,40 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 ) : (
                   <div className="max-w-[88%] group w-full">
                     <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
-                      <ReactMarkdown components={{ a: ({ href, children }) => {
-                        const isBusinessLink = !!extractBusinessSlugFromHref(href);
-                        if (isBusinessLink) {
-                          return (
-                            <a
-                              href={href}
-                              onClick={(e) => { e.preventDefault(); void handleOpenBusinessLink(href); }}
-                              className="cursor-pointer"
-                            >{children}</a>
-                          );
-                        }
-                        return <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
-                      } }}>{linkifyPhones(clean)}</ReactMarkdown>
+                      <ReactMarkdown components={{
+                        a: ({ href, children }) => {
+                          const isBusinessLink = !!extractBusinessSlugFromHref(href);
+                          if (isBusinessLink) {
+                            return (
+                              <a
+                                href={href}
+                                onClick={(e) => { e.preventDefault(); void handleOpenBusinessLink(href); }}
+                                className="cursor-pointer"
+                              >{children}</a>
+                            );
+                          }
+                          return <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
+                        },
+                        strong: ({ children }) => {
+                          const text = Array.isArray(children)
+                            ? children.map((c) => (typeof c === "string" ? c : "")).join("")
+                            : (typeof children === "string" ? children : "");
+                          const trimmed = text.trim();
+                          if (trimmed && trimmed.length <= 80) {
+                            return (
+                              <strong
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => void handleOpenBusinessName(trimmed)}
+                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessName(trimmed); } }}
+                                className="cursor-pointer hover:underline"
+                                title="Ouvrir la fiche"
+                              >{children}</strong>
+                            );
+                          }
+                          return <strong>{children}</strong>;
+                        },
+                      }}>{linkifyPhones(clean)}</ReactMarkdown>
                     </div>
                     {maps.map((mp, idx) => (
                       <button
