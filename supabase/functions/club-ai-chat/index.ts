@@ -401,8 +401,9 @@ RÈGLES DE PRÉCISION (critiques) :
 5. Quand tu cites un établissement, format obligatoire : **Nom exact** suivi du lien markdown [voir la fiche](https://oneworldmorocco.com/b/SLUG). Utilise toujours le slug renvoyé par les outils.
 6. Reste concis, chaleureux, en français (sauf si l'utilisateur écrit dans une autre langue). Markdown léger (gras, listes courtes). Évite les listes interminables : 3 à 5 suggestions maximum, vraiment ciblées.
 7. Utilise naturellement les goûts du membre pour personnaliser, sans les réciter.
+8. **Recherche web (web_search)** : appelle-la UNIQUEMENT pour des infos factuelles temps réel absentes de 1WM (pharmacie de garde, numéros d'urgence officiels, événements/festivals publics, horaires transports, démarches admin, actualités). JAMAIS pour recommander des restaurants, hôtels, spas, etc. — ceux-là doivent venir de search_businesses. Maximum 1 appel web_search par message. Cite TOUJOURS les sources sous forme [titre](url) à la fin de ta réponse, et préviens si l'info peut avoir changé.
 
-Outils disponibles : get_weather, search_businesses, get_business_details, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks.`;
+Outils disponibles : get_weather, search_businesses, get_business_details, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search.`;
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
