@@ -62,6 +62,13 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e: Event) => setPanelOpen(!!(e as CustomEvent).detail?.open);
+    window.addEventListener("club:panel", handler);
+    return () => window.removeEventListener("club:panel", handler);
+  }, []);
+
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
