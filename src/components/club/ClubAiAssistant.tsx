@@ -413,15 +413,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
             {/* Envoyer */}
             <div className="relative">
-              <div
-                className="absolute rounded-full animate-ping pointer-events-none"
-                style={{
-                  inset: "-10px",
-                  background: "radial-gradient(circle, rgba(25,76,255,0.18) 0%, transparent 70%)",
-                  border: "1px solid rgba(25,76,255,0.25)",
-                  animationDuration: "2.4s",
-                }}
-              />
+
               <button
                 type="button"
                 onClick={() => send()}
