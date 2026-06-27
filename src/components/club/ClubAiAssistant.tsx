@@ -317,7 +317,13 @@ const ClubAiAssistant = ({ userId }: Props) => {
               >
                 <div className="text-xs font-semibold flex items-center gap-1.5">
                   <span>✈️</span>
-                  <span className="truncate">{t.title}</span>
+                  <span className="truncate flex-1">{t.title}</span>
+                  {t.is_ongoing && (
+                    <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase tracking-wide">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      En cours
+                    </span>
+                  )}
                 </div>
                 <div className="text-[11px] opacity-80 mt-0.5">
                   {fmtTripDates(t.arrival_date, t.departure_date)}
