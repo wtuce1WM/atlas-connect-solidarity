@@ -188,6 +188,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
             neighborhoodCenter={null}
             forceOverview={!cityCenter && !userPos}
             center={userPos || undefined}
+            mapStyles={BEIGE_MAP_STYLES}
           />
         </div>
       </div>
