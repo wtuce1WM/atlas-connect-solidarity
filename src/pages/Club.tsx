@@ -763,7 +763,7 @@ const Club = () => {
           </div>
         )}
       </main>
-      <Footer variant="verified" className="bg-[#BED1FF] text-black" />
+      <Footer variant="verified" />
       <HomeBottomBar />
     </div>
   );
