@@ -2466,6 +2466,91 @@ export type Database = {
         }
         Relationships: []
       }
+      club_trip_businesses: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          sort_order: number
+          trip_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          trip_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_trip_businesses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_trip_businesses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_trip_businesses_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "club_trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_trips: {
+        Row: {
+          arrival_date: string | null
+          arrival_time: string | null
+          created_at: string
+          departure_date: string | null
+          departure_time: string | null
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          arrival_date?: string | null
+          arrival_time?: string | null
+          created_at?: string
+          departure_date?: string | null
+          departure_time?: string | null
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          arrival_date?: string | null
+          arrival_time?: string | null
+          created_at?: string
+          departure_date?: string | null
+          departure_time?: string | null
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       countries: {
         Row: {
           code: string | null
