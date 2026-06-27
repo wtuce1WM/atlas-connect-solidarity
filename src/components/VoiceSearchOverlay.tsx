@@ -13,11 +13,14 @@ interface VoiceSearchOverlayProps {
   onFinish?: () => void;
   /** When true, use absolute positioning to stay contained within its parent element */
   contained?: boolean;
+  /** Override the background color class (default: bg-[#BED1FF]) */
+  bgClassName?: string;
 }
+
 
 const ACCENT = "#194CFF";
 
-const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, micReady = true, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
+const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, micReady = true, onClose, onFinish, contained = false, bgClassName = "bg-[#BED1FF]" }: VoiceSearchOverlayProps) => {
   // Anti-rebond mobile : ignore les clics synthétisés (ghost click) durant les
   // premières 500ms après l'ouverture, sinon le tap sur le mic qui a déclenché
   // l'ouverture est rejoué sur les boutons de l'overlay et le referme aussitôt.
@@ -34,7 +37,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, micReady =
   };
 
   return (
-    <div className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} flex flex-col items-center justify-between bg-[#BED1FF] backdrop-blur-md animate-in fade-in duration-200`}>
+    <div className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} flex flex-col items-center justify-between ${bgClassName} backdrop-blur-md animate-in fade-in duration-200`}>
       {/* Close button */}
       <button
         onClick={guardClick(onClose)}
