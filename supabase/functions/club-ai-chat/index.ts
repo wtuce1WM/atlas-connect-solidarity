@@ -19,7 +19,7 @@ const tools = [
     type: "function",
     function: {
       name: "get_weather",
-      description: "Météo actuelle pour une ville du Maroc (Marrakech, Essaouira, Casablanca, etc.).",
+      description: "Météo d'une ville du Maroc : conditions actuelles, prévisions horaires (toutes les 3h sur 24h) et prévisions journalières sur 5 jours. Utilise les champs `hourly` et `daily` pour décrire l'évolution de la journée.",
       parameters: {
         type: "object",
         properties: { city: { type: "string", description: "Nom de la ville" } },
