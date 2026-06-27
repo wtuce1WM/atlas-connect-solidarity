@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { Play } from "lucide-react";
 
-const MARRAKECH_DEST_ID = "d0bb2ac7-9fee-4e1d-8625-b23e1d28aa9e";
-const ESSAOUIRA_DEST_ID = "3947db1f-daaa-4f7f-a617-e5988d9d86db";
+const MARRAKECH_CITY_ID = "41545fd3-2c2c-4609-8d55-842fd7e2edde";
+const ESSAOUIRA_CITY_ID = "3f96c12a-0635-4f70-8de0-2578a66bcc07";
 const ESSAOUIRA_COORDS = { lat: 31.5085, lng: -9.7595 };
 const ESSAOUIRA_RADIUS_KM = 80;
 
@@ -103,15 +103,15 @@ const ClubYoutubeRecommendations = () => {
     const fetchVideos = async () => {
       if (!destination) return;
 
-      const destIds = destination === "essaouira"
-        ? [ESSAOUIRA_DEST_ID]
-        : [MARRAKECH_DEST_ID];
+      const cityIds = destination === "essaouira"
+        ? [ESSAOUIRA_CITY_ID]
+        : [MARRAKECH_CITY_ID];
 
       const { data } = await supabase
-        .from("generic_video_destinations")
-        .select("sort_order, generic_videos!inner(id, title, name, url, thumbnail_url)")
-        .in("destination_id", destIds)
-        .order("sort_order", { ascending: true });
+        .from("generic_video_cities")
+        .select("generic_videos!inner(id, title, name, url, thumbnail_url, sort_order)")
+        .in("city_id", cityIds)
+        .order("sort_order", { ascending: true, foreignTable: "generic_videos" });
       if (cancelled) return;
       const seen = new Set<string>();
       const items: Video[] = ((data || []) as any[])
