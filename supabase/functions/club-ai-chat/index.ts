@@ -303,7 +303,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
 
       let q = ctx.supabase
         .from("businesses")
-        .select("id,name,slug,city,neighborhood,main_category,categories,description,phone,google_rating,google_review_count,priority_score")
+        .select("id,name,slug,city,neighborhood,main_category,categories,description,phone,google_rating,google_review_count,priority_score", { count: "exact" })
         .eq("is_active", true)
         .order("priority_score", { ascending: false, nullsFirst: false })
         .limit(limit);
