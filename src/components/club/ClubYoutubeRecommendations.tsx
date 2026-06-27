@@ -73,8 +73,9 @@ const ClubYoutubeRecommendations = () => {
     let cancelled = false;
     const fetchVideos = async () => {
       const destIds = nearEssaouira
-        ? [MARRAKECH_DEST_ID, ESSAOUIRA_DEST_ID]
+        ? [ESSAOUIRA_DEST_ID]
         : [MARRAKECH_DEST_ID];
+
       const { data } = await supabase
         .from("generic_video_destinations")
         .select("sort_order, generic_videos!inner(id, title, name, url, thumbnail_url)")
