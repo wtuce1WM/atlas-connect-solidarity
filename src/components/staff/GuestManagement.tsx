@@ -35,6 +35,7 @@ interface ClubMemberWithSignIn {
   created_at: string;
   user_id: string | null;
   last_sign_in_at: string | null;
+  last_active_at: string | null;
   personas: PersonaTag[] | null;
 }
 
