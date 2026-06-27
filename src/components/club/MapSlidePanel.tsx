@@ -150,8 +150,8 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
           </div>
         </div>
 
-        {/* Map */}
-        <div className="flex-1 relative">
+        {/* Map — fills remaining space; force inner shell to 100% height */}
+        <div className="flex-1 relative [&>div]:h-full [&>div]:rounded-none [&>div]:border-0 [&>div>div:last-child]:!h-full">
           <BusinessMap
             businesses={mapBusinesses as any}
             isLoading={false}
