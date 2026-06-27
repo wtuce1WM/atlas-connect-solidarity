@@ -188,7 +188,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
         {/* Map fills the panel; toolbar floats on top */}
         <div className="relative flex-1">
           <PoiGoogleMap
-            pois={pois}
+            pois={displayedPois}
             selectedPoiId={selectedId}
             onPoiClick={(id) => setSelectedId(id)}
             center={cityCenter || userPos || undefined}
