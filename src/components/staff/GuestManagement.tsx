@@ -266,6 +266,12 @@ const GuestManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ClubMemberEditor
+        memberId={editingAccountId}
+        open={!!editingAccountId}
+        onClose={() => { setEditingAccountId(null); fetchMembers(); }}
+      />
     </div>
   );
 };
