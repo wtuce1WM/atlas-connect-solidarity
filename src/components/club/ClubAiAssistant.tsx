@@ -140,6 +140,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
   // Map slide-panel state (opened when the user clicks a mini-map card in a message).
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  // Index of business name -> slug, fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
+  const nameToSlugRef = useRef<Map<string, string>>(new Map());
 
   const handleOpenBusinessLink = async (href: string | undefined) => {
     const slug = extractBusinessSlugFromHref(href);
@@ -168,9 +170,6 @@ const ClubAiAssistant = ({ userId }: Props) => {
     if (id) setOpenBusinessId(id);
     else toast({ title: "Fiche introuvable", description: `Aucune fiche trouvée pour "${n}".`, variant: "destructive" });
   };
-
-  // Index of business name -> slug, fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
-  const nameToSlugRef = useRef<Map<string, string>>(new Map());
 
 
 
