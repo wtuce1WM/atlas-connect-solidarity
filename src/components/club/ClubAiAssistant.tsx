@@ -9,6 +9,7 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 // Resolve a business slug (or id) to its UUID, with in-memory cache.
