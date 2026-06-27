@@ -138,7 +138,45 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     return CITY_CENTERS[dominant];
   }, [mapBusinesses]);
 
+  // Top 20 sorted by rating, then "Tous" toggle
+  const rankedPois = useMemo(() => {
+    return [...pois].sort((a, b) => {
+      const ra = a.rating ?? 0;
+      const rb = b.rating ?? 0;
+      if (rb !== ra) return rb - ra;
+      return (b.totalReviews ?? 0) - (a.totalReviews ?? 0);
+    });
+  }, [pois]);
+
+  const proximityCountsByKm = useMemo(() => {
+    const out: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
+    if (!userPos) return out;
+    for (const p of pois) {
+      if (p.latitude == null || p.longitude == null) continue;
+      const d = haversineKm(userPos.lat, userPos.lng, p.latitude, p.longitude);
+      for (const km of [0.5, 1, 5, 10]) if (d <= km) out[km]++;
+    }
+    return out;
+  }, [pois, userPos]);
+
+  const displayedPois = useMemo(() => {
+    let list = showAll ? rankedPois : rankedPois.slice(0, 20);
+    if (userPos && proximityKm != null) {
+      list = list.filter((p) => {
+        if (p.latitude == null || p.longitude == null) return false;
+        return haversineKm(userPos.lat, userPos.lng, p.latitude, p.longitude) <= proximityKm;
+      });
+    }
+    return list;
+  }, [showAll, rankedPois, userPos, proximityKm]);
+
+  const total = pois.length;
+  const showToggle = total > 20;
+  const proximityActive = proximityKm != null;
+  const proximityCount = proximityKm != null ? (proximityCountsByKm[proximityKm] ?? 0) : 0;
+
   if (!open) return null;
+
 
   return (
     <>
