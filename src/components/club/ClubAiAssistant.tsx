@@ -42,6 +42,24 @@ function linkifyPhones(text: string): string {
   });
 }
 
+// Parse <!--SHOW_ON_MAP:{...}--> markers out of an assistant message.
+const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
+type MapPayload = { title?: string; businesses: MapPanelBusiness[] };
+function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] } {
+  if (!text || !text.includes("<!--SHOW_ON_MAP:")) return { clean: text, maps: [] };
+  const maps: MapPayload[] = [];
+  const clean = text.replace(MAP_RE, (_m, raw) => {
+    try {
+      const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (parsed && Array.isArray(parsed.businesses) && parsed.businesses.length) {
+        maps.push({ title: parsed.title, businesses: parsed.businesses });
+      }
+    } catch { /* ignore */ }
+    return "";
+  }).trim();
+  return { clean, maps };
+}
+
 
 const ClubAiAssistant = ({ userId }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams();
