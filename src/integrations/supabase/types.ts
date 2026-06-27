@@ -5108,6 +5108,54 @@ export type Database = {
           },
         ]
       }
+      serpapi_hotels_cache: {
+        Row: {
+          adults: number
+          check_in: string
+          check_out: string
+          city_key: string
+          country: string
+          created_at: string
+          currency: string
+          expires_at: string
+          fetched_at: string
+          hotel_count: number
+          id: string
+          language: string
+          payload: Json
+        }
+        Insert: {
+          adults?: number
+          check_in: string
+          check_out: string
+          city_key: string
+          country?: string
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          fetched_at?: string
+          hotel_count?: number
+          id?: string
+          language?: string
+          payload: Json
+        }
+        Update: {
+          adults?: number
+          check_in?: string
+          check_out?: string
+          city_key?: string
+          country?: string
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          fetched_at?: string
+          hotel_count?: number
+          id?: string
+          language?: string
+          payload?: Json
+        }
+        Relationships: []
+      }
       service_city_filters: {
         Row: {
           city_id: string
