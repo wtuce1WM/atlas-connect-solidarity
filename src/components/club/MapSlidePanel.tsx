@@ -23,6 +23,7 @@ export interface MapPanelBusiness {
   google_review_count?: number | null;
   tripadvisor_rating?: number | null;
   tripadvisor_review_count?: number | null;
+  engagements?: string[] | null;
 }
 
 interface MapSlidePanelProps {
@@ -61,6 +62,14 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile }: MapSlideP
 
   const mapBusinesses = useMemo(() => businesses
     .filter((b) => b.latitude != null && b.longitude != null)
+    .filter((b) => {
+      const engs: string[] = b.engagements || [];
+      const isWebOnly = engs.some((e: string) => {
+        const n = e.toLowerCase().trim();
+        return n === "web only" || n === "logistique:web only" || n.endsWith(":web only");
+      });
+      return !isWebOnly;
+    })
     .map((b) => ({
       id: b.id,
       name: b.name,
@@ -138,8 +147,10 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile }: MapSlideP
             <BusinessMap
               businesses={mapBusinesses as any}
               height="100%"
+              isLoading={false}
               forceOverview={!cityCenter}
               cityCenter={cityCenter}
+              neighborhoodCenter={null}
               onBusinessClick={(b: any) => {
                 const slug = businesses.find((x) => x.id === b.id)?.slug;
                 if (slug) window.open(`/b/${slug}`, "_blank", "noopener,noreferrer");
