@@ -90,17 +90,28 @@ const ClubAiAssistant = ({ userId }: Props) => {
     setChats((prev) => prev.map((c) => (c.id === activeChat.id ? { ...c, is_bookmarked: next } : c)));
   };
 
-  const send = async () => {
-    const text = input.trim();
+  const send = async (overrideText?: string) => {
+    const text = (overrideText ?? input).trim();
     if (!text || sending) return;
     setSending(true);
     setInput("");
     const newMsgs: Msg[] = [...messages, { role: "user", content: text }];
     setMessages(newMsgs);
 
+    // Lightweight client context for precision (active city + local time + coords if available)
+    const clientContext: any = {
+      localTime: new Date().toLocaleString("fr-FR", { timeZone: "Africa/Casablanca", dateStyle: "full", timeStyle: "short" }),
+    };
+    try {
+      const manual = localStorage.getItem("geo_manual_address");
+      if (manual) clientContext.activeCity = manual;
+      const coordsRaw = localStorage.getItem("geo_manual_coords");
+      if (coordsRaw) { const c = JSON.parse(coordsRaw); if (c?.lat && c?.lng) clientContext.coords = c; }
+    } catch {/* noop */}
+
     try {
       const { data, error } = await supabase.functions.invoke("club-ai-chat", {
-        body: { chatId: activeId, messages: newMsgs },
+        body: { chatId: activeId, messages: newMsgs, clientContext },
       });
       if (error) throw error;
       const answer = (data as any)?.answer || "";
