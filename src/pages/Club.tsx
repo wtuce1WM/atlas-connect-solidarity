@@ -114,6 +114,13 @@ const Club = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Ping "last activity" each time a logged-in member opens /club
+  useEffect(() => {
+    if (!user) return;
+    (supabase as any).rpc("touch_club_member_activity").then(() => {}).catch(() => {});
+  }, [user?.id]);
+
+
   // Scroll to top when user logs in (retry across paints to beat layout shifts / scroll restoration)
   useEffect(() => {
     if (!user) return;
