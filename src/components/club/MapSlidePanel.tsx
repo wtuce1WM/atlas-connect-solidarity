@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { X, MapPin } from "lucide-react";
 import BusinessMap from "@/components/BusinessMap";
 
@@ -9,9 +9,20 @@ export interface MapPanelBusiness {
   city?: string | null;
   neighborhood?: string | null;
   address?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
   main_category?: string | null;
+  categories?: string[] | null;
   latitude: number | null;
   longitude: number | null;
+  wtuce_status?: string | null;
+  logo_url?: string | null;
+  images?: string[] | null;
+  hook_fr?: string | null;
+  google_rating?: number | null;
+  google_review_count?: number | null;
+  tripadvisor_rating?: number | null;
+  tripadvisor_review_count?: number | null;
 }
 
 interface MapSlidePanelProps {
@@ -22,6 +33,24 @@ interface MapSlidePanelProps {
   isMobile?: boolean;
 }
 
+// Approximate centers for known Moroccan cities (mirrors /search behavior).
+const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
+  marrakech: { lat: 31.6295, lng: -7.9811 },
+  essaouira: { lat: 31.5085, lng: -9.7595 },
+  agafay: { lat: 31.4500, lng: -8.1500 },
+  casablanca: { lat: 33.5731, lng: -7.5898 },
+  rabat: { lat: 34.0209, lng: -6.8416 },
+  fes: { lat: 34.0181, lng: -5.0078 },
+  fès: { lat: 34.0181, lng: -5.0078 },
+  tanger: { lat: 35.7595, lng: -5.8340 },
+  agadir: { lat: 30.4278, lng: -9.5981 },
+  ouarzazate: { lat: 30.9189, lng: -6.8934 },
+  chefchaouen: { lat: 35.1689, lng: -5.2636 },
+};
+
+const normalize = (s: string) =>
+  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
 const MapSlidePanel = ({ open, onClose, title, businesses, isMobile }: MapSlidePanelProps) => {
   useEffect(() => {
     if (!open) return;
@@ -30,20 +59,45 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile }: MapSlideP
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
-
-  const mapBusinesses = businesses
+  const mapBusinesses = useMemo(() => businesses
     .filter((b) => b.latitude != null && b.longitude != null)
     .map((b) => ({
       id: b.id,
       name: b.name,
       city: b.city || "",
       address: b.address ?? null,
+      phone: b.phone ?? null,
+      whatsapp: b.whatsapp ?? null,
       main_category: b.main_category ?? null,
-      neighborhood: b.neighborhood ?? null,
+      categories: b.categories ?? null,
       latitude: b.latitude,
       longitude: b.longitude,
-    }));
+      wtuce_status: b.wtuce_status ?? null,
+      logo_url: b.logo_url ?? null,
+      neighborhood: b.neighborhood ?? null,
+      images: b.images ?? null,
+      hook_fr: b.hook_fr ?? null,
+      google_rating: b.google_rating ?? null,
+      google_review_count: b.google_review_count ?? null,
+      tripadvisor_rating: b.tripadvisor_rating ?? null,
+      tripadvisor_review_count: b.tripadvisor_review_count ?? null,
+    })), [businesses]);
+
+  // Compute a city center when all (or majority) of businesses share the same city.
+  const cityCenter = useMemo(() => {
+    if (!mapBusinesses.length) return null;
+    const counts = new Map<string, number>();
+    for (const b of mapBusinesses) {
+      if (!b.city) continue;
+      const key = normalize(b.city);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    if (!counts.size) return null;
+    const [dominant] = Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0];
+    return CITY_CENTERS[dominant] || null;
+  }, [mapBusinesses]);
+
+  if (!open) return null;
 
   return (
     <>
@@ -75,7 +129,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile }: MapSlideP
           </button>
         </header>
 
-        <div className="flex-1 min-h-0 [&>div]:h-full">
+        <div className="flex-1 min-h-0 p-2 md:p-3 [&>div]:h-full">
           {mapBusinesses.length === 0 ? (
             <div className="h-full flex items-center justify-center text-sm text-[#C04F17]/70 p-6 text-center">
               Aucune coordonnée disponible pour ces établissements.
@@ -84,7 +138,8 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile }: MapSlideP
             <BusinessMap
               businesses={mapBusinesses as any}
               height="100%"
-              forceOverview
+              forceOverview={!cityCenter}
+              cityCenter={cityCenter}
               onBusinessClick={(b: any) => {
                 const slug = businesses.find((x) => x.id === b.id)?.slug;
                 if (slug) window.open(`/b/${slug}`, "_blank", "noopener,noreferrer");
