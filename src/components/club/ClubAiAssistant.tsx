@@ -170,9 +170,21 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   const deleteChat = async (id: string) => {
     if (!confirm("Supprimer cette conversation ?")) return;
-    await supabase.from("ai_chats").delete().eq("id", id);
+    // Always clear local state for the deleted chat — even if it's not the
+    // current activeId — so a fresh prompt can never reuse a stale chatId.
+    const wasActive = activeId === id;
     setChats((prev) => prev.filter((c) => c.id !== id));
-    if (activeId === id) newChat();
+    if (wasActive) {
+      // Clear URL + in-memory messages BEFORE awaiting the DB delete so any
+      // subsequent send() reads activeId === null and creates a brand-new chat.
+      newChat();
+    }
+    const { error } = await supabase.from("ai_chats").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Suppression impossible", description: error.message, variant: "destructive" });
+    }
+    // Re-sync with the server so the sidebar reflects the true state.
+    await loadChats();
   };
 
   const toggleBookmark = async () => {
