@@ -551,7 +551,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const ttsBusy = tts.status === "loading" || tts.status === "playing" || tts.status === "paused";
 
   return (
-    <div className="flex flex-col gap-4 min-h-[520px]">
+    <div className={`flex flex-col gap-4 min-h-[520px] transition-[width,max-width,padding] duration-300 ease-out ${openBusinessId ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:pr-2" : "w-full"}`}>
       {/* Threads */}
       <aside className="bg-[#ECD6B8] rounded-xl p-3 flex flex-col gap-2 max-h-[320px]">
 
