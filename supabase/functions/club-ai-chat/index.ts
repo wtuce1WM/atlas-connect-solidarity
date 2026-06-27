@@ -742,6 +742,8 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
         continue;
       }
       break;
+    }
+
 
     // Append map markers (hidden HTML comment) for the client to render slide-panel + mini-card.
     if (mapPayloads.length && finalAnswer) {
