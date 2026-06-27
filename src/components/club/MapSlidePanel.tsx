@@ -326,7 +326,6 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
             </div>
           </div>
         </div>
-        </div>
       </div>
     </>
   );
