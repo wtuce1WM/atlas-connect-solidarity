@@ -6630,6 +6630,42 @@ export type Database = {
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       slugify: { Args: { input: string }; Returns: string }
+      staff_get_member_details: { Args: { p_member_id: string }; Returns: Json }
+      staff_update_club_member: {
+        Args: { p_member_id: string; p_payload: Json }
+        Returns: {
+          avatar_url: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          facebook: string | null
+          first_name: string | null
+          id: string
+          instagram: string | null
+          last_name: string | null
+          linkedin: string | null
+          nickname: string
+          phone: string | null
+          pinterest: string | null
+          skype: string | null
+          soundcloud: string | null
+          spotify: string | null
+          tiktok: string | null
+          twitter: string | null
+          user_id: string | null
+          website: string | null
+          whatsapp: string | null
+          youtube: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "club_members"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {

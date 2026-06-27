@@ -7,7 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles, Pencil } from "lucide-react";
+import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles, Pencil, UserCog } from "lucide-react";
+import ClubMemberEditor from "@/components/staff/ClubMemberEditor";
 
 interface PersonaTag {
   id: string;
@@ -45,6 +46,7 @@ const GuestManagement = () => {
   const [editingMember, setEditingMember] = useState<ClubMemberWithSignIn | null>(null);
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMembers();
@@ -205,9 +207,14 @@ const GuestManagement = () => {
                         {member.last_sign_in_at ? formatDate(member.last_sign_in_at) : "—"}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(member)} title="Éditer les personas">
-                          <Pencil className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => setEditingAccountId(member.id)} title="Éditer la fiche complète">
+                            <UserCog className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(member)} title="Éditer les personas">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -259,6 +266,12 @@ const GuestManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ClubMemberEditor
+        memberId={editingAccountId}
+        open={!!editingAccountId}
+        onClose={() => { setEditingAccountId(null); fetchMembers(); }}
+      />
     </div>
   );
 };
