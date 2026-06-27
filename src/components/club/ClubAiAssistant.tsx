@@ -542,9 +542,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const ttsBusy = tts.status === "loading" || tts.status === "playing" || tts.status === "paused";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4 min-h-[520px]">
+    <div className="flex flex-col gap-4 min-h-[520px]">
       {/* Threads */}
-      <aside className="bg-[#ECD6B8] rounded-xl p-3 flex flex-col gap-2 lg:max-h-[640px]">
+      <aside className="bg-[#ECD6B8] rounded-xl p-3 flex flex-col gap-2 max-h-[320px]">
+
         <button
           onClick={() => newChat()}
           className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg bg-[#C04F17] text-white text-sm font-semibold hover:bg-[#1240d6] transition-colors"
