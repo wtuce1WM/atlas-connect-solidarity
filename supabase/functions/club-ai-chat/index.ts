@@ -114,6 +114,24 @@ const tools = [
         required: ["query"],
       },
     },
+  {
+    type: "function",
+    function: {
+      name: "search_events",
+      description:
+        "Recherche des ÉVÉNEMENTS / AGENDA culturel & festif référencés dans 1WM (concerts, festivals, expositions, soirées, marchés, etc.). Par défaut filtré sur le badge #Agenda et les événements à venir. Utilise systématiquement cet outil quand le membre demande 'que faire ce week-end', 'quoi voir ce soir', 'événements', 'agenda', 'concerts', 'festivals'.",
+      parameters: {
+        type: "object",
+        properties: {
+          city: { type: "string", description: "Ville (ex: Marrakech, Essaouira)" },
+          query: { type: "string", description: "Mot-clé sur le nom/description (optionnel)" },
+          from_date: { type: "string", description: "Date début ISO (YYYY-MM-DD). Défaut : aujourd'hui." },
+          to_date: { type: "string", description: "Date fin ISO (YYYY-MM-DD). Défaut : +30 jours." },
+          include_all_badges: { type: "boolean", description: "Si true, n'applique pas le filtre #Agenda. Défaut false.", default: false },
+          limit: { type: "number", description: "Max 10", default: 8 },
+        },
+      },
+    },
   },
 ];
 
@@ -329,6 +347,62 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const results = (data || []).filter((b: any) => !excluded.has(b.id)).slice(0, limit);
       return { results, based_on: { categories: t.top_categories, cities: t.top_cities } };
     }
+    if (name === "search_events") {
+      const limit = Math.min(Number(args.limit) || 8, 10);
+      const today = new Date().toISOString().slice(0, 10);
+      const from = (args.from_date && String(args.from_date).slice(0, 10)) || today;
+      const to = (args.to_date && String(args.to_date).slice(0, 10))
+        || new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+
+      let eventIds: string[] | null = null;
+      if (!args.include_all_badges) {
+        // Badge #Agenda
+        const { data: badge } = await ctx.supabase
+          .from("badges").select("id").ilike("name_fr", "%agenda%").limit(1).maybeSingle();
+        if (badge?.id) {
+          const { data: eb } = await ctx.supabase
+            .from("event_badges").select("event_id").eq("badge_id", badge.id);
+          eventIds = (eb || []).map((r: any) => r.event_id).filter(Boolean);
+          if (!eventIds.length) return { results: [], note: "Aucun événement avec le badge #Agenda." };
+        }
+      }
+
+      let q = ctx.supabase
+        .from("events")
+        .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,cities:city_id(name_fr),neighborhoods:neighborhood_id(name_fr)")
+        .or(`and(start_date.gte.${from},start_date.lte.${to}),and(start_date.lte.${to},end_date.gte.${from}),recurrence.not.is.null`)
+        .order("start_date", { ascending: true, nullsFirst: false })
+        .limit(limit * 2);
+      if (eventIds) q = q.in("id", eventIds.slice(0, 500));
+      if (args.query) {
+        const qv = String(args.query).replace(/[,()"]/g, " ").trim();
+        if (qv) q = q.or(`name.ilike.%${qv}%,description.ilike.%${qv}%,hook.ilike.%${qv}%`);
+      }
+      const { data, error } = await q;
+      if (error) { console.error("search_events error", error); return { results: [], error: error.message }; }
+      let results = data || [];
+      if (args.city) {
+        const cv = String(args.city).toLowerCase();
+        results = results.filter((e: any) => (e.cities?.name_fr || "").toLowerCase().includes(cv));
+      }
+      results = results.slice(0, limit).map((e: any) => ({
+        id: e.id,
+        name: e.name,
+        hook: e.hook,
+        description: e.description,
+        start_date: e.start_date,
+        end_date: e.end_date,
+        recurrence: e.recurrence,
+        days_of_week: e.days_of_week,
+        start_time: e.start_time,
+        end_time: e.end_time,
+        city: e.cities?.name_fr || null,
+        neighborhood: e.neighborhoods?.name_fr || null,
+        url: e.url || null,
+      }));
+      if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}${args.city ? ` à ${args.city}` : ""}.` };
+      return { results, period: { from, to } };
+    }
     if (name === "web_search") {
       const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
       if (!FIRECRAWL_API_KEY) return { error: "FIRECRAWL_API_KEY non configurée" };
@@ -440,9 +514,10 @@ RÈGLES DE PRÉCISION (critiques) :
 5. Quand tu cites un établissement, format obligatoire : **Nom exact** suivi du lien markdown [voir la fiche](https://oneworldmorocco.com/b/SLUG). Utilise toujours le slug renvoyé par les outils.
 6. Reste concis, chaleureux, en français (sauf si l'utilisateur écrit dans une autre langue). Markdown léger (gras, listes courtes). Évite les listes interminables : 3 à 5 suggestions maximum, vraiment ciblées.
 7. Utilise naturellement les goûts du membre pour personnaliser, sans les réciter.
-8. **Recherche web (web_search)** : appelle-la UNIQUEMENT pour des infos factuelles temps réel absentes de 1WM (pharmacie de garde, numéros d'urgence officiels, événements/festivals publics, horaires transports, démarches admin, actualités). JAMAIS pour recommander des restaurants, hôtels, spas, etc. — ceux-là doivent venir de search_businesses. Maximum 1 appel web_search par message. Cite TOUJOURS les sources sous forme [titre](url) à la fin de ta réponse, et préviens si l'info peut avoir changé.
+8. **Événements / agenda** : pour toute demande type « que faire ce soir / ce week-end », « concerts », « festival », « expo », « soirée », « agenda culturel » → appelle search_events (filtre #Agenda + ville + dates). N'invente jamais un événement, et précise toujours la date/horaire renvoyés par l'outil. Si rien ne sort, dis-le franchement.
+9. **Recherche web (web_search)** : appelle-la UNIQUEMENT pour des infos factuelles temps réel absentes de 1WM (pharmacie de garde, numéros d'urgence officiels, événements/festivals publics non référencés, horaires transports, démarches admin, actualités). JAMAIS pour recommander des restaurants, hôtels, spas, etc. — ceux-là doivent venir de search_businesses ; et pour l'agenda, passe d'abord par search_events. Maximum 1 appel web_search par message. Cite TOUJOURS les sources sous forme [titre](url) à la fin de ta réponse, et préviens si l'info peut avoir changé.
 
-Outils disponibles : get_weather, search_businesses, get_business_details, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search.`;
+Outils disponibles : get_weather, search_businesses, get_business_details, search_events, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search.`;
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
