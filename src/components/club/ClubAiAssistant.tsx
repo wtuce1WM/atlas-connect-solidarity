@@ -671,7 +671,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                           }
                           return <strong>{children}</strong>;
                         },
-                      }}>{linkifyPhones(clean)}</ReactMarkdown>
+                      }}>{linkifyPhones(stripFicheLinks(clean))}</ReactMarkdown>
                     </div>
                     {maps.map((mp, idx) => (
                       <button
