@@ -587,11 +587,36 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         return { error: String(e), results: [] };
       }
     }
+    if (name === "show_on_map") {
+      const slugs: string[] = Array.isArray(args.business_slugs)
+        ? args.business_slugs.filter((s: any) => typeof s === "string" && s.trim()).slice(0, 20)
+        : [];
+      if (!slugs.length) return { error: "Aucun slug fourni", count: 0 };
+      const { data, error } = await ctx.supabase
+        .from("businesses")
+        .select("id,name,slug,city,neighborhood,address,main_category,latitude,longitude")
+        .in("slug", slugs)
+        .eq("is_active", true);
+      if (error) return { error: error.message, count: 0 };
+      const withCoords = (data || []).filter((b: any) => b.latitude != null && b.longitude != null);
+      const missing = slugs.filter((s) => !(data || []).some((b: any) => b.slug === s));
+      const noCoords = (data || []).filter((b: any) => b.latitude == null || b.longitude == null).map((b: any) => b.slug);
+      return {
+        ok: true,
+        count: withCoords.length,
+        businesses: withCoords,
+        missing_slugs: missing,
+        no_coords_slugs: noCoords,
+        instruction:
+          "La carte sera affichée automatiquement côté UI. Poursuis ta réponse normalement sans recoller la liste si elle vient juste d'être donnée. Mentionne uniquement les établissements éventuellement sans coordonnées (no_coords_slugs) ou introuvables (missing_slugs) si pertinent.",
+      };
+    }
   } catch (e) {
     return { error: String(e) };
   }
   return { error: "unknown tool" };
 }
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
