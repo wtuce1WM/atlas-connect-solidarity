@@ -701,7 +701,7 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
       const resp = await fetch(GATEWAY_URL, {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: modelToUse, messages: convo, tools, tool_choice: "auto", temperature: 0.3, max_tokens: 2500 }),
+        body: JSON.stringify({ model: modelToUse, messages: convo, tools, tool_choice: "auto", temperature: 0.5, max_tokens: 2500, frequency_penalty: 0.6, presence_penalty: 0.3 }),
       });
 
       if (resp.status === 429) return new Response(JSON.stringify({ error: "rate_limit" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
