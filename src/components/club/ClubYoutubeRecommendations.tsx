@@ -32,7 +32,7 @@ const extractYoutubeId = (url: string): string | null => {
 };
 
 const ClubYoutubeRecommendations = () => {
-  const [destinationId, setDestinationId] = useState<string>(MARRAKECH_DEST_ID);
+  const [nearEssaouira, setNearEssaouira] = useState(false);
   const [videos, setVideos] = useState<Video[]>([]);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const ClubYoutubeRecommendations = () => {
           { lat: pos.coords.latitude, lng: pos.coords.longitude },
           ESSAOUIRA_COORDS,
         );
-        if (dist <= ESSAOUIRA_RADIUS_KM) setDestinationId(ESSAOUIRA_DEST_ID);
+        if (dist <= ESSAOUIRA_RADIUS_KM) setNearEssaouira(true);
       },
       () => {},
       { timeout: 5000, maximumAge: 5 * 60 * 1000 },
@@ -53,17 +53,23 @@ const ClubYoutubeRecommendations = () => {
   useEffect(() => {
     let cancelled = false;
     const fetchVideos = async () => {
+      const destIds = nearEssaouira
+        ? [MARRAKECH_DEST_ID, ESSAOUIRA_DEST_ID]
+        : [MARRAKECH_DEST_ID];
       const { data } = await supabase
         .from("generic_video_destinations")
         .select("sort_order, generic_videos!inner(id, title, name, url, thumbnail_url)")
-        .eq("destination_id", destinationId)
+        .in("destination_id", destIds)
         .order("sort_order", { ascending: true });
       if (cancelled) return;
+      const seen = new Set<string>();
       const items: Video[] = ((data || []) as any[])
         .map((row) => {
           const g = row.generic_videos;
           const url: string | null = g?.url || null;
           if (!url || !/(?:youtube\.com|youtu\.be)/i.test(url)) return null;
+          if (seen.has(g.id)) return null;
+          seen.add(g.id);
           return {
             id: g.id as string,
             url,
@@ -82,12 +88,13 @@ const ClubYoutubeRecommendations = () => {
     return () => {
       cancelled = true;
     };
-  }, [destinationId]);
+  }, [nearEssaouira]);
 
   const label = useMemo(
-    () => (destinationId === ESSAOUIRA_DEST_ID ? "Essaouira" : "Marrakech"),
-    [destinationId],
+    () => (nearEssaouira ? "Marrakech & Essaouira" : "Marrakech"),
+    [nearEssaouira],
   );
+
 
   if (!videos.length) return null;
 
