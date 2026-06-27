@@ -170,17 +170,31 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       return data;
     }
     if (name === "search_businesses") {
-      const limit = Math.min(Number(args.limit) || 5, 8);
+      const limit = Math.min(Number(args.limit) || 6, 10);
       let q = ctx.supabase
         .from("businesses")
-        .select("id,name,slug,city,main_category,description_fr,google_rating,google_review_count")
+        .select("id,name,slug,city,neighborhood,main_category,categories,description_fr,google_rating,google_review_count,priority_score")
         .eq("is_active", true)
-        .ilike("name", `%${args.query}%`)
+        .order("priority_score", { ascending: false, nullsFirst: false })
         .limit(limit);
+      if (args.query) q = q.or(`name.ilike.%${args.query}%,description_fr.ilike.%${args.query}%`);
       if (args.city) q = q.ilike("city", `%${args.city}%`);
+      if (args.neighborhood) q = q.ilike("neighborhood", `%${args.neighborhood}%`);
+      if (args.category) q = q.or(`main_category.ilike.%${args.category}%,categories.cs.{${args.category}}`);
       const { data, error } = await q;
       if (error) return { error: error.message };
-      return { results: data || [] };
+      return { results: (data || []).map((b: any) => ({ ...b, url: `https://oneworldmorocco.com/b/${b.slug}` })) };
+    }
+    if (name === "get_business_details") {
+      const { data, error } = await ctx.supabase
+        .from("businesses")
+        .select("id,name,slug,city,neighborhood,address,main_category,categories,description_fr,phone,website,google_rating,google_review_count,min_price,opening_hours")
+        .eq("slug", args.slug)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (error) return { error: error.message };
+      if (!data) return { error: "Établissement introuvable" };
+      return { ...data, url: `https://oneworldmorocco.com/b/${data.slug}` };
     }
     if (name === "list_my_bookmarks") {
       const { data: bks } = await ctx.supabase
@@ -194,7 +208,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         .from("businesses")
         .select("id,name,slug,city,main_category")
         .in("id", ids);
-      return { results: data || [] };
+      return { results: (data || []).map((b: any) => ({ ...b, url: `https://oneworldmorocco.com/b/${b.slug}` })) };
     }
     if (name === "list_my_saved_chats") {
       const { data } = await ctx.supabase
