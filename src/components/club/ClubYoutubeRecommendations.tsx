@@ -103,15 +103,15 @@ const ClubYoutubeRecommendations = () => {
     const fetchVideos = async () => {
       if (!destination) return;
 
-      const destIds = destination === "essaouira"
-        ? [ESSAOUIRA_DEST_ID]
-        : [MARRAKECH_DEST_ID];
+      const cityIds = destination === "essaouira"
+        ? [ESSAOUIRA_CITY_ID]
+        : [MARRAKECH_CITY_ID];
 
       const { data } = await supabase
-        .from("generic_video_destinations")
-        .select("sort_order, generic_videos!inner(id, title, name, url, thumbnail_url)")
-        .in("destination_id", destIds)
-        .order("sort_order", { ascending: true });
+        .from("generic_video_cities")
+        .select("generic_videos!inner(id, title, name, url, thumbnail_url, sort_order)")
+        .in("city_id", cityIds)
+        .order("sort_order", { ascending: true, foreignTable: "generic_videos" });
       if (cancelled) return;
       const seen = new Set<string>();
       const items: Video[] = ((data || []) as any[])
