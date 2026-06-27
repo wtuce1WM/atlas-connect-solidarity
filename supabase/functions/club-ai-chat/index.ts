@@ -32,18 +32,23 @@ const tools = [
     function: {
       name: "search_businesses",
       description:
-        "Recherche des établissements RÉELS dans la base One World Morocco. À utiliser systématiquement avant de citer un lieu. Combine nom, catégorie, ville, quartier, ET badges (très important : les badges qualifient finement l'expérience — ex: #Authentique, Rooftop, Famille, Cuisine marocaine, Gastronomique, Piscine, Spa, Beach Club, Dîner-Spectacle, Vue sur mer, Démarche éco-responsable, etc.). Si l'utilisateur exprime une intention (« authentique », « pas cher », « romantique », « pour enfants »…), pense à passer le badge correspondant.",
+        "Recherche des établissements RÉELS dans la base One World Morocco. À utiliser systématiquement avant de citer un lieu. Combine nom, catégorie, ville, quartier, badges ET services. Les badges qualifient finement l'expérience (#Authentique, Rooftop, Famille, Gastronomique, Piscine, Spa, Beach Club, Vue sur mer, Démarche éco-responsable…) ; les services décrivent l'équipement/prestation (« Avec piscine », « Spa », « Hammam », « Restaurant », « Parking », « Wifi », « Climatisation »…). IMPORTANT : pour une intention comme « avec piscine », passe la valeur à la fois dans badges ET dans services — la fonction fait l'UNION et trouvera les établissements qui ont soit le badge soit le service correspondant. Si l'utilisateur exprime une intention (« authentique », « romantique », « pour enfants », « avec piscine », « avec spa »…), pense à remplir badges + services.",
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "Mot-clé ou nom partiel (optionnel si category/badges fourni)" },
+          query: { type: "string", description: "Mot-clé ou nom partiel (optionnel si category/badges/services fourni)" },
           category: { type: "string", description: "Catégorie principale: restaurant, hotel, spa, activité, bar, café, etc. (optionnel)" },
           city: { type: "string", description: "Ville (ex: Marrakech, Essaouira, Casablanca)" },
           neighborhood: { type: "string", description: "Quartier (ex: Gueliz, Médina, Hivernage)" },
           badges: {
             type: "array",
             items: { type: "string" },
-            description: "Badges (name_fr, avec ou sans #) à matcher. Ex: ['#Authentique'], ['Rooftop','Vue sur mer'], ['Famille']. Plusieurs badges = filtrage AND.",
+            description: "Badges (name_fr, avec ou sans #) à matcher. Ex: ['#Authentique'], ['Rooftop','Vue sur mer'], ['Piscine']. Combiné en UNION avec `services`.",
+          },
+          services: {
+            type: "array",
+            items: { type: "string" },
+            description: "Services / équipements à matcher (name_fr partiel). Ex: ['piscine'], ['spa','hammam'], ['restaurant']. Combiné en UNION avec `badges` : un établissement matche s'il porte au moins un badge OU un service de la liste.",
           },
           limit: { type: "number", description: "Nombre de résultats à retourner (max 30, défaut 12). Augmente jusqu'à 30 si le membre demande une carte ou une vue d'ensemble.", default: 12 },
         },
