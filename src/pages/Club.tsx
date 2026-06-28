@@ -239,6 +239,8 @@ const Club = () => {
       successMsg: "Un email de confirmation vous a été envoyé. Veuillez vérifier votre boîte de réception pour activer votre compte.",
       errorMsg: "Une erreur est survenue, veuillez réessayer.",
       emailAlreadyUsed: "Cet email est déjà utilisé.",
+      rateLimit: "Trop de tentatives. Veuillez patienter 1 minute avant de réessayer.",
+      weakPassword: "Le mot de passe est trop faible. Veuillez choisir un mot de passe plus sécurisé.",
       orSeparator: "ou",
       googleSignIn: "Continuer avec Google",
     },
@@ -270,6 +272,8 @@ const Club = () => {
       successMsg: "A confirmation email has been sent. Please check your inbox to activate your account.",
       errorMsg: "An error occurred, please try again.",
       emailAlreadyUsed: "This email is already in use.",
+      rateLimit: "Too many attempts. Please wait 1 minute before trying again.",
+      weakPassword: "Password is too weak. Please choose a stronger password.",
       orSeparator: "or",
       googleSignIn: "Continue with Google",
     },
@@ -301,6 +305,8 @@ const Club = () => {
       successMsg: "تم إرسال بريد تأكيد. يرجى التحقق من صندوق الوارد لتفعيل حسابك.",
       errorMsg: "حدث خطأ، يرجى المحاولة مرة أخرى.",
       emailAlreadyUsed: "هذا البريد الإلكتروني مستخدم بالفعل.",
+      rateLimit: "محاولات كثيرة جداً. يرجى الانتظار دقيقة واحدة قبل المحاولة مرة أخرى.",
+      weakPassword: "كلمة المرور ضعيفة جداً. يرجى اختيار كلمة مرور أقوى.",
       orSeparator: "أو",
       googleSignIn: "المتابعة مع جوجل",
     },
@@ -332,6 +338,8 @@ const Club = () => {
     successMsg: "Un email de confirmation vous a été envoyé. Veuillez vérifier votre boîte de réception pour activer votre compte.",
     errorMsg: "Une erreur est survenue, veuillez réessayer.",
     emailAlreadyUsed: "Cet email est déjà utilisé.",
+    rateLimit: "Trop de tentatives. Veuillez patienter 1 minute avant de réessayer.",
+    weakPassword: "Le mot de passe est trop faible. Veuillez choisir un mot de passe plus sécurisé.",
     orSeparator: "ou",
     googleSignIn: "Continuer avec Google",
   };
@@ -421,8 +429,18 @@ const Club = () => {
       });
 
       if (authError) {
-        if (authError.message?.includes("already registered")) {
+        const errMsg = (authError.message || "").toLowerCase();
+        const errCode = (authError as any).code || "";
+        if (errMsg.includes("already registered") || errCode === "user_already_exists") {
           toast({ title: t.emailAlreadyUsed, variant: "destructive" });
+          return;
+        }
+        if (errCode === "over_email_send_rate_limit" || errMsg.includes("for security purposes") || errMsg.includes("429")) {
+          toast({ title: t.rateLimit, variant: "destructive" });
+          return;
+        }
+        if (errCode === "weak_password" || errMsg.includes("weak password")) {
+          toast({ title: t.weakPassword, variant: "destructive" });
           return;
         }
         throw authError;
