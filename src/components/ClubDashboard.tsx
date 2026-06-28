@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User as UserIcon, MapPin, Plane, Lightbulb, Bell, Home, Bot } from "lucide-react";
 import AiChatsList from "@/components/club/AiChatsList";
 import ClubTrips from "@/components/club/ClubTrips";
+import ClubTripsPreview from "@/components/club/ClubTripsPreview";
 import BookmarkTripLinker from "@/components/club/BookmarkTripLinker";
 import ClubAiAssistant from "@/components/club/ClubAiAssistant";
 import { MessageCircle } from "lucide-react";
@@ -825,7 +826,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </TabsContent>
 
-        <TabsContent value="assistant" className="mt-6">
+        <TabsContent value="assistant" className="mt-6 space-y-4">
+          <ClubTripsPreview userId={user.id} />
           <ClubAiAssistant userId={user.id} />
         </TabsContent>
 
