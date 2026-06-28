@@ -3,9 +3,30 @@
  * and return the `YT` global object once it is ready.
  */
 
-let loadPromise: Promise<typeof YT> | null = null;
+type YTPlayer = {
+  getDuration(): number;
+  getCurrentTime(): number;
+  seekTo(seconds: number, allowSeekAhead: boolean): void;
+  destroy?(): void;
+};
 
-export function loadYouTubeApi(): Promise<typeof YT> {
+type YTPlayerConstructor = new (
+  element: HTMLElement | string,
+  options: {
+    events?: {
+      onReady?: (event: { target: YTPlayer }) => void;
+      onStateChange?: (event: { data: number }) => void;
+    };
+  },
+) => YTPlayer;
+
+type YTApi = {
+  Player: YTPlayerConstructor;
+};
+
+let loadPromise: Promise<YTApi> | null = null;
+
+export function loadYouTubeApi(): Promise<YTApi> {
   if (loadPromise) return loadPromise;
 
   loadPromise = new Promise((resolve, reject) => {
@@ -14,15 +35,17 @@ export function loadYouTubeApi(): Promise<typeof YT> {
       return;
     }
 
-    if (window.YT && window.YT.Player) {
-      resolve(window.YT);
+    const win = window as unknown as { YT?: YTApi; onYouTubeIframeAPIReady?: () => void };
+
+    if (win.YT && win.YT.Player) {
+      resolve(win.YT);
       return;
     }
 
-    const prev = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => {
+    const prev = win.onYouTubeIframeAPIReady;
+    win.onYouTubeIframeAPIReady = () => {
       if (prev) prev();
-      resolve(window.YT!);
+      resolve(win.YT!);
     };
 
     const script = document.createElement("script");
@@ -35,9 +58,3 @@ export function loadYouTubeApi(): Promise<typeof YT> {
   return loadPromise;
 }
 
-declare global {
-  interface Window {
-    YT?: typeof YT;
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
