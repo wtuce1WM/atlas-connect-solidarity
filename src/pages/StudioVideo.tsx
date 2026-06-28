@@ -110,6 +110,19 @@ const TONES = [
 ];
 
 export default function StudioVideo() {
+  const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (cancelled) return;
+      setAuthState(data.user ? "in" : "out");
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setAuthState(session?.user ? "in" : "out");
+    });
+    return () => { cancelled = true; sub.subscription.unsubscribe(); };
+  }, []);
+
   const [query, setQuery] = useState("");
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selected, setSelected] = useState<Business | null>(null);
