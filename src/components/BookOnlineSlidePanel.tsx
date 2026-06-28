@@ -1774,6 +1774,7 @@ const BookOnlineSlidePanelInner = ({
          )}
 
         {/* YouTube scrubbar — placed above the bottom CTAs so it stays visible */}
+        {console.log("[BookOnline] videoInfo", videoInfo?.type, "anyOverlayOpen", anyOverlayOpen, "cardsHidden", cardsHidden) || null}
         {videoInfo?.type === "youtube" && !anyOverlayOpen && !cardsHidden && (
           <div className="relative z-50 w-full flex justify-center px-4 pb-3 pointer-events-auto">
             <YoutubeScrubBar
