@@ -229,6 +229,15 @@ const GuestManagement = () => {
                           <Button variant="ghost" size="icon" onClick={() => openEdit(member)} title="Éditer les personas">
                             <Pencil className="h-4 w-4" />
                           </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => { setDeletingMember(member); setAlsoDeleteAuth(true); }}
+                            title="Supprimer le membre"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
