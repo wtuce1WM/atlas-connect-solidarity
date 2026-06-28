@@ -6262,6 +6262,14 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_video_like_count: {
+        Args: { p_video_id: string; p_video_source: string }
+        Returns: number
+      }
+      get_video_view_count: {
+        Args: { p_video_id: string; p_video_source: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

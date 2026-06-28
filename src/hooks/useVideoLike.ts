@@ -30,13 +30,12 @@ export const useVideoLike = (
     const requestedSource = source;
     const requestedUserId = userId;
     if (!requestedVideoId) { setCount(0); setIsLiked(false); return; }
-    const { count: c } = await supabase
-      .from("video_likes" as any)
-      .select("id", { count: "exact", head: true })
-      .eq("video_id", requestedVideoId)
-      .eq("video_source", requestedSource);
+    const { data: c } = await supabase.rpc("get_video_like_count" as any, {
+      p_video_id: requestedVideoId,
+      p_video_source: requestedSource,
+    });
     if (latestTargetRef.current.videoId !== requestedVideoId || latestTargetRef.current.source !== requestedSource) return;
-    setCount(c ?? 0);
+    setCount((c as number | null) ?? 0);
     if (requestedUserId) {
       const { data } = await supabase
         .from("video_likes" as any)
