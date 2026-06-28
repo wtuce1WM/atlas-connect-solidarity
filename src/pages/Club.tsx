@@ -26,6 +26,13 @@ import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus4
 import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+const Check = ({ color }: { color: string }) => (
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+    <circle cx="11" cy="11" r="10" stroke={color} strokeWidth="1.6" />
+    <path d="M6.5 11.3l3 3 6-6" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = koutoubiaVerticalBgAsset.url;
@@ -537,8 +544,28 @@ const Club = () => {
           `}</style>
 
           {/* Auth card overlaid */}
-          <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col md:flex-row items-center md:items-center justify-center gap-8 min-h-[92vh]">
-
+          <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col items-center justify-center gap-8 min-h-[92vh]">
+            {/* 6 CTA badges above auth card */}
+            <div className="w-full max-w-3xl mx-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                {[
+                  "Consommez local",
+                  "Voyagez autrement",
+                  "Agissez pour tous",
+                  "Réductions exclusives",
+                  "Accès prioritaire",
+                  "Communauté OWM",
+                ].map((label) => (
+                  <div
+                    key={label}
+                    className="inline-flex items-center justify-center gap-2 bg-black/40 backdrop-blur-md text-white px-3 sm:px-4 py-2.5 rounded-full text-xs sm:text-sm font-semibold border border-white/20"
+                  >
+                    <Check color="#00a896" />
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div className="w-full max-w-md bg-[#ECD6B8]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
 
