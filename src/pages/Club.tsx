@@ -429,8 +429,18 @@ const Club = () => {
       });
 
       if (authError) {
-        if (authError.message?.includes("already registered")) {
+        const errMsg = (authError.message || "").toLowerCase();
+        const errCode = (authError as any).code || "";
+        if (errMsg.includes("already registered") || errCode === "user_already_exists") {
           toast({ title: t.emailAlreadyUsed, variant: "destructive" });
+          return;
+        }
+        if (errCode === "over_email_send_rate_limit" || errMsg.includes("for security purposes") || errMsg.includes("429")) {
+          toast({ title: t.rateLimit, variant: "destructive" });
+          return;
+        }
+        if (errCode === "weak_password" || errMsg.includes("weak password")) {
+          toast({ title: t.weakPassword, variant: "destructive" });
           return;
         }
         throw authError;
