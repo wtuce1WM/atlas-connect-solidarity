@@ -795,6 +795,7 @@ const Club = () => {
           </div>
         </main>
       )}
+      {user && <ClubYoutubeRecommendations />}
       <Footer variant="verified" />
       <ClubBottomBarSlot />
     </div>
