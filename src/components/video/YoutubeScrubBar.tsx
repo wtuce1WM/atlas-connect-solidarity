@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   iframeRef: React.RefObject<HTMLIFrameElement>;
   visible?: boolean;
+  /** Optional override of the outer container classes. When omitted, the component floats absolutely at the bottom of its nearest relative ancestor. */
+  className?: string;
 }
 
 /**
@@ -14,7 +17,7 @@ interface Props {
  * The native YouTube controls are hidden by `fs=0` / minimal chrome; this component
  * exposes only the timeline (scrub) without play/volume/fullscreen.
  */
-export function YoutubeScrubBar({ iframeRef, visible = true }: Props) {
+export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props) {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [dragging, setDragging] = useState(false);
