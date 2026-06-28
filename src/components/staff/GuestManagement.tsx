@@ -48,6 +48,31 @@ const GuestManagement = () => {
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
+  const [deletingMember, setDeletingMember] = useState<ClubMemberWithSignIn | null>(null);
+  const [alsoDeleteAuth, setAlsoDeleteAuth] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deletingMember) return;
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("delete-club-member", {
+      body: { member_id: deletingMember.id, also_delete_auth_user: alsoDeleteAuth },
+    });
+    setDeleting(false);
+    if (error || (data as any)?.error) {
+      toast({ variant: "destructive", title: "Erreur", description: error?.message || (data as any)?.error });
+      return;
+    }
+    toast({
+      title: "Membre supprimé",
+      description: (data as any)?.auth_user_deleted
+        ? `${deletingMember.email || deletingMember.nickname} a été entièrement supprimé (compte + fiche).`
+        : `Fiche membre supprimée. Le compte d'authentification est conservé.`,
+    });
+    setDeletingMember(null);
+    setAlsoDeleteAuth(true);
+    fetchMembers();
+  };
 
   useEffect(() => {
     fetchMembers();
