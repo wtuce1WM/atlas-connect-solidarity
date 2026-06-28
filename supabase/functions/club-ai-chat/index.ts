@@ -719,15 +719,15 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
 
-    // Tool-calling loop (max 6 iterations)
+    // Tool-calling loop (max 4 iterations — reduced from 6 for cost control)
     let finalAnswer = "";
     let modelToUse = MODEL;
     const mapPayloads: Array<{ title?: string; businesses: any[] }> = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 4; i++) {
       const resp = await fetch(GATEWAY_URL, {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: modelToUse, messages: convo, tools, tool_choice: "auto", temperature: 0.5, max_tokens: 2500, frequency_penalty: 0.6, presence_penalty: 0.3 }),
+        body: JSON.stringify({ model: modelToUse, messages: convo, tools, tool_choice: "auto", temperature: 0.5, max_tokens: 1800, frequency_penalty: 0.6, presence_penalty: 0.3 }),
       });
 
       if (resp.status === 429) return new Response(JSON.stringify({ error: "rate_limit" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
