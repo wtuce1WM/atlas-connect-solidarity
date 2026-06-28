@@ -31,16 +31,26 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
 
   useEffect(() => {
     if (!visible) return;
-    const handshake = () => {
-      iframeRef.current?.contentWindow?.postMessage(
-        JSON.stringify({ event: "listening", id: 0 }),
-        "*",
-      );
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const targets = ["https://www.youtube.com", "https://www.youtube-nocookie.com"];
+    const sendHandshake = () => {
+      const payload = JSON.stringify({ event: "listening", id: 0, channel: "widget" });
+      try {
+        iframe.contentWindow?.postMessage(payload, "*");
+      } catch { /* ignore */ }
     };
-    handshake();
-    const id = window.setInterval(handshake, 2000);
+    // Send immediately, then retry every 800ms for the first 5s to cover player ready timing.
+    sendHandshake();
+    let count = 0;
+    const id = window.setInterval(() => {
+      sendHandshake();
+      count += 1;
+      if (count >= 6) window.clearInterval(id);
+    }, 800);
 
     const onMsg = (e: MessageEvent) => {
+      if (!targets.includes(e.origin)) return;
       try {
         const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
         const info = data?.info;
