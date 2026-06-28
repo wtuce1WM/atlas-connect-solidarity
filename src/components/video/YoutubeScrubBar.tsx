@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { loadYouTubeApi } from "@/lib/loadYouTubeApi";
 
 interface Props {
   iframeRef: React.RefObject<HTMLIFrameElement>;
@@ -8,14 +9,17 @@ interface Props {
   className?: string;
 }
 
+function formatTime(totalSeconds: number) {
+  if (!isFinite(totalSeconds) || totalSeconds < 0) totalSeconds = 0;
+  const m = Math.floor(totalSeconds / 60);
+  const s = Math.floor(totalSeconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 /**
  * Floating scrubbar overlay for the YouTube iframe embedded in the slide panel.
- * Communicates via the YT IFrame API postMessage protocol (no SDK load required):
- *  - {event:"listening"} → triggers periodic infoDelivery messages with {currentTime, duration}
- *  - {event:"command", func:"seekTo", args:[seconds, true]} → seeks the player
- *
- * The native YouTube controls are hidden by `fs=0` / minimal chrome; this component
- * exposes only the timeline (scrub) without play/volume/fullscreen.
+ * Uses the official YouTube IFrame API to read the current playback position
+ * and seek, while keeping the native control chrome hidden (fs=0, controls=1).
  */
 export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props) {
   const [duration, setDuration] = useState(0);
@@ -24,49 +28,71 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
   const [dragValue, setDragValue] = useState(0);
   const barRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
+  const playerRef = useRef<ReturnType<typeof loadYouTubeApi> extends Promise<infer T> ? T["Player"] : never | null>(null);
 
   useEffect(() => {
     draggingRef.current = dragging;
   }, [dragging]);
 
+  // Wire up the YouTube player via the IFrame API and poll for progress.
   useEffect(() => {
     if (!visible) return;
     const iframe = iframeRef.current;
     if (!iframe) return;
-    const sendHandshake = () => {
-      const payload = JSON.stringify({ event: "listening", id: 0, channel: "widget" });
-      try {
-        iframe.contentWindow?.postMessage(payload, "*");
-      } catch { /* ignore */ }
-    };
-    sendHandshake();
-    const id = window.setInterval(sendHandshake, 2000);
 
-    const onMsg = (e: MessageEvent) => {
-      if (!e.origin.includes("youtube")) return;
-      try {
-        const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
-        const info = data?.info;
-        if (info && typeof info === "object") {
-          if (typeof info.duration === "number" && info.duration > 0) {
-            setDuration((prev) => (Math.abs(prev - info.duration) > 0.5 ? info.duration : prev));
+    let cancelled = false;
+    let pollId: number | null = null;
+    let player: any = null;
+
+    const startPolling = (p: any) => {
+      player = p;
+      if (pollId) window.clearInterval(pollId);
+      pollId = window.setInterval(() => {
+        if (!player || !player.getDuration) return;
+        try {
+          const dur = player.getDuration();
+          const cur = player.getCurrentTime();
+          if (dur > 0) {
+            setDuration((prev) => (Math.abs(prev - dur) > 0.5 ? dur : prev));
           }
-          if (typeof info.currentTime === "number" && !draggingRef.current) {
-            setCurrentTime(info.currentTime);
+          if (!draggingRef.current) {
+            setCurrentTime(cur);
           }
+        } catch {
+          // player may be destroyed
         }
-      } catch {
-        /* ignore non-YT messages */
-      }
+      }, 250);
     };
-    window.addEventListener("message", onMsg);
+
+    loadYouTubeApi()
+      .then((YT) => {
+        if (cancelled) return;
+        const ytPlayer = new YT.Player(iframe, {
+          events: {
+            onReady: (event) => {
+              if (cancelled) return;
+              startPolling(event.target);
+            },
+          },
+        });
+        playerRef.current = ytPlayer;
+      })
+      .catch(() => {
+        // Fallback: keep the native controls visible if the API fails to load.
+      });
+
     return () => {
-      window.clearInterval(id);
-      window.removeEventListener("message", onMsg);
+      cancelled = true;
+      if (pollId) window.clearInterval(pollId);
+      try {
+        playerRef.current?.destroy?.();
+      } catch {
+        // ignore
+      }
     };
   }, [iframeRef, visible]);
 
-  // Reset when iframe changes (new video) — duration becomes stale.
+  // Reset when hidden.
   useEffect(() => {
     if (!visible) {
       setDuration(0);
@@ -75,10 +101,11 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
   }, [visible]);
 
   const seekTo = (sec: number) => {
-    iframeRef.current?.contentWindow?.postMessage(
-      JSON.stringify({ event: "command", func: "seekTo", args: [sec, true] }),
-      "*",
-    );
+    try {
+      playerRef.current?.seekTo?.(sec, true);
+    } catch {
+      // ignore
+    }
   };
 
   const computeTime = (clientX: number) => {
@@ -101,60 +128,49 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
   };
   const onPointerUp = (e: React.PointerEvent) => {
     if (!draggingRef.current) return;
-    const t = computeTime(e.clientX);
+    const sec = computeTime(e.clientX);
+    seekTo(sec);
     setDragging(false);
-    setCurrentTime(t);
-    seekTo(t);
+    setCurrentTime(sec);
   };
 
-  const value = dragging ? dragValue : currentTime;
-  const pct = duration > 0 ? (value / duration) * 100 : 0;
-
-  const fmt = (s: number) => {
-    if (!isFinite(s) || s < 0) s = 0;
-    const m = Math.floor(s / 60);
-    const ss = Math.floor(s % 60).toString().padStart(2, "0");
-    return `${m}:${ss}`;
-  };
-
-  if (!visible || duration <= 0) return null;
+  const progress = duration ? ((dragging ? dragValue : currentTime) / duration) * 100 : 0;
 
   return (
     <div
       className={cn(
-        "pointer-events-auto w-[min(680px,92%)] rounded-full bg-black/55 backdrop-blur-md px-4 py-2.5 flex items-center gap-3 shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-white/10",
-        !className && "absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-6 z-40",
-        className
+        "rounded-full bg-black/55 backdrop-blur-md border border-white/10 px-3 py-2 flex items-center gap-3 shadow-lg select-none",
+        className,
       )}
-      onClick={(e) => e.stopPropagation()}
-      onMouseDown={(e) => e.stopPropagation()}
-      onTouchStart={(e) => e.stopPropagation()}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerLeave={() => {
+        if (draggingRef.current) {
+          seekTo(dragValue);
+          setDragging(false);
+          setCurrentTime(dragValue);
+        }
+      }}
     >
-      <span className="text-white text-[11px] font-mono w-10 text-right tabular-nums select-none">
-        {fmt(value)}
+      <span className="text-[11px] font-medium text-white/90 tabular-nums min-w-[34px] text-center">
+        {formatTime(dragging ? dragValue : currentTime)}
       </span>
-      <div
-        ref={barRef}
-        className="relative flex-1 h-2 rounded-full bg-white/20 cursor-pointer touch-none"
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-      >
+
+      <div ref={barRef} className="relative flex-1 h-1.5 bg-white/20 rounded-full cursor-pointer">
         <div
-          className="absolute inset-y-0 left-0 rounded-full bg-[#C04F17] pointer-events-none"
-          style={{ width: `${pct}%` }}
+          className="absolute top-0 left-0 h-full rounded-full bg-[#C04F17]"
+          style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
         />
         <div
-          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-md pointer-events-none"
-          style={{ left: `${pct}%` }}
+          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-md opacity-0 hover:opacity-100"
+          style={{ left: `${Math.max(0, Math.min(100, progress))}%`, transform: "translate(-50%, -50%)", opacity: dragging ? 1 : undefined }}
         />
       </div>
-      <span className="text-white/80 text-[11px] font-mono w-10 tabular-nums select-none">
-        {fmt(duration)}
+
+      <span className="text-[11px] font-medium text-white/60 tabular-nums min-w-[34px] text-center">
+        {formatTime(duration)}
       </span>
     </div>
   );
 }
-
-export default YoutubeScrubBar;
