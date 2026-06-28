@@ -553,7 +553,7 @@ const Club = () => {
               <p className="text-sm sm:text-base text-white/90 mb-6 max-w-2xl mx-auto leading-relaxed">
                 {t.desc}
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 w-full max-w-3xl mx-auto">
                 {[
                   "Votre assistant IA",
                   "Votre ID numérique",
@@ -564,7 +564,7 @@ const Club = () => {
                 ].map((label) => (
                   <div
                     key={label}
-                    className="inline-flex items-center justify-center gap-2 bg-black/40 backdrop-blur-md text-white px-3 sm:px-4 py-2.5 rounded-full text-xs sm:text-sm font-semibold border border-white/20"
+                    className="inline-flex items-center justify-center gap-2 bg-black/40 backdrop-blur-md text-white px-4 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold border border-white/20 w-full"
                   >
                     <Check color="#00a896" />
                     <span className="whitespace-pre-line">{label}</span>
