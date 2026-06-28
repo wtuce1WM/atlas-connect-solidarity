@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { Play } from "lucide-react";
+
+const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
 
 const MARRAKECH_CITY_ID = "41545fd3-2c2c-4609-8d55-842fd7e2edde";
 const ESSAOUIRA_CITY_ID = "3f96c12a-0635-4f70-8de0-2578a66bcc07";
@@ -48,6 +50,8 @@ const ClubYoutubeRecommendations = () => {
   const geo = useGeolocation();
   const [fallbackDestination, setFallbackDestination] = useState<DestinationKey | null>(null);
   const [videos, setVideos] = useState<Video[]>([]);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
 
   const destination = useMemo<DestinationKey | null>(() => {
     const cityFromGeo = normalizeCity(geo.confirmedAddress) || normalizeCity(geo.detectedCity);
@@ -146,53 +150,97 @@ const ClubYoutubeRecommendations = () => {
     [destination],
   );
 
+  const panelList = useMemo(
+    () =>
+      videos.map((v) => ({
+        id: v.id,
+        url: v.url,
+        business_name: v.title || "Vidéo",
+        pageBusinessName: null,
+        pageBusinessId: null,
+        owner: null,
+        social: null,
+        showSocialBadge: false,
+        description: null,
+        manualCard: null,
+        title: v.title,
+        price: null,
+      })),
+    [videos],
+  );
+  const activeVideo = panelList.find((v) => v.id === activeVideoId) || null;
 
   if (!videos.length) return null;
 
   return (
-    <section className="w-full px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-white text-xl md:text-2xl font-bold mb-4 !font-sans">
-          Vidéos Youtube recommandées
-          <span className="text-white/60 text-sm font-normal ml-2">· {label}</span>
-        </h2>
-        <div className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-hide">
-          {videos.map((v) => (
-            <a
-              key={v.id}
-              href={v.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative shrink-0 snap-start w-[220px] md:w-[260px] aspect-video rounded-xl overflow-hidden bg-black/40 border border-white/10 hover:border-white/30 transition"
-            >
-              {v.thumbnail ? (
-                <img
-                  src={v.thumbnail}
-                  alt={v.title || "Vidéo YouTube"}
-                  loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              ) : (
-                <div className="w-full h-full bg-neutral-900" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-[#C04F17]/90 rounded-full p-3 shadow-lg group-hover:scale-110 transition">
-                  <Play className="h-5 w-5 text-white fill-white" />
+    <>
+      <section className="w-full px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-white text-xl md:text-2xl font-bold mb-4 !font-sans">
+            Vidéos Youtube recommandées
+            <span className="text-white/60 text-sm font-normal ml-2">· {label}</span>
+          </h2>
+          <div className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-hide">
+            {videos.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => {
+                  setCurrentTime(0);
+                  setActiveVideoId(v.id);
+                }}
+                className="group relative shrink-0 snap-start w-[220px] md:w-[260px] aspect-video rounded-xl overflow-hidden bg-black/40 border border-white/10 hover:border-white/30 transition text-left"
+              >
+                {v.thumbnail ? (
+                  <img
+                    src={v.thumbnail}
+                    alt={v.title || "Vidéo YouTube"}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-neutral-900" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-[#C04F17]/90 rounded-full p-3 shadow-lg group-hover:scale-110 transition">
+                    <Play className="h-5 w-5 text-white fill-white" />
+                  </div>
                 </div>
-              </div>
-              {v.title && (
-                <div className="absolute bottom-0 left-0 right-0 p-2.5">
-                  <p className="text-white text-xs md:text-sm font-medium line-clamp-2">
-                    {v.title}
-                  </p>
-                </div>
-              )}
-            </a>
-          ))}
+                {v.title && (
+                  <div className="absolute bottom-0 left-0 right-0 p-2.5">
+                    <p className="text-white text-xs md:text-sm font-medium line-clamp-2">
+                      {v.title}
+                    </p>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {activeVideoId && (
+        <Suspense fallback={null}>
+          <HomeVideoSlidePanel
+            open={!!activeVideo}
+            onClose={() => setActiveVideoId(null)}
+            activeVideo={activeVideo as any}
+            activeList={panelList as any}
+            onActiveVideoChange={(v: any) => {
+              setActiveVideoId(v.id);
+              setCurrentTime(0);
+            }}
+            isActiveGeneric={true}
+            currentTime={currentTime}
+            onTimeUpdate={setCurrentTime}
+            returnContext={null}
+            hideDirections
+            hideSecondaryCtas
+          />
+        </Suspense>
+      )}
+    </>
   );
 };
 
