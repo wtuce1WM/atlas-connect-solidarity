@@ -493,7 +493,7 @@ const Club = () => {
 
       {/* Hero — repris de la home : picture mobile/tablette/desktop + mockups flottants */}
       {!user && (
-        <section className="relative min-h-[92vh] w-full overflow-hidden">
+        <section className="club-hero relative min-h-[92vh] w-full overflow-hidden">
           <picture>
             <source media="(max-width: 767px)" srcSet={heroImageMobile} />
             <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
@@ -501,6 +501,9 @@ const Club = () => {
               src={heroImageDesktop}
               alt="Maroc — riad, piscine et tagine, composition réalisme magique"
               className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
+              style={{
+                transform: `translate(calc(var(--mx, 0) * 12px), calc(var(--sy, 0) * 24px)) scale(1.05)`,
+              }}
               loading="eager"
               fetchPriority="high"
             />
@@ -523,21 +526,10 @@ const Club = () => {
             aria-hidden="true"
             className="hidden md:block lg:hidden pointer-events-none select-none absolute right-[3%] top-1/2 -translate-y-1/2 md:max-lg:top-[38%] md:max-lg:h-[48%] w-auto z-20 drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-[heroPhoneFloat_4.5s_ease-in-out_infinite]"
           />
-          {/* Centered iPhone mockup — mobile only */}
-          <img
-            src={phoneMockupAsset.url}
-            alt="Application One World Morocco sur iPhone"
-            aria-hidden="true"
-            className="block md:hidden pointer-events-none select-none absolute top-[10%] left-0 right-0 h-[85%] w-full object-contain object-bottom origin-top scale-[0.95] z-10 opacity-50 animate-[mobilePhoneFloat_5s_ease-in-out_infinite]"
-          />
           <style>{`
             @keyframes heroPhoneFloat {
               0%, 100% { transform: translateY(calc(-50% - 8px)); }
               50% { transform: translateY(calc(-50% + 8px)); }
-            }
-            @keyframes mobilePhoneFloat {
-              0%, 100% { transform: scale(0.95) translateY(0); }
-              50% { transform: scale(0.95) translateY(-12px); }
             }
             @media (prefers-reduced-motion: reduce) {
               section img[alt^="Application One World"] { animation: none !important; }
