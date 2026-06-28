@@ -1773,6 +1773,17 @@ const BookOnlineSlidePanelInner = ({
            <BusinessPromotionsList businessId={business?.id} cardsHidden={cardsHidden || showWelcomePopup || (!!(business as any)?.popup_image_url && businessPromotions.length > 0)} />
          )}
 
+        {/* YouTube scrubbar — placed above the bottom CTAs so it stays visible */}
+        {videoInfo?.type === "youtube" && !anyOverlayOpen && !cardsHidden && (
+          <div className="relative z-50 w-full flex justify-center px-4 pb-3 pointer-events-auto">
+            <YoutubeScrubBar
+              iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
+              visible={true}
+              className="relative z-50 w-full max-w-[min(680px,92%)] mx-auto"
+            />
+          </div>
+        )}
+
         {/* CTA Bar */}
         <CtaBar
           business={business}
