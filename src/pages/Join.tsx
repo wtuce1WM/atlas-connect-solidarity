@@ -18,6 +18,8 @@ const heroImageMobile = koutoubiaVerticalBgAsset.url;
 const CSS = `
   .join-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif,system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
   .join-page *{box-sizing:border-box}
+  @keyframes hero-zoom-light{0%,100%{transform:scale(1.05)}50%{transform:scale(1.12)}}
+  @media (max-width:767px){.join-page .hero-bg{animation:hero-zoom-light 18s ease-in-out infinite !important}}
   .join-page .wrap{max-width:1240px;margin:0 auto;padding:0 24px}
   .join-page section{padding:80px 0;border-bottom:1px solid var(--line)}
   .join-page .section-head{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:end;margin-bottom:56px}
