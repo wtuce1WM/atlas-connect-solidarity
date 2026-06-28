@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
+import { YoutubeScrubBar } from "@/components/video/YoutubeScrubBar";
 import { createPortal } from "react-dom";
 import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass, ShoppingCart, SlidersHorizontal, CheckCircle2, Circle, Navigation, Heart, Hash } from "lucide-react";
 import ShareButton from "@/components/ShareButton";
