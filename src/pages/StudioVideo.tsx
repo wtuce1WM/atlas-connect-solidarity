@@ -387,6 +387,17 @@ export default function StudioVideo() {
     toast.success("Vidéo supprimée");
   };
 
+  if (authState === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  if (authState === "out") {
+    return <Navigate to="/club" replace state={{ from: "/studio-video" }} />;
+  }
+
   return (
     <>
       <Helmet>
