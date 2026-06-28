@@ -101,6 +101,38 @@ interface RootErrorBoundaryState {
   error: Error | null;
 }
 
+const RELOAD_FLAG = "__owm_chunk_reload__";
+
+const isChunkLoadError = (error: unknown): boolean => {
+  if (!error) return false;
+  const msg = (error as Error)?.message ?? String(error);
+  const name = (error as Error)?.name ?? "";
+  return (
+    name === "ChunkLoadError" ||
+    /Loading chunk [\d]+ failed/i.test(msg) ||
+    /Failed to fetch dynamically imported module/i.test(msg) ||
+    /Importing a module script failed/i.test(msg) ||
+    /error loading dynamically imported module/i.test(msg) ||
+    /Minified React error #(418|423|425|426)/i.test(msg)
+  );
+};
+
+const hardReload = async () => {
+  try {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.unregister()));
+    }
+  } catch (e) {
+    console.warn("[RootErrorBoundary] cache purge failed", e);
+  }
+  window.location.reload();
+};
+
 class RootErrorBoundary extends React.Component<React.PropsWithChildren, RootErrorBoundaryState> {
   state: RootErrorBoundaryState = { error: null };
 
@@ -110,15 +142,53 @@ class RootErrorBoundary extends React.Component<React.PropsWithChildren, RootErr
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("[RootErrorBoundary] Fatal render error", error, errorInfo);
+    // Auto-recover from stale chunk after deploy: reload once, flag in session to avoid loop.
+    if (isChunkLoadError(error)) {
+      try {
+        const already = sessionStorage.getItem(RELOAD_FLAG);
+        if (!already) {
+          sessionStorage.setItem(RELOAD_FLAG, "1");
+          hardReload();
+          return;
+        }
+      } catch {
+        /* sessionStorage indisponible */
+      }
+    } else {
+      try { sessionStorage.removeItem(RELOAD_FLAG); } catch { /* ignore */ }
+    }
   }
 
   render() {
     if (this.state.error) {
+      const chunk = isChunkLoadError(this.state.error);
       return (
         <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-6 py-12">
-          <div className="max-w-xl text-center space-y-3">
-            <h1 className="text-2xl font-semibold">Le preview a rencontré une erreur</h1>
-            <p className="text-sm text-muted-foreground">{this.state.error.message || "Erreur de rendu inconnue."}</p>
+          <div className="max-w-xl text-center space-y-4">
+            <h1 className="text-2xl font-semibold">
+              {chunk ? "Une nouvelle version est disponible" : "Le preview a rencontré une erreur"}
+            </h1>
+            <p className="text-sm text-muted-foreground break-words">
+              {chunk
+                ? "Rechargez la page pour récupérer les derniers fichiers."
+                : (this.state.error.message || "Erreur de rendu inconnue.")}
+            </p>
+            <div className="flex gap-2 justify-center pt-2">
+              <button
+                type="button"
+                onClick={hardReload}
+                className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90"
+              >
+                Recharger
+              </button>
+              <button
+                type="button"
+                onClick={() => { window.location.href = "/"; }}
+                className="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-muted"
+              >
+                Accueil
+              </button>
+            </div>
           </div>
         </div>
       );
