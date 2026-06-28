@@ -27,7 +27,7 @@ import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertica
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Check = ({ color }: { color: string }) => (
-  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" className="flex-shrink-0 min-w-[22px] min-h-[22px]">
     <circle cx="11" cy="11" r="10" stroke={color} strokeWidth="1.6" />
     <path d="M6.5 11.3l3 3 6-6" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
