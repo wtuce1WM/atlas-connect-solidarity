@@ -761,9 +761,9 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
       finalAnswer = (choice.content || "").trim();
       // Degeneracy guard: if the model emitted a single token looped many times, retry once on fallback.
       const degenerate = /(\b\w{3,}\b)(\s*\1){15,}/i.test(finalAnswer) || /(.{3,40}?)\1{10,}/.test(finalAnswer);
-      if (degenerate && modelToUse === MODEL) {
-        console.warn("degenerate output detected, switching to fallback model");
-        modelToUse = FALLBACK_MODEL;
+      if (degenerate && modelToUse !== "google/gemini-3-pro-preview") {
+        console.warn("degenerate output detected, upgrading to pro model");
+        modelToUse = "google/gemini-3-pro-preview";
         finalAnswer = "";
         continue;
       }
