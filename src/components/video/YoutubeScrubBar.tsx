@@ -118,7 +118,10 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
 
   return (
     <div
-      className="absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-6 z-40 pointer-events-auto w-[min(680px,92%)] rounded-full bg-black/55 backdrop-blur-md px-4 py-2.5 flex items-center gap-3 shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-white/10"
+      className={cn(
+        "pointer-events-auto w-[min(680px,92%)] rounded-full bg-black/55 backdrop-blur-md px-4 py-2.5 flex items-center gap-3 shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-white/10",
+        className
+      )}
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
