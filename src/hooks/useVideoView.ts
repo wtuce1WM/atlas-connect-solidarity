@@ -18,12 +18,11 @@ export const useVideoView = (
 
   const refresh = useCallback(async () => {
     if (!videoId) { setCount(0); return; }
-    const { count: c } = await supabase
-      .from("video_views" as any)
-      .select("id", { count: "exact", head: true })
-      .eq("video_id", videoId)
-      .eq("video_source", source);
-    setCount(c ?? 0);
+    const { data: c } = await supabase.rpc("get_video_view_count" as any, {
+      p_video_id: videoId,
+      p_video_source: source,
+    });
+    setCount((c as number | null) ?? 0);
   }, [videoId, source]);
 
   const logView = useCallback(async () => {
