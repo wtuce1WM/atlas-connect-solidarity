@@ -567,7 +567,7 @@ const Club = () => {
                     className="inline-flex items-center justify-center gap-2 bg-black/40 backdrop-blur-md text-white px-5 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-semibold border border-white/20 w-full whitespace-nowrap"
                   >
                     <Check color="#00a896" />
-                    <span className="whitespace-pre-line">{label}</span>
+                    <span>{label}</span>
                   </div>
                 ))}
               </div>
