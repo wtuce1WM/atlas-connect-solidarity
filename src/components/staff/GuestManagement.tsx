@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles, Pencil, UserCog } from "lucide-react";
+import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles, Pencil, UserCog, Trash2 } from "lucide-react";
 import ClubMemberEditor from "@/components/staff/ClubMemberEditor";
 
 interface PersonaTag {
@@ -48,6 +48,31 @@ const GuestManagement = () => {
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
+  const [deletingMember, setDeletingMember] = useState<ClubMemberWithSignIn | null>(null);
+  const [alsoDeleteAuth, setAlsoDeleteAuth] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deletingMember) return;
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("delete-club-member", {
+      body: { member_id: deletingMember.id, also_delete_auth_user: alsoDeleteAuth },
+    });
+    setDeleting(false);
+    if (error || (data as any)?.error) {
+      toast({ variant: "destructive", title: "Erreur", description: error?.message || (data as any)?.error });
+      return;
+    }
+    toast({
+      title: "Membre supprimé",
+      description: (data as any)?.auth_user_deleted
+        ? `${deletingMember.email || deletingMember.nickname} a été entièrement supprimé (compte + fiche).`
+        : `Fiche membre supprimée. Le compte d'authentification est conservé.`,
+    });
+    setDeletingMember(null);
+    setAlsoDeleteAuth(true);
+    fetchMembers();
+  };
 
   useEffect(() => {
     fetchMembers();
@@ -204,6 +229,15 @@ const GuestManagement = () => {
                           <Button variant="ghost" size="icon" onClick={() => openEdit(member)} title="Éditer les personas">
                             <Pencil className="h-4 w-4" />
                           </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => { setDeletingMember(member); setAlsoDeleteAuth(true); }}
+                            title="Supprimer le membre"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -262,6 +296,46 @@ const GuestManagement = () => {
         open={!!editingAccountId}
         onClose={() => { setEditingAccountId(null); fetchMembers(); }}
       />
+
+      <Dialog open={!!deletingMember} onOpenChange={(open) => !open && !deleting && setDeletingMember(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Supprimer ce membre ?</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2 text-sm">
+            <p>
+              Vous êtes sur le point de supprimer la fiche de{" "}
+              <strong>{deletingMember?.nickname}</strong>
+              {deletingMember?.email ? <> ({deletingMember.email})</> : null}.
+            </p>
+            <Label className="flex items-start gap-3 p-3 rounded-md border cursor-pointer hover:bg-muted/50">
+              <Checkbox
+                checked={alsoDeleteAuth}
+                onCheckedChange={(v) => setAlsoDeleteAuth(v === true)}
+                className="mt-0.5"
+              />
+              <span className="space-y-1">
+                <span className="block font-medium">Supprimer aussi le compte d'authentification</span>
+                <span className="block text-xs text-muted-foreground">
+                  Recommandé pour tester une ré-inscription complète (sinon l'email reste connu et un nouveau signup échouera).
+                </span>
+              </span>
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Cette action est irréversible (voyages, bookmarks et chats liés seront également supprimés).
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeletingMember(null)} disabled={deleting}>
+              Annuler
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+              {deleting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
