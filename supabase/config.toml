@@ -13,6 +13,8 @@ project_id = "plnphgdrawpsnumnejzc"
     verify_jwt = false
   [functions.club-ai-chat]
     verify_jwt = false
+  [functions.delete-club-member]
+    verify_jwt = false
   [functions.elevenlabs-scribe-token]
     verify_jwt = false
   [functions.elevenlabs-transcribe]
