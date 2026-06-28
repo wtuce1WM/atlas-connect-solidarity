@@ -254,7 +254,7 @@ const Join = () => {
           <img
             src={heroImageDesktop}
             alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-            className="absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
+            className="hero-bg absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
             style={{ transform: `translate(calc(var(--mx, 0) * 12px), calc(var(--sy, 0) * 24px)) scale(1.05)` }}
             loading="eager"
             fetchPriority="high"
