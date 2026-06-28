@@ -574,7 +574,10 @@ const Club = () => {
               </div>
             </div>
 
-            <div className="w-full max-w-md bg-[#ECD6B8]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+            <div
+              className="club-badge-shimmer w-full max-w-md bg-[#ECD6B8]/60 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]"
+              style={{ "--shimmer-delay": "720ms" } as React.CSSProperties}
+            >
 
 
                 {/* Tabs */}
