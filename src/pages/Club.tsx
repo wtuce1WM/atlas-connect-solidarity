@@ -561,13 +561,14 @@ const Club = () => {
                   "Réductions exclusives",
                   "économie locale & solidaire",
                   "Communauté OWM",
-                ].map((label) => (
+                ].map((label, index) => (
                   <div
                     key={label}
-                    className="inline-flex items-center justify-center gap-2 bg-black/40 backdrop-blur-md text-white px-5 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-semibold border border-white/20 w-full whitespace-nowrap"
+                    className="club-badge-glass club-badge-shimmer inline-flex items-center justify-center gap-2 text-white px-5 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-semibold w-full whitespace-nowrap"
+                    style={{ "--shimmer-delay": `${index * 120}ms` } as React.CSSProperties}
                   >
                     <Check color="#00a896" />
-                    <span>{label}</span>
+                    <span className="relative z-10">{label}</span>
                   </div>
                 ))}
               </div>
