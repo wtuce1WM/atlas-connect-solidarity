@@ -26,6 +26,13 @@ import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus4
 import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+const Check = ({ color }: { color: string }) => (
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+    <circle cx="11" cy="11" r="10" stroke={color} strokeWidth="1.6" />
+    <path d="M6.5 11.3l3 3 6-6" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = koutoubiaVerticalBgAsset.url;
