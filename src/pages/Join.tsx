@@ -264,7 +264,7 @@ const Join = () => {
         </picture>
         {/* Dark overlay on tablet to ensure text readability over zellige pattern */}
         <div className="hidden md:block lg:hidden absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/70 md:hidden z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/50 md:hidden z-10" />
 
         {/* Floating phone mockup — left side, desktop only */}
         <img
