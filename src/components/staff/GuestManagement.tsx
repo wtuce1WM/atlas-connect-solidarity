@@ -296,6 +296,46 @@ const GuestManagement = () => {
         open={!!editingAccountId}
         onClose={() => { setEditingAccountId(null); fetchMembers(); }}
       />
+
+      <Dialog open={!!deletingMember} onOpenChange={(open) => !open && !deleting && setDeletingMember(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Supprimer ce membre ?</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2 text-sm">
+            <p>
+              Vous êtes sur le point de supprimer la fiche de{" "}
+              <strong>{deletingMember?.nickname}</strong>
+              {deletingMember?.email ? <> ({deletingMember.email})</> : null}.
+            </p>
+            <Label className="flex items-start gap-3 p-3 rounded-md border cursor-pointer hover:bg-muted/50">
+              <Checkbox
+                checked={alsoDeleteAuth}
+                onCheckedChange={(v) => setAlsoDeleteAuth(v === true)}
+                className="mt-0.5"
+              />
+              <span className="space-y-1">
+                <span className="block font-medium">Supprimer aussi le compte d'authentification</span>
+                <span className="block text-xs text-muted-foreground">
+                  Recommandé pour tester une ré-inscription complète (sinon l'email reste connu et un nouveau signup échouera).
+                </span>
+              </span>
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Cette action est irréversible (voyages, bookmarks et chats liés seront également supprimés).
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeletingMember(null)} disabled={deleting}>
+              Annuler
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+              {deleting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
