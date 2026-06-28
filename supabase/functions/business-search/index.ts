@@ -682,7 +682,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const {
+    let {
       query,
       city,
       region,
@@ -701,6 +701,37 @@ serve(async (req) => {
     compact,
     subcategoryNames,
     }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null; subcategoryNames?: string[] } = await req.json();
+
+    // ── Input validation & sanitization ──
+    // Strip PostgREST filter special chars and clamp string lengths to prevent
+    // filter-string injection (commas, dots, braces, parens, quotes are PostgREST operators).
+    const sanitizeFilter = (v: unknown, maxLen = 200): string | undefined => {
+      if (typeof v !== "string") return undefined;
+      const cleaned = v.replace(/[,(){}"\\]/g, " ").replace(/\s+/g, " ").trim();
+      if (!cleaned) return undefined;
+      return cleaned.slice(0, maxLen);
+    };
+    const clampNum = (v: unknown, min: number, max: number, def: number): number => {
+      const n = typeof v === "number" && Number.isFinite(v) ? v : def;
+      return Math.min(max, Math.max(min, n));
+    };
+    query = typeof query === "string" ? query.slice(0, 200) : query;
+    city = sanitizeFilter(city, 100);
+    region = sanitizeFilter(region, 100);
+    category = sanitizeFilter(category, 100);
+    mainCategory = sanitizeFilter(mainCategory, 100);
+    if (typeof latitude === "number" && (latitude < -90 || latitude > 90 || !Number.isFinite(latitude))) latitude = undefined;
+    if (typeof longitude === "number" && (longitude < -180 || longitude > 180 || !Number.isFinite(longitude))) longitude = undefined;
+    radiusKm = clampNum(radiusKm, 1, 200, 30);
+    limit = clampNum(limit, 1, 1000, 500);
+    offset = clampNum(offset, 0, 10000, 0);
+    pageSize = clampNum(pageSize, 1, 100, 20);
+    if (Array.isArray(subcategoryNames)) {
+      subcategoryNames = subcategoryNames
+        .map((s) => sanitizeFilter(s, 100))
+        .filter((s): s is string => !!s)
+        .slice(0, 20);
+    }
 
     // ── BYPASS: front-structure entry + city → deterministic filter (no FTS, no LLM) ──
     if (Array.isArray(subcategoryNames) && subcategoryNames.length > 0 && city) {
