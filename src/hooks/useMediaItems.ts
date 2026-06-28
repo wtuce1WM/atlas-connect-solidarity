@@ -67,6 +67,8 @@ export function useVideoInfo(effectiveMedia: MediaItem | null, defaultSoundOn?: 
       return { ...base, embedUrl: base.embedUrl.replace(/controls=0/, "controls=1").replace(/disablekb=1/, "disablekb=0") };
     }
     return base;
+    return base;
+    return base;
   }, [effectiveMedia?.kind, effectiveMedia?.url]);
 
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
