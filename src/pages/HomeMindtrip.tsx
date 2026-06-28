@@ -1381,8 +1381,8 @@ const STEPS = [
   {
     title: "Offres sélectionnées. Prix locaux.",
     desc: "Votre application direct-to-local dédiée au tourisme et à la vie quotidienne au Maroc.\n\nRéductions exclusives sur :\n- Séjours\n- Visites\n- Restaurants\n- Commerces\n- Activités\n- Services\n\n",
-    cta: "Voir les offres",
-    href: "/search?badge=reduction",
+    cta: "Profiter des offres",
+    href: "/club",
     icon: Percent,
   },
   {
