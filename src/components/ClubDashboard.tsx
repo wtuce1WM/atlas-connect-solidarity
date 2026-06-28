@@ -825,7 +825,8 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </TabsContent>
 
-        <TabsContent value="assistant" className="mt-6">
+        <TabsContent value="assistant" className="mt-6 space-y-4">
+          <ClubTripsPreview userId={user.id} />
           <ClubAiAssistant userId={user.id} />
         </TabsContent>
 
