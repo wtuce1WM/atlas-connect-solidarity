@@ -164,7 +164,7 @@ serve(async (req) => {
     const model = isComplex ? proModel : baseModel;
     console.log(`[ai-search-answer] model=${model} complex=${isComplex} qLen=${qLen} turns=${historyTurns}`);
     const configuredMaxTokens = parseInt(cfg.max_tokens || "1200", 10);
-    const maxTokens = Math.max(Number.isFinite(configuredMaxTokens) ? configuredMaxTokens : 0, 3200);
+    const maxTokens = Math.max(Number.isFinite(configuredMaxTokens) ? configuredMaxTokens : 0, 1800);
     const temperature = parseFloat(cfg.temperature || "0.7");
     const extraInstructions = cfg.extra_instructions || "";
     const noResultsCfg = cfg.no_results_instructions || "";
