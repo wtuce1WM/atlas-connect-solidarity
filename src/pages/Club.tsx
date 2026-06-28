@@ -553,7 +553,7 @@ const Club = () => {
               <p className="text-sm sm:text-base text-white/90 mb-6 max-w-2xl mx-auto leading-relaxed">
                 {t.desc}
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 w-full max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full max-w-5xl mx-auto">
                 {[
                   "Votre assistant IA",
                   "Votre ID numérique",
