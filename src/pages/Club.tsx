@@ -338,6 +338,8 @@ const Club = () => {
     successMsg: "Un email de confirmation vous a été envoyé. Veuillez vérifier votre boîte de réception pour activer votre compte.",
     errorMsg: "Une erreur est survenue, veuillez réessayer.",
     emailAlreadyUsed: "Cet email est déjà utilisé.",
+    rateLimit: "Trop de tentatives. Veuillez patienter 1 minute avant de réessayer.",
+    weakPassword: "Le mot de passe est trop faible. Veuillez choisir un mot de passe plus sécurisé.",
     orSeparator: "ou",
     googleSignIn: "Continuer avec Google",
   };
