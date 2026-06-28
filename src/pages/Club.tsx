@@ -23,11 +23,12 @@ import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp
 import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
+import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
-const heroImageMobile = zelligeBrunAsset.url;
+const heroImageMobile = koutoubiaVerticalBgAsset.url;
 
 const Club = () => {
   const { language } = useLanguage();
