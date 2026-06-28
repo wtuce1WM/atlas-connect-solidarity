@@ -9,7 +9,8 @@ const corsHeaders = {
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 // Modèle "pro" pour précision et meilleur raisonnement multi-tools.
-const MODEL = "google/gemini-3-pro-preview";
+// Cost optimization: default to flash (≈6× cheaper than pro). Pro is only used as upgrade fallback for degeneracy.
+const MODEL = "google/gemini-3-flash-preview";
 const FALLBACK_MODEL = "google/gemini-3-flash-preview";
 
 type Msg = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_calls?: any[]; tool_call_id?: string; name?: string };
@@ -718,15 +719,15 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
 
-    // Tool-calling loop (max 6 iterations)
+    // Tool-calling loop (max 4 iterations — reduced from 6 for cost control)
     let finalAnswer = "";
     let modelToUse = MODEL;
     const mapPayloads: Array<{ title?: string; businesses: any[] }> = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 4; i++) {
       const resp = await fetch(GATEWAY_URL, {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: modelToUse, messages: convo, tools, tool_choice: "auto", temperature: 0.5, max_tokens: 2500, frequency_penalty: 0.6, presence_penalty: 0.3 }),
+        body: JSON.stringify({ model: modelToUse, messages: convo, tools, tool_choice: "auto", temperature: 0.5, max_tokens: 1800, frequency_penalty: 0.6, presence_penalty: 0.3 }),
       });
 
       if (resp.status === 429) return new Response(JSON.stringify({ error: "rate_limit" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -760,9 +761,9 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
       finalAnswer = (choice.content || "").trim();
       // Degeneracy guard: if the model emitted a single token looped many times, retry once on fallback.
       const degenerate = /(\b\w{3,}\b)(\s*\1){15,}/i.test(finalAnswer) || /(.{3,40}?)\1{10,}/.test(finalAnswer);
-      if (degenerate && modelToUse === MODEL) {
-        console.warn("degenerate output detected, switching to fallback model");
-        modelToUse = FALLBACK_MODEL;
+      if (degenerate && modelToUse !== "google/gemini-3-pro-preview") {
+        console.warn("degenerate output detected, upgrading to pro model");
+        modelToUse = "google/gemini-3-pro-preview";
         finalAnswer = "";
         continue;
       }
