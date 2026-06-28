@@ -12,7 +12,7 @@ import hiwStep3Tourist from "@/assets/hiw-step3-tourist.png";
 
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
-const heroImageMobile = zelligeBrunAsset.url;
+const heroImageMobile = koutoubiaVerticalBgAsset.url;
 
 
 const CSS = `
