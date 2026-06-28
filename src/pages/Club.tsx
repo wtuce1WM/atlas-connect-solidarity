@@ -555,11 +555,11 @@ const Club = () => {
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                 {[
-                  "Consommez local",
-                  "Voyagez autrement",
-                  "Agissez pour tous",
+                  "Votre assistant IA",
+                  "Votre ID numérique",
+                  "Découvrez, partagez",
                   "Réductions exclusives",
-                  "Accès prioritaire",
+                  "économie locale & solidaire",
                   "Communauté OWM",
                 ].map((label) => (
                   <div
