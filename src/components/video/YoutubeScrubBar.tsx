@@ -16,6 +16,13 @@ function formatTime(totalSeconds: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+type YTPlayerLike = {
+  getDuration(): number;
+  getCurrentTime(): number;
+  seekTo(seconds: number, allowSeekAhead: boolean): void;
+  destroy?(): void;
+};
+
 /**
  * Floating scrubbar overlay for the YouTube iframe embedded in the slide panel.
  * Uses the official YouTube IFrame API to read the current playback position
@@ -28,7 +35,7 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
   const [dragValue, setDragValue] = useState(0);
   const barRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
-  const playerRef = useRef<ReturnType<typeof loadYouTubeApi> extends Promise<infer T> ? T["Player"] : never | null>(null);
+  const playerRef = useRef<YTPlayerLike | null>(null);
 
   useEffect(() => {
     draggingRef.current = dragging;
@@ -42,16 +49,15 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
 
     let cancelled = false;
     let pollId: number | null = null;
-    let player: any = null;
 
-    const startPolling = (p: any) => {
-      player = p;
+    const startPolling = (player: YTPlayerLike) => {
+      playerRef.current = player;
       if (pollId) window.clearInterval(pollId);
       pollId = window.setInterval(() => {
-        if (!player || !player.getDuration) return;
+        if (!playerRef.current) return;
         try {
-          const dur = player.getDuration();
-          const cur = player.getCurrentTime();
+          const dur = playerRef.current.getDuration();
+          const cur = playerRef.current.getCurrentTime();
           if (dur > 0) {
             setDuration((prev) => (Math.abs(prev - dur) > 0.5 ? dur : prev));
           }
@@ -67,15 +73,14 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
     loadYouTubeApi()
       .then((YT) => {
         if (cancelled) return;
-        const ytPlayer = new YT.Player(iframe, {
+        new YT.Player(iframe, {
           events: {
             onReady: (event) => {
               if (cancelled) return;
-              startPolling(event.target);
+              startPolling(event.target as YTPlayerLike);
             },
           },
         });
-        playerRef.current = ytPlayer;
       })
       .catch(() => {
         // Fallback: keep the native controls visible if the API fails to load.
@@ -89,6 +94,7 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
       } catch {
         // ignore
       }
+      playerRef.current = null;
     };
   }, [iframeRef, visible]);
 
@@ -163,8 +169,8 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
           style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
         />
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-md opacity-0 hover:opacity-100"
-          style={{ left: `${Math.max(0, Math.min(100, progress))}%`, transform: "translate(-50%, -50%)", opacity: dragging ? 1 : undefined }}
+          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-md opacity-0 hover:opacity-100 transition-opacity"
+          style={{ left: `${Math.max(0, Math.min(100, progress))}%`, opacity: dragging ? 1 : undefined }}
         />
       </div>
 
