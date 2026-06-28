@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -109,6 +110,19 @@ const TONES = [
 ];
 
 export default function StudioVideo() {
+  const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (cancelled) return;
+      setAuthState(data.user ? "in" : "out");
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setAuthState(session?.user ? "in" : "out");
+    });
+    return () => { cancelled = true; sub.subscription.unsubscribe(); };
+  }, []);
+
   const [query, setQuery] = useState("");
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selected, setSelected] = useState<Business | null>(null);
@@ -372,6 +386,17 @@ export default function StudioVideo() {
     setJobs((prev) => prev.filter((j) => j.id !== job.id));
     toast.success("Vidéo supprimée");
   };
+
+  if (authState === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  if (authState === "out") {
+    return <Navigate to="/club" replace state={{ from: "/studio-video" }} />;
+  }
 
   return (
     <>
