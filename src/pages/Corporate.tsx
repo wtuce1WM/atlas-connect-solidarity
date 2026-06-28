@@ -7,6 +7,7 @@ import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import zelligeMobileAsset from "@/assets/backgr-brun-zelliges.webp.asset.json";
+import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
 // @ts-ignore - raw imports provided by Vite
 import corporateCss from "./corporate.scoped.css?raw";
 // @ts-ignore
@@ -97,7 +98,7 @@ const Corporate = () => {
         style={{
           ["--hero-img-desktop" as any]: `url("${originalHeroAsset.url}")`,
           ["--hero-img-tablet" as any]: `url("${zelligeBrunAsset.url}")`,
-          ["--hero-img-mobile" as any]: `url("${zelligeBrunAsset.url}")`,
+          ["--hero-img-mobile" as any]: `url("${koutoubiaVerticalBgAsset.url}")`,
           ["--hero-phone-mockup" as any]: `url("${phoneMockupAsset.url}")`,
           ["--hero-phone-mockup-tablet" as any]: `url("${iphoneTabletMockupAsset.url}")`,
         }}
