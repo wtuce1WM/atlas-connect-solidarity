@@ -9,7 +9,8 @@ const corsHeaders = {
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 // Modèle "pro" pour précision et meilleur raisonnement multi-tools.
-const MODEL = "google/gemini-3-pro-preview";
+// Cost optimization: default to flash (≈6× cheaper than pro). Pro is only used as upgrade fallback for degeneracy.
+const MODEL = "google/gemini-3-flash-preview";
 const FALLBACK_MODEL = "google/gemini-3-flash-preview";
 
 type Msg = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_calls?: any[]; tool_call_id?: string; name?: string };
