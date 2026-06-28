@@ -732,9 +732,10 @@ html.hide-scrollbar-search::-webkit-scrollbar {
       inset 0 -1px 0 0 rgba(0, 0, 0, 0.18),
       0 10px 24px -4px rgba(0, 0, 0, 0.4);
   }
-  @keyframes club-badge-shimmer {
-    0% { transform: translateX(-160%) skewX(-20deg); }
-    100% { transform: translateX(220%) skewX(-20deg); }
+  .club-badge-shimmer {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
   }
   .club-badge-shimmer::after {
     content: "";
