@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   iframeRef: React.RefObject<HTMLIFrameElement>;
   visible?: boolean;
+  /** Optional override of the outer container classes. When omitted, the component floats absolutely at the bottom of its nearest relative ancestor. */
+  className?: string;
 }
 
 /**
@@ -14,7 +17,7 @@ interface Props {
  * The native YouTube controls are hidden by `fs=0` / minimal chrome; this component
  * exposes only the timeline (scrub) without play/volume/fullscreen.
  */
-export function YoutubeScrubBar({ iframeRef, visible = true }: Props) {
+export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props) {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -115,7 +118,11 @@ export function YoutubeScrubBar({ iframeRef, visible = true }: Props) {
 
   return (
     <div
-      className="absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-6 z-40 pointer-events-auto w-[min(680px,92%)] rounded-full bg-black/55 backdrop-blur-md px-4 py-2.5 flex items-center gap-3 shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-white/10"
+      className={cn(
+        "pointer-events-auto w-[min(680px,92%)] rounded-full bg-black/55 backdrop-blur-md px-4 py-2.5 flex items-center gap-3 shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-white/10",
+        !className && "absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-6 z-40",
+        className
+      )}
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
