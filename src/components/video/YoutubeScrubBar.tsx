@@ -33,24 +33,17 @@ export function YoutubeScrubBar({ iframeRef, visible = true, className }: Props)
     if (!visible) return;
     const iframe = iframeRef.current;
     if (!iframe) return;
-    const targets = ["https://www.youtube.com", "https://www.youtube-nocookie.com"];
     const sendHandshake = () => {
       const payload = JSON.stringify({ event: "listening", id: 0, channel: "widget" });
       try {
         iframe.contentWindow?.postMessage(payload, "*");
       } catch { /* ignore */ }
     };
-    // Send immediately, then retry every 800ms for the first 5s to cover player ready timing.
     sendHandshake();
-    let count = 0;
-    const id = window.setInterval(() => {
-      sendHandshake();
-      count += 1;
-      if (count >= 6) window.clearInterval(id);
-    }, 800);
+    const id = window.setInterval(sendHandshake, 2000);
 
     const onMsg = (e: MessageEvent) => {
-      if (!targets.includes(e.origin)) return;
+      if (!e.origin.includes("youtube")) return;
       try {
         const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
         const info = data?.info;
