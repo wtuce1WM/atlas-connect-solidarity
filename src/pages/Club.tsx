@@ -775,28 +775,13 @@ const Club = () => {
         </section>
       )}
 
-      <main className="pb-40 md:pb-24">
-        <section className={`${user ? "w-full pt-20 pb-12" : "max-w-3xl mx-auto pt-12 pb-12"} px-4`}>
-          {user ? (
+      {user && (
+        <main className="pb-40 md:pb-24">
+          <section className="w-full pt-20 pb-12 px-4">
             <div className="w-full">
               <ClubDashboard user={user} onLogout={handleLogout} />
             </div>
-          ) : (
-            <>
-              <p className="text-white/90 text-center text-base leading-relaxed mb-6">{t.desc}</p>
-              <h2 className="text-xl font-bold text-center mb-4 !font-sans !not-italic text-white">{t.benefits}</h2>
-              <div className="grid sm:grid-cols-2 gap-4">
-                {benefits.map((b, i) => (
-                  <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-[#ECD6B8] text-black border border-white/20 shadow-sm">
-                    <Crown className="h-5 w-5 text-[#C04F17] mt-0.5 shrink-0" />
-                    <span className="text-black">{b}</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </section>
-        {user && (
+          </section>
           <div className="flex justify-center pb-8">
             <button
               type="button"
@@ -808,9 +793,8 @@ const Club = () => {
               <span className="block font-josefin text-xs uppercase tracking-[0.3em]">Revenir</span>
             </button>
           </div>
-        )}
-      </main>
-      {user && <ClubYoutubeRecommendations />}
+        </main>
+      )}
       <Footer variant="verified" />
       <ClubBottomBarSlot />
     </div>
