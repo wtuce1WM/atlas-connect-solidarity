@@ -510,7 +510,18 @@ export default function ResultsTabContent({
                       index={index}
                       labelLogos={businessLabelLogos[business.id] || []}
                       distanceKm={getDistanceKm(business)}
-                      onClick={() => { setShowFiltersOverlay(false); openCompactPanel({ id: business.id, name: business.name, videoUrl: (business as any).videoUrl } as unknown as AIBusinessData); }}
+                      onClick={() => {
+                        setShowFiltersOverlay(false);
+                        import("@/lib/analytics").then(({ trackEvent }) =>
+                          trackEvent("search_result_click", {
+                            business_id: business.id,
+                            business_name: business.name,
+                            position: index + 1,
+                            search_term: searchQuery || labelFromUrl || "",
+                          })
+                        ).catch(() => {});
+                        openCompactPanel({ id: business.id, name: business.name, videoUrl: (business as any).videoUrl } as unknown as AIBusinessData);
+                      }}
                       onMouseEnter={() => setHoveredResultId(business.id)}
                       onMouseLeave={() => setHoveredResultId(null)}
                     />
