@@ -37,6 +37,7 @@ const AnalyticsTracker = () => {
   const { pathname, search } = useLocation();
   const lastPath = useRef<string | null>(null);
   const lastQuery = useRef<string | null>(null);
+  const lastQueryAt = useRef<number>(0);
   const scrollMarks = useRef<Set<number>>(new Set());
 
   // SPA pageviews + search + reset scroll marks
@@ -50,13 +51,36 @@ const AnalyticsTracker = () => {
         const params = new URLSearchParams(search);
         const q = (params.get("q") || "").trim();
         if (q && q !== lastQuery.current) {
+          const prev = lastQuery.current;
+          const prevAt = lastQueryAt.current;
+          const now = Date.now();
           lastQuery.current = q;
+          lastQueryAt.current = now;
           trackEvent("search", { search_term: q });
+          trackAhaMoment("first_search", { search_term: q });
+          // Search refinement: new query within 30s of previous
+          if (prev && now - prevAt < 30_000) {
+            const sharedPrefix = (() => {
+              const a = prev.toLowerCase(), b = q.toLowerCase();
+              let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++;
+              return i;
+            })();
+            const isExtension = q.toLowerCase().startsWith(prev.toLowerCase());
+            const isReduction = prev.toLowerCase().startsWith(q.toLowerCase());
+            trackEvent("search_refinement", {
+              from: prev,
+              to: q,
+              delta_ms: now - prevAt,
+              shared_prefix_chars: sharedPrefix,
+              kind: isExtension ? "extend" : isReduction ? "reduce" : "rewrite",
+            });
+          }
         }
       }
       return () => window.clearTimeout(id);
     }
   }, [pathname, search]);
+
 
   // Auth events + user_id GA4
   useEffect(() => {
