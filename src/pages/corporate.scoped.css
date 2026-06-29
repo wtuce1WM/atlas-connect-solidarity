@@ -56,8 +56,9 @@
   .brand-name{font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--cream)}
   @media (min-width:640px){.brand-name{font-size:14px;letter-spacing:.22em}}
 
-  .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;
+  .hero{position:relative;min-height:100dvh;display:flex;align-items:center;justify-content:center;
     background:#0c0805;overflow:hidden;--mx:0;--my:0;--sy:0;perspective:1200px;text-align:center}
+  @media(min-width:768px){.hero{min-height:92svh}}
   /* Mobile: full-cover Koutoubia background (same as homepage) */
   @media(max-width:767px){.hero{background:var(--hero-img-mobile) center/cover!important}}
   .hero .bg-img-mobile{display:none}
@@ -65,7 +66,6 @@
   .hero .bg-img-desktop{display:none;position:absolute;inset:0;height:120%;width:100%;
     object-fit:cover;object-position:center;z-index:1;pointer-events:none;will-change:transform}
   @media(min-width:768px){.hero .bg-img-desktop{display:block}.hero{background:none!important}}
-  @media(min-width:1024px){.hero .bg-img-desktop{object-position:right top}}
   /* Tablet dark overlay for readability over zellige */
   .hero .tablet-overlay{display:none;position:absolute;inset:0;z-index:1;pointer-events:none;
     background:linear-gradient(180deg,rgba(0,0,0,.5),rgba(0,0,0,.3) 50%,rgba(0,0,0,.5))}
