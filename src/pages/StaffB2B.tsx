@@ -94,6 +94,10 @@ const StaffB2B = () => {
               <Star className="h-4 w-4" />
               Sponsors
             </TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="affiliates">
@@ -103,6 +107,11 @@ const StaffB2B = () => {
           <TabsContent value="sponsors">
             <SponsorManagement />
           </TabsContent>
+
+          <TabsContent value="analytics">
+            <BusinessAnalyticsPanel staffAllBusinesses />
+          </TabsContent>
+
         </Tabs>
       </main>
 
