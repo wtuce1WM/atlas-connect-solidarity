@@ -120,10 +120,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   const tts = useTextToSpeech({
     onEnd: () => {
-      // In voice mode, automatically reopen the mic for continuous conversation
-      if (voiceMode && shouldReopenMicRef.current) {
+      // In voice mode, automatically reopen the mic for continuous conversation.
+      // Skip on Android: speaker bleed into the mic makes the AI hear itself,
+      // generating an endless loop of beeps + responses on Samsung devices.
+      const isAndroidUA = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
+      if (voiceMode && shouldReopenMicRef.current && !isAndroidUA) {
         shouldReopenMicRef.current = false;
         setTimeout(() => { try { voice.toggleRecording(); } catch {/* noop */} }, 250);
+      } else {
+        shouldReopenMicRef.current = false;
       }
     },
   });
