@@ -164,8 +164,11 @@ const AppContent = () => {
           <BrowserRouter>
           <BackofficeBodyFlag />
           <ScrollToTop />
+          <AnalyticsTracker />
           <RouteSeo />
           <PageMetaOverridesLoader />
+          <Suspense fallback={null}><CookieBanner /></Suspense>
+
           <RouteTransition>
             <Routes>
               <Route path="/" element={renderLazyRoute(<HomeMindtrip />)} />
