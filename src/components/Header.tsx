@@ -89,7 +89,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
       <Link to="/corporate" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
         Le concept
       </Link>
-      <Link to="/join" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
+      <Link to="/join" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)} data-track-event="club_cta_click" data-track-location="header" data-track-target="join">
         Rejoindre
       </Link>
       <Link to="/mission" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
