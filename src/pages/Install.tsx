@@ -157,12 +157,12 @@ const Install = () => {
     guideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const tabs: { id: Platform; label: string; icon: JSX.Element }[] = useMemo(
+  const tabs: { id: Platform; label: string; Icon: React.ComponentType<{ className?: string }> }[] = useMemo(
     () => [
-      { id: "ios", label: "iPhone / iPad", icon: <Apple className="h-4 w-4 text-[#C04F17]" /> },
-      { id: "android", label: "Android", icon: <Smartphone className="h-4 w-4 text-[#C04F17]" /> },
-      { id: "mac", label: "Mac", icon: <Apple className="h-4 w-4 text-[#C04F17]" /> },
-      { id: "windows", label: "Windows", icon: <Monitor className="h-4 w-4 text-[#C04F17]" /> },
+      { id: "ios", label: "iPhone / iPad", Icon: Apple },
+      { id: "android", label: "Android", Icon: Smartphone },
+      { id: "mac", label: "Mac", Icon: Apple },
+      { id: "windows", label: "Windows", Icon: Monitor },
     ],
     []
   );
