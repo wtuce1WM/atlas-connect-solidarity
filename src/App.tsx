@@ -36,6 +36,9 @@ const AffiliatesDashboard = lazy(() => import("./pages/AffiliatesDashboard"));
 const AffiliatePresence = lazy(() => import("./pages/AffiliatePresence"));
 const BecomeAffiliate = lazy(() => import("./pages/BecomeAffiliate"));
 const Mission = lazy(() => import("./pages/Mission"));
+const Confidentialite = lazy(() => import("./pages/Confidentialite"));
+const CGU = lazy(() => import("./pages/CGU"));
+const CookiesPage = lazy(() => import("./pages/Cookies"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -184,6 +187,9 @@ const AppContent = () => {
               <Route path="/affiliates/presence" element={renderLazyRoute(<AffiliatePresence />)} />
               <Route path="/devenir-affilie" element={renderLazyRoute(<BecomeAffiliate />)} />
               <Route path="/mission" element={renderLazyRoute(<Mission />)} />
+              <Route path="/confidentialite" element={renderLazyRoute(<Confidentialite />)} />
+              <Route path="/cgu" element={renderLazyRoute(<CGU />)} />
+              <Route path="/cookies" element={renderLazyRoute(<CookiesPage />)} />
               <Route path="/contact" element={renderLazyRoute(<Contact />)} />
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
               

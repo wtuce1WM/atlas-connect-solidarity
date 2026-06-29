@@ -183,9 +183,9 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
             © 2026 ZitounMusk. {t("footer.rights")}
           </p>
           <div className={`flex gap-6 text-sm ${textQuaternary}`}>
-            <a href="#" className="transition-colors hover:text-gold">{t("footer.privacy")}</a>
-            <a href="#" className="transition-colors hover:text-gold">{t("footer.terms")}</a>
-            <a href="#" className="transition-colors hover:text-gold">{t("footer.cookies")}</a>
+            <a href="/confidentialite" className="transition-colors hover:text-gold">{t("footer.privacy")}</a>
+            <a href="/cgu" className="transition-colors hover:text-gold">{t("footer.terms")}</a>
+            <a href="/cookies" className="transition-colors hover:text-gold">{t("footer.cookies")}</a>
           </div>
         </div>
       </div>
