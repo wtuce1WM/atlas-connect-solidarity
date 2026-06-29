@@ -196,6 +196,14 @@ const BookOnlineSlidePanelInner = ({
   const effectiveHasPrev = hasPrevBusiness ?? hasPrev;
   const effectiveHasNext = hasNextBusiness ?? hasNext;
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
+
+  // Analytics: overlay_open lorsque le panel s'ouvre
+  useEffect(() => {
+    if (open === false) return;
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("overlay_open", { overlay: "booking", business_id: propBusinessId })
+    );
+  }, [open, propBusinessId]);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
   const currentCardsHiddenRef = useRef(false);
