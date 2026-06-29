@@ -366,13 +366,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
     } catch {/* noop */}
 
     const aiStartedAt = performance.now();
-    import("@/lib/analytics").then(({ trackEvent }) =>
+    import("@/lib/analytics").then(({ trackEvent, trackAhaMoment }) => {
       trackEvent("ai_query_submitted", {
         chars: text.length,
         voice_mode: !!voiceMode,
         has_history: newMsgs.length > 1,
-      })
-    ).catch(() => {});
+      });
+      trackAhaMoment("first_ai_query", { voice_mode: !!voiceMode });
+    }).catch(() => {});
+
 
     try {
       const { data, error } = await supabase.functions.invoke("club-ai-chat", {
