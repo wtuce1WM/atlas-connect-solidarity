@@ -1073,6 +1073,11 @@ const BookOnlineSlidePanelInner = ({
     return { avgOn20: business.computed_rating ?? null, totalReviewCount: business.total_review_count ?? 0 };
   }, [business]);
 
+  const hasHighlights = useMemo(
+    () => highlights.some((h) => h.title?.trim() || h.description?.trim()),
+    [highlights]
+  );
+
   const hasContactCard = !!(hasOpeningHours && !business?.is_open_24h) || !!isHotelWithPrice;
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
@@ -1626,13 +1631,13 @@ const BookOnlineSlidePanelInner = ({
         )}
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
-        {(avgOn20 != null && totalReviewCount > 0) || woDescription || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
+        {(avgOn20 != null && totalReviewCount > 0) || woDescription || hasHighlights || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
           <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-auto gap-6 md:gap-8 flex-1">
 
 
-            {/* Conteneur 1 : bouton + (Description) */}
+            {/* Conteneur 1 : bouton + (Description / Highlights) */}
             <div className="flex items-center justify-center pointer-events-auto">
-              {woDescription ? (
+              {woDescription || hasHighlights ? (
                 <div className="slidepanel-plus-short relative z-[40]">
                   <button
                     type="button"
@@ -1659,6 +1664,7 @@ const BookOnlineSlidePanelInner = ({
                 </div>
               )}
             </div>
+
 
             {/* Conteneur 2 : flipbooks OU badge Avis clients */}
             <div className="flex items-center justify-center pointer-events-auto">
@@ -1965,7 +1971,7 @@ const BookOnlineSlidePanelInner = ({
       )}
 
       {/* Full Description Overlay */}
-      {showDescriptionOverlay && (woDescription || descGridSection || descOverlayContent) && (
+      {showDescriptionOverlay && (woDescription || hasHighlights || descGridSection || descOverlayContent) && (
         <OverlayShell zClass="z-[80]" animClass="animate-zoom-out-center" className="flex flex-col">
           {images[0] && (
             <div
