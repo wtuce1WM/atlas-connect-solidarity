@@ -342,7 +342,7 @@ const Install = () => {
               <button
                 key={tab.id}
                 onClick={() => setPlatform(tab.id)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-roboto transition-all ${
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-roboto font-bold transition-all ${
                   isActive
                     ? "bg-[#C04F17] text-white shadow-md"
                     : "bg-muted text-muted-foreground hover:bg-muted/70"
