@@ -197,13 +197,13 @@ const BookOnlineSlidePanelInner = ({
   const effectiveHasNext = hasNextBusiness ?? hasNext;
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
 
-  // Analytics: overlay_open lorsque le panel s'ouvre
+  // Analytics: overlay_open au mount du panel booking
   useEffect(() => {
-    if (open === false) return;
     import("@/lib/analytics").then(({ trackEvent }) =>
       trackEvent("overlay_open", { overlay: "booking", business_id: propBusinessId })
     );
-  }, [open, propBusinessId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
   const currentCardsHiddenRef = useRef(false);
