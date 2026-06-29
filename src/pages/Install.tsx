@@ -315,7 +315,7 @@ const Install = () => {
                   {!installed ? (
                     <>
                       <Download className="h-4 w-4" />
-                      {installEvent ? "Installer" : "Comment installer"}
+                      {installEvent ? "Installer" : updateAvailable ? "Installer mise à jour" : "Comment installer"}
                     </>
                   ) : (
                     <>
