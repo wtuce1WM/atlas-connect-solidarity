@@ -63,6 +63,14 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
   const { language } = useLanguage();
   const t = T[language as keyof typeof T] || T.fr;
 
+  // Funnel: signup started on mount (entry to the auth surface)
+  useEffect(() => {
+    trackClubSignupStarted(redirectPath);
+    return () => { trackClubSignupAbandoned("unmount"); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
   const [mode, setMode] = useState<"login" | "register">("login");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
