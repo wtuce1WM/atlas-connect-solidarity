@@ -63,7 +63,7 @@
   .hero .bg-img-mobile{display:none}
   /* Desktop/Tablet: full-cover image (mirrors homepage) */
   .hero .bg-img-desktop{display:none;position:absolute;inset:0;height:120%;width:100%;
-    object-fit:cover;object-position:center;z-index:1;pointer-events:none}
+    object-fit:cover;object-position:center;z-index:1;pointer-events:none;will-change:transform}
   @media(min-width:768px){.hero .bg-img-desktop{display:block}.hero{background:none!important}}
   @media(min-width:1024px){.hero .bg-img-desktop{object-position:right top}}
   /* Tablet dark overlay for readability over zellige */
