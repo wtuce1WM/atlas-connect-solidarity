@@ -1,8 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { trackEvent, trackPageView, setUserId } from "@/lib/analytics";
+import { trackEvent, trackPageView, setUserId, captureAttribution, getStoredAttribution } from "@/lib/analytics";
 import { startWebVitals } from "@/lib/webVitals";
+
+const RETURNING_KEY = "ga-first-visit-at-v1";
+const RETURNING_FIRED_KEY = "ga-returning-fired-v1";
+
 
 const SEEN_USERS_KEY = "ga-known-user-ids-v1";
 
