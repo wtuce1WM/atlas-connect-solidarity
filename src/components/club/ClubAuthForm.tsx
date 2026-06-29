@@ -22,6 +22,9 @@ const ClubAuthForm = ({ defaultMode = "signup", onSuccess }: Props) => {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("auth_method_chosen", { method: "email", mode, surface: "auth_form" })
+    ).catch(() => {});
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
