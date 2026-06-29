@@ -1,4 +1,6 @@
 import { Mic } from "lucide-react";
+import { useEffect, useRef } from "react";
+
 
 interface Props {
   liveTranscript: string;
@@ -13,6 +15,32 @@ const ACCENT = "#194CFF";
 
 const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center", audioLevel = 0, micReady = true }: Props) => {
   const isStart = align === "start";
+  const successFiredRef = useRef(false);
+  const startedAtRef = useRef<number>(0);
+
+  useEffect(() => {
+    startedAtRef.current = performance.now();
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("voice_search_used", { surface: align })
+    ).catch(() => {});
+    return () => {
+      // Si l'utilisateur ferme sans transcript, on n'émet rien de plus.
+    };
+  }, [align]);
+
+  useEffect(() => {
+    if (!successFiredRef.current && liveTranscript && liveTranscript.trim().length >= 2) {
+      successFiredRef.current = true;
+      import("@/lib/analytics").then(({ trackEvent }) =>
+        trackEvent("voice_search_success", {
+          chars: liveTranscript.length,
+          latency_ms: Math.round(performance.now() - startedAtRef.current),
+          surface: align,
+        })
+      ).catch(() => {});
+    }
+  }, [liveTranscript, align]);
+
   const hint = !micReady
     ? "Attendez le signal sonore avant de parler"
     : "Parlez maintenant";

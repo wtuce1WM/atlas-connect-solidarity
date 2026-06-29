@@ -22,6 +22,9 @@ const ClubAuthForm = ({ defaultMode = "signup", onSuccess }: Props) => {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("auth_method_chosen", { method: "email", mode, surface: "auth_form" })
+    ).catch(() => {});
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
@@ -50,6 +53,9 @@ const ClubAuthForm = ({ defaultMode = "signup", onSuccess }: Props) => {
   const handleGoogle = async () => {
     if (googleLoading) return;
     setGoogleLoading(true);
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("auth_method_chosen", { method: "google", surface: "auth_form" })
+    ).catch(() => {});
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.href,

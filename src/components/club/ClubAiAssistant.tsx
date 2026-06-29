@@ -365,12 +365,28 @@ const ClubAiAssistant = ({ userId }: Props) => {
       if (coordsRaw) { const c = JSON.parse(coordsRaw); if (c?.lat && c?.lng) clientContext.coords = c; }
     } catch {/* noop */}
 
+    const aiStartedAt = performance.now();
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("ai_query_submitted", {
+        chars: text.length,
+        voice_mode: !!voiceMode,
+        has_history: newMsgs.length > 1,
+      })
+    ).catch(() => {});
+
     try {
       const { data, error } = await supabase.functions.invoke("club-ai-chat", {
         body: { chatId: safeChatId, messages: newMsgs, clientContext },
       });
       if (error) throw error;
       const answer = (data as any)?.answer || "";
+      import("@/lib/analytics").then(({ trackEvent }) =>
+        trackEvent("ai_response_received", {
+          latency_ms: Math.round(performance.now() - aiStartedAt),
+          chars: answer.length,
+          voice_mode: !!voiceMode,
+        })
+      ).catch(() => {});
       const newId = (data as any)?.chatId as string | null;
       const fullMessages: Msg[] = [...newMsgs, { role: "assistant", content: answer }];
       messagesRef.current = fullMessages;
@@ -398,6 +414,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
       toast({ title: "Erreur", description: e?.message || "Impossible de joindre l'assistant.", variant: "destructive" });
       messagesRef.current = newMsgs;
       setMessages(newMsgs);
+      import("@/lib/analytics").then(({ trackEvent }) =>
+        trackEvent("ai_response_error", {
+          latency_ms: Math.round(performance.now() - aiStartedAt),
+          message: String(e?.message || "error").slice(0, 160),
+        })
+      ).catch(() => {});
     } finally {
       setSending(false);
       setTimeout(() => inputRef.current?.focus(), 50);

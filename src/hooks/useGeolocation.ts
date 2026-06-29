@@ -278,11 +278,17 @@ export function useGeolocation(): GeolocationState {
 
         setDetectedCity(findNearestCity(latitude, longitude, cities));
         setIsDetecting(false);
+        import("@/lib/analytics").then(({ trackEvent }) =>
+          trackEvent("geolocation_granted", { source: "browser" })
+        ).catch(() => {});
       },
-      () => {
+      (err) => {
         // User denied or error
         setIsDetecting(false);
         setDetectedCity(null);
+        import("@/lib/analytics").then(({ trackEvent }) =>
+          trackEvent("geolocation_denied", { code: err?.code, message: err?.message?.slice(0, 120) })
+        ).catch(() => {});
       },
       { enableHighAccuracy: false, timeout: 10000 }
     );

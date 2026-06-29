@@ -103,6 +103,9 @@ const ClubSocialButtons = ({ redirectPath = "/club", onSuccess }: Props) => {
   const [verifying, setVerifying] = useState(false);
 
   const handleOAuth = async (provider: "google" | "apple") => {
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("auth_method_chosen", { method: provider, surface: "club" })
+    ).catch(() => {});
     const { error } = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: window.location.origin + redirectPath,
     });
@@ -213,7 +216,12 @@ const ClubSocialButtons = ({ redirectPath = "/club", onSuccess }: Props) => {
 
   return (
     <div className="space-y-3">
-      <TileButton icon={<Phone className="h-5 w-5" />} onClick={() => setPhoneMode(true)}>
+      <TileButton icon={<Phone className="h-5 w-5" />} onClick={() => {
+        import("@/lib/analytics").then(({ trackEvent }) =>
+          trackEvent("auth_method_chosen", { method: "phone", surface: "club" })
+        ).catch(() => {});
+        setPhoneMode(true);
+      }}>
         {t.phone}
       </TileButton>
       <TileButton icon={<GoogleIcon />} onClick={() => handleOAuth("google")}>

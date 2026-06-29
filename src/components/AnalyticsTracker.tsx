@@ -1,8 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { trackEvent, trackPageView, setUserId } from "@/lib/analytics";
+import { trackEvent, trackPageView, setUserId, captureAttribution, getStoredAttribution } from "@/lib/analytics";
 import { startWebVitals } from "@/lib/webVitals";
+
+const RETURNING_KEY = "ga-first-visit-at-v1";
+const RETURNING_FIRED_KEY = "ga-returning-fired-v1";
+
 
 const SEEN_USERS_KEY = "ga-known-user-ids-v1";
 
@@ -162,6 +166,72 @@ const AnalyticsTracker = () => {
 
   // Core Web Vitals (LCP/INP/CLS/FCP/TTFB) — une seule fois
   useEffect(() => { startWebVitals(); }, []);
+
+  // Capture UTM/attribution first-touch
+  useEffect(() => { captureAttribution(); }, [pathname, search]);
+
+  // Returning visitor : marqueurs J+1 / J+7 / J+30
+  useEffect(() => {
+    try {
+      let firstRaw = localStorage.getItem(RETURNING_KEY);
+      if (!firstRaw) {
+        firstRaw = String(Date.now());
+        localStorage.setItem(RETURNING_KEY, firstRaw);
+        return;
+      }
+      const first = parseInt(firstRaw, 10);
+      if (!Number.isFinite(first)) return;
+      const days = Math.floor((Date.now() - first) / (1000 * 60 * 60 * 24));
+      const fired = new Set<number>(JSON.parse(localStorage.getItem(RETURNING_FIRED_KEY) || "[]"));
+      for (const mark of [1, 7, 30]) {
+        if (days >= mark && !fired.has(mark)) {
+          fired.add(mark);
+          trackEvent("returning_visitor", { days_since_first: mark });
+        }
+      }
+      localStorage.setItem(RETURNING_FIRED_KEY, JSON.stringify([...fired]));
+    } catch { /* noop */ }
+  }, []);
+
+  // PWA install prompt / installed
+  useEffect(() => {
+    const onPrompt = () => trackEvent("pwa_install_prompt_shown", {});
+    const onInstalled = () => {
+      const attr = getStoredAttribution();
+      trackEvent("pwa_installed", {
+        utm_source: attr?.source ?? undefined,
+        utm_campaign: attr?.campaign ?? undefined,
+      });
+    };
+    window.addEventListener("beforeinstallprompt", onPrompt as EventListener);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt as EventListener);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  // Global exceptions → GA4 `exception`
+  useEffect(() => {
+    const onError = (e: ErrorEvent) => {
+      trackEvent("exception", {
+        description: (e.message || "error").slice(0, 200),
+        source: `${e.filename || ""}:${e.lineno || 0}`,
+        fatal: false,
+      });
+    };
+    const onRejection = (e: PromiseRejectionEvent) => {
+      const reason: unknown = e.reason;
+      const desc = reason instanceof Error ? reason.message : typeof reason === "string" ? reason : "unhandledrejection";
+      trackEvent("exception", { description: desc.slice(0, 200), fatal: false });
+    };
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onRejection);
+    return () => {
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onRejection);
+    };
+  }, []);
 
   return null;
 };

@@ -146,6 +146,9 @@ const Install = () => {
     if (installEvent) {
       await installEvent.prompt();
       const { outcome } = await installEvent.userChoice;
+      import("@/lib/analytics").then(({ trackEvent }) =>
+        trackEvent("pwa_install_outcome", { outcome })
+      ).catch(() => {});
       if (outcome === "accepted") {
         setInstalled(true);
         setInstallEvent(null);
