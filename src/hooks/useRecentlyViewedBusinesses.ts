@@ -64,9 +64,14 @@ if (typeof window !== "undefined") {
           });
           trackAhaMoment("first_view_business", { business_id: e.detail?.id });
         });
+        // Internal business_events log (dashboard partenaire)
+        import("@/lib/businessAnalytics").then(({ trackBusinessEvent }) => {
+          if (e.detail?.id) trackBusinessEvent(e.detail.id, "view");
+        });
       } catch {
         /* noop */
       }
+
 
     }) as EventListener);
     listenerAttached = true;
