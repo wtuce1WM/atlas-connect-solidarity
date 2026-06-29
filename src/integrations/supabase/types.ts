@@ -863,6 +863,54 @@ export type Database = {
           },
         ]
       }
+      business_events: {
+        Row: {
+          business_id: string
+          city: string | null
+          country: string | null
+          created_at: string
+          device: string | null
+          event_subtype: string | null
+          event_type: string
+          id: number
+          meta: Json
+          referrer_domain: string | null
+          session_id: string | null
+          source_page: string | null
+          user_id: string | null
+        }
+        Insert: {
+          business_id: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          event_subtype?: string | null
+          event_type: string
+          id?: never
+          meta?: Json
+          referrer_domain?: string | null
+          session_id?: string | null
+          source_page?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          event_subtype?: string | null
+          event_type?: string
+          id?: never
+          meta?: Json
+          referrer_domain?: string | null
+          session_id?: string | null
+          source_page?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       business_image_badges: {
         Row: {
           badge_id: string
@@ -6211,6 +6259,10 @@ export type Database = {
         Returns: number
       }
       generate_slug: { Args: { input_text: string }; Returns: string }
+      get_business_analytics: {
+        Args: { p_business_id: string; p_range?: string }
+        Returns: Json
+      }
       get_club_members_with_last_sign_in: {
         Args: never
         Returns: {
