@@ -228,28 +228,28 @@ const ClubTrips = ({ userId }: { userId: string }) => {
           <div className="space-y-4">
             <div>
               <Label>{t("Titre", "Title", "العنوان")} <span className="text-xs text-muted-foreground">({form.title.length}/{TITLE_MAX})</span></Label>
-              <Input value={form.title} maxLength={TITLE_MAX} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+              <Input className="bg-[#F1F1F1]" value={form.title} maxLength={TITLE_MAX} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
             </div>
             <div>
               <Label>{t("Description", "Description", "الوصف")} <span className="text-xs text-muted-foreground">({form.description.length}/{DESC_MAX})</span></Label>
-              <Textarea value={form.description} maxLength={DESC_MAX} rows={3} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+              <Textarea className="bg-[#F1F1F1]" value={form.description} maxLength={DESC_MAX} rows={3} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>{t("Date d'arrivée", "Arrival date", "تاريخ الوصول")}</Label>
-                <Input type="date" value={form.arrival_date} onChange={e => setForm(f => ({ ...f, arrival_date: e.target.value }))} />
+                <Input className="bg-[#F1F1F1]" type="date" value={form.arrival_date} onChange={e => setForm(f => ({ ...f, arrival_date: e.target.value }))} />
               </div>
               <div>
                 <Label>{t("Date de départ", "Departure date", "تاريخ المغادرة")}</Label>
-                <Input type="date" value={form.departure_date} onChange={e => setForm(f => ({ ...f, departure_date: e.target.value }))} />
+                <Input className="bg-[#F1F1F1]" type="date" value={form.departure_date} onChange={e => setForm(f => ({ ...f, departure_date: e.target.value }))} />
               </div>
               <div>
                 <Label>{t("Heure d'arrivée", "Arrival time", "وقت الوصول")}</Label>
-                <Input type="time" value={form.arrival_time} onChange={e => setForm(f => ({ ...f, arrival_time: e.target.value }))} />
+                <Input className="bg-[#F1F1F1]" type="time" value={form.arrival_time} onChange={e => setForm(f => ({ ...f, arrival_time: e.target.value }))} />
               </div>
               <div>
                 <Label>{t("Heure de départ", "Departure time", "وقت المغادرة")}</Label>
-                <Input type="time" value={form.departure_time} onChange={e => setForm(f => ({ ...f, departure_time: e.target.value }))} />
+                <Input className="bg-[#F1F1F1]" type="time" value={form.departure_time} onChange={e => setForm(f => ({ ...f, departure_time: e.target.value }))} />
               </div>
             </div>
             <div>
@@ -257,7 +257,7 @@ const ClubTrips = ({ userId }: { userId: string }) => {
               <div className="relative">
                 <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  className="pl-8"
+                  className="pl-8 bg-[#F1F1F1]"
                   placeholder={t("Rechercher un établissement…", "Search a business…", "ابحث…")}
                   value={search}
                   onChange={e => setSearch(e.target.value)}
