@@ -150,17 +150,27 @@ const AnalyticsTracker = () => {
         anchor.textContent?.trim().slice(0, 80) ||
         "";
       const page_location = window.location.pathname + window.location.search;
+      const bizId = anchor.dataset.businessId || target.closest?.("[data-business-id]")?.getAttribute("data-business-id") || undefined;
+      const logBiz = (type: Parameters<typeof import("@/lib/businessAnalytics").trackBusinessEvent>[1], subtype?: string) => {
+        if (!bizId) return;
+        import("@/lib/businessAnalytics").then(({ trackBusinessEvent }) => {
+          trackBusinessEvent(bizId, type, subtype ? { subtype } : {});
+        }).catch(() => {});
+      };
 
       if (/^(https?:)?\/\/(wa\.me|api\.whatsapp\.com|web\.whatsapp\.com)/i.test(href) || href.startsWith("whatsapp:")) {
-        trackEvent("whatsapp_click", { link_url: href, link_text: label, page_location });
+        trackEvent("whatsapp_click", { link_url: href, link_text: label, page_location, business_id: bizId });
+        logBiz("whatsapp_click");
         return;
       }
       if (href.startsWith("tel:")) {
-        trackEvent("phone_click", { link_url: href, link_text: label, page_location });
+        trackEvent("phone_click", { link_url: href, link_text: label, page_location, business_id: bizId });
+        logBiz("phone_click");
         return;
       }
       if (href.startsWith("mailto:")) {
-        trackEvent("email_click", { link_url: href, link_text: label, page_location });
+        trackEvent("email_click", { link_url: href, link_text: label, page_location, business_id: bizId });
+        logBiz("email_click");
         return;
       }
       // Directions: liens Google/Apple/Waze Maps (intention forte de visite physique)
@@ -168,9 +178,10 @@ const AnalyticsTracker = () => {
         trackEvent("directions_click", {
           link_url: href,
           link_text: label,
-          business_id: anchor.dataset.businessId,
+          business_id: bizId,
           page_location,
         });
+        logBiz("directions_click");
       }
       // Outbound : URL absolue avec un host différent
       if (/^https?:\/\//i.test(href)) {
@@ -183,9 +194,10 @@ const AnalyticsTracker = () => {
                 partner: affiliate.partner,
                 link_url: href,
                 link_domain: u.host,
-                business_id: anchor.dataset.businessId,
+                business_id: bizId,
                 page_location,
               });
+              logBiz("affiliate_click", affiliate.partner);
             }
             trackEvent("outbound_click", {
               link_url: href,
@@ -193,9 +205,11 @@ const AnalyticsTracker = () => {
               link_text: label,
               page_location,
             });
+            if (!affiliate) logBiz("outbound_click");
           }
         } catch { /* noop */ }
       }
+
 
     };
     document.addEventListener("click", onClick, { capture: true });
