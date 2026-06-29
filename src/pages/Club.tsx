@@ -546,7 +546,7 @@ const Club = () => {
           {/* Auth card overlaid */}
           <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col items-center justify-center gap-8 min-h-[92vh]">
             {/* Member benefits heading + 6 CTA badges above auth card */}
-            <div className="w-full max-w-3xl mx-auto text-center">
+            <div className="w-full max-w-3xl md:max-w-4xl mx-auto text-center">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3" style={{ fontFamily: "Montserrat, sans-serif" }}>
                 {t.benefits}
               </h2>
@@ -564,7 +564,7 @@ const Club = () => {
                 ].map((label, index) => (
                   <div
                     key={label}
-                    className="club-badge-glass club-badge-shimmer inline-flex items-center justify-center gap-2 text-white px-5 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-semibold w-fit sm:w-full whitespace-nowrap"
+                    className="club-badge-glass club-badge-shimmer inline-flex items-center justify-center gap-2 text-white px-5 sm:px-7 md:px-8 py-2.5 rounded-full text-xs sm:text-sm md:text-base font-semibold w-fit sm:w-full whitespace-nowrap"
                     style={{ "--shimmer-delay": `${index * 120}ms` } as React.CSSProperties}
                   >
                     <Check color="#00a896" />
