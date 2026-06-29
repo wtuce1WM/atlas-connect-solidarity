@@ -932,7 +932,21 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!analyticsAffiliate} onOpenChange={(o) => !o && setAnalyticsAffiliate(null)}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Analytics — {analyticsAffiliate?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {analyticsAffiliate && (
+            <BusinessAnalyticsPanel affiliateId={analyticsAffiliate.id} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 };
 
