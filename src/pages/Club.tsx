@@ -553,7 +553,7 @@ const Club = () => {
               <p className="text-sm sm:text-base text-white/90 mb-6 max-w-2xl mx-auto leading-relaxed">
                 {t.desc}
               </p>
-              <div className="flex flex-col items-center sm:grid sm:grid-cols-3 gap-3 sm:gap-4 w-full max-w-5xl mx-auto">
+              <div className="flex flex-col items-center sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-3xl sm:max-w-4xl lg:max-w-5xl mx-auto">
                 {[
                   "Votre assistant IA",
                   "Votre ID numérique",
@@ -564,7 +564,7 @@ const Club = () => {
                 ].map((label, index) => (
                   <div
                     key={label}
-                    className="club-badge-glass club-badge-shimmer inline-flex items-center justify-center gap-2 text-white px-5 sm:px-7 md:px-8 py-2.5 rounded-full text-xs sm:text-sm md:text-base font-semibold w-fit sm:w-full whitespace-nowrap"
+                    className="club-badge-glass club-badge-shimmer inline-flex items-center justify-center gap-2 text-white px-5 sm:px-6 md:px-7 lg:px-8 py-2.5 rounded-full text-xs sm:text-sm md:text-sm lg:text-base font-semibold w-fit sm:w-full whitespace-nowrap"
                     style={{ "--shimmer-delay": `${index * 120}ms` } as React.CSSProperties}
                   >
                     <Check color="#00a896" />
