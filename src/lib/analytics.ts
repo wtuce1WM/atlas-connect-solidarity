@@ -61,3 +61,9 @@ export function trackEvent(
   if (typeof window === "undefined" || typeof window.gtag !== "function") return;
   window.gtag("event", name, params);
 }
+
+/** Associe l'ID utilisateur connecté à GA4 (cross-device). Passer null pour reset. */
+export function setUserId(userId: string | null) {
+  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
+  window.gtag("config", GA_ID, { user_id: userId ?? undefined });
+}

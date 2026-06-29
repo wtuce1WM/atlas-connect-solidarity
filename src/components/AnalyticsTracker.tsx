@@ -1,16 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { trackEvent, trackPageView } from "@/lib/analytics";
+import { trackEvent, trackPageView, setUserId } from "@/lib/analytics";
 
 const SEEN_USERS_KEY = "ga-known-user-ids-v1";
 
 const getSeenUsers = (): string[] => {
-  try {
-    return JSON.parse(localStorage.getItem(SEEN_USERS_KEY) || "[]");
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem(SEEN_USERS_KEY) || "[]"); } catch { return []; }
 };
 const markUserSeen = (id: string) => {
   try {
@@ -19,28 +15,32 @@ const markUserSeen = (id: string) => {
       list.push(id);
       localStorage.setItem(SEEN_USERS_KEY, JSON.stringify(list.slice(-50)));
     }
-  } catch {
-    /* noop */
-  }
+  } catch { /* noop */ }
 };
 
+const INTERNAL_HOST_RE = /(^|\.)oneworldmorocco\.com$|(^|\.)lovable\.app$|^localhost$/i;
+
 /**
- * Envoie un page_view GA4 à chaque changement de route SPA
- * + tracking auth (login / sign_up via onAuthStateChange)
- * + tracking search (extrait `q` du querystring de /search).
+ * Pageviews SPA + tracking global :
+ *  - search (extrait `q` de /search)
+ *  - login / sign_up via onAuthStateChange + user_id GA4
+ *  - whatsapp_click / phone_click / email_click / outbound_click (délégation)
+ *  - data-track-event="..." (délégation générique)
+ *  - scroll_depth 25/50/75/100 par route
  */
 const AnalyticsTracker = () => {
   const { pathname, search } = useLocation();
   const lastPath = useRef<string | null>(null);
   const lastQuery = useRef<string | null>(null);
+  const scrollMarks = useRef<Set<number>>(new Set());
 
-  // SPA pageviews + search events
+  // SPA pageviews + search + reset scroll marks
   useEffect(() => {
     const path = pathname + search;
     if (lastPath.current !== path) {
       lastPath.current = path;
+      scrollMarks.current = new Set();
       const id = window.setTimeout(() => trackPageView(path), 50);
-      // Search event distinct (utile pour les rapports "search_term")
       if (pathname === "/search") {
         const params = new URLSearchParams(search);
         const q = (params.get("q") || "").trim();
@@ -53,7 +53,7 @@ const AnalyticsTracker = () => {
     }
   }, [pathname, search]);
 
-  // Auth events
+  // Auth events + user_id GA4
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       const userId = session?.user?.id;
@@ -63,16 +63,41 @@ const AnalyticsTracker = () => {
           method: session?.user?.app_metadata?.provider || "email",
         });
         if (!known) markUserSeen(userId);
+        setUserId(userId);
       }
+      if (event === "SIGNED_OUT") setUserId(null);
+    });
+    // hydrate user_id si session déjà active au boot
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user?.id) setUserId(data.session.user.id);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // Global outbound click tracking (WhatsApp / tel / mailto)
+  // Global click delegation : outbound, WhatsApp, tel, mailto, data-track-event
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
-      const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!target) return;
+
+      // 1) data-track-event="event_name" data-track-* en payload
+      const trackEl = target.closest?.("[data-track-event]") as HTMLElement | null;
+      if (trackEl) {
+        const name = trackEl.dataset.trackEvent!;
+        const payload: Record<string, unknown> = {
+          page_location: window.location.pathname + window.location.search,
+        };
+        for (const [k, v] of Object.entries(trackEl.dataset)) {
+          if (k.startsWith("track") && k !== "trackEvent") {
+            const key = k.replace(/^track/, "").replace(/^./, (c) => c.toLowerCase());
+            payload[key] = v;
+          }
+        }
+        trackEvent(name, payload);
+      }
+
+      // 2) Liens
+      const anchor = target.closest?.("a[href]") as HTMLAnchorElement | null;
       if (!anchor) return;
       const href = anchor.getAttribute("href") || "";
       const label =
@@ -80,18 +105,58 @@ const AnalyticsTracker = () => {
         anchor.dataset.trackLabel ||
         anchor.textContent?.trim().slice(0, 80) ||
         "";
-      const location = window.location.pathname + window.location.search;
+      const page_location = window.location.pathname + window.location.search;
 
       if (/^(https?:)?\/\/(wa\.me|api\.whatsapp\.com|web\.whatsapp\.com)/i.test(href) || href.startsWith("whatsapp:")) {
-        trackEvent("whatsapp_click", { link_url: href, link_text: label, page_location: location });
-      } else if (href.startsWith("tel:")) {
-        trackEvent("phone_click", { link_url: href, link_text: label, page_location: location });
-      } else if (href.startsWith("mailto:")) {
-        trackEvent("email_click", { link_url: href, link_text: label, page_location: location });
+        trackEvent("whatsapp_click", { link_url: href, link_text: label, page_location });
+        return;
+      }
+      if (href.startsWith("tel:")) {
+        trackEvent("phone_click", { link_url: href, link_text: label, page_location });
+        return;
+      }
+      if (href.startsWith("mailto:")) {
+        trackEvent("email_click", { link_url: href, link_text: label, page_location });
+        return;
+      }
+      // Outbound : URL absolue avec un host différent
+      if (/^https?:\/\//i.test(href)) {
+        try {
+          const u = new URL(href);
+          if (u.host && u.host !== window.location.host && !INTERNAL_HOST_RE.test(u.host)) {
+            trackEvent("outbound_click", {
+              link_url: href,
+              link_domain: u.host,
+              link_text: label,
+              page_location,
+            });
+          }
+        } catch { /* noop */ }
       }
     };
     document.addEventListener("click", onClick, { capture: true });
     return () => document.removeEventListener("click", onClick, { capture: true } as never);
+  }, []);
+
+  // Scroll depth 25/50/75/100 par route
+  useEffect(() => {
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const scrollable = doc.scrollHeight - window.innerHeight;
+      if (scrollable <= 0) return;
+      const pct = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+      for (const mark of [25, 50, 75, 100]) {
+        if (pct >= mark && !scrollMarks.current.has(mark)) {
+          scrollMarks.current.add(mark);
+          trackEvent("scroll_depth", {
+            percent: mark,
+            page_path: window.location.pathname + window.location.search,
+          });
+        }
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return null;

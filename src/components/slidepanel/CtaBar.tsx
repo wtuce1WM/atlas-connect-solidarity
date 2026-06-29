@@ -143,6 +143,7 @@ export function CtaBar({
     if (isWhatsAppCta(bookingCtaLabel) && business?.whatsapp) {
       ctaItems.push(
         <a key="booking" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
+          data-track-event="booking_intent" data-track-business-id={businessId} data-track-method="whatsapp" data-track-label={bookingCtaLabel}
           className={`flex items-center justify-center gap-1.5 w-full rounded-lg !font-bold text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
           style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
           <WhatsAppIcon className="h-4 w-4" />
@@ -153,6 +154,7 @@ export function CtaBar({
       ctaItems.push(
         bookingCta.forceExternal ? (
           <a key="booking" href={bookingCta.fullUrl} target="_blank" rel="noopener noreferrer"
+            data-track-event="booking_intent" data-track-business-id={businessId} data-track-method="external" data-track-label={bookingCtaLabel}
             className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black !font-bold text-xs md:text-sm hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}>
             <CalendarCheck className="h-4 w-4 hidden md:block" />
@@ -161,6 +163,7 @@ export function CtaBar({
           </a>
         ) : (
           <button key="booking"
+            data-track-event="booking_intent" data-track-business-id={businessId} data-track-method="overlay" data-track-label={bookingCtaLabel}
             onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(bookingCta.fullUrl); setBookingOverlayTitle(bookingCtaLabel); setShowBookingOverlay(true); }}
             className={`flex items-center justify-center gap-1.5 w-full rounded-lg !font-bold text-xs md:text-sm hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left ${glassFx}`}
             style={{ fontFamily: "'Montserrat', sans-serif", backgroundColor: '#25D366', height: '40px' }}>

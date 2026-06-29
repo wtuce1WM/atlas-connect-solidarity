@@ -138,6 +138,9 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("share_complete", { method: "copy_link", url: currentUrl })
+    ).catch(() => {});
   };
 
   const shareLinks = [
@@ -366,7 +369,12 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    setIsOpen(false);
+                    import("@/lib/analytics").then(({ trackEvent }) =>
+                      trackEvent("share_complete", { method: link.name.toLowerCase(), url: currentUrl })
+                    ).catch(() => {});
+                  }}
                   className="flex flex-col items-center gap-1.5 group"
                   title={link.name}
                 >
