@@ -29,9 +29,11 @@ const BookmarkButton = ({ businessId, variant = "dark", onLoginRequired }: Bookm
     }
     const wasBookmarked = isBookmarked;
     await toggle();
-    import("@/lib/analytics").then(({ trackEvent }) =>
-      trackEvent(wasBookmarked ? "bookmark_remove" : "bookmark_add", { business_id: businessId })
-    ).catch(() => {});
+    import("@/lib/analytics").then(({ trackEvent, trackAhaMoment }) => {
+      trackEvent(wasBookmarked ? "bookmark_remove" : "bookmark_add", { business_id: businessId });
+      if (!wasBookmarked) trackAhaMoment("first_bookmark", { business_id: businessId });
+    }).catch(() => {});
+
   };
 
   return (
