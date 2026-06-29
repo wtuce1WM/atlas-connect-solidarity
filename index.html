@@ -136,9 +136,33 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag;
+
+      // Consent Mode v2 — défauts RGPD : tout refusé tant que l'utilisateur n'a pas accepté la bannière.
+      // Restaure le choix précédent depuis localStorage si présent.
+      var savedConsent = null;
+      try { savedConsent = JSON.parse(localStorage.getItem('cookie-consent-v1') || 'null'); } catch (e) {}
+      var defaults = {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500
+      };
+      if (savedConsent && savedConsent.analytics === 'granted') {
+        defaults.analytics_storage = 'granted';
+      }
+      gtag('consent', 'default', defaults);
+
       gtag('js', new Date());
-      gtag('config', 'G-6Z7316E9Q5');
+      gtag('config', 'G-6Z7316E9Q5', {
+        anonymize_ip: true,
+        send_page_view: false // les page_view SPA sont envoyés depuis AnalyticsTracker
+      });
     </script>
+
 
   </head>
 
