@@ -140,6 +140,68 @@ const Card = () => {
     }
   }, []);
 
+  const heroSectionRef = useRef<HTMLElement>(null);
+  const heroBgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const hero = heroSectionRef.current;
+    if (!hero) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let mx = 0, my = 0, tx = 0, ty = 0, sy = 0, ticking = false;
+    const update = () => {
+      tx += (mx - tx) * 0.08;
+      ty += (my - ty) * 0.08;
+      hero.style.setProperty('--mx', tx.toFixed(3));
+      hero.style.setProperty('--my', ty.toFixed(3));
+      hero.style.setProperty('--sy', sy.toFixed(3));
+      if (Math.abs(mx - tx) > 0.001 || Math.abs(my - ty) > 0.001) {
+        requestAnimationFrame(update);
+      } else ticking = false;
+    };
+    const kick = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    const onMove = (e: MouseEvent) => {
+      const r = hero.getBoundingClientRect();
+      mx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      my = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      kick();
+    };
+    const onLeave = () => { mx = 0; my = 0; kick(); };
+    const onScroll = () => {
+      const r = hero.getBoundingClientRect();
+      sy = Math.max(-1, Math.min(1, -r.top / r.height));
+      kick();
+    };
+    hero.addEventListener('mousemove', onMove);
+    hero.addEventListener('mouseleave', onLeave);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      hero.removeEventListener('mousemove', onMove);
+      hero.removeEventListener('mouseleave', onLeave);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+  // Scroll-driven parallax on bg image (mirrors homepage: translateY = scrollY * 0.3)
+  useEffect(() => {
+    const el = heroBgRef.current;
+    if (!el) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        el.style.transform = `translate3d(0, ${y * 0.3}px, 0) scale(1.05)`;
+        raf = 0;
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <>
       <HomeMindtripHeader />
@@ -148,14 +210,15 @@ const Card = () => {
 
 
       {/* HERO */}
-      <section className="hero">
+      <section className="hero" ref={heroSectionRef}>
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
           <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
-          <img src={heroImageDesktop} alt="" className="hero-bg" loading="eager" fetchPriority="high" />
+          <img ref={heroBgRef} src={heroImageDesktop} alt="" className="hero-bg" loading="eager" fetchPriority="high" />
         </picture>
         <div className="hero-overlay-tablet" aria-hidden />
         <div className="hero-overlay-mobile" aria-hidden />
+        <div className="hero-content">
         <div className="wrap hero-grid">
           <div>
             <h1 className="hero-rise" style={{ animationDelay: '.45s', animationFillMode: 'forwards' }}>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></h1>
