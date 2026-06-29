@@ -163,11 +163,30 @@ const AnalyticsTracker = () => {
         trackEvent("email_click", { link_url: href, link_text: label, page_location });
         return;
       }
+      // Directions: liens Google/Apple/Waze Maps (intention forte de visite physique)
+      if (DIRECTIONS_RE.test(href)) {
+        trackEvent("directions_click", {
+          link_url: href,
+          link_text: label,
+          business_id: anchor.dataset.businessId,
+          page_location,
+        });
+      }
       // Outbound : URL absolue avec un host différent
       if (/^https?:\/\//i.test(href)) {
         try {
           const u = new URL(href);
           if (u.host && u.host !== window.location.host && !INTERNAL_HOST_RE.test(u.host)) {
+            const affiliate = AFFILIATE_HOSTS.find((a) => a.re.test(u.host));
+            if (affiliate) {
+              trackEvent("affiliate_click", {
+                partner: affiliate.partner,
+                link_url: href,
+                link_domain: u.host,
+                business_id: anchor.dataset.businessId,
+                page_location,
+              });
+            }
             trackEvent("outbound_click", {
               link_url: href,
               link_domain: u.host,
@@ -177,6 +196,7 @@ const AnalyticsTracker = () => {
           }
         } catch { /* noop */ }
       }
+
     };
     document.addEventListener("click", onClick, { capture: true });
     return () => document.removeEventListener("click", onClick, { capture: true } as never);
