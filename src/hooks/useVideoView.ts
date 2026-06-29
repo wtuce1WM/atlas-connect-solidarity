@@ -39,6 +39,10 @@ export const useVideoView = (
         user_id: session?.user?.id ?? null,
       } as any);
     setCount((c) => c + 1);
+    // GA4 event
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("video_play", { video_id: videoId, video_source: source })
+    ).catch(() => {});
   }, [videoId, source]);
 
   useEffect(() => { refresh(); }, [refresh]);

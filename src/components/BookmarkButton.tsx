@@ -23,14 +23,15 @@ const BookmarkButton = ({ businessId, variant = "dark", onLoginRequired }: Bookm
 
   const handleClick = async () => {
     if (!isLoggedIn) {
-      if (onLoginRequired) {
-        onLoginRequired();
-      } else {
-        window.dispatchEvent(new CustomEvent("open-club-panel"));
-      }
+      if (onLoginRequired) onLoginRequired();
+      else window.dispatchEvent(new CustomEvent("open-club-panel"));
       return;
     }
+    const wasBookmarked = isBookmarked;
     await toggle();
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent(wasBookmarked ? "bookmark_remove" : "bookmark_add", { business_id: businessId })
+    ).catch(() => {});
   };
 
   return (
