@@ -153,7 +153,7 @@ const Corporate = () => {
         }}
       >
         <style>{corporateCss}</style>
-        <div dangerouslySetInnerHTML={{ __html: corporateBody }} />
+        <div dangerouslySetInnerHTML={{ __html: corporateBody.replace("{{HERO_DESKTOP_URL}}", originalHeroAsset.url) }} />
       </div>
       <Footer variant="verified" />
     </>
