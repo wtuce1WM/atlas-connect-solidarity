@@ -117,12 +117,15 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nickname.trim() || !email.trim()) return;
+    trackClubSignupStep("form_submitted", { method: "email" });
     if (password.length < 6) {
       toast({ title: t.pwShort, variant: "destructive" });
+      trackClubSignupStep("validation_failed", { reason: "pw_short" });
       return;
     }
     if (password !== confirmPassword) {
       toast({ title: t.pwMismatch, variant: "destructive" });
+      trackClubSignupStep("validation_failed", { reason: "pw_mismatch" });
       return;
     }
     setIsSubmitting(true);
@@ -135,10 +138,13 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
       if (authError) {
         if (authError.message?.includes("already registered")) {
           toast({ title: t.emailUsed, variant: "destructive" });
+          trackClubSignupStep("auth_error", { reason: "email_used" });
           return;
         }
+        trackClubSignupStep("auth_error", { reason: authError.message?.slice(0, 80) });
         throw authError;
       }
+      trackClubSignupStep("auth_user_created", { method: "email" });
       const payload: Record<string, string> = {
         nickname: nickname.trim(),
         email: email.trim(),
@@ -148,9 +154,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
       if (error) throw error;
       setIsRegistered(true);
       toast({ title: t.successTitle, description: t.successMsg });
-      import("@/lib/analytics").then(({ trackEvent }) =>
-        trackEvent("club_signup_complete", { method: "email" })
-      ).catch(() => {});
+      trackClubSignupCompleted("email");
     } catch (err) {
       console.error("Club registration error:", err);
       toast({ title: t.error, variant: "destructive" });
@@ -158,6 +162,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
       setIsSubmitting(false);
     }
   };
+
 
   if (isRegistered) {
     return (
