@@ -131,27 +131,15 @@
       ]
     }
     </script>
-    <!-- Google Analytics — deferred until after load + idle to free main thread during hydration -->
+    <!-- Google Analytics — chargé immédiatement en async (non-bloquant) pour ne pas perdre les sessions mobiles -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6Z7316E9Q5"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-6Z7316E9Q5');
-      (function loadGA(){
-        var inject = function(){
-          var s = document.createElement('script');
-          s.async = true;
-          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-6Z7316E9Q5';
-          document.head.appendChild(s);
-        };
-        var schedule = function(){
-          if ('requestIdleCallback' in window) requestIdleCallback(inject, { timeout: 3000 });
-          else setTimeout(inject, 1500);
-        };
-        if (document.readyState === 'complete') schedule();
-        else window.addEventListener('load', schedule, { once: true });
-      })();
     </script>
+
   </head>
 
   <body style="background-color: #ECD6B8">
