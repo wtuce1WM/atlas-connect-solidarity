@@ -31,6 +31,9 @@ const ClubAuthForm = ({ defaultMode = "signup", onSuccess }: Props) => {
         });
         if (error) throw error;
         toast({ description: "Compte créé. Vérifiez votre email pour confirmer." });
+        import("@/lib/analytics").then(({ trackEvent }) =>
+          trackEvent("club_signup_complete", { method: "email" })
+        ).catch(() => {});
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
