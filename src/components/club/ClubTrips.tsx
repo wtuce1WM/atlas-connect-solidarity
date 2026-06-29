@@ -222,17 +222,18 @@ const ClubTrips = ({ userId }: { userId: string }) => {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="[&>button:last-child]:hidden sm:[&>button:last-child]:block max-w-none w-full h-full sm:h-auto sm:max-w-lg sm:max-h-[90vh] rounded-none sm:rounded-lg p-0 flex flex-col overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setDialogOpen(false)}
-            className="absolute top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded bg-black text-white sm:hidden"
-            aria-label={t("Fermer", "Close", "إغلاق")}
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-2 flex flex-row items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setDialogOpen(false)}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black text-white sm:hidden"
+              aria-label={t("Fermer", "Close", "إغلاق")}
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-          <DialogHeader className="shrink-0 px-6 pt-14 sm:pt-6 pb-2">
-            <DialogTitle className="pl-12 sm:pl-0">{editingId ? t("Modifier le voyage", "Edit trip", "تعديل") : t("Nouveau voyage", "New trip", "رحلة جديدة")}</DialogTitle>
+            <DialogTitle className="flex-1 text-center sm:text-left">{editingId ? t("Modifier le voyage", "Edit trip", "تعديل") : t("Nouveau voyage", "New trip", "رحلة جديدة")}</DialogTitle>
+            <div className="w-10 shrink-0 sm:hidden" />
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-2 space-y-4">
