@@ -164,6 +164,20 @@ const AffiliatesDashboard = () => {
           </Card>
         </div>
 
+        {/* Analytics par établissement (temps réel) */}
+        <Card className="bg-card border-border mb-8">
+          <CardHeader>
+            <CardTitle className="text-lg text-foreground">Analytics par établissement</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Données temps réel issues de votre fiche : vues, intentions de contact et conversions.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BusinessAnalyticsPanel />
+          </CardContent>
+        </Card>
+
+
         {/* Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer" onClick={() => navigate("/affiliates/presence")}>
