@@ -78,6 +78,13 @@ interface PoiFull {
 }
 
 const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom", showSearchBar, onSearch, onSearchBusinessSelect, onPrevDestination, onNextDestination }: PoiSlidePanelProps) => {
+  // Analytics: overlay_open au mount
+  useEffect(() => {
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("overlay_open", { overlay: "poi", business_id: businessId, destination_id: destinationId })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // Stable identifier used for effect dependencies & keys (one of the two must be set)
   const entityId = businessId || destinationId || "";
   const isDestination = !businessId && !!destinationId;

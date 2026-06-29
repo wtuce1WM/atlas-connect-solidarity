@@ -57,6 +57,13 @@ interface DestinationFull {
 }
 
 const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onPrevDestination, onNextDestination, hasPrevDestination, hasNextDestination }: DestinationSlidePanelProps) => {
+  // Analytics: overlay_open au mount
+  useEffect(() => {
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("overlay_open", { overlay: "destination", destination_id: destinationId })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const { language } = useLanguage();
   const navigate = useNavigate();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";

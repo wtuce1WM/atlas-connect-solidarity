@@ -64,6 +64,14 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
   const [showAll, setShowAll] = useState(false);
   const [proximityKm, setProximityKm] = useState<number | null>(null);
 
+  // Analytics: overlay_open lorsque la carte s'ouvre
+  useEffect(() => {
+    if (!open) return;
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("overlay_open", { overlay: "map", context: "club", count: businesses?.length ?? 0 })
+    );
+  }, [open, businesses?.length]);
+
   // Priorité : coordonnées définies dans le popup de géolocalisation, sinon fallback navigator
   const userPos = (geo.isEnabled && geo.coords) ? geo.coords : browserPos;
 

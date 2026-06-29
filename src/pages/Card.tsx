@@ -235,7 +235,7 @@ const Card = () => {
               <li><span className="check">✓</span>Mettez à jour à tout moment — le lien reste le même</li>
             </ul>
             <div className="btn-row hero-rise" style={{ animationDelay: '.92s', animationFillMode: 'forwards' }}>
-              <Link to="/join" className="btn-primary">CRÉEZ VOTRE PAGE →</Link>
+              <Link to="/join" className="btn-primary" data-track-event="club_cta_click" data-track-location="card_hero" data-track-target="join">CRÉEZ VOTRE PAGE →</Link>
               <a href="#avantages" className="btn-ghost">Voir les avantages ↓</a>
             </div>
           </div>
@@ -387,7 +387,7 @@ const Card = () => {
         <div className="wrap">
           <h2>Votre lien. Votre carte. Sur un domaine en lequel les voyageurs ont confiance.</h2>
           <p><code>oneworldmorocco.com/yourname</code> — court, mémorable, prêt à être partagé par lien, QR ou NFC.</p>
-          <Link to="/join" className="btn-primary">Créez votre carte gratuite →</Link>
+          <Link to="/join" className="btn-primary" data-track-event="club_cta_click" data-track-location="card_footer" data-track-target="join">Créez votre carte gratuite →</Link>
         </div>
       </section>
 

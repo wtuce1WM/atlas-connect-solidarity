@@ -151,11 +151,19 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
         </Link>
 
         <div className={`${forceHamburger ? "hidden" : "hidden lg:flex"} items-center gap-6`}>
-          {getNavLinks().map((item) => (
-            <Link key={item.to} to={item.to} className={linkClass}>
-              {item.label}
-            </Link>
-          ))}
+          {getNavLinks().map((item) => {
+            const isClubCta = item.to === "/join" || item.to === "/club";
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={linkClass}
+                {...(isClubCta ? { "data-track-event": "club_cta_click", "data-track-location": "nav_top", "data-track-target": item.to.slice(1) } : {})}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
 
         <button

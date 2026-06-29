@@ -1164,6 +1164,13 @@ const SearchPage = () => {
      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams]);
 
+    // Analytics: tab_switch on search tab change
+    useEffect(() => {
+      import("@/lib/analytics").then(({ trackEvent }) =>
+        trackEvent("tab_switch", { tab: activeTab, context: "search" })
+      );
+    }, [activeTab]);
+
     // Tab bar: centering + native non-passive wheel handler for horizontal scroll
     const tabBarRef = useRef<HTMLDivElement | null>(null);
     const pendingTabScrollRef = useRef<SearchTabKey | null>(null);
