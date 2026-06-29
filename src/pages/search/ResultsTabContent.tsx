@@ -204,6 +204,21 @@ export default function ResultsTabContent({
   const effectiveMapPoiItems = proximityFilteredMapPoiItems ?? mapPoiItems;
   const proximityCount = proximityFilteredBusinesses?.length ?? 0;
 
+  // search_no_results : firé une fois par requête quand le chargement termine avec 0 résultat
+  const lastNoResultsKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (isLoading) return;
+    const term = (searchQuery || labelFromUrl || "").trim();
+    if (!term) return;
+    if (filteredBusinesses.length > 0) return;
+    const key = term.toLowerCase();
+    if (lastNoResultsKey.current === key) return;
+    lastNoResultsKey.current = key;
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("search_no_results", { search_term: term })
+    ).catch(() => {});
+  }, [isLoading, filteredBusinesses.length, searchQuery, labelFromUrl]);
+
   // Pré-calcule le nombre de résultats pour chaque palier de distance
   // afin de neutraliser les options vides dans le dropdown.
   const proximityCountsByKm = useMemo(() => {
