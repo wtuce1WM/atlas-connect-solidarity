@@ -564,7 +564,7 @@ const Club = () => {
                 ].map((label, index) => (
                   <div
                     key={label}
-                    className="club-badge-glass club-badge-shimmer inline-flex items-center justify-center gap-2 text-white px-5 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-semibold w-fit sm:w-full whitespace-nowrap"
+                    className="club-badge-glass club-badge-shimmer inline-flex items-center justify-center gap-2 text-white px-5 sm:px-7 md:px-8 py-2.5 rounded-full text-xs sm:text-sm md:text-base font-semibold w-fit sm:w-full whitespace-nowrap"
                     style={{ "--shimmer-delay": `${index * 120}ms` } as React.CSSProperties}
                   >
                     <Check color="#00a896" />
