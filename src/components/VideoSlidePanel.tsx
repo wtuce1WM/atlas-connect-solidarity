@@ -150,6 +150,14 @@ const VideoSlidePanel = ({
 
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+
+  // Analytics: overlay_open lorsque le panel s'ouvre
+  useEffect(() => {
+    if (!open) return;
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("overlay_open", { overlay: "video", business: businessName, is_generic: !!isGeneric })
+    );
+  }, [open, businessName, isGeneric]);
   const panelRef = useRef<HTMLDivElement>(null);
   const swipeStartY = useRef<number | null>(null);
   const swipeStartX = useRef<number | null>(null);
