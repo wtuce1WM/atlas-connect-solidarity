@@ -12,6 +12,9 @@ const StaffRouteGuard = lazy(() => import("@/components/StaffRouteGuard"));
 const FloatingWhatsAppButton = lazy(() => import("@/components/FloatingWhatsAppButton"));
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
+import AnalyticsTracker from "./components/AnalyticsTracker";
+const CookieBanner = lazy(() => import("./components/CookieBanner"));
+
 import RouteSeo from "./seo/RouteSeo";
 import { PageMetaOverridesLoader } from "./seo/usePageMetaOverrides";
 import HomeMindtripEager from "./pages/HomeMindtrip";
