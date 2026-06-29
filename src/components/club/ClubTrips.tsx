@@ -221,7 +221,7 @@ const ClubTrips = ({ userId }: { userId: string }) => {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="[&>button:last-child]:hidden sm:[&>button:last-child]:flex max-w-none w-full h-full sm:h-auto sm:max-w-lg sm:max-h-[90vh] rounded-none sm:rounded-lg p-0 flex flex-col overflow-hidden">
+        <DialogContent className="[&>button:last-child]:hidden sm:[&>button:last-child]:block max-w-none w-full h-full sm:h-auto sm:max-w-lg sm:max-h-[90vh] rounded-none sm:rounded-lg p-0 flex flex-col overflow-hidden">
           <button
             type="button"
             onClick={() => setDialogOpen(false)}
