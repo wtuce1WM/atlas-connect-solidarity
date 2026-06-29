@@ -53,10 +53,24 @@ if (typeof window !== "undefined") {
   if (!listenerAttached) {
     window.addEventListener(TRACK_EVENT, ((e: CustomEvent) => {
       trackViewInternal(e.detail);
+      // GA4 event — visibilité produit sur les fiches ouvertes
+      try {
+        import("@/lib/analytics").then(({ trackEvent }) => {
+          trackEvent("view_business", {
+            business_id: e.detail?.id,
+            business_name: e.detail?.name,
+            city: e.detail?.city ?? undefined,
+            is_youtube_channel: !!e.detail?.isYoutubeChannel,
+          });
+        });
+      } catch {
+        /* noop */
+      }
     }) as EventListener);
     listenerAttached = true;
   }
 }
+
 
 export const useRecentlyViewedBusinesses = () => {
   const [businesses, setBusinesses] = useState<RecentlyViewedBusiness[]>(getStored);
