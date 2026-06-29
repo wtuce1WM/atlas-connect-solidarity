@@ -160,6 +160,9 @@ const AnalyticsTracker = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Core Web Vitals (LCP/INP/CLS/FCP/TTFB) — une seule fois
+  useEffect(() => { startWebVitals(); }, []);
+
   return null;
 };
 
