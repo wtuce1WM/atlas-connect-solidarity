@@ -105,7 +105,13 @@ const FloatingWhatsAppButton = ({ isOpen, onToggle }: FloatingWhatsAppButtonProp
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={onToggle}
+              onClick={() => {
+                import("@/lib/analytics").then(({ trackEvent }) =>
+                  trackEvent("whatsapp_click", { source: "floating_button" })
+                ).catch(() => {});
+                onToggle();
+              }}
+
               style={{ backgroundColor: "#25D366" }}
               className="inline-flex items-center gap-2 rounded-full px-8 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md"
             >
