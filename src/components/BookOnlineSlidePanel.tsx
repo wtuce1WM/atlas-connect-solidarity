@@ -1073,6 +1073,11 @@ const BookOnlineSlidePanelInner = ({
     return { avgOn20: business.computed_rating ?? null, totalReviewCount: business.total_review_count ?? 0 };
   }, [business]);
 
+  const hasHighlights = useMemo(
+    () => highlights.some((h) => h.title?.trim() || h.description?.trim()),
+    [highlights]
+  );
+
   const hasContactCard = !!(hasOpeningHours && !business?.is_open_24h) || !!isHotelWithPrice;
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
@@ -1626,13 +1631,13 @@ const BookOnlineSlidePanelInner = ({
         )}
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
-        {(avgOn20 != null && totalReviewCount > 0) || woDescription || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
+        {(avgOn20 != null && totalReviewCount > 0) || woDescription || hasHighlights || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
           <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-auto gap-6 md:gap-8 flex-1">
 
 
-            {/* Conteneur 1 : bouton + (Description) */}
+            {/* Conteneur 1 : bouton + (Description / Highlights) */}
             <div className="flex items-center justify-center pointer-events-auto">
-              {woDescription ? (
+              {woDescription || hasHighlights ? (
                 <div className="slidepanel-plus-short relative z-[40]">
                   <button
                     type="button"
@@ -1659,6 +1664,7 @@ const BookOnlineSlidePanelInner = ({
                 </div>
               )}
             </div>
+
 
             {/* Conteneur 2 : flipbooks OU badge Avis clients */}
             <div className="flex items-center justify-center pointer-events-auto">
@@ -1965,7 +1971,7 @@ const BookOnlineSlidePanelInner = ({
       )}
 
       {/* Full Description Overlay */}
-      {showDescriptionOverlay && (woDescription || descGridSection || descOverlayContent) && (
+      {showDescriptionOverlay && (woDescription || hasHighlights || descGridSection || descOverlayContent) && (
         <OverlayShell zClass="z-[80]" animClass="animate-zoom-out-center" className="flex flex-col">
           {images[0] && (
             <div
@@ -2186,10 +2192,17 @@ const BookOnlineSlidePanelInner = ({
                       )}
                     </>
                   )}
-                   <div
-                    className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 prose-strong:!text-white [&_.img-h2-row]:flex [&_.img-h2-row]:items-center [&_.img-h2-row]:gap-3 [&_.img-h2-row]:my-4 [&_.img-h2-row_img]:!my-0 [&_.img-h2-row_img]:h-10 [&_.img-h2-row_img]:w-10 [&_.img-h2-row_img]:object-contain [&_.img-h2-row_img]:shrink-0 [&_.img-h2-row_h2]:!my-0"
-                    dangerouslySetInnerHTML={{ __html: groupImagesWithHeadings((descOverlayContent ? descOverlayContent.html : woDescription)).replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:1.6em;line-height:1;vertical-align:middle">$1</span>') }}
-                  />
+                  {(() => {
+                    const rawHtml = descOverlayContent ? descOverlayContent.html : woDescription;
+                    if (!rawHtml) return null;
+                    return (
+                      <div
+                        className="prose prose-invert prose-base max-w-none break-words text-base leading-[1.625] font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose-josefin-headings prose-h2:text-base md:prose-h2:text-2xl prose-h3:text-lg md:prose-h3:text-xl card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 prose-strong:!text-white [&_.img-h2-row]:flex [&_.img-h2-row]:items-center [&_.img-h2-row]:gap-3 [&_.img-h2-row]:my-4 [&_.img-h2-row_img]:!my-0 [&_.img-h2-row_img]:h-10 [&_.img-h2-row_img]:w-10 [&_.img-h2-row_img]:object-contain [&_.img-h2-row_img]:shrink-0 [&_.img-h2-row_h2]:!my-0"
+                        dangerouslySetInnerHTML={{ __html: groupImagesWithHeadings(rawHtml).replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:1.6em;line-height:1;vertical-align:middle">$1</span>') }}
+                      />
+                    );
+                  })()}
+
                   {!descOverlayContent && (() => {
                     const visible = highlights.filter(h => h.title?.trim() || h.description?.trim());
                     if (visible.length === 0) return null;
