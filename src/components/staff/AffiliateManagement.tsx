@@ -24,7 +24,9 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Users, TrendingUp, DollarSign, Plus, Edit, Trash2, Key, UserPlus, UserX, Eye, EyeOff, Building2 } from "lucide-react";
+import { Loader2, Users, TrendingUp, DollarSign, Plus, Edit, Trash2, Key, UserPlus, UserX, Eye, EyeOff, Building2, BarChart3 } from "lucide-react";
+import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
+
 
 interface Affiliate {
   id: string;
@@ -75,6 +77,8 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
   const [accountLoading, setAccountLoading] = useState(false);
   const [editingAffiliate, setEditingAffiliate] = useState<Affiliate | null>(null);
   const [editingBusinessesAffiliate, setEditingBusinessesAffiliate] = useState<Affiliate | null>(null);
+  const [analyticsAffiliate, setAnalyticsAffiliate] = useState<Affiliate | null>(null);
+
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -904,11 +908,20 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                           <Button
                             variant="ghost"
                             size="icon"
+                            onClick={() => setAnalyticsAffiliate(affiliate)}
+                            title="Voir les statistiques"
+                          >
+                            <BarChart3 className="h-4 w-4 text-blue-600" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => openEditDialog(affiliate)}
                             title="Modifier l'affilié"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
+
                         </div>
                       </TableCell>
                     </TableRow>
@@ -919,7 +932,21 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!analyticsAffiliate} onOpenChange={(o) => !o && setAnalyticsAffiliate(null)}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Analytics — {analyticsAffiliate?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {analyticsAffiliate && (
+            <BusinessAnalyticsPanel affiliateId={analyticsAffiliate.id} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 };
 

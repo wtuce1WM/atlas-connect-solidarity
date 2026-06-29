@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, UserCheck, Star } from "lucide-react";
+import { LogOut, ArrowLeft, UserCheck, Star, BarChart3 } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import SponsorManagement from "@/components/staff/SponsorManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
+import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
+
 
 const StaffB2B = () => {
   const [user, setUser] = useState<any>(null);
@@ -92,6 +94,10 @@ const StaffB2B = () => {
               <Star className="h-4 w-4" />
               Sponsors
             </TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="affiliates">
@@ -101,6 +107,11 @@ const StaffB2B = () => {
           <TabsContent value="sponsors">
             <SponsorManagement />
           </TabsContent>
+
+          <TabsContent value="analytics">
+            <BusinessAnalyticsPanel staffAllBusinesses />
+          </TabsContent>
+
         </Tabs>
       </main>
 

@@ -3,16 +3,22 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Eye, MessageCircle, Phone, Mail, MapPin, ExternalLink, TrendingUp, TrendingDown } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { useBusinessAnalytics, type AnalyticsRange } from "@/hooks/useBusinessAnalytics";
 
+
 interface BusinessOption { id: string; name: string }
 
 interface Props {
-  /** If provided, limits selector to this business (staff view). Otherwise lists affiliate-owned businesses. */
+  /** Fix selector to a single business (e.g. shown on a fiche). */
   fixedBusinessId?: string;
+  /** Limit selector to businesses owned by this affiliate (staff dialog). */
+  affiliateId?: string;
+  /** Staff mode: search across ALL active businesses. */
+  staffAllBusinesses?: boolean;
 }
 
 const RANGES: { value: AnalyticsRange; label: string }[] = [
@@ -36,14 +42,40 @@ function deltaPct(curr: number, prev: number): number | null {
   return Math.round(((curr - prev) / prev) * 100);
 }
 
-export default function BusinessAnalyticsPanel({ fixedBusinessId }: Props) {
+export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, staffAllBusinesses }: Props) {
   const [range, setRange] = useState<AnalyticsRange>("30d");
   const [selectedId, setSelectedId] = useState<string | null>(fixedBusinessId ?? null);
+  const [search, setSearch] = useState("");
 
-  // List affiliate-owned businesses
+  const mode: "fixed" | "affiliate" | "staff-all" | "self" = fixedBusinessId
+    ? "fixed"
+    : affiliateId
+    ? "affiliate"
+    : staffAllBusinesses
+    ? "staff-all"
+    : "self";
+
   const { data: businesses, isLoading: loadingBiz } = useQuery({
-    queryKey: ["my-affiliate-businesses"],
+    queryKey: ["analytics-businesses", mode, affiliateId ?? null, staffAllBusinesses ? search : ""],
     queryFn: async (): Promise<BusinessOption[]> => {
+      if (mode === "affiliate" && affiliateId) {
+        const { data, error } = await supabase
+          .from("businesses")
+          .select("id, name")
+          .eq("affiliate_id", affiliateId)
+          .eq("is_active", true)
+          .order("name");
+        if (error) throw error;
+        return (data || []) as BusinessOption[];
+      }
+      if (mode === "staff-all") {
+        let q = supabase.from("businesses").select("id, name").eq("is_active", true).order("name").limit(200);
+        if (search.trim().length >= 2) q = q.ilike("name", `%${search.trim()}%`);
+        const { data, error } = await q;
+        if (error) throw error;
+        return (data || []) as BusinessOption[];
+      }
+      // self (affiliate connected)
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
       const { data: aff } = await supabase
@@ -61,8 +93,8 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId }: Props) {
       if (error) throw error;
       return (data || []) as BusinessOption[];
     },
-    enabled: !fixedBusinessId,
-    staleTime: 10 * 60 * 1000,
+    enabled: mode !== "fixed",
+    staleTime: mode === "staff-all" ? 30 * 1000 : 10 * 60 * 1000,
   });
 
   const activeBusinessId = fixedBusinessId ?? selectedId ?? businesses?.[0]?.id ?? null;
@@ -78,7 +110,15 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId }: Props) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <div className="flex flex-col sm:flex-row gap-3 flex-1">
-          {!fixedBusinessId && (
+          {mode === "staff-all" && (
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Rechercher un établissement…"
+              className="w-full sm:w-[260px]"
+            />
+          )}
+          {mode !== "fixed" && (
             <Select
               value={activeBusinessId ?? ""}
               onValueChange={(v) => setSelectedId(v)}
@@ -113,10 +153,15 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId }: Props) {
       {!activeBusinessId && !loadingBiz && (
         <Card className="bg-card border-border">
           <CardContent className="py-10 text-center text-muted-foreground">
-            Aucun établissement affilié rattaché à votre compte.
+            {mode === "affiliate"
+              ? "Aucun établissement rattaché à cet affilié."
+              : mode === "staff-all"
+              ? "Sélectionnez un établissement pour afficher ses statistiques."
+              : "Aucun établissement affilié rattaché à votre compte."}
           </CardContent>
         </Card>
       )}
+
 
       {activeBusinessId && isLoading && (
         <div className="flex justify-center py-10">
