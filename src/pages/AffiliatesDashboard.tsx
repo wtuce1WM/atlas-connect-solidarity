@@ -7,7 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, Users, LogOut, BarChart3, Link as LinkIcon, DollarSign } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
 import logoGold from "@/assets/logoGOLDsimple.webp";
+
 
 const AffiliatesDashboard = () => {
   const navigate = useNavigate();
@@ -161,6 +163,20 @@ const AffiliatesDashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Analytics par établissement (temps réel) */}
+        <Card className="bg-card border-border mb-8">
+          <CardHeader>
+            <CardTitle className="text-lg text-foreground">Analytics par établissement</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Données temps réel issues de votre fiche : vues, intentions de contact et conversions.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BusinessAnalyticsPanel />
+          </CardContent>
+        </Card>
+
 
         {/* Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

@@ -1,64 +1,114 @@
+# Dashboard Analytics Partenaire — `business_events`
 
-# Studio Vidéo IA — Plan
+Tracker en interne tous les events liés à un établissement, pour offrir à chaque affilié un dashboard temps réel sur la performance de sa fiche, indépendant de GA4.
 
-Page front `/studio-video` (noindex, accessible à tous pour l'instant) pour générer des vidéos verticales 720x1280 de 17 à 30s à partir d'un prompt + sélection d'établissement.
+## Phase 1 — Schéma DB
 
-## Architecture
+Nouvelle table `public.business_events` :
 
-```text
-[Front /studio-video]
-     │  prompt + business_id + durée (17/22/27s) + ton
-     ▼
-[Edge function: video-scenario-generate]
-     │  Claude (Lovable AI Gateway) → JSON scénario
-     │  Insert video_jobs (status=pending, scenario_json)
-     ▼
-[Worker externe (Render/Fly/Railway)]
-     │  Poll video_jobs WHERE status=pending
-     │  Render Remotion (template Signature paramétrique)
-     │  Upload MP4 → storage bucket `studio-videos`
-     │  Update video_jobs (status=done, output_url)
-     ▼
-[Front] Realtime sur video_jobs → affiche progression + lecteur MP4
-```
+| Colonne | Type | Détail |
+|---|---|---|
+| `id` | bigint identity | PK |
+| `business_id` | uuid | FK → businesses(id), indexé |
+| `event_type` | text | `view`, `whatsapp_click`, `phone_click`, `email_click`, `directions_click`, `affiliate_click`, `bookmark_add`, `share_open`, `share_complete`, `booking_intent`, `video_play`, `document_open` |
+| `event_subtype` | text NULL | ex: `booking`, `getyourguide`, `tiktok` |
+| `user_id` | uuid NULL | si connecté |
+| `session_id` | text | id session anonyme (localStorage) |
+| `source_page` | text | path de la page d'origine |
+| `referrer_domain` | text NULL | |
+| `device` | text | mobile/tablet/desktop |
+| `country` | text NULL | dérivé IP côté edge |
+| `city` | text NULL | |
+| `meta` | jsonb | payload libre (link_url, position, etc.) |
+| `created_at` | timestamptz default now() | indexé desc |
 
-## Étapes
+Index composé : `(business_id, event_type, created_at desc)` + `(business_id, created_at desc)`.
 
-### 1. Base de données
-- Table `video_jobs` : id, user_id (nullable), business_id, prompt, duration_sec, tone, scenario_json, status (pending/rendering/done/error), output_url, error_message, created_at, updated_at.
-- Bucket public `studio-videos`.
-- RLS : lecture publique des jobs `done` ; insert ouvert (tout le monde pour l'instant) ; update réservé au service_role (worker).
-- GRANT explicites (anon/authenticated/service_role).
+RLS :
+- `INSERT` ouvert à `anon` + `authenticated` (logging public)
+- `SELECT` : `service_role` only — jamais lu côté client direct
+- Lectures uniquement via RPC `get_business_analytics(business_id, range)` qui vérifie `is_staff()` OU propriété affiliée via `is_own_affiliate_business()`
 
-### 2. Edge function `video-scenario-generate`
-- Entrée : `{ prompt, business_id, duration_sec, tone }`.
-- Charge la fiche établissement (hook, popup, offres, avis, médias internes triés par sort_order).
-- Appelle Claude via Lovable AI Gateway → JSON beats structuré (timeline, textes, médias choisis).
-- Insère un `video_jobs` (status=pending) et retourne son id.
+Vue matérialisée optionnelle `business_events_daily` (refresh horaire) pour agréger : 1 ligne par (business_id, day, event_type) → réponses <50ms même avec millions d'events.
 
-### 3. Template Remotion paramétrique
-- `remotion/src/StudioSignature.tsx` : un seul composant qui consomme le JSON scénario (props) et compose les beats du template "Signature 27s" déjà éprouvé (hook, identité, signature, avis, CTA install).
-- Durées ajustables 17/22/27s.
+## Phase 2 — Ingestion
 
-### 4. Worker de rendu (externe, simple)
-- Petit service Node lisant `video_jobs` toutes les 5s.
-- Télécharge les médias, lance `npx remotion render` avec props JSON, upload sur bucket, met à jour le job.
-- Déployable sur Render/Fly/Railway (~5–10 €/mois). Documenté dans un README dédié — déploiement manuel à part par l'utilisateur.
+Edge function `log-business-event` :
+- POST batch (jusqu'à 20 events) pour réduire requêtes
+- Enrichit avec `country`/`city` via header Cloudflare/x-forwarded
+- Anti-spam : rate limit par IP (60/min) + dedupe `view` même session/business sous 30 min
+- Validation Zod stricte
 
-### 5. Front `/studio-video`
-- Route ajoutée + `<meta name="robots" content="noindex">`.
-- Formulaire guidé : sélecteur établissement (autocomplete businesses actifs), durée (17/22/27), ton (immersif/dynamique/élégant), zone prompt libre.
-- Bouton "Générer" → appelle edge function, écoute Supabase Realtime sur le job, affiche statut + preview MP4 + bouton télécharger.
-- Galerie des derniers jobs `done`.
+Côté front : helper `trackBusinessEvent(business_id, type, meta)` dans `src/lib/businessAnalytics.ts`
+- File d'attente locale, flush toutes les 2s ou au `pagehide`
+- Émet **en plus** des events GA4 existants (pas de remplacement)
+
+Instrumentation :
+- `view` : à l'ouverture d'une fiche (slide panel, page dédiée, popup)
+- `whatsapp_click`, `phone_click`, `email_click` : déjà détectés dans `AnalyticsTracker` → ajouter call si un `business_id` est résolvable (data-attribute ou contexte)
+- `bookmark_add` : dans `BookmarkButton`
+- `share_open/complete` : dans `ShareButton`
+- `directions_click`, `affiliate_click` : via data-attribute sur les `<a>` concernés
+- `video_play`, `document_open` : depuis les slide panels existants
+
+## Phase 3 — RPC d'agrégation
+
+`get_business_analytics(p_business_id uuid, p_range text)` security definer :
+- `p_range` : `7d` / `30d` / `90d` / `12m`
+- Retourne JSON :
+  ```json
+  {
+    "totals": { "views": 1234, "whatsapp": 87, "phone": 22, ... },
+    "conversion_rate": 0.08,
+    "timeseries": [{ "day": "2026-06-20", "views": 45, "intents": 6 }, ...],
+    "by_source_page": [...],
+    "by_country": [...],
+    "by_device": [...],
+    "top_referrers": [...]
+  }
+  ```
+- Source : `business_events_daily` si range > 7j, sinon table brute
+- Cache HTTP 5 min via header `Cache-Control`
+
+## Phase 4 — UI Dashboard Partenaire
+
+Nouvelle route `/affilie/:slug/analytics` (ou onglet "Statistiques" dans l'espace affilié existant).
+
+Composants :
+- **KPI cards** : Vues, Clics WhatsApp, Appels, Itinéraires, Réservations → variation vs période précédente
+- **Sparkline 30j** sur chaque KPI
+- **Graphique principal** : vues vs intentions (line chart, recharts)
+- **Taux de conversion** vue → intention commerciale
+- **Top sources** : pages internes qui amènent du trafic vers la fiche
+- **Carte / liste pays** des visiteurs
+- **Sélecteur période** : 7j / 30j / 90j / 12m
+- **Export CSV** des events bruts (optionnel)
+
+Accès :
+- Affilié connecté qui possède le `business_id` (vérif via `is_own_affiliate_business`)
+- Staff/Admin : accès à n'importe quelle fiche depuis le back-office
+
+## Phase 5 — Rétention & coûts
+
+- Job pg_cron quotidien : supprime les events bruts > 90 jours (les daily restent)
+- Daily conservé 24 mois
+- Volume estimé : ~1M events/mois max → coût Lovable Cloud négligeable
 
 ## Détails techniques
 
-- Auth : non requise pour l'instant (tout le monde). Le `user_id` reste optionnel pour pouvoir restreindre plus tard.
-- Coût IA : ~0,02–0,05 € par scénario Claude.
-- Le worker externe doit être déployé manuellement (hors sandbox Lovable). Je fournis le code + README.
-- Pas de rendu Lambda dans cette V1 — ajout possible en V2.
+- Stack : Supabase (PG + Edge Functions Deno), Zod, React Query, Recharts
+- 1 migration (table + index + RLS + GRANTs + RPC + cron)
+- 1 edge function `log-business-event`
+- 1 hook `useBusinessAnalytics(business_id, range)`
+- 1 page dashboard + 4-5 composants chart
+- Helper d'instrumentation réutilisable
+- Modifs ciblées dans `BookmarkButton`, `ShareButton`, slide panels, `AnalyticsTracker` pour relier events GA4 → events internes quand business_id présent
 
-## Hors scope V1
-- Quotas, rate-limit utilisateur, paiement.
-- Re-render en 1 clic après tweak (faisable facilement plus tard).
-- Authentification staff (à activer quand vous voudrez restreindre).
+## Hors scope (à valider ensuite)
+
+- Notifications email hebdo automatiques aux affiliés (récap perf)
+- Comparaison vs moyenne catégorie/ville ("Top 10% de Marrakech")
+- Funnel multi-étapes vue → intent → booking confirmé (nécessite tracking côté partenaire externe)
+- A/B test contenu de fiche
+
+Dis-moi si je lance la Phase 1+2 (DB + ingestion) ou si tu veux ajuster le périmètre avant.

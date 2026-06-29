@@ -33,6 +33,10 @@ const BookmarkButton = ({ businessId, variant = "dark", onLoginRequired }: Bookm
       trackEvent(wasBookmarked ? "bookmark_remove" : "bookmark_add", { business_id: businessId });
       if (!wasBookmarked) trackAhaMoment("first_bookmark", { business_id: businessId });
     }).catch(() => {});
+    import("@/lib/businessAnalytics").then(({ trackBusinessEvent }) => {
+      trackBusinessEvent(businessId, wasBookmarked ? "bookmark_remove" : "bookmark_add");
+    }).catch(() => {});
+
 
   };
 
