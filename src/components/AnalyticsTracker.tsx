@@ -25,6 +25,21 @@ const markUserSeen = (id: string) => {
 
 const INTERNAL_HOST_RE = /(^|\.)oneworldmorocco\.com$|(^|\.)lovable\.app$|^localhost$/i;
 
+// Monétisation: hosts à fort signal d'intention commerciale
+const AFFILIATE_HOSTS: Array<{ re: RegExp; partner: string }> = [
+  { re: /(^|\.)booking\.com$/i, partner: "booking" },
+  { re: /(^|\.)getyourguide\.com$/i, partner: "getyourguide" },
+  { re: /(^|\.)viator\.com$/i, partner: "viator" },
+  { re: /(^|\.)expedia\.[a-z.]+$/i, partner: "expedia" },
+  { re: /(^|\.)tripadvisor\.[a-z.]+$/i, partner: "tripadvisor" },
+  { re: /(^|\.)airbnb\.[a-z.]+$/i, partner: "airbnb" },
+  { re: /(^|\.)agoda\.com$/i, partner: "agoda" },
+  { re: /(^|\.)hotels\.com$/i, partner: "hotels" },
+  { re: /(^|\.)trip\.com$/i, partner: "trip" },
+];
+const DIRECTIONS_RE = /(google\.[a-z.]+\/maps|maps\.google\.[a-z.]+|maps\.apple\.com|^geo:|waze\.com)/i;
+
+
 /**
  * Pageviews SPA + tracking global :
  *  - search (extrait `q` de /search)
