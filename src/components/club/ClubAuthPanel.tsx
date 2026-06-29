@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Crown, Loader2, Eye, EyeOff, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { trackClubSignupStarted, trackClubSignupStep, trackClubSignupCompleted, trackClubSignupAbandoned } from "@/lib/analytics";
 import ClubSocialButtons from "./ClubSocialButtons";
+
 
 interface Props {
   redirectPath?: string;
@@ -61,6 +63,14 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
   const { language } = useLanguage();
   const t = T[language as keyof typeof T] || T.fr;
 
+  // Funnel: signup started on mount (entry to the auth surface)
+  useEffect(() => {
+    trackClubSignupStarted(redirectPath);
+    return () => { trackClubSignupAbandoned("unmount"); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
   const [mode, setMode] = useState<"login" | "register">("login");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -107,12 +117,15 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nickname.trim() || !email.trim()) return;
+    trackClubSignupStep("form_submitted", { method: "email" });
     if (password.length < 6) {
       toast({ title: t.pwShort, variant: "destructive" });
+      trackClubSignupStep("validation_failed", { reason: "pw_short" });
       return;
     }
     if (password !== confirmPassword) {
       toast({ title: t.pwMismatch, variant: "destructive" });
+      trackClubSignupStep("validation_failed", { reason: "pw_mismatch" });
       return;
     }
     setIsSubmitting(true);
@@ -125,10 +138,13 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
       if (authError) {
         if (authError.message?.includes("already registered")) {
           toast({ title: t.emailUsed, variant: "destructive" });
+          trackClubSignupStep("auth_error", { reason: "email_used" });
           return;
         }
+        trackClubSignupStep("auth_error", { reason: authError.message?.slice(0, 80) });
         throw authError;
       }
+      trackClubSignupStep("auth_user_created", { method: "email" });
       const payload: Record<string, string> = {
         nickname: nickname.trim(),
         email: email.trim(),
@@ -138,9 +154,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
       if (error) throw error;
       setIsRegistered(true);
       toast({ title: t.successTitle, description: t.successMsg });
-      import("@/lib/analytics").then(({ trackEvent }) =>
-        trackEvent("club_signup_complete", { method: "email" })
-      ).catch(() => {});
+      trackClubSignupCompleted("email");
     } catch (err) {
       console.error("Club registration error:", err);
       toast({ title: t.error, variant: "destructive" });
@@ -148,6 +162,7 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
       setIsSubmitting(false);
     }
   };
+
 
   if (isRegistered) {
     return (

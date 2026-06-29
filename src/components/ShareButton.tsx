@@ -138,9 +138,11 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    import("@/lib/analytics").then(({ trackEvent }) =>
-      trackEvent("share_complete", { method: "copy_link", url: currentUrl })
-    ).catch(() => {});
+    import("@/lib/analytics").then(({ trackEvent, trackAhaMoment }) => {
+      trackEvent("share_complete", { method: "copy_link", url: currentUrl });
+      trackAhaMoment("first_share", { method: "copy_link" });
+    }).catch(() => {});
+
   };
 
   const shareLinks = [
@@ -371,9 +373,11 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
                   rel="noopener noreferrer"
                   onClick={() => {
                     setIsOpen(false);
-                    import("@/lib/analytics").then(({ trackEvent }) =>
-                      trackEvent("share_complete", { method: link.name.toLowerCase(), url: currentUrl })
-                    ).catch(() => {});
+                    import("@/lib/analytics").then(({ trackEvent, trackAhaMoment }) => {
+                      trackEvent("share_complete", { method: link.name.toLowerCase(), url: currentUrl });
+                      trackAhaMoment("first_share", { method: link.name.toLowerCase() });
+                    }).catch(() => {});
+
                   }}
                   className="flex flex-col items-center gap-1.5 group"
                   title={link.name}

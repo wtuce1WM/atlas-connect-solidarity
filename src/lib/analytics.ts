@@ -119,3 +119,93 @@ export function captureAttribution() {
   if (hasUtm) trackEvent("campaign_touch", { ...attr });
 }
 
+// ---- Aha moments (first-time per browser) ----
+const AHA_KEY = "ga-aha-moments-v1";
+
+function getAhaSet(): Set<string> {
+  try {
+    const raw = localStorage.getItem(AHA_KEY);
+    return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+/**
+ * Fire-once milestone event ("first_bookmark", "first_share", etc.).
+ * No-op on subsequent calls. Stored in localStorage.
+ */
+export function trackAhaMoment(name: string, params: Record<string, unknown> = {}) {
+  const set = getAhaSet();
+  if (set.has(name)) return;
+  set.add(name);
+  try { localStorage.setItem(AHA_KEY, JSON.stringify([...set])); } catch { /* noop */ }
+  trackEvent("aha_moment", { milestone: name, ...params });
+  trackEvent(name, params); // also fire the dedicated event name for funnels
+}
+
+// ---- Club signup funnel ----
+const FUNNEL_KEY = "ga-club-funnel-v1";
+
+interface FunnelState {
+  started_at: number;
+  steps: string[];
+  method?: string;
+}
+
+function getFunnel(): FunnelState | null {
+  try {
+    const raw = sessionStorage.getItem(FUNNEL_KEY);
+    return raw ? (JSON.parse(raw) as FunnelState) : null;
+  } catch { return null; }
+}
+function setFunnel(state: FunnelState | null) {
+  try {
+    if (state) sessionStorage.setItem(FUNNEL_KEY, JSON.stringify(state));
+    else sessionStorage.removeItem(FUNNEL_KEY);
+  } catch { /* noop */ }
+}
+
+export function trackClubSignupStarted(surface: string) {
+  if (getFunnel()) return; // already in progress this session
+  const state: FunnelState = { started_at: Date.now(), steps: ["started"] };
+  setFunnel(state);
+  trackEvent("club_signup_started", { surface });
+}
+
+export function trackClubSignupStep(step: string, params: Record<string, unknown> = {}) {
+  const state = getFunnel();
+  if (!state || state.steps.includes(step)) return;
+  state.steps.push(step);
+  setFunnel(state);
+  trackEvent("club_signup_step", {
+    step,
+    step_index: state.steps.length - 1,
+    elapsed_ms: Date.now() - state.started_at,
+    ...params,
+  });
+}
+
+export function trackClubSignupCompleted(method: string) {
+  const state = getFunnel();
+  trackEvent("club_signup_complete", {
+    method,
+    elapsed_ms: state ? Date.now() - state.started_at : undefined,
+    steps_count: state?.steps.length ?? undefined,
+  });
+  setFunnel(null);
+}
+
+export function trackClubSignupAbandoned(reason: string) {
+  const state = getFunnel();
+  if (!state) return;
+  trackEvent("club_signup_abandoned", {
+    reason,
+    last_step: state.steps[state.steps.length - 1],
+    steps_reached: state.steps.length,
+    elapsed_ms: Date.now() - state.started_at,
+  });
+  setFunnel(null);
+}
+
+

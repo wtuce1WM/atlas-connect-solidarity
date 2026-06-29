@@ -55,17 +55,19 @@ if (typeof window !== "undefined") {
       trackViewInternal(e.detail);
       // GA4 event — visibilité produit sur les fiches ouvertes
       try {
-        import("@/lib/analytics").then(({ trackEvent }) => {
+        import("@/lib/analytics").then(({ trackEvent, trackAhaMoment }) => {
           trackEvent("view_business", {
             business_id: e.detail?.id,
             business_name: e.detail?.name,
             city: e.detail?.city ?? undefined,
             is_youtube_channel: !!e.detail?.isYoutubeChannel,
           });
+          trackAhaMoment("first_view_business", { business_id: e.detail?.id });
         });
       } catch {
         /* noop */
       }
+
     }) as EventListener);
     listenerAttached = true;
   }
