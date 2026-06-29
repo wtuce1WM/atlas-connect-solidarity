@@ -387,7 +387,7 @@ const Card = () => {
         <div className="wrap">
           <h2>Votre lien. Votre carte. Sur un domaine en lequel les voyageurs ont confiance.</h2>
           <p><code>oneworldmorocco.com/yourname</code> — court, mémorable, prêt à être partagé par lien, QR ou NFC.</p>
-          <Link to="/join" className="btn-primary">Créez votre carte gratuite →</Link>
+          <Link to="/join" className="btn-primary" data-track-event="club_cta_click" data-track-location="card_footer" data-track-target="join">Créez votre carte gratuite →</Link>
         </div>
       </section>
 
