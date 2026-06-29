@@ -908,11 +908,20 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                           <Button
                             variant="ghost"
                             size="icon"
+                            onClick={() => setAnalyticsAffiliate(affiliate)}
+                            title="Voir les statistiques"
+                          >
+                            <BarChart3 className="h-4 w-4 text-blue-600" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => openEditDialog(affiliate)}
                             title="Modifier l'affilié"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
+
                         </div>
                       </TableCell>
                     </TableRow>
