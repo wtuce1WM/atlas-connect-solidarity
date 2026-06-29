@@ -1919,7 +1919,16 @@ const BookOnlineSlidePanelInner = ({
             onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); setBookingOverlayHideContact(false); }}
             whatsapp={business?.whatsapp}
             phone={business?.phone}
-            onLoad={() => setBookingOverlayLoaded(true)}
+            onLoad={() => {
+              setBookingOverlayLoaded(true);
+              import("@/lib/analytics").then(({ trackEvent }) =>
+                trackEvent("booking_overlay_loaded", {
+                  business_id: businessId,
+                  url: finalUrl,
+                  title: bookingOverlayTitle ?? "",
+                })
+              ).catch(() => {});
+            }}
             hideContact={bookingOverlayHideContact}
           />
         );

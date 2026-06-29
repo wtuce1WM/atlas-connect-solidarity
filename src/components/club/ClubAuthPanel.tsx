@@ -138,6 +138,9 @@ const ClubAuthPanel = ({ redirectPath = "/", onSuccess }: Props) => {
       if (error) throw error;
       setIsRegistered(true);
       toast({ title: t.successTitle, description: t.successMsg });
+      import("@/lib/analytics").then(({ trackEvent }) =>
+        trackEvent("club_signup_complete", { method: "email" })
+      ).catch(() => {});
     } catch (err) {
       console.error("Club registration error:", err);
       toast({ title: t.error, variant: "destructive" });

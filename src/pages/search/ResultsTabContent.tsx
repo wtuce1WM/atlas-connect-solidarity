@@ -204,6 +204,21 @@ export default function ResultsTabContent({
   const effectiveMapPoiItems = proximityFilteredMapPoiItems ?? mapPoiItems;
   const proximityCount = proximityFilteredBusinesses?.length ?? 0;
 
+  // search_no_results : firé une fois par requête quand le chargement termine avec 0 résultat
+  const lastNoResultsKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (isLoading) return;
+    const term = (searchQuery || labelFromUrl || "").trim();
+    if (!term) return;
+    if (filteredBusinesses.length > 0) return;
+    const key = term.toLowerCase();
+    if (lastNoResultsKey.current === key) return;
+    lastNoResultsKey.current = key;
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("search_no_results", { search_term: term })
+    ).catch(() => {});
+  }, [isLoading, filteredBusinesses.length, searchQuery, labelFromUrl]);
+
   // Pré-calcule le nombre de résultats pour chaque palier de distance
   // afin de neutraliser les options vides dans le dropdown.
   const proximityCountsByKm = useMemo(() => {
@@ -510,7 +525,18 @@ export default function ResultsTabContent({
                       index={index}
                       labelLogos={businessLabelLogos[business.id] || []}
                       distanceKm={getDistanceKm(business)}
-                      onClick={() => { setShowFiltersOverlay(false); openCompactPanel({ id: business.id, name: business.name, videoUrl: (business as any).videoUrl } as unknown as AIBusinessData); }}
+                      onClick={() => {
+                        setShowFiltersOverlay(false);
+                        import("@/lib/analytics").then(({ trackEvent }) =>
+                          trackEvent("search_result_click", {
+                            business_id: business.id,
+                            business_name: business.name,
+                            position: index + 1,
+                            search_term: searchQuery || labelFromUrl || "",
+                          })
+                        ).catch(() => {});
+                        openCompactPanel({ id: business.id, name: business.name, videoUrl: (business as any).videoUrl } as unknown as AIBusinessData);
+                      }}
                       onMouseEnter={() => setHoveredResultId(business.id)}
                       onMouseLeave={() => setHoveredResultId(null)}
                     />

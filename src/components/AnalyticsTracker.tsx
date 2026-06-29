@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent, trackPageView, setUserId } from "@/lib/analytics";
+import { startWebVitals } from "@/lib/webVitals";
 
 const SEEN_USERS_KEY = "ga-known-user-ids-v1";
 
@@ -158,6 +159,9 @@ const AnalyticsTracker = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Core Web Vitals (LCP/INP/CLS/FCP/TTFB) — une seule fois
+  useEffect(() => { startWebVitals(); }, []);
 
   return null;
 };
