@@ -77,6 +77,8 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
   const [accountLoading, setAccountLoading] = useState(false);
   const [editingAffiliate, setEditingAffiliate] = useState<Affiliate | null>(null);
   const [editingBusinessesAffiliate, setEditingBusinessesAffiliate] = useState<Affiliate | null>(null);
+  const [analyticsAffiliate, setAnalyticsAffiliate] = useState<Affiliate | null>(null);
+
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
