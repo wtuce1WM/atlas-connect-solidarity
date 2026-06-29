@@ -64,8 +64,9 @@ const Corporate = () => {
     const heroBg = root.querySelector<HTMLImageElement>(".hero .bg-img-desktop");
     const heroBgMobile = root.querySelector<HTMLImageElement>(".hero .bg-img-mobile");
     const heroSection = root.querySelector<HTMLElement>(".hero");
+    let cleanupParallax: (() => void) | undefined;
+
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      // Static fallback: keep the image parallax but skip mouse/content parallax
       const onScroll = () => {
         const y = window.scrollY;
         if (heroBg) heroBg.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
@@ -76,9 +77,12 @@ const Corporate = () => {
       };
       onScroll();
       window.addEventListener("scroll", onScroll, { passive: true });
+      cleanupParallax = () => window.removeEventListener("scroll", onScroll);
     } else {
       let mx = 0, my = 0, tx = 0, ty = 0, sy = 0, ticking = false;
+      let raf = 0;
       const update = () => {
+        raf = 0;
         const y = window.scrollY;
         if (heroBg) heroBg.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
         if (window.innerWidth < 1024) {
@@ -94,12 +98,12 @@ const Corporate = () => {
           heroSection.style.setProperty("--sy", sy.toFixed(3));
         }
         if (Math.abs(mx - tx) > 0.001 || Math.abs(my - ty) > 0.001) {
-          requestAnimationFrame(update);
+          raf = requestAnimationFrame(update);
         } else {
           ticking = false;
         }
       };
-      const kick = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+      const kick = () => { if (!ticking) { ticking = true; raf = requestAnimationFrame(update); } };
       const onMove = (e: MouseEvent) => {
         if (!heroSection) return;
         const r = heroSection.getBoundingClientRect();
@@ -118,13 +122,18 @@ const Corporate = () => {
       heroSection?.addEventListener("mouseleave", onLeave);
       window.addEventListener("scroll", onScroll, { passive: true });
       update();
+      cleanupParallax = () => {
+        heroSection?.removeEventListener("mousemove", onMove);
+        heroSection?.removeEventListener("mouseleave", onLeave);
+        window.removeEventListener("scroll", onScroll);
+        if (raf) cancelAnimationFrame(raf);
+      };
     }
 
     return () => {
       root.removeEventListener("click", onClick);
       io.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
+      cleanupParallax?.();
     };
   }, [navigate]);
 
