@@ -142,6 +142,15 @@ class RootErrorBoundary extends React.Component<React.PropsWithChildren, RootErr
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("[RootErrorBoundary] Fatal render error", error, errorInfo);
+    try {
+      import("@/lib/analytics").then(({ trackEvent }) =>
+        trackEvent("exception", {
+          description: (error?.message || "render_error").slice(0, 200),
+          source: errorInfo?.componentStack?.split("\n")[1]?.trim().slice(0, 120) || "react",
+          fatal: true,
+        })
+      ).catch(() => {});
+    } catch { /* noop */ }
     // Auto-recover from stale chunk after deploy: reload once, flag in session to avoid loop.
     if (isChunkLoadError(error)) {
       try {
