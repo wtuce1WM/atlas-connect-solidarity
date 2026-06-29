@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Crown, Loader2, Eye, EyeOff, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { trackClubSignupStarted, trackClubSignupStep, trackClubSignupCompleted, trackClubSignupAbandoned } from "@/lib/analytics";
 import ClubSocialButtons from "./ClubSocialButtons";
+
 
 interface Props {
   redirectPath?: string;
