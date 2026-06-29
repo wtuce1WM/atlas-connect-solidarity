@@ -279,7 +279,7 @@ const Join = () => {
             ref={heroBgRef}
             src={heroImageDesktop}
             alt="Maroc — riad, piscine et tagine, composition réalisme magique"
-            className="hero-bg absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
+            className="hero-bg absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[100%]"
             loading="eager"
             fetchPriority="high"
           />
