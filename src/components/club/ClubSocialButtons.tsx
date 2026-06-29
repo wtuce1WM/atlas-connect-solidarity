@@ -103,6 +103,9 @@ const ClubSocialButtons = ({ redirectPath = "/club", onSuccess }: Props) => {
   const [verifying, setVerifying] = useState(false);
 
   const handleOAuth = async (provider: "google" | "apple") => {
+    import("@/lib/analytics").then(({ trackEvent }) =>
+      trackEvent("auth_method_chosen", { method: provider, surface: "club" })
+    ).catch(() => {});
     const { error } = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: window.location.origin + redirectPath,
     });
