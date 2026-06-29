@@ -216,7 +216,12 @@ const ClubSocialButtons = ({ redirectPath = "/club", onSuccess }: Props) => {
 
   return (
     <div className="space-y-3">
-      <TileButton icon={<Phone className="h-5 w-5" />} onClick={() => setPhoneMode(true)}>
+      <TileButton icon={<Phone className="h-5 w-5" />} onClick={() => {
+        import("@/lib/analytics").then(({ trackEvent }) =>
+          trackEvent("auth_method_chosen", { method: "phone", surface: "club" })
+        ).catch(() => {});
+        setPhoneMode(true);
+      }}>
         {t.phone}
       </TileButton>
       <TileButton icon={<GoogleIcon />} onClick={() => handleOAuth("google")}>
