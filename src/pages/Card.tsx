@@ -19,7 +19,7 @@ const CSS = `
 
   .card-page .hero{position:relative;padding:72px 0 96px;overflow:hidden;min-height:92vh;display:flex;align-items:center;perspective:1200px}
   .card-page .hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;will-change:transform;transform:scale(1.05)}
-  @media (min-width:1024px){.card-page .hero-bg{height:120%}}
+  @media (min-width:1024px){.card-page .hero-bg{height:100%}}
   .card-page .hero-content{position:relative;z-index:2;width:100%;transform:translate3d(0,calc(var(--sy,0)*-30px),0);transition:transform .5s cubic-bezier(.2,.7,.2,1);will-change:transform}
   @media (prefers-reduced-motion:reduce){.card-page .hero-content{transform:none !important}}
   .card-page .hero-overlay-tablet{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,.3),rgba(0,0,0,.5));z-index:1;display:none}
