@@ -414,6 +414,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
       toast({ title: "Erreur", description: e?.message || "Impossible de joindre l'assistant.", variant: "destructive" });
       messagesRef.current = newMsgs;
       setMessages(newMsgs);
+      import("@/lib/analytics").then(({ trackEvent }) =>
+        trackEvent("ai_response_error", {
+          latency_ms: Math.round(performance.now() - aiStartedAt),
+          message: String(e?.message || "error").slice(0, 160),
+        })
+      ).catch(() => {});
     } finally {
       setSending(false);
       setTimeout(() => inputRef.current?.focus(), 50);
