@@ -68,6 +68,32 @@ const AnalyticsTracker = () => {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Global outbound click tracking (WhatsApp / tel / mailto)
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!anchor) return;
+      const href = anchor.getAttribute("href") || "";
+      const label =
+        anchor.getAttribute("aria-label") ||
+        anchor.dataset.trackLabel ||
+        anchor.textContent?.trim().slice(0, 80) ||
+        "";
+      const location = window.location.pathname + window.location.search;
+
+      if (/^(https?:)?\/\/(wa\.me|api\.whatsapp\.com|web\.whatsapp\.com)/i.test(href) || href.startsWith("whatsapp:")) {
+        trackEvent("whatsapp_click", { link_url: href, link_text: label, page_location: location });
+      } else if (href.startsWith("tel:")) {
+        trackEvent("phone_click", { link_url: href, link_text: label, page_location: location });
+      } else if (href.startsWith("mailto:")) {
+        trackEvent("email_click", { link_url: href, link_text: label, page_location: location });
+      }
+    };
+    document.addEventListener("click", onClick, { capture: true });
+    return () => document.removeEventListener("click", onClick, { capture: true } as never);
+  }, []);
+
   return null;
 };
 
