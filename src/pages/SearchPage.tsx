@@ -2041,6 +2041,11 @@ const SearchPage = () => {
     onEnd: () => {
       if (voiceLoopRef.current) {
         voiceLoopRef.current = false;
+        // Skip auto-reopen on Android: speaker bleed into the mic causes the
+        // AI to hear itself and triggers an endless beep/response loop on
+        // Samsung devices. iOS/desktop have proper echo cancellation.
+        const isAndroidUA = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
+        if (isAndroidUA) return;
         // Small delay so audio output stops before mic starts
         setTimeout(() => toggleRecordingRef.current?.(), 400);
       }
