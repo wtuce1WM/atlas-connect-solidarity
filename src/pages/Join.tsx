@@ -201,6 +201,7 @@ const Join = () => {
   }, []);
 
   const heroSectionRef = useRef<HTMLElement>(null);
+  const heroBgRef = useRef<HTMLImageElement>(null);
   useEffect(() => {
     const hero = heroSectionRef.current;
     if (!hero) return;
@@ -236,6 +237,27 @@ const Join = () => {
       hero.removeEventListener('mousemove', onMove);
       hero.removeEventListener('mouseleave', onLeave);
       window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+  // Scroll-driven parallax on bg image (mirrors homepage: translateY = scrollY * 0.3)
+  useEffect(() => {
+    const el = heroBgRef.current;
+    if (!el) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        el.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
+        raf = 0;
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
