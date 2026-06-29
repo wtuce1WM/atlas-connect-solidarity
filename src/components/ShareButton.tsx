@@ -178,13 +178,19 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
     <>
       <div className={`relative inline-flex ${className}`}>
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            setIsOpen(true);
+            import("@/lib/analytics").then(({ trackEvent }) =>
+              trackEvent("share_open", { title, url: shareUrl })
+            ).catch(() => {});
+          }}
           className={`h-9 w-9 flex items-center justify-center rounded-full bg-muted transition-colors ${buttonColor} ${buttonClassName}`}
           aria-label="Partager"
           title="Partager"
         >
           <Share2 className="h-4 w-4" />
         </button>
+
       </div>
 
       {isOpen && (
