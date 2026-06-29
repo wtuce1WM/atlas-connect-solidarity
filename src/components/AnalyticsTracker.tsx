@@ -292,6 +292,103 @@ const AnalyticsTracker = () => {
     };
   }, []);
 
+  // Rage clicks (3+ clics rapprochés <800ms même zone) + dead clicks (clic sans effet)
+  useEffect(() => {
+    let cluster: { x: number; y: number; t: number; count: number; sel: string } | null = null;
+    const RAGE_MS = 800;
+    const RAGE_DIST = 40;
+    const DEAD_MS = 600;
+
+    const describe = (el: Element | null): string => {
+      if (!el || !(el instanceof HTMLElement)) return "";
+      const id = el.id ? `#${el.id}` : "";
+      const cls = (el.className && typeof el.className === "string")
+        ? "." + el.className.trim().split(/\s+/).slice(0, 2).join(".")
+        : "";
+      return `${el.tagName.toLowerCase()}${id}${cls}`.slice(0, 80);
+    };
+
+    const onClick = (e: MouseEvent) => {
+      const t = Date.now();
+      const target = e.target as HTMLElement | null;
+      const sel = describe(target);
+
+      // Rage detection
+      if (cluster && t - cluster.t < RAGE_MS && Math.hypot(e.clientX - cluster.x, e.clientY - cluster.y) < RAGE_DIST) {
+        cluster.count += 1;
+        cluster.t = t;
+        if (cluster.count === 3) {
+          trackEvent("rage_click", {
+            selector: cluster.sel,
+            page_location: window.location.pathname + window.location.search,
+          });
+        }
+      } else {
+        cluster = { x: e.clientX, y: e.clientY, t, count: 1, sel };
+      }
+
+      // Dead click: l'élément n'est pas interactif et aucune mutation/navigation n'arrive
+      const interactive = target?.closest?.(
+        "a,button,input,select,textarea,label,[role=button],[role=link],[role=tab],[role=menuitem],[role=checkbox],[role=switch],[onclick],[data-track-event]"
+      );
+      if (interactive) return;
+      const startUrl = window.location.href;
+      let mutated = false;
+      const mo = new MutationObserver(() => { mutated = true; });
+      mo.observe(document.body, { childList: true, subtree: true, attributes: true });
+      window.setTimeout(() => {
+        mo.disconnect();
+        if (!mutated && window.location.href === startUrl) {
+          trackEvent("dead_click", {
+            selector: sel,
+            page_location: window.location.pathname + window.location.search,
+          });
+        }
+      }, DEAD_MS);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
+
+  // Erreurs métier silencieuses : fetch HTTP >= 500 ou erreurs réseau
+  useEffect(() => {
+    const origFetch = window.fetch;
+    if (!origFetch) return;
+    window.fetch = async (...args: Parameters<typeof fetch>) => {
+      const started = Date.now();
+      const url = typeof args[0] === "string" ? args[0] : args[0] instanceof URL ? args[0].href : (args[0] as Request).url;
+      try {
+        const res = await origFetch(...args);
+        if (res.status >= 500) {
+          try {
+            const u = new URL(url, window.location.href);
+            trackEvent("api_error", {
+              status: res.status,
+              endpoint: u.pathname.slice(0, 120),
+              host: u.host,
+              duration_ms: Date.now() - started,
+            });
+          } catch { /* noop */ }
+        }
+        return res;
+      } catch (err) {
+        try {
+          const u = new URL(url, window.location.href);
+          trackEvent("api_network_error", {
+            endpoint: u.pathname.slice(0, 120),
+            host: u.host,
+            description: (err instanceof Error ? err.message : "fetch_failed").slice(0, 200),
+            duration_ms: Date.now() - started,
+          });
+        } catch { /* noop */ }
+        throw err;
+      }
+    };
+    return () => { window.fetch = origFetch; };
+  }, []);
+
+
+
   return null;
 };
 
