@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
@@ -17,8 +17,11 @@ const CSS = `
 
 
 
-  .card-page .hero{position:relative;padding:72px 0 96px;overflow:hidden}
-  .card-page .hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .card-page .hero{position:relative;padding:72px 0 96px;overflow:hidden;min-height:92vh;display:flex;align-items:center;perspective:1200px}
+  .card-page .hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;will-change:transform;transform:scale(1.05)}
+  @media (min-width:1024px){.card-page .hero-bg{height:120%}}
+  .card-page .hero-content{position:relative;z-index:2;width:100%;transform:translate3d(0,calc(var(--sy,0)*-30px),0);transition:transform .5s cubic-bezier(.2,.7,.2,1);will-change:transform}
+  @media (prefers-reduced-motion:reduce){.card-page .hero-content{transform:none !important}}
   .card-page .hero-overlay-tablet{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,.3),rgba(0,0,0,.5));z-index:1;display:none}
   .card-page .hero-overlay-mobile{position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(to bottom,rgba(0,0,0,.85),rgba(0,0,0,.45),transparent);z-index:1;display:none}
   @media (min-width:768px) and (max-width:1023px){.card-page .hero-overlay-tablet{display:block}}
@@ -137,6 +140,68 @@ const Card = () => {
     }
   }, []);
 
+  const heroSectionRef = useRef<HTMLElement>(null);
+  const heroBgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const hero = heroSectionRef.current;
+    if (!hero) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let mx = 0, my = 0, tx = 0, ty = 0, sy = 0, ticking = false;
+    const update = () => {
+      tx += (mx - tx) * 0.08;
+      ty += (my - ty) * 0.08;
+      hero.style.setProperty('--mx', tx.toFixed(3));
+      hero.style.setProperty('--my', ty.toFixed(3));
+      hero.style.setProperty('--sy', sy.toFixed(3));
+      if (Math.abs(mx - tx) > 0.001 || Math.abs(my - ty) > 0.001) {
+        requestAnimationFrame(update);
+      } else ticking = false;
+    };
+    const kick = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    const onMove = (e: MouseEvent) => {
+      const r = hero.getBoundingClientRect();
+      mx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      my = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      kick();
+    };
+    const onLeave = () => { mx = 0; my = 0; kick(); };
+    const onScroll = () => {
+      const r = hero.getBoundingClientRect();
+      sy = Math.max(-1, Math.min(1, -r.top / r.height));
+      kick();
+    };
+    hero.addEventListener('mousemove', onMove);
+    hero.addEventListener('mouseleave', onLeave);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      hero.removeEventListener('mousemove', onMove);
+      hero.removeEventListener('mouseleave', onLeave);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+  // Scroll-driven parallax on bg image (mirrors homepage: translateY = scrollY * 0.3)
+  useEffect(() => {
+    const el = heroBgRef.current;
+    if (!el) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        el.style.transform = `translate3d(0, ${y * 0.3}px, 0) scale(1.05)`;
+        raf = 0;
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <>
       <HomeMindtripHeader />
@@ -145,14 +210,15 @@ const Card = () => {
 
 
       {/* HERO */}
-      <section className="hero">
+      <section className="hero" ref={heroSectionRef}>
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
           <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
-          <img src={heroImageDesktop} alt="" className="hero-bg" loading="eager" fetchPriority="high" />
+          <img ref={heroBgRef} src={heroImageDesktop} alt="" className="hero-bg" loading="eager" fetchPriority="high" />
         </picture>
         <div className="hero-overlay-tablet" aria-hidden />
         <div className="hero-overlay-mobile" aria-hidden />
+        <div className="hero-content">
         <div className="wrap hero-grid">
           <div>
             <h1 className="hero-rise" style={{ animationDelay: '.45s', animationFillMode: 'forwards' }}>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></h1>
@@ -210,6 +276,7 @@ const Card = () => {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </section>
 

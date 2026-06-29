@@ -201,6 +201,7 @@ const Join = () => {
   }, []);
 
   const heroSectionRef = useRef<HTMLElement>(null);
+  const heroBgRef = useRef<HTMLImageElement>(null);
   useEffect(() => {
     const hero = heroSectionRef.current;
     if (!hero) return;
@@ -239,6 +240,27 @@ const Join = () => {
     };
   }, []);
 
+  // Scroll-driven parallax on bg image (mirrors homepage: translateY = scrollY * 0.3)
+  useEffect(() => {
+    const el = heroBgRef.current;
+    if (!el) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        el.style.transform = `translate3d(0, ${y * 0.3}px, 0)`;
+        raf = 0;
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
 
 
 
@@ -254,10 +276,10 @@ const Join = () => {
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
           <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
           <img
+            ref={heroBgRef}
             src={heroImageDesktop}
             alt="Maroc — riad, piscine et tagine, composition réalisme magique"
             className="hero-bg absolute inset-0 h-full w-full object-cover will-change-transform lg:h-[120%]"
-            style={{ transform: `translate(calc(var(--mx, 0) * 12px), calc(var(--sy, 0) * 24px)) scale(1.05)` }}
             loading="eager"
             fetchPriority="high"
           />
