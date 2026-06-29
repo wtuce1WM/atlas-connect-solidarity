@@ -157,12 +157,12 @@ const Install = () => {
     guideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const tabs: { id: Platform; label: string; icon: JSX.Element }[] = useMemo(
+  const tabs: { id: Platform; label: string; Icon: React.ComponentType<{ className?: string }> }[] = useMemo(
     () => [
-      { id: "ios", label: "iPhone / iPad", icon: <Apple className="h-4 w-4 text-[#C04F17]" /> },
-      { id: "android", label: "Android", icon: <Smartphone className="h-4 w-4 text-[#C04F17]" /> },
-      { id: "mac", label: "Mac", icon: <Apple className="h-4 w-4 text-[#C04F17]" /> },
-      { id: "windows", label: "Windows", icon: <Monitor className="h-4 w-4 text-[#C04F17]" /> },
+      { id: "ios", label: "iPhone / iPad", Icon: Apple },
+      { id: "android", label: "Android", Icon: Smartphone },
+      { id: "mac", label: "Mac", Icon: Apple },
+      { id: "windows", label: "Windows", Icon: Monitor },
     ],
     []
   );
@@ -336,20 +336,23 @@ const Install = () => {
 
         {/* Platform tabs */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setPlatform(tab.id)}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-roboto transition-all ${
-                platform === tab.id
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : "bg-muted text-muted-foreground hover:bg-muted/70"
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const isActive = platform === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setPlatform(tab.id)}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-roboto transition-all ${
+                  isActive
+                    ? "bg-[#C04F17] text-white shadow-md"
+                    : "bg-muted text-muted-foreground hover:bg-muted/70"
+                }`}
+              >
+                <tab.Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-[#C04F17]"}`} />
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Guide card */}
