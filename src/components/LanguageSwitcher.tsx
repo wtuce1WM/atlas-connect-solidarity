@@ -29,7 +29,15 @@ const LanguageSwitcher = () => {
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => setLanguage(lang.code)}
+            onClick={() => {
+              const from = language;
+              setLanguage(lang.code);
+              if (from !== lang.code) {
+                import("@/lib/analytics").then(({ trackEvent }) =>
+                  trackEvent("language_switch", { from, to: lang.code })
+                ).catch(() => {});
+              }
+            }}
             className={`flex cursor-pointer items-center gap-3 ${
               language === lang.code ? "bg-accent" : ""
             }`}
