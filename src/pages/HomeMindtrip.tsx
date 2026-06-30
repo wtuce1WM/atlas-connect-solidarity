@@ -250,6 +250,7 @@ const HOME_LABELS = {
     discover: "Découvrir",
     howItWorks: "Comment fonctionne l'App ?",
     inspireYourself: "Inspirez-vous",
+    inspireSubtitle: "Nos derniers guides pour explorer le Maroc autrement.",
     hotelDestination: "Destination",
     hotelArrival: "Arrivée",
     hotelDeparture: "Départ",
@@ -269,6 +270,7 @@ const HOME_LABELS = {
     discover: "Discover",
     howItWorks: "How does the App work?",
     inspireYourself: "Get inspired",
+    inspireSubtitle: "Our latest guides to explore Morocco differently.",
     hotelDestination: "Destination",
     hotelArrival: "Check-in",
     hotelDeparture: "Check-out",
@@ -288,6 +290,7 @@ const HOME_LABELS = {
     discover: "اكتشف",
     howItWorks: "كيف يعمل التطبيق؟",
     inspireYourself: "استلهم",
+    inspireSubtitle: "آخر أدلتنا لاستكشاف المغرب بطريقة مختلفة.",
     hotelDestination: "الوجهة",
     hotelArrival: "الوصول",
     hotelDeparture: "المغادرة",
@@ -1225,7 +1228,7 @@ const HomeMindtrip = () => {
               {L.inspireYourself}
             </h2>
             <p className="mt-3 max-w-xl font-roboto text-foreground/70">
-              Nos derniers guides pour explorer le Maroc autrement.
+              {L.inspireSubtitle}
             </p>
           </div>
           <div className="flex-1 min-h-0 flex items-center overflow-hidden">
