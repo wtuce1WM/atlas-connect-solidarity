@@ -290,6 +290,7 @@ const HOME_LABELS = {
     discover: "اكتشف",
     howItWorks: "كيف يعمل التطبيق؟",
     inspireYourself: "استلهم",
+    inspireSubtitle: "آخر أدلتنا لاستكشاف المغرب بطريقة مختلفة.",
     hotelDestination: "الوجهة",
     hotelArrival: "الوصول",
     hotelDeparture: "المغادرة",
