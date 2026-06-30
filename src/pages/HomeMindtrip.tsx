@@ -1235,7 +1235,7 @@ const HomeMindtrip = () => {
         <div className="sticky top-0 flex h-svh md:h-screen flex-col overflow-hidden">
           <div className="mx-auto w-full max-w-7xl px-6 md:px-12 pt-16 md:pt-20 shrink-0">
             <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
-              Inspirez-vous
+              {L.inspireYourself}
             </h2>
             <p className="mt-3 max-w-xl font-roboto text-foreground/70">
               Nos derniers guides pour explorer le Maroc autrement.
