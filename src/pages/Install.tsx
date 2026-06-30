@@ -332,6 +332,8 @@ const Install = () => {
     };
   }, []);
 
+  useEffect(() => { document.title = t.docTitle; }, [t.docTitle]);
+
   const handleIconClick = async () => {
     if (installEvent) {
       await installEvent.prompt();
