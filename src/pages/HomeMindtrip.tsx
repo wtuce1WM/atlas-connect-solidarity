@@ -280,6 +280,7 @@ const HomeMindtrip = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const L = HOME_LABELS[language] ?? HOME_LABELS.fr;
+  const STEPS = getSteps((["fr", "en", "ar"].includes(language) ? language : "fr") as StepLang);
 
 
 
