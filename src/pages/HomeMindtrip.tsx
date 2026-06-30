@@ -30,6 +30,7 @@ const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = koutoubiaVerticalBgAsset.url;
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import { useLanguage } from "@/contexts/LanguageContext";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
@@ -238,9 +239,47 @@ const renderDescWithCheckmarks = (text: string, isDarkBg = false) => {
   );
 };
 
+const HOME_LABELS = {
+  fr: {
+    heroTitle: "La Première Plateforme Solidaire du Maroc",
+    heroLine1: "Faites de chaque achat",
+    heroLine2: "un acte de générosité.",
+    heroLearnMore: "En savoir plus.",
+    searchPlaceholder: "Rechercher un hôtel, un restaurant, une expérience…",
+    watchVideo: "Voir la vidéo",
+    discover: "Découvrir",
+    howItWorks: "Comment fonctionne l'App ?",
+    inspireYourself: "Inspirez-vous",
+  },
+  en: {
+    heroTitle: "Morocco's First Solidarity Platform",
+    heroLine1: "Make every purchase",
+    heroLine2: "an act of generosity.",
+    heroLearnMore: "Learn more.",
+    searchPlaceholder: "Search a hotel, a restaurant, an experience…",
+    watchVideo: "Watch the video",
+    discover: "Discover",
+    howItWorks: "How does the App work?",
+    inspireYourself: "Get inspired",
+  },
+  ar: {
+    heroTitle: "أول منصة تضامنية في المغرب",
+    heroLine1: "اجعل من كل عملية شراء",
+    heroLine2: "عملاً من أعمال السخاء.",
+    heroLearnMore: "اعرف المزيد.",
+    searchPlaceholder: "ابحث عن فندق، مطعم، تجربة…",
+    watchVideo: "شاهد الفيديو",
+    discover: "اكتشف",
+    howItWorks: "كيف يعمل التطبيق؟",
+    inspireYourself: "استلهم",
+  },
+} as const;
+
 const HomeMindtrip = () => {
-  
+
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const L = HOME_LABELS[language] ?? HOME_LABELS.fr;
 
 
 
