@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useEnglishFlag } from "@/hooks/useEnglishFlag";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type CustomLink = { label: string; to?: string; onClick?: () => void; danger?: boolean };
 
@@ -12,8 +13,17 @@ interface Props {
   customMobileLinks?: CustomLink[];
 }
 
+// Header navigation labels — keep keys stable, French is authoritative.
+const NAV_LABELS = {
+  fr: { concept: "Le concept", join: "Rejoindre", card: "Votre carte de visite numérique", affiliate: "Devenir affilié", club: "Le club OWM", app: "Application", home: "Page d'accueil" },
+  en: { concept: "The concept", join: "Join", card: "Your digital business card", affiliate: "Become an affiliate", club: "The OWM club", app: "App", home: "Home" },
+  ar: { concept: "المفهوم", join: "انضم إلينا", card: "بطاقة عملك الرقمية", affiliate: "كن شريكًا", club: "نادي OWM", app: "التطبيق", home: "الصفحة الرئيسية" },
+} as const;
+
 const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, customMobileLinks }: Props) => {
   const location = useLocation();
+  const { language } = useLanguage();
+  const L = NAV_LABELS[language] ?? NAV_LABELS.fr;
   const isWhiteHeaderPage = location.pathname === "/" || location.pathname === "/corporate" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/club";
   const blackHamburger = (location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/devenir-affilie") && !isWhiteHeaderPage;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -36,93 +46,93 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
   const getNavLinks = () => {
     if (location.pathname === "/corporate") {
       return [
-        { to: "/join", label: "Rejoindre" },
-        { to: "/card", label: "Votre carte de visite numérique" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/join", label: L.join },
+        { to: "/card", label: L.card },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/join") {
       return [
-        { to: "/corporate", label: "Le concept" },
-        { to: "/card", label: "Votre carte de visite numérique" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/corporate", label: L.concept },
+        { to: "/card", label: L.card },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/card") {
       return [
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/devenir-affilie") {
       return [
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/card", label: "Votre carte de visite numérique" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/card", label: L.card },
       ];
     } else if (location.pathname === "/club") {
       return [
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/install", label: "Application" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/install", label: L.app },
       ];
     } else {
-      const baseLinks = [
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/club", label: "Le club OWM" },
+      const baseLinks: { to: string; label: string }[] = [
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/club", label: L.club },
       ];
       if (location.pathname !== "/install") {
-        baseLinks.push({ to: "/install", label: "Application" });
+        baseLinks.push({ to: "/install", label: L.app });
       }
       return baseLinks;
     }
   };
 
   const getMobileLinks = () => {
-    const base = [{ to: "/", label: "Page d'accueil" }];
+    const base = [{ to: "/", label: L.home }];
     if (location.pathname === "/corporate") {
       return [
         ...base,
-        { to: "/join", label: "Rejoindre" },
-        { to: "/card", label: "Votre carte de visite numérique" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/join", label: L.join },
+        { to: "/card", label: L.card },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/join") {
       return [
         ...base,
-        { to: "/corporate", label: "Le concept" },
-        { to: "/card", label: "Votre carte de visite numérique" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/corporate", label: L.concept },
+        { to: "/card", label: L.card },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/card") {
       return [
         ...base,
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/devenir-affilie") {
       return [
         ...base,
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/card", label: "Votre carte de visite numérique" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/card", label: L.card },
       ];
     } else if (location.pathname === "/club") {
       return [
         ...base,
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/install", label: "Application" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/install", label: L.app },
       ];
     } else {
-      const baseLinks = [
+      const baseLinks: { to: string; label: string }[] = [
         ...base,
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/club", label: "Le club OWM" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/club", label: L.club },
       ];
       if (location.pathname !== "/install") {
-        baseLinks.push({ to: "/install", label: "Application" });
+        baseLinks.push({ to: "/install", label: L.app });
       }
       return baseLinks;
     }
@@ -229,6 +239,11 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
                     {item.label}
                   </Link>
                 ))
+            )}
+            {englishEnabled && (
+              <div className="mt-1 flex justify-center pt-2 border-t border-white/10">
+                <LanguageSwitcher />
+              </div>
             )}
           </div>
         </div>
