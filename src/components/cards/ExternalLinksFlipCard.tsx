@@ -1,5 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ExternalLinkItem {
   id: string;
@@ -20,6 +21,33 @@ interface ExternalLinksFlipCardProps {
   variant?: "carousel" | "overlay";
 }
 
+const LABELS = {
+  fr: {
+    partenaires: "Ils nous font confiance",
+    recompenses: "Nous sommes reconnus par :",
+    certifications: "Nous sommes certifiés par :",
+    en_savoir_plus: "En savoir plus",
+    presse: "Ils parlent de nous",
+    plus_infos: "+ d'infos",
+  },
+  en: {
+    partenaires: "They trust us",
+    recompenses: "We are recognised by:",
+    certifications: "We are certified by:",
+    en_savoir_plus: "Learn more",
+    presse: "They talk about us",
+    plus_infos: "More info",
+  },
+  ar: {
+    partenaires: "يثقون بنا",
+    recompenses: "معترف بنا من قِبَل:",
+    certifications: "نحن معتمدون من قِبَل:",
+    en_savoir_plus: "اعرف أكثر",
+    presse: "يتحدثون عنّا",
+    plus_infos: "معلومات أكثر",
+  },
+};
+
 const ExternalLinksFlipCard = ({
   links,
   animationDelay = "0ms",
@@ -28,15 +56,17 @@ const ExternalLinksFlipCard = ({
   onClick,
   variant = "carousel",
 }: ExternalLinksFlipCardProps) => {
+  const { language } = useLanguage();
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
 
   const deriveTitle = () => {
     const desc = links[0]?.description?.toLowerCase() || "";
-    if (desc === "partenaires") return "Ils nous font confiance";
-    if (desc === "recompenses") return "Nous sommes reconnus par :";
-    if (desc === "certifications") return "Nous sommes certifiés par :";
-    if (desc === "en_savoir_plus") return "En savoir plus";
-    if (desc === "presse" || desc === "media") return "Ils parlent de nous";
-    return "+ d'infos";
+    if (desc === "partenaires") return L.partenaires;
+    if (desc === "recompenses") return L.recompenses;
+    if (desc === "certifications") return L.certifications;
+    if (desc === "en_savoir_plus") return L.en_savoir_plus;
+    if (desc === "presse" || desc === "media") return L.presse;
+    return L.plus_infos;
   };
   const cardTitle = deriveTitle();
 

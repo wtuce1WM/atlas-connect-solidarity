@@ -6,6 +6,7 @@ import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SearchPagination from "@/components/SearchPagination";
 import { isAgendaLabel, formatEventDateRange, formatDaysOfWeek, formatTimeRange } from "@/lib/homeHelpers";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ITEMS_PER_PAGE = 24;
 
@@ -50,6 +51,22 @@ interface Props {
 const ytThumb = (videoId: string) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
 export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountChange, onOpenBusiness }: Props) {
+  const { language } = useLanguage();
+  const LABELS = {
+    fr: {
+      videosFound: (n: number) => `${n} ${n > 1 ? "vidéos trouvées" : "vidéo trouvée"}`,
+      noVideos: (label: string) => `Aucune vidéo trouvée pour ${label}.`,
+    },
+    en: {
+      videosFound: (n: number) => `${n} video${n > 1 ? "s" : ""} found`,
+      noVideos: (label: string) => `No videos found for ${label}.`,
+    },
+    ar: {
+      videosFound: (n: number) => `${n > 1 ? "مقاطع فيديو" : "مقطع فيديو"} (${n}) موجود`,
+      noVideos: (label: string) => `لم يتم العثور على مقاطع فيديو لـ ${label}.`,
+    },
+  };
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<VideoItem[]>([]);
   const [activeItem, setActiveItem] = useState<VideoItem | null>(null);
@@ -396,7 +413,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
   return (
     <div className="w-full px-4 py-6">
       <h2 className="text-lg font-semibold mb-4">
-        {badgeLabel} <span className="text-muted-foreground text-sm font-normal">— {items.length} {items.length > 1 ? "vidéos trouvées" : "vidéo trouvée"}</span>
+        {badgeLabel} <span className="text-muted-foreground text-sm font-normal">— {L.videosFound(items.length)}</span>
       </h2>
       {loading ? (
         <div data-results-grid="true" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
@@ -405,7 +422,7 @@ export default function HashtagTabContent({ badgeId, badgeLabel, city, onCountCh
           ))}
         </div>
       ) : items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Aucune vidéo trouvée pour {badgeLabel}.</p>
+        <p className="text-sm text-muted-foreground">{L.noVideos(badgeLabel)}</p>
       ) : (
         <>
         <div data-results-grid="true" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">

@@ -146,6 +146,14 @@ const translations = {
     "blog.notFound": "Article not found.",
     "blog.backToList": "Back to blog",
     "blog.viewOnMap": "View on the map",
+    "blog.seo.title": "Blog – Articles & Travel Guides",
+    "blog.seo.description": "Articles, guides and insights about Morocco by ONE WORLD MOROCCO.",
+    "blog.dynamic": "dynamic",
+    "blog.readMore": "Read the article",
+    "blog.minRead": "min read",
+    "blog.share": "Share",
+    "blog.similarArticles": "Similar articles",
+    "blog.ourAddresses": "Our addresses to discover",
   },
   fr: {
     // Header
@@ -283,6 +291,14 @@ const translations = {
     "blog.notFound": "Article introuvable.",
     "blog.backToList": "Retour au blog",
     "blog.viewOnMap": "Voir sur la carte",
+    "blog.seo.title": "Blog – Actualités et guides",
+    "blog.seo.description": "Articles, guides et actualités sur le Maroc par ONE WORLD MOROCCO.",
+    "blog.dynamic": "dynamique",
+    "blog.readMore": "Lire l'article",
+    "blog.minRead": "min de lecture",
+    "blog.share": "Partager",
+    "blog.similarArticles": "Articles similaires",
+    "blog.ourAddresses": "Nos adresses à découvrir",
   },
    ar: {
      // Header
@@ -419,6 +435,14 @@ const translations = {
      "blog.notFound": "المقال غير موجود.",
      "blog.backToList": "العودة إلى المدونة",
      "blog.viewOnMap": "عرض على الخريطة",
+     "blog.seo.title": "المدونة – مقالات وأدلة سياحية",
+     "blog.seo.description": "مقالات وأدلة واكتشافات عن المغرب بقلم ONE WORLD MOROCCO.",
+     "blog.dynamic": "ديناميكي",
+     "blog.readMore": "اقرأ المقال",
+     "blog.minRead": "دقيقة قراءة",
+     "blog.share": "مشاركة",
+     "blog.similarArticles": "مقالات مشابهة",
+     "blog.ourAddresses": "عناويننا للاكتشاف",
    },
 };
 

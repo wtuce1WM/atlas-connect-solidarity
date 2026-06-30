@@ -1,4 +1,5 @@
 import { useRef, useState, useLayoutEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DescriptionExpanderProps {
   html: string;
@@ -7,12 +8,21 @@ interface DescriptionExpanderProps {
   anchorId?: string; // scroll to this element when collapsing
 }
 
+const LABELS = {
+  fr: { expand: "Lire la suite ▼", collapse: "Réduire ▲" },
+  en: { expand: "Read more ▼", collapse: "Show less ▲" },
+  ar: { expand: "اقرأ المزيد ▼", collapse: "طيّ ▲" },
+};
+
 export function DescriptionExpander({
   html,
   isVerified = false,
   collapsedHeight = 300,
   anchorId,
 }: DescriptionExpanderProps) {
+  const { language } = useLanguage();
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
+
   const contentRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [fullHeight, setFullHeight] = useState<number>(collapsedHeight);
@@ -63,7 +73,7 @@ export function DescriptionExpander({
           onClick={handleToggle}
           className={`mt-2 text-sm font-semibold underline-offset-2 hover:underline transition-colors ${isVerified ? 'text-gold' : 'text-primary'}`}
         >
-          {expanded ? "Réduire ▲" : "Lire la suite ▼"}
+          {expanded ? L.collapse : L.expand}
         </button>
       )}
     </div>

@@ -292,7 +292,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   if (loading) {
     return (
       <div className="px-4 py-8 text-center text-sm text-muted-foreground" style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif" }}>
-        {language === "en" ? "Loading channels…" : "Chargement des chaînes…"}
+        {language === "en" ? "Loading channels…" : language === "ar" ? "جارٍ تحميل القنوات…" : "Chargement des chaînes…"}
       </div>
     );
   }
@@ -300,7 +300,7 @@ const YouTubeChannelsTabContent = ({ city }: Props) => {
   if (groups.length === 0) {
     return (
       <div className="px-4 py-8 text-center text-sm text-muted-foreground" style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif" }}>
-        {language === "en" ? "No YouTube channels found." : "Aucune chaîne YouTube trouvée."}
+        {language === "en" ? "No YouTube channels found." : language === "ar" ? "لم يتم العثور على قنوات YouTube." : "Aucune chaîne YouTube trouvée."}
       </div>
     );
   }
