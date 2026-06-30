@@ -169,12 +169,27 @@ export default function StaffTranslations() {
             <input type="checkbox" checked={dryRun} onChange={(e) => setDryRun(e.target.checked)} />
             Dry run (ne pas écrire en base)
           </label>
-          <Button onClick={run} disabled={running} className="ml-auto">
-            {running ? <><Loader2 className="animate-spin h-4 w-4 mr-2" />Traduction en cours…</> : "Lancer la traduction"}
+          <Button onClick={run} disabled={running || autoRun} className="ml-auto" variant="outline">
+            {running ? <><Loader2 className="animate-spin h-4 w-4 mr-2" />Traduction en cours…</> : "Lancer ce batch"}
           </Button>
+          {!autoRun ? (
+            <Button onClick={runAll} disabled={running}>
+              <Play className="h-4 w-4 mr-2" />Tout traduire (EN + AR)
+            </Button>
+          ) : (
+            <Button onClick={() => setStopRequested(true)} variant="destructive">
+              <StopCircle className="h-4 w-4 mr-2" />Arrêter
+            </Button>
+          )}
         </div>
+        {autoRun && (
+          <div className="flex items-center gap-2 text-sm text-primary bg-primary/10 rounded-md px-3 py-2">
+            <Loader2 className="animate-spin h-4 w-4" />
+            <span>En cours : {autoProgress}</span>
+          </div>
+        )}
         <p className="text-xs text-muted-foreground">
-          Le job traduit uniquement les lignes dont le champ cible est vide. Relance plusieurs fois pour avancer par batchs.
+          "Tout traduire" enchaîne les 10 contenus × EN + AR par batchs de 25 lignes jusqu'à épuisement. Peut prendre plusieurs minutes — garde l'onglet ouvert.
         </p>
       </Card>
 
