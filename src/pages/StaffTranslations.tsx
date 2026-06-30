@@ -34,6 +34,7 @@ const CONFIGS: { key: string; label: string }[] = [
   { key: "destinations", label: "Destinations (nom + description)" },
   { key: "points_of_interest", label: "Points d'intérêt (nom + description)" },
   { key: "businesses_hook", label: "Établissements — accroche (hook)" },
+  { key: "businesses_full", label: "Fiches établissements (hook + description + highlights)" },
 ];
 
 export default function StaffTranslations() {
