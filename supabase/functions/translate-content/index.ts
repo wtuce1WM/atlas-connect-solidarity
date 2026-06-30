@@ -190,7 +190,7 @@ async function translateJsonEntriesChunk(
   if (!Array.isArray(source)) return translateJsonValue(source, targetLang);
 
   let existing = Array.isArray(target) ? [...target] : [];
-  const chunkSize = 6;
+  const chunkSize = 20;
 
   while (existing.length < source.length) {
     if (Date.now() > deadlineMs) break; // time budget exhausted: persist what we have
