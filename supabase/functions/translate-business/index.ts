@@ -283,24 +283,38 @@ Deno.serve(async (req) => {
       });
     }
 
-    // 3) Translate one chunk (adaptive)
+    // 3) Translate one chunk (adaptive, with per-item isolation)
     const chunkSize = target === "ar" ? 6 : 10;
     const chunk = pending.slice(0, chunkSize);
 
-    const translatedById = await translateHighlightsAdaptive(chunk, target);
+    let translatedById: Record<string, Record<string, string>> = {};
+    try {
+      translatedById = await translateHighlightsAdaptive(chunk, target);
+    } catch (_) {
+      // Fallback: try each item in isolation so one bad row doesn't kill the chunk
+      for (const item of chunk) {
+        try {
+          const one = await translateHighlightsAdaptive([item], target);
+          Object.assign(translatedById, one);
+        } catch (err) {
+          console.warn(`[translate-business] skip highlight ${item.id}:`, err instanceof Error ? err.message : String(err));
+        }
+      }
+    }
 
     // 4) Persist
     let saved = 0;
+    let skipped = 0;
     for (const item of chunk) {
       const t = translatedById[item.id];
-      if (!t) continue;
+      if (!t) { skipped++; continue; }
       const upd: Record<string, unknown> = {};
       for (const f of HIGHLIGHT_FIELDS) {
         if (f in item.missing && isFilled(t[f])) {
           upd[`${f}_${target}`] = t[f];
         }
       }
-      if (Object.keys(upd).length === 0) continue;
+      if (Object.keys(upd).length === 0) { skipped++; continue; }
       const { error: uErr } = await admin.from("front_highlights").update(upd).eq("id", item.id);
       if (!uErr) saved++;
     }
