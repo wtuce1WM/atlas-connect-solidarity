@@ -270,6 +270,7 @@ export default function StaffTranslations() {
 
             const pending = (bizList ?? []).filter((b: any) => needsBizMeta(b) || bizIdsWithMissingHl.has(b.id));
 
+
             let idx = 0;
             for (const biz of pending as any[]) {
               if (checkStop()) throw new Error("Arrêt demandé");
