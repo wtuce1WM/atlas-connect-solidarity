@@ -118,7 +118,11 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
              </span>
             </div>
             <p className={`mb-6 text-sm leading-relaxed ${textSecondary}`}>
-              Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité. Vous consommez, nous agissons ensemble.
+              {language === "en"
+                ? "Make every purchase a generous act. We are the only platform where commitment is written into our DNA: 20% of every advertiser membership fee goes directly to humanitarian and solidarity actions. You spend, we act — together."
+                : language === "ar"
+                ? "اجعل من كل عملية شراء عملاً من أعمال السخاء. نحن المنصة الوحيدة التي يكون فيها الالتزام جزءًا من حمضنا النووي: 20٪ من كل اشتراك للمعلنين تذهب مباشرة إلى الأعمال الإنسانية والتضامنية. أنتم تستهلكون، ونحن نتحرك معًا."
+                : "Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité. Vous consommez, nous agissons ensemble."}
             </p>
             <div className="flex flex-wrap gap-4 items-center justify-center md:justify-start">
               {SOCIAL_ORDER.map((key) => {
@@ -144,15 +148,15 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
 
           {/* Company */}
           <div>
-            <h4 className="mb-4 font-semibold" style={{ color: "#3B3B3B" }}>Liens</h4>
+            <h4 className="mb-4 font-semibold" style={{ color: "#3B3B3B" }}>{language === "en" ? "Links" : language === "ar" ? "روابط" : "Liens"}</h4>
             <ul className={`space-y-2 ${textSecondary}`}>
-              <li><Link to="/conditions-generales" className="transition-colors hover:text-gold">Conditions Générales de Fonctionnement</Link></li>
+              <li><Link to="/conditions-generales" className="transition-colors hover:text-gold">{language === "en" ? "General Terms of Operation" : language === "ar" ? "الشروط العامة للتشغيل" : "Conditions Générales de Fonctionnement"}</Link></li>
               <li><Link to="/mission" className="transition-colors hover:text-gold">{t("footer.ourMission")}</Link></li>
               <li><a href="/affiliates" className="transition-colors hover:text-gold">{t("footer.affiliates")}</a></li>
-              
+
               <li><a href="/staff/login" className="transition-colors hover:text-gold">{t("footer.staff")}</a></li>
               <li><Link to="/blog" className="transition-colors hover:text-gold">{t("footer.blog")}</Link></li>
-              <li><Link to="/install" className="transition-colors hover:text-gold">Application</Link></li>
+              <li><Link to="/install" className="transition-colors hover:text-gold">{language === "en" ? "App" : language === "ar" ? "التطبيق" : "Application"}</Link></li>
               <li><Link to="/devenir-affilie" className="transition-colors hover:text-gold">{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
             </ul>
           </div>
