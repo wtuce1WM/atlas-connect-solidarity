@@ -1,114 +1,102 @@
-# Dashboard Analytics Partenaire — `business_events`
 
-Tracker en interne tous les events liés à un établissement, pour offrir à chaque affilié un dashboard temps réel sur la performance de sa fiche, indépendant de GA4.
+# Migration du blog statique vers la DB
 
-## Phase 1 — Schéma DB
+## Ce qu'on a aujourd'hui
 
-Nouvelle table `public.business_events` :
+- 16 articles en composants React statiques dans `src/pages/*.tsx`, déclarés un à un dans `src/App.tsx` (`/blog/<slug>`).
+- 14/16 utilisent un même format simple : `BlogArticleEntry[]` rendu par `src/components/blog/BlogArticleTemplate.tsx`. Chaque entrée = `{ pretitle, title, hours, paragraphs[], extraIds? }` + un `id` business pointant la fiche.
+- 2/16 sont "spéciaux" (ex : `MarrakechArtisanat5Jours.tsx` = itinéraire 5 jours avec fetch dynamique Supabase, layout custom).
+- Table `blog_posts` existe déjà avec colonnes multilingues `title_*`, `excerpt_*`, `content_*`, `slug`, `cover_image_url`, `author_name`, `is_published`, `published_at`. **0 ligne en DB aujourd'hui.**
+- Le sitemap référence les 16 slugs en dur dans `scripts/generate-sitemap.ts`.
 
-| Colonne | Type | Détail |
-|---|---|---|
-| `id` | bigint identity | PK |
-| `business_id` | uuid | FK → businesses(id), indexé |
-| `event_type` | text | `view`, `whatsapp_click`, `phone_click`, `email_click`, `directions_click`, `affiliate_click`, `bookmark_add`, `share_open`, `share_complete`, `booking_intent`, `video_play`, `document_open` |
-| `event_subtype` | text NULL | ex: `booking`, `getyourguide`, `tiktok` |
-| `user_id` | uuid NULL | si connecté |
-| `session_id` | text | id session anonyme (localStorage) |
-| `source_page` | text | path de la page d'origine |
-| `referrer_domain` | text NULL | |
-| `device` | text | mobile/tablet/desktop |
-| `country` | text NULL | dérivé IP côté edge |
-| `city` | text NULL | |
-| `meta` | jsonb | payload libre (link_url, position, etc.) |
-| `created_at` | timestamptz default now() | indexé desc |
+## Objectif
 
-Index composé : `(business_id, event_type, created_at desc)` + `(business_id, created_at desc)`.
+- Tous les articles servis depuis la DB via une route unique `/blog/:slug` (le composant `BlogPost.tsx` existe déjà mais n'est pas branché data).
+- Format de contenu **structuré** (pas du HTML libre) pour rester multilingue, propre, éditable depuis le back-office, et facile à traduire en EN/AR plus tard.
+- Aucun changement d'URL public, aucun lien cassé, sitemap inchangé côté public.
+- Les 2 articles à layout custom restent en composants React pour l'instant (on les marque en DB comme `template = 'custom'` avec un pointeur).
 
-RLS :
-- `INSERT` ouvert à `anon` + `authenticated` (logging public)
-- `SELECT` : `service_role` only — jamais lu côté client direct
-- Lectures uniquement via RPC `get_business_analytics(business_id, range)` qui vérifie `is_staff()` OU propriété affiliée via `is_own_affiliate_business()`
+## Modèle de contenu
 
-Vue matérialisée optionnelle `business_events_daily` (refresh horaire) pour agréger : 1 ligne par (business_id, day, event_type) → réponses <50ms même avec millions d'events.
+Ajout d'une colonne `entries_fr/en/ar JSONB` et `template TEXT` (défaut `'article_template'`) sur `blog_posts`. Pas de HTML libre — on stocke directement un `BlogArticleEntry[]` :
 
-## Phase 2 — Ingestion
+```text
+entries_fr = [
+  { business_id, pretitle, title, hours, paragraphs[], extra_ids?[] },
+  ...
+]
+```
 
-Edge function `log-business-event` :
-- POST batch (jusqu'à 20 events) pour réduire requêtes
-- Enrichit avec `country`/`city` via header Cloudflare/x-forwarded
-- Anti-spam : rate limit par IP (60/min) + dedupe `view` même session/business sous 30 min
-- Validation Zod stricte
+Le composant `BlogPost.tsx` lit `entries_<lang>` (avec fallback FR) et délègue à `BlogArticleTemplate`. Si `template = 'custom'`, il render le composant React correspondant (table de routage `slug → React component`).
 
-Côté front : helper `trackBusinessEvent(business_id, type, meta)` dans `src/lib/businessAnalytics.ts`
-- File d'attente locale, flush toutes les 2s ou au `pagehide`
-- Émet **en plus** des events GA4 existants (pas de remplacement)
+Champs DB complétés à l'import pour chaque article :
+- `slug`, `title_fr`, `excerpt_fr`, `cover_image_url`, `author_name`, `is_published=true`, `published_at`
+- `entries_fr` (array JSON extrait du fichier `.tsx`)
+- `template = 'article_template'` (sauf les 2 customs : `template='custom'`, `entries_fr=null`)
+- Colonnes EN/AR laissées vides — à remplir plus tard (batch IA).
 
-Instrumentation :
-- `view` : à l'ouverture d'une fiche (slide panel, page dédiée, popup)
-- `whatsapp_click`, `phone_click`, `email_click` : déjà détectés dans `AnalyticsTracker` → ajouter call si un `business_id` est résolvable (data-attribute ou contexte)
-- `bookmark_add` : dans `BookmarkButton`
-- `share_open/complete` : dans `ShareButton`
-- `directions_click`, `affiliate_click` : via data-attribute sur les `<a>` concernés
-- `video_play`, `document_open` : depuis les slide panels existants
+## Étapes
 
-## Phase 3 — RPC d'agrégation
+### 1. Migration SQL
+- Ajouter colonnes `entries_fr/en/ar` (JSONB) et `template` (TEXT, défaut `'article_template'`) sur `blog_posts`.
+- Ajouter `hero_top_image_url`, `pretitle_fr/en/ar` (chapeau global), `cta_label_fr/en/ar` si besoin pour reproduire le header des pages actuelles (à confirmer après lecture d'un Blog<Slug>.tsx complet).
+- Index sur `slug` (unique déjà ?), `is_published`, `published_at`.
+- Politiques RLS : `SELECT` public uniquement sur `is_published=true` ; staff = full CRUD via `has_role('admin'|'staff')`. GRANT `SELECT` à `anon` + `authenticated`, `ALL` à `service_role`.
 
-`get_business_analytics(p_business_id uuid, p_range text)` security definer :
-- `p_range` : `7d` / `30d` / `90d` / `12m`
-- Retourne JSON :
-  ```json
-  {
-    "totals": { "views": 1234, "whatsapp": 87, "phone": 22, ... },
-    "conversion_rate": 0.08,
-    "timeseries": [{ "day": "2026-06-20", "views": 45, "intents": 6 }, ...],
-    "by_source_page": [...],
-    "by_country": [...],
-    "by_device": [...],
-    "top_referrers": [...]
-  }
-  ```
-- Source : `business_events_daily` si range > 7j, sinon table brute
-- Cache HTTP 5 min via header `Cache-Control`
+### 2. Script d'import
+- `scripts/import-blog-posts.ts` : lit chacun des 16 fichiers `.tsx`, extrait l'array `BlogArticleEntry[]` par parsing AST (TypeScript Compiler API) ou regex contrôlée sur ce format très répétitif.
+- Génère un seed JSON `scripts/blog-seed.json` (rejouable).
+- Insertion via une migration `INSERT` (ou tool `supabase--insert`), un row par article, avec `slug` = celui de la route.
 
-## Phase 4 — UI Dashboard Partenaire
+### 3. Composant `BlogPost.tsx`
+- Refonte pour : `useParams() → slug → supabase.from('blog_posts').select().eq('slug',slug).single()`.
+- Si `template='article_template'` → render `<BlogArticleTemplate entries={post[`entries_${lang}`] ?? post.entries_fr} />` + header (titre, excerpt, cover).
+- Si `template='custom'` → lookup d'un registre `{ "5-jours-marrakech-artisanat": MarrakechArtisanat5Jours, ... }` et render le composant.
+- `useSEO` lit `title_*`, `excerpt_*`, `cover_image_url`.
+- 404 propre si slug inconnu ou `is_published=false` (hors staff).
 
-Nouvelle route `/affilie/:slug/analytics` (ou onglet "Statistiques" dans l'espace affilié existant).
+### 4. Nettoyage routes
+- Dans `src/App.tsx` : supprimer les 16 routes statiques `/blog/<slug>` → tout passe par `/blog/:slug` (déjà déclaré ligne 222).
+- **Conserver** les 2 routes custom pendant la transition (l'article custom reste en code, le row DB pointe juste vers son composant via `template='custom'`).
+- Supprimer les fichiers `src/pages/<14 articles simples>.tsx` après vérif visuelle.
 
-Composants :
-- **KPI cards** : Vues, Clics WhatsApp, Appels, Itinéraires, Réservations → variation vs période précédente
-- **Sparkline 30j** sur chaque KPI
-- **Graphique principal** : vues vs intentions (line chart, recharts)
-- **Taux de conversion** vue → intention commerciale
-- **Top sources** : pages internes qui amènent du trafic vers la fiche
-- **Carte / liste pays** des visiteurs
-- **Sélecteur période** : 7j / 30j / 90j / 12m
-- **Export CSV** des events bruts (optionnel)
+### 5. Sitemap
+- Remplacer `BLOG_POST_SLUGS` hardcodé dans `scripts/generate-sitemap.ts` par un fetch Supabase des `slug` où `is_published=true` (priority 0.9, changefreq weekly conservés).
 
-Accès :
-- Affilié connecté qui possède le `business_id` (vérif via `is_own_affiliate_business`)
-- Staff/Admin : accès à n'importe quelle fiche depuis le back-office
+### 6. Back-office (minimal)
+- Pas dans cette PR : on se contente d'une migration techniquement propre.
+- Prochaine étape (à confirmer après) : page `/staff/blog` avec liste + éditeur `entries_fr` (drag-drop des sections + lookup business par UUID/nom).
 
-## Phase 5 — Rétention & coûts
+## Ce que ça **ne** fait pas
 
-- Job pg_cron quotidien : supprime les events bruts > 90 jours (les daily restent)
-- Daily conservé 24 mois
-- Volume estimé : ~1M events/mois max → coût Lovable Cloud négligeable
+- Pas de traduction EN/AR pour cette étape — colonnes créées vides, à remplir plus tard via batch IA.
+- Pas d'UI back-office d'édition — pour l'instant, modification = update SQL ou ré-import.
+- Pas de migration des 2 articles custom (`MarrakechArtisanat5Jours` + un autre TBD) — ils restent en code, juste référencés en DB.
+- Pas de changement SEO : `useSEO` continue de produire les mêmes balises ; les meta statiques `public/<slug>/index.html` qui existent pour certaines fiches business ne sont pas concernées.
 
-## Détails techniques
+## Risques / points d'attention
 
-- Stack : Supabase (PG + Edge Functions Deno), Zod, React Query, Recharts
-- 1 migration (table + index + RLS + GRANTs + RPC + cron)
-- 1 edge function `log-business-event`
-- 1 hook `useBusinessAnalytics(business_id, range)`
-- 1 page dashboard + 4-5 composants chart
-- Helper d'instrumentation réutilisable
-- Modifs ciblées dans `BookmarkButton`, `ShareButton`, slide panels, `AnalyticsTracker` pour relier events GA4 → events internes quand business_id présent
+1. **Parsing TSX** : si un article a une variation de format (commentaires JSX, balises inline dans les paragraphes), le script doit fallback en édition manuelle pour ces cas. Mitigation : audit rapide des 14 fichiers avant import et liste explicite des "à reprendre".
+2. **Images statiques** (`import xxx from '@/assets/...'`) : certains articles importent une image asset locale comme cover (ex : `HotelsRiadsVueMerEssaouira.tsx`). Stockage en `cover_image_url` = uploader ces images vers Supabase Storage `blog-covers/` et stocker l'URL publique.
+3. **Lien "Voir la fiche" via `extra_ids`** : déjà géré par `BlogArticleTemplate` côté lookup business → rien à changer.
+4. **Cache CDN/SWR** : penser à `cache: no-store` ou un `staleTime` court côté React Query pour que la publication d'un nouvel article apparaisse vite.
 
-## Hors scope (à valider ensuite)
+## Validation avant merge
 
-- Notifications email hebdo automatiques aux affiliés (récap perf)
-- Comparaison vs moyenne catégorie/ville ("Top 10% de Marrakech")
-- Funnel multi-étapes vue → intent → booking confirmé (nécessite tracking côté partenaire externe)
-- A/B test contenu de fiche
+- Visiter les 14 URLs migrées en preview, comparer pixel-perfect avec la version actuelle (screenshot diff sur 3-4 articles représentatifs).
+- Vérifier que les 2 articles `template='custom'` répondent toujours.
+- Lancer `scripts/generate-sitemap.ts` → vérifier que le nombre de blog_post URLs ≥ 16.
+- Confirmer côté staff : update d'un row → réflexion immédiate sur la page publique.
 
-Dis-moi si je lance la Phase 1+2 (DB + ingestion) ou si tu veux ajuster le périmètre avant.
+## Estimation
+
+- ~1h : migration SQL + import script + seed.
+- ~1h : refonte `BlogPost.tsx` + registre custom.
+- ~30 min : nettoyage routes + suppression fichiers + sitemap dynamique.
+- ~30 min : tests visuels.
+
+**Total : ~3h de travail focus.** Pas de breaking change utilisateur attendu.
+
+---
+
+OK pour partir sur ce plan ?

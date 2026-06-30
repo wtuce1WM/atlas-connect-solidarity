@@ -48,18 +48,9 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 const MarrakechArtisanat5Jours = lazy(() => import("./pages/MarrakechArtisanat5Jours"));
 const MarrakechGaleriesArt = lazy(() => import("./pages/MarrakechGaleriesArt"));
-const FermesPedagogiquesMarrakech = lazy(() => import("./pages/FermesPedagogiquesMarrakech"));
-const IdeeCadeauMarrakech = lazy(() => import("./pages/IdeeCadeauMarrakech"));
-const ActivitesEnfantsMarrakech = lazy(() => import("./pages/ActivitesEnfantsMarrakech"));
-const ArtisanatMedinaMarrakech = lazy(() => import("./pages/ArtisanatMedinaMarrakech"));
-const StreetFoodMarrakech = lazy(() => import("./pages/StreetFoodMarrakech"));
-const ShoppingFashionGueliz = lazy(() => import("./pages/ShoppingFashionGueliz"));
-const BeachClubsMarrakech = lazy(() => import("./pages/BeachClubsMarrakech"));
-const HotelsRiadsVueMerEssaouira = lazy(() => import("./pages/HotelsRiadsVueMerEssaouira"));
-const FruitsDeMerEssaouira = lazy(() => import("./pages/FruitsDeMerEssaouira"));
-const HebergementsSidiKaouki = lazy(() => import("./pages/HebergementsSidiKaouki"));
-const AgafayDream = lazy(() => import("./pages/AgafayDream"));
-const LouerVillaComplexeHotelierMarrakech = lazy(() => import("./pages/LouerVillaComplexeHotelierMarrakech"));
+// Template-based blog articles are served dynamically via /blog/:slug from public.blog_posts.
+// Only custom-layout articles (MarrakechArtisanat5Jours, MarrakechGaleriesArt,
+// LouerVillaVacancesMarrakech) keep their own lazy imports above.
 const LouerVillaVacancesMarrakech = lazy(() => import("./pages/LouerVillaVacancesMarrakech"));
 const BlogAnimations = lazy(() => import("./pages/BlogAnimations"));
 const BlogTypography = lazy(() => import("./pages/BlogTypography"));
@@ -199,21 +190,11 @@ const AppContent = () => {
               <Route path="/contact" element={renderLazyRoute(<Contact />)} />
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
               
+              {/* Custom-layout blog articles (kept as React components — fetch dynamic data) */}
               <Route path="/blog/5-jours-marrakech-artisanat" element={renderLazyRoute(<MarrakechArtisanat5Jours />)} />
               <Route path="/blog/galeries-art-marrakech" element={renderLazyRoute(<MarrakechGaleriesArt />)} />
-              <Route path="/blog/fermes-pedagogiques-marrakech" element={renderLazyRoute(<FermesPedagogiquesMarrakech />)} />
-              <Route path="/blog/idee-cadeau-marrakech" element={renderLazyRoute(<IdeeCadeauMarrakech />)} />
-              <Route path="/blog/activites-enfants-marrakech" element={renderLazyRoute(<ActivitesEnfantsMarrakech />)} />
-              <Route path="/blog/artisanat-medina-marrakech" element={renderLazyRoute(<ArtisanatMedinaMarrakech />)} />
-              <Route path="/blog/street-food-marrakech" element={renderLazyRoute(<StreetFoodMarrakech />)} />
-              <Route path="/blog/shopping-fashion-gueliz" element={renderLazyRoute(<ShoppingFashionGueliz />)} />
-              <Route path="/blog/beach-clubs-marrakech" element={renderLazyRoute(<BeachClubsMarrakech />)} />
-              <Route path="/blog/hotels-riads-vue-mer-essaouira" element={renderLazyRoute(<HotelsRiadsVueMerEssaouira />)} />
-              <Route path="/blog/manger-fruits-de-mer-essaouira" element={renderLazyRoute(<FruitsDeMerEssaouira />)} />
-              <Route path="/blog/hebergements-sidi-kaouki" element={renderLazyRoute(<HebergementsSidiKaouki />)} />
-              <Route path="/blog/agafay-dream" element={renderLazyRoute(<AgafayDream />)} />
-              <Route path="/blog/louer-villa-complexe-hotelier-marrakech" element={renderLazyRoute(<LouerVillaComplexeHotelierMarrakech />)} />
               <Route path="/blog/louer-villa-vacances-marrakech" element={renderLazyRoute(<LouerVillaVacancesMarrakech />)} />
+              {/* Other articles are served from public.blog_posts via /blog/:slug below. */}
               <Route path="/staff/animations" element={<StaffRouteGuard>{renderLazyRoute(<BlogAnimations />)}</StaffRouteGuard>} />
               <Route path="/staff/carousel-nav-demo" element={<StaffRouteGuard>{renderLazyRoute(<CarouselNavDemo />)}</StaffRouteGuard>} />
               <Route path="/blog/ancien-accueil" element={renderLazyRoute(<AncienAccueil />)} />

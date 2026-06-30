@@ -17,24 +17,9 @@ interface SitemapEntry {
   priority?: string;
 }
 
-const BLOG_POST_SLUGS = [
-  "5-jours-marrakech-artisanat",
-  "galeries-art-marrakech",
-  "fermes-pedagogiques-marrakech",
-  "idee-cadeau-marrakech",
-  "activites-enfants-marrakech",
-  "artisanat-medina-marrakech",
-  "street-food-marrakech",
-  "shopping-fashion-gueliz",
-  "beach-clubs-marrakech",
-  "hotels-riads-vue-mer-essaouira",
-  "manger-fruits-de-mer-essaouira",
-  "hebergements-sidi-kaouki",
-  "agafay-dream",
-  "louer-villa-complexe-hotelier-marrakech",
-  "louer-villa-vacances-marrakech",
-  "etablissements-notes",
-];
+// Blog articles are now served from public.blog_posts (see DB fetch below).
+// Only special blog routes that are NOT stored as blog_posts rows remain hardcoded.
+const HARDCODED_BLOG_ROUTES = ["etablissements-notes"];
 
 const staticEntries: SitemapEntry[] = [
   { path: "/", changefreq: "daily", priority: "1.0" },
@@ -42,7 +27,7 @@ const staticEntries: SitemapEntry[] = [
   { path: "/carte", changefreq: "weekly", priority: "0.8" },
   { path: "/hotels", changefreq: "weekly", priority: "0.8" },
   { path: "/blog", changefreq: "weekly", priority: "0.9" },
-  ...BLOG_POST_SLUGS.map((slug) => ({
+  ...HARDCODED_BLOG_ROUTES.map((slug) => ({
     path: `/blog/${slug}`,
     changefreq: "weekly" as const,
     priority: "0.9",
@@ -127,8 +112,8 @@ async function fetchDynamicEntries(): Promise<SitemapEntry[]> {
     entries.push({
       path: `/blog/${encodeURIComponent(p.slug)}`,
       lastmod: toIsoDate(p.updated_at),
-      changefreq: "monthly",
-      priority: "0.6",
+      changefreq: "weekly",
+      priority: "0.9",
     });
   }
 

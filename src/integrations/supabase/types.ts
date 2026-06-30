@@ -376,18 +376,38 @@ export type Database = {
       blog_posts: {
         Row: {
           author_name: string | null
+          bookmark_slug: string | null
           content_ar: string | null
           content_en: string | null
           content_fr: string | null
           cover_image_url: string | null
           created_at: string
+          custom_hero_image_url: string | null
+          entries_ar: Json | null
+          entries_en: Json | null
+          entries_fr: Json | null
           excerpt_ar: string | null
           excerpt_en: string | null
           excerpt_fr: string | null
+          hero_alt: string | null
+          hero_subtitle_ar: string | null
+          hero_subtitle_en: string | null
+          hero_subtitle_fr: string | null
+          hero_title_bottom_ar: string | null
+          hero_title_bottom_en: string | null
+          hero_title_bottom_fr: string | null
+          hero_title_top_ar: string | null
+          hero_title_top_en: string | null
+          hero_title_top_fr: string | null
           id: string
+          intro_ar: string | null
+          intro_en: string | null
+          intro_fr: string | null
           is_published: boolean
           published_at: string | null
           slug: string
+          sort_order: number
+          template: string
           title_ar: string | null
           title_en: string | null
           title_fr: string
@@ -395,18 +415,38 @@ export type Database = {
         }
         Insert: {
           author_name?: string | null
+          bookmark_slug?: string | null
           content_ar?: string | null
           content_en?: string | null
           content_fr?: string | null
           cover_image_url?: string | null
           created_at?: string
+          custom_hero_image_url?: string | null
+          entries_ar?: Json | null
+          entries_en?: Json | null
+          entries_fr?: Json | null
           excerpt_ar?: string | null
           excerpt_en?: string | null
           excerpt_fr?: string | null
+          hero_alt?: string | null
+          hero_subtitle_ar?: string | null
+          hero_subtitle_en?: string | null
+          hero_subtitle_fr?: string | null
+          hero_title_bottom_ar?: string | null
+          hero_title_bottom_en?: string | null
+          hero_title_bottom_fr?: string | null
+          hero_title_top_ar?: string | null
+          hero_title_top_en?: string | null
+          hero_title_top_fr?: string | null
           id?: string
+          intro_ar?: string | null
+          intro_en?: string | null
+          intro_fr?: string | null
           is_published?: boolean
           published_at?: string | null
           slug: string
+          sort_order?: number
+          template?: string
           title_ar?: string | null
           title_en?: string | null
           title_fr: string
@@ -414,18 +454,38 @@ export type Database = {
         }
         Update: {
           author_name?: string | null
+          bookmark_slug?: string | null
           content_ar?: string | null
           content_en?: string | null
           content_fr?: string | null
           cover_image_url?: string | null
           created_at?: string
+          custom_hero_image_url?: string | null
+          entries_ar?: Json | null
+          entries_en?: Json | null
+          entries_fr?: Json | null
           excerpt_ar?: string | null
           excerpt_en?: string | null
           excerpt_fr?: string | null
+          hero_alt?: string | null
+          hero_subtitle_ar?: string | null
+          hero_subtitle_en?: string | null
+          hero_subtitle_fr?: string | null
+          hero_title_bottom_ar?: string | null
+          hero_title_bottom_en?: string | null
+          hero_title_bottom_fr?: string | null
+          hero_title_top_ar?: string | null
+          hero_title_top_en?: string | null
+          hero_title_top_fr?: string | null
           id?: string
+          intro_ar?: string | null
+          intro_en?: string | null
+          intro_fr?: string | null
           is_published?: boolean
           published_at?: string | null
           slug?: string
+          sort_order?: number
+          template?: string
           title_ar?: string | null
           title_en?: string | null
           title_fr?: string
