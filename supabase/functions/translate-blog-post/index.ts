@@ -48,6 +48,96 @@ function extractJson(content: string) {
   }
 }
 
+type StringLeaf = { path: (string | number)[]; text: string };
+
+function collectStringLeaves(value: unknown, path: (string | number)[] = [], out: StringLeaf[] = []) {
+  if (typeof value === "string") {
+    out.push({ path, text: value });
+    return out;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => collectStringLeaves(item, [...path, index], out));
+    return out;
+  }
+  if (value && typeof value === "object") {
+    for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+      collectStringLeaves(item, [...path, key], out);
+    }
+  }
+  return out;
+}
+
+function setByPath(root: unknown, path: (string | number)[], value: string) {
+  let cursor: any = root;
+  for (let i = 0; i < path.length - 1; i++) cursor = cursor[path[i] as any];
+  cursor[path[path.length - 1] as any] = value;
+}
+
+async function translatePlainText(text: string, target: string): Promise<string> {
+  const langLabel = LANG_LABEL[target] ?? target;
+  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Lovable-API-Key": LOVABLE_API_KEY,
+    },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        {
+          role: "system",
+          content: `Translate this French text to ${langLabel}. Preserve HTML tags, URLs, numbers and proper nouns. Output only the translated text, no quotes, no markdown, no commentary.`,
+        },
+        { role: "user", content: text },
+      ],
+      temperature: 0.1,
+    }),
+  });
+
+  if (!resp.ok) {
+    const t = await resp.text();
+    throw new Error(`AI gateway ${resp.status}: ${t.slice(0, 300)}`);
+  }
+  const data = await resp.json();
+  const translated = data.choices?.[0]?.message?.content;
+  if (!translated) throw new Error("Empty AI response");
+  return sanitizeJsonLike(String(translated)).trim().replace(/^```(?:text)?\s*/i, "").replace(/\s*```$/i, "").trim();
+}
+
+async function translateStringLeavesAdaptive(leaves: StringLeaf[], target: string): Promise<StringLeaf[]> {
+  if (leaves.length === 0) return [];
+  try {
+    const payload = { items: leaves.map((leaf, index) => ({ index, text: leaf.text })) };
+    const out = await translateJson(payload, target);
+    const items = Array.isArray(out.items) ? out.items : [];
+    if (items.length !== leaves.length) throw new Error(`incomplete string chunk (${items.length}/${leaves.length})`);
+    const byIndex = new Map<number, string>();
+    for (const item of items) {
+      if (typeof item?.index !== "number" || typeof item?.text !== "string") {
+        throw new Error("invalid string chunk shape");
+      }
+      byIndex.set(item.index, item.text);
+    }
+    return leaves.map((leaf, index) => ({ ...leaf, text: byIndex.get(index) ?? leaf.text }));
+  } catch (e) {
+    if (leaves.length === 1) {
+      return [{ ...leaves[0], text: await translatePlainText(leaves[0].text, target) }];
+    }
+    const mid = Math.ceil(leaves.length / 2);
+    const left = await translateStringLeavesAdaptive(leaves.slice(0, mid), target);
+    const right = await translateStringLeavesAdaptive(leaves.slice(mid), target);
+    return [...left, ...right];
+  }
+}
+
+async function translateOneEntryByLeaves(entry: unknown, target: string): Promise<unknown> {
+  const translated = structuredClone(entry);
+  const leaves = collectStringLeaves(translated).filter((leaf) => leaf.text.trim().length > 0);
+  const translatedLeaves = await translateStringLeavesAdaptive(leaves, target);
+  for (const leaf of translatedLeaves) setByPath(translated, leaf.path, leaf.text);
+  return translated;
+}
+
 async function translateEntriesAdaptive(entries: unknown[], target: string): Promise<unknown[]> {
   if (entries.length === 0) return [];
   try {
@@ -56,7 +146,7 @@ async function translateEntriesAdaptive(entries: unknown[], target: string): Pro
     if (arr.length === entries.length) return arr;
     throw new Error(`incomplete chunk (${arr.length}/${entries.length})`);
   } catch (e) {
-    if (entries.length === 1) throw e;
+    if (entries.length === 1) return [await translateOneEntryByLeaves(entries[0], target)];
     const mid = Math.ceil(entries.length / 2);
     const left = await translateEntriesAdaptive(entries.slice(0, mid), target);
     const right = await translateEntriesAdaptive(entries.slice(mid), target);
