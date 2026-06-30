@@ -1317,6 +1317,8 @@ const HomeMindtrip = () => {
 
 const HotelAvailabilityWidget = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const L = HOME_LABELS[language] ?? HOME_LABELS.fr;
   const fmt = (d: Date) => d.toISOString().split("T")[0];
   const arrival = new Date();
   arrival.setDate(arrival.getDate() + 30);
