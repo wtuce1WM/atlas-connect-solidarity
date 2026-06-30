@@ -378,7 +378,7 @@ export default function StaffTranslations() {
           </div>
         )}
         <p className="text-xs text-muted-foreground">
-          "Tout traduire" enchaîne les 10 contenus × EN + AR par petits batchs jusqu'à épuisement. Les articles sont traités 1 par 1 avec découpe JSON pour éviter les timeouts.
+          "Tout traduire" enchaîne tous les contenus × EN + AR. Blog et fiches d'établissements (hook + description + highlights) sont traités 1 par 1 avec découpe pour éviter les timeouts.
         </p>
       </Card>
 
