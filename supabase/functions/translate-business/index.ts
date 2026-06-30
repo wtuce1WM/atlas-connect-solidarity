@@ -1,5 +1,6 @@
 // Translate ONE business (hook + description + all its front_highlights) progressively.
-// Staff-only. One business = atomic, with internal chunking for businesses that have many highlights.
+// Staff-only. One business = atomic, with internal chunking + adaptive JSON resilience
+// ported from translate-blog-post (sanitize control chars, dichotomous fallback, plain-text leaf fallback).
 
 import { createClient } from "npm:@supabase/supabase-js@^2";
 import { corsHeaders } from "npm:@supabase/supabase-js@^2/cors";
@@ -33,8 +34,14 @@ function isFilled(v: unknown): v is string {
   return typeof v === "string" && v.trim().length > 0;
 }
 
+function sanitizeJsonLike(text: string): string {
+  let out = text.replace(/^\uFEFF/, "").replace(/[\u200B-\u200F\u202A-\u202E\u2060]/g, "");
+  out = out.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
+  return out;
+}
+
 function extractJson(content: string) {
-  let text = content.trim();
+  let text = sanitizeJsonLike(content.trim());
   if (text.startsWith("```")) {
     text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
   }
@@ -91,6 +98,101 @@ RULES:
   return extractJson(content);
 }
 
+async function translatePlainText(text: string, target: string): Promise<string> {
+  const langLabel = LANG_LABEL[target] ?? target;
+  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Lovable-API-Key": LOVABLE_API_KEY,
+    },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        {
+          role: "system",
+          content: `Translate this French text to ${langLabel}. Preserve HTML tags, URLs, numbers and proper nouns. Output only the translated text, no quotes, no markdown, no commentary.`,
+        },
+        { role: "user", content: text },
+      ],
+      temperature: 0.1,
+    }),
+  });
+  if (!resp.ok) {
+    const t = await resp.text();
+    throw new Error(`AI gateway ${resp.status}: ${t.slice(0, 300)}`);
+  }
+  const data = await resp.json();
+  const translated = data.choices?.[0]?.message?.content;
+  if (!translated) throw new Error("Empty AI response");
+  return sanitizeJsonLike(String(translated)).trim().replace(/^```(?:text)?\s*/i, "").replace(/\s*```$/i, "").trim();
+}
+
+// Translate a flat { key: string } map, adaptively (dichotomy + per-string fallback).
+async function translateFlatMapAdaptive(entries: Array<{ key: string; text: string }>, target: string): Promise<Record<string, string>> {
+  if (entries.length === 0) return {};
+  try {
+    const payload: Record<string, string> = {};
+    for (const e of entries) payload[e.key] = e.text;
+    const out = await translateJson(payload, target);
+    const result: Record<string, string> = {};
+    for (const e of entries) {
+      const v = (out as any)?.[e.key];
+      if (typeof v === "string" && v.trim().length > 0) result[e.key] = v;
+      else throw new Error(`missing key ${e.key}`);
+    }
+    return result;
+  } catch (_) {
+    if (entries.length === 1) {
+      const e = entries[0];
+      const v = await translatePlainText(e.text, target);
+      return { [e.key]: v };
+    }
+    const mid = Math.ceil(entries.length / 2);
+    const left = await translateFlatMapAdaptive(entries.slice(0, mid), target);
+    const right = await translateFlatMapAdaptive(entries.slice(mid), target);
+    return { ...left, ...right };
+  }
+}
+
+// Translate a chunk of highlight rows, each row = { id, missing:{field:text} }.
+// Adaptive: if the batch fails, halve; down to 1 row, translate field-by-field.
+async function translateHighlightsAdaptive(
+  chunk: Array<{ id: string; missing: Record<string, string> }>,
+  target: string,
+): Promise<Record<string, Record<string, string>>> {
+  if (chunk.length === 0) return {};
+  try {
+    const payload: Record<string, Record<string, string>> = {};
+    for (const item of chunk) payload[item.id] = item.missing;
+    const out = await translateJson(payload, target);
+    const result: Record<string, Record<string, string>> = {};
+    for (const item of chunk) {
+      const t = (out as any)?.[item.id];
+      if (!t || typeof t !== "object") throw new Error(`missing row ${item.id}`);
+      const row: Record<string, string> = {};
+      for (const f of Object.keys(item.missing)) {
+        const v = t[f];
+        if (typeof v === "string" && v.trim().length > 0) row[f] = v;
+        else throw new Error(`missing ${item.id}.${f}`);
+      }
+      result[item.id] = row;
+    }
+    return result;
+  } catch (_) {
+    if (chunk.length === 1) {
+      const item = chunk[0];
+      const entries = Object.entries(item.missing).map(([key, text]) => ({ key, text }));
+      const row = await translateFlatMapAdaptive(entries, target);
+      return { [item.id]: row };
+    }
+    const mid = Math.ceil(chunk.length / 2);
+    const left = await translateHighlightsAdaptive(chunk.slice(0, mid), target);
+    const right = await translateHighlightsAdaptive(chunk.slice(mid), target);
+    return { ...left, ...right };
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -116,7 +218,7 @@ Deno.serve(async (req) => {
     const hookKey = `hook_${target}` as const;
     const descKey = `description_${target}` as const;
 
-    // 1) Load business
+    // 1) Business meta
     const { data: biz, error: bErr } = await admin
       .from("businesses")
       .select(`id, name, hook_fr, description_fr, ${hookKey}, ${descKey}`)
@@ -124,26 +226,26 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (bErr || !biz) return jsonRes({ error: "Business not found", details: bErr?.message }, 404);
 
-    const bizUpdate: Record<string, unknown> = {};
-    const bizPayload: Record<string, string> = {};
+    const metaEntries: Array<{ key: string; text: string }> = [];
     if (isFilled(biz.hook_fr) && !isFilled((biz as any)[hookKey])) {
-      bizPayload.hook = biz.hook_fr as string;
+      metaEntries.push({ key: "hook", text: biz.hook_fr as string });
     }
     if (isFilled(biz.description_fr) && !isFilled((biz as any)[descKey])) {
-      bizPayload.description = biz.description_fr as string;
+      metaEntries.push({ key: "description", text: biz.description_fr as string });
     }
 
-    if (Object.keys(bizPayload).length > 0) {
-      const translated = await translateJson(bizPayload, target);
-      if ("hook" in bizPayload && isFilled(translated.hook)) bizUpdate[hookKey] = translated.hook;
-      if ("description" in bizPayload && isFilled(translated.description)) bizUpdate[descKey] = translated.description;
+    const bizUpdate: Record<string, unknown> = {};
+    if (metaEntries.length > 0) {
+      const translated = await translateFlatMapAdaptive(metaEntries, target);
+      if (isFilled(translated.hook)) bizUpdate[hookKey] = translated.hook;
+      if (isFilled(translated.description)) bizUpdate[descKey] = translated.description;
       if (Object.keys(bizUpdate).length > 0) {
         const { error: uErr } = await admin.from("businesses").update(bizUpdate).eq("id", biz.id);
         if (uErr) return jsonRes({ error: "Business update failed", details: uErr.message }, 500);
       }
     }
 
-    // 2) Load highlights for this business
+    // 2) Highlights
     const selectCols = ["id", ...HIGHLIGHT_FIELDS.flatMap((f) => [`${f}_fr`, `${f}_${target}`])].join(", ");
     const { data: highlights, error: hErr } = await admin
       .from("front_highlights")
@@ -154,7 +256,6 @@ Deno.serve(async (req) => {
 
     const list = (highlights ?? []) as Array<Record<string, unknown>>;
 
-    // Identify rows that still need translation
     const pending = list
       .map((row) => {
         const missing: Record<string, string> = {};
@@ -182,20 +283,17 @@ Deno.serve(async (req) => {
       });
     }
 
-    // 3) Translate one chunk of highlights (size depends on language richness)
+    // 3) Translate one chunk (adaptive)
     const chunkSize = target === "ar" ? 6 : 10;
     const chunk = pending.slice(0, chunkSize);
 
-    const payload: Record<string, Record<string, string>> = {};
-    for (const item of chunk) payload[item.id] = item.missing;
+    const translatedById = await translateHighlightsAdaptive(chunk, target);
 
-    const translated = await translateJson(payload, target);
-
-    // 4) Persist each highlight individually
+    // 4) Persist
     let saved = 0;
     for (const item of chunk) {
-      const t = translated[item.id];
-      if (!t || typeof t !== "object") continue;
+      const t = translatedById[item.id];
+      if (!t) continue;
       const upd: Record<string, unknown> = {};
       for (const f of HIGHLIGHT_FIELDS) {
         if (f in item.missing && isFilled(t[f])) {
@@ -208,7 +306,6 @@ Deno.serve(async (req) => {
     }
 
     const newCompleted = completed_highlights + saved;
-    const done = newCompleted >= total_highlights && Object.keys(bizUpdate).length >= 0 && pending.length === chunk.length && saved === chunk.length;
 
     return jsonRes({
       ok: true,

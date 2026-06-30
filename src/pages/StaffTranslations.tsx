@@ -87,7 +87,7 @@ export default function StaffTranslations() {
     }
   };
 
-  const runAll = async () => {
+  const runAll = async (onlyKey?: string) => {
     setAutoRun(true);
     setStopRequested(false);
     const langs: ("en" | "ar")[] = ["en", "ar"];
@@ -133,7 +133,7 @@ export default function StaffTranslations() {
     let totalErr = 0;
 
     try {
-      for (const cfg of CONFIGS) {
+      for (const cfg of CONFIGS.filter((c) => !onlyKey || c.key === onlyKey)) {
         for (const lang of langs) {
           // ── Special path for blog_posts: progressive chunks per article ──
           if (cfg.key === "blog_posts") {
@@ -394,9 +394,14 @@ export default function StaffTranslations() {
             {running ? <><Loader2 className="animate-spin h-4 w-4 mr-2" />Traduction en cours…</> : "Lancer ce batch"}
           </Button>
           {!autoRun ? (
-            <Button onClick={runAll} disabled={running}>
-              <Play className="h-4 w-4 mr-2" />Tout traduire (EN + AR)
-            </Button>
+            <>
+              <Button onClick={() => runAll()} disabled={running}>
+                <Play className="h-4 w-4 mr-2" />Tout traduire (EN + AR)
+              </Button>
+              <Button onClick={() => runAll("businesses_full")} disabled={running} variant="secondary">
+                <Play className="h-4 w-4 mr-2" />Traduire fiches uniquement
+              </Button>
+            </>
           ) : (
             <Button onClick={() => setStopRequested(true)} variant="destructive">
               <StopCircle className="h-4 w-4 mr-2" />Arrêter
