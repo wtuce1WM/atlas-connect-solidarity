@@ -86,6 +86,43 @@ export default function StaffTranslations() {
     }
   };
 
+  const runAll = async () => {
+    setAutoRun(true);
+    setStopRequested(false);
+    const langs: ("en" | "ar")[] = ["en", "ar"];
+    const batchSize = 25;
+    const maxIterations = 50; // garde-fou
+    try {
+      for (const cfg of CONFIGS) {
+        for (const lang of langs) {
+          let iter = 0;
+          while (iter < maxIterations) {
+            if (stopRequested) throw new Error("Arrêt demandé");
+            iter++;
+            setAutoProgress(`${cfg.label} → ${lang.toUpperCase()} (batch ${iter})`);
+            const { data, error } = await supabase.functions.invoke("translate-content", {
+              body: { config_key: cfg.key, target_lang: lang, limit: batchSize, dry_run: false },
+            });
+            if (error) {
+              toast.error(`${cfg.key} → ${lang}: ${error.message}`);
+              break;
+            }
+            await loadJobs();
+            const processed = data?.processed ?? 0;
+            if (processed < batchSize) break; // plus rien à traduire
+          }
+        }
+      }
+      toast.success("Traduction globale terminée ✅");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Arrêté");
+    } finally {
+      setAutoRun(false);
+      setAutoProgress("");
+      setStopRequested(false);
+    }
+  };
+
   if (isStaff === null) {
     return <div className="p-8 text-center"><Loader2 className="animate-spin inline" /></div>;
   }
