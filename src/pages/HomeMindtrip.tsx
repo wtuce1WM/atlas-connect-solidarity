@@ -250,6 +250,14 @@ const HOME_LABELS = {
     discover: "Découvrir",
     howItWorks: "Comment fonctionne l'App ?",
     inspireYourself: "Inspirez-vous",
+    hotelDestination: "Destination",
+    hotelArrival: "Arrivée",
+    hotelDeparture: "Départ",
+    hotelAdults: "Adultes",
+    hotelSeeAvailability: "Voir les disponibilités",
+    seoTitle: "La Première Plateforme Solidaire du Maroc — ONE WORLD MOROCCO",
+    seoDescription:
+      "Inspirez-vous des meilleures adresses du Maroc : hôtels, restaurants, expériences et itinéraires sélectionnés et vérifiés.",
   },
   en: {
     heroTitle: "Morocco's First Solidarity Platform",
@@ -261,6 +269,14 @@ const HOME_LABELS = {
     discover: "Discover",
     howItWorks: "How does the App work?",
     inspireYourself: "Get inspired",
+    hotelDestination: "Destination",
+    hotelArrival: "Check-in",
+    hotelDeparture: "Check-out",
+    hotelAdults: "Adults",
+    hotelSeeAvailability: "See availability",
+    seoTitle: "Morocco's First Solidarity Platform — ONE WORLD MOROCCO",
+    seoDescription:
+      "Get inspired by the best addresses in Morocco: curated and verified hotels, restaurants, experiences and itineraries.",
   },
   ar: {
     heroTitle: "أول منصة تضامنية في المغرب",
@@ -272,6 +288,14 @@ const HOME_LABELS = {
     discover: "اكتشف",
     howItWorks: "كيف يعمل التطبيق؟",
     inspireYourself: "استلهم",
+    hotelDestination: "الوجهة",
+    hotelArrival: "الوصول",
+    hotelDeparture: "المغادرة",
+    hotelAdults: "البالغون",
+    hotelSeeAvailability: "عرض التوفر",
+    seoTitle: "أول منصة تضامنية في المغرب — ONE WORLD MOROCCO",
+    seoDescription:
+      "استلهم من أفضل عناوين المغرب: فنادق ومطاعم وتجارب ومسارات مختارة وموثقة.",
   },
 } as const;
 
