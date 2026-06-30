@@ -330,71 +330,34 @@ const HomeMindtrip = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      // Articles statiques — mêmes dates que /blog (cf. src/pages/Blog.tsx)
-      const staticArticles: Array<{ slug: string; path: string; title: string; bizId?: string; date: string }> = [
-        { slug: "etablissements-notes", path: "/blog/etablissements-notes", title: "Établissements notés", date: "2000-01-01T00:00:00Z" },
-        { slug: "agafay-dream", path: "/blog/agafay-dream", title: "Agafay Dream", bizId: "e05a7ece-e417-4d65-b8a4-17a3ea4f96b3", date: "2026-06-13T12:00:00Z" },
-        { slug: "hebergements-sidi-kaouki", path: "/blog/hebergements-sidi-kaouki", title: "Les meilleurs hébergements à Sidi Kaouki", bizId: "04e08ef3-cd54-4091-876a-6822518c84a7", date: "2026-06-13T11:00:00Z" },
-        { slug: "hotels-riads-vue-mer-essaouira", path: "/blog/hotels-riads-vue-mer-essaouira", title: "Hôtels & Riads avec vue sur mer à Essaouira", bizId: "4b4e42f7-d408-4c6d-989f-3922e2ed61d3", date: "2026-06-13T10:00:00Z" },
-        { slug: "manger-fruits-de-mer-essaouira", path: "/blog/manger-fruits-de-mer-essaouira", title: "Manger des fruits de mer à Essaouira", bizId: "d00d119b-a5b2-492b-bdbd-f0872e5701d7", date: "2026-06-20T08:00:00Z" },
-        { slug: "idee-cadeau-marrakech", path: "/blog/idee-cadeau-marrakech", title: "Trouver une bonne idée cadeau à Marrakech", date: "2026-06-22T08:00:00Z" },
-        { slug: "louer-villa-vacances-marrakech", path: "/blog/louer-villa-vacances-marrakech", title: "Louer une villa pour vos vacances à Marrakech", bizId: "be1c1314-236c-46b6-8588-c390a0a54c31", date: "2026-06-21T10:00:00Z" },
-        { slug: "louer-villa-complexe-hotelier-marrakech", path: "/blog/louer-villa-complexe-hotelier-marrakech", title: "Louer une villa dans un complexe hôtelier à Marrakech", bizId: "e7019579-408a-4b3c-90d7-41c6dbff9063", date: "2026-06-21T08:00:00Z" },
-        { slug: "beach-clubs-marrakech", path: "/blog/beach-clubs-marrakech", title: "Beach Clubs à Marrakech", bizId: "03dfb3bd-2021-418a-99d6-aec1fb0f7ac6", date: "2026-06-13T08:00:00Z" },
-        { slug: "shopping-fashion-gueliz", path: "/blog/shopping-fashion-gueliz", title: "Shopping fashion à Guéliz, Marrakech", bizId: "7924a190-679d-4981-a12a-b56c257cd680", date: "2026-06-13T03:00:00Z" },
-        { slug: "street-food-marrakech", path: "/blog/street-food-marrakech", title: "Le meilleur de la Street Food à Marrakech", bizId: "6f48e2fa-bf01-4ce4-a51c-0e986ce17e18", date: "2026-06-13T02:00:00Z" },
-        { slug: "artisanat-medina-marrakech", path: "/blog/artisanat-medina-marrakech", title: "Artisanat marocain dans la Médina de Marrakech", bizId: "1621498d-403b-4ff2-baf3-db45d1e5f41e", date: "2026-06-13T01:00:00Z" },
-        { slug: "fermes-pedagogiques-marrakech", path: "/blog/fermes-pedagogiques-marrakech", title: "Les fermes pédagogiques à Marrakech", bizId: "2fdb1f15-4a02-40b4-b344-0ffc0c2e1abd", date: "2026-06-13T00:00:00Z" },
-        { slug: "activites-enfants-marrakech", path: "/blog/activites-enfants-marrakech", title: "Activités pour les enfants à Marrakech", bizId: "728e90f7-3894-43a5-8c0d-9dd193fe9946", date: "2026-06-14T00:00:00Z" },
-        { slug: "galeries-art-marrakech", path: "/blog/galeries-art-marrakech", title: "Les galeries d'art à Marrakech", bizId: "b484d0cd-6c47-43a2-b388-8ad34f590cd8", date: "2026-05-24T00:00:00Z" },
-        { slug: "5-jours-marrakech-artisanat", path: "/blog/5-jours-marrakech-artisanat", title: "5 jours à Marrakech pour découvrir le meilleur de l'artisanat marocain", bizId: "83d7e07e-128c-47a3-92c6-225a53e34b42", date: "2026-05-23T00:00:00Z" },
-      ];
+      const { data: dbPosts } = await supabase
+        .from("blog_posts")
+        .select("slug, title_fr, title_en, title_ar, cover_image_url, published_at, created_at")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false });
 
-      const ids = staticArticles.map((a) => a.bizId).filter(Boolean) as string[];
-      const [{ data: bizs }, { data: dbPosts }] = await Promise.all([
-        supabase.from("businesses").select("id, images").in("id", ids),
-        supabase
-          .from("blog_posts")
-          .select("slug, title_fr, cover_image_url, published_at, created_at")
-          .eq("is_published", true),
-      ]);
-      const imgById = new Map<string, string | undefined>();
-      (bizs || []).forEach((b: any) => imgById.set(b.id, b.images?.[0]));
-
-      const staticItems = staticArticles.map((a) => ({
-        slug: a.path,
-        title: a.title,
-        image: STATIC_BLOG_HERO_OVERRIDES[a.slug] 
-          ?? (a.bizId ? imgById.get(a.bizId) : undefined),
-        date: a.date,
+      const items = (dbPosts || []).map((p: any) => ({
+        slug: `/blog/${p.slug}`,
+        title:
+          (language === "ar" && p.title_ar) ||
+          (language === "en" && p.title_en) ||
+          p.title_fr,
+        image: p.cover_image_url || undefined,
       }));
-      const staticSlugs = new Set(staticArticles.map((a) => a.slug));
-      const dbItems = (dbPosts || [])
-        .filter((p: any) => !staticSlugs.has(p.slug))
-        .map((p: any) => ({
-          slug: `/blog/${p.slug}`,
-          title: p.title_fr,
-          image: p.cover_image_url || undefined,
-          date: p.published_at || p.created_at,
-        }));
 
-
-      const merged = [...staticItems, ...dbItems].sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-      const seen = new Set<string>();
-      const deduped = merged.filter((m) => {
-        if (seen.has(m.slug)) return false;
-        seen.add(m.slug);
-        return true;
+      // Page custom (pas un article éditorial)
+      items.push({
+        slug: "/blog/etablissements-notes",
+        title: "Établissements notés",
+        image: undefined,
       });
 
       if (cancelled) return;
-      setLatestPosts(deduped.map(({ slug, title, image }) => ({ slug, title, image })));
-
+      setLatestPosts(items);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [language]);
 
 
   
