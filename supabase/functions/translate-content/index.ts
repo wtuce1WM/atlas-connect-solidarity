@@ -33,8 +33,8 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
     table: "blog_posts",
     pk: "id",
     textFields: [
-      { source: "title", target: `title_${t}`, kind: "text" },
-      { source: "excerpt", target: `excerpt_${t}`, kind: "text" },
+      { source: "title_fr", target: `title_${t}`, kind: "text" },
+      { source: "excerpt_fr", target: `excerpt_${t}`, kind: "text" },
       { source: "hero_title_top_fr", target: `hero_title_top_${t}`, kind: "text" },
       { source: "hero_title_bottom_fr", target: `hero_title_bottom_${t}`, kind: "text" },
       { source: "hero_subtitle_fr", target: `hero_subtitle_${t}`, kind: "text" },
@@ -139,7 +139,7 @@ async function translateBatch(texts: string[], targetLang: string, isHtml: boole
   return out.map((s) => String(s ?? ""));
 }
 
-async function translateJsonEntries(entries: unknown, targetLang: string): Promise<unknown> {
+async function translateJsonValue(value: unknown, targetLang: string): Promise<unknown> {
   // Walk JSON and translate every string value found in known text-bearing fields.
   // For simplicity & quality, we serialize, ask the model to translate text values
   // while keeping keys/structure, then parse back.
@@ -147,7 +147,7 @@ async function translateJsonEntries(entries: unknown, targetLang: string): Promi
     `You receive a JSON value. Translate ONLY the human-readable string values ` +
     `(titles, paragraphs, captions, alt text). Do NOT translate keys, URLs, slugs, IDs, ` +
     `file paths, color codes, language codes, or technical identifiers. Preserve the JSON ` +
-    `structure and types exactly. Return ONLY the translated JSON value.`;
+    `structure and types exactly. Return ONLY a JSON object shaped as {"value": <translated JSON value>}.`;
 
   const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
@@ -159,7 +159,7 @@ async function translateJsonEntries(entries: unknown, targetLang: string): Promi
       model: "google/gemini-2.5-flash",
       messages: [
         { role: "system", content: sys },
-        { role: "user", content: `Translate this JSON to ${LANG_NAME[targetLang]}:\n\n${JSON.stringify(entries)}` },
+        { role: "user", content: `Translate this JSON to ${LANG_NAME[targetLang]}:\n\n${JSON.stringify({ value })}` },
       ],
       response_format: { type: "json_object" },
     }),
@@ -170,7 +170,30 @@ async function translateJsonEntries(entries: unknown, targetLang: string): Promi
   }
   const data = await resp.json();
   const content = data.choices?.[0]?.message?.content ?? "{}";
-  return JSON.parse(content);
+  return JSON.parse(content).value;
+}
+
+function isIncompleteJsonEntries(source: unknown, target: unknown): boolean {
+  if (!source) return false;
+  if (!target) return true;
+  if (Array.isArray(source)) return !Array.isArray(target) || target.length < source.length;
+  return false;
+}
+
+async function translateJsonEntriesChunk(source: unknown, target: unknown, targetLang: string): Promise<unknown> {
+  if (!Array.isArray(source)) return translateJsonValue(source, targetLang);
+
+  const existing = Array.isArray(target) ? [...target] : [];
+  const start = existing.length;
+  const chunkSize = 2;
+  const chunk = source.slice(start, start + chunkSize);
+  if (chunk.length === 0) return existing;
+
+  const translatedChunk = await translateJsonValue(chunk, targetLang);
+  if (!Array.isArray(translatedChunk)) {
+    throw new Error("Bad JSON entries translation shape");
+  }
+  return [...existing, ...translatedChunk];
 }
 
 Deno.serve(async (req) => {
@@ -214,16 +237,25 @@ Deno.serve(async (req) => {
     // Pick rows where at least one target field is null/empty
     const selectCols = [cfg.pk, ...(cfg.textFields?.flatMap((f) => [f.source, f.target]) ?? [])];
     if (cfg.jsonEntries) selectCols.push(cfg.jsonEntries.source, cfg.jsonEntries.target);
-    let query = admin.from(cfg.table).select(selectCols.join(",")).limit(limit);
+    let query = admin.from(cfg.table).select(selectCols.join(","));
 
     // Build OR condition for missing targets
     const orParts: string[] = [];
     cfg.textFields?.forEach((f) => orParts.push(`${f.target}.is.null`));
     if (cfg.jsonEntries) orParts.push(`${cfg.jsonEntries.target}.is.null`);
-    if (orParts.length) query = query.or(orParts.join(","));
+    if (orParts.length && !cfg.jsonEntries) query = query.or(orParts.join(","));
+    if (!cfg.jsonEntries) query = query.limit(limit);
 
     const { data: rows, error: selErr } = await query;
     if (selErr) throw selErr;
+
+    const candidateRows = (rows ?? []).filter((row: any) => {
+      const missingText = cfg.textFields?.some((f) => row[f.source] && !row[f.target]) ?? false;
+      const missingJson = cfg.jsonEntries
+        ? isIncompleteJsonEntries(row[cfg.jsonEntries.source], row[cfg.jsonEntries.target])
+        : false;
+      return missingText || missingJson;
+    }).slice(0, limit);
 
     let success = 0, errors = 0;
     const errorLog: string[] = [];
@@ -250,8 +282,8 @@ Deno.serve(async (req) => {
         if (cfg.jsonEntries) {
           const src = row[cfg.jsonEntries.source];
           const tgt = row[cfg.jsonEntries.target];
-          if (src && !tgt) {
-            updates[cfg.jsonEntries.target] = await translateJsonEntries(src, target_lang);
+          if (isIncompleteJsonEntries(src, tgt)) {
+            updates[cfg.jsonEntries.target] = await translateJsonEntriesChunk(src, tgt, target_lang);
           }
         }
 
@@ -267,7 +299,7 @@ Deno.serve(async (req) => {
     };
 
     // Process in parallel chunks
-    const allRows = rows ?? [];
+    const allRows = candidateRows;
     for (let i = 0; i < allRows.length; i += CONCURRENCY) {
       const chunk = allRows.slice(i, i + CONCURRENCY);
       await Promise.all(chunk.map(processRow));
@@ -281,13 +313,13 @@ Deno.serve(async (req) => {
 
     await admin.from("translation_jobs").update({
       status: errors > 0 && success === 0 ? "error" : "done",
-      total_rows: rows?.length ?? 0,
+      total_rows: allRows.length,
       finished_at: new Date().toISOString(),
     }).eq("id", job.id);
 
     return new Response(JSON.stringify({
       job_id: job.id,
-      processed: rows?.length ?? 0,
+      processed: allRows.length,
       success, errors,
       sample_errors: errorLog.slice(0, 5),
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });

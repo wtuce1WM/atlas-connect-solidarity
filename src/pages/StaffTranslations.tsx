@@ -90,7 +90,7 @@ export default function StaffTranslations() {
     setAutoRun(true);
     setStopRequested(false);
     const langs: ("en" | "ar")[] = ["en", "ar"];
-    const batchSize = 10; // plus petit pour rester sous le timeout edge
+    const defaultBatchSize = 10; // plus petit pour rester sous le timeout edge
     const maxIterations = 300;
     const maxRetriesPerBatch = 3;
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -122,8 +122,9 @@ export default function StaffTranslations() {
                 `${cfg.label} → ${lang.toUpperCase()} · batch ${iter}${attempt > 1 ? ` (retry ${attempt - 1})` : ""}`
               );
               try {
+                const requestLimit = cfg.key === "blog_posts" ? 1 : defaultBatchSize;
                 const res = await supabase.functions.invoke("translate-content", {
-                  body: { config_key: cfg.key, target_lang: lang, limit: batchSize, dry_run: false },
+                  body: { config_key: cfg.key, target_lang: lang, limit: requestLimit, dry_run: false },
                 });
                 if (res.error) throw res.error;
                 data = res.data;
@@ -150,7 +151,8 @@ export default function StaffTranslations() {
             totalOk++;
             await loadJobs();
             const processed = data?.processed ?? 0;
-            if (processed < batchSize) break; // plus rien à traduire
+            const requestLimit = cfg.key === "blog_posts" ? 1 : defaultBatchSize;
+            if (processed < requestLimit) break; // plus rien à traduire
             await sleep(400); // petite pause pour éviter le rate-limit
           }
         }
@@ -233,7 +235,7 @@ export default function StaffTranslations() {
           </div>
         )}
         <p className="text-xs text-muted-foreground">
-          "Tout traduire" enchaîne les 10 contenus × EN + AR par batchs de 25 lignes jusqu'à épuisement. Peut prendre plusieurs minutes — garde l'onglet ouvert.
+          "Tout traduire" enchaîne les 10 contenus × EN + AR par petits batchs jusqu'à épuisement. Les articles sont traités 1 par 1 avec découpe JSON pour éviter les timeouts.
         </p>
       </Card>
 
