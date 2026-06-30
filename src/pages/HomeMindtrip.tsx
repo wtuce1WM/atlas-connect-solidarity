@@ -30,6 +30,7 @@ const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = koutoubiaVerticalBgAsset.url;
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import { useLanguage } from "@/contexts/LanguageContext";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
@@ -238,9 +239,47 @@ const renderDescWithCheckmarks = (text: string, isDarkBg = false) => {
   );
 };
 
+const HOME_LABELS = {
+  fr: {
+    heroTitle: "La Première Plateforme Solidaire du Maroc",
+    heroLine1: "Faites de chaque achat",
+    heroLine2: "un acte de générosité.",
+    heroLearnMore: "En savoir plus.",
+    searchPlaceholder: "Rechercher un hôtel, un restaurant, une expérience…",
+    watchVideo: "Voir la vidéo",
+    discover: "Découvrir",
+    howItWorks: "Comment fonctionne l'App ?",
+    inspireYourself: "Inspirez-vous",
+  },
+  en: {
+    heroTitle: "Morocco's First Solidarity Platform",
+    heroLine1: "Make every purchase",
+    heroLine2: "an act of generosity.",
+    heroLearnMore: "Learn more.",
+    searchPlaceholder: "Search a hotel, a restaurant, an experience…",
+    watchVideo: "Watch the video",
+    discover: "Discover",
+    howItWorks: "How does the App work?",
+    inspireYourself: "Get inspired",
+  },
+  ar: {
+    heroTitle: "أول منصة تضامنية في المغرب",
+    heroLine1: "اجعل من كل عملية شراء",
+    heroLine2: "عملاً من أعمال السخاء.",
+    heroLearnMore: "اعرف المزيد.",
+    searchPlaceholder: "ابحث عن فندق، مطعم، تجربة…",
+    watchVideo: "شاهد الفيديو",
+    discover: "اكتشف",
+    howItWorks: "كيف يعمل التطبيق؟",
+    inspireYourself: "استلهم",
+  },
+} as const;
+
 const HomeMindtrip = () => {
-  
+
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const L = HOME_LABELS[language] ?? HOME_LABELS.fr;
 
 
 
@@ -656,10 +695,10 @@ const HomeMindtrip = () => {
 
         <div className="absolute left-0 right-0 top-28 z-30 px-6 text-center md:hidden transition-all duration-700 animate-fade-in">
           <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
-            La Première Plateforme Solidaire du Maroc
+            {L.heroTitle}
           </h1>
           <p className="mt-6 max-w-2xl mx-auto font-roboto text-base font-normal text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
-            Faites de chaque achat<br /> un acte de générosité.<br /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
+            {L.heroLine1}<br /> {L.heroLine2}<br /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">{L.heroLearnMore}</Link>
           </p>
         </div>
 
@@ -668,11 +707,11 @@ const HomeMindtrip = () => {
           <div className="home-hero-copy hidden w-full md:block md:max-lg:max-w-[75%] md:max-lg:mb-6">
             {/* Mobile Title - placed under the header in normal flow to avoid overlap */}
             <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2 hero-rise">
-              La Première Plateforme Solidaire du Maroc
+              {L.heroTitle}
             </h1>
 
             <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] hero-rise">
-              Faites de chaque achat<br className="md:hidden" /> un acte de générosité.<br className="md:hidden" /><br className="hidden md:inline lg:hidden" /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
+              {L.heroLine1}<br className="md:hidden" /> {L.heroLine2}<br className="md:hidden" /><br className="hidden md:inline lg:hidden" /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">{L.heroLearnMore}</Link>
             </p>
           </div>
 
@@ -680,7 +719,7 @@ const HomeMindtrip = () => {
           <div className="max-md:mt-auto max-md:pt-10 max-md:-translate-y-16 mt-10 w-full max-w-2xl md:max-lg:mt-6 md:max-lg:mx-0 mx-auto">
             <div style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="w-full md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)] hero-rise">
               <HeroInlineSearch
-                placeholder="Rechercher un hôtel, un restaurant, une expérience…"
+                placeholder={L.searchPlaceholder}
                 onSearch={(params) => {
                   const qs = new URLSearchParams(params).toString();
                   navigate(`/search?${qs}`);
@@ -705,7 +744,7 @@ const HomeMindtrip = () => {
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     </span>
-                    <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">Voir la vidéo</span>
+                    <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">{L.watchVideo}</span>
                   </button>
                 </div>
               )}
@@ -758,7 +797,7 @@ const HomeMindtrip = () => {
                 <path d="M8 5v14l11-7z" />
               </svg>
             </span>
-            <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">Voir la vidéo</span>
+            <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">{L.watchVideo}</span>
           </button>
         </div>
 
@@ -766,10 +805,10 @@ const HomeMindtrip = () => {
           <button
             type="button"
             onClick={scrollToNext}
-            aria-label="Découvrir"
+            aria-label={L.discover}
             className="absolute bottom-6 md:bottom-8 left-1/2 z-30 -translate-x-1/2 text-white/70 transition hover:text-white"
           >
-            <span className="block font-josefin text-xs uppercase tracking-[0.3em]">Découvrir</span>
+            <span className="block font-josefin text-xs uppercase tracking-[0.3em]">{L.discover}</span>
             <ArrowDown className="mx-auto mt-2 h-5 w-5 animate-bounce" />
           </button>
         )}
@@ -780,7 +819,7 @@ const HomeMindtrip = () => {
       <section id="how-it-works" className="bg-background pt-24 md:pt-40 pb-4 md:pb-6">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <h2 id="how-it-works-title" className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl scroll-mt-24 md:scroll-mt-40">
-            Comment fonctionne l'App ?
+            {L.howItWorks}
           </h2>
 
           <div className="mt-10 space-y-12">
@@ -1196,7 +1235,7 @@ const HomeMindtrip = () => {
         <div className="sticky top-0 flex h-svh md:h-screen flex-col overflow-hidden">
           <div className="mx-auto w-full max-w-7xl px-6 md:px-12 pt-16 md:pt-20 shrink-0">
             <h2 className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl">
-              Inspirez-vous
+              {L.inspireYourself}
             </h2>
             <p className="mt-3 max-w-xl font-roboto text-foreground/70">
               Nos derniers guides pour explorer le Maroc autrement.
