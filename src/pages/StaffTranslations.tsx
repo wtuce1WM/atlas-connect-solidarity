@@ -90,38 +90,82 @@ export default function StaffTranslations() {
     setAutoRun(true);
     setStopRequested(false);
     const langs: ("en" | "ar")[] = ["en", "ar"];
-    const batchSize = 25;
-    const maxIterations = 50; // garde-fou
+    const batchSize = 10; // plus petit pour rester sous le timeout edge
+    const maxIterations = 300;
+    const maxRetriesPerBatch = 3;
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    let stopped = false;
+    const checkStop = () => {
+      // lit l'état le plus récent via setter (closure piège)
+      setStopRequested((s) => { stopped = s; return s; });
+      return stopped;
+    };
+
+    let totalOk = 0;
+    let totalErr = 0;
+
     try {
       for (const cfg of CONFIGS) {
         for (const lang of langs) {
           let iter = 0;
+          let consecutiveFailures = 0;
           while (iter < maxIterations) {
-            if (stopRequested) throw new Error("Arrêt demandé");
+            if (checkStop()) throw new Error("Arrêt demandé");
             iter++;
-            setAutoProgress(`${cfg.label} → ${lang.toUpperCase()} (batch ${iter})`);
-            const { data, error } = await supabase.functions.invoke("translate-content", {
-              body: { config_key: cfg.key, target_lang: lang, limit: batchSize, dry_run: false },
-            });
-            if (error) {
-              toast.error(`${cfg.key} → ${lang}: ${error.message}`);
-              break;
+
+            let attempt = 0;
+            let lastError: any = null;
+            let data: any = null;
+            while (attempt < maxRetriesPerBatch) {
+              attempt++;
+              setAutoProgress(
+                `${cfg.label} → ${lang.toUpperCase()} · batch ${iter}${attempt > 1 ? ` (retry ${attempt - 1})` : ""}`
+              );
+              try {
+                const res = await supabase.functions.invoke("translate-content", {
+                  body: { config_key: cfg.key, target_lang: lang, limit: batchSize, dry_run: false },
+                });
+                if (res.error) throw res.error;
+                data = res.data;
+                lastError = null;
+                break;
+              } catch (e: any) {
+                lastError = e;
+                await sleep(1500 * attempt); // backoff
+              }
             }
+
+            if (lastError) {
+              totalErr++;
+              consecutiveFailures++;
+              console.warn(`[translate] ${cfg.key} → ${lang} batch ${iter} failed:`, lastError);
+              if (consecutiveFailures >= 3) {
+                toast.error(`${cfg.label} → ${lang.toUpperCase()} : 3 échecs consécutifs, on passe au suivant.`);
+                break;
+              }
+              continue; // on tente la batch suivante
+            }
+
+            consecutiveFailures = 0;
+            totalOk++;
             await loadJobs();
             const processed = data?.processed ?? 0;
             if (processed < batchSize) break; // plus rien à traduire
+            await sleep(400); // petite pause pour éviter le rate-limit
           }
         }
       }
-      toast.success("Traduction globale terminée ✅");
+      toast.success(`Terminé ✅ — ${totalOk} batchs OK, ${totalErr} échecs`);
     } catch (e: any) {
-      toast.error(e?.message ?? "Arrêté");
+      toast.warning(e?.message ?? "Interrompu");
     } finally {
       setAutoRun(false);
       setAutoProgress("");
       setStopRequested(false);
     }
   };
+
+
 
   if (isStaff === null) {
     return <div className="p-8 text-center"><Loader2 className="animate-spin inline" /></div>;
