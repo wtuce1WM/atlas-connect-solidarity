@@ -112,8 +112,8 @@ async function fetchDynamicEntries(): Promise<SitemapEntry[]> {
     entries.push({
       path: `/blog/${encodeURIComponent(p.slug)}`,
       lastmod: toIsoDate(p.updated_at),
-      changefreq: "monthly",
-      priority: "0.6",
+      changefreq: "weekly",
+      priority: "0.9",
     });
   }
 
