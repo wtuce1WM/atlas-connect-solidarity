@@ -6,7 +6,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Languages, RefreshCw } from "lucide-react";
+import { Loader2, Languages, RefreshCw, Play, StopCircle } from "lucide-react";
 
 type Job = {
   id: string;
