@@ -96,6 +96,10 @@ export default function StaffTranslations() {
     const maxRetriesPerBatch = 3;
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
     const hasText = (value: unknown) => typeof value === "string" && value.trim().length > 0;
+    const entryHasContent = (e: any) => {
+      if (!e || typeof e !== "object") return false;
+      return Object.values(e).some((v) => typeof v === "string" && v.trim().length > 0);
+    };
     const isBlogPostComplete = (post: any, lang: "en" | "ar") => {
       const metaFields = [
         "title",
@@ -110,9 +114,13 @@ export default function StaffTranslations() {
         const target = post[`${field}_${lang}`];
         return !hasText(source) || hasText(target);
       });
+      // Conditional entries check: only count FR entries that actually have content.
+      // An AR/EN translation is only required when the FR source is non-empty.
       const sourceEntries = Array.isArray(post.entries_fr) ? post.entries_fr : [];
+      const meaningfulSourceCount = sourceEntries.filter(entryHasContent).length;
       const targetEntries = Array.isArray(post[`entries_${lang}`]) ? post[`entries_${lang}`] : [];
-      return hasAllMeta && targetEntries.length >= sourceEntries.length;
+      const meaningfulTargetCount = targetEntries.filter(entryHasContent).length;
+      return hasAllMeta && meaningfulTargetCount >= meaningfulSourceCount;
     };
     let stopped = false;
     const checkStop = () => {
