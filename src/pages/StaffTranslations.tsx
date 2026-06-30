@@ -107,6 +107,54 @@ export default function StaffTranslations() {
     try {
       for (const cfg of CONFIGS) {
         for (const lang of langs) {
+          // ── Special path for blog_posts: 1 article = 1 atomic AI call ──
+          if (cfg.key === "blog_posts") {
+            const { data: posts, error: pErr } = await supabase
+              .from("blog_posts")
+              .select(`slug, title_${lang}, entries_${lang}`)
+              .order("slug");
+            if (pErr) { totalErr++; console.warn("blog_posts list failed", pErr); continue; }
+
+            const targetTitleKey = `title_${lang}` as const;
+            const targetEntriesKey = `entries_${lang}` as const;
+            const pending = (posts ?? []).filter((p: any) => {
+              const hasTitle = !!p[targetTitleKey];
+              const entries = p[targetEntriesKey];
+              const hasEntries = Array.isArray(entries) && entries.length > 0;
+              return !(hasTitle && hasEntries);
+            });
+
+            let idx = 0;
+            for (const post of pending) {
+              if (checkStop()) throw new Error("Arrêt demandé");
+              idx++;
+              let attempt = 0;
+              let ok = false;
+              while (attempt < maxRetriesPerBatch && !ok) {
+                attempt++;
+                setAutoProgress(
+                  `Blog → ${lang.toUpperCase()} · ${post.slug} (${idx}/${pending.length})${attempt > 1 ? ` retry ${attempt - 1}` : ""}`
+                );
+                try {
+                  const res = await supabase.functions.invoke("translate-blog-post", {
+                    body: { slug: post.slug, target: lang },
+                  });
+                  if (res.error) throw res.error;
+                  ok = true;
+                  totalOk++;
+                } catch (e) {
+                  console.warn(`[blog ${post.slug} → ${lang}] attempt ${attempt} failed`, e);
+                  await sleep(2000 * attempt);
+                }
+              }
+              if (!ok) totalErr++;
+              await sleep(300);
+            }
+            await loadJobs();
+            continue;
+          }
+
+          // ── Default path: batched via translate-content ──
           let iter = 0;
           let consecutiveFailures = 0;
           while (iter < maxIterations) {
@@ -122,9 +170,8 @@ export default function StaffTranslations() {
                 `${cfg.label} → ${lang.toUpperCase()} · batch ${iter}${attempt > 1 ? ` (retry ${attempt - 1})` : ""}`
               );
               try {
-                const requestLimit = cfg.key === "blog_posts" ? 1 : defaultBatchSize;
                 const res = await supabase.functions.invoke("translate-content", {
-                  body: { config_key: cfg.key, target_lang: lang, limit: requestLimit, dry_run: false },
+                  body: { config_key: cfg.key, target_lang: lang, limit: defaultBatchSize, dry_run: false },
                 });
                 if (res.error) throw res.error;
                 data = res.data;
@@ -151,12 +198,12 @@ export default function StaffTranslations() {
             totalOk++;
             await loadJobs();
             const processed = data?.processed ?? 0;
-            const requestLimit = cfg.key === "blog_posts" ? 1 : defaultBatchSize;
-            if (processed < requestLimit) break; // plus rien à traduire
+            if (processed < defaultBatchSize) break; // plus rien à traduire
             await sleep(400); // petite pause pour éviter le rate-limit
           }
         }
       }
+
       toast.success(`Terminé ✅ — ${totalOk} batchs OK, ${totalErr} échecs`);
     } catch (e: any) {
       toast.warning(e?.message ?? "Interrompu");
