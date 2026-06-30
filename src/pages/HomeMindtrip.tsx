@@ -318,9 +318,16 @@ const HomeMindtrip = () => {
       const merged = [...staticItems, ...dbItems].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
+      const seen = new Set<string>();
+      const deduped = merged.filter((m) => {
+        if (seen.has(m.slug)) return false;
+        seen.add(m.slug);
+        return true;
+      });
 
       if (cancelled) return;
-      setLatestPosts(merged.map(({ slug, title, image }) => ({ slug, title, image })));
+      setLatestPosts(deduped.map(({ slug, title, image }) => ({ slug, title, image })));
+
     })();
     return () => { cancelled = true; };
   }, []);
