@@ -6,7 +6,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Languages, RefreshCw } from "lucide-react";
+import { Loader2, Languages, RefreshCw, Play, StopCircle } from "lucide-react";
 
 type Job = {
   id: string;
@@ -43,6 +43,9 @@ export default function StaffTranslations() {
   const [limit, setLimit] = useState(10);
   const [dryRun, setDryRun] = useState(false);
   const [running, setRunning] = useState(false);
+  const [autoRun, setAutoRun] = useState(false);
+  const [autoProgress, setAutoProgress] = useState<string>("");
+  const [stopRequested, setStopRequested] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
 
   useEffect(() => {
@@ -80,6 +83,43 @@ export default function StaffTranslations() {
       toast.error(e?.message ?? "Erreur");
     } finally {
       setRunning(false);
+    }
+  };
+
+  const runAll = async () => {
+    setAutoRun(true);
+    setStopRequested(false);
+    const langs: ("en" | "ar")[] = ["en", "ar"];
+    const batchSize = 25;
+    const maxIterations = 50; // garde-fou
+    try {
+      for (const cfg of CONFIGS) {
+        for (const lang of langs) {
+          let iter = 0;
+          while (iter < maxIterations) {
+            if (stopRequested) throw new Error("Arrêt demandé");
+            iter++;
+            setAutoProgress(`${cfg.label} → ${lang.toUpperCase()} (batch ${iter})`);
+            const { data, error } = await supabase.functions.invoke("translate-content", {
+              body: { config_key: cfg.key, target_lang: lang, limit: batchSize, dry_run: false },
+            });
+            if (error) {
+              toast.error(`${cfg.key} → ${lang}: ${error.message}`);
+              break;
+            }
+            await loadJobs();
+            const processed = data?.processed ?? 0;
+            if (processed < batchSize) break; // plus rien à traduire
+          }
+        }
+      }
+      toast.success("Traduction globale terminée ✅");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Arrêté");
+    } finally {
+      setAutoRun(false);
+      setAutoProgress("");
+      setStopRequested(false);
     }
   };
 
@@ -129,12 +169,27 @@ export default function StaffTranslations() {
             <input type="checkbox" checked={dryRun} onChange={(e) => setDryRun(e.target.checked)} />
             Dry run (ne pas écrire en base)
           </label>
-          <Button onClick={run} disabled={running} className="ml-auto">
-            {running ? <><Loader2 className="animate-spin h-4 w-4 mr-2" />Traduction en cours…</> : "Lancer la traduction"}
+          <Button onClick={run} disabled={running || autoRun} className="ml-auto" variant="outline">
+            {running ? <><Loader2 className="animate-spin h-4 w-4 mr-2" />Traduction en cours…</> : "Lancer ce batch"}
           </Button>
+          {!autoRun ? (
+            <Button onClick={runAll} disabled={running}>
+              <Play className="h-4 w-4 mr-2" />Tout traduire (EN + AR)
+            </Button>
+          ) : (
+            <Button onClick={() => setStopRequested(true)} variant="destructive">
+              <StopCircle className="h-4 w-4 mr-2" />Arrêter
+            </Button>
+          )}
         </div>
+        {autoRun && (
+          <div className="flex items-center gap-2 text-sm text-primary bg-primary/10 rounded-md px-3 py-2">
+            <Loader2 className="animate-spin h-4 w-4" />
+            <span>En cours : {autoProgress}</span>
+          </div>
+        )}
         <p className="text-xs text-muted-foreground">
-          Le job traduit uniquement les lignes dont le champ cible est vide. Relance plusieurs fois pour avancer par batchs.
+          "Tout traduire" enchaîne les 10 contenus × EN + AR par batchs de 25 lignes jusqu'à épuisement. Peut prendre plusieurs minutes — garde l'onglet ouvert.
         </p>
       </Card>
 
