@@ -5684,6 +5684,66 @@ export type Database = {
         }
         Relationships: []
       }
+      translation_jobs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          error_count: number
+          fields: Json
+          finished_at: string | null
+          id: string
+          last_error: string | null
+          options: Json
+          processed_rows: number
+          source_lang: string
+          started_at: string | null
+          status: string
+          success_count: number
+          table_name: string
+          target_lang: string
+          total_rows: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          error_count?: number
+          fields?: Json
+          finished_at?: string | null
+          id?: string
+          last_error?: string | null
+          options?: Json
+          processed_rows?: number
+          source_lang?: string
+          started_at?: string | null
+          status?: string
+          success_count?: number
+          table_name: string
+          target_lang: string
+          total_rows?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          error_count?: number
+          fields?: Json
+          finished_at?: string | null
+          id?: string
+          last_error?: string | null
+          options?: Json
+          processed_rows?: number
+          source_lang?: string
+          started_at?: string | null
+          status?: string
+          success_count?: number
+          table_name?: string
+          target_lang?: string
+          total_rows?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
