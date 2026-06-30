@@ -394,9 +394,14 @@ export default function StaffTranslations() {
             {running ? <><Loader2 className="animate-spin h-4 w-4 mr-2" />Traduction en cours…</> : "Lancer ce batch"}
           </Button>
           {!autoRun ? (
-            <Button onClick={runAll} disabled={running}>
-              <Play className="h-4 w-4 mr-2" />Tout traduire (EN + AR)
-            </Button>
+            <>
+              <Button onClick={() => runAll()} disabled={running}>
+                <Play className="h-4 w-4 mr-2" />Tout traduire (EN + AR)
+              </Button>
+              <Button onClick={() => runAll("businesses_full")} disabled={running} variant="secondary">
+                <Play className="h-4 w-4 mr-2" />Traduire fiches uniquement
+              </Button>
+            </>
           ) : (
             <Button onClick={() => setStopRequested(true)} variant="destructive">
               <StopCircle className="h-4 w-4 mr-2" />Arrêter
