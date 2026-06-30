@@ -37,7 +37,6 @@ const CONFIGS: { key: string; label: string }[] = [
 ];
 
 export default function StaffTranslations() {
-  const { user, loading: authLoading } = useAuth();
   const [isStaff, setIsStaff] = useState<boolean | null>(null);
   const [configKey, setConfigKey] = useState("blog_posts");
   const [targetLang, setTargetLang] = useState<"en" | "ar">("en");
@@ -47,9 +46,13 @@ export default function StaffTranslations() {
   const [jobs, setJobs] = useState<Job[]>([]);
 
   useEffect(() => {
-    if (!user) return;
-    supabase.rpc("is_staff", { _user_id: user.id }).then(({ data }) => setIsStaff(!!data));
-  }, [user]);
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setIsStaff(false); return; }
+      const { data } = await supabase.rpc("is_staff", { _user_id: session.user.id });
+      setIsStaff(!!data);
+    })();
+  }, []);
 
   const loadJobs = async () => {
     const { data } = await supabase
@@ -80,10 +83,12 @@ export default function StaffTranslations() {
     }
   };
 
-  if (authLoading || isStaff === null) {
+  if (isStaff === null) {
     return <div className="p-8 text-center"><Loader2 className="animate-spin inline" /></div>;
   }
-  if (!user || !isStaff) return <Navigate to="/staff/login" replace />;
+  if (!isStaff) {
+    return <div className="p-8 text-center text-muted-foreground">Accès staff requis.</div>;
+  }
 
   return (
     <div className="container max-w-5xl py-8 space-y-6">
