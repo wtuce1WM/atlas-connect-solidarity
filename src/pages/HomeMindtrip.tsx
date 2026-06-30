@@ -304,12 +304,16 @@ const HomeMindtrip = () => {
           ?? (a.bizId ? imgById.get(a.bizId) : undefined),
         date: a.date,
       }));
-      const dbItems = (dbPosts || []).map((p: any) => ({
-        slug: `/blog/${p.slug}`,
-        title: p.title_fr,
-        image: p.cover_image_url || undefined,
-        date: p.published_at || p.created_at,
-      }));
+      const staticSlugs = new Set(staticArticles.map((a) => a.slug));
+      const dbItems = (dbPosts || [])
+        .filter((p: any) => !staticSlugs.has(p.slug))
+        .map((p: any) => ({
+          slug: `/blog/${p.slug}`,
+          title: p.title_fr,
+          image: p.cover_image_url || undefined,
+          date: p.published_at || p.created_at,
+        }));
+
 
       const merged = [...staticItems, ...dbItems].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
