@@ -30,8 +30,15 @@ interface MenuUrlCardProps {
   onOpenUrl: (url: string, title?: string) => void;
 }
 
+const LABELS = {
+  fr: { la_carte: "La Carte", voir_carte: "Voir la carte" },
+  en: { la_carte: "Menu", voir_carte: "View menu" },
+  ar: { la_carte: "القائمة", voir_carte: "عرض القائمة" },
+};
+
 const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, categoryIcon, onOpenUrl }: MenuUrlCardProps) => {
   if (menus.length === 0) return null;
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
 
   return (
     <div
@@ -48,7 +55,7 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, cate
           className="text-sm font-bold uppercase tracking-wide"
           style={{ fontFamily: "'Montserrat', sans-serif" }}
         >
-          {language === "en" ? "Menu" : language === "ar" ? "القائمة" : "La Carte"}
+          {L.la_carte}
         </h3>
       </div>
 
@@ -56,11 +63,11 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, cate
         {menus.map((m) => (
           <button
             key={m.id}
-            onClick={() => onOpenUrl(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
+            onClick={() => onOpenUrl(m.url, m.name || L.la_carte)}
             className="flex flex-col items-center gap-1.5 rounded-xl bg-white/10 hover:bg-white/20 transition-colors px-4 py-3"
           >
             <span className="text-xs text-white/90 text-center normal-case" style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif", letterSpacing: '0.02em', textTransform: 'none' }}>
-              {m.name || (language === "en" ? "View menu" : "Voir la carte")}
+              {m.name || L.voir_carte}
             </span>
           </button>
         ))}

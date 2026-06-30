@@ -1,4 +1,6 @@
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
+import { useLanguage } from "@/contexts/LanguageContext";
+
 interface MapCardProps {
   latitude: number | null;
   longitude: number | null;
@@ -9,6 +11,12 @@ interface MapCardProps {
   className?: string;
   onClick?: () => void;
 }
+
+const LABELS = {
+  fr: { map_of: "Carte de" },
+  en: { map_of: "Map of" },
+  ar: { map_of: "خريطة" },
+};
 
 const extractMarkerCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
   const dataBlockMatch = url.match(/!8m2!3d(-?\d+\.?\d+)!4d(-?\d+\.?\d+)/);
@@ -31,6 +39,9 @@ const MapCard = ({
   className = "",
   onClick,
 }: MapCardProps) => {
+  const { language } = useLanguage();
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
+
   const markerCoords = googleMapsUrl ? extractMarkerCoordsFromMapsUrl(googleMapsUrl) : null;
   const lat = markerCoords?.lat ?? latitude;
   const lng = markerCoords?.lng ?? longitude;
@@ -51,7 +62,7 @@ const MapCard = ({
         allowFullScreen
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
-        title={`Carte de ${businessName}`}
+        title={`${L.map_of} ${businessName}`}
       />
     </div>
   );
