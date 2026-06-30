@@ -179,15 +179,7 @@ Deno.serve(async (req) => {
     const chunk = sourceEntries.slice(start, start + chunkSize);
 
     if (chunk.length > 0) {
-      const translatedChunk = await translateJson({ entries: chunk }, target);
-      const nextEntries = Array.isArray(translatedChunk.entries) ? translatedChunk.entries : [];
-      if (nextEntries.length !== chunk.length) {
-        return jsonRes({
-          error: "Translation returned an incomplete entries chunk",
-          expected: chunk.length,
-          received: nextEntries.length,
-        }, 500);
-      }
+      const nextEntries = await translateEntriesAdaptive(chunk, target);
       update[entriesKey] = [...safeExistingEntries, ...nextEntries];
     } else if (!Array.isArray(post[entriesKey])) {
       update[entriesKey] = [];
