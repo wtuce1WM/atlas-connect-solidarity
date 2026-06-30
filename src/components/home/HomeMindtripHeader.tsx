@@ -75,7 +75,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
         { to: "/install", label: L.app },
       ];
     } else {
-      const baseLinks = [
+      const baseLinks: { to: string; label: string }[] = [
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
         { to: "/club", label: L.club },
@@ -125,7 +125,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
         { to: "/install", label: L.app },
       ];
     } else {
-      const baseLinks = [
+      const baseLinks: { to: string; label: string }[] = [
         ...base,
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
