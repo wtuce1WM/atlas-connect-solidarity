@@ -156,6 +156,16 @@ export default function StaffTranslations() {
               let safety = 0;
               while (!ok && safety < 30) {
                 safety++;
+                const { data: latestPost, error: latestErr } = await supabase
+                  .from("blog_posts")
+                  .select(`slug, title_fr, excerpt_fr, hero_title_top_fr, hero_title_bottom_fr, hero_subtitle_fr, intro_fr, title_${lang}, excerpt_${lang}, hero_title_top_${lang}, hero_title_bottom_${lang}, hero_subtitle_${lang}, intro_${lang}, entries_${lang}, entries_fr`)
+                  .eq("slug", post.slug)
+                  .maybeSingle();
+                if (!latestErr && latestPost && isBlogPostComplete(latestPost, lang)) {
+                  setAutoProgress(`Blog → ${lang.toUpperCase()} · ${post.slug} (${idx}/${pending.length}) · déjà traduit`);
+                  ok = true;
+                  break;
+                }
                 setAutoProgress(
                   `Blog → ${lang.toUpperCase()} · ${post.slug} (${idx}/${pending.length})${attempt > 0 ? ` retry ${attempt}` : ""}`
                 );
