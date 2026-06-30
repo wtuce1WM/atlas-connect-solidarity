@@ -280,6 +280,7 @@ const HomeMindtrip = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const L = HOME_LABELS[language] ?? HOME_LABELS.fr;
+  const STEPS = getSteps((["fr", "en", "ar"].includes(language) ? language : "fr") as StepLang);
 
 
 
@@ -1399,71 +1400,59 @@ const HotelAvailabilityWidget = () => {
 };
 
 
-const STEPS = [
-  {
-    title: "Inspirez-vous en vidéo. Découvrez des adresses vérifiées.",
-    desc: "Plongez dans des vidéos courtes qui révèlent l'âme des lieux : riads, tables d'exception, artisans, expériences. Chaque établissement est sélectionné, visité et validé par notre équipe pour vous garantir une expérience à la hauteur.",
-    cta: "Voir les vidéos",
-    href: "/videos",
-    icon: PlayCircle,
-  },
-  {
-    title: "Votre identité numérique",
-    desc: "Créez un profil qui vous ressemble — profil, carte, lieux favoris et avantages locaux en un seul lien.\n\nAjoutez votre style, vos liens et connectez-vous avec des utilisateurs qui partagent votre intérêt pour le Maroc.\n\n• Profil et couverture personnalisés\n• Ajoutez vos réseaux sociaux\n• Votre QR code\n• Connectez-vous et chattez facilement",
-    cta: "Créer mon profil",
-    href: "/club",
-    icon: User,
-  },
-  {
-    title: "Votre assistant IA",
-    desc: "Dialoguez avec notre Agent IA :\n\u00a0\n• Affinez vos recherches avec vos propres critères en dialoguant avec notre agent IA\u00a0\n• En mode texte ou vocal\u00a0\n• Sauvegardez les résultats\n• Partagez les avec vos proches",
-    cta: "Voir la démo",
-    href: "/search?q=je%20cherche%20un%20restaurant%20%C3%A0%20Marrakech%20ouvert%20demain%20midi%20avec%20une%20piscine&tab=ai&demo=sur%20la%20route%20de%20l'Ourika",
-    icon: Sparkles,
-  },
-  {
-    title: "Composez votre voyage",
-    desc: "- Construisez votre itinéraire\n- Suivez les établissements qui vous intéressent\n- Gardez les points d'intérêts dans votre compte\n- Soyez informé des bons plans, agenda, annonces...",
-    cta: "Inscrivez-vous",
-    href: "/club",
-    icon: Compass,
-  },
-  {
-    title: "Offres sélectionnées. Prix locaux.",
-    desc: "Votre application direct-to-local dédiée au tourisme et à la vie quotidienne au Maroc.\n\nRéductions exclusives sur :\n- Séjours\n- Visites\n- Restaurants\n- Commerces\n- Activités\n- Services\n\n",
-    cta: "Profiter des offres",
-    href: "/club",
-    icon: Percent,
-  },
-  {
-    title: "Pépites cachées, expériences inoubliables",
-    desc: "Découvrez des adresses d'exception.\n\n• épinglez-les\n• partagez-les\n• visitez-les\n• notez-les",
-    cta: "Explorer",
-    href: "/search",
-    icon: Sparkles,
-  },
-  {
-    title: "Réservez l'esprit léger, participez à l'économie direct-to-local",
-    desc: "Réservez directement vos hôtels, restaurants et activités auprès de partenaires de confiance.",
-    cta: "Voir les hôtels",
-    href: "/hotels",
-    icon: CalendarCheck,
-  },
-  {
-    title: "Naviguez en mode immersif",
-    desc: "Associez :\n\n• la précision de la recherche Google\n• la preuve sociale/avis clients des grandes plateformes\n• les fonctionnalités de TripAdvisor/Booking\n• la géolocalisation de Google Maps\u00a0\n• la navigation immersive de TikTok / Instagram / Youtube\n• la personnalisation de l'IA\n",
-    cta: "Découvrir",
-    href: "/y/tarik-belasri",
-    icon: PlayCircle,
-  },
-  {
-    title: "Installez l'application",
-    desc: "Installez ONE WORLD MOROCCO sur votre appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur votre écran d'accueil ou votre bureau.\n\nCompatible iPhone, iPad, Android, Mac et Windows.\n\n\nVotre\u00a0",
-    cta: "Installer l'app",
-    href: "/install",
-    icon: PlayCircle,
-  },
+type StepLang = "fr" | "en" | "ar";
+const STEP_ICONS = [PlayCircle, User, Sparkles, Compass, Percent, Sparkles, CalendarCheck, PlayCircle, PlayCircle];
+const STEP_HREFS = [
+  "/videos",
+  "/club",
+  "/search?q=je%20cherche%20un%20restaurant%20%C3%A0%20Marrakech%20ouvert%20demain%20midi%20avec%20une%20piscine&tab=ai&demo=sur%20la%20route%20de%20l'Ourika",
+  "/club",
+  "/club",
+  "/search",
+  "/hotels",
+  "/y/tarik-belasri",
+  "/install",
 ];
+
+const STEPS_I18N: Record<StepLang, { title: string; desc: string; cta: string }[]> = {
+  fr: [
+    { title: "Inspirez-vous en vidéo. Découvrez des adresses vérifiées.", desc: "Plongez dans des vidéos courtes qui révèlent l'âme des lieux : riads, tables d'exception, artisans, expériences. Chaque établissement est sélectionné, visité et validé par notre équipe pour vous garantir une expérience à la hauteur.", cta: "Voir les vidéos" },
+    { title: "Votre identité numérique", desc: "Créez un profil qui vous ressemble — profil, carte, lieux favoris et avantages locaux en un seul lien.\n\nAjoutez votre style, vos liens et connectez-vous avec des utilisateurs qui partagent votre intérêt pour le Maroc.\n\n• Profil et couverture personnalisés\n• Ajoutez vos réseaux sociaux\n• Votre QR code\n• Connectez-vous et chattez facilement", cta: "Créer mon profil" },
+    { title: "Votre assistant IA", desc: "Dialoguez avec notre Agent IA :\n\u00a0\n• Affinez vos recherches avec vos propres critères en dialoguant avec notre agent IA\u00a0\n• En mode texte ou vocal\u00a0\n• Sauvegardez les résultats\n• Partagez les avec vos proches", cta: "Voir la démo" },
+    { title: "Composez votre voyage", desc: "- Construisez votre itinéraire\n- Suivez les établissements qui vous intéressent\n- Gardez les points d'intérêts dans votre compte\n- Soyez informé des bons plans, agenda, annonces...", cta: "Inscrivez-vous" },
+    { title: "Offres sélectionnées. Prix locaux.", desc: "Votre application direct-to-local dédiée au tourisme et à la vie quotidienne au Maroc.\n\nRéductions exclusives sur :\n- Séjours\n- Visites\n- Restaurants\n- Commerces\n- Activités\n- Services\n\n", cta: "Profiter des offres" },
+    { title: "Pépites cachées, expériences inoubliables", desc: "Découvrez des adresses d'exception.\n\n• épinglez-les\n• partagez-les\n• visitez-les\n• notez-les", cta: "Explorer" },
+    { title: "Réservez l'esprit léger, participez à l'économie direct-to-local", desc: "Réservez directement vos hôtels, restaurants et activités auprès de partenaires de confiance.", cta: "Voir les hôtels" },
+    { title: "Naviguez en mode immersif", desc: "Associez :\n\n• la précision de la recherche Google\n• la preuve sociale/avis clients des grandes plateformes\n• les fonctionnalités de TripAdvisor/Booking\n• la géolocalisation de Google Maps\u00a0\n• la navigation immersive de TikTok / Instagram / Youtube\n• la personnalisation de l'IA\n", cta: "Découvrir" },
+    { title: "Installez l'application", desc: "Installez ONE WORLD MOROCCO sur votre appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur votre écran d'accueil ou votre bureau.\n\nCompatible iPhone, iPad, Android, Mac et Windows.\n\n\nVotre\u00a0", cta: "Installer l'app" },
+  ],
+  en: [
+    { title: "Get inspired by video. Discover verified addresses.", desc: "Dive into short videos that reveal the soul of each place: riads, exceptional tables, artisans, experiences. Every business is selected, visited and validated by our team to guarantee an experience worth your time.", cta: "Watch the videos" },
+    { title: "Your digital identity", desc: "Create a profile that looks like you — profile, card, favourite places and local perks in a single link.\n\nAdd your style, your links and connect with users who share your interest for Morocco.\n\n• Custom profile and cover\n• Add your social networks\n• Your QR code\n• Connect and chat easily", cta: "Create my profile" },
+    { title: "Your AI assistant", desc: "Chat with our AI agent:\n\u00a0\n• Refine your searches with your own criteria by talking to our AI agent\u00a0\n• Text or voice mode\u00a0\n• Save the results\n• Share them with your loved ones", cta: "Watch the demo" },
+    { title: "Compose your trip", desc: "- Build your itinerary\n- Follow the businesses that interest you\n- Keep your points of interest in your account\n- Stay informed about deals, calendar, announcements...", cta: "Sign up" },
+    { title: "Curated offers. Local prices.", desc: "Your direct-to-local app dedicated to tourism and everyday life in Morocco.\n\nExclusive discounts on:\n- Stays\n- Tours\n- Restaurants\n- Shops\n- Activities\n- Services\n\n", cta: "Enjoy the offers" },
+    { title: "Hidden gems, unforgettable experiences", desc: "Discover exceptional addresses.\n\n• pin them\n• share them\n• visit them\n• rate them", cta: "Explore" },
+    { title: "Book with peace of mind, support the direct-to-local economy", desc: "Book your hotels, restaurants and activities directly with trusted partners.", cta: "See hotels" },
+    { title: "Browse in immersive mode", desc: "Combine:\n\n• the precision of Google search\n• the social proof / reviews of major platforms\n• the features of TripAdvisor/Booking\n• Google Maps geolocation\u00a0\n• the immersive navigation of TikTok / Instagram / YouTube\n• AI personalisation\n", cta: "Discover" },
+    { title: "Install the app", desc: "Install ONE WORLD MOROCCO on your device for one-click access, no address bar, with the icon directly on your home screen or desktop.\n\nCompatible with iPhone, iPad, Android, Mac and Windows.\n\n\nYour\u00a0", cta: "Install the app" },
+  ],
+  ar: [
+    { title: "استلهم من الفيديو. اكتشف عناوين موثقة.", desc: "انغمس في مقاطع فيديو قصيرة تكشف روح الأماكن: رياضات، موائد استثنائية، حرفيون، تجارب. كل مؤسسة مختارة وتمت زيارتها والتحقق منها من قبل فريقنا لضمان تجربة في مستوى توقعاتك.", cta: "شاهد الفيديوهات" },
+    { title: "هويتك الرقمية", desc: "أنشئ ملفًا شخصيًا يشبهك — ملف، بطاقة، أماكن مفضلة ومزايا محلية في رابط واحد.\n\nأضف أسلوبك وروابطك وتواصل مع مستخدمين يشاركونك اهتمامك بالمغرب.\n\n• ملف وغلاف مخصصان\n• أضف شبكاتك الاجتماعية\n• رمز QR الخاص بك\n• تواصل ودردش بسهولة", cta: "إنشاء ملفي" },
+    { title: "مساعدك الذكي", desc: "حاور وكيلنا الذكي:\n\u00a0\n• حسّن عمليات البحث بمعاييرك الخاصة عبر محاورة وكيل الذكاء الاصطناعي\u00a0\n• وضع نصي أو صوتي\u00a0\n• احفظ النتائج\n• شاركها مع أحبائك", cta: "شاهد العرض التوضيحي" },
+    { title: "صمم رحلتك", desc: "- ابنِ خط سيرك\n- تابع المؤسسات التي تهمك\n- احتفظ بنقاط الاهتمام في حسابك\n- ابق على اطلاع بالعروض والمواعيد والإعلانات...", cta: "سجّل" },
+    { title: "عروض مختارة. أسعار محلية.", desc: "تطبيقك المباشر للمحلي مخصص للسياحة والحياة اليومية في المغرب.\n\nخصومات حصرية على:\n- الإقامات\n- الجولات\n- المطاعم\n- المتاجر\n- الأنشطة\n- الخدمات\n\n", cta: "استفد من العروض" },
+    { title: "جواهر خفية وتجارب لا تُنسى", desc: "اكتشف عناوين استثنائية.\n\n• ثبّتها\n• شاركها\n• زرها\n• قيّمها", cta: "استكشف" },
+    { title: "احجز بأريحية وادعم الاقتصاد المحلي المباشر", desc: "احجز فنادقك ومطاعمك وأنشطتك مباشرة لدى شركاء موثوقين.", cta: "شاهد الفنادق" },
+    { title: "تصفح في الوضع الانغماسي", desc: "اجمع:\n\n• دقة بحث جوجل\n• الدليل الاجتماعي / آراء العملاء للمنصات الكبرى\n• ميزات TripAdvisor/Booking\n• تحديد الموقع عبر خرائط جوجل\u00a0\n• التصفح الانغماسي لـ TikTok / Instagram / YouTube\n• التخصيص بالذكاء الاصطناعي\n", cta: "اكتشف" },
+    { title: "ثبّت التطبيق", desc: "ثبّت ONE WORLD MOROCCO على جهازك للوصول بنقرة واحدة، دون شريط عنوان، مع الأيقونة مباشرة على شاشتك الرئيسية أو سطح المكتب.\n\nمتوافق مع iPhone وiPad وAndroid وMac وWindows.\n\n\nخاصتك\u00a0", cta: "ثبّت التطبيق" },
+  ],
+};
+
+const getSteps = (lang: StepLang) =>
+  STEPS_I18N[lang].map((s, i) => ({ ...s, href: STEP_HREFS[i], icon: STEP_ICONS[i] }));
+
 
 
 const TOOLKIT = [
