@@ -707,11 +707,11 @@ const HomeMindtrip = () => {
           <div className="home-hero-copy hidden w-full md:block md:max-lg:max-w-[75%] md:max-lg:mb-6">
             {/* Mobile Title - placed under the header in normal flow to avoid overlap */}
             <h1 style={{ lineHeight: 1.2, animationDelay: '.45s', animationFillMode: 'forwards' }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2 hero-rise">
-              La Première Plateforme Solidaire du Maroc
+              {L.heroTitle}
             </h1>
 
             <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] hero-rise">
-              Faites de chaque achat<br className="md:hidden" /> un acte de générosité.<br className="md:hidden" /><br className="hidden md:inline lg:hidden" /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
+              {L.heroLine1}<br className="md:hidden" /> {L.heroLine2}<br className="md:hidden" /><br className="hidden md:inline lg:hidden" /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">{L.heroLearnMore}</Link>
             </p>
           </div>
 
@@ -719,7 +719,7 @@ const HomeMindtrip = () => {
           <div className="max-md:mt-auto max-md:pt-10 max-md:-translate-y-16 mt-10 w-full max-w-2xl md:max-lg:mt-6 md:max-lg:mx-0 mx-auto">
             <div style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="w-full md:max-lg:p-6 md:max-lg:bg-white/[0.08] md:max-lg:backdrop-blur-2xl md:max-lg:border md:max-lg:border-white/20 md:max-lg:rounded-3xl md:max-lg:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_20px_60px_-15px_rgba(0,0,0,0.5)] hero-rise">
               <HeroInlineSearch
-                placeholder="Rechercher un hôtel, un restaurant, une expérience…"
+                placeholder={L.searchPlaceholder}
                 onSearch={(params) => {
                   const qs = new URLSearchParams(params).toString();
                   navigate(`/search?${qs}`);
@@ -744,7 +744,7 @@ const HomeMindtrip = () => {
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     </span>
-                    <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">Voir la vidéo</span>
+                    <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">{L.watchVideo}</span>
                   </button>
                 </div>
               )}
@@ -797,7 +797,7 @@ const HomeMindtrip = () => {
                 <path d="M8 5v14l11-7z" />
               </svg>
             </span>
-            <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">Voir la vidéo</span>
+            <span className="font-roboto text-sm font-semibold text-[#F1F1F1] tracking-wide whitespace-nowrap">{L.watchVideo}</span>
           </button>
         </div>
 
@@ -805,10 +805,10 @@ const HomeMindtrip = () => {
           <button
             type="button"
             onClick={scrollToNext}
-            aria-label="Découvrir"
+            aria-label={L.discover}
             className="absolute bottom-6 md:bottom-8 left-1/2 z-30 -translate-x-1/2 text-white/70 transition hover:text-white"
           >
-            <span className="block font-josefin text-xs uppercase tracking-[0.3em]">Découvrir</span>
+            <span className="block font-josefin text-xs uppercase tracking-[0.3em]">{L.discover}</span>
             <ArrowDown className="mx-auto mt-2 h-5 w-5 animate-bounce" />
           </button>
         )}
@@ -819,7 +819,7 @@ const HomeMindtrip = () => {
       <section id="how-it-works" className="bg-background pt-24 md:pt-40 pb-4 md:pb-6">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <h2 id="how-it-works-title" className="font-josefin text-4xl font-light tracking-tight text-foreground md:text-5xl scroll-mt-24 md:scroll-mt-40">
-            Comment fonctionne l'App ?
+            {L.howItWorks}
           </h2>
 
           <div className="mt-10 space-y-12">
