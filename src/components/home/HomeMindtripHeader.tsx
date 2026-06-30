@@ -18,6 +18,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
   const blackHamburger = (location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/devenir-affilie") && !isWhiteHeaderPage;
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const englishEnabled = useEnglishFlag();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
