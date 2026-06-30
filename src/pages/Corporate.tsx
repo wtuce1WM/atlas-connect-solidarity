@@ -251,7 +251,7 @@ const Corporate = () => {
     .replace("{{CITIES_EYEBROW}}", L.citiesEyebrow)
     .replace("{{CITIES_TITLE}}", L.citiesTitle)
     .replace("{{CITIES_SUB}}", L.citiesSub)
-    .replaceAll("{{CITY_LABEL}}", L.cityLabel)
+    .split("{{CITY_LABEL}}").join(L.cityLabel)
     .replace("{{CITIES_KINGDOM}}", L.citiesKingdom);
 
   return (
