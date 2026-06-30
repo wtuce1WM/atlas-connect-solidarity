@@ -107,11 +107,11 @@ export default function StaffTranslations() {
     try {
       for (const cfg of CONFIGS) {
         for (const lang of langs) {
-          // ── Special path for blog_posts: 1 article = 1 atomic AI call ──
+          // ── Special path for blog_posts: progressive chunks per article ──
           if (cfg.key === "blog_posts") {
             const { data: posts, error: pErr } = await supabase
               .from("blog_posts")
-              .select(`slug, title_${lang}, excerpt_${lang}, intro_${lang}, entries_${lang}, entries_fr`)
+              .select(`slug, title_fr, excerpt_fr, intro_fr, title_${lang}, excerpt_${lang}, intro_${lang}, entries_${lang}, entries_fr`)
               .order("slug");
             if (pErr) { totalErr++; console.warn("blog_posts list failed", pErr); continue; }
 
@@ -120,9 +120,12 @@ export default function StaffTranslations() {
             const targetIntroKey = `intro_${lang}` as const;
             const targetEntriesKey = `entries_${lang}` as const;
             const pending = (posts ?? []).filter((p: any) => {
-              const hasTitle = !!p[targetTitleKey];
-              const hasExcerpt = !!p[targetExcerptKey];
-              const hasIntro = !!p[targetIntroKey];
+              const sourceHasTitle = typeof p.title_fr === "string" && p.title_fr.trim().length > 0;
+              const sourceHasExcerpt = typeof p.excerpt_fr === "string" && p.excerpt_fr.trim().length > 0;
+              const sourceHasIntro = typeof p.intro_fr === "string" && p.intro_fr.trim().length > 0;
+              const hasTitle = !sourceHasTitle || !!p[targetTitleKey];
+              const hasExcerpt = !sourceHasExcerpt || !!p[targetExcerptKey];
+              const hasIntro = !sourceHasIntro || !!p[targetIntroKey];
               const sourceEntries = Array.isArray(p.entries_fr) ? p.entries_fr : [];
               const entries = Array.isArray(p[targetEntriesKey]) ? p[targetEntriesKey] : [];
               const hasEntries = entries.length >= sourceEntries.length;
