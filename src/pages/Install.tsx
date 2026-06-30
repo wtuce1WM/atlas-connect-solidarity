@@ -571,8 +571,8 @@ const Install = () => {
         {updateAvailable && (
           <div className="mt-10 rounded-2xl border border-primary/40 bg-primary/10 p-5 text-center">
             <p className="font-roboto text-sm text-foreground">
-              <strong>Une nouvelle version de l'app est disponible.</strong><br />
-              Mettez à jour maintenant pour profiter des dernières améliorations.
+              <strong>{t.updateBannerStrong}</strong><br />
+              {t.updateBannerText}
             </p>
             <button
               type="button"
