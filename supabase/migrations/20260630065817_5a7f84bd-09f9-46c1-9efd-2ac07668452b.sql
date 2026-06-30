@@ -1,0 +1,1 @@
+GRANT INSERT, UPDATE, SELECT ON public.blog_posts TO sandbox_exec;

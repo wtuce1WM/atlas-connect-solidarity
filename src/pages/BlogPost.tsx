@@ -11,9 +11,15 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
+import BlogArticleTemplate, {
+  type BlogArticleEntry,
+} from "@/components/blog/BlogArticleTemplate";
 
 interface BlogPostData {
   id: string;
+  slug: string;
+  template: string;
+  // Legacy fields (HTML-style posts)
   title_fr: string;
   title_en: string | null;
   title_ar: string | null;
@@ -23,6 +29,26 @@ interface BlogPostData {
   cover_image_url: string | null;
   author_name: string | null;
   published_at: string | null;
+  updated_at: string | null;
+  // Structured-article fields
+  entries_fr: BlogArticleEntry[] | null;
+  entries_en: BlogArticleEntry[] | null;
+  entries_ar: BlogArticleEntry[] | null;
+  hero_title_top_fr: string | null;
+  hero_title_top_en: string | null;
+  hero_title_top_ar: string | null;
+  hero_title_bottom_fr: string | null;
+  hero_title_bottom_en: string | null;
+  hero_title_bottom_ar: string | null;
+  hero_subtitle_fr: string | null;
+  hero_subtitle_en: string | null;
+  hero_subtitle_ar: string | null;
+  intro_fr: string | null;
+  intro_en: string | null;
+  intro_ar: string | null;
+  hero_alt: string | null;
+  bookmark_slug: string | null;
+  custom_hero_image_url: string | null;
 }
 
 const BlogPost = () => {
@@ -35,67 +61,39 @@ const BlogPost = () => {
   useEffect(() => {
     const fetchPost = async () => {
       if (!slug) return;
+      setIsLoading(true);
       const { data } = await supabase
         .from("blog_posts")
-        .select("id, title_fr, title_en, title_ar, content_fr, content_en, content_ar, cover_image_url, author_name, published_at")
+        .select("*")
         .eq("slug", slug)
         .eq("is_published", true)
         .maybeSingle();
 
-      setPost(data);
+      setPost(data as unknown as BlogPostData | null);
       setIsLoading(false);
     };
     fetchPost();
   }, [slug]);
 
-  const postTitle = (() => {
-    if (!post) return "";
-    if (language === "ar" && post.title_ar) return post.title_ar;
-    if (language === "en" && post.title_en) return post.title_en;
-    return post.title_fr;
-  })();
+  // -- Language helpers ----------------------------------------------------
 
-  useSEO({
-    title: postTitle || "Article",
-    description: postTitle ? `${postTitle} – Blog ONE WORLD MOROCCO.` : undefined,
-    canonical: slug ? `/blog/${slug}` : undefined,
-    ogUrl: slug ? `/blog/${slug}` : undefined,
-    ogType: "article",
-    ogImage: post?.cover_image_url || undefined,
-    jsonLd: post
-      ? {
-          "@context": "https://schema.org",
-          "@type": "Article",
-          headline: postTitle,
-          image: post.cover_image_url || undefined,
-          datePublished: post.published_at || undefined,
-          author: post.author_name
-            ? { "@type": "Person", name: post.author_name }
-            : undefined,
-          mainEntityOfPage: slug ? `https://oneworldmorocco.com/blog/${slug}` : undefined,
-        }
-      : undefined,
-  });
+  const pickLang = <T,>(fr: T, en: T | null | undefined, ar: T | null | undefined): T => {
+    if (language === "ar" && ar) return ar;
+    if (language === "en" && en) return en;
+    return fr;
+  };
 
   const getTitle = () => {
     if (!post) return "";
-    if (language === "ar" && post.title_ar) return post.title_ar;
-    if (language === "en" && post.title_en) return post.title_en;
-    return post.title_fr;
+    return pickLang(post.title_fr, post.title_en, post.title_ar);
   };
-
   const getContent = () => {
     if (!post) return "";
-    if (language === "ar" && post.content_ar) return post.content_ar;
-    if (language === "en" && post.content_en) return post.content_en;
-    return post.content_fr || "";
+    return pickLang(post.content_fr ?? "", post.content_en, post.content_ar);
   };
+  const getDateLocale = () => (language === "ar" ? ar : language === "en" ? enUS : fr);
 
-  const getDateLocale = () => {
-    if (language === "ar") return ar;
-    if (language === "en") return enUS;
-    return fr;
-  };
+  // -- Loading / not found -------------------------------------------------
 
   if (isLoading) {
     return (
@@ -123,6 +121,75 @@ const BlogPost = () => {
       </div>
     );
   }
+
+  // -- Structured article (renders via BlogArticleTemplate) ----------------
+
+  const entries = pickLang(post.entries_fr, post.entries_en, post.entries_ar);
+  if (post.template === "article_template" && entries && entries.length > 0) {
+    return (
+      <BlogArticleTemplate
+        entries={entries}
+        articlePath={`/blog/${post.slug}`}
+        articleTitle={getTitle()}
+        articleDescription={pickLang(post.content_fr ?? getTitle(), post.content_en, post.content_ar)}
+        bookmarkSlug={post.bookmark_slug ?? post.slug}
+        heroAlt={post.hero_alt ?? getTitle()}
+        heroTitleTop={pickLang(post.hero_title_top_fr ?? "", post.hero_title_top_en, post.hero_title_top_ar) ?? ""}
+        heroTitleBottom={pickLang(post.hero_title_bottom_fr ?? "", post.hero_title_bottom_en, post.hero_title_bottom_ar) ?? ""}
+        heroSubtitle={pickLang(post.hero_subtitle_fr ?? "", post.hero_subtitle_en, post.hero_subtitle_ar) ?? ""}
+        intro={pickLang(post.intro_fr ?? "", post.intro_en, post.intro_ar) ?? ""}
+        datePublished={post.published_at ?? new Date().toISOString()}
+        dateModified={post.updated_at ?? undefined}
+        customHeroImage={post.custom_hero_image_url ?? undefined}
+      />
+    );
+  }
+
+  // -- Legacy HTML article (CMS-style) -------------------------------------
+
+  return (
+    <LegacyHtmlPost post={post} getTitle={getTitle} getContent={getContent} getDateLocale={getDateLocale} navigate={navigate} t={t} language={language} slug={slug} />
+  );
+};
+
+// ---- Legacy HTML renderer (kept for any future CMS-style blog posts) ----
+
+const LegacyHtmlPost = ({
+  post,
+  getTitle,
+  getContent,
+  getDateLocale,
+  navigate,
+  t,
+  language,
+  slug,
+}: {
+  post: BlogPostData;
+  getTitle: () => string;
+  getContent: () => string;
+  getDateLocale: () => typeof fr;
+  navigate: ReturnType<typeof useNavigate>;
+  t: (key: string) => string;
+  language: string;
+  slug: string | undefined;
+}) => {
+  useSEO({
+    title: getTitle() || "Article",
+    description: getTitle() ? `${getTitle()} – Blog ONE WORLD MOROCCO.` : undefined,
+    canonical: slug ? `/blog/${slug}` : undefined,
+    ogUrl: slug ? `/blog/${slug}` : undefined,
+    ogType: "article",
+    ogImage: post?.cover_image_url || undefined,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: getTitle(),
+      image: post.cover_image_url || undefined,
+      datePublished: post.published_at || undefined,
+      author: post.author_name ? { "@type": "Person", name: post.author_name } : undefined,
+      mainEntityOfPage: slug ? `https://oneworldmorocco.com/blog/${slug}` : undefined,
+    },
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -157,11 +224,7 @@ const BlogPost = () => {
       <div className="container mx-auto px-4 py-10">
         {post.cover_image_url && (
           <div className="mb-8 rounded-xl overflow-hidden max-h-[500px]">
-            <img
-              src={post.cover_image_url}
-              alt={getTitle()}
-              className="w-full h-full object-cover"
-            />
+            <img src={post.cover_image_url} alt={getTitle()} className="w-full h-full object-cover" />
           </div>
         )}
 
@@ -170,18 +233,13 @@ const BlogPost = () => {
           dangerouslySetInnerHTML={{ __html: getContent() }}
         />
 
-        {/* Animated business strip - Amazoz style */}
         <AnimatedBusinessStrip
           city="Marrakech"
           title={language === "fr" ? "Nos adresses à découvrir" : language === "ar" ? "عناويننا للاكتشاف" : "Our addresses to discover"}
         />
 
         <div className="mt-10 flex justify-center">
-          <Button
-            onClick={() => navigate("/carte")}
-            variant="outline"
-            className="gap-2"
-          >
+          <Button onClick={() => navigate("/carte")} variant="outline" className="gap-2">
             <MapPin className="h-4 w-4" />
             {t("blog.viewOnMap")}
           </Button>
