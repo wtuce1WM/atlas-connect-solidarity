@@ -20,8 +20,15 @@ function jsonRes(body: unknown, status = 200) {
   });
 }
 
+function sanitizeJsonLike(text: string): string {
+  let out = text.replace(/^\uFEFF/, "").replace(/[\u200B-\u200F\u202A-\u202E\u2060]/g, "");
+  // Strip control chars that break JSON.parse (keep \n \r \t).
+  out = out.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
+  return out;
+}
+
 function extractJson(content: string) {
-  let text = content.trim();
+  let text = sanitizeJsonLike(content.trim());
   if (text.startsWith("```")) {
     text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
   }
@@ -38,6 +45,22 @@ function extractJson(content: string) {
       return JSON.parse(text.slice(start, end + 1));
     }
     throw _;
+  }
+}
+
+async function translateEntriesAdaptive(entries: unknown[], target: string): Promise<unknown[]> {
+  if (entries.length === 0) return [];
+  try {
+    const out = await translateJson({ entries }, target);
+    const arr = Array.isArray(out.entries) ? out.entries : [];
+    if (arr.length === entries.length) return arr;
+    throw new Error(`incomplete chunk (${arr.length}/${entries.length})`);
+  } catch (e) {
+    if (entries.length === 1) throw e;
+    const mid = Math.ceil(entries.length / 2);
+    const left = await translateEntriesAdaptive(entries.slice(0, mid), target);
+    const right = await translateEntriesAdaptive(entries.slice(mid), target);
+    return [...left, ...right];
   }
 }
 
