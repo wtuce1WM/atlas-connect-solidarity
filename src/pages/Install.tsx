@@ -592,7 +592,7 @@ const Install = () => {
               className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-roboto font-medium shadow-md hover:opacity-90 transition"
             >
               <Download className="h-4 w-4" />
-              Mettre à jour l'app
+              {t.updateNow}
             </button>
           </div>
         )}
