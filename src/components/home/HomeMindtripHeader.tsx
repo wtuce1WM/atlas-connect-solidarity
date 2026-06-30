@@ -169,6 +169,12 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
           })}
         </div>
 
+        {englishEnabled && (
+          <div className="hidden lg:flex items-center">
+            <LanguageSwitcher />
+          </div>
+        )}
+
         <button
           type="button"
           aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
