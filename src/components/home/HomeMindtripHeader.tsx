@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useEnglishFlag } from "@/hooks/useEnglishFlag";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type CustomLink = { label: string; to?: string; onClick?: () => void; danger?: boolean };
 
@@ -12,8 +13,17 @@ interface Props {
   customMobileLinks?: CustomLink[];
 }
 
+// Header navigation labels — keep keys stable, French is authoritative.
+const NAV_LABELS = {
+  fr: { concept: "Le concept", join: "Rejoindre", card: "Votre carte de visite numérique", affiliate: "Devenir affilié", club: "Le club OWM", app: "Application", home: "Page d'accueil" },
+  en: { concept: "The concept", join: "Join", card: "Your digital business card", affiliate: "Become an affiliate", club: "The OWM club", app: "App", home: "Home" },
+  ar: { concept: "المفهوم", join: "انضم إلينا", card: "بطاقة عملك الرقمية", affiliate: "كن شريكًا", club: "نادي OWM", app: "التطبيق", home: "الصفحة الرئيسية" },
+} as const;
+
 const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, customMobileLinks }: Props) => {
   const location = useLocation();
+  const { language } = useLanguage();
+  const L = NAV_LABELS[language] ?? NAV_LABELS.fr;
   const isWhiteHeaderPage = location.pathname === "/" || location.pathname === "/corporate" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/club";
   const blackHamburger = (location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/devenir-affilie") && !isWhiteHeaderPage;
   const [menuOpen, setMenuOpen] = useState(false);
