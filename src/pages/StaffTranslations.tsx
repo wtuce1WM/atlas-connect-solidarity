@@ -133,6 +133,138 @@ export default function StaffTranslations() {
     let totalErr = 0;
 
     try {
+      // ── Special parallel path for businesses_full (handles EN + AR in parallel via a worker pool) ──
+      if (!onlyKey || onlyKey === "businesses_full") {
+        const PARALLELISM = 8; // simultaneous in-flight Edge invocations
+        const langs2: ("en" | "ar")[] = ["en", "ar"];
+
+        // Build per-lang pending lists once, then merge into a single queue {biz, lang}
+        const queue: Array<{ biz: any; lang: "en" | "ar" }> = [];
+
+        for (const lang of langs2) {
+          const hookKey = `hook_${lang}` as const;
+          const descKey = `description_${lang}` as const;
+
+          const bizList: any[] = [];
+          {
+            const PAGE = 1000;
+            let from = 0;
+            while (true) {
+              const { data, error } = await supabase
+                .from("businesses")
+                .select(`id, name, hook_fr, description_fr, ${hookKey}, ${descKey}`)
+                .or(`hook_fr.not.is.null,description_fr.not.is.null`)
+                .order("id")
+                .range(from, from + PAGE - 1);
+              if (error) { totalErr++; console.warn("businesses list failed", error); break; }
+              if (!data || data.length === 0) break;
+              bizList.push(...data);
+              if (data.length < PAGE) break;
+              from += PAGE;
+            }
+          }
+
+          const needsBizMeta = (b: any) => {
+            const needHook = !!(b.hook_fr && String(b.hook_fr).trim()) && !(b[hookKey] && String(b[hookKey]).trim());
+            const needDesc = !!(b.description_fr && String(b.description_fr).trim()) && !(b[descKey] && String(b[descKey]).trim());
+            return needHook || needDesc;
+          };
+
+          const hlMissing: any[] = [];
+          {
+            const PAGE = 1000;
+            let from = 0;
+            while (true) {
+              const { data, error } = await supabase
+                .from("front_highlights")
+                .select(`business_id, title_fr, description_fr, section_title_fr, section_intro_fr, metric_title_fr, metric_value_fr, title_${lang}, description_${lang}, section_title_${lang}, section_intro_${lang}, metric_title_${lang}, metric_value_${lang}`)
+                .order("business_id")
+                .range(from, from + PAGE - 1);
+              if (error) { totalErr++; console.warn("highlights list failed", error); break; }
+              if (!data || data.length === 0) break;
+              hlMissing.push(...data);
+              if (data.length < PAGE) break;
+              from += PAGE;
+            }
+          }
+
+          const highlightFields = ["title", "description", "section_title", "section_intro", "metric_title", "metric_value"];
+          const bizIdsWithMissingHl = new Set<string>();
+          for (const h of hlMissing) {
+            if (!h.business_id) continue;
+            for (const f of highlightFields) {
+              const src = h[`${f}_fr`];
+              const dst = h[`${f}_${lang}`];
+              if (src && String(src).trim() && !(dst && String(dst).trim())) {
+                bizIdsWithMissingHl.add(h.business_id);
+                break;
+              }
+            }
+          }
+
+          for (const b of bizList) {
+            if (needsBizMeta(b) || bizIdsWithMissingHl.has(b.id)) {
+              queue.push({ biz: b, lang });
+            }
+          }
+        }
+
+        const total = queue.length;
+        let done = 0;
+        let cursor = 0;
+        const startedAt = Date.now();
+
+        const worker = async () => {
+          while (true) {
+            if (checkStop()) return;
+            const myIdx = cursor++;
+            if (myIdx >= queue.length) return;
+            const { biz, lang } = queue[myIdx];
+            let attempt = 0;
+            let ok = false;
+            while (attempt < maxRetriesPerBatch && !ok) {
+              attempt++;
+              try {
+                const res = await supabase.functions.invoke("translate-business", {
+                  body: { business_id: biz.id, target: lang },
+                });
+                if (res.error) throw res.error;
+                ok = !!res.data?.done;
+                if (!ok) await sleep(300); // partial — let it loop, but we count once
+                if (ok) totalOk++;
+              } catch (e) {
+                console.warn(`[parallel business ${biz.id} → ${lang}] attempt ${attempt} failed`, e);
+                if (attempt >= maxRetriesPerBatch) { totalErr++; break; }
+                await sleep(1200 * attempt);
+              }
+              // For partial responses, exit after attempts to avoid blocking pool
+              if (!ok && attempt >= maxRetriesPerBatch) break;
+              if (!ok) {
+                // partial done — re-enqueue this same item to retry later, but count as in-progress
+                // Simplest: break, let the next runAll pass pick it up
+                break;
+              }
+            }
+            done++;
+            const elapsed = (Date.now() - startedAt) / 1000;
+            const rate = done / Math.max(1, elapsed);
+            const eta = rate > 0 ? Math.round((total - done) / rate) : 0;
+            setAutoProgress(
+              `Fiches ∥${PARALLELISM} · ${done}/${total} · ${lang.toUpperCase()} · ${biz.name ?? biz.id} · ETA ${Math.floor(eta / 60)}m${eta % 60}s`
+            );
+          }
+        };
+
+        setAutoProgress(`Fiches ∥${PARALLELISM} · 0/${total} · démarrage…`);
+        await Promise.all(Array.from({ length: PARALLELISM }, () => worker()));
+        await loadJobs();
+
+        if (onlyKey === "businesses_full") {
+          toast.success(`Fiches terminé ✅ — ${totalOk} OK, ${totalErr} échecs`);
+          return;
+        }
+      }
+
       for (const cfg of CONFIGS.filter((c) => !onlyKey || c.key === onlyKey)) {
         for (const lang of langs) {
           // ── Special path for blog_posts: progressive chunks per article ──
@@ -203,111 +335,8 @@ export default function StaffTranslations() {
             continue;
           }
 
-          // ── Special path for businesses_full: hook + description + highlights, atomic per business ──
-          if (cfg.key === "businesses_full") {
-            const hookKey = `hook_${lang}` as const;
-            const descKey = `description_${lang}` as const;
-
-            // 1) Businesses with FR source content (hook or description) and missing target — paginated (PostgREST caps at 1000/req)
-            const bizList: any[] = [];
-            {
-              const PAGE = 1000;
-              let from = 0;
-              while (true) {
-                const { data, error } = await supabase
-                  .from("businesses")
-                  .select(`id, name, hook_fr, description_fr, ${hookKey}, ${descKey}`)
-                  .or(`hook_fr.not.is.null,description_fr.not.is.null`)
-                  .order("id")
-                  .range(from, from + PAGE - 1);
-                if (error) { totalErr++; console.warn("businesses list failed", error); break; }
-                if (!data || data.length === 0) break;
-                bizList.push(...data);
-                if (data.length < PAGE) break;
-                from += PAGE;
-              }
-            }
-
-            const needsBizMeta = (b: any) => {
-              const needHook = !!(b.hook_fr && String(b.hook_fr).trim()) && !(b[hookKey] && String(b[hookKey]).trim());
-              const needDesc = !!(b.description_fr && String(b.description_fr).trim()) && !(b[descKey] && String(b[descKey]).trim());
-              return needHook || needDesc;
-            };
-
-            // 2) Highlights — paginated
-            const hlMissing: any[] = [];
-            {
-              const PAGE = 1000;
-              let from = 0;
-              while (true) {
-                const { data, error } = await supabase
-                  .from("front_highlights")
-                  .select(`business_id, title_fr, description_fr, section_title_fr, section_intro_fr, metric_title_fr, metric_value_fr, title_${lang}, description_${lang}, section_title_${lang}, section_intro_${lang}, metric_title_${lang}, metric_value_${lang}`)
-                  .order("business_id")
-                  .range(from, from + PAGE - 1);
-                if (error) { totalErr++; console.warn("highlights list failed", error); break; }
-                if (!data || data.length === 0) break;
-                hlMissing.push(...data);
-                if (data.length < PAGE) break;
-                from += PAGE;
-              }
-            }
-
-
-            const highlightFields = ["title", "description", "section_title", "section_intro", "metric_title", "metric_value"];
-            const bizIdsWithMissingHl = new Set<string>();
-            for (const h of (hlMissing ?? []) as any[]) {
-              if (!h.business_id) continue;
-              for (const f of highlightFields) {
-                const src = h[`${f}_fr`];
-                const dst = h[`${f}_${lang}`];
-                if (src && String(src).trim() && !(dst && String(dst).trim())) {
-                  bizIdsWithMissingHl.add(h.business_id);
-                  break;
-                }
-              }
-            }
-
-            const pending = (bizList ?? []).filter((b: any) => needsBizMeta(b) || bizIdsWithMissingHl.has(b.id));
-
-
-            let idx = 0;
-            for (const biz of pending as any[]) {
-              if (checkStop()) throw new Error("Arrêt demandé");
-              idx++;
-              let attempt = 0;
-              let ok = false;
-              let safety = 0;
-              while (!ok && safety < 30) {
-                safety++;
-                setAutoProgress(
-                  `Fiches → ${lang.toUpperCase()} · ${biz.name ?? biz.id} (${idx}/${pending.length})${attempt > 0 ? ` retry ${attempt}` : ""}`
-                );
-                try {
-                  const res = await supabase.functions.invoke("translate-business", {
-                    body: { business_id: biz.id, target: lang },
-                  });
-                  if (res.error) throw res.error;
-                  attempt = 0;
-                  const hd = res.data?.highlights_done ?? 0;
-                  const ht = res.data?.highlights_total ?? 0;
-                  setAutoProgress(`Fiches → ${lang.toUpperCase()} · ${biz.name ?? biz.id} (${idx}/${pending.length}) · highlights ${hd}/${ht}`);
-                  ok = !!res.data?.done;
-                  if (ok) totalOk++;
-                  else await sleep(400);
-                } catch (e) {
-                  attempt++;
-                  console.warn(`[business ${biz.id} → ${lang}] attempt ${attempt} failed`, e);
-                  if (attempt >= maxRetriesPerBatch) break;
-                  await sleep(2000 * attempt);
-                }
-              }
-              if (!ok) totalErr++;
-              await sleep(200);
-            }
-            await loadJobs();
-            continue;
-          }
+          // ── businesses_full handled OUTSIDE the lang loop (parallel pool × EN+AR mixed). Skip here ──
+          if (cfg.key === "businesses_full") continue;
 
 
           // ── Default path: batched via translate-content ──
