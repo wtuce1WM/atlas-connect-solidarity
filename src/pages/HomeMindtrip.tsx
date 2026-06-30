@@ -1408,7 +1408,7 @@ const HotelAvailabilityWidget = () => {
         />
       </label>
       <label className={`${labelCls} sm:col-span-2`}>
-        Adultes
+        {L.hotelAdults}
         <select value={adults} onChange={(e) => setAdults(e.target.value)} className={`${fieldCls} hotel-field`} style={fieldStyle}>
           {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
