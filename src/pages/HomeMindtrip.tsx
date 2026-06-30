@@ -1379,7 +1379,7 @@ const HotelAvailabilityWidget = () => {
         </select>
       </label>
       <label className={labelCls}>
-        Arrivée
+        {L.hotelArrival}
         <input
           type="date"
           value={checkIn}
