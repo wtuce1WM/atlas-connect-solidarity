@@ -250,6 +250,14 @@ const HOME_LABELS = {
     discover: "Découvrir",
     howItWorks: "Comment fonctionne l'App ?",
     inspireYourself: "Inspirez-vous",
+    hotelDestination: "Destination",
+    hotelArrival: "Arrivée",
+    hotelDeparture: "Départ",
+    hotelAdults: "Adultes",
+    hotelSeeAvailability: "Voir les disponibilités",
+    seoTitle: "La Première Plateforme Solidaire du Maroc — ONE WORLD MOROCCO",
+    seoDescription:
+      "Inspirez-vous des meilleures adresses du Maroc : hôtels, restaurants, expériences et itinéraires sélectionnés et vérifiés.",
   },
   en: {
     heroTitle: "Morocco's First Solidarity Platform",
@@ -261,6 +269,14 @@ const HOME_LABELS = {
     discover: "Discover",
     howItWorks: "How does the App work?",
     inspireYourself: "Get inspired",
+    hotelDestination: "Destination",
+    hotelArrival: "Check-in",
+    hotelDeparture: "Check-out",
+    hotelAdults: "Adults",
+    hotelSeeAvailability: "See availability",
+    seoTitle: "Morocco's First Solidarity Platform — ONE WORLD MOROCCO",
+    seoDescription:
+      "Get inspired by the best addresses in Morocco: curated and verified hotels, restaurants, experiences and itineraries.",
   },
   ar: {
     heroTitle: "أول منصة تضامنية في المغرب",
@@ -272,6 +288,14 @@ const HOME_LABELS = {
     discover: "اكتشف",
     howItWorks: "كيف يعمل التطبيق؟",
     inspireYourself: "استلهم",
+    hotelDestination: "الوجهة",
+    hotelArrival: "الوصول",
+    hotelDeparture: "المغادرة",
+    hotelAdults: "البالغون",
+    hotelSeeAvailability: "عرض التوفر",
+    seoTitle: "أول منصة تضامنية في المغرب — ONE WORLD MOROCCO",
+    seoDescription:
+      "استلهم من أفضل عناوين المغرب: فنادق ومطاعم وتجارب ومسارات مختارة وموثقة.",
   },
 } as const;
 
@@ -376,9 +400,8 @@ const HomeMindtrip = () => {
   
 
   useSEO({
-    title: "La Première Plateforme Solidaire du Maroc — ONE WORLD MOROCCO",
-    description:
-      "Inspirez-vous des meilleures adresses du Maroc : hôtels, restaurants, expériences et itinéraires sélectionnés et vérifiés.",
+    title: L.seoTitle,
+    description: L.seoDescription,
     canonical: "/",
   });
 
@@ -1294,6 +1317,8 @@ const HomeMindtrip = () => {
 
 const HotelAvailabilityWidget = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const L = HOME_LABELS[language] ?? HOME_LABELS.fr;
   const fmt = (d: Date) => d.toISOString().split("T")[0];
   const arrival = new Date();
   arrival.setDate(arrival.getDate() + 30);
@@ -1347,14 +1372,14 @@ const HotelAvailabilityWidget = () => {
         }
       `}</style>
       <label className={`${labelCls} sm:col-span-2`}>
-        Destination
+        {L.hotelDestination}
         <select value={city} onChange={(e) => setCity(e.target.value)} className={`${fieldCls} hotel-field`} style={fieldStyle}>
           <option value="Marrakech">Marrakech</option>
           <option value="Essaouira">Essaouira</option>
         </select>
       </label>
       <label className={labelCls}>
-        Arrivée
+        {L.hotelArrival}
         <input
           type="date"
           value={checkIn}
@@ -1372,7 +1397,7 @@ const HotelAvailabilityWidget = () => {
         />
       </label>
       <label className={labelCls}>
-        Départ
+        {L.hotelDeparture}
         <input
           type="date"
           value={checkOut}
@@ -1383,7 +1408,7 @@ const HotelAvailabilityWidget = () => {
         />
       </label>
       <label className={`${labelCls} sm:col-span-2`}>
-        Adultes
+        {L.hotelAdults}
         <select value={adults} onChange={(e) => setAdults(e.target.value)} className={`${fieldCls} hotel-field`} style={fieldStyle}>
           {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
@@ -1393,7 +1418,7 @@ const HotelAvailabilityWidget = () => {
         className="rounded-full border border-white/30 px-5 py-2.5 font-josefin text-xs tracking-[0.2em] text-white shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] btn-shimmer transition-transform hover:scale-105 duration-200 sm:col-span-2 md:px-6 md:py-3 md:text-sm"
         style={{ backgroundColor: "#C04F17" }}
       >
-        Voir les disponibilités
+        {L.hotelSeeAvailability}
       </button>
     </form>
   );
