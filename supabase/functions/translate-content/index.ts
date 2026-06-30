@@ -180,20 +180,32 @@ function isIncompleteJsonEntries(source: unknown, target: unknown): boolean {
   return false;
 }
 
-async function translateJsonEntriesChunk(source: unknown, target: unknown, targetLang: string): Promise<unknown> {
+async function translateJsonEntriesChunk(
+  source: unknown,
+  target: unknown,
+  targetLang: string,
+  onProgress?: (entries: unknown[]) => Promise<void>,
+  deadlineMs: number = Date.now() + 50_000,
+): Promise<unknown> {
   if (!Array.isArray(source)) return translateJsonValue(source, targetLang);
 
-  const existing = Array.isArray(target) ? [...target] : [];
-  const start = existing.length;
-  const chunkSize = 2;
-  const chunk = source.slice(start, start + chunkSize);
-  if (chunk.length === 0) return existing;
+  let existing = Array.isArray(target) ? [...target] : [];
+  const chunkSize = 6;
 
-  const translatedChunk = await translateJsonValue(chunk, targetLang);
-  if (!Array.isArray(translatedChunk)) {
-    throw new Error("Bad JSON entries translation shape");
+  while (existing.length < source.length) {
+    if (Date.now() > deadlineMs) break; // time budget exhausted: persist what we have
+    const start = existing.length;
+    const chunk = source.slice(start, start + chunkSize);
+    const translatedChunk = await translateJsonValue(chunk, targetLang);
+    if (!Array.isArray(translatedChunk)) {
+      throw new Error("Bad JSON entries translation shape");
+    }
+    existing = [...existing, ...translatedChunk];
+    if (onProgress) {
+      try { await onProgress(existing); } catch (_) { /* ignore persist errors */ }
+    }
   }
-  return [...existing, ...translatedChunk];
+  return existing;
 }
 
 Deno.serve(async (req) => {
@@ -284,7 +296,18 @@ Deno.serve(async (req) => {
           const src = row[cfg.jsonEntries.source];
           const tgt = row[cfg.jsonEntries.target];
           if (isIncompleteJsonEntries(src, tgt)) {
-            updates[cfg.jsonEntries.target] = await translateJsonEntriesChunk(src, tgt, target_lang);
+            const targetCol = cfg.jsonEntries.target;
+            const pkVal = row[cfg.pk];
+            updates[targetCol] = await translateJsonEntriesChunk(
+              src,
+              tgt,
+              target_lang,
+              async (partial) => {
+                if (!dry_run) {
+                  await admin.from(cfg.table).update({ [targetCol]: partial }).eq(cfg.pk, pkVal);
+                }
+              },
+            );
           }
         }
 
