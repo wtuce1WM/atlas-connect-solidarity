@@ -236,7 +236,20 @@ Deno.serve(async (req) => {
 
     const bizUpdate: Record<string, unknown> = {};
     if (metaEntries.length > 0) {
-      const translated = await translateFlatMapAdaptive(metaEntries, target);
+      let translated: Record<string, string> = {};
+      try {
+        translated = await translateFlatMapAdaptive(metaEntries, target);
+      } catch (_) {
+        // Per-entry isolation so one bad field doesn't 500 the whole call
+        for (const e of metaEntries) {
+          try {
+            const one = await translateFlatMapAdaptive([e], target);
+            Object.assign(translated, one);
+          } catch (err) {
+            console.warn(`[translate-business] skip meta ${e.key} for ${biz.id}:`, err instanceof Error ? err.message : String(err));
+          }
+        }
+      }
       if (isFilled(translated.hook)) bizUpdate[hookKey] = translated.hook;
       if (isFilled(translated.description)) bizUpdate[descKey] = translated.description;
       if (Object.keys(bizUpdate).length > 0) {
