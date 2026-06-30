@@ -208,12 +208,25 @@ export default function StaffTranslations() {
             const hookKey = `hook_${lang}` as const;
             const descKey = `description_${lang}` as const;
 
-            // 1) Businesses with FR source content (hook or description) and missing target
-            const { data: bizList, error: bErr } = await supabase
-              .from("businesses")
-              .select(`id, name, hook_fr, description_fr, ${hookKey}, ${descKey}`)
-              .or(`hook_fr.not.is.null,description_fr.not.is.null`);
-            if (bErr) { totalErr++; console.warn("businesses list failed", bErr); continue; }
+            // 1) Businesses with FR source content (hook or description) and missing target — paginated (PostgREST caps at 1000/req)
+            const bizList: any[] = [];
+            {
+              const PAGE = 1000;
+              let from = 0;
+              while (true) {
+                const { data, error } = await supabase
+                  .from("businesses")
+                  .select(`id, name, hook_fr, description_fr, ${hookKey}, ${descKey}`)
+                  .or(`hook_fr.not.is.null,description_fr.not.is.null`)
+                  .order("id")
+                  .range(from, from + PAGE - 1);
+                if (error) { totalErr++; console.warn("businesses list failed", error); break; }
+                if (!data || data.length === 0) break;
+                bizList.push(...data);
+                if (data.length < PAGE) break;
+                from += PAGE;
+              }
+            }
 
             const needsBizMeta = (b: any) => {
               const needHook = !!(b.hook_fr && String(b.hook_fr).trim()) && !(b[hookKey] && String(b[hookKey]).trim());
@@ -221,11 +234,25 @@ export default function StaffTranslations() {
               return needHook || needDesc;
             };
 
-            // 2) Businesses with at least one highlight missing target translation
-            const { data: hlMissing, error: hlErr } = await supabase
-              .from("front_highlights")
-              .select(`business_id, title_fr, description_fr, section_title_fr, section_intro_fr, metric_title_fr, metric_value_fr, title_${lang}, description_${lang}, section_title_${lang}, section_intro_${lang}, metric_title_${lang}, metric_value_${lang}`);
-            if (hlErr) { totalErr++; console.warn("highlights list failed", hlErr); continue; }
+            // 2) Highlights — paginated
+            const hlMissing: any[] = [];
+            {
+              const PAGE = 1000;
+              let from = 0;
+              while (true) {
+                const { data, error } = await supabase
+                  .from("front_highlights")
+                  .select(`business_id, title_fr, description_fr, section_title_fr, section_intro_fr, metric_title_fr, metric_value_fr, title_${lang}, description_${lang}, section_title_${lang}, section_intro_${lang}, metric_title_${lang}, metric_value_${lang}`)
+                  .order("business_id")
+                  .range(from, from + PAGE - 1);
+                if (error) { totalErr++; console.warn("highlights list failed", error); break; }
+                if (!data || data.length === 0) break;
+                hlMissing.push(...data);
+                if (data.length < PAGE) break;
+                from += PAGE;
+              }
+            }
+
 
             const highlightFields = ["title", "description", "section_title", "section_intro", "metric_title", "metric_value"];
             const bizIdsWithMissingHl = new Set<string>();
