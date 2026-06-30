@@ -48,18 +48,9 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 const MarrakechArtisanat5Jours = lazy(() => import("./pages/MarrakechArtisanat5Jours"));
 const MarrakechGaleriesArt = lazy(() => import("./pages/MarrakechGaleriesArt"));
-const FermesPedagogiquesMarrakech = lazy(() => import("./pages/FermesPedagogiquesMarrakech"));
-const IdeeCadeauMarrakech = lazy(() => import("./pages/IdeeCadeauMarrakech"));
-const ActivitesEnfantsMarrakech = lazy(() => import("./pages/ActivitesEnfantsMarrakech"));
-const ArtisanatMedinaMarrakech = lazy(() => import("./pages/ArtisanatMedinaMarrakech"));
-const StreetFoodMarrakech = lazy(() => import("./pages/StreetFoodMarrakech"));
-const ShoppingFashionGueliz = lazy(() => import("./pages/ShoppingFashionGueliz"));
-const BeachClubsMarrakech = lazy(() => import("./pages/BeachClubsMarrakech"));
-const HotelsRiadsVueMerEssaouira = lazy(() => import("./pages/HotelsRiadsVueMerEssaouira"));
-const FruitsDeMerEssaouira = lazy(() => import("./pages/FruitsDeMerEssaouira"));
-const HebergementsSidiKaouki = lazy(() => import("./pages/HebergementsSidiKaouki"));
-const AgafayDream = lazy(() => import("./pages/AgafayDream"));
-const LouerVillaComplexeHotelierMarrakech = lazy(() => import("./pages/LouerVillaComplexeHotelierMarrakech"));
+// Template-based blog articles are served dynamically via /blog/:slug from public.blog_posts.
+// Only custom-layout articles (MarrakechArtisanat5Jours, MarrakechGaleriesArt,
+// LouerVillaVacancesMarrakech) keep their own lazy imports above.
 const LouerVillaVacancesMarrakech = lazy(() => import("./pages/LouerVillaVacancesMarrakech"));
 const BlogAnimations = lazy(() => import("./pages/BlogAnimations"));
 const BlogTypography = lazy(() => import("./pages/BlogTypography"));
