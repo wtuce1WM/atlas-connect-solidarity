@@ -111,17 +111,22 @@ export default function StaffTranslations() {
           if (cfg.key === "blog_posts") {
             const { data: posts, error: pErr } = await supabase
               .from("blog_posts")
-              .select(`slug, title_${lang}, entries_${lang}`)
+              .select(`slug, title_${lang}, excerpt_${lang}, intro_${lang}, entries_${lang}, entries_fr`)
               .order("slug");
             if (pErr) { totalErr++; console.warn("blog_posts list failed", pErr); continue; }
 
             const targetTitleKey = `title_${lang}` as const;
+            const targetExcerptKey = `excerpt_${lang}` as const;
+            const targetIntroKey = `intro_${lang}` as const;
             const targetEntriesKey = `entries_${lang}` as const;
             const pending = (posts ?? []).filter((p: any) => {
               const hasTitle = !!p[targetTitleKey];
-              const entries = p[targetEntriesKey];
-              const hasEntries = Array.isArray(entries) && entries.length > 0;
-              return !(hasTitle && hasEntries);
+              const hasExcerpt = !!p[targetExcerptKey];
+              const hasIntro = !!p[targetIntroKey];
+              const sourceEntries = Array.isArray(p.entries_fr) ? p.entries_fr : [];
+              const entries = Array.isArray(p[targetEntriesKey]) ? p[targetEntriesKey] : [];
+              const hasEntries = entries.length >= sourceEntries.length;
+              return !(hasTitle && hasExcerpt && hasIntro && hasEntries);
             });
 
             let idx = 0;
@@ -130,20 +135,28 @@ export default function StaffTranslations() {
               idx++;
               let attempt = 0;
               let ok = false;
-              while (attempt < maxRetriesPerBatch && !ok) {
-                attempt++;
+              let safety = 0;
+              while (!ok && safety < 30) {
+                safety++;
                 setAutoProgress(
-                  `Blog → ${lang.toUpperCase()} · ${post.slug} (${idx}/${pending.length})${attempt > 1 ? ` retry ${attempt - 1}` : ""}`
+                  `Blog → ${lang.toUpperCase()} · ${post.slug} (${idx}/${pending.length})${attempt > 0 ? ` retry ${attempt}` : ""}`
                 );
                 try {
                   const res = await supabase.functions.invoke("translate-blog-post", {
                     body: { slug: post.slug, target: lang },
                   });
                   if (res.error) throw res.error;
-                  ok = true;
-                  totalOk++;
+                  attempt = 0;
+                  const translated = res.data?.entries_count ?? 0;
+                  const total = res.data?.entries_total ?? 0;
+                  setAutoProgress(`Blog → ${lang.toUpperCase()} · ${post.slug} (${idx}/${pending.length}) · ${translated}/${total}`);
+                  ok = !!res.data?.done;
+                  if (ok) totalOk++;
+                  else await sleep(500);
                 } catch (e) {
+                  attempt++;
                   console.warn(`[blog ${post.slug} → ${lang}] attempt ${attempt} failed`, e);
+                  if (attempt >= maxRetriesPerBatch) break;
                   await sleep(2000 * attempt);
                 }
               }
