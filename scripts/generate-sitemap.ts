@@ -17,12 +17,36 @@ interface SitemapEntry {
   priority?: string;
 }
 
+const BLOG_POST_SLUGS = [
+  "5-jours-marrakech-artisanat",
+  "galeries-art-marrakech",
+  "fermes-pedagogiques-marrakech",
+  "idee-cadeau-marrakech",
+  "activites-enfants-marrakech",
+  "artisanat-medina-marrakech",
+  "street-food-marrakech",
+  "shopping-fashion-gueliz",
+  "beach-clubs-marrakech",
+  "hotels-riads-vue-mer-essaouira",
+  "manger-fruits-de-mer-essaouira",
+  "hebergements-sidi-kaouki",
+  "agafay-dream",
+  "louer-villa-complexe-hotelier-marrakech",
+  "louer-villa-vacances-marrakech",
+  "etablissements-notes",
+];
+
 const staticEntries: SitemapEntry[] = [
   { path: "/", changefreq: "daily", priority: "1.0" },
   { path: "/search", changefreq: "daily", priority: "0.9" },
   { path: "/carte", changefreq: "weekly", priority: "0.8" },
   { path: "/hotels", changefreq: "weekly", priority: "0.8" },
-  { path: "/blog", changefreq: "weekly", priority: "0.7" },
+  { path: "/blog", changefreq: "weekly", priority: "0.9" },
+  ...BLOG_POST_SLUGS.map((slug) => ({
+    path: `/blog/${slug}`,
+    changefreq: "weekly" as const,
+    priority: "0.9",
+  })),
   { path: "/mission", changefreq: "monthly", priority: "0.6" },
   { path: "/contact", changefreq: "monthly", priority: "0.6" },
   { path: "/club", changefreq: "monthly", priority: "0.6" },
