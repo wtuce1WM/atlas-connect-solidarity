@@ -87,7 +87,7 @@ export default function StaffTranslations() {
     }
   };
 
-  const runAll = async () => {
+  const runAll = async (onlyKey?: string) => {
     setAutoRun(true);
     setStopRequested(false);
     const langs: ("en" | "ar")[] = ["en", "ar"];
