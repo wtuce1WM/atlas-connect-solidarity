@@ -1738,6 +1738,9 @@ export type Database = {
           default_service: string | null
           default_sound_on: boolean
           description: string | null
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
           destination_description: string | null
           destination_hook: string | null
           email: string | null
@@ -1912,6 +1915,9 @@ export type Database = {
           default_service?: string | null
           default_sound_on?: boolean
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           destination_description?: string | null
           destination_hook?: string | null
           email?: string | null
@@ -2086,6 +2092,9 @@ export type Database = {
           default_service?: string | null
           default_sound_on?: boolean
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           destination_description?: string | null
           destination_hook?: string | null
           email?: string | null
@@ -3191,45 +3200,99 @@ export type Database = {
           business_id: string | null
           created_at: string
           description: string
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
           icon: string
           id: string
           image_url: string | null
           metric_title: string | null
+          metric_title_ar: string | null
+          metric_title_en: string | null
+          metric_title_fr: string | null
           metric_value: string | null
+          metric_value_ar: string | null
+          metric_value_en: string | null
+          metric_value_fr: string | null
           section_intro: string | null
+          section_intro_ar: string | null
+          section_intro_en: string | null
+          section_intro_fr: string | null
           section_title: string | null
+          section_title_ar: string | null
+          section_title_en: string | null
+          section_title_fr: string | null
           sort_order: number
           title: string
+          title_ar: string | null
+          title_en: string | null
+          title_fr: string | null
           updated_at: string
         }
         Insert: {
           business_id?: string | null
           created_at?: string
           description?: string
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           icon?: string
           id?: string
           image_url?: string | null
           metric_title?: string | null
+          metric_title_ar?: string | null
+          metric_title_en?: string | null
+          metric_title_fr?: string | null
           metric_value?: string | null
+          metric_value_ar?: string | null
+          metric_value_en?: string | null
+          metric_value_fr?: string | null
           section_intro?: string | null
+          section_intro_ar?: string | null
+          section_intro_en?: string | null
+          section_intro_fr?: string | null
           section_title?: string | null
+          section_title_ar?: string | null
+          section_title_en?: string | null
+          section_title_fr?: string | null
           sort_order?: number
           title?: string
+          title_ar?: string | null
+          title_en?: string | null
+          title_fr?: string | null
           updated_at?: string
         }
         Update: {
           business_id?: string | null
           created_at?: string
           description?: string
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           icon?: string
           id?: string
           image_url?: string | null
           metric_title?: string | null
+          metric_title_ar?: string | null
+          metric_title_en?: string | null
+          metric_title_fr?: string | null
           metric_value?: string | null
+          metric_value_ar?: string | null
+          metric_value_en?: string | null
+          metric_value_fr?: string | null
           section_intro?: string | null
+          section_intro_ar?: string | null
+          section_intro_en?: string | null
+          section_intro_fr?: string | null
           section_title?: string | null
+          section_title_ar?: string | null
+          section_title_en?: string | null
+          section_title_fr?: string | null
           sort_order?: number
           title?: string
+          title_ar?: string | null
+          title_en?: string | null
+          title_fr?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -6513,6 +6576,9 @@ export type Database = {
               default_service: string | null
               default_sound_on: boolean
               description: string | null
+              description_ar: string | null
+              description_en: string | null
+              description_fr: string | null
               destination_description: string | null
               destination_hook: string | null
               email: string | null
@@ -6703,6 +6769,9 @@ export type Database = {
               default_service: string | null
               default_sound_on: boolean
               description: string | null
+              description_ar: string | null
+              description_en: string | null
+              description_fr: string | null
               destination_description: string | null
               destination_hook: string | null
               email: string | null
