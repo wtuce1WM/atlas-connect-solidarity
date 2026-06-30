@@ -268,10 +268,13 @@ const Install = () => {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const guideRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
+  const { language } = useLanguage();
+  const lang: Lang = (["fr", "en", "ar"].includes(language) ? language : "fr") as Lang;
+  const t = I18N[lang];
 
   useEffect(() => {
     setPlatform(detectPlatform());
-    document.title = "Installer l'app — ONE WORLD MOROCCO";
+    document.title = t.docTitle;
 
     // Mark as installed if in standalone mode, but stay on this page
     // (the user explicitly navigated here from the footer link)
