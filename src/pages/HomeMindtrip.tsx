@@ -695,10 +695,10 @@ const HomeMindtrip = () => {
 
         <div className="absolute left-0 right-0 top-28 z-30 px-6 text-center md:hidden transition-all duration-700 animate-fade-in">
           <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-[26px] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
-            La Première Plateforme Solidaire du Maroc
+            {L.heroTitle}
           </h1>
           <p className="mt-6 max-w-2xl mx-auto font-roboto text-base font-normal text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
-            Faites de chaque achat<br /> un acte de générosité.<br /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">En savoir plus.</Link>
+            {L.heroLine1}<br /> {L.heroLine2}<br /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">{L.heroLearnMore}</Link>
           </p>
         </div>
 
