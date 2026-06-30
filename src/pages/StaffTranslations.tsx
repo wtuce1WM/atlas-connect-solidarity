@@ -171,6 +171,85 @@ export default function StaffTranslations() {
             continue;
           }
 
+          // ── Special path for businesses_full: hook + description + highlights, atomic per business ──
+          if (cfg.key === "businesses_full") {
+            const hookKey = `hook_${lang}` as const;
+            const descKey = `description_${lang}` as const;
+
+            // 1) Businesses with FR source content (hook or description) and missing target
+            const { data: bizList, error: bErr } = await supabase
+              .from("businesses")
+              .select(`id, name, hook_fr, description_fr, ${hookKey}, ${descKey}`)
+              .or(`hook_fr.not.is.null,description_fr.not.is.null`);
+            if (bErr) { totalErr++; console.warn("businesses list failed", bErr); continue; }
+
+            const needsBizMeta = (b: any) => {
+              const needHook = !!(b.hook_fr && String(b.hook_fr).trim()) && !(b[hookKey] && String(b[hookKey]).trim());
+              const needDesc = !!(b.description_fr && String(b.description_fr).trim()) && !(b[descKey] && String(b[descKey]).trim());
+              return needHook || needDesc;
+            };
+
+            // 2) Businesses with at least one highlight missing target translation
+            const { data: hlMissing, error: hlErr } = await supabase
+              .from("front_highlights")
+              .select(`business_id, title_fr, description_fr, section_title_fr, section_intro_fr, metric_title_fr, metric_value_fr, title_${lang}, description_${lang}, section_title_${lang}, section_intro_${lang}, metric_title_${lang}, metric_value_${lang}`);
+            if (hlErr) { totalErr++; console.warn("highlights list failed", hlErr); continue; }
+
+            const highlightFields = ["title", "description", "section_title", "section_intro", "metric_title", "metric_value"];
+            const bizIdsWithMissingHl = new Set<string>();
+            for (const h of (hlMissing ?? []) as any[]) {
+              if (!h.business_id) continue;
+              for (const f of highlightFields) {
+                const src = h[`${f}_fr`];
+                const dst = h[`${f}_${lang}`];
+                if (src && String(src).trim() && !(dst && String(dst).trim())) {
+                  bizIdsWithMissingHl.add(h.business_id);
+                  break;
+                }
+              }
+            }
+
+            const pending = (bizList ?? []).filter((b: any) => needsBizMeta(b) || bizIdsWithMissingHl.has(b.id));
+
+            let idx = 0;
+            for (const biz of pending as any[]) {
+              if (checkStop()) throw new Error("Arrêt demandé");
+              idx++;
+              let attempt = 0;
+              let ok = false;
+              let safety = 0;
+              while (!ok && safety < 30) {
+                safety++;
+                setAutoProgress(
+                  `Fiches → ${lang.toUpperCase()} · ${biz.name ?? biz.id} (${idx}/${pending.length})${attempt > 0 ? ` retry ${attempt}` : ""}`
+                );
+                try {
+                  const res = await supabase.functions.invoke("translate-business", {
+                    body: { business_id: biz.id, target: lang },
+                  });
+                  if (res.error) throw res.error;
+                  attempt = 0;
+                  const hd = res.data?.highlights_done ?? 0;
+                  const ht = res.data?.highlights_total ?? 0;
+                  setAutoProgress(`Fiches → ${lang.toUpperCase()} · ${biz.name ?? biz.id} (${idx}/${pending.length}) · highlights ${hd}/${ht}`);
+                  ok = !!res.data?.done;
+                  if (ok) totalOk++;
+                  else await sleep(400);
+                } catch (e) {
+                  attempt++;
+                  console.warn(`[business ${biz.id} → ${lang}] attempt ${attempt} failed`, e);
+                  if (attempt >= maxRetriesPerBatch) break;
+                  await sleep(2000 * attempt);
+                }
+              }
+              if (!ok) totalErr++;
+              await sleep(200);
+            }
+            await loadJobs();
+            continue;
+          }
+
+
           // ── Default path: batched via translate-content ──
           let iter = 0;
           let consecutiveFailures = 0;
