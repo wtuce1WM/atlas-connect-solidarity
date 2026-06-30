@@ -34,7 +34,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
-import { STATIC_BLOG_HERO_OVERRIDES } from "@/lib/blogStaticHeroes";
+
 import step3MockupAsset from "@/assets/step3-mockup.webp.asset.json";
 import destinationsMapAsset from "@/assets/destinations_map1.webp.asset.json";
 import poiMapAsset from "@/assets/poi_map.webp.asset.json";
