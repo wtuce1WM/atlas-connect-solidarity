@@ -1,8 +1,8 @@
 // Translate ONE blog post progressively.
 // Staff-only. Small JSON chunks avoid malformed long model outputs and edge timeouts.
 
-import { createClient } from "npm:@supabase/supabase-js@2.45.0";
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@^2";
+import { corsHeaders } from "npm:@supabase/supabase-js@^2/cors";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
