@@ -32,11 +32,18 @@ interface SocialLinksCardProps {
   animationDelay?: string;
 }
 
+const LABELS = {
+  fr: { la_carte: "La Carte", carte: "Carte" },
+  en: { la_carte: "Menu", carte: "Menu" },
+  ar: { la_carte: "القائمة", carte: "القائمة" },
+};
+
 const SocialLinksCard = ({
   facebook, instagram, tiktok, youtube, twitter, linkedin, pinterest, vimeo, whatsapp, snapchat,
   menuItems = [], language = "fr", onOpenUrl,
   animationDelay = "0ms",
 }: SocialLinksCardProps) => {
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
   const [expanded, setExpanded] = useState(false);
 
   const links: SocialLink[] = [
@@ -49,7 +56,6 @@ const SocialLinksCard = ({
     pinterest && { name: "Pinterest", url: pinterest, icon: <PinterestIcon className="h-4 w-4" />, color: "#BD081C" },
     vimeo && { name: "Vimeo", url: vimeo, icon: <VimeoIcon className="h-4 w-4" />, color: "#1AB7EA" },
     snapchat && { name: "Snapchat", url: snapchat, icon: <SnapchatIcon className="h-4 w-4" />, color: "#FFFC00" },
-    
   ].filter(Boolean) as SocialLink[];
 
   if (links.length === 0 && menuItems.length === 0) return null;
@@ -92,7 +98,7 @@ const SocialLinksCard = ({
           {menuItems.map((m, i) => (
             <button
               key={m.id}
-              onClick={() => onOpenUrl?.(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
+              onClick={() => onOpenUrl?.(m.url, m.name || L.la_carte)}
               className="min-w-[5rem] h-10 rounded-xl flex items-center justify-center bg-black/40 backdrop-blur-sm hover:bg-black/50 transition-colors px-3"
               style={{
                 opacity: expanded ? 1 : undefined,
@@ -101,7 +107,7 @@ const SocialLinksCard = ({
               }}
             >
               <span className="text-[10px] text-white/90 text-center whitespace-nowrap" style={{ fontFamily: "'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif" }}>
-                {m.name || (language === "en" ? "Menu" : "Carte")}
+                {m.name || L.carte}
               </span>
             </button>
           ))}

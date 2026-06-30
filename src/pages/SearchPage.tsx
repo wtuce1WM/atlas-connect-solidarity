@@ -221,9 +221,24 @@ const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
 
+  const SEO_LABELS: Record<string, { title: string; description: string }> = {
+    fr: {
+      title: searchQuery ? `Recherche : ${searchQuery}` : "Recherche",
+      description: searchQuery ? `Résultats de recherche pour « ${searchQuery} » au Maroc. Trouvez les meilleures adresses sur ONE WORLD MOROCCO.` : "Recherchez parmi les meilleures adresses au Maroc.",
+    },
+    en: {
+      title: searchQuery ? `Search: ${searchQuery}` : "Search",
+      description: searchQuery ? `Search results for "${searchQuery}" in Morocco. Find the best addresses on ONE WORLD MOROCCO.` : "Search among the best addresses in Morocco.",
+    },
+    ar: {
+      title: searchQuery ? `بحث: ${searchQuery}` : "بحث",
+      description: searchQuery ? `نتائج البحث عن "${searchQuery}" في المغرب. اعثر على أفضل العناوين في ONE WORLD MOROCCO.` : "ابحث في أفضل العناوين في المغرب.",
+    },
+  };
+  const seoLabels = SEO_LABELS[language] ?? SEO_LABELS.fr;
   useSEO({
-    title: searchQuery ? `Recherche : ${searchQuery}` : "Recherche",
-    description: searchQuery ? `Résultats de recherche pour « ${searchQuery} » au Maroc. Trouvez les meilleures adresses sur ONE WORLD MOROCCO.` : "Recherchez parmi les meilleures adresses au Maroc.",
+    title: seoLabels.title,
+    description: seoLabels.description,
     canonical: "/search",
   });
 
@@ -4004,8 +4019,8 @@ const SearchPage = () => {
       <Header compact variant={activeTab === "youtube" ? "city" : undefined} rightContent={
         <div data-tab-bar ref={tabBarRef} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {[
-            { key: "suggestions", icon: <Search className="h-4 w-4" />, label: language === "ar" ? "بحث" : "Search", count: totalCount },
-            { key: "ai", icon: <Sparkles className="h-4 w-4" />, label: "IA" },
+            { key: "suggestions", icon: <Search className="h-4 w-4" />, label: language === "ar" ? "بحث" : language === "en" ? "Search" : "Recherche", count: totalCount },
+            { key: "ai", icon: <Sparkles className="h-4 w-4" />, label: language === "ar" ? "ذكاء اصطناعي" : language === "en" ? "AI" : "IA" },
             { key: "youtube", icon: <YouTubeIcon className="h-4 w-4 text-red-600" />, label: "Youtube" },
             ...(badgeIdParam && badgeLabelParam ? [{ key: "hashtag", label: badgeLabelParam, count: hashtagCount }] : []),
             { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },

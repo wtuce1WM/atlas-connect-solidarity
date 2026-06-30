@@ -32,6 +32,33 @@ interface ContactFlipCardProps {
   openBadgeInfo?: { text: string | null; isOpen: boolean };
 }
 
+const LABELS = {
+  fr: {
+    check_avail: "Vérifier la disponibilité ›",
+    view_hours: "Consultez les horaires ›",
+    hours: "Horaires",
+    back: "← Retour",
+    open_24h: "Ouvert 24h/24",
+    days: { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" },
+  },
+  en: {
+    check_avail: "Check availability ›",
+    view_hours: "View hours ›",
+    hours: "Hours",
+    back: "← Back",
+    open_24h: "Open 24/7",
+    days: { monday: "Mon", tuesday: "Tue", wednesday: "Wed", thursday: "Thu", friday: "Fri", saturday: "Sat", sunday: "Sun" },
+  },
+  ar: {
+    check_avail: "تحقق من التوفر ›",
+    view_hours: "عرض أوقات العمل ›",
+    hours: "الأوقات",
+    back: "→ رجوع",
+    open_24h: "مفتوح 24/7",
+    days: { monday: "إث", tuesday: "ثل", wednesday: "أر", thursday: "خم", friday: "جم", saturday: "سب", sunday: "أح" },
+  },
+};
+
 const ContactFlipCard = ({
   business,
   language,
@@ -46,7 +73,7 @@ const ContactFlipCard = ({
   onOpenWebsite,
   openBadgeInfo,
 }: ContactFlipCardProps) => {
-  const isEn = language === "en";
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
   const [flipped, setFlipped] = useState(false);
 
   const showHours = hasOpeningHours && !business.is_open_24h && !hasHotelMapping;
@@ -93,7 +120,7 @@ const ContactFlipCard = ({
             >
               <span className="flex items-center gap-1.5 text-[11px] text-white/60 uppercase tracking-wider font-extrabold">
                 <Search className="h-3.5 w-3.5" />
-                {isEn ? "Check availability ›" : "Vérifier la disponibilité ›"}
+                {L.check_avail}
               </span>
             </div>
           ) : (
@@ -104,7 +131,7 @@ const ContactFlipCard = ({
             >
               {showHours && (
                 <span className="text-[10px] text-white/40 uppercase tracking-wider">
-                  {isEn ? "View hours ›" : "Consultez les horaires ›"}
+                  {L.view_hours}
                 </span>
               )}
             </div>
@@ -121,13 +148,13 @@ const ContactFlipCard = ({
             <div className="flex items-center justify-between mb-2">
               <p className="text-[10px] font-semibold text-gold uppercase tracking-wider">
                 <Clock className="h-3 w-3 inline mr-1" />
-                {isEn ? "Hours" : "Horaires"}
+                {L.hours}
               </p>
               <button
                 onClick={() => setFlipped(false)}
                 className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-wider"
               >
-                ← {isEn ? "Back" : "Retour"}
+                {L.back}
               </button>
             </div>
             <OpeningHoursBlock business={business} language={language} />
@@ -149,15 +176,13 @@ function OpeningHoursBlock({
   };
   language: string;
 }) {
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
+
   const frToEn: Record<string, string> = {
     lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
     vendredi: "friday", samedi: "saturday", dimanche: "sunday",
   };
   const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-  const dayNames: Record<string, string> = {
-    monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu",
-    friday: "Ven", saturday: "Sam", sunday: "Dim",
-  };
   const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
   const rawHours = business.opening_hours as Record<string, any> | null;
   const hours = rawHours ? Object.entries(rawHours).reduce((acc, [k, v]) => {
@@ -170,7 +195,7 @@ function OpeningHoursBlock({
   return (
     <div className="pt-1">
       {business.is_open_24h ? (
-        <p className="text-white/80 text-sm">Ouvert 24h/24</p>
+        <p className="text-white/80 text-sm">{L.open_24h}</p>
       ) : hours ? (
         <div className="space-y-0.5">
           {displayOrder.map((day) => {
@@ -183,7 +208,7 @@ function OpeningHoursBlock({
             return (
               <div key={day} className={`flex text-xs ${isToday ? "font-bold" : ""}`}>
                 <span className={`w-[2.5rem] shrink-0 font-medium ${isToday ? "text-white" : "text-white/70"}`}>
-                  {dayNames[day]}{isToday ? " ●" : ""}
+                  {L.days[day as keyof typeof L.days]}{isToday ? " ●" : ""}
                 </span>
                 <span className="text-white/80">{formatted}</span>
               </div>

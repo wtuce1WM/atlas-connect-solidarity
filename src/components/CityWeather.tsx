@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Cloud, Droplets, Wind, Thermometer, Loader2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface WeatherData {
   temp: number;
@@ -19,7 +20,28 @@ interface CityWeatherProps {
   city: string;
 }
 
+const LABELS = {
+  fr: {
+    load_error: "Impossible de charger la météo",
+    data_error: "Données météo non disponibles",
+    conn_error: "Erreur de connexion",
+  },
+  en: {
+    load_error: "Unable to load weather",
+    data_error: "Weather data unavailable",
+    conn_error: "Connection error",
+  },
+  ar: {
+    load_error: "تعذّر تحميل الطقس",
+    data_error: "بيانات الطقس غير متاحة",
+    conn_error: "خطأ في الاتصال",
+  },
+};
+
 const CityWeather = ({ city }: CityWeatherProps) => {
+  const { language } = useLanguage();
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
+
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,27 +60,27 @@ const CityWeather = ({ city }: CityWeatherProps) => {
 
         if (fnError) {
           console.error('Error calling weather function:', fnError);
-          setError('Impossible de charger la météo');
+          setError(L.load_error);
           return;
         }
 
         if (data.error) {
           console.error('Weather API error:', data.error);
-          setError('Données météo non disponibles');
+          setError(L.data_error);
           return;
         }
 
         setWeather(data);
       } catch (err) {
         console.error('Failed to fetch weather:', err);
-        setError('Erreur de connexion');
+        setError(L.conn_error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchWeather();
-  }, [city]);
+  }, [city, language]);
 
   if (isLoading) {
     return (

@@ -37,8 +37,8 @@ const Blog = () => {
   const [staticHeroes, setStaticHeroes] = useState<{ essaouira?: string; marrakech?: string; galeries?: string; fermes?: string; enfants?: string; artisanat?: string; streetfood?: string; fashion?: string; beachclubs?: string; hotelsessaouira?: string; sidikaouki?: string; agafay?: string; rated?: string; fruitsmer?: string; villas?: string; villasvac?: string }>({});
 
   useSEO({
-    title: "Blog – Actualités et guides",
-    description: "Articles, guides et actualités sur le Maroc par ONE WORLD MOROCCO.",
+    title: t("blog.seo.title"),
+    description: t("blog.seo.description"),
     canonical: "/blog",
   });
 

@@ -1,29 +1,100 @@
 /**
  * Shared Emergency Numbers card for SOS Médecin and Pompiers easter eggs.
  */
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface EmergencyNumbersProps {
   variant: "sos" | "pompiers";
 }
 
+const LABELS = {
+  fr: {
+    title_sos: "🚨 SOS Médecin — Numéros d'urgence au Maroc",
+    title_pompiers: "🔥 Pompiers — Numéros d'urgence au Maroc",
+    subtitle_sos: "Appelez immédiatement si besoin d'aide médicale",
+    subtitle_pompiers: "Appelez immédiatement en cas d'incendie ou de danger",
+    footer_sos: "En cas d'urgence grave, composez le 150 (SAMU) ou rendez-vous aux urgences de l'hôpital le plus proche.",
+    footer_pompiers: "En cas d'incendie, évacuez immédiatement et composez le 15. N'essayez pas d'éteindre un feu important seul.",
+    pompiers_secours: "Pompiers / Secours",
+    sapeurs_pompiers: "Sapeurs-Pompiers",
+    desc_incendie_sos: "Incendie, accidents, sauvetage",
+    desc_incendie_pompiers: "Incendie, secours et sauvetage",
+    protection_civile: "Protection Civile",
+    desc_secours_sos: "Secours et premiers soins",
+    desc_secours_pompiers: "Secours d'urgence et catastrophes",
+    police_secours: "Police Secours",
+    desc_police: "Urgences police",
+    gendarmerie: "Gendarmerie Royale",
+    desc_gendarmerie: "Zones rurales et périurbaines",
+    open_24h: "Ouvert 24h/24",
+  },
+  en: {
+    title_sos: "🚨 SOS Doctor — Emergency Numbers in Morocco",
+    title_pompiers: "🔥 Fire Brigade — Emergency Numbers in Morocco",
+    subtitle_sos: "Call immediately if you need medical assistance",
+    subtitle_pompiers: "Call immediately in case of fire or danger",
+    footer_sos: "In case of a serious emergency, dial 150 (SAMU) or go to the nearest hospital emergency room.",
+    footer_pompiers: "In case of fire, evacuate immediately and dial 15. Do not try to extinguish a large fire alone.",
+    pompiers_secours: "Fire & Rescue",
+    sapeurs_pompiers: "Fire Brigade",
+    desc_incendie_sos: "Fire, accidents, rescue",
+    desc_incendie_pompiers: "Fire, rescue and relief",
+    protection_civile: "Civil Protection",
+    desc_secours_sos: "Rescue and first aid",
+    desc_secours_pompiers: "Emergency rescue and disasters",
+    police_secours: "Police Emergency",
+    desc_police: "Police emergencies",
+    gendarmerie: "Royal Gendarmerie",
+    desc_gendarmerie: "Rural and peri-urban areas",
+    open_24h: "Open 24/7",
+  },
+  ar: {
+    title_sos: "🚨 طبيب الطوارئ — أرقام الطوارئ في المغرب",
+    title_pompiers: "🔥 رجال الإطفاء — أرقام الطوارئ في المغرب",
+    subtitle_sos: "اتصل فوراً إذا كنت بحاجة إلى مساعدة طبية",
+    subtitle_pompiers: "اتصل فوراً في حالة حريق أو خطر",
+    footer_sos: "في حالة الطوارئ الخطيرة، اتصل بـ 150 (SAMU) أو توجه إلى أقرب مستشفى.",
+    footer_pompiers: "في حالة الحريق، أخلِ المكان فوراً واتصل بـ 15. لا تحاول إخماد حريق كبير بمفردك.",
+    pompiers_secours: "الإطفاء / الإنقاذ",
+    sapeurs_pompiers: "فرقة الإطفاء",
+    desc_incendie_sos: "الحرائق، الحوادث، الإنقاذ",
+    desc_incendie_pompiers: "الحرائق، الإنقاذ والنجدة",
+    protection_civile: "الحماية المدنية",
+    desc_secours_sos: "الإنقاذ والإسعافات الأولية",
+    desc_secours_pompiers: "الإنقاذ الطارئ والكوارث",
+    police_secours: "شرطة الطوارئ",
+    desc_police: "طوارئ الشرطة",
+    gendarmerie: "الدرك الملكي",
+    desc_gendarmerie: "المناطق الريفية وشبه الحضرية",
+    open_24h: "مفتوح 24/7",
+  },
+};
+
 const EmergencyNumbers = ({ variant }: EmergencyNumbersProps) => {
+  const { language } = useLanguage();
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
+
   const isSos = variant === "sos";
   const accentColor = isSos ? "red" : "orange";
-  const title = isSos
-    ? "🚨 SOS Médecin — Numéros d'urgence au Maroc"
-    : "🔥 Pompiers — Numéros d'urgence au Maroc";
-  const subtitle = isSos
-    ? "Appelez immédiatement si besoin d'aide médicale"
-    : "Appelez immédiatement en cas d'incendie ou de danger";
-  const footer = isSos
-    ? "En cas d'urgence grave, composez le 150 (SAMU) ou rendez-vous aux urgences de l'hôpital le plus proche."
-    : "En cas d'incendie, évacuez immédiatement et composez le 15. N'essayez pas d'éteindre un feu important seul.";
+  const title = isSos ? L.title_sos : L.title_pompiers;
+  const subtitle = isSos ? L.subtitle_sos : L.subtitle_pompiers;
+  const footer = isSos ? L.footer_sos : L.footer_pompiers;
 
   const numbers = [
-    { label: isSos ? "Pompiers / Secours" : "Sapeurs-Pompiers", desc: isSos ? "Incendie, accidents, sauvetage" : "Incendie, secours et sauvetage", number: "150", color: "orange" },
-    { label: "Protection Civile", desc: isSos ? "Secours et premiers soins" : "Secours d'urgence et catastrophes", number: "190", color: isSos ? "orange" : "red" },
-    { label: "Police Secours", desc: "Urgences police", number: "19", color: "blue" },
-    { label: "Gendarmerie Royale", desc: "Zones rurales et périurbaines", number: "177", color: "yellow" },
+    {
+      label: isSos ? L.pompiers_secours : L.sapeurs_pompiers,
+      desc: isSos ? L.desc_incendie_sos : L.desc_incendie_pompiers,
+      number: "150",
+      color: "orange",
+    },
+    {
+      label: L.protection_civile,
+      desc: isSos ? L.desc_secours_sos : L.desc_secours_pompiers,
+      number: "190",
+      color: isSos ? "orange" : "red",
+    },
+    { label: L.police_secours, desc: L.desc_police, number: "19", color: "blue" },
+    { label: L.gendarmerie, desc: L.desc_gendarmerie, number: "177", color: "yellow" },
   ];
 
   return (

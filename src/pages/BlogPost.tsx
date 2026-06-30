@@ -235,7 +235,7 @@ const LegacyHtmlPost = ({
 
         <AnimatedBusinessStrip
           city="Marrakech"
-          title={language === "fr" ? "Nos adresses à découvrir" : language === "ar" ? "عناويننا للاكتشاف" : "Our addresses to discover"}
+          title={t("blog.ourAddresses")}
         />
 
         <div className="mt-10 flex justify-center">

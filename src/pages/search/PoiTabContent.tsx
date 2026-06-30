@@ -58,6 +58,31 @@ const PoiTabContent = ({
 }: PoiTabContentProps) => {
   const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
+  const LABELS = {
+    fr: {
+      attractions: "Attractions",
+      allAttractions: "Toutes les attractions",
+      proximity: "À proximité",
+      allDistances: "Toutes distances",
+      lt500m: "Moins de 500 m", lt1km: "Moins de 1 km", lt5km: "Moins de 5 km", lt10km: "Moins de 10 km",
+    },
+    en: {
+      attractions: "Attractions",
+      allAttractions: "All attractions",
+      proximity: "Nearby",
+      allDistances: "All distances",
+      lt500m: "Under 500 m", lt1km: "Under 1 km", lt5km: "Under 5 km", lt10km: "Under 10 km",
+    },
+    ar: {
+      attractions: "معالم",
+      allAttractions: "كل المعالم",
+      proximity: "بالقرب",
+      allDistances: "كل المسافات",
+      lt500m: "أقل من 500 م", lt1km: "أقل من 1 كم", lt5km: "أقل من 5 كم", lt10km: "أقل من 10 كم",
+    },
+  };
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
+
   const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
   useEffect(() => { onPanelOpenChange?.(!!poiSelectedBusinessId); }, [poiSelectedBusinessId, onPanelOpenChange]);
   const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
@@ -78,12 +103,12 @@ const PoiTabContent = ({
 
   const proxOpts = useMemo(
     () => [
-      { km: 0.5, label: "Moins de 500 m" },
-      { km: 1, label: "Moins de 1 km" },
-      { km: 5, label: "Moins de 5 km" },
-      { km: 10, label: "Moins de 10 km" },
+      { km: 0.5, label: L.lt500m },
+      { km: 1, label: L.lt1km },
+      { km: 5, label: L.lt5km },
+      { km: 10, label: L.lt10km },
     ],
-    []
+    [L]
   );
   const proxCountsByKm = useMemo(() => {
     const counts: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
@@ -237,14 +262,14 @@ const PoiTabContent = ({
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcat ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                       >
                         <SlidersHorizontal className="h-3.5 w-3.5" />
-                        {poiSubcat ?? "Attractions"}
+                        {poiSubcat ?? L.attractions}
                         {poiSubcat && <span className="ml-0.5 opacity-70">{filteredPois.length}</span>}
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="center" className="z-[210] max-h-80 overflow-y-auto">
                       {poiSubcat && (
                         <DropdownMenuItem onSelect={() => setPoiSubcat(null)}>
-                          Toutes les attractions <span className="ml-1 opacity-60">({allPois.length})</span>
+                          {L.allAttractions} <span className="ml-1 opacity-60">({allPois.length})</span>
                         </DropdownMenuItem>
                       )}
                       {subcatCounts.map(([name, count]) => (
@@ -265,7 +290,7 @@ const PoiTabContent = ({
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                       >
                         <Navigation className="h-3.5 w-3.5" />
-                        {proxActiveOpt ? proxActiveOpt.label : "À proximité"}
+                        {proxActiveOpt ? proxActiveOpt.label : L.proximity}
                         {proximityActive && (
                           <span className="ml-0.5 opacity-70">{proxCountsByKm[poiProximityKm!] ?? 0}</span>
                         )}
@@ -274,7 +299,7 @@ const PoiTabContent = ({
                     <DropdownMenuContent align="center" className="z-[210]">
                       {poiProximityKm != null && (
                         <DropdownMenuItem onSelect={() => setPoiProximityKm(null)}>
-                          Toutes distances
+                          {L.allDistances}
                         </DropdownMenuItem>
                       )}
                       {proxOpts.map(o => {

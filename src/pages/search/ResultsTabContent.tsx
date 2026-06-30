@@ -152,6 +152,51 @@ export default function ResultsTabContent({
   onRequestResultsScroll,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
+  const LABELS = {
+    fr: {
+      hotelsAvailablePrefix: (n: number) => `Hôtel${n > 1 ? "s" : ""} disponible${n > 1 ? "s" : ""} à`,
+      adults: "adulte(s)",
+      shareTitle: "Recherche",
+      top20: "Top 20",
+      all: "Tous",
+      subcategory: "Sous-catégorie",
+      allSubcats: "Toutes les sous-catégories",
+      category: "Catégorie",
+      proximity: "À proximité",
+      allDistances: "Toutes distances",
+      lt500m: "Moins de 500 m", lt1km: "Moins de 1 km", lt5km: "Moins de 5 km", lt10km: "Moins de 10 km",
+      of: "sur",
+    },
+    en: {
+      hotelsAvailablePrefix: (n: number) => `${n} hotel${n > 1 ? "s" : ""} available in`,
+      adults: "adult(s)",
+      shareTitle: "Search",
+      top20: "Top 20",
+      all: "All",
+      subcategory: "Subcategory",
+      allSubcats: "All subcategories",
+      category: "Category",
+      proximity: "Nearby",
+      allDistances: "All distances",
+      lt500m: "Under 500 m", lt1km: "Under 1 km", lt5km: "Under 5 km", lt10km: "Under 10 km",
+      of: "of",
+    },
+    ar: {
+      hotelsAvailablePrefix: (n: number) => `${n} فندق متاح في`,
+      adults: "بالغ",
+      shareTitle: "بحث",
+      top20: "أفضل 20",
+      all: "الكل",
+      subcategory: "فئة فرعية",
+      allSubcats: "كل الفئات الفرعية",
+      category: "فئة",
+      proximity: "بالقرب",
+      allDistances: "كل المسافات",
+      lt500m: "أقل من 500 م", lt1km: "أقل من 1 كم", lt5km: "أقل من 5 كم", lt10km: "أقل من 10 كم",
+      of: "من",
+    },
+  };
+  const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
   const [, setSearchParams] = useSearchParams();
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
@@ -478,7 +523,7 @@ export default function ResultsTabContent({
                 <div className="sticky z-[21] -mx-4 mb-4 bg-background px-4 py-2 shadow-sm top-[53px] lg:top-[53px] lg:pt-[17px]">
                   <p className="mx-auto max-w-screen-2xl text-base font-semibold leading-snug text-neutral-900">
                     <span className="text-black mr-1">{filteredBusinesses.length}</span>
-                    {language === "en" ? "Hotels available in" : `Hôtel${filteredBusinesses.length > 1 ? 's' : ''} disponible${filteredBusinesses.length > 1 ? 's' : ''} à`} {resolvedHotelSearchInfo.city}.<br className="sm:hidden" /> <span>{resolvedHotelSearchInfo.checkIn} → {resolvedHotelSearchInfo.checkOut} · {resolvedHotelSearchInfo.adults} {language === "en" ? "adult(s)" : "adulte(s)"}</span>
+                    {language === "en" ? `${filteredBusinesses.length} hotel${filteredBusinesses.length > 1 ? "s" : ""} available in` : L.hotelsAvailablePrefix(filteredBusinesses.length)} {resolvedHotelSearchInfo.city}.<br className="sm:hidden" /> <span>{resolvedHotelSearchInfo.checkIn} → {resolvedHotelSearchInfo.checkOut} · {resolvedHotelSearchInfo.adults} {L.adults}</span>
                   </p>
                 </div>
               )}
@@ -552,7 +597,7 @@ export default function ResultsTabContent({
               {!proximityActive && totalPages > 1 && (
                 <div className="mb-20 pb-4 flex flex-col items-center gap-1">
                   <p className="text-sm text-muted-foreground">
-                    {t.showing} {startResult} {t.to} {endResult} sur {displayedResultsCount} {t.results}
+                    {t.showing} {startResult} {t.to} {endResult} {L.of} {displayedResultsCount} {t.results}
                   </p>
                   <div className="flex items-center gap-2">
                     <Button
@@ -658,7 +703,7 @@ export default function ResultsTabContent({
                       <Bookmark className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
                     </button>
                     <ShareButton
-                      title={spokenText || searchQuery || "Recherche"}
+                      title={spokenText || searchQuery || L.shareTitle}
                       variant="dark"
                       className="shrink-0 shadow-lg"
                     />
@@ -681,7 +726,7 @@ export default function ResultsTabContent({
                             }}
                             className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers && !activeFsSubId ? "bg-[#C04F17] text-white" : "text-white/80 hover:text-white"}`}
                           >
-                            Top 20
+                            {L.top20}
                           </button>
                           <button
                             type="button"
@@ -692,7 +737,7 @@ export default function ResultsTabContent({
                             }}
                             className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers && !activeFsSubId ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                           >
-                            Tous <span className="ml-0.5 opacity-70">{total}</span>
+                            {L.all} <span className="ml-0.5 opacity-70">{total}</span>
                           </button>
                         </div>
                       )}
@@ -722,7 +767,7 @@ export default function ResultsTabContent({
                                 <DropdownMenuContent align="end" className="z-[95] max-h-80 overflow-y-auto">
                                   {activeFsSubId && (
                                     <DropdownMenuItem onSelect={() => handleFsSubClick(null)}>
-                                      Toutes les sous-catégories
+                                      {L.allSubcats}
                                     </DropdownMenuItem>
                                   )}
                                   {subs.map((s) => (
@@ -745,7 +790,7 @@ export default function ResultsTabContent({
                                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors text-white/80 hover:text-white"
                                 >
                                   <SlidersHorizontal className="h-3.5 w-3.5" />
-                                  Catégorie
+                                  {L.category}
                                 </button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="z-[95] max-h-80 overflow-y-auto">
@@ -762,10 +807,10 @@ export default function ResultsTabContent({
                       {/* Filtre "À proximité" — visible uniquement en mode "Tous" et si on connait la position user */}
                       {userCoords && userNearSearchArea && (() => {
                         const opts: { km: number; label: string }[] = [
-                          { km: 0.5, label: "Moins de 500 m" },
-                          { km: 1, label: "Moins de 1 km" },
-                          { km: 5, label: "Moins de 5 km" },
-                          { km: 10, label: "Moins de 10 km" },
+                          { km: 0.5, label: L.lt500m },
+                          { km: 1, label: L.lt1km },
+                          { km: 5, label: L.lt5km },
+                          { km: 10, label: L.lt10km },
                         ];
                         const active = opts.find(o => o.km === proximityKm);
                         return (
@@ -777,7 +822,7 @@ export default function ResultsTabContent({
                                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                                  >
                                    <Navigation className="h-3.5 w-3.5" />
-                                  {active ? active.label : "À proximité"}
+                                  {active ? active.label : L.proximity}
                                   {proximityActive && (
                                     <span className="ml-0.5 opacity-70">{proximityCount}</span>
                                   )}
@@ -789,7 +834,7 @@ export default function ResultsTabContent({
                                     setProximityKm(null);
                                     requestResultsScroll();
                                   }}>
-                                    Toutes distances
+                                    {L.allDistances}
                                   </DropdownMenuItem>
                                 )}
                                 {opts.map(o => {
