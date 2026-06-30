@@ -1228,7 +1228,7 @@ const HomeMindtrip = () => {
               {L.inspireYourself}
             </h2>
             <p className="mt-3 max-w-xl font-roboto text-foreground/70">
-              Nos derniers guides pour explorer le Maroc autrement.
+              {L.inspireSubtitle}
             </p>
           </div>
           <div className="flex-1 min-h-0 flex items-center overflow-hidden">
