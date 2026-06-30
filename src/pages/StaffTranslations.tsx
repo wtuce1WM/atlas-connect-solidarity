@@ -43,6 +43,9 @@ export default function StaffTranslations() {
   const [limit, setLimit] = useState(10);
   const [dryRun, setDryRun] = useState(false);
   const [running, setRunning] = useState(false);
+  const [autoRun, setAutoRun] = useState(false);
+  const [autoProgress, setAutoProgress] = useState<string>("");
+  const [stopRequested, setStopRequested] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
 
   useEffect(() => {
