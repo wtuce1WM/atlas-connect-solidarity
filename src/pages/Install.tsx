@@ -456,17 +456,15 @@ const Install = () => {
             <div className="w-full md:max-lg:max-w-[75%] md:max-lg:mb-6">
               {/* Mobile Title */}
               <h1 style={{ lineHeight: 1.2 }} className="md:hidden font-josefin text-[1.625rem] sm:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
-                Installer l'App
+                {t.h1}
               </h1>
               {/* Desktop/Tablet Title */}
               <h1 style={{ lineHeight: 1.2 }} className="hidden md:block font-josefin md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2">
-                Installer l'App
+                {t.h1}
               </h1>
 
               <p className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
-                {installEvent
-                  ? "Touche l'icône ci-dessous pour installer l'app en un clic, ou suis les étapes ci-dessous."
-                  : "Installe l'app sur ton appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur ton écran d'accueil ou ton bureau."}
+                {installEvent ? t.heroSubWithPrompt : t.heroSubDefault}
               </p>
             </div>
 
@@ -491,21 +489,21 @@ const Install = () => {
                   className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C04F17] text-white text-sm font-roboto font-medium shadow-lg hover:opacity-95 transition-all active:scale-95 cursor-pointer btn-shimmer"
                   aria-label={
                     installed
-                      ? "Application déjà installée"
+                      ? t.ariaInstalled
                       : installEvent
-                        ? "Installer l'application maintenant"
-                        : "Voir les instructions d'installation"
+                        ? t.ariaInstallNow
+                        : t.ariaSeeInstructions
                   }
                 >
                   {!installed ? (
                     <>
                       <Download className="h-4 w-4" />
-                      {installEvent ? "Installer" : updateAvailable ? "Installer mise à jour" : "Comment installer"}
+                      {installEvent ? t.install : updateAvailable ? t.installUpdate : t.howToInstall}
                     </>
                   ) : (
                     <>
                       <Check className="h-4 w-4" />
-                      Installée
+                      {t.installed}
                     </>
                   )}
                 </button>
