@@ -627,10 +627,10 @@ const Install = () => {
         {/* Footer info */}
         <footer className="mt-10 text-center space-y-3">
           <p className="text-sm text-muted-foreground font-roboto">
-            URL à ouvrir : <a href="https://oneworldmorocco.com" className="text-gold hover:underline">oneworldmorocco.com</a>
+            {t.urlToOpen} <a href="https://oneworldmorocco.com" className="text-gold hover:underline">oneworldmorocco.com</a>
           </p>
           <p className="text-xs text-muted-foreground/70 font-roboto">
-            L'app utilise les mêmes données que le site web — aucun téléchargement depuis un store nécessaire.
+            {t.sameDataNote}
           </p>
         </footer>
       </div>
