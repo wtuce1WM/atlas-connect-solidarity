@@ -296,7 +296,18 @@ Deno.serve(async (req) => {
           const src = row[cfg.jsonEntries.source];
           const tgt = row[cfg.jsonEntries.target];
           if (isIncompleteJsonEntries(src, tgt)) {
-            updates[cfg.jsonEntries.target] = await translateJsonEntriesChunk(src, tgt, target_lang);
+            const targetCol = cfg.jsonEntries.target;
+            const pkVal = row[cfg.pk];
+            updates[targetCol] = await translateJsonEntriesChunk(
+              src,
+              tgt,
+              target_lang,
+              async (partial) => {
+                if (!dry_run) {
+                  await admin.from(cfg.table).update({ [targetCol]: partial }).eq(cfg.pk, pkVal);
+                }
+              },
+            );
           }
         }
 
