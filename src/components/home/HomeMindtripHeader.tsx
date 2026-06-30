@@ -240,6 +240,11 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
                   </Link>
                 ))
             )}
+            {englishEnabled && (
+              <div className="mt-1 flex justify-center pt-2 border-t border-white/10">
+                <LanguageSwitcher />
+              </div>
+            )}
           </div>
         </div>
       )}
