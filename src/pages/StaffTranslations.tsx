@@ -95,6 +95,25 @@ export default function StaffTranslations() {
     const maxIterations = 300;
     const maxRetriesPerBatch = 3;
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const hasText = (value: unknown) => typeof value === "string" && value.trim().length > 0;
+    const isBlogPostComplete = (post: any, lang: "en" | "ar") => {
+      const metaFields = [
+        "title",
+        "excerpt",
+        "hero_title_top",
+        "hero_title_bottom",
+        "hero_subtitle",
+        "intro",
+      ];
+      const hasAllMeta = metaFields.every((field) => {
+        const source = post[`${field}_fr`];
+        const target = post[`${field}_${lang}`];
+        return !hasText(source) || hasText(target);
+      });
+      const sourceEntries = Array.isArray(post.entries_fr) ? post.entries_fr : [];
+      const targetEntries = Array.isArray(post[`entries_${lang}`]) ? post[`entries_${lang}`] : [];
+      return hasAllMeta && targetEntries.length >= sourceEntries.length;
+    };
     let stopped = false;
     const checkStop = () => {
       // lit l'état le plus récent via setter (closure piège)
@@ -112,31 +131,26 @@ export default function StaffTranslations() {
           if (cfg.key === "blog_posts") {
             const { data: posts, error: pErr } = await supabase
               .from("blog_posts")
-              .select(`slug, title_fr, excerpt_fr, intro_fr, title_${lang}, excerpt_${lang}, intro_${lang}, entries_${lang}, entries_fr`)
+              .select(`slug, title_fr, excerpt_fr, hero_title_top_fr, hero_title_bottom_fr, hero_subtitle_fr, intro_fr, title_${lang}, excerpt_${lang}, hero_title_top_${lang}, hero_title_bottom_${lang}, hero_subtitle_${lang}, intro_${lang}, entries_${lang}, entries_fr`)
               .order("slug");
             if (pErr) { totalErr++; console.warn("blog_posts list failed", pErr); continue; }
 
-            const targetTitleKey = `title_${lang}` as const;
-            const targetExcerptKey = `excerpt_${lang}` as const;
-            const targetIntroKey = `intro_${lang}` as const;
-            const targetEntriesKey = `entries_${lang}` as const;
-            const pending = (posts ?? []).filter((p: any) => {
-              const sourceHasTitle = typeof p.title_fr === "string" && p.title_fr.trim().length > 0;
-              const sourceHasExcerpt = typeof p.excerpt_fr === "string" && p.excerpt_fr.trim().length > 0;
-              const sourceHasIntro = typeof p.intro_fr === "string" && p.intro_fr.trim().length > 0;
-              const hasTitle = !sourceHasTitle || !!p[targetTitleKey];
-              const hasExcerpt = !sourceHasExcerpt || !!p[targetExcerptKey];
-              const hasIntro = !sourceHasIntro || !!p[targetIntroKey];
-              const sourceEntries = Array.isArray(p.entries_fr) ? p.entries_fr : [];
-              const entries = Array.isArray(p[targetEntriesKey]) ? p[targetEntriesKey] : [];
-              const hasEntries = entries.length >= sourceEntries.length;
-              return !(hasTitle && hasExcerpt && hasIntro && hasEntries);
-            });
+            const pending = (posts ?? []).filter((p: any) => !isBlogPostComplete(p, lang));
 
             let idx = 0;
             for (const post of pending) {
               if (checkStop()) throw new Error("Arrêt demandé");
               idx++;
+              const { data: freshPost, error: freshErr } = await supabase
+                .from("blog_posts")
+                .select(`slug, title_fr, excerpt_fr, hero_title_top_fr, hero_title_bottom_fr, hero_subtitle_fr, intro_fr, title_${lang}, excerpt_${lang}, hero_title_top_${lang}, hero_title_bottom_${lang}, hero_subtitle_${lang}, intro_${lang}, entries_${lang}, entries_fr`)
+                .eq("slug", post.slug)
+                .maybeSingle();
+              if (!freshErr && freshPost && isBlogPostComplete(freshPost, lang)) {
+                setAutoProgress(`Blog → ${lang.toUpperCase()} · ${post.slug} (${idx}/${pending.length}) · déjà traduit`);
+                await sleep(150);
+                continue;
+              }
               let attempt = 0;
               let ok = false;
               let safety = 0;
