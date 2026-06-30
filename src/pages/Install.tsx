@@ -617,10 +617,10 @@ const Install = () => {
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-roboto font-medium shadow-md hover:opacity-90 transition"
           >
             <Download className="h-4 w-4" />
-            Vérifier les mises à jour
+            {t.checkUpdates}
           </button>
           <p className="mt-3 text-xs text-muted-foreground/70 font-roboto">
-            Recharge l'app avec la dernière version disponible.
+            {t.checkUpdatesHint}
           </p>
         </div>
 
