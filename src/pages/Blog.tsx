@@ -248,7 +248,29 @@ const Blog = () => {
               type Item = { key: string; date: string; node: JSX.Element };
               const items: Item[] = [];
 
-              posts.forEach((post) => {
+              // Slugs that already have a hand-crafted static card below (with the right hero thumbnail).
+              // We skip the DB version to avoid duplicate keys and empty thumbnails (cover_image_url is null in DB).
+              const STATIC_CARD_SLUGS = new Set([
+                "5-jours-marrakech-artisanat",
+                "galeries-art-marrakech",
+                "fermes-pedagogiques-marrakech",
+                "idee-cadeau-marrakech",
+                "louer-villa-complexe-hotelier-marrakech",
+                "louer-villa-vacances-marrakech",
+                "activites-enfants-marrakech",
+                "artisanat-medina-marrakech",
+                "street-food-marrakech",
+                "shopping-fashion-gueliz",
+                "beach-clubs-marrakech",
+                "hotels-riads-vue-mer-essaouira",
+                "manger-fruits-de-mer-essaouira",
+                "hebergements-sidi-kaouki",
+                "agafay-dream",
+                "etablissements-notes",
+              ]);
+
+              posts.filter((p) => !STATIC_CARD_SLUGS.has(p.slug)).forEach((post) => {
+
                 items.push({
                   key: post.id,
                   date: post.published_at || post.created_at,
