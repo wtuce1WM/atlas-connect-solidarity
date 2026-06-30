@@ -41,8 +41,16 @@ const Club = () => {
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   useSEO({
-    title: "Club – Rejoignez la communauté",
-    description: "Rejoignez le Club ONE WORLD MOROCCO pour accéder à des avantages exclusifs et des recommandations personnalisées.",
+    title: language === "en"
+      ? "Club – Join the community"
+      : language === "ar"
+      ? "النادي – انضم إلى المجتمع"
+      : "Club – Rejoignez la communauté",
+    description: language === "en"
+      ? "Join the ONE WORLD MOROCCO Club for exclusive benefits and personalised recommendations."
+      : language === "ar"
+      ? "انضم إلى نادي ONE WORLD MOROCCO للوصول إلى مزايا حصرية وتوصيات مخصصة."
+      : "Rejoignez le Club ONE WORLD MOROCCO pour accéder à des avantages exclusifs et des recommandations personnalisées.",
     canonical: "/club",
   });
   const [user, setUser] = useState<User | null>(null);
@@ -251,6 +259,15 @@ const Club = () => {
       weakPassword: "Le mot de passe est trop faible. Veuillez choisir un mot de passe plus sécurisé.",
       orSeparator: "ou",
       googleSignIn: "Continuer avec Google",
+      badges: [
+        "Votre assistant IA",
+        "Votre ID numérique",
+        "Découvrez, partagez",
+        "Réductions exclusives",
+        "Économie locale & solidaire",
+        "Communauté OWM",
+      ],
+      backToTop: "Revenir",
     },
     en: {
       title: "The OWM Club",
@@ -284,6 +301,15 @@ const Club = () => {
       weakPassword: "Password is too weak. Please choose a stronger password.",
       orSeparator: "or",
       googleSignIn: "Continue with Google",
+      badges: [
+        "Your AI assistant",
+        "Your digital ID",
+        "Discover, share",
+        "Exclusive discounts",
+        "Local & community economy",
+        "OWM Community",
+      ],
+      backToTop: "Back to top",
     },
     ar: {
       title: "نادي OWM",
@@ -317,6 +343,15 @@ const Club = () => {
       weakPassword: "كلمة المرور ضعيفة جداً. يرجى اختيار كلمة مرور أقوى.",
       orSeparator: "أو",
       googleSignIn: "المتابعة مع جوجل",
+      badges: [
+        "مساعدك بالذكاء الاصطناعي",
+        "هويتك الرقمية",
+        "اكتشف وشارك",
+        "تخفيضات حصرية",
+        "اقتصاد محلي وتضامني",
+        "مجتمع OWM",
+      ],
+      backToTop: "العودة للأعلى",
     },
   }[language] || {
     title: "Le Club OWM",
@@ -350,6 +385,15 @@ const Club = () => {
     weakPassword: "Le mot de passe est trop faible. Veuillez choisir un mot de passe plus sécurisé.",
     orSeparator: "ou",
     googleSignIn: "Continuer avec Google",
+    badges: [
+      "Votre assistant IA",
+      "Votre ID numérique",
+      "Découvrez, partagez",
+      "Réductions exclusives",
+      "Économie locale & solidaire",
+      "Communauté OWM",
+    ],
+    backToTop: "Revenir",
   };
 
   const benefits = [t.benefit1, t.benefit2, t.benefit3, t.benefit4];
@@ -554,14 +598,7 @@ const Club = () => {
                 {t.desc}
               </p>
               <div className="flex flex-col items-center sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-3xl sm:max-w-4xl lg:max-w-5xl mx-auto">
-                {[
-                  "Votre assistant IA",
-                  "Votre ID numérique",
-                  "Découvrez, partagez",
-                  "Réductions exclusives",
-                  "économie locale & solidaire",
-                  "Communauté OWM",
-                ].map((label, index) => (
+                {t.badges.map((label, index) => (
                   <div
                     key={label}
                     className="club-badge-glass club-badge-shimmer inline-flex items-center justify-center gap-2 text-white px-5 sm:px-6 md:px-7 lg:px-8 py-2.5 rounded-full text-xs sm:text-sm md:text-sm lg:text-base font-semibold w-fit sm:w-full whitespace-nowrap"
@@ -790,11 +827,11 @@ const Club = () => {
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              aria-label="Revenir"
+              aria-label={t.backToTop}
               className="text-white/70 transition hover:text-white"
             >
               <ArrowUp className="mx-auto mb-2 h-5 w-5 animate-bounce" />
-              <span className="block font-josefin text-xs uppercase tracking-[0.3em]">Revenir</span>
+              <span className="block font-josefin text-xs uppercase tracking-[0.3em]">{t.backToTop}</span>
             </button>
           </div>
         </main>

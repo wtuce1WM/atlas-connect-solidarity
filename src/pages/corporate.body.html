@@ -13,12 +13,12 @@
   <img class="phone-float-tablet" src="" alt="" aria-hidden="true" style="content:var(--hero-phone-mockup-tablet)" />
 
   <div class="grain"></div>
-  <div class="top-banner">Le premier écosystème numérique éthique dédié à l'économie locale</div>
+  <div class="top-banner">{{TOP_BANNER}}</div>
   <div class="hero-inner">
-    <h1>Transformons<br>chaque transaction<br><span>en impact POSITIF</span></h1>
-    <p class="lede">L'excellence de l'hospitalité, de la gastronomie et de l'art de vivre marocains, réunie sur une plateforme éthique au service des professionnels de tout le Royaume du Maroc.</p>
+    <h1>{{H1_LINE1}}<br>{{H1_LINE2}}<br><span>{{H1_LINE3}}</span></h1>
+    <p class="lede">{{LEDE}}</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="/join">Rejoindre le mouvement</a>
+      <a class="btn btn-primary" href="/join">{{BTN_JOIN}}</a>
     </div>
   </div>
 </section>
@@ -27,19 +27,19 @@
   <div class="pillars-grid">
     <div class="pillar reveal">
       <div class="num">0</div>
-      <h3>Zéro Commission</h3>
-      <p>Aucune commission prélevée sur vos transactions. Vous gardez l'intégralité de votre chiffre d'affaires.</p>
+      <h3>{{PILLAR1_TITLE}}</h3>
+      <p>{{PILLAR1_BODY}}</p>
     </div>
     <div class="pillar reveal">
       <div class="num">∞</div>
-      <h3>Abonnement Mensuel</h3>
-      <p>Un abonnement clair et prévisible, là où les plateformes classiques prélèvent jusqu'à 25%.</p>
+      <h3>{{PILLAR2_TITLE}}</h3>
+      <p>{{PILLAR2_BODY}}</p>
     </div>
     <div class="pillar reveal">
 
       <div class="num">20%</div>
-      <h3>20% Reversés</h3>
-      <p>20% de chaque abonnement sont reversés, via séquestre bancaire, à des causes humanitaires au Maroc.</p>
+      <h3>{{PILLAR3_TITLE}}</h3>
+      <p>{{PILLAR3_BODY}}</p>
     </div>
   </div>
 </section>
@@ -48,13 +48,13 @@
   <div class="wrap">
     <div class="model-grid">
       <div class="model-text reveal">
-        <span class="eyebrow">Un modèle inversé</span>
-        <h2 style="margin-top:18px">L'éthique <em>n'est pas</em> une option.<br>C'est le modèle.</h2>
-        <p>One World Morocco repose sur une conviction simple : la valeur créée par les professionnels marocains doit leur revenir. Nous avons supprimé la commission par transaction et l'avons remplacée par un <span class="hl">abonnement mensuel transparent</span>.</p>
-        <p>Hôteliers, restaurateurs, transporteurs et acteurs de l'hospitalité de tout le Royaume du Maroc rejoignent une vitrine commune, du Maroc vers le reste du Monde — sans intermédiaire prédateur.</p>
+        <span class="eyebrow">{{MODEL_EYEBROW}}</span>
+        <h2 style="margin-top:18px">{{MODEL_TITLE}}</h2>
+        <p>{{MODEL_P1}}</p>
+        <p>{{MODEL_P2}}</p>
         <div class="compare">
-          <div class="owm"><span>One World Morocco</span><span class="v">0 commission</span></div>
-          <div class="them"><span>Booking · Airbnb · Expedia</span><span class="v">jusqu'à 25%</span></div>
+          <div class="owm"><span>One World Morocco</span><span class="v">{{COMPARE_OWM_VAL}}</span></div>
+          <div class="them"><span>Booking · Airbnb · Expedia</span><span class="v">{{COMPARE_THEM_VAL}}</span></div>
         </div>
       </div>
       <div class="model-visual reveal" style="position:relative">
@@ -67,17 +67,17 @@
             style="display:block;max-width:100%;height:auto;border-radius:inherit"
           ></video>
           <div style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:3">
-            <button type="button" id="modelPlayBtn" aria-label="Play/Pause" style="width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">
+            <button type="button" id="modelPlayBtn" aria-label="{{ARIA_PLAY}}" style="width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">
               <svg id="modelPlayIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
             </button>
-            <button type="button" id="modelMuteBtn" aria-label="Mute/Unmute" style="width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">
+            <button type="button" id="modelMuteBtn" aria-label="{{ARIA_MUTE}}" style="width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">
               <svg id="modelMuteIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.04v7.91A4.5 4.5 0 0 0 16.5 12z"/><line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2"/></svg>
             </button>
           </div>
         </div>
         <div class="tag">
           <b>20%</b>
-          <small>Reversés à des causes humanitaires au Maroc</small>
+          <small>{{VIDEO_TAG}}</small>
         </div>
       </div>
       
@@ -90,19 +90,17 @@
 
 <section class="cities pad" id="villes">
   <div class="wrap">
-    <span class="eyebrow">Villes Pionnières</span>
-    <h2>Là où tout <em>commence</em>.</h2>
-    <p class="sub">Le déploiement rayonne désormais sur tout le Royaume du Maroc.</p>
+    <span class="eyebrow">{{CITIES_EYEBROW}}</span>
+    <h2>{{CITIES_TITLE}}</h2>
+    <p class="sub">{{CITIES_SUB}}</p>
     <div class="city-row">
-      <div class="city reveal"><div class="nm">Marrakech</div><div class="lb">Ville Pionnière</div></div>
+      <div class="city reveal"><div class="nm">Marrakech</div><div class="lb">{{CITY_LABEL}}</div></div>
       <div class="divider-v"></div>
-      <div class="city reveal"><div class="nm">Essaouira</div><div class="lb">Ville Pionnière</div></div>
+      <div class="city reveal"><div class="nm">Essaouira</div><div class="lb">{{CITY_LABEL}}</div></div>
     </div>
-    <p class="kingdom reveal">Du Maroc vers le reste du Monde.</p>
+    <p class="kingdom reveal">{{CITIES_KINGDOM}}</p>
   </div>
 </section>
-
-
 
 
 

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
+import { useLanguage } from "@/contexts/LanguageContext";
 import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
 import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
@@ -14,6 +15,308 @@ const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = koutoubiaVerticalBgAsset.url;
 
+const LABELS = {
+  fr: {
+    pageTitle: "Rejoindre One World Morocco — Devenir partenaire",
+    heroAriaLabel: "Rejoindre One World Morocco",
+    heroH1a: "Rejoignez le premier écosystème numérique",
+    heroH1b: "éthique & solidaire",
+    heroH1c: "au Maroc.",
+    heroPara1: "Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.",
+    heroPara2: "Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.",
+    heroCheck1: "Consommez local",
+    heroCheck2: "Voyagez autrement",
+    heroCheck3: "Agissez pour tous",
+    heroStat1: "🌍 Tout le Maroc",
+    heroStat2: "🤝 Partenaires locaux",
+    heroStat3: "✓ 0% de commission",
+    heroCta: "REJOINDRE →",
+    waysH2: "Quatre moyens puissants d'attirer plus de clients sans intermédiaire.",
+    waysP: "Soyez référencé dans notre catalogue\u00a0et obtenez votre carte business avec QR code. Deux outils complémentaires pour convertir les utilisateurs en clients.",
+    way1H3: "Publiez vos offres sur One World Morocco",
+    way1Intro: "Soyez référencé dans notre catalogue et touchez les voyageurs et habitants qui découvrent des entreprises locales partout au Maroc.",
+    way1Li1: "Soyez découvert by les voyageurs & habitants\u00a0de votre région",
+    way1Li2label: "Référencé dans le catalogue :",
+    way1Li3: "Plus de trafic et de réservations directes",
+    way1Li4: "Mis en avant dans la recherche et dans l'agent IA",
+    way1Li5: "Aucune commission sur les réservations",
+    way1Tag: "Vos offres. Notre audience. Plus de réservations.",
+    way2H3: "Créez vos cartes business (QR)",
+    way2Intro: "Obtenez votre page personnelle et votre code QR. Quand les voyageurs sont devant vous, partagez-le et convertissez instantanément.",
+    way2Li1: "Toutes vos canaux digitaux au même endroit",
+    way2Li2label: "URL courte personnalisée :",
+    way2Li3: "Partagez par code QR ou lien en un tap",
+    way2Li4: "Mettez à jour offres, évènements, vidéos et photos à tout moment",
+    way2Li5: "Profil vérifié inspire confiance aux clients",
+    way2Cta: "En savoir +",
+    way2Tag: "Votre carte. Votre QR. Plus de clients sur place.",
+    way3H3: "Votre assistant IA",
+    way3Intro: "Intégrez un assistant IA directement sur votre site pour répondre aux visiteurs 24/7, qualifier leurs demandes et booster vos conversions.",
+    way3Li1: "Disponible 24/7 pour répondre à vos visiteurs",
+    way3Li2: "Recherche & réponse vocale",
+    way3Li3: "Répond en plusieurs langues automatiquement",
+    way3Li4: "Qualifie les demandes et capture les leads",
+    way3Li5: "Connaît vos offres, horaires et tarifs",
+    way3Li6: "Intégration simple en quelques minutes",
+    way3Tag: "Votre IA. Vos réponses. Plus de conversions.",
+    way4H3: "Réseau social, engagez avec votre communauté",
+    way4Intro: "Entretenez la relation avec vos clients, prospects et followers, poussez votre offre, actualité et évènements dans leur interface.",
+    way4Li1: "Gardez le lien avec vos clients and followers",
+    way4Li2: "Poussez offres, actualités et évènements",
+    way4Li3: "Diffusez directement dans leur interface",
+    way4Li4: "Fidélisez et engagez votre communauté",
+    way4Li5: "Transformez vos followers en clients",
+    way4Tag: "Votre communauté. Vos messages. Plus d'engagement.",
+    hiwH2: "Comment fonctionne le programme de remises pour les utilisateurs de l'App ?",
+    hiwP: "Trois étapes simples pour attirer plus de clients, sans commissions ni intermédiaires.",
+    hiw1H3: "Inscrivez-vous et définissez la remise que vous souhaitez offrir",
+    hiw1P: "Choisissez librement le pourcentage de remise accordé aux utilisateurs. Ajustable à tout moment depuis votre espace partenaire.",
+    hiw2H3: "Nos abonnés voient votre offre dans l'application",
+    hiw2P: "Votre entreprise gagne en visibilité auprès des voyageurs et habitants qui explorent One World Morocco partout au Maroc.",
+    hiw3H3: "Les clients viennent directement chez vous, sans commissions",
+    hiw3P: "Réservations en direct, tarifs transparents : vous gardez 100% de vos revenus, sans intermédiaire.",
+    hiwBtn: "S'INSCRIRE",
+    joinSubtitle: "REJOINDRE EN TANT QUE PARTENAIRE.",
+    joinLead: "Abonnez-vous à One World Morocco en quelques étapes : enregistrez votre entreprise, définissez votre offre et commencez à attirer de nouveaux clients instantanément, sans frais cachés ni intermédiaires.",
+    step1Label: "Étape 1",
+    step1H3: "Remplissez le formulaire",
+    step1P: "Fournissez le nom et les coordonnées de votre entreprise.",
+    step2Label: "Étape 2",
+    step2H3: "Définissez votre offre",
+    step2P: "Vous pouvez la mettre à jour à tout moment.",
+    step3Label: "Étape 3",
+    step3H3: "Obtenez des clients",
+    step3P: "Les voyageurs verront votre offre dans notre catalogue.",
+    joinBtn: "S'INSCRIRE",
+    whyH2: "Pourquoi les partenaires choisissent One World Morocco",
+    whyP: "Une offre plus équitable que les OTA classiques — sans commission, sans intermédiaire.",
+    cmpThFeature: "Fonctionnalité",
+    cmpReco: "★ RECOMMANDÉ",
+    cmpRow1Feature: "Commission + Avis Clients + Réseau social",
+    cmpRow2Feature: "Avis Clients",
+    cmpRow3Feature: "Réseau social",
+    cmpRow4Feature: "Votre QR code",
+    cmpRow5Feature: "Contact direct",
+    cmpRow6Feature: "Carte business digitale",
+    cmpRow7Feature: "Votre assistant IA",
+    cmpRow8Feature: "URL courte personnalisée (oneworldmorocco.com/votrenom)",
+    cmpRow9Feature: "Recherche & réponse vocale",
+    cmpRow10Feature: "Vitesse de paiement",
+    cmpRow10Us: "Instantané",
+    cmpRow10Booking: "30–60 jours",
+    cmpRow10Gyg: "2–4 semaines",
+    cmpRow11Feature: "Votre système de paiement en ligne, sans intermédiaire (sous réserve d'acceptation par votre prestataire de paiement)",
+    cmpRow12Feature: "Vous possédez les données client",
+    cmpRow13Feature: "Liberté tarifaire",
+    cmpUsOptional: "✓ Optionnel",
+    cmpUsIncluded: "✓ Inclus",
+    cmpUsFree: "✓ Gratuit",
+    cmpUsYes: "✓ Oui",
+    cmpNo: "✗ Non",
+    cmpUs0: "0 %",
+    whyBtn: "S'INSCRIRE",
+  },
+  en: {
+    pageTitle: "Join One World Morocco — Become a Partner",
+    heroAriaLabel: "Join One World Morocco",
+    heroH1a: "Join the first",
+    heroH1b: "ethical & inclusive",
+    heroH1c: "digital ecosystem in Morocco.",
+    heroPara1: "Tourism, commerce, crafts, services and solidarity united in a single positive-impact platform.",
+    heroPara2: "Boost your visibility with travellers and locals. No commission.",
+    heroCheck1: "Shop local",
+    heroCheck2: "Travel differently",
+    heroCheck3: "Act for everyone",
+    heroStat1: "🌍 All of Morocco",
+    heroStat2: "🤝 Local partners",
+    heroStat3: "✓ 0% commission",
+    heroCta: "JOIN →",
+    waysH2: "Four powerful ways to attract more customers with no middleman.",
+    waysP: "Get listed in our catalogue\u00a0and receive your business card with QR code. Two complementary tools to turn users into customers.",
+    way1H3: "Publish your offers on One World Morocco",
+    way1Intro: "Get listed in our catalogue and reach travellers and locals discovering local businesses across Morocco.",
+    way1Li1: "Be discovered by travellers & locals\u00a0in your region",
+    way1Li2label: "Listed in the catalogue:",
+    way1Li3: "More traffic and direct bookings",
+    way1Li4: "Featured in search and the AI agent",
+    way1Li5: "Zero commission on bookings",
+    way1Tag: "Your offers. Our audience. More bookings.",
+    way2H3: "Create your business cards (QR)",
+    way2Intro: "Get your personal page and QR code. When travellers are right in front of you, share it and convert instantly.",
+    way2Li1: "All your digital channels in one place",
+    way2Li2label: "Personalised short URL:",
+    way2Li3: "Share by QR code or link in one tap",
+    way2Li4: "Update offers, events, videos and photos any time",
+    way2Li5: "Verified profile builds customer trust",
+    way2Cta: "Learn more",
+    way2Tag: "Your card. Your QR. More on-site customers.",
+    way3H3: "Your AI assistant",
+    way3Intro: "Embed an AI assistant directly on your website to answer visitors 24/7, qualify leads and boost your conversions.",
+    way3Li1: "Available 24/7 to answer your visitors",
+    way3Li2: "Voice search & response",
+    way3Li3: "Responds in multiple languages automatically",
+    way3Li4: "Qualifies requests and captures leads",
+    way3Li5: "Knows your offers, opening hours and prices",
+    way3Li6: "Simple integration in minutes",
+    way3Tag: "Your AI. Your answers. More conversions.",
+    way4H3: "Social network — engage with your community",
+    way4Intro: "Maintain the relationship with your customers, prospects and followers, push your offers, news and events into their feed.",
+    way4Li1: "Stay connected with your customers and followers",
+    way4Li2: "Push offers, news and events",
+    way4Li3: "Broadcast directly into their interface",
+    way4Li4: "Retain and engage your community",
+    way4Li5: "Turn your followers into customers",
+    way4Tag: "Your community. Your messages. More engagement.",
+    hiwH2: "How does the discount programme for App users work?",
+    hiwP: "Three simple steps to attract more customers, with no commissions or middlemen.",
+    hiw1H3: "Sign up and set the discount you want to offer",
+    hiw1P: "Freely choose the discount percentage granted to users. Adjustable at any time from your partner dashboard.",
+    hiw2H3: "Our subscribers see your offer in the app",
+    hiw2P: "Your business gains visibility among travellers and locals exploring One World Morocco across Morocco.",
+    hiw3H3: "Customers come directly to you, with no commissions",
+    hiw3P: "Direct bookings, transparent prices: you keep 100% of your revenue, with no middleman.",
+    hiwBtn: "SIGN UP",
+    joinSubtitle: "JOIN AS A PARTNER.",
+    joinLead: "Subscribe to One World Morocco in a few steps: register your business, set your offer and start attracting new customers instantly, with no hidden fees or middlemen.",
+    step1Label: "Step 1",
+    step1H3: "Fill in the form",
+    step1P: "Provide your business name and contact details.",
+    step2Label: "Step 2",
+    step2H3: "Set your offer",
+    step2P: "You can update it at any time.",
+    step3Label: "Step 3",
+    step3H3: "Get customers",
+    step3P: "Travellers will see your offer in our catalogue.",
+    joinBtn: "SIGN UP",
+    whyH2: "Why partners choose One World Morocco",
+    whyP: "A fairer deal than classic OTAs — no commission, no middleman.",
+    cmpThFeature: "Feature",
+    cmpReco: "★ RECOMMENDED",
+    cmpRow1Feature: "Commission + Customer Reviews + Social network",
+    cmpRow2Feature: "Customer Reviews",
+    cmpRow3Feature: "Social network",
+    cmpRow4Feature: "Your QR code",
+    cmpRow5Feature: "Direct contact",
+    cmpRow6Feature: "Digital business card",
+    cmpRow7Feature: "Your AI assistant",
+    cmpRow8Feature: "Personalised short URL (oneworldmorocco.com/yourname)",
+    cmpRow9Feature: "Voice search & response",
+    cmpRow10Feature: "Payment speed",
+    cmpRow10Us: "Instant",
+    cmpRow10Booking: "30–60 days",
+    cmpRow10Gyg: "2–4 weeks",
+    cmpRow11Feature: "Your own online payment system, no middleman (subject to acceptance by your payment provider)",
+    cmpRow12Feature: "You own the customer data",
+    cmpRow13Feature: "Pricing freedom",
+    cmpUsOptional: "✓ Optional",
+    cmpUsIncluded: "✓ Included",
+    cmpUsFree: "✓ Free",
+    cmpUsYes: "✓ Yes",
+    cmpNo: "✗ No",
+    cmpUs0: "0 %",
+    whyBtn: "SIGN UP",
+  },
+  ar: {
+    pageTitle: "انضم إلى One World Morocco — كن شريكًا",
+    heroAriaLabel: "انضم إلى One World Morocco",
+    heroH1a: "انضم إلى أول نظام بيئي رقمي",
+    heroH1b: "أخلاقي وتضامني",
+    heroH1c: "في المغرب.",
+    heroPara1: "السياحة والتجارة والحرف اليدوية والخدمات والتضامن في منصة واحدة ذات أثر إيجابي.",
+    heroPara2: "عزِّز ظهورك أمام المسافرين والسكان المحليين. بدون عمولة.",
+    heroCheck1: "استهلك محليًا",
+    heroCheck2: "سافر بشكل مختلف",
+    heroCheck3: "تصرّف من أجل الجميع",
+    heroStat1: "🌍 المغرب بأكمله",
+    heroStat2: "🤝 شركاء محليون",
+    heroStat3: "✓ 0% عمولة",
+    heroCta: "انضم ←",
+    waysH2: "أربع طرق فعّالة لجذب المزيد من العملاء بدون وسطاء.",
+    waysP: "سجِّل في كتالوجنا\u00a0واحصل على بطاقة عملك مع رمز QR. أداتان متكاملتان لتحويل المستخدمين إلى عملاء.",
+    way1H3: "انشر عروضك على One World Morocco",
+    way1Intro: "سجِّل في كتالوجنا وتواصل مع المسافرين والسكان الذين يكتشفون الشركات المحلية في أرجاء المغرب.",
+    way1Li1: "اكتشف من قِبل المسافرين والسكان\u00a0في منطقتك",
+    way1Li2label: "مُدرج في الكتالوج:",
+    way1Li3: "مزيد من الزيارات والحجوزات المباشرة",
+    way1Li4: "مميَّز في نتائج البحث ووكيل الذكاء الاصطناعي",
+    way1Li5: "صفر عمولة على الحجوزات",
+    way1Tag: "عروضك. جمهورنا. المزيد من الحجوزات.",
+    way2H3: "أنشئ بطاقات عملك (QR)",
+    way2Intro: "احصل على صفحتك الشخصية ورمز QR. عندما يكون المسافرون أمامك مباشرةً، شاركه وحوِّلهم فورًا.",
+    way2Li1: "جميع قنواتك الرقمية في مكان واحد",
+    way2Li2label: "رابط قصير مخصص:",
+    way2Li3: "شارك برمز QR أو رابط بنقرة واحدة",
+    way2Li4: "حدِّث العروض والفعاليات والمقاطع والصور في أي وقت",
+    way2Li5: "الملف الشخصي الموثَّق يبني ثقة العملاء",
+    way2Cta: "اعرف المزيد",
+    way2Tag: "بطاقتك. رمز QR الخاص بك. المزيد من العملاء في الموقع.",
+    way3H3: "مساعدك بالذكاء الاصطناعي",
+    way3Intro: "ادمج مساعدًا ذكيًا مباشرةً في موقعك للرد على الزوار 24/7 وتأهيل طلباتهم وتعزيز معدلات التحويل.",
+    way3Li1: "متاح 24/7 للرد على زوارك",
+    way3Li2: "بحث ورد صوتي",
+    way3Li3: "يرد بلغات متعددة تلقائيًا",
+    way3Li4: "يؤهّل الطلبات ويستقطب العملاء المحتملين",
+    way3Li5: "يعرف عروضك وأوقات عملك وأسعارك",
+    way3Li6: "تكامل بسيط في دقائق",
+    way3Tag: "ذكاؤك الاصطناعي. إجاباتك. المزيد من التحويلات.",
+    way4H3: "الشبكة الاجتماعية — تفاعل مع مجتمعك",
+    way4Intro: "حافظ على علاقتك بعملائك والمتابعين، وادفع عروضك وأخبارك وفعالياتك إلى واجهتهم.",
+    way4Li1: "ابقَ على تواصل مع عملائك ومتابعيك",
+    way4Li2: "ادفع العروض والأخبار والفعاليات",
+    way4Li3: "بثّ مباشرةً في واجهتهم",
+    way4Li4: "عزِّز ولاء مجتمعك وتفاعله",
+    way4Li5: "حوِّل متابعيك إلى عملاء",
+    way4Tag: "مجتمعك. رسائلك. المزيد من التفاعل.",
+    hiwH2: "كيف يعمل برنامج الخصومات لمستخدمي التطبيق؟",
+    hiwP: "ثلاث خطوات بسيطة لاستقطاب المزيد من العملاء، بدون عمولات أو وسطاء.",
+    hiw1H3: "سجِّل وحدِّد الخصم الذي تريد تقديمه",
+    hiw1P: "اختر بحرية نسبة الخصم الممنوحة للمستخدمين. قابل للتعديل في أي وقت من لوحة تحكم الشريك.",
+    hiw2H3: "يرى مشتركونا عرضك في التطبيق",
+    hiw2P: "تكتسب شركتك ظهورًا أوسع بين المسافرين والسكان الذين يستكشفون One World Morocco في المغرب.",
+    hiw3H3: "يأتي العملاء إليك مباشرةً بدون عمولات",
+    hiw3P: "حجوزات مباشرة وأسعار شفافة: تحتفظ بـ100% من إيراداتك بدون وسيط.",
+    hiwBtn: "سجِّل الآن",
+    joinSubtitle: "انضم كشريك.",
+    joinLead: "اشترك في One World Morocco في خطوات بسيطة: سجِّل شركتك، وحدِّد عرضك، وابدأ في استقطاب عملاء جدد فورًا بدون رسوم خفية أو وسطاء.",
+    step1Label: "الخطوة 1",
+    step1H3: "املأ النموذج",
+    step1P: "أدخل اسم شركتك وبياناتها.",
+    step2Label: "الخطوة 2",
+    step2H3: "حدِّد عرضك",
+    step2P: "يمكنك تحديثه في أي وقت.",
+    step3Label: "الخطوة 3",
+    step3H3: "احصل على عملاء",
+    step3P: "سيرى المسافرون عرضك في كتالوجنا.",
+    joinBtn: "سجِّل الآن",
+    whyH2: "لماذا يختار الشركاء One World Morocco",
+    whyP: "صفقة أكثر إنصافًا من وكالات السفر الإلكترونية التقليدية — بدون عمولة ولا وسيط.",
+    cmpThFeature: "الميزة",
+    cmpReco: "★ موصى به",
+    cmpRow1Feature: "عمولة + آراء العملاء + شبكة اجتماعية",
+    cmpRow2Feature: "آراء العملاء",
+    cmpRow3Feature: "شبكة اجتماعية",
+    cmpRow4Feature: "رمز QR الخاص بك",
+    cmpRow5Feature: "تواصل مباشر",
+    cmpRow6Feature: "بطاقة العمل الرقمية",
+    cmpRow7Feature: "مساعدك بالذكاء الاصطناعي",
+    cmpRow8Feature: "رابط قصير مخصص (oneworldmorocco.com/اسمك)",
+    cmpRow9Feature: "بحث ورد صوتي",
+    cmpRow10Feature: "سرعة الدفع",
+    cmpRow10Us: "فوري",
+    cmpRow10Booking: "30–60 يومًا",
+    cmpRow10Gyg: "2–4 أسابيع",
+    cmpRow11Feature: "نظام الدفع الإلكتروني الخاص بك بدون وسيط (رهنًا بقبول مزود الدفع لديك)",
+    cmpRow12Feature: "أنت تمتلك بيانات العملاء",
+    cmpRow13Feature: "حرية التسعير",
+    cmpUsOptional: "✓ اختياري",
+    cmpUsIncluded: "✓ مشمول",
+    cmpUsFree: "✓ مجاني",
+    cmpUsYes: "✓ نعم",
+    cmpNo: "✗ لا",
+    cmpUs0: "0 %",
+    whyBtn: "سجِّل الآن",
+  },
+} as const;
 
 const CSS = `
   .join-page{--bg:#ECD6B8;--ink:#0f0f0f;--muted:#6b6b6b;--line:#ececec;--orange:#ff6b35;--orange-deep:#e85a26;--green:#00a896;--gold:#ffc008;background:var(--bg);color:var(--ink);font-family:'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif,system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -161,7 +464,6 @@ const CSS = `
   .join-page .cmp .x{color:#9aa3a0}
   .join-page .why-cta{display:flex;justify-content:center;margin-top:40px}
   @media (max-width:760px){.join-page .why-wrap{padding:14px;border-radius:22px}.join-page .cmp{font-size:12px;min-width:640px}.join-page .cmp th,.join-page .cmp td{padding:12px 10px}.join-page .cmp thead th{font-size:13px}}
-
 `;
 
 const Check = ({ color }: { color: string }) => (
@@ -172,6 +474,9 @@ const Check = ({ color }: { color: string }) => (
 );
 
 const Join = () => {
+  const { language } = useLanguage();
+  const L = LABELS[language] ?? LABELS.fr;
+
   useEffect(() => {
     if (!document.getElementById("join-fonts")) {
       const l = document.createElement("link");
@@ -180,8 +485,8 @@ const Join = () => {
       l.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap";
       document.head.appendChild(l);
     }
-    document.title = "Rejoindre One World Morocco — Devenir partenaire";
-  }, []);
+    document.title = L.pageTitle;
+  }, [L.pageTitle]);
 
   useEffect(() => {
     const el = document.querySelector<HTMLElement>(".join-page .why-wrap");
@@ -240,7 +545,6 @@ const Join = () => {
     };
   }, []);
 
-  // Scroll-driven parallax on bg image (mirrors homepage: translateY = scrollY * 0.3)
   useEffect(() => {
     const el = heroBgRef.current;
     if (!el) return;
@@ -261,17 +565,13 @@ const Join = () => {
     };
   }, []);
 
-
-
-
   return (
     <>
       <HomeMindtripHeader />
       <div className="join-page">
         <style>{CSS}</style>
 
-
-      <section ref={heroSectionRef} className="hero hero-parallax relative min-h-[92vh] w-full overflow-hidden flex items-center justify-center border-b border-white/10" style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }} aria-label="Rejoindre One World Morocco">
+      <section ref={heroSectionRef} className="hero hero-parallax relative min-h-[92vh] w-full overflow-hidden flex items-center justify-center border-b border-white/10" style={{ ['--mx' as any]: 0, ['--my' as any]: 0, ['--sy' as any]: 0 }} aria-label={L.heroAriaLabel}>
         <picture>
           <source media="(max-width: 767px)" srcSet={heroImageMobile} />
           <source media="(max-width: 1023px)" srcSet={heroImageTablet} />
@@ -324,101 +624,90 @@ const Join = () => {
 
          <div className="hero-content relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 pt-16 pb-12 sm:py-24 flex flex-col items-center justify-center text-center">
           <h1 style={{ fontFamily: "Montserrat, sans-serif", animationDelay: '.45s', animationFillMode: 'forwards' }} className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] font-bold text-center mb-6 leading-[1.2] tracking-tight max-w-3xl text-[26px] sm:text-4xl md:text-5xl lg:text-6xl hero-rise">
-            Rejoignez le premier écosystème numérique <span className="text-[#ffc008]">éthique & solidaire</span> au Maroc.
+            {L.heroH1a} <span className="text-[#ffc008]">{L.heroH1b}</span> {L.heroH1c}
           </h1>
-          <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="hero-sub text-white max-w-2xl text-center mb-4 text-base sm:text-lg opacity-95 hero-rise">Tourisme, commerce, artisanat, services et solidarité réunis dans une même plateforme à impact positif.</p>
-          <p style={{ animationDelay: '.78s', animationFillMode: 'forwards' }} className="hero-sub text-white max-w-2xl text-center mb-8 text-base sm:text-lg opacity-95 hero-rise">Gagnez en visibilité auprès des voyageurs et habitants. Sans commission.</p>
-          
+          <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="hero-sub text-white max-w-2xl text-center mb-4 text-base sm:text-lg opacity-95 hero-rise">{L.heroPara1}</p>
+          <p style={{ animationDelay: '.78s', animationFillMode: 'forwards' }} className="hero-sub text-white max-w-2xl text-center mb-8 text-base sm:text-lg opacity-95 hero-rise">{L.heroPara2}</p>
+
           <div className="hero-checks hero-rise" style={{ animationDelay: '.88s', animationFillMode: 'forwards' }}>
-            <span><Check color="#00a896" />Consommez local</span>
-            <span><Check color="#00a896" />Voyagez autrement</span>
-            <span><Check color="#00a896" />Agissez pour tous</span>
+            <span><Check color="#00a896" />{L.heroCheck1}</span>
+            <span><Check color="#00a896" />{L.heroCheck2}</span>
+            <span><Check color="#00a896" />{L.heroCheck3}</span>
           </div>
           <div className="hero-stats mb-8 hidden sm:inline-flex hero-rise" style={{ animationDelay: '.92s', animationFillMode: 'forwards' }}>
-            <div>🌍 Tout le Maroc</div>
-            <div>🤝 Partenaires locaux</div>
-            <div>✓ 0% de commission</div>
+            <div>{L.heroStat1}</div>
+            <div>{L.heroStat2}</div>
+            <div>{L.heroStat3}</div>
           </div>
 
-          <Link to="/devenir-affilie" style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="hero-cta mt-4 hero-rise">REJOINDRE →</Link>
+          <Link to="/devenir-affilie" style={{ animationDelay: '.98s', animationFillMode: 'forwards' }} className="hero-cta mt-4 hero-rise">{L.heroCta}</Link>
         </div>
       </section>
 
       <section id="ways">
         <div className="wrap">
           <div className="ways-head">
-            <h2>Quatre moyens puissants d'attirer plus de clients sans intermédiaire.</h2>
-            <p>
-              Soyez référencé dans notre catalogue&nbsp;et obtenez votre carte business avec QR code.
-              Deux outils complémentaires pour convertir les utilisateurs en clients.
-            </p>
+            <h2>{L.waysH2}</h2>
+            <p>{L.waysP}</p>
           </div>
 
           <div className="ways">
             <article className="way green">
               <div className="badge">1</div>
-              <h3>Publiez vos offres sur One World Morocco</h3>
-              <p className="intro">
-                Soyez référencé dans notre catalogue et touchez les voyageurs et habitants qui découvrent des entreprises locales partout au Maroc.
-              </p>
+              <h3>{L.way1H3}</h3>
+              <p className="intro">{L.way1Intro}</p>
               <ul>
-                <li><Check color="#ffffff" />Soyez découvert by les voyageurs &amp; habitants&nbsp;de votre région</li>
-                <li><Check color="#ffffff" /><span>Référencé dans le catalogue :<br /><strong style={{display:'block',marginTop:4}}>oneworldmorocco.com/votrenom</strong></span></li>
-                <li><Check color="#ffffff" />Plus de trafic et de réservations directes</li>
-                <li><Check color="#ffffff" />Mis en avant dans la recherche et dans l'agent IA</li>
-                <li><Check color="#ffffff" />Aucune commission sur les réservations</li>
+                <li><Check color="#ffffff" />{L.way1Li1}</li>
+                <li><Check color="#ffffff" /><span>{L.way1Li2label}<br /><strong style={{display:'block',marginTop:4}}>oneworldmorocco.com/votrenom</strong></span></li>
+                <li><Check color="#ffffff" />{L.way1Li3}</li>
+                <li><Check color="#ffffff" />{L.way1Li4}</li>
+                <li><Check color="#ffffff" />{L.way1Li5}</li>
               </ul>
-              <div className="tag">Vos offres. Notre audience. Plus de réservations.</div>
+              <div className="tag">{L.way1Tag}</div>
             </article>
 
             <article className="way orange">
               <div className="badge">2</div>
-              <h3>Créez vos cartes business (QR)</h3>
-              <p className="intro">
-                Obtenez votre page personnelle et votre code QR. Quand les voyageurs sont devant vous, partagez-le et convertissez instantanément.
-              </p>
+              <h3>{L.way2H3}</h3>
+              <p className="intro">{L.way2Intro}</p>
               <ul>
-                <li><Check color="#ffffff" />Toutes vos canaux digitaux au même endroit</li>
-                <li><Check color="#ffffff" /><span>URL courte personnalisée :<br /><strong style={{display:'block',marginTop:4}}>oneworldmorocco.com/votrenom</strong></span></li>
-                <li><Check color="#ffffff" />Partagez par code QR ou lien en un tap</li>
-                <li><Check color="#ffffff" />Mettez à jour offres, évènements, vidéos et photos à tout moment</li>
-                <li><Check color="#ffffff" />Profil vérifié inspire confiance aux clients</li>
+                <li><Check color="#ffffff" />{L.way2Li1}</li>
+                <li><Check color="#ffffff" /><span>{L.way2Li2label}<br /><strong style={{display:'block',marginTop:4}}>oneworldmorocco.com/votrenom</strong></span></li>
+                <li><Check color="#ffffff" />{L.way2Li3}</li>
+                <li><Check color="#ffffff" />{L.way2Li4}</li>
+                <li><Check color="#ffffff" />{L.way2Li5}</li>
               </ul>
-              <Link to="/card" className="way-cta" style={{ alignSelf: "center", marginTop: 4, marginBottom: 14 }}>En savoir +</Link>
-              <div className="tag">Votre carte. Votre QR. Plus de clients sur place.</div>
+              <Link to="/card" className="way-cta" style={{ alignSelf: "center", marginTop: 4, marginBottom: 14 }}>{L.way2Cta}</Link>
+              <div className="tag">{L.way2Tag}</div>
             </article>
 
             <article className="way teal">
               <div className="badge">3</div>
-              <h3>Votre assistant IA</h3>
-              <p className="intro">
-                Intégrez un assistant IA directement sur votre site pour répondre aux visiteurs 24/7, qualifier leurs demandes et booster vos conversions.
-              </p>
+              <h3>{L.way3H3}</h3>
+              <p className="intro">{L.way3Intro}</p>
               <ul>
-                <li><Check color="#ffffff" />Disponible 24/7 pour répondre à vos visiteurs</li>
-                <li><Check color="#ffffff" />Recherche & réponse vocale</li>
-                <li><Check color="#ffffff" />Répond en plusieurs langues automatiquement</li>
-                <li><Check color="#ffffff" />Qualifie les demandes et capture les leads</li>
-                <li><Check color="#ffffff" />Connaît vos offres, horaires et tarifs</li>
-                <li><Check color="#ffffff" />Intégration simple en quelques minutes</li>
+                <li><Check color="#ffffff" />{L.way3Li1}</li>
+                <li><Check color="#ffffff" />{L.way3Li2}</li>
+                <li><Check color="#ffffff" />{L.way3Li3}</li>
+                <li><Check color="#ffffff" />{L.way3Li4}</li>
+                <li><Check color="#ffffff" />{L.way3Li5}</li>
+                <li><Check color="#ffffff" />{L.way3Li6}</li>
               </ul>
-              <div className="tag">Votre IA. Vos réponses. Plus de conversions.</div>
+              <div className="tag">{L.way3Tag}</div>
             </article>
 
             <article className="way purple">
               <div className="badge">4</div>
-              <h3>Réseau social, engagez avec votre communauté</h3>
-              <p className="intro">
-                Entretenez la relation avec vos clients, prospects et followers, poussez votre offre, actualité et évènements dans leur interface.
-              </p>
+              <h3>{L.way4H3}</h3>
+              <p className="intro">{L.way4Intro}</p>
               <ul>
-                <li><Check color="#ffffff" />Gardez le lien avec vos clients and followers</li>
-                <li><Check color="#ffffff" />Poussez offres, actualités et évènements</li>
-                <li><Check color="#ffffff" />Diffusez directement dans leur interface</li>
-                <li><Check color="#ffffff" />Fidélisez et engagez votre communauté</li>
-                <li><Check color="#ffffff" />Transformez vos followers en clients</li>
+                <li><Check color="#ffffff" />{L.way4Li1}</li>
+                <li><Check color="#ffffff" />{L.way4Li2}</li>
+                <li><Check color="#ffffff" />{L.way4Li3}</li>
+                <li><Check color="#ffffff" />{L.way4Li4}</li>
+                <li><Check color="#ffffff" />{L.way4Li5}</li>
               </ul>
-              <div className="tag">Votre communauté. Vos messages. Plus d'engagement.</div>
+              <div className="tag">{L.way4Tag}</div>
             </article>
           </div>
         </div>
@@ -427,8 +716,8 @@ const Join = () => {
       <section id="how-it-works">
         <div className="wrap">
           <div className="hiw-head">
-            <h2>Comment fonctionne le programme de remises pour les utilisateurs de l'App ?</h2>
-            <p>Trois étapes simples pour attirer plus de clients, sans commissions ni intermédiaires.</p>
+            <h2>{L.hiwH2}</h2>
+            <p>{L.hiwP}</p>
           </div>
 
           <div className="hiw">
@@ -457,8 +746,8 @@ const Join = () => {
                   </defs>
                 </svg>
               </div>
-              <h3>Inscrivez-vous et définissez la remise que vous souhaitez offrir</h3>
-              <p>Choisissez librement le pourcentage de remise accordé aux utilisateurs. Ajustable à tout moment depuis votre espace partenaire.</p>
+              <h3>{L.hiw1H3}</h3>
+              <p>{L.hiw1P}</p>
             </article>
             <div className="hiw-arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
@@ -467,8 +756,8 @@ const Join = () => {
               <div className="hiw-illu" aria-hidden="true">
                 <img src={hiwStep2Mockup} alt="" loading="lazy" width={512} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
               </div>
-              <h3>Nos abonnés voient votre offre dans l'application</h3>
-              <p>Votre entreprise gagne en visibilité auprès des voyageurs et habitants qui explorent One World Morocco partout au Maroc.</p>
+              <h3>{L.hiw2H3}</h3>
+              <p>{L.hiw2P}</p>
             </article>
             <div className="hiw-arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
@@ -477,13 +766,13 @@ const Join = () => {
               <div className="hiw-illu" aria-hidden="true">
                 <img src={hiwStep3Tourist} alt="" loading="lazy" width={512} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
               </div>
-              <h3>Les clients viennent directement chez vous, sans commissions</h3>
-              <p>Réservations en direct, tarifs transparents : vous gardez 100% de vos revenus, sans intermédiaire.</p>
+              <h3>{L.hiw3H3}</h3>
+              <p>{L.hiw3P}</p>
             </article>
           </div>
 
           <div className="hiw-cta">
-            <Link className="btn-primary" to="/devenir-affilie">S'INSCRIRE</Link>
+            <Link className="btn-primary" to="/devenir-affilie">{L.hiwBtn}</Link>
           </div>
         </div>
       </section>
@@ -491,11 +780,8 @@ const Join = () => {
       <section id="join">
         <div className="wrap">
           <div className="section-head">
-            <h1 className="subtitle">REJOINDRE EN TANT QUE PARTENAIRE.</h1>
-            <p className="lead">
-              Abonnez-vous à One World Morocco en quelques étapes : enregistrez votre entreprise, définissez votre offre
-              et commencez à attirer de nouveaux clients instantanément, sans frais cachés ni intermédiaires.
-            </p>
+            <h1 className="subtitle">{L.joinSubtitle}</h1>
+            <p className="lead">{L.joinLead}</p>
           </div>
 
           <div className="steps">
@@ -504,9 +790,9 @@ const Join = () => {
               <div className="ico">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M6 21.5C6 19.0147 8.01472 17 10.5 17C12.9853 17 15 19.0147 15 21.5C15 23.9853 12.9853 26 10.5 26C8.01472 26 6 23.9853 6 21.5ZM10.5 20C9.67 20 9 20.67 9 21.5C9 22.33 9.67 23 10.5 23C11.33 23 12 22.33 12 21.5C12 20.67 11.33 20 10.5 20ZM10.5 28C8.01 28 6 30.01 6 32.5C6 34.99 8.01 37 10.5 37C12.99 37 15 34.99 15 32.5C15 30.01 12.99 28 10.5 28ZM9 32.5C9 31.67 9.67 31 10.5 31C11.33 31 12 31.67 12 32.5C12 33.33 11.33 34 10.5 34C9.67 34 9 33.33 9 32.5ZM18 21.5C18 20.67 18.67 20 19.5 20H28.5C29.33 20 30 20.67 30 21.5C30 22.33 29.33 23 28.5 23H19.5C18.67 23 18 22.33 18 21.5ZM19.5 31C18.67 31 18 31.67 18 32.5C18 33.33 18.67 34 19.5 34H28.5C29.33 34 30 33.33 30 32.5C30 31.67 29.33 31 28.5 31H19.5ZM6 13.5C6 12.67 6.67 12 7.5 12H28.5C29.33 12 30 12.67 30 13.5C30 14.33 29.33 15 28.5 15H7.5C6.67 15 6 14.33 6 13.5ZM6.5 6C2.91 6 0 8.91 0 12.5V35.5C0 39.09 2.91 42 6.5 42H29.5C33.09 42 36 39.09 36 35.5V12.5C36 8.91 33.09 6 29.5 6H6.5ZM3 12.5C3 10.57 4.57 9 6.5 9H29.5C31.43 9 33 10.57 33 12.5V35.5C33 37.43 31.43 39 29.5 39H6.5C4.57 39 3 37.43 3 35.5V12.5Z" fill="#ff6b35"/></svg>
               </div>
-              <p className="step-label">Étape 1</p>
-              <h3>Remplissez le formulaire</h3>
-              <p>Fournissez le nom et les coordonnées de votre entreprise.</p>
+              <p className="step-label">{L.step1Label}</p>
+              <h3>{L.step1H3}</h3>
+              <p>{L.step1P}</p>
             </article>
 
             <article className="step">
@@ -514,9 +800,9 @@ const Join = () => {
               <div className="ico">
                 <svg width="40" height="44" viewBox="0 0 35 40" fill="none"><path d="M27.5.5h-20C2.66.5 0 3.16 0 8v25.24c0 1.33.74 2.53 1.94 3.13 1.19.6 2.59.47 3.66-.33l2.72-2.04c.59-.44 1.43-.38 1.96.14l4.04 4.04c.88.88 2.03 1.32 3.18 1.32s2.3-.44 3.18-1.32l4.04-4.04c.53-.52 1.37-.58 1.96-.14l2.72 2.04c1.07.8 2.47.93 3.66.33C34.26 35.77 35 34.57 35 33.24V8c0-4.84-2.66-7.5-7.5-7.5zM32 33.24c0 .27-.17.4-.28.45-.1.05-.31.12-.52-.05l-2.72-2.04c-1.77-1.33-4.31-1.15-5.88.42L18.56 36.06c-.57.57-1.56.57-2.13 0L12.4 32.02C11.53 31.15 10.37 30.71 9.21 30.71c-.95 0-1.9.29-2.7.89l-2.72 2.04c-.21.16-.42.1-.52.05-.1-.05-.28-.18-.28-.45V8c0-3.15 1.35-4.5 4.5-4.5h20c3.15 0 4.5 1.35 4.5 4.5v25.24zM23.56 14.06l-10 10c-.29.29-.67.44-1.06.44s-.77-.15-1.06-.44c-.59-.59-.59-1.54 0-2.12l10-10c.59-.59 1.54-.59 2.12 0 .58.58.58 1.54 0 2.12zM10.53 13c0-1.1.88-2 1.99-2h.02c1.1 0 2 .9 2 2s-.9 2-2 2-1.99-.9-1.99-2zM24.54 23c0 1.1-.9 2-2 2s-1.99-.9-1.99-2c0-1.1.88-2 1.99-2h.02c1.1 0 1.99.9 1.99 2z" fill="#ffc008"/></svg>
               </div>
-              <p className="step-label">Étape 2</p>
-              <h3>Définissez votre offre</h3>
-              <p>Vous pouvez la mettre à jour à tout moment.</p>
+              <p className="step-label">{L.step2Label}</p>
+              <h3>{L.step2H3}</h3>
+              <p>{L.step2P}</p>
             </article>
 
             <article className="step">
@@ -524,14 +810,14 @@ const Join = () => {
               <div className="ico">
                 <svg width="48" height="48" viewBox="0 0 49 48" fill="none"><path d="M26.5 20c1.93 0 3.5 1.57 3.5 3.5v9.5c0 4.97-4.03 9-9 9s-9-4.03-9-9V23.5c0-1.93 1.57-3.5 3.5-3.5h11zm0 3h-11c-.28 0-.5.22-.5.5v9.5c0 3.31 2.69 6 6 6s6-2.69 6-6V23.5c0-.28-.22-.5-.5-.5zM4.5 20l6.76-.002C10.58 20.83 10.13 21.86 10.03 23H4.5c-.28 0-.5.22-.5.5V30c0 2.76 2.24 5 5 5 .4 0 .79-.05 1.16-.14.17 1.01.48 1.97.91 2.87C10.41 37.91 9.72 38 9 38c-4.42 0-8-3.58-8-8v-6.5C1 21.57 2.57 20 4.5 20zm26.25-.002L37.5 20c1.93 0 3.5 1.57 3.5 3.5V30c0 4.42-3.58 8-8 8-.71 0-1.4-.09-2.06-.27.43-.9.74-1.86.91-2.87.37.09.76.14 1.16.14 2.76 0 5-2.24 5-5v-6.5c0-.28-.22-.5-.5-.5l-5.51.001c-.1-1.14-.55-2.17-1.24-3zM21 6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6 2.69-6 6-6zM34 8c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5 2.24-5 5-5zM8 8c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5 2.24-5 5-5zM21 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="#00a896"/></svg>
               </div>
-              <p className="step-label">Étape 3</p>
-              <h3>Obtenez des clients</h3>
-              <p>Les voyageurs verront votre offre dans notre catalogue.</p>
+              <p className="step-label">{L.step3Label}</p>
+              <h3>{L.step3H3}</h3>
+              <p>{L.step3P}</p>
             </article>
           </div>
 
           <div className="cta-row">
-            <Link className="btn-primary" to="/devenir-affilie">S'INSCRIRE</Link>
+            <Link className="btn-primary" to="/devenir-affilie">{L.joinBtn}</Link>
           </div>
         </div>
       </section>
@@ -539,40 +825,40 @@ const Join = () => {
       <section id="why-us">
         <div className="wrap">
           <div className="why-head">
-            <h2>Pourquoi les partenaires choisissent One World Morocco</h2>
-            <p>Une offre plus équitable que les OTA classiques — sans commission, sans intermédiaire.</p>
+            <h2>{L.whyH2}</h2>
+            <p>{L.whyP}</p>
           </div>
 
           <div className="why-wrap">
             <table className="cmp">
               <thead>
                 <tr>
-                  <th>Fonctionnalité</th>
-                  <th className="us"><span className="reco">★ RECOMMANDÉ</span>One World Morocco</th>
+                  <th>{L.cmpThFeature}</th>
+                  <th className="us"><span className="reco">{L.cmpReco}</span>One World Morocco</th>
                   <th>Booking.com<br/>TripAdvisor</th>
                   <th>GetYourGuide<br/>Viator</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td>Commission + Avis Clients + Réseau social</td><td className="us">0 %</td><td>15–25 %</td><td>20–30 %</td></tr>
-                <tr><td>Avis Clients</td><td className="us">✓ Inclus</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Réseau social</td><td className="us">✓ Inclus</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Votre QR code</td><td className="us">✓ Oui</td><td>✗ Non</td><td>✗ Non</td></tr>
-                <tr><td>Contact direct</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Carte business digitale</td><td className="us">✓ Gratuit</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Votre assistant IA</td><td className="us">✓ Optionnel</td><td>✗ Non</td><td>✗ Non</td></tr>
-                <tr><td>URL courte personnalisée (oneworldmorocco.com/votrenom)</td><td className="us">✓ Inclus</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Recherche & réponse vocale</td><td className="us">✓ Inclus</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Vitesse de paiement</td><td className="us">Instantané</td><td>30–60 jours</td><td>2–4 semaines</td></tr>
-                <tr><td>Votre système de paiement en ligne, sans intermédiaire <br /> (sous réserve d'acceptation par votre prestataire de paiement)</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Vous possédez les données client</td><td className="us">✓ Oui</td><td className="x">✗ Non</td><td className="x">✗ Non</td></tr>
-                <tr><td>Liberté tarifaire</td><td className="us">✓ Oui</td><td>✗ Non</td><td>✗ Non</td></tr>
+                <tr><td>{L.cmpRow1Feature}</td><td className="us">{L.cmpUs0}</td><td>15–25 %</td><td>20–30 %</td></tr>
+                <tr><td>{L.cmpRow2Feature}</td><td className="us">{L.cmpUsIncluded}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
+                <tr><td>{L.cmpRow3Feature}</td><td className="us">{L.cmpUsIncluded}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
+                <tr><td>{L.cmpRow4Feature}</td><td className="us">{L.cmpUsYes}</td><td>{L.cmpNo}</td><td>{L.cmpNo}</td></tr>
+                <tr><td>{L.cmpRow5Feature}</td><td className="us">{L.cmpUsYes}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
+                <tr><td>{L.cmpRow6Feature}</td><td className="us">{L.cmpUsFree}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
+                <tr><td>{L.cmpRow7Feature}</td><td className="us">{L.cmpUsOptional}</td><td>{L.cmpNo}</td><td>{L.cmpNo}</td></tr>
+                <tr><td>{L.cmpRow8Feature}</td><td className="us">{L.cmpUsIncluded}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
+                <tr><td>{L.cmpRow9Feature}</td><td className="us">{L.cmpUsIncluded}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
+                <tr><td>{L.cmpRow10Feature}</td><td className="us">{L.cmpRow10Us}</td><td>{L.cmpRow10Booking}</td><td>{L.cmpRow10Gyg}</td></tr>
+                <tr><td>{L.cmpRow11Feature}</td><td className="us">{L.cmpUsYes}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
+                <tr><td>{L.cmpRow12Feature}</td><td className="us">{L.cmpUsYes}</td><td className="x">{L.cmpNo}</td><td className="x">{L.cmpNo}</td></tr>
+                <tr><td>{L.cmpRow13Feature}</td><td className="us">{L.cmpUsYes}</td><td>{L.cmpNo}</td><td>{L.cmpNo}</td></tr>
               </tbody>
             </table>
           </div>
 
           <div className="why-cta">
-            <Link className="btn-primary" to="/devenir-affilie">S'INSCRIRE</Link>
+            <Link className="btn-primary" to="/devenir-affilie">{L.whyBtn}</Link>
           </div>
         </div>
       </section>
