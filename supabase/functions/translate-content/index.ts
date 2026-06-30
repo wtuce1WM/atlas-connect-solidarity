@@ -249,13 +249,14 @@ Deno.serve(async (req) => {
     const { data: rows, error: selErr } = await query;
     if (selErr) throw selErr;
 
+    const effectiveLimit = cfg.jsonEntries ? Math.min(limit, 1) : limit;
     const candidateRows = (rows ?? []).filter((row: any) => {
       const missingText = cfg.textFields?.some((f) => row[f.source] && !row[f.target]) ?? false;
       const missingJson = cfg.jsonEntries
         ? isIncompleteJsonEntries(row[cfg.jsonEntries.source], row[cfg.jsonEntries.target])
         : false;
       return missingText || missingJson;
-    }).slice(0, limit);
+    }).slice(0, effectiveLimit);
 
     let success = 0, errors = 0;
     const errorLog: string[] = [];
