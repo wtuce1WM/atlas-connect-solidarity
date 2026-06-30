@@ -227,47 +227,50 @@ Deno.serve(async (req) => {
 
     let success = 0, errors = 0;
     const errorLog: string[] = [];
+    const CONCURRENCY = 5;
 
-    for (const row of rows ?? []) {
+    const processRow = async (row: any) => {
       try {
         const updates: Record<string, unknown> = {};
 
-        // Text fields — translate in one batched call per row
         if (cfg.textFields?.length) {
           const toTranslate: { idx: number; text: string; field: typeof cfg.textFields[0] }[] = [];
           cfg.textFields.forEach((f, i) => {
-            const src = (row as any)[f.source];
-            const tgt = (row as any)[f.target];
+            const src = row[f.source];
+            const tgt = row[f.target];
             if (src && !tgt) toTranslate.push({ idx: i, text: String(src), field: f });
           });
           if (toTranslate.length > 0) {
             const hasHtml = toTranslate.some((t) => t.field.kind === "html");
             const translated = await translateBatch(toTranslate.map((t) => t.text), target_lang, hasHtml);
-            toTranslate.forEach((t, i) => {
-              updates[t.field.target] = translated[i];
-            });
+            toTranslate.forEach((t, i) => { updates[t.field.target] = translated[i]; });
           }
         }
 
-        // JSON entries
         if (cfg.jsonEntries) {
-          const src = (row as any)[cfg.jsonEntries.source];
-          const tgt = (row as any)[cfg.jsonEntries.target];
+          const src = row[cfg.jsonEntries.source];
+          const tgt = row[cfg.jsonEntries.target];
           if (src && !tgt) {
             updates[cfg.jsonEntries.target] = await translateJsonEntries(src, target_lang);
           }
         }
 
         if (Object.keys(updates).length > 0 && !dry_run) {
-          const { error: upErr } = await admin.from(cfg.table).update(updates).eq(cfg.pk, (row as any)[cfg.pk]);
+          const { error: upErr } = await admin.from(cfg.table).update(updates).eq(cfg.pk, row[cfg.pk]);
           if (upErr) throw upErr;
         }
         success++;
       } catch (e) {
         errors++;
-        errorLog.push(`${(row as any)[cfg.pk]}: ${(e as Error).message}`);
+        errorLog.push(`${row[cfg.pk]}: ${(e as Error).message}`);
       }
+    };
 
+    // Process in parallel chunks
+    const allRows = rows ?? [];
+    for (let i = 0; i < allRows.length; i += CONCURRENCY) {
+      const chunk = allRows.slice(i, i + CONCURRENCY);
+      await Promise.all(chunk.map(processRow));
       await admin.from("translation_jobs").update({
         processed_rows: success + errors,
         success_count: success,
