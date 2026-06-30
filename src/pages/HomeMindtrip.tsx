@@ -1397,7 +1397,7 @@ const HotelAvailabilityWidget = () => {
         />
       </label>
       <label className={labelCls}>
-        Départ
+        {L.hotelDeparture}
         <input
           type="date"
           value={checkOut}
