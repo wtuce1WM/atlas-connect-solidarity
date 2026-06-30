@@ -9,10 +9,197 @@ import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = zelligeBrunAsset.url;
+
+type Lang = "fr" | "en" | "ar";
+
+const I18N = {
+  fr: {
+    docTitle: "Installer l'app — ONE WORLD MOROCCO",
+    h1: "Installer l'App",
+    heroSubWithPrompt: "Touche l'icône ci-dessous pour installer l'app en un clic, ou suis les étapes ci-dessous.",
+    heroSubDefault: "Installe l'app sur ton appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur ton écran d'accueil ou ton bureau.",
+    install: "Installer",
+    installUpdate: "Installer mise à jour",
+    howToInstall: "Comment installer",
+    installed: "Installée",
+    ariaInstalled: "Application déjà installée",
+    ariaInstallNow: "Installer l'application maintenant",
+    ariaSeeInstructions: "Voir les instructions d'installation",
+    updateBannerStrong: "Une nouvelle version de l'app est disponible.",
+    updateBannerText: "Mettez à jour maintenant pour profiter des dernières améliorations.",
+    updateNow: "Mettre à jour l'app",
+    checkUpdates: "Vérifier les mises à jour",
+    checkUpdatesHint: "Recharge l'app avec la dernière version disponible.",
+    urlToOpen: "URL à ouvrir :",
+    sameDataNote: "L'app utilise les mêmes données que le site web — aucun téléchargement depuis un store nécessaire.",
+    tabs: { ios: "iPhone / iPad", android: "Android", mac: "Mac", windows: "Windows" },
+    guides: {
+      ios: {
+        title: "Installer sur iPhone / iPad",
+        steps: [
+          <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Safari</strong> (obligatoire, ne fonctionne pas dans Chrome iOS).</>,
+          <>Touche le bouton <strong>Partager</strong> en bas de l'écran (carré avec une flèche vers le haut).</>,
+          <>Dans le menu Partager, <strong>fais défiler vers le bas</strong> dans la liste des actions (sous la rangée d'icônes d'apps), puis choisis <strong>« Sur l'écran d'accueil »</strong> (ou <strong>« Ajouter à l'écran d'accueil »</strong>).</>,
+          <>Touche <strong>Ajouter</strong> en haut à droite. L'icône OW Morocco apparaît sur ton écran d'accueil.</>,
+        ],
+        note: "Tu ne vois pas « Sur l'écran d'accueil » ? 1) Vérifie que tu es bien dans Safari (pas Chrome ni Instagram/Facebook in-app) — sinon copie le lien et ouvre-le dans Safari. 2) Dans le menu Partager, l'option est plus bas dans la liste : fais défiler. 3) Si elle n'apparaît toujours pas, touche « Modifier les actions » tout en bas et active « Sur l'écran d'accueil ». 4) Sur iOS en mode navigation privée, l'option est masquée — quitte la navigation privée.",
+      },
+      android: {
+        title: "Installer sur Android",
+        steps: [
+          <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong> (obligatoire — n'utilise pas Samsung Internet ni Firefox, sinon Google Play Protect peut bloquer l'installation).</>,
+          <>Touche le menu <strong>⋮</strong> en haut à droite.</>,
+          <>Choisis <strong>« Installer l'application »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.</>,
+          <>Confirme. L'icône OW Morocco s'installe comme une vraie app.</>,
+        ],
+        note: "Si Google Play Protect affiche « Appli non sécurisée bloquée », c'est que l'installation s'est faite via Samsung Internet ou Firefox. Touche « Plus de détails » puis « Installer quand même », ou réinstalle depuis Chrome pour éviter le message.",
+      },
+      mac: {
+        title: "Installer sur Mac",
+        steps: [
+          <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Safari</strong> (macOS Sonoma+) ou <strong>Chrome</strong>.</>,
+          <><strong>Safari :</strong> menu <strong>Fichier → Ajouter au Dock…</strong><br /><strong>Chrome :</strong> menu <strong>Fichier → Installer ONE WORLD MOROCCO…</strong> (ou icône ⊕ dans la barre d'adresse).</>,
+          <>L'app s'ouvre dans sa propre fenêtre, sans barre d'adresse, et apparaît dans le Dock et le Launchpad.</>,
+        ],
+        note: "Dans Chrome, tu peux glisser l'icône depuis Launchpad vers le Dock pour l'épingler.",
+      },
+      windows: {
+        title: "Installer sur Windows",
+        steps: [
+          <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong> ou <strong>Edge</strong>.</>,
+          <>Clique sur l'icône <strong>⊕ Installer</strong> à droite de la barre d'adresse (ou menu <strong>⋮ → Installer ONE WORLD MOROCCO</strong>).</>,
+          <>Confirme. L'app s'épingle au menu Démarrer et à la barre des tâches.</>,
+        ],
+      },
+    },
+  },
+  en: {
+    docTitle: "Install the app — ONE WORLD MOROCCO",
+    h1: "Install the App",
+    heroSubWithPrompt: "Tap the icon below to install the app in one click, or follow the steps below.",
+    heroSubDefault: "Install the app on your device for one-tap access, with no address bar, and the icon right on your home screen or desktop.",
+    install: "Install",
+    installUpdate: "Install update",
+    howToInstall: "How to install",
+    installed: "Installed",
+    ariaInstalled: "App already installed",
+    ariaInstallNow: "Install the app now",
+    ariaSeeInstructions: "See installation instructions",
+    updateBannerStrong: "A new version of the app is available.",
+    updateBannerText: "Update now to enjoy the latest improvements.",
+    updateNow: "Update the app",
+    checkUpdates: "Check for updates",
+    checkUpdatesHint: "Reload the app with the latest available version.",
+    urlToOpen: "URL to open:",
+    sameDataNote: "The app uses the same data as the website — no store download required.",
+    tabs: { ios: "iPhone / iPad", android: "Android", mac: "Mac", windows: "Windows" },
+    guides: {
+      ios: {
+        title: "Install on iPhone / iPad",
+        steps: [
+          <>Open <strong>oneworldmorocco.com</strong> in <strong>Safari</strong> (required, it doesn't work in Chrome iOS).</>,
+          <>Tap the <strong>Share</strong> button at the bottom of the screen (square with an up arrow).</>,
+          <>In the Share menu, <strong>scroll down</strong> through the list of actions (below the row of app icons), then choose <strong>"Add to Home Screen"</strong>.</>,
+          <>Tap <strong>Add</strong> in the top right. The OW Morocco icon appears on your home screen.</>,
+        ],
+        note: "Can't see \"Add to Home Screen\"? 1) Make sure you're in Safari (not Chrome, Instagram or Facebook in-app) — otherwise copy the link and open it in Safari. 2) In the Share menu, the option is lower in the list: scroll down. 3) If it still doesn't appear, tap \"Edit Actions\" at the bottom and enable \"Add to Home Screen\". 4) On iOS in private browsing, the option is hidden — exit private browsing.",
+      },
+      android: {
+        title: "Install on Android",
+        steps: [
+          <>Open <strong>oneworldmorocco.com</strong> in <strong>Chrome</strong> (required — don't use Samsung Internet or Firefox, otherwise Google Play Protect may block the install).</>,
+          <>Tap the <strong>⋮</strong> menu in the top right.</>,
+          <>Choose <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>,
+          <>Confirm. The OW Morocco icon installs like a real app.</>,
+        ],
+        note: "If Google Play Protect shows \"Unsafe app blocked\", it means the install was done via Samsung Internet or Firefox. Tap \"More details\" then \"Install anyway\", or reinstall from Chrome to avoid the message.",
+      },
+      mac: {
+        title: "Install on Mac",
+        steps: [
+          <>Open <strong>oneworldmorocco.com</strong> in <strong>Safari</strong> (macOS Sonoma+) or <strong>Chrome</strong>.</>,
+          <><strong>Safari:</strong> menu <strong>File → Add to Dock…</strong><br /><strong>Chrome:</strong> menu <strong>File → Install ONE WORLD MOROCCO…</strong> (or ⊕ icon in the address bar).</>,
+          <>The app opens in its own window, with no address bar, and appears in the Dock and Launchpad.</>,
+        ],
+        note: "In Chrome, you can drag the icon from Launchpad to the Dock to pin it.",
+      },
+      windows: {
+        title: "Install on Windows",
+        steps: [
+          <>Open <strong>oneworldmorocco.com</strong> in <strong>Chrome</strong> or <strong>Edge</strong>.</>,
+          <>Click the <strong>⊕ Install</strong> icon to the right of the address bar (or menu <strong>⋮ → Install ONE WORLD MOROCCO</strong>).</>,
+          <>Confirm. The app pins to the Start menu and the taskbar.</>,
+        ],
+      },
+    },
+  },
+  ar: {
+    docTitle: "تثبيت التطبيق — ONE WORLD MOROCCO",
+    h1: "تثبيت التطبيق",
+    heroSubWithPrompt: "اضغط على الأيقونة أدناه لتثبيت التطبيق بنقرة واحدة، أو اتبع الخطوات أدناه.",
+    heroSubDefault: "ثبّت التطبيق على جهازك للوصول بنقرة واحدة، بدون شريط العناوين، مع الأيقونة مباشرة على شاشتك الرئيسية أو سطح المكتب.",
+    install: "تثبيت",
+    installUpdate: "تثبيت التحديث",
+    howToInstall: "كيفية التثبيت",
+    installed: "مثبّت",
+    ariaInstalled: "التطبيق مثبّت بالفعل",
+    ariaInstallNow: "تثبيت التطبيق الآن",
+    ariaSeeInstructions: "عرض تعليمات التثبيت",
+    updateBannerStrong: "إصدار جديد من التطبيق متاح.",
+    updateBannerText: "حدّث الآن للاستفادة من آخر التحسينات.",
+    updateNow: "تحديث التطبيق",
+    checkUpdates: "التحقق من التحديثات",
+    checkUpdatesHint: "أعد تحميل التطبيق بأحدث إصدار متاح.",
+    urlToOpen: "الرابط للفتح:",
+    sameDataNote: "يستخدم التطبيق نفس بيانات الموقع — لا حاجة للتنزيل من أي متجر.",
+    tabs: { ios: "آيفون / آيباد", android: "أندرويد", mac: "ماك", windows: "ويندوز" },
+    guides: {
+      ios: {
+        title: "التثبيت على آيفون / آيباد",
+        steps: [
+          <>افتح <strong>oneworldmorocco.com</strong> في <strong>Safari</strong> (إلزامي، لا يعمل في Chrome على iOS).</>,
+          <>اضغط على زر <strong>المشاركة</strong> في أسفل الشاشة (مربع به سهم لأعلى).</>,
+          <>في قائمة المشاركة، <strong>مرّر للأسفل</strong> في قائمة الإجراءات (أسفل صف أيقونات التطبيقات)، ثم اختر <strong>«إضافة إلى الشاشة الرئيسية»</strong>.</>,
+          <>اضغط <strong>إضافة</strong> في الأعلى يمينًا. تظهر أيقونة OW Morocco على شاشتك الرئيسية.</>,
+        ],
+        note: "لا ترى «إضافة إلى الشاشة الرئيسية»؟ 1) تأكد أنك في Safari (وليس Chrome أو Instagram/Facebook). 2) في قائمة المشاركة، الخيار في الأسفل: مرّر للأسفل. 3) إذا لم يظهر، اضغط «تعديل الإجراءات» في الأسفل وفعّل «إضافة إلى الشاشة الرئيسية». 4) في وضع التصفح الخاص، الخيار مخفي — اخرج من التصفح الخاص.",
+      },
+      android: {
+        title: "التثبيت على أندرويد",
+        steps: [
+          <>افتح <strong>oneworldmorocco.com</strong> في <strong>Chrome</strong> (إلزامي — لا تستخدم Samsung Internet أو Firefox، وإلا قد يحجب Google Play Protect التثبيت).</>,
+          <>اضغط على قائمة <strong>⋮</strong> في الأعلى يمينًا.</>,
+          <>اختر <strong>«تثبيت التطبيق»</strong> أو <strong>«إضافة إلى الشاشة الرئيسية»</strong>.</>,
+          <>أكّد. تُثبَّت أيقونة OW Morocco كتطبيق حقيقي.</>,
+        ],
+        note: "إذا أظهر Google Play Protect «تم حجب تطبيق غير آمن»، فهذا يعني أن التثبيت تم عبر Samsung Internet أو Firefox. اضغط «مزيد من التفاصيل» ثم «التثبيت على أي حال»، أو أعد التثبيت من Chrome.",
+      },
+      mac: {
+        title: "التثبيت على ماك",
+        steps: [
+          <>افتح <strong>oneworldmorocco.com</strong> في <strong>Safari</strong> (macOS Sonoma+) أو <strong>Chrome</strong>.</>,
+          <><strong>Safari:</strong> قائمة <strong>ملف ← إضافة إلى Dock…</strong><br /><strong>Chrome:</strong> قائمة <strong>ملف ← تثبيت ONE WORLD MOROCCO…</strong> (أو أيقونة ⊕ في شريط العنوان).</>,
+          <>يُفتح التطبيق في نافذته الخاصة، بدون شريط العناوين، ويظهر في Dock وLaunchpad.</>,
+        ],
+        note: "في Chrome، يمكنك سحب الأيقونة من Launchpad إلى Dock لتثبيتها.",
+      },
+      windows: {
+        title: "التثبيت على ويندوز",
+        steps: [
+          <>افتح <strong>oneworldmorocco.com</strong> في <strong>Chrome</strong> أو <strong>Edge</strong>.</>,
+          <>انقر على أيقونة <strong>⊕ تثبيت</strong> على يمين شريط العنوان (أو قائمة <strong>⋮ ← تثبيت ONE WORLD MOROCCO</strong>).</>,
+          <>أكّد. يُثبَّت التطبيق في قائمة «ابدأ» وشريط المهام.</>,
+        ],
+      },
+    },
+  },
+} as const;
+
 
 type Platform = "ios" | "android" | "mac" | "windows";
 
