@@ -133,7 +133,7 @@ export default function StaffTranslations() {
     let totalErr = 0;
 
     try {
-      for (const cfg of CONFIGS) {
+      for (const cfg of CONFIGS.filter((c) => !onlyKey || c.key === onlyKey)) {
         for (const lang of langs) {
           // ── Special path for blog_posts: progressive chunks per article ──
           if (cfg.key === "blog_posts") {
