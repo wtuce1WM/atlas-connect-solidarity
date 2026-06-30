@@ -1372,7 +1372,7 @@ const HotelAvailabilityWidget = () => {
         }
       `}</style>
       <label className={`${labelCls} sm:col-span-2`}>
-        Destination
+        {L.hotelDestination}
         <select value={city} onChange={(e) => setCity(e.target.value)} className={`${fieldCls} hotel-field`} style={fieldStyle}>
           <option value="Marrakech">Marrakech</option>
           <option value="Essaouira">Essaouira</option>
