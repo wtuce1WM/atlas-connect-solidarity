@@ -354,55 +354,45 @@ const Install = () => {
 
   const tabs: { id: Platform; label: string; Icon: React.ComponentType<{ className?: string }> }[] = useMemo(
     () => [
-      { id: "ios", label: "iPhone / iPad", Icon: Apple },
-      { id: "android", label: "Android", Icon: Smartphone },
-      { id: "mac", label: "Mac", Icon: Apple },
-      { id: "windows", label: "Windows", Icon: Monitor },
+      { id: "ios", label: t.tabs.ios, Icon: Apple },
+      { id: "android", label: t.tabs.android, Icon: Smartphone },
+      { id: "mac", label: t.tabs.mac, Icon: Apple },
+      { id: "windows", label: t.tabs.windows, Icon: Monitor },
     ],
-    []
+    [t]
   );
 
-  const guides: Record<Platform, { title: string; steps: { icon: JSX.Element; text: React.ReactNode }[]; note?: string }> = {
-    ios: {
-      title: "Installer sur iPhone / iPad",
-      steps: [
-        { icon: <Apple className="h-5 w-5 text-[#C04F17]" />, text: <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Safari</strong> (obligatoire, ne fonctionne pas dans Chrome iOS).</> },
-        { icon: <Share className="h-5 w-5 text-[#C04F17]" />, text: <>Touche le bouton <strong>Partager</strong> en bas de l'écran (carré avec une flèche vers le haut).</> },
-        { icon: <Plus className="h-5 w-5 text-[#C04F17]" />, text: <>Dans le menu Partager, <strong>fais défiler vers le bas</strong> dans la liste des actions (sous la rangée d'icônes d'apps), puis choisis <strong>« Sur l'écran d'accueil »</strong> (ou <strong>« Ajouter à l'écran d'accueil »</strong>).</> },
-        { icon: <Check className="h-5 w-5 text-[#C04F17]" />, text: <>Touche <strong>Ajouter</strong> en haut à droite. L'icône OW Morocco apparaît sur ton écran d'accueil.</> },
-      ],
-      note: "Tu ne vois pas « Sur l'écran d'accueil » ? 1) Vérifie que tu es bien dans Safari (pas Chrome ni Instagram/Facebook in-app) — sinon copie le lien et ouvre-le dans Safari. 2) Dans le menu Partager, l'option est plus bas dans la liste : fais défiler. 3) Si elle n'apparaît toujours pas, touche « Modifier les actions » tout en bas et active « Sur l'écran d'accueil ». 4) Sur iOS en mode navigation privée, l'option est masquée — quitte la navigation privée.",
-    },
-    android: {
-      title: "Installer sur Android",
-      steps: [
-        { icon: <Smartphone className="h-5 w-5 text-[#C04F17]" />, text: <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong> (obligatoire — n'utilise pas Samsung Internet ni Firefox, sinon Google Play Protect peut bloquer l'installation).</> },
-        { icon: <MoreVertical className="h-5 w-5 text-[#C04F17]" />, text: <>Touche le menu <strong>⋮</strong> en haut à droite.</> },
-        { icon: <Download className="h-5 w-5 text-[#C04F17]" />, text: <>Choisis <strong>« Installer l'application »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.</> },
-        { icon: <Check className="h-5 w-5 text-[#C04F17]" />, text: <>Confirme. L'icône OW Morocco s'installe comme une vraie app.</> },
-      ],
-      note: "Si Google Play Protect affiche « Appli non sécurisée bloquée », c'est que l'installation s'est faite via Samsung Internet ou Firefox. Touche « Plus de détails » puis « Installer quand même », ou réinstalle depuis Chrome pour éviter le message.",
-    },
-    mac: {
-      title: "Installer sur Mac",
-      steps: [
-        { icon: <Monitor className="h-5 w-5 text-[#C04F17]" />, text: <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Safari</strong> (macOS Sonoma+) ou <strong>Chrome</strong>.</> },
-        { icon: <Download className="h-5 w-5 text-[#C04F17]" />, text: <><strong>Safari :</strong> menu <strong>Fichier → Ajouter au Dock…</strong><br /><strong>Chrome :</strong> menu <strong>Fichier → Installer ONE WORLD MOROCCO…</strong> (ou icône ⊕ dans la barre d'adresse).</> },
-        { icon: <Check className="h-5 w-5 text-[#C04F17]" />, text: <>L'app s'ouvre dans sa propre fenêtre, sans barre d'adresse, et apparaît dans le Dock et le Launchpad.</> },
-      ],
-      note: "Dans Chrome, tu peux glisser l'icône depuis Launchpad vers le Dock pour l'épingler.",
-    },
-    windows: {
-      title: "Installer sur Windows",
-      steps: [
-        { icon: <Monitor className="h-5 w-5 text-[#C04F17]" />, text: <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong> ou <strong>Edge</strong>.</> },
-        { icon: <Download className="h-5 w-5 text-[#C04F17]" />, text: <>Clique sur l'icône <strong>⊕ Installer</strong> à droite de la barre d'adresse (ou menu <strong>⋮ → Installer ONE WORLD MOROCCO</strong>).</> },
-        { icon: <Check className="h-5 w-5 text-[#C04F17]" />, text: <>Confirme. L'app s'épingle au menu Démarrer et à la barre des tâches.</> },
-      ],
-    },
+  const STEP_ICONS: Record<Platform, JSX.Element[]> = {
+    ios: [
+      <Apple className="h-5 w-5 text-[#C04F17]" />,
+      <Share className="h-5 w-5 text-[#C04F17]" />,
+      <Plus className="h-5 w-5 text-[#C04F17]" />,
+      <Check className="h-5 w-5 text-[#C04F17]" />,
+    ],
+    android: [
+      <Smartphone className="h-5 w-5 text-[#C04F17]" />,
+      <MoreVertical className="h-5 w-5 text-[#C04F17]" />,
+      <Download className="h-5 w-5 text-[#C04F17]" />,
+      <Check className="h-5 w-5 text-[#C04F17]" />,
+    ],
+    mac: [
+      <Monitor className="h-5 w-5 text-[#C04F17]" />,
+      <Download className="h-5 w-5 text-[#C04F17]" />,
+      <Check className="h-5 w-5 text-[#C04F17]" />,
+    ],
+    windows: [
+      <Monitor className="h-5 w-5 text-[#C04F17]" />,
+      <Download className="h-5 w-5 text-[#C04F17]" />,
+      <Check className="h-5 w-5 text-[#C04F17]" />,
+    ],
   };
 
-  const guide = guides[platform];
+  const localizedGuide = t.guides[platform];
+  const guide = {
+    title: localizedGuide.title,
+    steps: localizedGuide.steps.map((text, i) => ({ icon: STEP_ICONS[platform][i], text })),
+    note: (localizedGuide as { note?: string }).note,
+  };
 
   return (
     <>
