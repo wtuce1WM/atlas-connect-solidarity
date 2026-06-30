@@ -46,93 +46,93 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
   const getNavLinks = () => {
     if (location.pathname === "/corporate") {
       return [
-        { to: "/join", label: "Rejoindre" },
-        { to: "/card", label: "Votre carte de visite numérique" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/join", label: L.join },
+        { to: "/card", label: L.card },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/join") {
       return [
-        { to: "/corporate", label: "Le concept" },
-        { to: "/card", label: "Votre carte de visite numérique" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/corporate", label: L.concept },
+        { to: "/card", label: L.card },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/card") {
       return [
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/devenir-affilie") {
       return [
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/card", label: "Votre carte de visite numérique" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/card", label: L.card },
       ];
     } else if (location.pathname === "/club") {
       return [
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/install", label: "Application" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/install", label: L.app },
       ];
     } else {
       const baseLinks = [
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/club", label: "Le club OWM" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/club", label: L.club },
       ];
       if (location.pathname !== "/install") {
-        baseLinks.push({ to: "/install", label: "Application" });
+        baseLinks.push({ to: "/install", label: L.app });
       }
       return baseLinks;
     }
   };
 
   const getMobileLinks = () => {
-    const base = [{ to: "/", label: "Page d'accueil" }];
+    const base = [{ to: "/", label: L.home }];
     if (location.pathname === "/corporate") {
       return [
         ...base,
-        { to: "/join", label: "Rejoindre" },
-        { to: "/card", label: "Votre carte de visite numérique" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/join", label: L.join },
+        { to: "/card", label: L.card },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/join") {
       return [
         ...base,
-        { to: "/corporate", label: "Le concept" },
-        { to: "/card", label: "Votre carte de visite numérique" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/corporate", label: L.concept },
+        { to: "/card", label: L.card },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/card") {
       return [
         ...base,
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/devenir-affilie", label: "Devenir affilié" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/devenir-affilie", label: L.affiliate },
       ];
     } else if (location.pathname === "/devenir-affilie") {
       return [
         ...base,
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/card", label: "Votre carte de visite numérique" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/card", label: L.card },
       ];
     } else if (location.pathname === "/club") {
       return [
         ...base,
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/install", label: "Application" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/install", label: L.app },
       ];
     } else {
       const baseLinks = [
         ...base,
-        { to: "/corporate", label: "Le concept" },
-        { to: "/join", label: "Rejoindre" },
-        { to: "/club", label: "Le club OWM" },
+        { to: "/corporate", label: L.concept },
+        { to: "/join", label: L.join },
+        { to: "/club", label: L.club },
       ];
       if (location.pathname !== "/install") {
-        baseLinks.push({ to: "/install", label: "Application" });
+        baseLinks.push({ to: "/install", label: L.app });
       }
       return baseLinks;
     }
