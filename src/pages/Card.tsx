@@ -4,10 +4,230 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
 import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = zelligeBrunAsset.url;
+
+const LABELS = {
+  fr: {
+    pageTitle: "Votre carte numérique sur One World Morocco",
+    pageDesc: "Un lien court et personnalisé — oneworldmorocco.com/yourname. Offres, contacts et photos en un tap, sur un domaine de voyage de confiance.",
+    heroH1: <>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></>,
+    heroLead: <>Un lien court et personnalisé que les voyageurs retiennent vraiment — <code>oneworldmorocco.com/yourname</code>. Un seul tap affiche vos offres, vos contacts et vos photos, sur un domaine de voyage de confiance. Le QR n'est qu'une façon parmi d'autres de le partager.</>,
+    bullet1: <>URL courte et mémorisable :<br/><strong>oneworldmorocco.com/yourname</strong></>,
+    bullet2: "Tous vos canaux numériques rassemblés au même endroit",
+    bullet3: "Un profil type Linktree partageable",
+    bullet4: "Partagez par lien, QR, NFC ou carte imprimée",
+    bullet5: "Mettez à jour à tout moment — le lien reste le même",
+    btnCreate: "CRÉEZ VOTRE PAGE →",
+    btnBenefits: "Voir les avantages ↓",
+    urlLabel: "Votre URL personnalisée",
+    bizSub: "Riad de charme · Marrakech",
+    offer1Label: "Séjour 3 nuits",
+    offer1Sub: "Toute l'année",
+    offer2Label: "Hammam & spa",
+    offer2Sub: "Réservation directe",
+    offer3Label: "Dîner sur la terrasse",
+    offer3Sub: "Tous les soirs",
+    shareBtn: "↗ Partager",
+    stepsKicker: "Comment ça marche",
+    stepsH2: "Trois étapes pour votre lien personnalisé",
+    stepsDesc: <>De l'inscription à <strong>oneworldmorocco.com/yourname</strong> — prêt à partager.</>,
+    step1H3: "Réclamez votre lien",
+    step1P: <>Choisissez votre identifiant. Votre carte numérique vit à l'adresse <strong>oneworldmorocco.com/yourname</strong> — courte, mémorisable, sur un domaine de confiance.</>,
+    step2H3: "Partagez-le partout",
+    step2P: "Ajoutez le lien sur Instagram, WhatsApp, dans votre signature e-mail, sur des tags NFC — ou imprimez le QR sur les reçus, les menus et les cartes de visite.",
+    step3H3: "Convertissez sur place",
+    step3P: "Un seul tap affiche vos offres, contacts et photos. Les voyageurs enregistrent votre carte, réservent et reviennent — sur un domaine qu'ils connaissent déjà.",
+    benefitsKicker: "Gratuit pour les pros du tourisme",
+    benefitsH2: <>UN LIEN SUR LEQUEL LES UTILISATEURS <span style={{color:"var(--terracotta)"}}>CLIQUENT VRAIMENT</span></>,
+    benefitsDesc: <>Ajoutez <strong>oneworldmorocco.com/yourname</strong> à Instagram, TikTok, votre signature e-mail — et même à votre carte de visite imprimée.</>,
+    benefit1H3: "Un domaine de confiance",
+    benefit1P: "oneworldmorocco.com — reconnu, sûr, facile à taper. Les voyageurs cliquent sans hésiter.",
+    benefit2H3: "Un lien, tous les canaux",
+    benefit2P: "Bio Instagram, WhatsApp, signature e-mail, NFC, impression. Le même lien partout.",
+    benefit3H3: "Tout en un seul endroit",
+    benefit3P: "Offres, contacts, photos. Mettez à jour une fois — chaque partage reste à jour.",
+    placesKicker: "Diffusion",
+    placesH2: "Où partager votre lien",
+    placesDesc: "Les meilleurs emplacements pour transformer une première impression en réservation — hors ligne comme en ligne.",
+    place1H4: "Reçu / Addition",
+    place1P: "Imprimez un QR sur chaque reçu — les clients scannent en partant.",
+    place2H4: "Menu / Chevalet",
+    place2P: "Collez un QR sur chaque menu ou chevalet — scan rapide pendant le repas.",
+    place3H4: "Porte / Vitrine",
+    place3P: "Autocollant QR à l'entrée — les passants scannent et entrent.",
+    place4H4: "Panier de bienvenue",
+    place4P: "Glissez une carte dans les paniers d'hôtel et les jeux de clés Airbnb.",
+    place5H4: "Carte de visite",
+    place5P: "Imprimez sur chaque flyer, carte de visite, brochure que vous distribuez.",
+    place6H4: "WhatsApp / SMS",
+    place6P: "Envoyez le lien dans les réponses WhatsApp et les SMS de confirmation.",
+    place7H4: "Bio Instagram / TikTok",
+    place7P: "Ajoutez le lien à vos bios Instagram, TikTok et Facebook.",
+    place8H4: "Signature e-mail",
+    place8P: "Ajoutez votre carte à chaque e-mail envoyé — invisible jusqu'à ce qu'on ait besoin de vous.",
+    faqKicker: "FAQ",
+    faqH2: "Questions fréquentes",
+    faq1Q: "À quoi ressemble l'URL ?",
+    faq1A: <>Courte et personnalisée — <strong>oneworldmorocco.com/yourname</strong>. Facile à retenir, facile à taper, d'aspect professionnel.</>,
+    faq2Q: "Dois-je imprimer des cartes physiques ?",
+    faq2A: "Non — la page numérique fonctionne seule (QR, lien, e-mail). Nous proposons des cartes premium si vous le souhaitez.",
+    faq3Q: "Puis-je mettre à jour les offres plus tard ?",
+    faq3A: "Oui — mettez à jour offres, contacts et photos à tout moment depuis votre tableau de bord. Le QR reste le même.",
+    faq4Q: "Les voyageurs lui feront-ils confiance ?",
+    faq4A: "Les pages sont vérifiées — les voyageurs voient le domaine oneworldmorocco.com, des offres officielles, de vrais avis. La confiance s'installe immédiatement.",
+    finalH2: "Votre lien. Votre carte. Sur un domaine en lequel les voyageurs ont confiance.",
+    finalP: <><code>oneworldmorocco.com/yourname</code> — court, mémorable, prêt à être partagé par lien, QR ou NFC.</>,
+    finalBtn: "Créez votre carte gratuite →",
+  },
+  en: {
+    pageTitle: "Your digital business card on One World Morocco",
+    pageDesc: "A short, personalised link — oneworldmorocco.com/yourname. Offers, contacts and photos in one tap, on a trusted travel domain.",
+    heroH1: <>Your digital business card on <span className="accent">One World Morocco</span></>,
+    heroLead: <>A short, personalised link travellers actually remember — <code>oneworldmorocco.com/yourname</code>. One tap shows your offers, contacts and photos, on a trusted travel domain. QR is just one of many ways to share it.</>,
+    bullet1: <>Short, memorable URL:<br/><strong>oneworldmorocco.com/yourname</strong></>,
+    bullet2: "All your digital channels in one place",
+    bullet3: "A shareable Linktree-style profile",
+    bullet4: "Share via link, QR, NFC or printed card",
+    bullet5: "Update anytime — the link stays the same",
+    btnCreate: "CREATE YOUR PAGE →",
+    btnBenefits: "See the benefits ↓",
+    urlLabel: "Your personalised URL",
+    bizSub: "Charming riad · Marrakech",
+    offer1Label: "3-night stay",
+    offer1Sub: "All year round",
+    offer2Label: "Hammam & spa",
+    offer2Sub: "Direct booking",
+    offer3Label: "Rooftop dinner",
+    offer3Sub: "Every evening",
+    shareBtn: "↗ Share",
+    stepsKicker: "How it works",
+    stepsH2: "Three steps to your personalised link",
+    stepsDesc: <>From sign-up to <strong>oneworldmorocco.com/yourname</strong> — ready to share.</>,
+    step1H3: "Claim your link",
+    step1P: <>Choose your handle. Your digital card lives at <strong>oneworldmorocco.com/yourname</strong> — short, memorable, on a trusted domain.</>,
+    step2H3: "Share it everywhere",
+    step2P: "Add the link to Instagram, WhatsApp, your email signature, NFC tags — or print the QR on receipts, menus and business cards.",
+    step3H3: "Convert on the spot",
+    step3P: "One tap shows your offers, contacts and photos. Travellers save your card, book and come back — on a domain they already know.",
+    benefitsKicker: "Free for tourism professionals",
+    benefitsH2: <>A LINK TRAVELLERS ACTUALLY <span style={{color:"var(--terracotta)"}}>CLICK</span></>,
+    benefitsDesc: <>Add <strong>oneworldmorocco.com/yourname</strong> to Instagram, TikTok, your email signature — even your printed business card.</>,
+    benefit1H3: "A trusted domain",
+    benefit1P: "oneworldmorocco.com — recognised, secure, easy to type. Travellers click without hesitation.",
+    benefit2H3: "One link, every channel",
+    benefit2P: "Instagram bio, WhatsApp, email signature, NFC, print. The same link everywhere.",
+    benefit3H3: "Everything in one place",
+    benefit3P: "Offers, contacts, photos. Update once — every share stays current.",
+    placesKicker: "Distribution",
+    placesH2: "Where to share your link",
+    placesDesc: "The best spots to turn a first impression into a booking — offline and online.",
+    place1H4: "Receipt / Bill",
+    place1P: "Print a QR on every receipt — guests scan on the way out.",
+    place2H4: "Menu / Table card",
+    place2P: "Stick a QR on every menu or table card — quick scan during the meal.",
+    place3H4: "Door / Window",
+    place3P: "QR sticker at the entrance — passers-by scan and walk in.",
+    place4H4: "Welcome basket",
+    place4P: "Slip a card into hotel welcome baskets and Airbnb key sets.",
+    place5H4: "Business card",
+    place5P: "Print on every flyer, business card and brochure you hand out.",
+    place6H4: "WhatsApp / SMS",
+    place6P: "Send the link in WhatsApp replies and booking confirmation texts.",
+    place7H4: "Instagram / TikTok bio",
+    place7P: "Add the link to your Instagram, TikTok and Facebook bios.",
+    place8H4: "Email signature",
+    place8P: "Add your card to every email you send — invisible until someone needs you.",
+    faqKicker: "FAQ",
+    faqH2: "Frequently asked questions",
+    faq1Q: "What does the URL look like?",
+    faq1A: <>Short and personalised — <strong>oneworldmorocco.com/yourname</strong>. Easy to remember, easy to type, professional-looking.</>,
+    faq2Q: "Do I need to print physical cards?",
+    faq2A: "No — the digital page works on its own (QR, link, email). We offer premium printed cards if you want them.",
+    faq3Q: "Can I update my offers later?",
+    faq3A: "Yes — update offers, contacts and photos any time from your dashboard. The QR stays the same.",
+    faq4Q: "Will travellers trust it?",
+    faq4A: "Pages are verified — travellers see the oneworldmorocco.com domain, official offers and real reviews. Trust is instant.",
+    finalH2: "Your link. Your card. On a domain travellers trust.",
+    finalP: <><code>oneworldmorocco.com/yourname</code> — short, memorable, ready to share by link, QR or NFC.</>,
+    finalBtn: "Create your free card →",
+  },
+  ar: {
+    pageTitle: "بطاقتك الرقمية على One World Morocco",
+    pageDesc: "رابط قصير وشخصي — oneworldmorocco.com/yourname. عروض وجهات اتصال وصور بنقرة واحدة، على نطاق سفر موثوق.",
+    heroH1: <>بطاقتك التجارية الرقمية على <span className="accent">One World Morocco</span></>,
+    heroLead: <>رابط قصير وشخصي يتذكره المسافرون فعلاً — <code>oneworldmorocco.com/yourname</code>. نقرة واحدة تعرض عروضك وجهات اتصالك وصورك، على نطاق سفر موثوق. رمز QR مجرد وسيلة من وسائل المشاركة.</>,
+    bullet1: <>رابط قصير وسهل الحفظ:<br/><strong>oneworldmorocco.com/yourname</strong></>,
+    bullet2: "جميع قنواتك الرقمية في مكان واحد",
+    bullet3: "ملف شخصي قابل للمشاركة على غرار Linktree",
+    bullet4: "شارك عبر الرابط أو QR أو NFC أو البطاقة المطبوعة",
+    bullet5: "حدِّث في أي وقت — الرابط يبقى كما هو",
+    btnCreate: "أنشئ صفحتك ←",
+    btnBenefits: "اكتشف المزايا ↓",
+    urlLabel: "رابطك الشخصي",
+    bizSub: "رياض فاخر · مراكش",
+    offer1Label: "إقامة 3 ليالٍ",
+    offer1Sub: "طوال السنة",
+    offer2Label: "حمام ومنتجع",
+    offer2Sub: "حجز مباشر",
+    offer3Label: "عشاء على السطح",
+    offer3Sub: "كل مساء",
+    shareBtn: "↗ مشاركة",
+    stepsKicker: "كيف يعمل",
+    stepsH2: "ثلاث خطوات للحصول على رابطك الشخصي",
+    stepsDesc: <>من التسجيل إلى <strong>oneworldmorocco.com/yourname</strong> — جاهز للمشاركة.</>,
+    step1H3: "احجز رابطك",
+    step1P: <>اختر معرّفك. بطاقتك الرقمية تعيش على <strong>oneworldmorocco.com/yourname</strong> — قصير وسهل الحفظ وعلى نطاق موثوق.</>,
+    step2H3: "شاركه في كل مكان",
+    step2P: "أضف الرابط على إنستغرام وواتساب وتوقيع بريدك الإلكتروني ووسوم NFC — أو اطبع رمز QR على الإيصالات والقوائم والبطاقات التجارية.",
+    step3H3: "حوِّل الزوار في الحال",
+    step3P: "نقرة واحدة تعرض عروضك وجهات اتصالك وصورك. يحفظ المسافرون بطاقتك ويحجزون ويعودون — على نطاق يعرفونه بالفعل.",
+    benefitsKicker: "مجاني لمحترفي السياحة",
+    benefitsH2: <>رابط يضغطه المسافرون <span style={{color:"var(--terracotta)"}}>فعلاً</span></>,
+    benefitsDesc: <>أضف <strong>oneworldmorocco.com/yourname</strong> إلى إنستغرام وتيك توك وتوقيع بريدك — وحتى بطاقتك التجارية المطبوعة.</>,
+    benefit1H3: "نطاق موثوق",
+    benefit1P: "oneworldmorocco.com — معروف وآمن وسهل الكتابة. المسافرون ينقرون دون تردد.",
+    benefit2H3: "رابط واحد، كل القنوات",
+    benefit2P: "سيرة إنستغرام، واتساب، توقيع البريد، NFC، الطباعة. نفس الرابط في كل مكان.",
+    benefit3H3: "كل شيء في مكان واحد",
+    benefit3P: "عروض وجهات اتصال وصور. حدِّث مرة واحدة — كل مشاركة تبقى محدَّثة.",
+    placesKicker: "التوزيع",
+    placesH2: "أين تشارك رابطك",
+    placesDesc: "أفضل الأماكن لتحويل الانطباع الأول إلى حجز — في الواقع وعبر الإنترنت.",
+    place1H4: "الإيصال / الفاتورة",
+    place1P: "اطبع رمز QR على كل إيصال — يمسحه العملاء عند المغادرة.",
+    place2H4: "القائمة / بطاقة الطاولة",
+    place2P: "ألصق رمز QR على كل قائمة أو بطاقة طاولة — مسح سريع أثناء الوجبة.",
+    place3H4: "الباب / الواجهة",
+    place3P: "ملصق QR عند المدخل — يمسحه المارة ويدخلون.",
+    place4H4: "سلة الترحيب",
+    place4P: "ضع بطاقة في سلال ترحيب الفنادق وأطقم مفاتيح Airbnb.",
+    place5H4: "البطاقة التجارية",
+    place5P: "اطبع على كل نشرة وبطاقة تجارية وكتيب توزعه.",
+    place6H4: "واتساب / الرسائل القصيرة",
+    place6P: "أرسل الرابط في ردود واتساب ورسائل تأكيد الحجز.",
+    place7H4: "سيرة إنستغرام / تيك توك",
+    place7P: "أضف الرابط إلى سيرتك على إنستغرام وتيك توك وفيسبوك.",
+    place8H4: "توقيع البريد الإلكتروني",
+    place8P: "أضف بطاقتك إلى كل بريد ترسله — غير مرئية حتى يحتاجك أحد.",
+    faqKicker: "الأسئلة الشائعة",
+    faqH2: "أسئلة متكررة",
+    faq1Q: "كيف يبدو الرابط؟",
+    faq1A: <>قصير وشخصي — <strong>oneworldmorocco.com/yourname</strong>. سهل التذكر وسهل الكتابة ذو مظهر احترافي.</>,
+    faq2Q: "هل أحتاج إلى طباعة بطاقات مادية؟",
+    faq2A: "لا — الصفحة الرقمية تعمل وحدها (QR، رابط، بريد إلكتروني). نقدم بطاقات مطبوعة فاخرة إن أردت.",
+    faq3Q: "هل يمكنني تحديث العروض لاحقاً؟",
+    faq3A: "نعم — حدِّث العروض وجهات الاتصال والصور في أي وقت من لوحة التحكم. رمز QR يبقى كما هو.",
+    faq4Q: "هل سيثق المسافرون به؟",
+    faq4A: "الصفحات موثَّقة — يرى المسافرون نطاق oneworldmorocco.com وعروضاً رسمية وتقييمات حقيقية. الثقة فورية.",
+    finalH2: "رابطك. بطاقتك. على نطاق يثق به المسافرون.",
+    finalP: <><code>oneworldmorocco.com/yourname</code> — قصير ولا يُنسى، جاهز للمشاركة بالرابط أو QR أو NFC.</>,
+    finalBtn: "أنشئ بطاقتك المجانية ←",
+  },
+} as const;
 
 
 const CSS = `
@@ -127,18 +347,20 @@ const CSS = `
 `;
 
 const Card = () => {
+  const { language } = useLanguage();
+  const L = LABELS[language] ?? LABELS.fr;
+
   useEffect(() => {
-    document.title = "Votre carte numérique sur One World Morocco";
+    document.title = L.pageTitle;
     const meta = document.querySelector('meta[name="description"]');
-    const content = "Un lien court et personnalisé — oneworldmorocco.com/yourname. Offres, contacts et photos en un tap, sur un domaine de voyage de confiance.";
-    if (meta) meta.setAttribute("content", content);
+    if (meta) meta.setAttribute("content", L.pageDesc);
     else {
       const m = document.createElement("meta");
       m.name = "description";
-      m.content = content;
+      m.content = L.pageDesc;
       document.head.appendChild(m);
     }
-  }, []);
+  }, [L.pageTitle, L.pageDesc]);
 
   const heroSectionRef = useRef<HTMLElement>(null);
   const heroBgRef = useRef<HTMLImageElement>(null);
@@ -181,7 +403,6 @@ const Card = () => {
     };
   }, []);
 
-  // Scroll-driven parallax on bg image (mirrors homepage: translateY = scrollY * 0.3)
   useEffect(() => {
     const el = heroBgRef.current;
     if (!el) return;
@@ -208,7 +429,6 @@ const Card = () => {
       <div className="card-page">
         <style>{CSS}</style>
 
-
       {/* HERO */}
       <section className="hero" ref={heroSectionRef}>
         <picture>
@@ -221,27 +441,25 @@ const Card = () => {
         <div className="hero-content">
         <div className="wrap hero-grid">
           <div>
-            <h1 className="hero-rise" style={{ animationDelay: '.45s', animationFillMode: 'forwards' }}>Votre carte de visite numérique sur <span className="accent">One World Morocco</span></h1>
+            <h1 className="hero-rise" style={{ animationDelay: '.45s', animationFillMode: 'forwards' }}>{L.heroH1}</h1>
             <p className="lead hero-rise" style={{ animationDelay: '.66s', animationFillMode: 'forwards' }}>
-              Un lien court et personnalisé que les voyageurs retiennent vraiment — <code>oneworldmorocco.com/yourname</code>.
-              Un seul tap affiche vos offres, vos contacts et vos photos, sur un domaine de voyage de confiance.
-              Le QR n'est qu'une façon parmi d'autres de le partager.
+              {L.heroLead}
             </p>
             <ul className="bullets hero-rise" style={{ animationDelay: '.78s', animationFillMode: 'forwards' }}>
-              <li><span className="check">✓</span><div style={{marginTop:-2}}>URL courte et mémorisable :<br/><strong>oneworldmorocco.com/yourname</strong></div></li>
-              <li><span className="check">✓</span><div style={{marginTop:-2}}>Tous vos canaux numériques rassemblés au même endroit</div></li>
-              <li><span className="check">✓</span><div style={{marginTop:-2}}>Un profil type Linktree partageable</div></li>
-              <li><span className="check">✓</span>Partagez par lien, QR, NFC ou carte imprimée</li>
-              <li><span className="check">✓</span>Mettez à jour à tout moment — le lien reste le même</li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>{L.bullet1}</div></li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>{L.bullet2}</div></li>
+              <li><span className="check">✓</span><div style={{marginTop:-2}}>{L.bullet3}</div></li>
+              <li><span className="check">✓</span>{L.bullet4}</li>
+              <li><span className="check">✓</span>{L.bullet5}</li>
             </ul>
             <div className="btn-row hero-rise" style={{ animationDelay: '.92s', animationFillMode: 'forwards' }}>
-              <Link to="/join" className="btn-primary" data-track-event="club_cta_click" data-track-location="card_hero" data-track-target="join">CRÉEZ VOTRE PAGE →</Link>
-              <a href="#avantages" className="btn-ghost">Voir les avantages ↓</a>
+              <Link to="/join" className="btn-primary" data-track-event="club_cta_click" data-track-location="card_hero" data-track-target="join">{L.btnCreate}</Link>
+              <a href="#avantages" className="btn-ghost">{L.btnBenefits}</a>
             </div>
           </div>
 
           <div className="phone-wrap">
-            <div className="url-label">Votre URL personnalisée</div>
+            <div className="url-label">{L.urlLabel}</div>
             <div className="phone">
               <div className="phone-inner">
                 <div className="phone-bar">
@@ -251,7 +469,7 @@ const Card = () => {
                 <div className="phone-body">
                   <div className="logo-circle">RZ</div>
                   <div className="biz-name">Riad Zahra</div>
-                  <div className="biz-sub">Riad de charme · Marrakech</div>
+                  <div className="biz-sub">{L.bizSub}</div>
                   <div className="icons-row">
                     <div className="ic">📞</div>
                     <div className="ic">💬</div>
@@ -261,18 +479,18 @@ const Card = () => {
                 </div>
                 <div className="offer">
                   <span className="pct">−25%</span>
-                  <span><span className="lbl">Séjour 3 nuits</span><span className="sub">Toute l'année</span></span>
+                  <span><span className="lbl">{L.offer1Label}</span><span className="sub">{L.offer1Sub}</span></span>
                 </div>
                 <div className="offer">
                   <span className="pct">−15%</span>
-                  <span><span className="lbl">Hammam & spa</span><span className="sub">Réservation directe</span></span>
+                  <span><span className="lbl">{L.offer2Label}</span><span className="sub">{L.offer2Sub}</span></span>
                 </div>
                 <div className="offer">
                   <span className="pct">−10%</span>
-                  <span><span className="lbl">Dîner sur la terrasse</span><span className="sub">Tous les soirs</span></span>
+                  <span><span className="lbl">{L.offer3Label}</span><span className="sub">{L.offer3Sub}</span></span>
                 </div>
                 <div className="gallery"><div/><div/><div/></div>
-                <div className="share-btn">↗ Partager</div>
+                <div className="share-btn">{L.shareBtn}</div>
               </div>
             </div>
           </div>
@@ -284,25 +502,25 @@ const Card = () => {
       <section>
         <div className="wrap">
           <div className="section-head">
-            <div className="kicker">Comment ça marche</div>
-            <h2>Trois étapes pour votre lien personnalisé</h2>
-            <p>De l'inscription à <strong>oneworldmorocco.com/yourname</strong> — prêt à partager.</p>
+            <div className="kicker">{L.stepsKicker}</div>
+            <h2>{L.stepsH2}</h2>
+            <p>{L.stepsDesc}</p>
           </div>
           <div className="steps">
             <div className="step">
               <span className="num">1</span>
-              <h3>Réclamez votre lien</h3>
-              <p>Choisissez votre identifiant. Votre carte numérique vit à l'adresse <strong>oneworldmorocco.com/yourname</strong> — courte, mémorisable, sur un domaine de confiance.</p>
+              <h3>{L.step1H3}</h3>
+              <p>{L.step1P}</p>
             </div>
             <div className="step">
               <span className="num">2</span>
-              <h3>Partagez-le partout</h3>
-              <p>Ajoutez le lien sur Instagram, WhatsApp, dans votre signature e-mail, sur des tags NFC — ou imprimez le QR sur les reçus, les menus et les cartes de visite.</p>
+              <h3>{L.step2H3}</h3>
+              <p>{L.step2P}</p>
             </div>
             <div className="step">
               <span className="num">3</span>
-              <h3>Convertissez sur place</h3>
-              <p>Un seul tap affiche vos offres, contacts et photos. Les voyageurs enregistrent votre carte, réservent et reviennent — sur un domaine qu'ils connaissent déjà.</p>
+              <h3>{L.step3H3}</h3>
+              <p>{L.step3P}</p>
             </div>
           </div>
         </div>
@@ -312,22 +530,22 @@ const Card = () => {
       <section id="avantages">
         <div className="wrap">
           <div className="section-head">
-            <div className="kicker">Gratuit pour les pros du tourisme</div>
-            <h2>UN LIEN SUR LEQUEL LES UTILISATEURS <span style={{color:"var(--terracotta)"}}>CLIQUENT VRAIMENT</span></h2>
-            <p>Ajoutez <strong>oneworldmorocco.com/yourname</strong> à Instagram, TikTok, votre signature e-mail — et même à votre carte de visite imprimée.</p>
+            <div className="kicker">{L.benefitsKicker}</div>
+            <h2>{L.benefitsH2}</h2>
+            <p>{L.benefitsDesc}</p>
           </div>
           <div className="steps">
             <div className="step">
-              <h3>Un domaine de confiance</h3>
-              <p>oneworldmorocco.com — reconnu, sûr, facile à taper. Les voyageurs cliquent sans hésiter.</p>
+              <h3>{L.benefit1H3}</h3>
+              <p>{L.benefit1P}</p>
             </div>
             <div className="step">
-              <h3>Un lien, tous les canaux</h3>
-              <p>Bio Instagram, WhatsApp, signature e-mail, NFC, impression. Le même lien partout.</p>
+              <h3>{L.benefit2H3}</h3>
+              <p>{L.benefit2P}</p>
             </div>
             <div className="step">
-              <h3>Tout en un seul endroit</h3>
-              <p>Offres, contacts, photos. Mettez à jour une fois — chaque partage reste à jour.</p>
+              <h3>{L.benefit3H3}</h3>
+              <p>{L.benefit3P}</p>
             </div>
           </div>
         </div>
@@ -337,19 +555,19 @@ const Card = () => {
       <section>
         <div className="wrap">
           <div className="section-head">
-            <div className="kicker">Diffusion</div>
-            <h2>Où partager votre lien</h2>
-            <p>Les meilleurs emplacements pour transformer une première impression en réservation — hors ligne comme en ligne.</p>
+            <div className="kicker">{L.placesKicker}</div>
+            <h2>{L.placesH2}</h2>
+            <p>{L.placesDesc}</p>
           </div>
           <div className="places">
-            <div className="place"><div className="ico">🧾</div><h4>Reçu / Addition</h4><p>Imprimez un QR sur chaque reçu — les clients scannent en partant.</p></div>
-            <div className="place"><div className="ico">📋</div><h4>Menu / Chevalet</h4><p>Collez un QR sur chaque menu ou chevalet — scan rapide pendant le repas.</p></div>
-            <div className="place"><div className="ico">🚪</div><h4>Porte / Vitrine</h4><p>Autocollant QR à l'entrée — les passants scannent et entrent.</p></div>
-            <div className="place"><div className="ico">🎁</div><h4>Panier de bienvenue</h4><p>Glissez une carte dans les paniers d'hôtel et les jeux de clés Airbnb.</p></div>
-            <div className="place"><div className="ico">💼</div><h4>Carte de visite</h4><p>Imprimez sur chaque flyer, carte de visite, brochure que vous distribuez.</p></div>
-            <div className="place"><div className="ico">💬</div><h4>WhatsApp / SMS</h4><p>Envoyez le lien dans les réponses WhatsApp et les SMS de confirmation.</p></div>
-            <div className="place"><div className="ico">📱</div><h4>Bio Instagram / TikTok</h4><p>Ajoutez le lien à vos bios Instagram, TikTok et Facebook.</p></div>
-            <div className="place"><div className="ico">✉️</div><h4>Signature e-mail</h4><p>Ajoutez votre carte à chaque e-mail envoyé — invisible jusqu'à ce qu'on ait besoin de vous.</p></div>
+            <div className="place"><div className="ico">🧾</div><h4>{L.place1H4}</h4><p>{L.place1P}</p></div>
+            <div className="place"><div className="ico">📋</div><h4>{L.place2H4}</h4><p>{L.place2P}</p></div>
+            <div className="place"><div className="ico">🚪</div><h4>{L.place3H4}</h4><p>{L.place3P}</p></div>
+            <div className="place"><div className="ico">🎁</div><h4>{L.place4H4}</h4><p>{L.place4P}</p></div>
+            <div className="place"><div className="ico">💼</div><h4>{L.place5H4}</h4><p>{L.place5P}</p></div>
+            <div className="place"><div className="ico">💬</div><h4>{L.place6H4}</h4><p>{L.place6P}</p></div>
+            <div className="place"><div className="ico">📱</div><h4>{L.place7H4}</h4><p>{L.place7P}</p></div>
+            <div className="place"><div className="ico">✉️</div><h4>{L.place8H4}</h4><p>{L.place8P}</p></div>
           </div>
         </div>
       </section>
@@ -358,25 +576,25 @@ const Card = () => {
       <section>
         <div className="wrap">
           <div className="section-head">
-            <div className="kicker">FAQ</div>
-            <h2>Questions fréquentes</h2>
+            <div className="kicker">{L.faqKicker}</div>
+            <h2>{L.faqH2}</h2>
           </div>
           <div className="faq">
             <details>
-              <summary>À quoi ressemble l'URL ?</summary>
-              <p>Courte et personnalisée — <strong>oneworldmorocco.com/yourname</strong>. Facile à retenir, facile à taper, d'aspect professionnel.</p>
+              <summary>{L.faq1Q}</summary>
+              <p>{L.faq1A}</p>
             </details>
             <details>
-              <summary>Dois-je imprimer des cartes physiques ?</summary>
-              <p>Non — la page numérique fonctionne seule (QR, lien, e-mail). Nous proposons des cartes premium si vous le souhaitez.</p>
+              <summary>{L.faq2Q}</summary>
+              <p>{L.faq2A}</p>
             </details>
             <details>
-              <summary>Puis-je mettre à jour les offres plus tard ?</summary>
-              <p>Oui — mettez à jour offres, contacts et photos à tout moment depuis votre tableau de bord. Le QR reste le même.</p>
+              <summary>{L.faq3Q}</summary>
+              <p>{L.faq3A}</p>
             </details>
             <details>
-              <summary>Les voyageurs lui feront-ils confiance ?</summary>
-              <p>Les pages sont vérifiées — les voyageurs voient le domaine oneworldmorocco.com, des offres officielles, de vrais avis. La confiance s'installe immédiatement.</p>
+              <summary>{L.faq4Q}</summary>
+              <p>{L.faq4A}</p>
             </details>
           </div>
         </div>
@@ -385,9 +603,9 @@ const Card = () => {
       {/* FINAL CTA */}
       <section className="final">
         <div className="wrap">
-          <h2>Votre lien. Votre carte. Sur un domaine en lequel les voyageurs ont confiance.</h2>
-          <p><code>oneworldmorocco.com/yourname</code> — court, mémorable, prêt à être partagé par lien, QR ou NFC.</p>
-          <Link to="/join" className="btn-primary" data-track-event="club_cta_click" data-track-location="card_footer" data-track-target="join">Créez votre carte gratuite →</Link>
+          <h2>{L.finalH2}</h2>
+          <p>{L.finalP}</p>
+          <Link to="/join" className="btn-primary" data-track-event="club_cta_click" data-track-location="card_footer" data-track-target="join">{L.finalBtn}</Link>
         </div>
       </section>
 
