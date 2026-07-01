@@ -439,9 +439,20 @@ let loadedNeighborhoods: NeighborhoodEntry[] = [];
 
 async function loadNeighborhoods(supabase: any): Promise<NeighborhoodEntry[]> {
   if (loadedNeighborhoods.length > 0) return loadedNeighborhoods;
-  const { data } = await supabase.from("neighborhoods").select("name, keywords, cities!inner(name_fr)");
+  const { data } = await supabase
+    .from("neighborhoods")
+    .select("name, name_en, name_ar, keywords, keywords_en, keywords_ar, cities!inner(name_fr)");
   if (data) {
-    loadedNeighborhoods = data.map((n: any) => ({ name: n.name, keywords: n.keywords || [], city_name: n.cities?.name_fr || null }));
+    loadedNeighborhoods = data.map((n: any) => {
+      const kw = [
+        ...(n.keywords || []),
+        ...(n.keywords_en || []),
+        ...(n.keywords_ar || []),
+        n.name_en,
+        n.name_ar,
+      ].filter((v: any) => typeof v === "string" && v.trim().length > 0);
+      return { name: n.name, keywords: kw, city_name: n.cities?.name_fr || null };
+    });
   }
   return loadedNeighborhoods;
 }

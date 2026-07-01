@@ -159,6 +159,13 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
       { source: "description", target: `description_${t}`, kind: "html" },
     ],
   }),
+  neighborhoods_name: (t) => ({
+    table: "neighborhoods", pk: "id",
+    textFields: [
+      { source: "name", target: `name_${t}`, kind: "text" },
+      { source: "keywords", target: `keywords_${t}`, kind: "text_array" },
+    ],
+  }),
   event_types: (t) => ({
     table: "event_types", pk: "id",
     textFields: [

@@ -4715,9 +4715,13 @@ export type Database = {
           id: string
           image_url: string | null
           keywords: string[] | null
+          keywords_ar: string[] | null
+          keywords_en: string[] | null
           latitude: number | null
           longitude: number | null
           name: string
+          name_ar: string | null
+          name_en: string | null
           sort_order: number | null
           updated_at: string | null
         }
@@ -4733,9 +4737,13 @@ export type Database = {
           id?: string
           image_url?: string | null
           keywords?: string[] | null
+          keywords_ar?: string[] | null
+          keywords_en?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name: string
+          name_ar?: string | null
+          name_en?: string | null
           sort_order?: number | null
           updated_at?: string | null
         }
@@ -4751,9 +4759,13 @@ export type Database = {
           id?: string
           image_url?: string | null
           keywords?: string[] | null
+          keywords_ar?: string[] | null
+          keywords_en?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name?: string
+          name_ar?: string | null
+          name_en?: string | null
           sort_order?: number | null
           updated_at?: string | null
         }
