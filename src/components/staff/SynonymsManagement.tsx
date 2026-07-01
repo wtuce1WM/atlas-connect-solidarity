@@ -724,6 +724,49 @@ const SynonymsManagement = () => {
               </div>
             </div>
 
+            {/* Traductions EN / AR */}
+            <div className="space-y-3 border-t pt-3">
+              <h4 className="text-sm font-semibold">Traductions (utilisées pour les recherches EN / AR)</h4>
+              <p className="text-xs text-muted-foreground">
+                Peut être rempli manuellement ou via <a href="/staff/translations" className="text-amber-700 hover:underline">/staff/translations</a> (batch « Synonymes de recherche »).
+              </p>
+              {(["en", "ar"] as const).map((lang) => {
+                const keyField = `key_word_${lang}` as const;
+                const synField = `synonyms_${lang}` as const;
+                const keyVal = (selectedEntry[keyField] as string | null) || "";
+                const synVal = ((selectedEntry[synField] as string[]) || []).join(", ");
+                return (
+                  <div key={lang} className="space-y-1.5" dir={lang === "ar" ? "rtl" : "ltr"}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono uppercase text-muted-foreground w-6">{lang}</span>
+                      <Input
+                        value={keyVal}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setEntries((prev) => prev.map((ent) => ent.id === selectedEntry.id ? { ...ent, [keyField]: v || null } : ent));
+                          setDirtyEntries((prev) => new Set(prev).add(selectedEntry.id));
+                        }}
+                        placeholder={lang === "en" ? "Keyword (EN)" : "الكلمة الرئيسية"}
+                        className="max-w-[240px] h-8 text-sm"
+                      />
+                    </div>
+                    <Input
+                      value={synVal}
+                      onChange={(e) => {
+                        const arr = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
+                        setEntries((prev) => prev.map((ent) => ent.id === selectedEntry.id ? { ...ent, [synField]: arr } : ent));
+                        setDirtyEntries((prev) => new Set(prev).add(selectedEntry.id));
+                      }}
+                      placeholder={lang === "en" ? "Synonyms (comma-separated)" : "المرادفات (مفصولة بفواصل)"}
+                      className="text-sm"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+
+
             {/* Filtres */}
             <div className="space-y-2 border-t pt-3">
               <h4 className="text-sm font-semibold">Filtres (sous-catégorie + service requis)</h4>
