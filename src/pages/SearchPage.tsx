@@ -5125,7 +5125,7 @@ const SearchPage = () => {
                                }}
                                className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers ? "bg-[#C04F17] text-white" : "text-white/80 hover:text-white"}`}
                              >
-                               Top 20
+                               {mapLabel("top20", language)}
                              </button>
                              <button
                                type="button"
