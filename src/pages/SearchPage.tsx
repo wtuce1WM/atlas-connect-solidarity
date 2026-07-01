@@ -12,6 +12,9 @@ import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHour
 import { haversineKm } from "@/lib/haversine";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { mapLabel } from "@/lib/mapLabels";
+import { translateVignetteLabel } from "@/lib/vignetteLabels";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CategoriesCarouselSection from "@/components/CategoriesCarouselSection";
