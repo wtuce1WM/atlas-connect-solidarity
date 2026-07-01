@@ -7,6 +7,7 @@ import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import { mapLabel } from "@/lib/mapLabels";
 
 interface DestinationsTabContentProps {
   selectedCity: string;
