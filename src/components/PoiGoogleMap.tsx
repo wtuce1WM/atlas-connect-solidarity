@@ -582,7 +582,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     userMarkerRef.current = new LabelMarker(
       { lat: userLocation.lat, lng: userLocation.lng },
       map,
-      "Vous êtes ici",
+      userMarkerLabel || "Vous êtes ici",
       navIcon,
       false,
       undefined,
