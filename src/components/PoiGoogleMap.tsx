@@ -34,6 +34,8 @@ interface PoiGoogleMapProps {
   highlightColor?: { bg: string; fg: string; border: string };
   /** When provided, draws a terracotta dot at the user's geolocation. */
   userLocation?: { lat: number; lng: number } | null;
+  /** Label shown on the user geolocation marker. Defaults to "Vous êtes ici". */
+  userMarkerLabel?: string;
 }
 
 /* ── Google Maps loader (reuses shared singleton) ── */
