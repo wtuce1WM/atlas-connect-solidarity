@@ -158,7 +158,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
           <div className="flex items-center gap-1.5 text-xs">
             <Star className="h-3 w-3 text-gold fill-gold" />
             <span className="font-medium text-white">{avgOn20}/20</span>
-            {totalReviews > 0 && <span className="text-white/70">· {totalReviews} avis</span>}
+            {totalReviews > 0 && <span className="text-white/70">· {totalReviews} {reviewsLabel}</span>}
           </div>
         )}
         {business.city && (
