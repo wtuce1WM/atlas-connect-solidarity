@@ -182,6 +182,7 @@ export default function ResultsTabContent({
       proximity: "Nearby",
       allDistances: "All distances",
       lt500m: "Under 500 m", lt1km: "Under 1 km", lt5km: "Under 5 km", lt10km: "Under 10 km",
+      youAreHere: "You are here",
       of: "of",
     },
     ar: {
