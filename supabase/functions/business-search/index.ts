@@ -328,12 +328,40 @@ const FRENCH_STOP_WORDS = new Set([
   "ne", "pas", "plus", "très", "aussi", "bien", "comme", "mais", "ou", "et",
 ]);
 
+// English stop / intent words used to detect EN natural language queries
+const ENGLISH_STOP_WORDS = new Set([
+  "i", "you", "he", "she", "we", "they", "it",
+  "a", "an", "the", "of", "in", "on", "at", "to", "for", "with", "without",
+  "from", "by", "into", "near", "around",
+  "is", "are", "am", "was", "were", "be", "been", "being", "do", "does", "did",
+  "have", "has", "had", "want", "wants", "need", "needs", "looking", "look",
+  "find", "search", "get", "eat", "drink", "buy", "book", "sleep", "stay",
+  "where", "what", "which", "who", "how", "when", "why",
+  "and", "or", "but", "not", "very", "some", "any", "my", "your", "our",
+  "tonight", "today", "tomorrow", "now", "morning", "evening", "afternoon",
+  "lunch", "dinner", "breakfast", "brunch", "open",
+]);
+
+// Arabic stop / intent words (basic set)
+const ARABIC_STOP_WORDS = new Set([
+  "في", "من", "إلى", "على", "عن", "مع", "و", "أو", "ال", "هو", "هي",
+  "أنا", "أنت", "نحن", "أين", "كيف", "ماذا", "متى", "لماذا",
+  "أريد", "أبحث", "ابحث", "أحتاج", "هل", "لي", "لك",
+  "أكل", "شرب", "نوم", "فندق", "مطعم",
+]);
+
 /**
  * Detect if a query is a natural language sentence (vs. short keywords).
- * A query is "natural" if it has 4+ words AND contains at least 2 French stop words.
+ * FR: 5+ words AND 2+ French stop words.
+ * EN/AR: 3+ words AND at least 1 EN/AR stop word (their queries are shorter and need
+ * translation via LLM before matching the FR-indexed search vector).
  */
 function isNaturalLanguageQuery(query: string): boolean {
   const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+  if (words.length < 3) return false;
+  const enCount = words.filter(w => ENGLISH_STOP_WORDS.has(w)).length;
+  const arCount = words.filter(w => ARABIC_STOP_WORDS.has(w)).length;
+  if ((enCount + arCount) >= 1) return true;
   if (words.length < 5) return false;
   const stopCount = words.filter(w => FRENCH_STOP_WORDS.has(w)).length;
   return stopCount >= 2;
