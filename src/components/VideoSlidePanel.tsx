@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
@@ -150,6 +151,7 @@ const VideoSlidePanel = ({
 
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { language } = useLanguage();
 
   // Analytics: overlay_open lorsque le panel s'ouvre
   useEffect(() => {
@@ -198,14 +200,19 @@ const VideoSlidePanel = ({
     let cancelled = false;
     (supabase as any)
       .from("businesses")
-      .select("description")
+      .select("description, description_fr, description_en, description_ar")
       .eq("id", targetId)
       .maybeSingle()
       .then(({ data }: any) => {
-        if (!cancelled) setBusinessDescription(data?.description ?? null);
+        if (cancelled) return;
+        const d: any = data || {};
+        const localized = language === "ar" ? (d.description_ar || d.description_fr || d.description)
+          : language === "en" ? (d.description_en || d.description_fr || d.description)
+          : (d.description_fr || d.description);
+        setBusinessDescription(localized ?? null);
       });
     return () => { cancelled = true; };
-  }, [open, owner?.id, pageBusinessId, description]);
+  }, [open, owner?.id, pageBusinessId, description, language]);
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);

@@ -403,13 +403,22 @@ const BusinessDetail = () => {
     fetchBusiness();
   }, [routeSlug]);
 
+  // Localized description (falls back to legacy `description` = FR source)
+  const localizedDescription = useMemo(() => {
+    if (!business) return "";
+    const b: any = business;
+    if (language === "ar") return b.description_ar || b.description_fr || b.description || "";
+    if (language === "en") return b.description_en || b.description_fr || b.description || "";
+    return b.description_fr || b.description || "";
+  }, [business, language]);
+
   // SEO
   const seoDescription = useMemo(() => {
     if (!business) return "";
-    const plain = business.description?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() ?? "";
+    const plain = localizedDescription.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
     const cat = business.categories?.filter(c => c && c !== "?").join(", ") ?? "";
     return `${business.name}${business.city ? ` à ${business.city}` : ""}${cat ? ` – ${cat}` : ""}. ${plain}`.slice(0, 160);
-  }, [business]);
+  }, [business, localizedDescription]);
 
   const seoJsonLd = useMemo(() => {
     if (!business) return undefined;
@@ -417,7 +426,7 @@ const BusinessDetail = () => {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       name: business.name,
-      ...(business.description && { description: business.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300) }),
+      ...(localizedDescription && { description: localizedDescription.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300) }),
       ...(business.address && { address: { "@type": "PostalAddress", streetAddress: business.address, addressLocality: business.city } }),
       ...(business.phone && { telephone: business.phone }),
       ...(business.website && { url: business.website }),
@@ -810,13 +819,13 @@ const BusinessDetail = () => {
               )}
 
               {/* Description */}
-              {business.description && (
+              {localizedDescription && (
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <button
                       onClick={() => {
                         // Strip HTML tags for TTS
-                        const plainText = business.description!.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                        const plainText = localizedDescription.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
                         const hook = language === 'ar' ? (business.hook_ar || business.hook_fr) : language === 'en' ? (business.hook_en || business.hook_fr) : business.hook_fr;
                         const fullText = `${business.name}. ${hook ? hook + '. ' : ''}${plainText}`;
                         ttsSpeak(fullText);
@@ -843,7 +852,7 @@ const BusinessDetail = () => {
                     </button>
                   </div>
                   <DescriptionExpander
-                    html={business.description}
+                    html={localizedDescription}
                     isVerified={isVerified}
                     anchorId="description-anchor"
                     collapsedHeight={
