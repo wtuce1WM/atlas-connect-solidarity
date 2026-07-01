@@ -7,6 +7,7 @@ import ShareButton from "@/components/ShareButton";
 import { useSEO } from "@/hooks/useSEO";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 
 type PublicBusiness = {
