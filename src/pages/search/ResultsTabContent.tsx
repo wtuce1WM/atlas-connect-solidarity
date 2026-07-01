@@ -685,7 +685,8 @@ export default function ResultsTabContent({
                 }}
                 center={mapCenterForResults}
                 fitToMarkers
-                userLocation={userCoords ?? null}
+                 userLocation={userCoords ?? null}
+                 userMarkerLabel={L.youAreHere}
               />
               <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col pointer-events-none">
                 <div className="relative h-[52px] w-full flex-shrink-0">
