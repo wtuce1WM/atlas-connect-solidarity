@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 import BlogArticleTemplate, {
   type BlogArticleEntry,
   type BlogArticleVideo,
@@ -261,8 +262,88 @@ const ARTICLE_TITLE = "Louer une villa pour vos vacances à Marrakech";
 const ARTICLE_DESC =
   "Vingt-six adresses (villas privatives et agences spécialisées) pour louer une villa à Marrakech, et notre sélection vidéo des offres du moment.";
 
+type VillaArticleTranslations = {
+  title_fr: string | null;
+  title_en: string | null;
+  title_ar: string | null;
+  content_fr: string | null;
+  content_en: string | null;
+  content_ar: string | null;
+  hero_title_top_fr: string | null;
+  hero_title_top_en: string | null;
+  hero_title_top_ar: string | null;
+  hero_title_bottom_fr: string | null;
+  hero_title_bottom_en: string | null;
+  hero_title_bottom_ar: string | null;
+  hero_subtitle_fr: string | null;
+  hero_subtitle_en: string | null;
+  hero_subtitle_ar: string | null;
+  intro_fr: string | null;
+  intro_en: string | null;
+  intro_ar: string | null;
+  entries_fr: BlogArticleEntry[] | null;
+  entries_en: BlogArticleEntry[] | null;
+  entries_ar: BlogArticleEntry[] | null;
+};
+
+const VIDEO_SECTION_COPY = {
+  fr: {
+    title: "Les offres du moment",
+    intro:
+      "Une sélection de vidéos issues de notre base : villas mises en location par leurs propriétaires et agences spécialisées. Cliquez sur une vignette pour ouvrir la vidéo et faire défiler les offres verticalement.",
+  },
+  en: {
+    title: "Current offers",
+    intro:
+      "A video selection from our database: villas rented by their owners and specialist agencies. Tap a thumbnail to open the video and browse offers vertically.",
+  },
+  ar: {
+    title: "العروض الحالية",
+    intro:
+      "مجموعة مختارة من الفيديوهات من قاعدة بياناتنا: فيلات يؤجرها أصحابها ووكالات متخصصة. اضغط على الصورة المصغرة لفتح الفيديو وتصفح العروض عموديًا.",
+  },
+} as const;
+
 const LouerVillaVacancesMarrakech = () => {
+  const { language } = useLanguage();
   const [videos, setVideos] = useState<BlogArticleVideo[]>([]);
+  const [articleTranslations, setArticleTranslations] = useState<VillaArticleTranslations | null>(null);
+
+  const pickLang = <T,>(frValue: T | null | undefined, enValue: T | null | undefined, arValue: T | null | undefined, fallback: T): T => {
+    if (language === "ar" && arValue) return arValue;
+    if (language === "en" && enValue) return enValue;
+    return frValue || fallback;
+  };
+
+  const pickEntries = () => {
+    if (!articleTranslations) return ENTRIES;
+    const frEntries = Array.isArray(articleTranslations.entries_fr) && articleTranslations.entries_fr.length > 0
+      ? articleTranslations.entries_fr
+      : ENTRIES;
+    if (language === "ar" && Array.isArray(articleTranslations.entries_ar) && articleTranslations.entries_ar.length > 0) {
+      return articleTranslations.entries_ar;
+    }
+    if (language === "en" && Array.isArray(articleTranslations.entries_en) && articleTranslations.entries_en.length > 0) {
+      return articleTranslations.entries_en;
+    }
+    return frEntries;
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("title_fr, title_en, title_ar, content_fr, content_en, content_ar, hero_title_top_fr, hero_title_top_en, hero_title_top_ar, hero_title_bottom_fr, hero_title_bottom_en, hero_title_bottom_ar, hero_subtitle_fr, hero_subtitle_en, hero_subtitle_ar, intro_fr, intro_en, intro_ar, entries_fr, entries_en, entries_ar")
+        .eq("slug", "louer-villa-vacances-marrakech")
+        .maybeSingle();
+
+      if (!cancelled) setArticleTranslations(data as unknown as VillaArticleTranslations | null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -365,24 +446,25 @@ const LouerVillaVacancesMarrakech = () => {
     };
   }, []);
 
+  const videoCopy = VIDEO_SECTION_COPY[language as keyof typeof VIDEO_SECTION_COPY] ?? VIDEO_SECTION_COPY.fr;
+
   return (
     <BlogArticleTemplate
-      entries={ENTRIES}
+      entries={pickEntries()}
       articlePath={ARTICLE_PATH}
-      articleTitle={ARTICLE_TITLE}
-      articleDescription={ARTICLE_DESC}
+      articleTitle={pickLang(articleTranslations?.title_fr, articleTranslations?.title_en, articleTranslations?.title_ar, ARTICLE_TITLE)}
+      articleDescription={pickLang(articleTranslations?.content_fr, articleTranslations?.content_en, articleTranslations?.content_ar, ARTICLE_DESC)}
       bookmarkSlug="louer-villa-vacances-marrakech"
-      heroAlt="Louer une villa pour vos vacances à Marrakech"
-      heroTitleTop="Louer une villa pour"
-      heroTitleBottom="vos vacances à Marrakech"
-      heroSubtitle="Vingt-six adresses pour louer une villa privative à Marrakech : villas individuelles et agences spécialisées dans la location vacances. Et notre sélection vidéo des offres du moment."
-      intro="Louer une villa à Marrakech, c'est s'offrir le luxe rare de la maison de vacances : un toit à soi, un jardin, une piscine, des chambres qu'on partage entre proches, et la liberté de vivre sur son propre rythme. Deux familles d'adresses cohabitent ici : les villas individuelles (qu'on loue en direct au propriétaire ou à son équipe locale), et les agences immobilières spécialisées dans la location vacances, qui orchestrent les séjours et apportent une conciergerie sur mesure. Ces vingt-six adresses ont été sélectionnées pour leur sérieux, leur emplacement et la qualité de leur service — pour que vos vacances en famille à Marrakech commencent par la bonne porte."
+      heroAlt={pickLang(articleTranslations?.title_fr, articleTranslations?.title_en, articleTranslations?.title_ar, ARTICLE_TITLE)}
+      heroTitleTop={pickLang(articleTranslations?.hero_title_top_fr, articleTranslations?.hero_title_top_en, articleTranslations?.hero_title_top_ar, "Louer une villa pour")}
+      heroTitleBottom={pickLang(articleTranslations?.hero_title_bottom_fr, articleTranslations?.hero_title_bottom_en, articleTranslations?.hero_title_bottom_ar, "vos vacances à Marrakech")}
+      heroSubtitle={pickLang(articleTranslations?.hero_subtitle_fr, articleTranslations?.hero_subtitle_en, articleTranslations?.hero_subtitle_ar, "Vingt-six adresses pour louer une villa privative à Marrakech : villas individuelles et agences spécialisées dans la location vacances. Et notre sélection vidéo des offres du moment.")}
+      intro={pickLang(articleTranslations?.intro_fr, articleTranslations?.intro_en, articleTranslations?.intro_ar, "Louer une villa à Marrakech, c'est s'offrir le luxe rare de la maison de vacances : un toit à soi, un jardin, une piscine, des chambres qu'on partage entre proches, et la liberté de vivre sur son propre rythme. Deux familles d'adresses cohabitent ici : les villas individuelles (qu'on loue en direct au propriétaire ou à son équipe locale), et les agences immobilières spécialisées dans la location vacances, qui orchestrent les séjours et apportent une conciergerie sur mesure. Ces vingt-six adresses ont été sélectionnées pour leur sérieux, leur emplacement et la qualité de leur service — pour que vos vacances en famille à Marrakech commencent par la bonne porte.")}
       datePublished="2026-06-21T10:00:00+01:00"
       dateModified="2026-06-21T10:00:00+01:00"
       videoSection={{
-        title: "Les offres du moment",
-        intro:
-          "Une sélection de vidéos issues de notre base : villas mises en location par leurs propriétaires et agences spécialisées. Cliquez sur une vignette pour ouvrir la vidéo et faire défiler les offres verticalement.",
+        title: videoCopy.title,
+        intro: videoCopy.intro,
         videos,
       }}
     />
