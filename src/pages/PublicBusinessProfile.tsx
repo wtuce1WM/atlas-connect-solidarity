@@ -118,6 +118,12 @@ const PublicBusinessProfile = () => {
   const [business, setBusiness] = useState<PublicBusiness | null>(null);
   const [descExpanded, setDescExpanded] = useState(false);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const { language } = useLanguage();
+  const lang = (language || "fr").toLowerCase();
+  const pickPromo = (p: Promotion, field: "title" | "promotion_message") => {
+    const val = (p as any)[`${field}_${lang}`] as string | null | undefined;
+    return val || (p as any)[`${field}_fr`] || (p as any)[field] || "";
+  };
 
   useEffect(() => {
     let cancelled = false;
