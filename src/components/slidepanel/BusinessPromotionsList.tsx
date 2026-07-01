@@ -136,10 +136,10 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
                   </div>
                 );
               })()}
-              {p.promotion_message && (
+              {localizedMessage && (
                 <div
                   className="relative mt-1.5 prose prose-sm max-w-none text-[13px] leading-relaxed text-neutral-700 prose-headings:text-neutral-900 prose-headings:font-bold prose-strong:text-neutral-900 prose-a:text-[#C04F17] prose-a:underline [&_p]:my-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 [&_img]:rounded-md [&_img]:max-w-full [&_h2]:text-[14px] [&_h3]:text-[13px] [&_blockquote]:border-l-2 [&_blockquote]:border-[#C04F17]/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
-                  dangerouslySetInnerHTML={{ __html: p.promotion_message }}
+                  dangerouslySetInnerHTML={{ __html: localizedMessage }}
                 />
               )}
             </div>
