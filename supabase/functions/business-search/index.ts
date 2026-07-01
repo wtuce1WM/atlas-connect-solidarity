@@ -2602,7 +2602,10 @@ serve(async (req) => {
         // ── Post-filter matchingByName: ILIKE is too permissive (e.g. "astronomie" matches "Gastronomie").
         // Keep only services where at least one name token matches a query word exactly (accent/plural-insensitive).
         const validatedByName = (matchingByName || []).filter(svc => {
-          const nameTokens = svc.name_fr.toLowerCase().split(/[\s/\-]+/).map((t: string) => normalizeWordKw(t)).filter((t: string) => t.length > 1);
+          const allNames = [svc.name_fr, (svc as any).name_en, (svc as any).name_ar].filter(Boolean) as string[];
+          const nameTokens = allNames.flatMap(n =>
+            n.toLowerCase().split(/[\s/\-]+/).map((t: string) => normalizeWordKw(t)).filter((t: string) => t.length > 1)
+          );
           return nameTokens.some((t: string) => allQueryWordsForNameSearch.some((w: string) => normalizeWordKw(w) === t));
         });
 
