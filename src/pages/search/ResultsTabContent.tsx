@@ -790,7 +790,7 @@ export default function ResultsTabContent({
                                   )}
                                   {subs.map((s) => (
                                     <DropdownMenuItem key={s.id} onSelect={() => handleFsSubClick(s.id)}>
-                                      {s.name} <span className="ml-1 opacity-60">({s.count})</span>
+                                      {trFsName(s.name)} <span className="ml-1 opacity-60">({s.count})</span>
                                     </DropdownMenuItem>
                                   ))}
                                 </DropdownMenuContent>
