@@ -47,6 +47,8 @@ interface MixedSlot {
 const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: Props) => {
   const navigate = useNavigate();
   const cacheKey = `home:cards:${city}`;
+  const { language } = useLanguage();
+  const tr = (l: string | null | undefined) => translateVignetteLabel(l, language);
   const cachedInitial = getCached<MixedSlot[]>(cacheKey);
   // Persist last city so index.html can early-prime on next visit.
   try { localStorage.setItem("oneworld:lastHomepageCity", city); } catch {}
