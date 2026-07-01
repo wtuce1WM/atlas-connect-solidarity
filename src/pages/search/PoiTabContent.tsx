@@ -8,6 +8,8 @@ import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import { haversineKm } from "@/lib/haversine";
+import { mapLabel } from "@/lib/mapLabels";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
 
 interface PoiTabContentProps {
   selectedCity: string;
