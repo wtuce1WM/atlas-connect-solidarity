@@ -5041,6 +5041,8 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          name_ar: string | null
+          name_en: string | null
           sort_order: number | null
           updated_at: string | null
         }
@@ -5048,6 +5050,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           name: string
+          name_ar?: string | null
+          name_en?: string | null
           sort_order?: number | null
           updated_at?: string | null
         }
@@ -5055,6 +5059,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
+          name_ar?: string | null
+          name_en?: string | null
           sort_order?: number | null
           updated_at?: string | null
         }
@@ -6180,6 +6186,8 @@ export type Database = {
           id: string
           is_active: boolean
           rule_text: string
+          rule_text_ar: string | null
+          rule_text_en: string | null
           sort_order: number
           updated_at: string
         }
@@ -6188,6 +6196,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           rule_text: string
+          rule_text_ar?: string | null
+          rule_text_en?: string | null
           sort_order?: number
           updated_at?: string
         }
@@ -6196,6 +6206,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           rule_text?: string
+          rule_text_ar?: string | null
+          rule_text_en?: string | null
           sort_order?: number
           updated_at?: string
         }
