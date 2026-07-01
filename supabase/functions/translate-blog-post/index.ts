@@ -224,11 +224,12 @@ Deno.serve(async (req) => {
     const heroBottomKey = `hero_title_bottom_${target}`;
     const heroSubtitleKey = `hero_subtitle_${target}`;
     const introKey = `intro_${target}`;
+    const contentKey = `content_${target}`;
     const entriesKey = `entries_${target}`;
 
     const { data: post, error: pErr } = await admin
       .from("blog_posts")
-      .select(`id, title_fr, excerpt_fr, hero_title_top_fr, hero_title_bottom_fr, hero_subtitle_fr, intro_fr, entries_fr, ${titleKey}, ${excerptKey}, ${heroTopKey}, ${heroBottomKey}, ${heroSubtitleKey}, ${introKey}, ${entriesKey}`)
+      .select(`id, title_fr, excerpt_fr, hero_title_top_fr, hero_title_bottom_fr, hero_subtitle_fr, intro_fr, content_fr, entries_fr, ${titleKey}, ${excerptKey}, ${heroTopKey}, ${heroBottomKey}, ${heroSubtitleKey}, ${introKey}, ${contentKey}, ${entriesKey}`)
       .eq("slug", slug)
       .maybeSingle();
     if (pErr || !post) return jsonRes({ error: "Post not found", details: pErr?.message }, 404);
@@ -244,7 +245,8 @@ Deno.serve(async (req) => {
       (isFilled(post.hero_title_top_fr) && !isFilled(post[heroTopKey])) ||
       (isFilled(post.hero_title_bottom_fr) && !isFilled(post[heroBottomKey])) ||
       (isFilled(post.hero_subtitle_fr) && !isFilled(post[heroSubtitleKey])) ||
-      (isFilled(post.intro_fr) && !isFilled(post[introKey]));
+      (isFilled(post.intro_fr) && !isFilled(post[introKey])) ||
+      (isFilled(post.content_fr) && !isFilled(post[contentKey]));
 
     if (needsMeta) {
       const translatedMeta = await translateJson({
@@ -254,6 +256,7 @@ Deno.serve(async (req) => {
         hero_title_bottom: post.hero_title_bottom_fr ?? "",
         hero_subtitle: post.hero_subtitle_fr ?? "",
         intro: post.intro_fr ?? "",
+        content: post.content_fr ?? "",
       }, target);
 
       if (isFilled(post.title_fr) && !isFilled(post[titleKey])) update[titleKey] = translatedMeta.title ?? null;
@@ -262,6 +265,7 @@ Deno.serve(async (req) => {
       if (isFilled(post.hero_title_bottom_fr) && !isFilled(post[heroBottomKey])) update[heroBottomKey] = translatedMeta.hero_title_bottom ?? null;
       if (isFilled(post.hero_subtitle_fr) && !isFilled(post[heroSubtitleKey])) update[heroSubtitleKey] = translatedMeta.hero_subtitle ?? null;
       if (isFilled(post.intro_fr) && !isFilled(post[introKey])) update[introKey] = translatedMeta.intro ?? null;
+      if (isFilled(post.content_fr) && !isFilled(post[contentKey])) update[contentKey] = translatedMeta.content ?? null;
     }
 
     const start = safeExistingEntries.length;
@@ -287,7 +291,8 @@ Deno.serve(async (req) => {
       translatedEntriesCount >= sourceEntries.length &&
       (!isFilled(post.title_fr) || isFilled(update[titleKey]) || isFilled(post[titleKey])) &&
       (!isFilled(post.excerpt_fr) || isFilled(update[excerptKey]) || isFilled(post[excerptKey])) &&
-      (!isFilled(post.intro_fr) || isFilled(update[introKey]) || isFilled(post[introKey]));
+      (!isFilled(post.intro_fr) || isFilled(update[introKey]) || isFilled(post[introKey])) &&
+      (!isFilled(post.content_fr) || isFilled(update[contentKey]) || isFilled(post[contentKey]));
 
     return jsonRes({
       ok: true,
