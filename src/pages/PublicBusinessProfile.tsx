@@ -97,8 +97,14 @@ const stripHtml = (s: string) =>
 
 type Promotion = {
   id: string;
-  title: string;
+  title: string | null;
+  title_fr: string | null;
+  title_en: string | null;
+  title_ar: string | null;
   promotion_message: string | null;
+  promotion_message_fr: string | null;
+  promotion_message_en: string | null;
+  promotion_message_ar: string | null;
   savings_amount: number | null;
   promotion_currency: string | null;
   promotion_type: string | null;
