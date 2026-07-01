@@ -145,12 +145,19 @@ async function translateFlatMapAdaptive(entries: Array<{ key: string; text: stri
   } catch (_) {
     if (entries.length === 1) {
       const e = entries[0];
-      const v = await translatePlainText(e.text, target);
-      return { [e.key]: v };
+      try {
+        const v = await translatePlainText(e.text, target);
+        return isFilled(v) ? { [e.key]: v } : {};
+      } catch (err) {
+        console.warn(`[translate-business] leaf skip ${e.key}:`, err instanceof Error ? err.message : String(err));
+        return {};
+      }
     }
     const mid = Math.ceil(entries.length / 2);
-    const left = await translateFlatMapAdaptive(entries.slice(0, mid), target);
-    const right = await translateFlatMapAdaptive(entries.slice(mid), target);
+    let left: Record<string, string> = {};
+    let right: Record<string, string> = {};
+    try { left = await translateFlatMapAdaptive(entries.slice(0, mid), target); } catch (err) { console.warn("[translate-business] left skip:", err instanceof Error ? err.message : String(err)); }
+    try { right = await translateFlatMapAdaptive(entries.slice(mid), target); } catch (err) { console.warn("[translate-business] right skip:", err instanceof Error ? err.message : String(err)); }
     return { ...left, ...right };
   }
 }
