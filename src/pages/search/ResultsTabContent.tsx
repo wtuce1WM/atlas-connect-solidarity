@@ -814,7 +814,7 @@ export default function ResultsTabContent({
                               <DropdownMenuContent align="end" className="z-[95] max-h-80 overflow-y-auto">
                                 {frontTabs.map((ft) => (
                                   <DropdownMenuItem key={ft.id} onSelect={() => handleFsTabClick(ft.id)}>
-                                    {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
+                                    {trFsName(ft.name)} <span className="ml-1 opacity-60">({ft.count})</span>
                                   </DropdownMenuItem>
                                 ))}
                               </DropdownMenuContent>
