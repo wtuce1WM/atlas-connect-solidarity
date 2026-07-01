@@ -40,6 +40,9 @@ const CONFIGS: { key: string; label: string }[] = [
   { key: "affiliate_promotions", label: "Offres affiliées (titre + message)" },
   { key: "search_synonyms", label: "Synonymes de recherche (mot-clé + liste)" },
   { key: "search_intent_words", label: "Mots d'intention de recherche" },
+  { key: "search_noise_words", label: "Mots de bruit (stop-words de recherche)" },
+  { key: "popular_searches", label: "Recherches populaires (dropdown suggestions)" },
+  { key: "subcategory_search_config", label: "Config sous-catégories (synonyms)" },
 ];
 
 

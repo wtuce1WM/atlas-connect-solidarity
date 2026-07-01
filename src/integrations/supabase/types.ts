@@ -4947,6 +4947,8 @@ export type Database = {
           id: string
           is_active: boolean
           query: string
+          query_ar: string | null
+          query_en: string | null
           sort_order: number
           updated_at: string
         }
@@ -4956,6 +4958,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           query: string
+          query_ar?: string | null
+          query_en?: string | null
           sort_order?: number
           updated_at?: string
         }
@@ -4965,6 +4969,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           query?: string
+          query_ar?: string | null
+          query_en?: string | null
           sort_order?: number
           updated_at?: string
         }
@@ -5273,6 +5279,8 @@ export type Database = {
           is_active: boolean
           updated_at: string | null
           word: string
+          word_ar: string | null
+          word_en: string | null
         }
         Insert: {
           created_at?: string | null
@@ -5280,6 +5288,8 @@ export type Database = {
           is_active?: boolean
           updated_at?: string | null
           word: string
+          word_ar?: string | null
+          word_en?: string | null
         }
         Update: {
           created_at?: string | null
@@ -5287,6 +5297,8 @@ export type Database = {
           is_active?: boolean
           updated_at?: string | null
           word?: string
+          word_ar?: string | null
+          word_en?: string | null
         }
         Relationships: []
       }
@@ -5811,6 +5823,8 @@ export type Database = {
           search_mode: string
           subcategory_id: string
           synonyms: string[]
+          synonyms_ar: string[] | null
+          synonyms_en: string[] | null
           updated_at: string | null
         }
         Insert: {
@@ -5821,6 +5835,8 @@ export type Database = {
           search_mode?: string
           subcategory_id: string
           synonyms?: string[]
+          synonyms_ar?: string[] | null
+          synonyms_en?: string[] | null
           updated_at?: string | null
         }
         Update: {
@@ -5831,6 +5847,8 @@ export type Database = {
           search_mode?: string
           subcategory_id?: string
           synonyms?: string[]
+          synonyms_ar?: string[] | null
+          synonyms_en?: string[] | null
           updated_at?: string | null
         }
         Relationships: [
