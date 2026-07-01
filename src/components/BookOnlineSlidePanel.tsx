@@ -1176,7 +1176,7 @@ const BookOnlineSlidePanelInner = ({
       tabs.push({ id: "kp_subcat", label: kpSubcategoryLabel || (language === "en" ? "Category" : "Catégorie"), hasContent: true });
     }
     if (hasKpCarousel) {
-      tabs.push({ id: "kp", label: kpGroupTitle || (language === "en" ? "Other establishments" : "Autres établissements"), hasContent: true });
+      tabs.push({ id: "kp", label: kpGroupTitle || (language === "en" ? "Other establishments" : language === "ar" ? "مؤسسات أخرى" : "Autres établissements"), hasContent: true });
     }
     if (hasPoiCarousel) {
       tabs.push({ id: "poi", label: language === "en" ? "Nearby" : "À proximité", hasContent: true });
