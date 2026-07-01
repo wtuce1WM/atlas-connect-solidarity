@@ -115,6 +115,13 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
       { source: "promotion_message_fr", target: `promotion_message_${t}`, kind: "html" },
     ],
   }),
+  search_synonyms: (t) => ({
+    table: "search_synonyms", pk: "id",
+    textFields: [
+      { source: "key_word", target: `key_word_${t}`, kind: "text" },
+      { source: "synonyms", target: `synonyms_${t}`, kind: "text_array" },
+    ],
+  }),
 };
 
 const LANG_NAME: Record<string, string> = { en: "English", ar: "Arabic (Modern Standard)" };
