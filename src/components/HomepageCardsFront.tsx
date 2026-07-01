@@ -5,6 +5,8 @@ import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { getCached, setCached } from "@/lib/swrCache";
+import { translateVignetteLabel } from "@/lib/vignetteLabels";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Heavy player/overlay — never visible at first paint. Code-split out of the initial bundle.
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
@@ -45,6 +47,8 @@ interface MixedSlot {
 const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: Props) => {
   const navigate = useNavigate();
   const cacheKey = `home:cards:${city}`;
+  const { language } = useLanguage();
+  const tr = (l: string | null | undefined) => translateVignetteLabel(l, language);
   const cachedInitial = getCached<MixedSlot[]>(cacheKey);
   // Persist last city so index.html can early-prime on next visit.
   try { localStorage.setItem("oneworld:lastHomepageCity", city); } catch {}
@@ -258,7 +262,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
             </>
           ) : (
-            <span>{it.label || "Aucune vidéo"}</span>
+            <span>{tr(it.label) || "Aucune vidéo"}</span>
           )}
           {it.label && (
             <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
@@ -267,7 +271,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
                 onClick={() => handleLabelActivate(slot)}
                 className="px-2.5 py-1 rounded-md bg-white text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-white/90 transition-colors"
               >
-                {it.label}
+                {tr(it.label)}
               </button>
             </div>
           )}
@@ -291,7 +295,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
             }
           }}
           className="absolute inset-0 w-full h-full text-left cursor-pointer"
-          aria-label={it.label ? `Filtrer ${it.label}` : `Lire ${it.businessName || ""}`}
+          aria-label={it.label ? `Filtrer ${tr(it.label)}` : `Lire ${it.businessName || ""}`}
         >
           {it.thumbnail ? (
             <img src={optimizedThumb || it.thumbnail} srcSet={thumbSrcSet} alt={it.businessName || ""} className="w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
@@ -333,7 +337,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
               }}
               className="px-2.5 py-1 rounded-md bg-white text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-white/90 transition-colors"
             >
-              {it.label}
+              {tr(it.label)}
             </button>
           </div>
         )}
