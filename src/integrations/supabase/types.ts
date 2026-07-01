@@ -2339,30 +2339,42 @@ export type Database = {
         Row: {
           certification_name: string
           created_at: string
-          description: string | null
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
           id: string
           image_url: string | null
-          link_title: string | null
+          link_title_ar: string | null
+          link_title_en: string | null
+          link_title_fr: string | null
           link_url: string | null
           updated_at: string
         }
         Insert: {
           certification_name: string
           created_at?: string
-          description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           id?: string
           image_url?: string | null
-          link_title?: string | null
+          link_title_ar?: string | null
+          link_title_en?: string | null
+          link_title_fr?: string | null
           link_url?: string | null
           updated_at?: string
         }
         Update: {
           certification_name?: string
           created_at?: string
-          description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           id?: string
           image_url?: string | null
-          link_title?: string | null
+          link_title_ar?: string | null
+          link_title_en?: string | null
+          link_title_fr?: string | null
           link_url?: string | null
           updated_at?: string
         }
