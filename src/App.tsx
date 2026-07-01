@@ -49,9 +49,7 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const MarrakechArtisanat5Jours = lazy(() => import("./pages/MarrakechArtisanat5Jours"));
 const MarrakechGaleriesArt = lazy(() => import("./pages/MarrakechGaleriesArt"));
 // Template-based blog articles are served dynamically via /blog/:slug from public.blog_posts.
-// Only custom-layout articles (MarrakechArtisanat5Jours, MarrakechGaleriesArt,
-// LouerVillaVacancesMarrakech) keep their own lazy imports above.
-const LouerVillaVacancesMarrakech = lazy(() => import("./pages/LouerVillaVacancesMarrakech"));
+// Only custom-layout articles (MarrakechArtisanat5Jours, MarrakechGaleriesArt) keep their own lazy imports above.
 const BlogAnimations = lazy(() => import("./pages/BlogAnimations"));
 const BlogTypography = lazy(() => import("./pages/BlogTypography"));
 const BlogBrummellTypography = lazy(() => import("./pages/BlogBrummellTypography"));
@@ -195,7 +193,7 @@ const AppContent = () => {
               {/* Custom-layout blog articles (kept as React components — fetch dynamic data) */}
               <Route path="/blog/5-jours-marrakech-artisanat" element={renderLazyRoute(<MarrakechArtisanat5Jours />)} />
               <Route path="/blog/galeries-art-marrakech" element={renderLazyRoute(<MarrakechGaleriesArt />)} />
-              <Route path="/blog/louer-villa-vacances-marrakech" element={renderLazyRoute(<LouerVillaVacancesMarrakech />)} />
+              {/* louer-villa-vacances-marrakech now served dynamically via /blog/:slug (article_template + video_section_config). */}
               {/* Other articles are served from public.blog_posts via /blog/:slug below. */}
               <Route path="/staff/animations" element={<StaffRouteGuard>{renderLazyRoute(<BlogAnimations />)}</StaffRouteGuard>} />
               <Route path="/staff/carousel-nav-demo" element={<StaffRouteGuard>{renderLazyRoute(<CarouselNavDemo />)}</StaffRouteGuard>} />

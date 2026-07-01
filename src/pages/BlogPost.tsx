@@ -13,7 +13,13 @@ import { fr, enUS, ar } from "date-fns/locale";
 import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
 import BlogArticleTemplate, {
   type BlogArticleEntry,
+  type BlogArticleVideo,
 } from "@/components/blog/BlogArticleTemplate";
+import {
+  fetchBlogVideoSection,
+  pickVideoSectionCopy,
+  type BlogVideoSectionConfig,
+} from "@/lib/blogVideoSection";
 
 interface BlogPostData {
   id: string;
@@ -49,6 +55,7 @@ interface BlogPostData {
   hero_alt: string | null;
   bookmark_slug: string | null;
   custom_hero_image_url: string | null;
+  video_section_config: BlogVideoSectionConfig | null;
 }
 
 const BlogPost = () => {
@@ -57,6 +64,7 @@ const BlogPost = () => {
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [videos, setVideos] = useState<BlogArticleVideo[]>([]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -74,6 +82,26 @@ const BlogPost = () => {
     };
     fetchPost();
   }, [slug]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const cfg = post?.video_section_config;
+    if (!cfg || !cfg.badge_id) {
+      setVideos([]);
+      return;
+    }
+    (async () => {
+      try {
+        const list = await fetchBlogVideoSection(cfg);
+        if (!cancelled) setVideos(list);
+      } catch {
+        if (!cancelled) setVideos([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [post?.video_section_config]);
 
   // -- Language helpers ----------------------------------------------------
 
@@ -126,6 +154,11 @@ const BlogPost = () => {
 
   const entries = pickLang(post.entries_fr, post.entries_en, post.entries_ar);
   if (post.template === "article_template" && entries && entries.length > 0) {
+    const videoCopy = pickVideoSectionCopy(post.video_section_config, language);
+    const videoSection =
+      post.video_section_config && videos.length > 0
+        ? { title: videoCopy.title, intro: videoCopy.intro, videos }
+        : undefined;
     return (
       <BlogArticleTemplate
         entries={entries}
@@ -141,6 +174,7 @@ const BlogPost = () => {
         datePublished={post.published_at ?? new Date().toISOString()}
         dateModified={post.updated_at ?? undefined}
         customHeroImage={post.custom_hero_image_url ?? undefined}
+        videoSection={videoSection}
       />
     );
   }
