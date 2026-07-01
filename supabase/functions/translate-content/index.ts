@@ -122,7 +122,14 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
       { source: "synonyms", target: `synonyms_${t}`, kind: "text_array" },
     ],
   }),
+  search_intent_words: (t) => ({
+    table: "search_intent_words", pk: "id",
+    textFields: [
+      { source: "word", target: `word_${t}`, kind: "text" },
+    ],
+  }),
 };
+
 
 const LANG_NAME: Record<string, string> = { en: "English", ar: "Arabic (Modern Standard)" };
 

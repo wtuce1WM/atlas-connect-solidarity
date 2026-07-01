@@ -39,7 +39,9 @@ const CONFIGS: { key: string; label: string }[] = [
   { key: "business_image_titles", label: "Images établissements (titre + description)" },
   { key: "affiliate_promotions", label: "Offres affiliées (titre + message)" },
   { key: "search_synonyms", label: "Synonymes de recherche (mot-clé + liste)" },
+  { key: "search_intent_words", label: "Mots d'intention de recherche" },
 ];
+
 
 export default function StaffTranslations() {
   const [isStaff, setIsStaff] = useState<boolean | null>(null);

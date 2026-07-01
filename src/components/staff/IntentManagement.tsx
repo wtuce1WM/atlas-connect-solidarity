@@ -29,9 +29,12 @@ import { toast } from "@/hooks/use-toast";
 interface IntentWord {
   id: string;
   word: string;
+  word_en: string | null;
+  word_ar: string | null;
   category_name: string;
   merge_on_conflict: boolean;
 }
+
 
 interface Category {
   id: string;
@@ -218,6 +221,20 @@ const IntentManagement = () => {
                     className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-1.5 border"
                   >
                     <span className="text-sm font-medium">{intent.word}</span>
+                    {(intent.word_en || intent.word_ar) && (
+                      <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                        {intent.word_en && (
+                          <span className="px-1.5 py-0.5 rounded bg-background border">
+                            EN: {intent.word_en}
+                          </span>
+                        )}
+                        {intent.word_ar && (
+                          <span className="px-1.5 py-0.5 rounded bg-background border" dir="rtl">
+                            AR: {intent.word_ar}
+                          </span>
+                        )}
+                      </span>
+                    )}
                     <div className="flex items-center gap-1 ml-1">
                       <Merge className="h-3 w-3 text-muted-foreground" />
                       <Switch
@@ -251,6 +268,7 @@ const IntentManagement = () => {
                       </AlertDialogContent>
                     </AlertDialog>
                   </div>
+
                 ))}
               </div>
             </CardContent>
