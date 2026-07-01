@@ -200,14 +200,19 @@ const VideoSlidePanel = ({
     let cancelled = false;
     (supabase as any)
       .from("businesses")
-      .select("description")
+      .select("description, description_fr, description_en, description_ar")
       .eq("id", targetId)
       .maybeSingle()
       .then(({ data }: any) => {
-        if (!cancelled) setBusinessDescription(data?.description ?? null);
+        if (cancelled) return;
+        const d: any = data || {};
+        const localized = language === "ar" ? (d.description_ar || d.description_fr || d.description)
+          : language === "en" ? (d.description_en || d.description_fr || d.description)
+          : (d.description_fr || d.description);
+        setBusinessDescription(localized ?? null);
       });
     return () => { cancelled = true; };
-  }, [open, owner?.id, pageBusinessId, description]);
+  }, [open, owner?.id, pageBusinessId, description, language]);
 
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
