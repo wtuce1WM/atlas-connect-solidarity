@@ -124,7 +124,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             onTouchStart={(e) => e.stopPropagation()}
           >
             <ChevronDown className="h-3.5 w-3.5" />
-            <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Masquer</span>
+            <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{L.hide}</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
           </button>
         )}
