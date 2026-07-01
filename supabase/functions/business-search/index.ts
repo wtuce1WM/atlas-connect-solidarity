@@ -1197,7 +1197,7 @@ serve(async (req) => {
       // Dynamic lookup: match query words against subcategory names AND keywords from DB
       const { data: subcats } = await supabase
         .from("subcategories")
-        .select("name_fr, keywords");
+        .select("name_fr, name_en, name_ar, keywords");
       
       if (subcats) {
         // Sort by name length DESC so longer names match first (e.g. "Night Club" before "Club")
@@ -1230,40 +1230,51 @@ serve(async (req) => {
         // user's primary intent (subject), and trailing words act as services.
         const nameMatches: { name: string; position: number; length: number }[] = [];
         for (const sc of sorted) {
-          const n = sc.name_fr?.toLowerCase();
-          if (!n) continue;
-          const nWords = n.split(/\s+/).filter((w: string) => w.length > 1);
-          const nContentWords = nWords.filter((w: string) => !FRENCH_STOP_WORDS.has(w));
-          const nContent = nContentWords.join(" ");
-          let matchedWordIdx = -1;
-          const singleWordMatch = !n.includes(" ") && qWords.some((qw, idx) => {
-            const ok = qw === n || stripPluralSimple(qw) === n || qw === stripPluralSimple(n) ||
-              stripAccents(qw) === stripAccents(n) || normalizeWord(qw) === stripAccents(n) || stripAccents(qw) === normalizeWord(n);
-            if (ok && matchedWordIdx === -1) matchedWordIdx = idx;
-            return ok;
-          });
-          const multiWordMatch = n.includes(" ") && nContentWords.length > 0 && nContentWords.every((nw: string) =>
-            qWords.some(qw => qw === nw || normalizeWord(qw) === normalizeWord(nw))
-          );
-          const slashParts = n.includes("/") ? n.split("/").map((p: string) => p.trim()).filter((p: string) => p.length > 1) : [];
-          const slashMatch = slashParts.length > 1 && slashParts.some((part: string) => {
-            const partWords = part.split(/\s+/).filter((w: string) => w.length > 1);
-            if (partWords.length === 1) {
-              return qWords.some(qw => qw === partWords[0] || normalizeWord(qw) === normalizeWord(partWords[0]));
+          if (!sc.name_fr) continue;
+          const aliases: string[] = [sc.name_fr, sc.name_en, sc.name_ar].filter(Boolean);
+          let bestPosition = -1;
+          let bestLength = 0;
+          for (const alias of aliases) {
+            const n = alias.toLowerCase();
+            if (!n) continue;
+            const nWords = n.split(/\s+/).filter((w: string) => w.length > 1);
+            const nContentWords = nWords.filter((w: string) => !FRENCH_STOP_WORDS.has(w));
+            const nContent = nContentWords.join(" ");
+            let matchedWordIdx = -1;
+            const singleWordMatch = !n.includes(" ") && qWords.some((qw, idx) => {
+              const ok = qw === n || stripPluralSimple(qw) === n || qw === stripPluralSimple(n) ||
+                stripAccents(qw) === stripAccents(n) || normalizeWord(qw) === stripAccents(n) || stripAccents(qw) === normalizeWord(n);
+              if (ok && matchedWordIdx === -1) matchedWordIdx = idx;
+              return ok;
+            });
+            const multiWordMatch = n.includes(" ") && nContentWords.length > 0 && nContentWords.every((nw: string) =>
+              qWords.some(qw => qw === nw || normalizeWord(qw) === normalizeWord(nw))
+            );
+            const slashParts = n.includes("/") ? n.split("/").map((p: string) => p.trim()).filter((p: string) => p.length > 1) : [];
+            const slashMatch = slashParts.length > 1 && slashParts.some((part: string) => {
+              const partWords = part.split(/\s+/).filter((w: string) => w.length > 1);
+              if (partWords.length === 1) {
+                return qWords.some(qw => qw === partWords[0] || normalizeWord(qw) === normalizeWord(partWords[0]));
+              }
+              return partWords.every((pw: string) => qWords.some(qw => qw === pw || normalizeWord(qw) === normalizeWord(pw)));
+            });
+            const isMatch = n.includes(" ")
+              ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent)) || multiWordMatch || slashMatch)
+              : singleWordMatch;
+            if (isMatch) {
+              if (matchedWordIdx === -1) {
+                const firstContentNw = nContentWords[0] || nWords[0] || n;
+                const idx = qWords.findIndex(qw => qw === firstContentNw || normalizeWord(qw) === normalizeWord(firstContentNw));
+                matchedWordIdx = idx >= 0 ? idx : qLower.indexOf(n);
+              }
+              if (bestPosition === -1 || matchedWordIdx < bestPosition) {
+                bestPosition = matchedWordIdx;
+                bestLength = n.length;
+              }
             }
-            return partWords.every((pw: string) => qWords.some(qw => qw === pw || normalizeWord(qw) === normalizeWord(pw)));
-          });
-          const isMatch = n.includes(" ")
-            ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent)) || multiWordMatch || slashMatch)
-            : singleWordMatch;
-          if (isMatch) {
-            // Compute left-most query position for multi-word names
-            if (matchedWordIdx === -1) {
-              const firstContentNw = nContentWords[0] || nWords[0] || n;
-              const idx = qWords.findIndex(qw => qw === firstContentNw || normalizeWord(qw) === normalizeWord(firstContentNw));
-              matchedWordIdx = idx >= 0 ? idx : qLower.indexOf(n);
-            }
-            nameMatches.push({ name: sc.name_fr, position: matchedWordIdx, length: n.length });
+          }
+          if (bestPosition !== -1) {
+            nameMatches.push({ name: sc.name_fr, position: bestPosition, length: bestLength });
           }
         }
         if (nameMatches.length > 0) {
