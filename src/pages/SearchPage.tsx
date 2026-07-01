@@ -5042,6 +5042,7 @@ const SearchPage = () => {
                       center={effectiveCenter}
                       fitToMarkers={!((aiWelcome || aiProxActive) && userCenter)}
                       userLocation={userCenter}
+                      userMarkerLabel={mapLabel("youAreHere", language)}
                     />
                   );
                 })()}
