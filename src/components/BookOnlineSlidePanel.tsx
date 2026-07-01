@@ -1512,12 +1512,12 @@ const BookOnlineSlidePanelInner = ({
             const extDesc = externalLinks[0]?.description?.toLowerCase() || "";
             const isPresse = extDesc === "presse" || extDesc === "media";
             const extLabel = (() => {
-              if (extDesc === "partenaires") return "Ils nous font confiance";
-              if (extDesc === "recompenses") return "Nous sommes reconnus par";
-              if (extDesc === "certifications") return "Nous sommes certifiés par";
-              if (extDesc === "en_savoir_plus") return "En savoir plus";
-              if (extDesc === "presse" || extDesc === "media") return "Ils parlent de nous";
-              return "+ d'infos";
+              if (extDesc === "partenaires") return language === "en" ? "They trust us" : language === "ar" ? "يثقون بنا" : "Ils nous font confiance";
+              if (extDesc === "recompenses") return language === "en" ? "Recognized by" : language === "ar" ? "معترف بنا من" : "Nous sommes reconnus par";
+              if (extDesc === "certifications") return language === "en" ? "Certified by" : language === "ar" ? "معتمدون من" : "Nous sommes certifiés par";
+              if (extDesc === "en_savoir_plus") return language === "en" ? "Learn more" : language === "ar" ? "اعرف المزيد" : "En savoir plus";
+              if (extDesc === "presse" || extDesc === "media") return language === "en" ? "They talk about us" : language === "ar" ? "يتحدثون عنا" : "Ils parlent de nous";
+              return language === "en" ? "More info" : language === "ar" ? "معلومات أكثر" : "+ d'infos";
             })();
             return (
               <div data-cta-tap onClick={handleCtaTap('ext', () => { setExtLinksOrigin('carousel'); setShowExtLinksOverlay(true); })} className={`group cta-peek ${tappedCta === 'ext' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
