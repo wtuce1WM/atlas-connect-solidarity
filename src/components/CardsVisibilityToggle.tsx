@@ -101,7 +101,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             onTouchStart={(e) => e.stopPropagation()}
           >
             <ChevronUp className="hidden md:inline-block h-3.5 w-3.5" />
-            <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Afficher</span>
+            <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{L.show}</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
           </button>
         ) : (
