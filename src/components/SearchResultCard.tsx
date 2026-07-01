@@ -37,51 +37,8 @@ interface SearchResultCardProps {
   onMouseLeave: () => void;
 }
 
-const FR_TO_EN: Record<string, string> = {
-  lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
-  vendredi: "friday", samedi: "saturday", dimanche: "sunday",
-};
-const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-const DAY_LABELS = ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
 
-function getOpenBadge(business: SearchResultBusiness): { label: string; variant: "open" | "upcoming" } | null {
-  if (!business.is_open_24h && !business.show_opening_hours) return null;
-  if (business.is_open_24h) return { label: "Ouvert 24h", variant: "open" };
-  if (!business.opening_hours) return null;
 
-  const rawOH = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
-  const oh = Object.entries(rawOH).reduce((acc, [k, v]) => {
-    acc[FR_TO_EN[k] || k] = v;
-    return acc;
-  }, {} as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>);
-
-  const now = new Date();
-  const todayKey = DAYS[now.getDay()];
-  if (isCurrentlyOpenCheck(oh[todayKey])) return { label: "Ouvert", variant: "open" };
-
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  const dh = oh[todayKey];
-  let badge: string | null = null;
-  if (dh && !dh.closed && dh.open) {
-    const [oH, oM] = dh.open.split(":").map(Number);
-    if (oH * 60 + (oM || 0) > nowMin) badge = `Ouvre à ${dh.open}`;
-    else if (dh.open2 && !dh.continuous) {
-      const [oH2, oM2] = dh.open2.split(":").map(Number);
-      if (oH2 * 60 + (oM2 || 0) > nowMin) badge = `Ouvre à ${dh.open2}`;
-    }
-  }
-  if (!badge) {
-    for (let i = 1; i <= 7; i++) {
-      const idx = (now.getDay() + i) % 7;
-      const nd = oh[DAYS[idx]];
-      if (nd && !nd.closed && nd.open) {
-        badge = `Ouvre ${DAY_LABELS[idx]} à ${nd.open}`;
-        break;
-      }
-    }
-  }
-  return badge ? { label: badge, variant: "upcoming" } : null;
-}
 
 function getLogIcon(l: string) {
   const lower = l.toLowerCase();
