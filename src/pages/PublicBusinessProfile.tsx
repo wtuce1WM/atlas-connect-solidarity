@@ -146,7 +146,7 @@ const PublicBusinessProfile = () => {
       if (data?.id) {
         const { data: promos } = await supabase
           .from("affiliate_business_promotions")
-          .select("id, title, promotion_message, savings_amount, promotion_currency, promotion_type, promotion_value")
+          .select("id, title, title_fr, title_en, title_ar, promotion_message, promotion_message_fr, promotion_message_en, promotion_message_ar, savings_amount, promotion_currency, promotion_type, promotion_value")
           .eq("business_id", data.id)
           .order("sort_order", { ascending: true });
         if (!cancelled) setPromotions((promos as Promotion[]) ?? []);
