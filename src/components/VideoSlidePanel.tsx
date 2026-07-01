@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
