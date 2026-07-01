@@ -5706,10 +5706,10 @@ const SearchPage = () => {
 
                 const userCoords = geo.isEnabled && geo.coords ? geo.coords : null;
                 const proxOpts: { km: number; label: string }[] = [
-                  { km: 0.5, label: "Moins de 500 m" },
-                  { km: 1, label: "Moins de 1 km" },
-                  { km: 5, label: "Moins de 5 km" },
-                  { km: 10, label: "Moins de 10 km" },
+                  { km: 0.5, label: mapLabel("lt500m", language) },
+                  { km: 1, label: mapLabel("lt1km", language) },
+                  { km: 5, label: mapLabel("lt5km", language) },
+                  { km: 10, label: mapLabel("lt10km", language) },
                 ];
                 const proxActiveOpt = proxOpts.find(o => o.km === mobileProximityKm);
                 const proximityActive = !!(userCoords && mobileProximityKm);
@@ -5742,7 +5742,7 @@ const SearchPage = () => {
                           }}
                           className={`px-3 py-1 rounded-full transition-colors ${!showAllSearchMarkers && !mobileFsSubId ? "bg-[#C04F17] text-white" : "text-white/80 hover:text-white"}`}
                         >
-                          Top 20
+                          {mapLabel("top20", language)}
                         </button>
                         <button
                           type="button"
@@ -5754,7 +5754,7 @@ const SearchPage = () => {
                           }}
                           className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers && !mobileFsSubId ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                         >
-                          Tous <span className="ml-0.5 opacity-70">{total}</span>
+                          {mapLabel("all", language)} <span className="ml-0.5 opacity-70">{total}</span>
                         </button>
                       </div>
                     )}
@@ -5773,12 +5773,12 @@ const SearchPage = () => {
                           <DropdownMenuContent align="end" className="z-[210] max-h-80 overflow-y-auto">
                             {mobileFsSubId && (
                               <DropdownMenuItem onSelect={() => applySub(null)}>
-                                Toutes les sous-catégories
+                                {language === "en" ? "All subcategories" : language === "ar" ? "كل الفئات الفرعية" : "Toutes les sous-catégories"}
                               </DropdownMenuItem>
                             )}
                             {subs.map((s) => (
                               <DropdownMenuItem key={s.id} onSelect={() => applySub(s.id)}>
-                                {s.name} <span className="ml-1 opacity-60">({s.count})</span>
+                                {trFsName(s.name)} <span className="ml-1 opacity-60">({s.count})</span>
                               </DropdownMenuItem>
                             ))}
                           </DropdownMenuContent>
@@ -5794,13 +5794,13 @@ const SearchPage = () => {
                               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors text-white/80 hover:text-white"
                             >
                               <SlidersHorizontal className="h-3.5 w-3.5" />
-                              Catégorie
+                              {language === "en" ? "Category" : language === "ar" ? "الفئة" : "Catégorie"}
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="z-[210] max-h-80 overflow-y-auto">
                             {mobileFrontTabs.map((ft) => (
                               <DropdownMenuItem key={ft.id} onSelect={() => applyTab(ft.id)}>
-                                {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
+                                {trFsName(ft.name)} <span className="ml-1 opacity-60">({ft.count})</span>
                               </DropdownMenuItem>
                             ))}
                           </DropdownMenuContent>
@@ -5816,7 +5816,7 @@ const SearchPage = () => {
                               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                             >
                               <Navigation className="h-3.5 w-3.5" />
-                              {proxActiveOpt ? proxActiveOpt.label : "À proximité"}
+                              {proxActiveOpt ? proxActiveOpt.label : mapLabel("proximity", language)}
                               {proximityActive && (
                                 <span className="ml-0.5 opacity-70">{proxCountsByKm[mobileProximityKm!] ?? 0}</span>
                               )}
@@ -5825,7 +5825,7 @@ const SearchPage = () => {
                           <DropdownMenuContent align="end" className="z-[210]">
                             {mobileProximityKm != null && (
                               <DropdownMenuItem onSelect={() => setMobileProximityKm(null)}>
-                                Toutes distances
+                                {mapLabel("allDistances", language)}
                               </DropdownMenuItem>
                             )}
                             {proxOpts.map(o => {
@@ -5876,10 +5876,10 @@ const SearchPage = () => {
                   : allPois.length;
                 const uc = geo.isEnabled && geo.coords ? geo.coords : null;
                 const poiProxOpts = [
-                  { km: 0.5, label: "Moins de 500 m" },
-                  { km: 1, label: "Moins de 1 km" },
-                  { km: 5, label: "Moins de 5 km" },
-                  { km: 10, label: "Moins de 10 km" },
+                  { km: 0.5, label: mapLabel("lt500m", language) },
+                  { km: 1, label: mapLabel("lt1km", language) },
+                  { km: 5, label: mapLabel("lt5km", language) },
+                  { km: 10, label: mapLabel("lt10km", language) },
                 ];
                 const poiProxCounts: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
                 if (uc) {
@@ -5907,19 +5907,19 @@ const SearchPage = () => {
                               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${mobilePoiSubcat ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                             >
                               <SlidersHorizontal className="h-3.5 w-3.5" />
-                              {mobilePoiSubcat ?? "Attractions"}
+                              {mobilePoiSubcat ? trFsName(mobilePoiSubcat) : mapLabel("attractions", language)}
                               {mobilePoiSubcat && <span className="ml-0.5 opacity-70">{filteredCount}</span>}
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="center" className="z-[210] max-h-80 overflow-y-auto">
                             {mobilePoiSubcat && (
                               <DropdownMenuItem onSelect={() => setMobilePoiSubcat(null)}>
-                                Toutes les attractions <span className="ml-1 opacity-60">({allPois.length})</span>
+                                {mapLabel("allAttractions", language)} <span className="ml-1 opacity-60">({allPois.length})</span>
                               </DropdownMenuItem>
                             )}
                             {entries.map(([name, count]) => (
                               <DropdownMenuItem key={name} onSelect={() => setMobilePoiSubcat(name)}>
-                                {name} <span className="ml-1 opacity-60">({count})</span>
+                                {trFsName(name)} <span className="ml-1 opacity-60">({count})</span>
                               </DropdownMenuItem>
                             ))}
                           </DropdownMenuContent>
@@ -5935,7 +5935,7 @@ const SearchPage = () => {
                               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityActive ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                             >
                               <Navigation className="h-3.5 w-3.5" />
-                              {poiProxActiveOpt ? poiProxActiveOpt.label : "À proximité"}
+                              {poiProxActiveOpt ? poiProxActiveOpt.label : mapLabel("proximity", language)}
                               {poiProximityActive && (
                                 <span className="ml-0.5 opacity-70">{poiProxCounts[mobilePoiProximityKm!] ?? 0}</span>
                               )}
@@ -5944,7 +5944,7 @@ const SearchPage = () => {
                           <DropdownMenuContent align="center" className="z-[210]">
                             {mobilePoiProximityKm != null && (
                               <DropdownMenuItem onSelect={() => setMobilePoiProximityKm(null)}>
-                                Toutes distances
+                                {mapLabel("allDistances", language)}
                               </DropdownMenuItem>
                             )}
                             {poiProxOpts.map(o => {
@@ -5974,10 +5974,10 @@ const SearchPage = () => {
               {activeTab === "ai" && (() => {
                 const uc = geo.isEnabled && geo.coords ? geo.coords : null;
                 const aiProxOpts = [
-                  { km: 0.5, label: "Moins de 500 m" },
-                  { km: 1, label: "Moins de 1 km" },
-                  { km: 5, label: "Moins de 5 km" },
-                  { km: 10, label: "Moins de 10 km" },
+                  { km: 0.5, label: mapLabel("lt500m", language) },
+                  { km: 1, label: mapLabel("lt1km", language) },
+                  { km: 5, label: mapLabel("lt5km", language) },
+                  { km: 10, label: mapLabel("lt10km", language) },
                 ];
                 const aiProxCounts: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
                 if (uc) {
@@ -6004,7 +6004,7 @@ const SearchPage = () => {
                             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${aiProximityActive ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                           >
                             <Navigation className="h-3.5 w-3.5" />
-                            {aiProxActiveOpt ? aiProxActiveOpt.label : "À proximité"}
+                            {aiProxActiveOpt ? aiProxActiveOpt.label : mapLabel("proximity", language)}
                             {aiProximityActive && (
                               <span className="ml-0.5 opacity-70">{aiProxCounts[aiProximityKm!] ?? 0}</span>
                             )}
@@ -6013,7 +6013,7 @@ const SearchPage = () => {
                         <DropdownMenuContent align="center" className="z-[210]">
                           {aiProximityKm != null && (
                             <DropdownMenuItem onSelect={() => setAiProximityKm(null)}>
-                              Toutes distances
+                              {mapLabel("allDistances", language)}
                             </DropdownMenuItem>
                           )}
                           {aiProxOpts.map(o => {
@@ -6090,6 +6090,7 @@ const SearchPage = () => {
               fitToMarkers
               subcategoryIconMap={undefined}
               userLocation={geo.isEnabled && geo.coords ? geo.coords : null}
+              userMarkerLabel={mapLabel("youAreHere", language)}
             />
 
             <PanelSearchBar
