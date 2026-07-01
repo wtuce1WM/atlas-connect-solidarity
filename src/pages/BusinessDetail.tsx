@@ -426,7 +426,7 @@ const BusinessDetail = () => {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       name: business.name,
-      ...(business.description && { description: business.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300) }),
+      ...(localizedDescription && { description: localizedDescription.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300) }),
       ...(business.address && { address: { "@type": "PostalAddress", streetAddress: business.address, addressLocality: business.city } }),
       ...(business.phone && { telephone: business.phone }),
       ...(business.website && { url: business.website }),
