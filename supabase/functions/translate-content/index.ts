@@ -308,8 +308,20 @@ Deno.serve(async (req) => {
         const updates: Record<string, unknown> = {};
 
         if (cfg.textFields?.length) {
+          // Handle text_array fields separately (translate each element)
+          for (const f of cfg.textFields.filter((x) => x.kind === "text_array")) {
+            const src = row[f.source];
+            const tgt = row[f.target];
+            if (Array.isArray(src) && src.length > 0 && (!Array.isArray(tgt) || tgt.length === 0)) {
+              const items = src.map((v: unknown) => String(v ?? "")).filter((s) => s.trim().length > 0);
+              if (items.length > 0) {
+                const translated = await translateBatch(items, target_lang, false);
+                updates[f.target] = translated;
+              }
+            }
+          }
           const toTranslate: { idx: number; text: string; field: typeof cfg.textFields[0] }[] = [];
-          cfg.textFields.forEach((f, i) => {
+          cfg.textFields.filter((x) => x.kind !== "text_array").forEach((f, i) => {
             const src = row[f.source];
             const tgt = row[f.target];
             if (src && !tgt) toTranslate.push({ idx: i, text: String(src), field: f });
