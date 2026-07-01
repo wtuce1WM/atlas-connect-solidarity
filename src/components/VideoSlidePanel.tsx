@@ -151,6 +151,7 @@ const VideoSlidePanel = ({
 
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { language } = useLanguage();
 
   // Analytics: overlay_open lorsque le panel s'ouvre
   useEffect(() => {
