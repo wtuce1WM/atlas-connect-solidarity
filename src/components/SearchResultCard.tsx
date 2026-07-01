@@ -4,6 +4,7 @@ import { useBookmark } from "@/hooks/useBookmark";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOpenStatus } from "@/hooks/useOpenStatus";
 import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
+import { translateEngagementLabel } from "@/lib/engagementLabels";
 
 
 export interface SearchResultBusiness {
