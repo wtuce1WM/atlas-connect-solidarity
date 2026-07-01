@@ -29,9 +29,12 @@ import { toast } from "@/hooks/use-toast";
 interface IntentWord {
   id: string;
   word: string;
+  word_en: string | null;
+  word_ar: string | null;
   category_name: string;
   merge_on_conflict: boolean;
 }
+
 
 interface Category {
   id: string;
