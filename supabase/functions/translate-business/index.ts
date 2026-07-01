@@ -359,7 +359,9 @@ Deno.serve(async (req) => {
       translated_meta: Object.keys(bizUpdate),
     });
   } catch (e) {
-    console.error("[translate-business] TOP CATCH:", e instanceof Error ? e.stack || e.message : String(e));
-    return jsonRes({ error: e instanceof Error ? e.message : String(e) }, 500);
+    const msg = e instanceof Error ? e.message : String(e);
+    const stack = e instanceof Error ? e.stack : "";
+    console.error("[translate-business] TOP CATCH:", msg, "\nSTACK:", stack);
+    return jsonRes({ error: msg, stack: stack?.split("\n").slice(0, 5).join(" | ") }, 500);
   }
 });
