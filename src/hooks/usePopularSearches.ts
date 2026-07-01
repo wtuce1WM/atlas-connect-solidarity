@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface PopularSearch {
   id: string;
@@ -14,8 +14,8 @@ export interface PopularSearch {
  * with fallback to the French source.
  */
 export const usePopularSearches = (input: string, enabled = true) => {
-  const { i18n } = useTranslation();
-  const lang = (i18n.language || "fr").slice(0, 2);
+  const { language } = useLanguage();
+  const lang = (language || "fr").slice(0, 2);
   const [suggestions, setSuggestions] = useState<PopularSearch[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
