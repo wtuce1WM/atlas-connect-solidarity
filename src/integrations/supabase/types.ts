@@ -3150,16 +3150,22 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          name_ar: string | null
+          name_en: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
+          name_ar?: string | null
+          name_en?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          name_ar?: string | null
+          name_en?: string | null
         }
         Relationships: []
       }
@@ -4701,7 +4707,11 @@ export type Database = {
           city_id: string
           created_at: string | null
           description: string | null
+          description_ar: string | null
+          description_en: string | null
           hook: string | null
+          hook_ar: string | null
+          hook_en: string | null
           id: string
           image_url: string | null
           keywords: string[] | null
@@ -4715,7 +4725,11 @@ export type Database = {
           city_id: string
           created_at?: string | null
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
           hook?: string | null
+          hook_ar?: string | null
+          hook_en?: string | null
           id?: string
           image_url?: string | null
           keywords?: string[] | null
@@ -4729,7 +4743,11 @@ export type Database = {
           city_id?: string
           created_at?: string | null
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
           hook?: string | null
+          hook_ar?: string | null
+          hook_en?: string | null
           id?: string
           image_url?: string | null
           keywords?: string[] | null
@@ -5308,6 +5326,8 @@ export type Database = {
           id: string
           is_active: boolean
           keyword: string
+          keyword_ar: string | null
+          keyword_en: string | null
           required_service: string
           subcategory_id: string | null
           updated_at: string | null
@@ -5317,6 +5337,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           keyword: string
+          keyword_ar?: string | null
+          keyword_en?: string | null
           required_service: string
           subcategory_id?: string | null
           updated_at?: string | null
@@ -5326,6 +5348,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           keyword?: string
+          keyword_ar?: string | null
+          keyword_en?: string | null
           required_service?: string
           subcategory_id?: string | null
           updated_at?: string | null
