@@ -1,7 +1,10 @@
 import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award, Bookmark } from "lucide-react";
-import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { useBookmark } from "@/hooks/useBookmark";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useOpenStatus } from "@/hooks/useOpenStatus";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
+
 
 export interface SearchResultBusiness {
   id: string;
@@ -34,51 +37,8 @@ interface SearchResultCardProps {
   onMouseLeave: () => void;
 }
 
-const FR_TO_EN: Record<string, string> = {
-  lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
-  vendredi: "friday", samedi: "saturday", dimanche: "sunday",
-};
-const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-const DAY_LABELS = ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
 
-function getOpenBadge(business: SearchResultBusiness): { label: string; variant: "open" | "upcoming" } | null {
-  if (!business.is_open_24h && !business.show_opening_hours) return null;
-  if (business.is_open_24h) return { label: "Ouvert 24h", variant: "open" };
-  if (!business.opening_hours) return null;
 
-  const rawOH = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
-  const oh = Object.entries(rawOH).reduce((acc, [k, v]) => {
-    acc[FR_TO_EN[k] || k] = v;
-    return acc;
-  }, {} as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>);
-
-  const now = new Date();
-  const todayKey = DAYS[now.getDay()];
-  if (isCurrentlyOpenCheck(oh[todayKey])) return { label: "Ouvert", variant: "open" };
-
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  const dh = oh[todayKey];
-  let badge: string | null = null;
-  if (dh && !dh.closed && dh.open) {
-    const [oH, oM] = dh.open.split(":").map(Number);
-    if (oH * 60 + (oM || 0) > nowMin) badge = `Ouvre à ${dh.open}`;
-    else if (dh.open2 && !dh.continuous) {
-      const [oH2, oM2] = dh.open2.split(":").map(Number);
-      if (oH2 * 60 + (oM2 || 0) > nowMin) badge = `Ouvre à ${dh.open2}`;
-    }
-  }
-  if (!badge) {
-    for (let i = 1; i <= 7; i++) {
-      const idx = (now.getDay() + i) % 7;
-      const nd = oh[DAYS[idx]];
-      if (nd && !nd.closed && nd.open) {
-        badge = `Ouvre ${DAY_LABELS[idx]} à ${nd.open}`;
-        break;
-      }
-    }
-  }
-  return badge ? { label: badge, variant: "upcoming" } : null;
-}
 
 function getLogIcon(l: string) {
   const lower = l.toLowerCase();
@@ -88,6 +48,9 @@ function getLogIcon(l: string) {
 }
 
 export default function SearchResultCard({ business, index, labelLogos, distanceKm, onClick, onMouseEnter, onMouseLeave }: SearchResultCardProps) {
+  const { language } = useLanguage();
+  const { translateService, translateSubcategory } = useTaxonomyTranslations();
+  const openStatus = useOpenStatus({ business, language });
   const rawImg = business.images?.[0] || business.logo_url;
   const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
   const size = Math.round(450 * dpr);
@@ -95,8 +58,10 @@ export default function SearchResultCard({ business, index, labelLogos, distance
   const isPriority = index < 2;
   const avgOn20 = business.computed_rating ?? business.rating ?? null;
   const totalReviews = business.total_review_count ?? 0;
-  const subcat = business.categories?.[0] || null;
-  const openBadge = getOpenBadge(business);
+  const subcatRaw = business.categories?.[0] || null;
+  const subcat = subcatRaw ? translateSubcategory(subcatRaw, language) : null;
+  const defaultService = business.default_service ? translateService(business.default_service, language) : null;
+  const openBadge = openStatus.text ? { label: openStatus.text, variant: (openStatus.isOpen ? "open" : "upcoming") as "open" | "upcoming" } : null;
 
   const engs = business.engagements || [];
   const standards = engs.filter(e => !e.startsWith("Logistique:") && !e.startsWith("Certification:"));
@@ -104,6 +69,11 @@ export default function SearchResultCard({ business, index, labelLogos, distance
   const logistics = engs.filter(e => e.startsWith("Logistique:")).map(e => e.replace("Logistique:", "").trim());
   const hasEngagements = standards.length > 0 || logistics.length > 0 || certifications.length > 0;
   const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(business.id);
+
+  const orderOnlineLabel = language === "en" ? "Order online" : language === "ar" ? "اطلب عبر الإنترنت" : "Commandez en ligne";
+  const reviewsLabel = language === "en" ? "reviews" : language === "ar" ? "تقييم" : "avis";
+  const removeBookmarkLabel = language === "en" ? "Remove from favorites" : language === "ar" ? "إزالة من المفضلة" : "Retirer des favoris";
+
 
   return (
     <div
@@ -146,8 +116,8 @@ export default function SearchResultCard({ business, index, labelLogos, distance
           }}
           className="h-9 w-9 flex items-center justify-center rounded-full glass-toolbar-btn text-black hover:opacity-90 transition-opacity"
           style={{ backgroundColor: "#F1F1F1" }}
-          aria-label={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
-          title={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
+          aria-label={isBookmarked ? removeBookmarkLabel : "Le Club OWM"}
+          title={isBookmarked ? removeBookmarkLabel : "Le Club OWM"}
         >
           <Bookmark className="h-4 w-4" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
         </button>
@@ -160,12 +130,13 @@ export default function SearchResultCard({ business, index, labelLogos, distance
         )}
         {engs.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium text-white" style={{ backgroundColor: "#C04F17" }}>
-            Commandez en ligne
+            {orderOnlineLabel}
           </span>
         )}
-        {business.default_service && (
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-black text-white border border-white/20">{business.default_service}</span>
+        {defaultService && (
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-black text-white border border-white/20">{defaultService}</span>
         )}
+
         {openBadge && (
           <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${openBadge.variant === "open" ? "bg-[#25D366] text-black" : "bg-primary text-primary-foreground"}`}>
             {openBadge.label}
@@ -187,7 +158,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
           <div className="flex items-center gap-1.5 text-xs">
             <Star className="h-3 w-3 text-gold fill-gold" />
             <span className="font-medium text-white">{avgOn20}/20</span>
-            {totalReviews > 0 && <span className="text-white/70">· {totalReviews} avis</span>}
+            {totalReviews > 0 && <span className="text-white/70">· {totalReviews} {reviewsLabel}</span>}
           </div>
         )}
         {business.city && (
