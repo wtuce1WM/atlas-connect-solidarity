@@ -25,19 +25,32 @@ export function isAppStoreCta(ctaKey: string | null | undefined, presentationMod
   return n === "appstore" || n === "googleplay";
 }
 
+function pickLangLabel(pair: { fr: string; en: string; ar: string }, language: string): string {
+  if (language === "en") return pair.en;
+  if (language === "ar") return pair.ar;
+  return pair.fr;
+}
+
 export function resolveCtaLabel(
   preferredValue: string | null | undefined,
   fallbackValue: string | null | undefined,
   defaultKey: keyof typeof CTA_MODE_LABELS,
   language: string,
 ): string {
-  if (preferredValue) return preferredValue;
-  if (fallbackValue) {
-    const match = CTA_MODE_LABELS[fallbackValue] || CTA_MODE_LABELS[normalizeCtaMode(fallbackValue) || ""];
-    if (match) return language === "en" ? match.en : match.fr;
+  // Try to translate whichever value is provided by normalizing it against the
+  // known CTA vocabulary. Freeform values that don't match fall back to the
+  // raw preferredValue (kept in the source language authored by the partner).
+  const candidates: (string | null | undefined)[] = [preferredValue, fallbackValue];
+  for (const v of candidates) {
+    if (!v) continue;
+    const match =
+      CTA_MODE_LABELS[v] ||
+      CTA_MODE_LABELS[normalizeCtaMode(v) || ""];
+    if (match) return pickLangLabel(match, language);
   }
+  if (preferredValue) return preferredValue;
   const pair = CTA_MODE_LABELS[defaultKey];
-  return language === "en" ? pair.en : pair.fr;
+  return pickLangLabel(pair, language);
 }
 
 /* ────── hook ────── */

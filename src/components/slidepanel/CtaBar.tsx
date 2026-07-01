@@ -6,23 +6,23 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import AppStoreCard from "@/components/cards/AppStoreCard";
 import { whatsappUrl } from "@/lib/phoneUtils";
 
-export const CTA_MODE_LABELS: Record<string, { fr: string; en: string }> = {
-  acheter_en_ligne: { fr: 'Acheter en ligne', en: 'Shop Online' },
-  reserver_en_ligne: { fr: 'Réserver en ligne', en: 'Book Online' },
-  consulter_offre: { fr: 'Consulter notre offre', en: 'View Our Offer' },
-  plus_informations: { fr: "Plus d'informations", en: 'More Information' },
-  contactez_nous: { fr: 'Contactez nous', en: 'Contact Us' },
-  la_carte: { fr: 'La carte', en: 'The Menu' },
-  les_boissons: { fr: 'Les boissons', en: 'Drinks' },
-  seances: { fr: 'Séances', en: 'Sessions' },
-  billetterie: { fr: 'Billetterie', en: 'Tickets' },
-  application: { fr: 'Application', en: 'Application' },
-  app_store: { fr: 'App Store', en: 'App Store' },
-  google_play: { fr: 'Google Play', en: 'Google Play' },
-  programme: { fr: 'Programme', en: 'Program' },
-  en_savoir_plus: { fr: 'En savoir +', en: 'Learn More' },
-  accreditations: { fr: 'Accréditations', en: 'Accreditations' },
-  whatsapp: { fr: 'WhatsApp', en: 'WhatsApp' },
+export const CTA_MODE_LABELS: Record<string, { fr: string; en: string; ar: string }> = {
+  acheter_en_ligne: { fr: 'Acheter en ligne', en: 'Shop Online', ar: 'اشترِ عبر الإنترنت' },
+  reserver_en_ligne: { fr: 'Réserver en ligne', en: 'Book Online', ar: 'احجز عبر الإنترنت' },
+  consulter_offre: { fr: 'Consulter notre offre', en: 'View Our Offer', ar: 'اطلع على عرضنا' },
+  plus_informations: { fr: "Plus d'informations", en: 'More Information', ar: 'مزيد من المعلومات' },
+  contactez_nous: { fr: 'Contactez nous', en: 'Contact Us', ar: 'اتصل بنا' },
+  la_carte: { fr: 'La carte', en: 'The Menu', ar: 'القائمة' },
+  les_boissons: { fr: 'Les boissons', en: 'Drinks', ar: 'المشروبات' },
+  seances: { fr: 'Séances', en: 'Sessions', ar: 'الحصص' },
+  billetterie: { fr: 'Billetterie', en: 'Tickets', ar: 'التذاكر' },
+  application: { fr: 'Application', en: 'Application', ar: 'التطبيق' },
+  app_store: { fr: 'App Store', en: 'App Store', ar: 'App Store' },
+  google_play: { fr: 'Google Play', en: 'Google Play', ar: 'Google Play' },
+  programme: { fr: 'Programme', en: 'Program', ar: 'البرنامج' },
+  en_savoir_plus: { fr: 'En savoir +', en: 'Learn More', ar: 'اعرف المزيد' },
+  accreditations: { fr: 'Accréditations', en: 'Accreditations', ar: 'الاعتمادات' },
+  whatsapp: { fr: 'WhatsApp', en: 'WhatsApp', ar: 'واتساب' },
 };
 
 interface CtaBarProps {
