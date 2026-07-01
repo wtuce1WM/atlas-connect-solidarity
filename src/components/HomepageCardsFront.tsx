@@ -5,6 +5,8 @@ import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { getCached, setCached } from "@/lib/swrCache";
+import { translateVignetteLabel } from "@/lib/vignetteLabels";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Heavy player/overlay — never visible at first paint. Code-split out of the initial bundle.
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
