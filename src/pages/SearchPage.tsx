@@ -5157,7 +5157,7 @@ const SearchPage = () => {
                               <DropdownMenuContent align="end" className="z-[95]">
                                 {aiProximityKm != null && (
                                   <DropdownMenuItem onSelect={() => setAiProximityKm(null)}>
-                                    Toutes distances
+                                     {mapLabel("allDistances", language)}
                                   </DropdownMenuItem>
                                 )}
                                 {proxOpts.map(o => {
