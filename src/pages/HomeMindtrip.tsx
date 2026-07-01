@@ -969,7 +969,7 @@ const HomeMindtrip = () => {
                                       onClick={goSearch}
                                       className="rounded-md border-2 border-black bg-white px-2 py-1 text-center text-[10px] font-bold uppercase tracking-wide text-black shadow-lg line-clamp-2 hover:bg-white/90 transition-colors cursor-pointer"
                                     >
-                                      {v.label}
+                                      {translateVignetteLabel(v.label, language)}
                                     </button>
                                   </div>
                                 )}
