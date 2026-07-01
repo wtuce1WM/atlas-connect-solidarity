@@ -5332,9 +5332,13 @@ export type Database = {
           id: string
           is_active: boolean
           key_word: string
+          key_word_ar: string | null
+          key_word_en: string | null
           service_names: string[]
           subcategory_names: string[]
           synonyms: string[]
+          synonyms_ar: string[] | null
+          synonyms_en: string[] | null
           updated_at: string | null
         }
         Insert: {
@@ -5346,9 +5350,13 @@ export type Database = {
           id?: string
           is_active?: boolean
           key_word: string
+          key_word_ar?: string | null
+          key_word_en?: string | null
           service_names?: string[]
           subcategory_names?: string[]
           synonyms?: string[]
+          synonyms_ar?: string[] | null
+          synonyms_en?: string[] | null
           updated_at?: string | null
         }
         Update: {
@@ -5360,9 +5368,13 @@ export type Database = {
           id?: string
           is_active?: boolean
           key_word?: string
+          key_word_ar?: string | null
+          key_word_en?: string | null
           service_names?: string[]
           subcategory_names?: string[]
           synonyms?: string[]
+          synonyms_ar?: string[] | null
+          synonyms_en?: string[] | null
           updated_at?: string | null
         }
         Relationships: [
