@@ -193,7 +193,8 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
         ? "0 2px 8px rgba(0,0,0,0.4)"
         : "0 1px 4px rgba(0,0,0,0.15)";
       const scale = this.highlighted ? "scale(1.08)" : "scale(1)";
-      const z = this.name === "Vous êtes ici" ? "2000" : (this.customColor ? "999" : (this.highlighted ? "1000" : "1"));
+      const isUserMarker = this.customColor?.bg === "#C04F17" && this.customColor?.border === "#C04F17";
+      const z = isUserMarker ? "2000" : (this.customColor ? "999" : (this.highlighted ? "1000" : "1"));
 
       this.div.style.cssText = `
       position:absolute;
