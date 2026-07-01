@@ -251,7 +251,7 @@ const SEARCH_CONFIG_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 async function loadSearchConfig(supabase: any) {
   if (Date.now() - searchConfigLoadedAt < SEARCH_CONFIG_TTL_MS && Object.keys(synonyms).length > 0) return;
-  const { data: synData } = await supabase.from("search_synonyms").select("key_word, synonyms, subcategory_names, service_names, filters, badge_id, engagement_filters, commodity_filters").eq("is_active", true);
+  const { data: synData } = await supabase.from("search_synonyms").select("key_word, key_word_en, key_word_ar, synonyms, synonyms_en, synonyms_ar, subcategory_names, service_names, filters, badge_id, engagement_filters, commodity_filters").eq("is_active", true);
   if (synData) {
     synonyms = {};
     synonymSubcategories = {};
@@ -261,24 +261,26 @@ async function loadSearchConfig(supabase: any) {
     synonymEngagements = {};
     synonymCommodities = {};
     for (const row of synData) {
-      synonyms[row.key_word] = row.synonyms || [];
-      if (row.subcategory_names && row.subcategory_names.length > 0) {
-        synonymSubcategories[row.key_word] = row.subcategory_names;
-      }
-      if (row.service_names && row.service_names.length > 0) {
-        synonymServices[row.key_word] = row.service_names;
-      }
-      if (row.filters && Array.isArray(row.filters) && row.filters.length > 0) {
-        synonymFilters[row.key_word] = row.filters;
-      }
-      if (row.badge_id) {
-        synonymBadges[row.key_word] = row.badge_id;
-      }
-      if (row.engagement_filters && row.engagement_filters.length > 0) {
-        synonymEngagements[row.key_word] = row.engagement_filters;
-      }
-      if (row.commodity_filters && row.commodity_filters.length > 0) {
-        synonymCommodities[row.key_word] = row.commodity_filters;
+      // Merge all language variants into a single expansion set keyed by the FR key_word.
+      // Also register EN/AR keys as aliases pointing to the same expansion set so EN/AR
+      // queries benefit from the rule.
+      const merged = new Set<string>();
+      for (const s of (row.synonyms || [])) if (s) merged.add(String(s).toLowerCase());
+      for (const s of (row.synonyms_en || [])) if (s) merged.add(String(s).toLowerCase());
+      for (const s of (row.synonyms_ar || [])) if (s) merged.add(String(s).toLowerCase());
+      // Include translated key_words themselves as synonyms of the FR key so any lang matches.
+      if (row.key_word_en) merged.add(String(row.key_word_en).toLowerCase());
+      if (row.key_word_ar) merged.add(String(row.key_word_ar).toLowerCase());
+      const mergedArr = Array.from(merged);
+      const keys = [row.key_word, row.key_word_en, row.key_word_ar].filter(Boolean).map((k: string) => String(k).toLowerCase());
+      for (const key of keys) {
+        synonyms[key] = mergedArr;
+        if (row.subcategory_names && row.subcategory_names.length > 0) synonymSubcategories[key] = row.subcategory_names;
+        if (row.service_names && row.service_names.length > 0) synonymServices[key] = row.service_names;
+        if (row.filters && Array.isArray(row.filters) && row.filters.length > 0) synonymFilters[key] = row.filters;
+        if (row.badge_id) synonymBadges[key] = row.badge_id;
+        if (row.engagement_filters && row.engagement_filters.length > 0) synonymEngagements[key] = row.engagement_filters;
+        if (row.commodity_filters && row.commodity_filters.length > 0) synonymCommodities[key] = row.commodity_filters;
       }
     }
   }
