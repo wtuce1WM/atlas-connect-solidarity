@@ -291,7 +291,8 @@ Deno.serve(async (req) => {
       translatedEntriesCount >= sourceEntries.length &&
       (!isFilled(post.title_fr) || isFilled(update[titleKey]) || isFilled(post[titleKey])) &&
       (!isFilled(post.excerpt_fr) || isFilled(update[excerptKey]) || isFilled(post[excerptKey])) &&
-      (!isFilled(post.intro_fr) || isFilled(update[introKey]) || isFilled(post[introKey]));
+      (!isFilled(post.intro_fr) || isFilled(update[introKey]) || isFilled(post[introKey])) &&
+      (!isFilled(post.content_fr) || isFilled(update[contentKey]) || isFilled(post[contentKey]));
 
     return jsonRes({
       ok: true,
