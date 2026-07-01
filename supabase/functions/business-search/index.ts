@@ -1699,21 +1699,26 @@ serve(async (req) => {
     {
       const { data: intentWords } = await supabase
         .from("search_intent_words")
-        .select("word, category_name, merge_on_conflict")
+        .select("word, word_en, word_ar, category_name, merge_on_conflict")
         .eq("is_active", true);
       if (intentWords) {
         for (const iw of intentWords) {
-          const wLower = iw.word.toLowerCase();
-          if (!INTENT_TO_CATEGORY[wLower]) INTENT_TO_CATEGORY[wLower] = iw.category_name;
-          if (!INTENT_TO_CATEGORIES[wLower]) INTENT_TO_CATEGORIES[wLower] = [];
-          if (!INTENT_TO_CATEGORIES[wLower].includes(iw.category_name)) {
-            INTENT_TO_CATEGORIES[wLower].push(iw.category_name);
+          const variants = [iw.word, (iw as any).word_en, (iw as any).word_ar]
+            .filter((w: any): w is string => typeof w === "string" && w.trim().length > 0)
+            .map((w: string) => w.toLowerCase().trim());
+          for (const wLower of variants) {
+            if (!INTENT_TO_CATEGORY[wLower]) INTENT_TO_CATEGORY[wLower] = iw.category_name;
+            if (!INTENT_TO_CATEGORIES[wLower]) INTENT_TO_CATEGORIES[wLower] = [];
+            if (!INTENT_TO_CATEGORIES[wLower].includes(iw.category_name)) {
+              INTENT_TO_CATEGORIES[wLower].push(iw.category_name);
+            }
+            INTENT_MERGE_FLAGS[wLower] = iw.merge_on_conflict;
           }
-          INTENT_MERGE_FLAGS[wLower] = iw.merge_on_conflict;
         }
-        console.log(`Loaded ${intentWords.length} intent word mappings`);
+        console.log(`Loaded ${intentWords.length} intent word mappings (FR/EN/AR variants)`);
       }
     }
+
     let intentCategories: string[] = [];
     let intentMergeOnConflict = true;
     // Always check intent words — even when a category is provided (e.g. from LLM voice intent)
