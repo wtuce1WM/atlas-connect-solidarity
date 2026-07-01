@@ -190,12 +190,19 @@ async function translateHighlightsAdaptive(
     if (chunk.length === 1) {
       const item = chunk[0];
       const entries = Object.entries(item.missing).map(([key, text]) => ({ key, text }));
-      const row = await translateFlatMapAdaptive(entries, target);
-      return { [item.id]: row };
+      try {
+        const row = await translateFlatMapAdaptive(entries, target);
+        return Object.keys(row).length > 0 ? { [item.id]: row } : {};
+      } catch (err) {
+        console.warn(`[translate-business] highlight leaf skip ${item.id}:`, err instanceof Error ? err.message : String(err));
+        return {};
+      }
     }
     const mid = Math.ceil(chunk.length / 2);
-    const left = await translateHighlightsAdaptive(chunk.slice(0, mid), target);
-    const right = await translateHighlightsAdaptive(chunk.slice(mid), target);
+    let left: Record<string, Record<string, string>> = {};
+    let right: Record<string, Record<string, string>> = {};
+    try { left = await translateHighlightsAdaptive(chunk.slice(0, mid), target); } catch (err) { console.warn("[translate-business] hl left skip:", err instanceof Error ? err.message : String(err)); }
+    try { right = await translateHighlightsAdaptive(chunk.slice(mid), target); } catch (err) { console.warn("[translate-business] hl right skip:", err instanceof Error ? err.message : String(err)); }
     return { ...left, ...right };
   }
 }
