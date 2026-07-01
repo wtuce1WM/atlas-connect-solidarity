@@ -55,6 +55,7 @@ interface BlogPostData {
   hero_alt: string | null;
   bookmark_slug: string | null;
   custom_hero_image_url: string | null;
+  video_section_config: BlogVideoSectionConfig | null;
 }
 
 const BlogPost = () => {
