@@ -149,6 +149,10 @@ const SynonymsManagement = () => {
 
     if (data) setEntries(data.map((d: any) => ({
       ...d,
+      key_word_en: d.key_word_en ?? null,
+      key_word_ar: d.key_word_ar ?? null,
+      synonyms_en: d.synonyms_en || [],
+      synonyms_ar: d.synonyms_ar || [],
       subcategory_names: d.subcategory_names || [],
       service_names: d.service_names || [],
       filters: d.filters || [],
