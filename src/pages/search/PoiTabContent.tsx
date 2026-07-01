@@ -253,6 +253,7 @@ const PoiTabContent = ({
             center={mapCenterForResults}
             fitToMarkers
             userLocation={userCoords ?? null}
+            userMarkerLabel={mapLabel("youAreHere", language)}
           />
           {(subcatCounts.length > 0 || !!userCoords) && (
             <div className="absolute top-[64px] left-1/2 -translate-x-1/2 z-[60] flex flex-wrap items-center justify-center gap-2">
