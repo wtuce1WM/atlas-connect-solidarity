@@ -363,7 +363,7 @@ const BookOnlineSlidePanelInner = ({
           }
         });
     }
-  }, [business?.id, (business as any)?.popup_image_url, (business as any)?.images]);
+  }, [business?.id, (business as any)?.popup_image_url, (business as any)?.images, language]);
 
   // Auto-open the promotions popup when a business has offers but no welcome popup image.
   // Mirrors the welcome popup behavior: shown once per business, mutes background video.
