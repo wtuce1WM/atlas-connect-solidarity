@@ -13,7 +13,13 @@ import { fr, enUS, ar } from "date-fns/locale";
 import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
 import BlogArticleTemplate, {
   type BlogArticleEntry,
+  type BlogArticleVideo,
 } from "@/components/blog/BlogArticleTemplate";
+import {
+  fetchBlogVideoSection,
+  pickVideoSectionCopy,
+  type BlogVideoSectionConfig,
+} from "@/lib/blogVideoSection";
 
 interface BlogPostData {
   id: string;
