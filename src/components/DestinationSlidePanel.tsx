@@ -473,7 +473,16 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const mainImage = destination?.image_url;
   const allImages = mainImage && !images.includes(mainImage) ? [mainImage, ...images] : images;
   const matterportUrl = destination?.matterport_url || null;
-  const description = destination?.description || null;
+  const description = destination
+    ? (language === "en" ? (destination.description_en || destination.description_fr || destination.description)
+        : language === "ar" ? (destination.description_ar || destination.description_fr || destination.description)
+        : (destination.description_fr || destination.description)) || null
+    : null;
+  const localizedHook = destination
+    ? (language === "en" ? (destination.hook_en || destination.hook_fr || destination.hook)
+        : language === "ar" ? (destination.hook_ar || destination.hook_fr || destination.hook)
+        : (destination.hook_fr || destination.hook)) || null
+    : null;
 
   const fileVideos = videos.filter((v) => getVideoInfo(v).type === "file");
   const cityFileVideos = cityVideos.filter((cv) => getVideoInfo(cv.url).type === "file");
