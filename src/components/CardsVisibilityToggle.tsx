@@ -95,7 +95,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
               backgroundColor: '#25D366',
               boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.45), inset 0 -1px 0 0 rgba(0,0,0,0.25), 0 4px 14px -2px rgba(0,0,0,0.35)',
             }}
-            aria-label="Afficher les cartes"
+            aria-label={L.showAria}
             onClick={(e) => { e.stopPropagation(); showCards(); }}
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
