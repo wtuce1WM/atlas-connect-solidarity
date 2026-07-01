@@ -47,6 +47,8 @@ const CONFIGS: { key: string; label: string }[] = [
   { key: "neighborhoods", label: "Quartiers (hook + description)" },
   { key: "neighborhoods_name", label: "Quartiers (nom + keywords/alias)" },
   { key: "event_types", label: "Types d'événements (nom)" },
+  { key: "voice_intent_rules", label: "Règles d'intention vocale" },
+  { key: "regions", label: "Régions (nom)" },
 ];
 
 

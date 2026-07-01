@@ -172,6 +172,18 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
       { source: "name", target: `name_${t}`, kind: "text" },
     ],
   }),
+  voice_intent_rules: (t) => ({
+    table: "voice_intent_rules", pk: "id",
+    textFields: [
+      { source: "rule_text", target: `rule_text_${t}`, kind: "text" },
+    ],
+  }),
+  regions: (t) => ({
+    table: "regions", pk: "id",
+    textFields: [
+      { source: "name", target: `name_${t}`, kind: "text" },
+    ],
+  }),
 };
 
 
