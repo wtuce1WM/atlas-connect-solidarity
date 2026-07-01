@@ -1034,27 +1034,45 @@ export type Database = {
           business_id: string
           created_at: string
           description: string
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
           id: string
           image_url: string
           title: string
+          title_ar: string | null
+          title_en: string | null
+          title_fr: string | null
           updated_at: string
         }
         Insert: {
           business_id: string
           created_at?: string
           description?: string
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           id?: string
           image_url: string
           title?: string
+          title_ar?: string | null
+          title_en?: string | null
+          title_fr?: string | null
           updated_at?: string
         }
         Update: {
           business_id?: string
           created_at?: string
           description?: string
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           id?: string
           image_url?: string
           title?: string
+          title_ar?: string | null
+          title_en?: string | null
+          title_fr?: string | null
           updated_at?: string
         }
         Relationships: [
