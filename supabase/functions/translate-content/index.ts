@@ -18,7 +18,7 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
 // `i18n` describes the storage pattern:
 //   - "suffix": source = `${field}_fr`, target = `${field}_${target}`
 //   - "entries": JSONB column `entries_${target}` mirroring `entries_${source}`
-type FieldKind = "text" | "html" | "json_entries";
+type FieldKind = "text" | "html" | "json_entries" | "text_array";
 type TableConfig = {
   table: string;
   pk: string;
