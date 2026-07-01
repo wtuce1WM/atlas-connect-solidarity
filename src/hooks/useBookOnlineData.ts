@@ -346,7 +346,11 @@ export function useBookOnlineData(businessId: string) {
       if (biz?.hide_description) {
         setWoDescription(null);
       } else {
-        setWoDescription(meaningfulHtml((woRes.data as any)?.description) ?? meaningfulHtml(biz?.description));
+        const bAny: any = biz || {};
+        const bizLocalized = language === "ar" ? (bAny.description_ar || bAny.description_fr || bAny.description)
+          : language === "en" ? (bAny.description_en || bAny.description_fr || bAny.description)
+          : (bAny.description_fr || bAny.description);
+        setWoDescription(meaningfulHtml((woRes.data as any)?.description) ?? meaningfulHtml(bizLocalized));
       }
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
