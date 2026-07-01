@@ -5135,7 +5135,7 @@ const SearchPage = () => {
                                }}
                                className={`px-3 py-1 rounded-full transition-colors ${showAllSearchMarkers ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                              >
-                               Tous <span className="ml-0.5 opacity-70">{total}</span>
+                               {mapLabel("all", language)} <span className="ml-0.5 opacity-70">{total}</span>
                              </button>
                            </div>
                          )}
