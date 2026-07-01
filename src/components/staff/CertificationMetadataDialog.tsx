@@ -4,17 +4,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, Upload, X, ExternalLink, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import RichTextEditor from "./RichTextEditor";
+
+type Lang = "fr" | "en" | "ar";
 
 interface CertificationMeta {
   id?: string;
   certification_name: string;
   image_url: string | null;
   link_url: string | null;
-  link_title: string | null;
-  description: string | null;
+  link_title_fr: string | null;
+  link_title_en: string | null;
+  link_title_ar: string | null;
+  description_fr: string | null;
+  description_en: string | null;
+  description_ar: string | null;
 }
 
 interface Props {
@@ -25,17 +32,24 @@ interface Props {
 
 const MAX_DESCRIPTION_LENGTH = 5000;
 
+const emptyMeta = (name: string): CertificationMeta => ({
+  certification_name: name,
+  image_url: null,
+  link_url: null,
+  link_title_fr: null,
+  link_title_en: null,
+  link_title_ar: null,
+  description_fr: null,
+  description_en: null,
+  description_ar: null,
+});
+
 const CertificationMetadataDialog = ({ certificationName, onClose, onSaved }: Props) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [meta, setMeta] = useState<CertificationMeta>({
-    certification_name: "",
-    image_url: null,
-    link_url: null,
-    link_title: null,
-    description: null,
-  });
+  const [lang, setLang] = useState<Lang>("fr");
+  const [meta, setMeta] = useState<CertificationMeta>(emptyMeta(""));
 
   useEffect(() => {
     if (!certificationName) return;
@@ -47,15 +61,9 @@ const CertificationMetadataDialog = ({ certificationName, onClose, onSaved }: Pr
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
-          setMeta(data as CertificationMeta);
+          setMeta(data as unknown as CertificationMeta);
         } else {
-          setMeta({
-            certification_name: certificationName,
-            image_url: null,
-            link_url: null,
-            link_title: null,
-            description: null,
-          });
+          setMeta(emptyMeta(certificationName));
         }
         setLoading(false);
       });
@@ -91,18 +99,29 @@ const CertificationMetadataDialog = ({ certificationName, onClose, onSaved }: Pr
     return (tmp.textContent || "").length;
   };
 
+  const descKey = (`description_${lang}`) as `description_${Lang}`;
+  const titleKey = (`link_title_${lang}`) as `link_title_${Lang}`;
+  const currentDesc = meta[descKey];
+  const currentTitle = meta[titleKey];
+
   const handleSave = async () => {
-    if (plainTextLength(meta.description) > MAX_DESCRIPTION_LENGTH) {
-      toast.error(`Le texte dépasse ${MAX_DESCRIPTION_LENGTH} caractères`);
-      return;
+    for (const l of ["fr", "en", "ar"] as Lang[]) {
+      if (plainTextLength(meta[`description_${l}`]) > MAX_DESCRIPTION_LENGTH) {
+        toast.error(`Le texte (${l.toUpperCase()}) dépasse ${MAX_DESCRIPTION_LENGTH} caractères`);
+        return;
+      }
     }
     setSaving(true);
     const payload = {
       certification_name: meta.certification_name,
       image_url: meta.image_url || null,
       link_url: meta.link_url || null,
-      link_title: meta.link_title || null,
-      description: meta.description || null,
+      link_title_fr: meta.link_title_fr || null,
+      link_title_en: meta.link_title_en || null,
+      link_title_ar: meta.link_title_ar || null,
+      description_fr: meta.description_fr || null,
+      description_en: meta.description_en || null,
+      description_ar: meta.description_ar || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -123,7 +142,7 @@ const CertificationMetadataDialog = ({ certificationName, onClose, onSaved }: Pr
     setSaving(false);
   };
 
-  const charCount = plainTextLength(meta.description);
+  const charCount = plainTextLength(currentDesc);
 
   return (
     <>
@@ -184,38 +203,56 @@ const CertificationMetadataDialog = ({ certificationName, onClose, onSaved }: Pr
               )}
             </div>
 
-            {/* External link */}
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1.5"><ExternalLink className="h-4 w-4" /> Lien externe</Label>
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  placeholder="Titre du lien"
-                  value={meta.link_title || ""}
-                  onChange={(e) => setMeta((prev) => ({ ...prev, link_title: e.target.value }))}
-                />
-                <Input
-                  placeholder="https://..."
-                  value={meta.link_url || ""}
-                  onChange={(e) => setMeta((prev) => ({ ...prev, link_url: e.target.value }))}
-                />
-              </div>
-            </div>
+            {/* Language tabs — link title + rich description per language */}
+            <Tabs value={lang} onValueChange={(v) => setLang(v as Lang)}>
+              <TabsList>
+                <TabsTrigger value="fr">🇫🇷 Français</TabsTrigger>
+                <TabsTrigger value="en">🇬🇧 English</TabsTrigger>
+                <TabsTrigger value="ar">🇸🇦 العربية</TabsTrigger>
+              </TabsList>
 
-            {/* Rich text description */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Description (texte riche)</Label>
-                <span className={`text-xs ${charCount > MAX_DESCRIPTION_LENGTH ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
-                  {charCount} / {MAX_DESCRIPTION_LENGTH}
-                </span>
-              </div>
-              <RichTextEditor
-                content={meta.description || ""}
-                onChange={(html) => setMeta((prev) => ({ ...prev, description: html }))}
-                placeholder="Description de la certification…"
-                maxHeight="250px"
-              />
-            </div>
+              {(["fr", "en", "ar"] as Lang[]).map((l) => (
+                <TabsContent key={l} value={l} className="space-y-5 pt-4">
+                  {/* External link (title per language, URL shared) */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-1.5"><ExternalLink className="h-4 w-4" /> Lien externe</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input
+                        placeholder={`Titre du lien (${l.toUpperCase()})`}
+                        dir={l === "ar" ? "rtl" : "ltr"}
+                        value={meta[`link_title_${l}`] || ""}
+                        onChange={(e) => setMeta((prev) => ({ ...prev, [`link_title_${l}`]: e.target.value }))}
+                      />
+                      <Input
+                        placeholder="https://..."
+                        value={meta.link_url || ""}
+                        onChange={(e) => setMeta((prev) => ({ ...prev, link_url: e.target.value }))}
+                        disabled={l !== "fr"}
+                        title={l !== "fr" ? "URL commune à toutes les langues (éditable dans l'onglet FR)" : ""}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Rich text description */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label>Description ({l.toUpperCase()})</Label>
+                      <span className={`text-xs ${plainTextLength(meta[`description_${l}`]) > MAX_DESCRIPTION_LENGTH ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+                        {plainTextLength(meta[`description_${l}`])} / {MAX_DESCRIPTION_LENGTH}
+                      </span>
+                    </div>
+                    <div dir={l === "ar" ? "rtl" : "ltr"}>
+                      <RichTextEditor
+                        content={meta[`description_${l}`] || ""}
+                        onChange={(html) => setMeta((prev) => ({ ...prev, [`description_${l}`]: html }))}
+                        placeholder="Description de la certification…"
+                        maxHeight="250px"
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
 
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={onClose}>Annuler</Button>
