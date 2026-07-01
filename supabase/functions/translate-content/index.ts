@@ -184,7 +184,7 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
       { source: "name", target: `name_${t}`, kind: "text" },
     ],
   }),
-};
+}; // configs: neighborhoods_name, voice_intent_rules, regions
 
 
 const LANG_NAME: Record<string, string> = { en: "English", ar: "Arabic (Modern Standard)" };
