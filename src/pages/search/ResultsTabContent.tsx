@@ -167,6 +167,7 @@ export default function ResultsTabContent({
       proximity: "À proximité",
       allDistances: "Toutes distances",
       lt500m: "Moins de 500 m", lt1km: "Moins de 1 km", lt5km: "Moins de 5 km", lt10km: "Moins de 10 km",
+      youAreHere: "Vous êtes ici",
       of: "sur",
     },
     en: {
