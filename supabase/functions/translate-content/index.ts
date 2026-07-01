@@ -128,6 +128,24 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
       { source: "word", target: `word_${t}`, kind: "text" },
     ],
   }),
+  search_noise_words: (t) => ({
+    table: "search_noise_words", pk: "id",
+    textFields: [
+      { source: "word", target: `word_${t}`, kind: "text" },
+    ],
+  }),
+  popular_searches: (t) => ({
+    table: "popular_searches", pk: "id",
+    textFields: [
+      { source: "query", target: `query_${t}`, kind: "text" },
+    ],
+  }),
+  subcategory_search_config: (t) => ({
+    table: "subcategory_search_config", pk: "id",
+    textFields: [
+      { source: "synonyms", target: `synonyms_${t}`, kind: "text_array" },
+    ],
+  }),
 };
 
 

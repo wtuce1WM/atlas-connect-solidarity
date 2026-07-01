@@ -285,12 +285,19 @@ async function loadSearchConfig(supabase: any) {
     }
   }
   const [noiseResult, svcKwResult1, svcKwResult2] = await Promise.all([
-    supabase.from("search_noise_words").select("word").eq("is_active", true),
+    supabase.from("search_noise_words").select("word, word_en, word_ar").eq("is_active", true),
     supabase.from("services").select("name_fr, keywords").not("keywords", "eq", "{}").range(0, 999),
     supabase.from("services").select("name_fr, keywords").not("keywords", "eq", "{}").range(1000, 1999),
   ]);
   if (noiseResult.data) {
-    NOISE_ADJECTIVES = new Set(noiseResult.data.map((r: any) => r.word));
+    // Union FR + EN + AR so stop-words in any language are stripped
+    const allNoise: string[] = [];
+    for (const r of noiseResult.data as any[]) {
+      if (r.word) allNoise.push(r.word);
+      if (r.word_en) allNoise.push(r.word_en);
+      if (r.word_ar) allNoise.push(r.word_ar);
+    }
+    NOISE_ADJECTIVES = new Set(allNoise.map(w => w.toLowerCase()));
   }
   // Build service keyword index for early detection
   const allSvcKw = [...(svcKwResult1.data || []), ...(svcKwResult2.data || [])];
@@ -876,13 +883,14 @@ serve(async (req) => {
     // ── Natural language detection: extract keywords via LLM if needed ──
     let effectiveQuery = query;
     if (query && !earlySynonymHit && isNaturalLanguageQuery(query)) {
-      // Check if this query has pre-extracted keywords in popular_searches
+      // Check if this query has pre-extracted keywords in popular_searches (FR + EN + AR)
       let cachedKeywords: string | null = null;
       try {
+        const q = query.trim();
         const { data: popRow } = await supabase
           .from("popular_searches")
           .select("extracted_keywords")
-          .ilike("query", query.trim())
+          .or(`query.ilike.${q},query_en.ilike.${q},query_ar.ilike.${q}`)
           .eq("is_active", true)
           .not("extracted_keywords", "is", null)
           .limit(1)
@@ -956,7 +964,14 @@ serve(async (req) => {
       // 4. Related subcategories
       supabase.from("subcategory_relations").select("source_subcategory_id, target_subcategory_id, subcategories!subcategory_relations_source_subcategory_id_fkey(name_fr), target:subcategories!subcategory_relations_target_subcategory_id_fkey(name_fr)").eq("is_active", true).then((r: any) => r.data),
       // 5. Search configs
-      supabase.from("subcategory_search_config").select("subcategory_id, search_mode, max_results, boost_weight, synonyms, subcategories!inner(name_fr)").then((r: any) => r.data),
+      supabase.from("subcategory_search_config").select("subcategory_id, search_mode, max_results, boost_weight, synonyms, synonyms_en, synonyms_ar, subcategories!inner(name_fr)").then((r: any) => {
+        // Union all-language synonyms so EN/AR queries match FR-configured subcategories
+        const rows = r.data || [];
+        return rows.map((row: any) => ({
+          ...row,
+          synonyms: [...new Set([...(row.synonyms || []), ...(row.synonyms_en || []), ...(row.synonyms_ar || [])])],
+        }));
+      }),
     ]);
 
     let detectedNeighborhood = detectedNeighborhoodRaw;
