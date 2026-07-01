@@ -116,8 +116,8 @@ export default function SearchResultCard({ business, index, labelLogos, distance
           }}
           className="h-9 w-9 flex items-center justify-center rounded-full glass-toolbar-btn text-black hover:opacity-90 transition-opacity"
           style={{ backgroundColor: "#F1F1F1" }}
-          aria-label={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
-          title={isBookmarked ? "Retirer des favoris" : "Le Club OWM"}
+          aria-label={isBookmarked ? removeBookmarkLabel : "Le Club OWM"}
+          title={isBookmarked ? removeBookmarkLabel : "Le Club OWM"}
         >
           <Bookmark className="h-4 w-4" strokeWidth={2.5} fill={isBookmarked ? "currentColor" : "none"} />
         </button>
@@ -130,12 +130,13 @@ export default function SearchResultCard({ business, index, labelLogos, distance
         )}
         {engs.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium text-white" style={{ backgroundColor: "#C04F17" }}>
-            Commandez en ligne
+            {orderOnlineLabel}
           </span>
         )}
-        {business.default_service && (
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-black text-white border border-white/20">{business.default_service}</span>
+        {defaultService && (
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-black text-white border border-white/20">{defaultService}</span>
         )}
+
         {openBadge && (
           <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${openBadge.variant === "open" ? "bg-[#25D366] text-black" : "bg-primary text-primary-foreground"}`}>
             {openBadge.label}
