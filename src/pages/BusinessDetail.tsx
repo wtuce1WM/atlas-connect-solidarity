@@ -819,13 +819,13 @@ const BusinessDetail = () => {
               )}
 
               {/* Description */}
-              {business.description && (
+              {localizedDescription && (
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <button
                       onClick={() => {
                         // Strip HTML tags for TTS
-                        const plainText = business.description!.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                        const plainText = localizedDescription.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
                         const hook = language === 'ar' ? (business.hook_ar || business.hook_fr) : language === 'en' ? (business.hook_en || business.hook_fr) : business.hook_fr;
                         const fullText = `${business.name}. ${hook ? hook + '. ' : ''}${plainText}`;
                         ttsSpeak(fullText);
@@ -852,7 +852,7 @@ const BusinessDetail = () => {
                     </button>
                   </div>
                   <DescriptionExpander
-                    html={business.description}
+                    html={localizedDescription}
                     isVerified={isVerified}
                     anchorId="description-anchor"
                     collapsedHeight={
