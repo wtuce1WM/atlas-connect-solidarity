@@ -37,6 +37,7 @@ const CONFIGS: { key: string; label: string }[] = [
   { key: "businesses_full", label: "Fiches établissements (hook + description + highlights)" },
   { key: "certifications", label: "Certifications (titre lien + description)" },
   { key: "business_image_titles", label: "Images établissements (titre + description)" },
+  { key: "affiliate_promotions", label: "Offres affiliées (titre + message)" },
 ];
 
 export default function StaffTranslations() {

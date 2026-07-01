@@ -252,7 +252,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           const bIds = (bookmarksRes.data as any[]).map((b: any) => b.business_id);
           const [bizRes, promoRes] = await Promise.all([
             supabase.from("businesses").select("id, name, city, main_category, slug").in("id", bIds),
-            supabase.from("affiliate_business_promotions").select("id, business_id, title, promotion_type, promotion_value, promotion_currency, promotion_message, images, sort_order").in("business_id", bIds).order("sort_order", { ascending: true }),
+            supabase.from("affiliate_business_promotions").select("id, business_id, title, title_fr, title_en, title_ar, promotion_type, promotion_value, promotion_currency, promotion_message, promotion_message_fr, promotion_message_en, promotion_message_ar, images, sort_order").in("business_id", bIds).order("sort_order", { ascending: true }),
           ]);
           
           const bizMap = new Map((bizRes.data || []).map(b => [b.id, b]));
@@ -273,15 +273,20 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 city: biz?.city || null,
                 main_category: biz?.main_category || null,
                 slug: biz?.slug || null,
-                promotions: promos.map((p: any) => ({
-                  id: p.id,
-                  title: p.title || null,
-                  type: p.promotion_type,
-                  value: Number(p.promotion_value) || 0,
-                  currency: p.promotion_currency,
-                  message: p.promotion_message,
-                  images: Array.isArray(p.images) ? p.images : [],
-                })),
+                promotions: promos.map((p: any) => {
+                  const langKey = (language || "fr").toLowerCase();
+                  const localizedTitle = p[`title_${langKey}`] || p.title_fr || p.title || null;
+                  const localizedMessage = p[`promotion_message_${langKey}`] || p.promotion_message_fr || p.promotion_message || null;
+                  return {
+                    id: p.id,
+                    title: localizedTitle,
+                    type: p.promotion_type,
+                    value: Number(p.promotion_value) || 0,
+                    currency: p.promotion_currency,
+                    message: localizedMessage,
+                    images: Array.isArray(p.images) ? p.images : [],
+                  };
+                }),
               };
             }).filter((bk: any) => bizMap.has(bk.business_id))
           );

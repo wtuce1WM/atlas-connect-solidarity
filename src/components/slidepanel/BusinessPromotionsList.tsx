@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Promotion = {
   id: string;
-  title: string;
+  title: string | null;
+  title_fr: string | null;
+  title_en: string | null;
+  title_ar: string | null;
   promotion_message: string | null;
+  promotion_message_fr: string | null;
+  promotion_message_en: string | null;
+  promotion_message_ar: string | null;
   savings_amount: number | null;
   promotion_currency: string | null;
   promotion_type: string | null;
@@ -18,9 +25,17 @@ interface Props {
 
 const ROTATE_MS = 10000;
 
+const pickLocalized = (p: Promotion, lang: string, field: "title" | "promotion_message") => {
+  const key = `${field}_${lang}` as keyof Promotion;
+  const val = (p[key] as string | null) ?? null;
+  return val || (p[`${field}_fr` as keyof Promotion] as string | null) || (p[field] as string | null) || "";
+};
+
 const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [index, setIndex] = useState(0);
+  const { language } = useLanguage();
+  const lang = (language || "fr").toLowerCase();
 
   useEffect(() => {
     if (!businessId) {
@@ -31,7 +46,7 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
     (async () => {
       const { data } = await supabase
         .from("affiliate_business_promotions")
-        .select("id, title, promotion_message, savings_amount, promotion_currency, promotion_type, promotion_value")
+        .select("id, title, title_fr, title_en, title_ar, promotion_message, promotion_message_fr, promotion_message_en, promotion_message_ar, savings_amount, promotion_currency, promotion_type, promotion_value")
         .eq("business_id", businessId)
         .order("sort_order", { ascending: true });
       if (!cancelled) {
@@ -61,7 +76,9 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
       <div className="relative w-full">
         {promotions.map((p, i) => {
           const active = i === index;
-          const maxWClass = p.promotion_message ? "max-w-[90%]" : "max-w-[60%]";
+          const localizedTitle = pickLocalized(p, lang, "title");
+          const localizedMessage = pickLocalized(p, lang, "promotion_message");
+          const maxWClass = localizedMessage ? "max-w-[90%]" : "max-w-[60%]";
           const positionClass = i === 0 ? "relative" : "absolute inset-0";
           return (
             <div className={`${positionClass} w-full flex justify-center`} key={p.id}>
@@ -106,7 +123,7 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
                       className="text-[14px] font-bold text-neutral-900 leading-snug"
                       style={{ fontFamily: "'Montserrat', sans-serif" }}
                     >
-                      {p.title}
+                      {localizedTitle}
                     </div>
                     {promoAmount && (
                       <div
@@ -119,10 +136,10 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
                   </div>
                 );
               })()}
-              {p.promotion_message && (
+              {localizedMessage && (
                 <div
                   className="relative mt-1.5 prose prose-sm max-w-none text-[13px] leading-relaxed text-neutral-700 prose-headings:text-neutral-900 prose-headings:font-bold prose-strong:text-neutral-900 prose-a:text-[#C04F17] prose-a:underline [&_p]:my-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 [&_img]:rounded-md [&_img]:max-w-full [&_h2]:text-[14px] [&_h3]:text-[13px] [&_blockquote]:border-l-2 [&_blockquote]:border-[#C04F17]/40 [&_blockquote]:pl-3 [&_blockquote]:italic"
-                  dangerouslySetInnerHTML={{ __html: p.promotion_message }}
+                  dangerouslySetInnerHTML={{ __html: localizedMessage }}
                 />
               )}
             </div>

@@ -23,11 +23,17 @@ export type Database = {
           images: string[]
           promotion_currency: string | null
           promotion_message: string | null
+          promotion_message_ar: string | null
+          promotion_message_en: string | null
+          promotion_message_fr: string | null
           promotion_type: string | null
           promotion_value: number | null
           savings_amount: number | null
           sort_order: number
           title: string | null
+          title_ar: string | null
+          title_en: string | null
+          title_fr: string | null
           updated_at: string
         }
         Insert: {
@@ -38,11 +44,17 @@ export type Database = {
           images?: string[]
           promotion_currency?: string | null
           promotion_message?: string | null
+          promotion_message_ar?: string | null
+          promotion_message_en?: string | null
+          promotion_message_fr?: string | null
           promotion_type?: string | null
           promotion_value?: number | null
           savings_amount?: number | null
           sort_order?: number
           title?: string | null
+          title_ar?: string | null
+          title_en?: string | null
+          title_fr?: string | null
           updated_at?: string
         }
         Update: {
@@ -53,11 +65,17 @@ export type Database = {
           images?: string[]
           promotion_currency?: string | null
           promotion_message?: string | null
+          promotion_message_ar?: string | null
+          promotion_message_en?: string | null
+          promotion_message_fr?: string | null
           promotion_type?: string | null
           promotion_value?: number | null
           savings_amount?: number | null
           sort_order?: number
           title?: string | null
+          title_ar?: string | null
+          title_en?: string | null
+          title_fr?: string | null
           updated_at?: string
         }
         Relationships: [

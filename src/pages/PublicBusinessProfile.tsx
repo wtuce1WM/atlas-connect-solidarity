@@ -7,6 +7,7 @@ import ShareButton from "@/components/ShareButton";
 import { useSEO } from "@/hooks/useSEO";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 
 type PublicBusiness = {
@@ -97,8 +98,14 @@ const stripHtml = (s: string) =>
 
 type Promotion = {
   id: string;
-  title: string;
+  title: string | null;
+  title_fr: string | null;
+  title_en: string | null;
+  title_ar: string | null;
   promotion_message: string | null;
+  promotion_message_fr: string | null;
+  promotion_message_en: string | null;
+  promotion_message_ar: string | null;
   savings_amount: number | null;
   promotion_currency: string | null;
   promotion_type: string | null;
@@ -111,6 +118,12 @@ const PublicBusinessProfile = () => {
   const [business, setBusiness] = useState<PublicBusiness | null>(null);
   const [descExpanded, setDescExpanded] = useState(false);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const { language } = useLanguage();
+  const lang = (language || "fr").toLowerCase();
+  const pickPromo = (p: Promotion, field: "title" | "promotion_message") => {
+    const val = (p as any)[`${field}_${lang}`] as string | null | undefined;
+    return val || (p as any)[`${field}_fr`] || (p as any)[field] || "";
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -133,7 +146,7 @@ const PublicBusinessProfile = () => {
       if (data?.id) {
         const { data: promos } = await supabase
           .from("affiliate_business_promotions")
-          .select("id, title, promotion_message, savings_amount, promotion_currency, promotion_type, promotion_value")
+          .select("id, title, title_fr, title_en, title_ar, promotion_message, promotion_message_fr, promotion_message_en, promotion_message_ar, savings_amount, promotion_currency, promotion_type, promotion_value")
           .eq("business_id", data.id)
           .order("sort_order", { ascending: true });
         if (!cancelled) setPromotions((promos as Promotion[]) ?? []);
@@ -405,7 +418,7 @@ const PublicBusinessProfile = () => {
                         className="text-[14px] font-bold text-white leading-snug"
                         style={{ fontFamily: "'Montserrat', sans-serif" }}
                       >
-                        {p.title}
+                        {pickPromo(p, "title")}
                       </div>
                       {promoAmount && (
                         <div
@@ -416,10 +429,10 @@ const PublicBusinessProfile = () => {
                         </div>
                       )}
                     </div>
-                    {p.promotion_message && (
+                    {pickPromo(p, "promotion_message") && (
                       <div
                         className="mt-1.5 text-[13px] leading-relaxed text-neutral-300 [&_p]:m-0"
-                        dangerouslySetInnerHTML={{ __html: p.promotion_message }}
+                        dangerouslySetInnerHTML={{ __html: pickPromo(p, "promotion_message") }}
                       />
                     )}
                   </div>
