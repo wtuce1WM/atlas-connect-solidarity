@@ -278,7 +278,7 @@ export function CtaBar({
       <button
         key="directions"
         onClick={() => setShowDirections(true)}
-        className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left ${glassFx}`}
+        className={`flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground !font-bold text-xs md:text-sm hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left ${glassFx}`}
         style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}
       >
         <MapPin className="h-4 w-4 hidden md:block" />
