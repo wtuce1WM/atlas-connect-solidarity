@@ -123,7 +123,7 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
                       className="text-[14px] font-bold text-neutral-900 leading-snug"
                       style={{ fontFamily: "'Montserrat', sans-serif" }}
                     >
-                      {p.title}
+                      {localizedTitle}
                     </div>
                     {promoAmount && (
                       <div
