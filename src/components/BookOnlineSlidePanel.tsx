@@ -346,12 +346,21 @@ const BookOnlineSlidePanelInner = ({
       setPopupMeta({ title: null, description: null });
       supabase
         .from("business_image_titles")
-        .select("title, description")
+        .select("title, description, title_fr, title_en, title_ar, description_fr, description_en, description_ar")
         .eq("business_id", business.id)
         .eq("image_url", url)
         .maybeSingle()
         .then(({ data }) => {
-          if (data) setPopupMeta({ title: (data as any).title ?? null, description: (data as any).description ?? null });
+          if (data) {
+            const d = data as any;
+            const t = language === "en" ? (d.title_en || d.title_fr || d.title)
+              : language === "ar" ? (d.title_ar || d.title_fr || d.title)
+              : (d.title_fr || d.title);
+            const desc = language === "en" ? (d.description_en || d.description_fr || d.description)
+              : language === "ar" ? (d.description_ar || d.description_fr || d.description)
+              : (d.description_fr || d.description);
+            setPopupMeta({ title: t ?? null, description: desc ?? null });
+          }
         });
     }
   }, [business?.id, (business as any)?.popup_image_url, (business as any)?.images]);
