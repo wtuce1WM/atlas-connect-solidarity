@@ -273,15 +273,20 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 city: biz?.city || null,
                 main_category: biz?.main_category || null,
                 slug: biz?.slug || null,
-                promotions: promos.map((p: any) => ({
-                  id: p.id,
-                  title: p.title || null,
-                  type: p.promotion_type,
-                  value: Number(p.promotion_value) || 0,
-                  currency: p.promotion_currency,
-                  message: p.promotion_message,
-                  images: Array.isArray(p.images) ? p.images : [],
-                })),
+                promotions: promos.map((p: any) => {
+                  const langKey = (language || "fr").toLowerCase();
+                  const localizedTitle = p[`title_${langKey}`] || p.title_fr || p.title || null;
+                  const localizedMessage = p[`promotion_message_${langKey}`] || p.promotion_message_fr || p.promotion_message || null;
+                  return {
+                    id: p.id,
+                    title: localizedTitle,
+                    type: p.promotion_type,
+                    value: Number(p.promotion_value) || 0,
+                    currency: p.promotion_currency,
+                    message: localizedMessage,
+                    images: Array.isArray(p.images) ? p.images : [],
+                  };
+                }),
               };
             }).filter((bk: any) => bizMap.has(bk.business_id))
           );
