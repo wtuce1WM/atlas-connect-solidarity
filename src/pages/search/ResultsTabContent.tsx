@@ -202,6 +202,12 @@ export default function ResultsTabContent({
     },
   };
   const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
+  const { translateSubcategory } = useTaxonomyTranslations();
+  const trFsName = (name: string) => {
+    const viaVignette = translateVignetteLabel(name, language as any);
+    if (viaVignette && viaVignette !== name) return viaVignette;
+    return translateSubcategory(name, language);
+  };
   const [, setSearchParams] = useSearchParams();
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
