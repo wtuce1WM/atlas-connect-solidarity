@@ -82,6 +82,8 @@ interface CardsToggleButtonProps {
 }
 
 export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot, middleSlot, openBadgeInfo }: CardsToggleButtonProps) => {
+  const { language } = useLanguage();
+  const L = TOGGLE_LABELS[language as "fr" | "en" | "ar"] ?? TOGGLE_LABELS.fr;
   return (
     <div className={`w-full shrink-0 pointer-events-auto relative z-20 ${openBadgeInfo?.text ? (middleSlot ? "pb-2 md:pb-0" : "pb-9 md:pb-0") : ""}`}>
       <div className="flex w-full items-center justify-center gap-3 h-[32px] mb-2 relative">
