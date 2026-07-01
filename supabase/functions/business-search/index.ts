@@ -5035,15 +5035,17 @@ serve(async (req) => {
       try {
         const { data: serviceFilters } = await supabase
           .from("search_service_filters")
-          .select("keyword, required_service")
+          .select("keyword, keyword_en, keyword_ar, required_service")
           .eq("is_active", true);
         
         if (serviceFilters && serviceFilters.length > 0) {
           const queryLower = stripAccentsGlobal((effectiveQuery || "").toLowerCase());
           const spokenLower = stripAccentsGlobal((spoken || "").toLowerCase());
           const matchingFilters = serviceFilters.filter(f => {
-            const kw = stripAccentsGlobal(f.keyword.toLowerCase());
-            return queryLower.includes(kw) || spokenLower.includes(kw);
+            const kws = [f.keyword, (f as any).keyword_en, (f as any).keyword_ar]
+              .filter(Boolean)
+              .map((k: string) => stripAccentsGlobal(k.toLowerCase()));
+            return kws.some(kw => queryLower.includes(kw) || spokenLower.includes(kw));
           });
           
           if (matchingFilters.length > 0) {

@@ -43,6 +43,9 @@ const CONFIGS: { key: string; label: string }[] = [
   { key: "search_noise_words", label: "Mots de bruit (stop-words de recherche)" },
   { key: "popular_searches", label: "Recherches populaires (dropdown suggestions)" },
   { key: "subcategory_search_config", label: "Config sous-catégories (synonyms)" },
+  { key: "search_service_filters", label: "Filtres de service (keyword)" },
+  { key: "neighborhoods", label: "Quartiers (hook + description)" },
+  { key: "event_types", label: "Types d'événements (nom)" },
 ];
 
 
