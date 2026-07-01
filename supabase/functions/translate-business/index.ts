@@ -209,6 +209,10 @@ async function translateHighlightsAdaptive(
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const url = new URL(req.url);
+  if (url.searchParams.get("ping") === "1") return jsonRes({ pong: true, version: "v3-defensive" });
+
+
 
   try {
     const authHeader = req.headers.get("Authorization");
