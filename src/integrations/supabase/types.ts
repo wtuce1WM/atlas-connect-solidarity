@@ -421,6 +421,7 @@ export type Database = {
           title_en: string | null
           title_fr: string
           updated_at: string
+          video_section_config: Json | null
         }
         Insert: {
           author_name?: string | null
@@ -460,6 +461,7 @@ export type Database = {
           title_en?: string | null
           title_fr: string
           updated_at?: string
+          video_section_config?: Json | null
         }
         Update: {
           author_name?: string | null
@@ -499,6 +501,7 @@ export type Database = {
           title_en?: string | null
           title_fr?: string
           updated_at?: string
+          video_section_config?: Json | null
         }
         Relationships: []
       }
