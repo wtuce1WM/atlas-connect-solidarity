@@ -403,13 +403,22 @@ const BusinessDetail = () => {
     fetchBusiness();
   }, [routeSlug]);
 
+  // Localized description (falls back to legacy `description` = FR source)
+  const localizedDescription = useMemo(() => {
+    if (!business) return "";
+    const b: any = business;
+    if (language === "ar") return b.description_ar || b.description_fr || b.description || "";
+    if (language === "en") return b.description_en || b.description_fr || b.description || "";
+    return b.description_fr || b.description || "";
+  }, [business, language]);
+
   // SEO
   const seoDescription = useMemo(() => {
     if (!business) return "";
-    const plain = business.description?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() ?? "";
+    const plain = localizedDescription.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
     const cat = business.categories?.filter(c => c && c !== "?").join(", ") ?? "";
     return `${business.name}${business.city ? ` à ${business.city}` : ""}${cat ? ` – ${cat}` : ""}. ${plain}`.slice(0, 160);
-  }, [business]);
+  }, [business, localizedDescription]);
 
   const seoJsonLd = useMemo(() => {
     if (!business) return undefined;
