@@ -701,7 +701,13 @@ export default function ResultsTabContent({
 
                   <div className="absolute top-3 left-14 right-24 z-[10] flex justify-center w-[calc(100%-152px)]">
                     <div className="px-3 py-1.5 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate shadow-sm pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                      {(spokenText || searchQuery || labelFromUrl || "").trim()}
+                      {(() => {
+                        const raw = (spokenText || searchQuery || labelFromUrl || "").trim();
+                        if (!raw) return "";
+                        // If it matches a known vignette/front-structure label, translate it.
+                        const translated = trFsName(raw);
+                        return translated || raw;
+                      })()}
                     </div>
                   </div>
 
