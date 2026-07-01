@@ -14,7 +14,13 @@ export interface DestinationItem {
   image_url: string | null;
   images: string[] | null;
   hook: string | null;
+  hook_fr?: string | null;
+  hook_en?: string | null;
+  hook_ar?: string | null;
   description: string | null;
+  description_fr?: string | null;
+  description_en?: string | null;
+  description_ar?: string | null;
   latitude: number | null;
   longitude: number | null;
   region: string[] | null;
