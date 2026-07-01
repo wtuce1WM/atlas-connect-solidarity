@@ -5148,7 +5148,7 @@ const SearchPage = () => {
                                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proxActive ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                                  >
                                   <Navigation className="h-3.5 w-3.5" />
-                                  {proxActiveOpt ? proxActiveOpt.label : "À proximité"}
+                                   {proxActiveOpt ? proxActiveOpt.label : mapLabel("proximity", language)}
                                   {proxActive && (
                                     <span className="ml-0.5 opacity-70">{proxCounts[aiProximityKm!] ?? 0}</span>
                                   )}
