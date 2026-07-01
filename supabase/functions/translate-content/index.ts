@@ -93,6 +93,13 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
     table: "businesses", pk: "id",
     textFields: [{ source: "hook_fr", target: `hook_${t}`, kind: "text" }],
   }),
+  certifications: (t) => ({
+    table: "certification_metadata", pk: "id",
+    textFields: [
+      { source: "link_title_fr", target: `link_title_${t}`, kind: "text" },
+      { source: "description_fr", target: `description_${t}`, kind: "html" },
+    ],
+  }),
 };
 
 const LANG_NAME: Record<string, string> = { en: "English", ar: "Arabic (Modern Standard)" };
