@@ -5176,6 +5176,8 @@ export type Database = {
           merge_on_conflict: boolean
           updated_at: string | null
           word: string
+          word_ar: string | null
+          word_en: string | null
         }
         Insert: {
           category_name: string
@@ -5185,6 +5187,8 @@ export type Database = {
           merge_on_conflict?: boolean
           updated_at?: string | null
           word: string
+          word_ar?: string | null
+          word_en?: string | null
         }
         Update: {
           category_name?: string
@@ -5194,6 +5198,8 @@ export type Database = {
           merge_on_conflict?: boolean
           updated_at?: string | null
           word?: string
+          word_ar?: string | null
+          word_en?: string | null
         }
         Relationships: []
       }
