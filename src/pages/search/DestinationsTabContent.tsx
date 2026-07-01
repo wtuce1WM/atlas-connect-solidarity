@@ -275,6 +275,7 @@ const DestinationsTabContent = ({
                 }
               }}
               userLocation={userCoords ?? null}
+              userMarkerLabel={mapLabel("youAreHere", language)}
             />
           </div>
         </div>
