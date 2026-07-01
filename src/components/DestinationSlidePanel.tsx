@@ -45,7 +45,13 @@ interface DestinationFull {
   name_en: string | null;
   name_ar: string | null;
   description: string | null;
+  description_fr?: string | null;
+  description_en?: string | null;
+  description_ar?: string | null;
   hook: string | null;
+  hook_fr?: string | null;
+  hook_en?: string | null;
+  hook_ar?: string | null;
   image_url: string | null;
   images: string[] | null;
   videos: string[] | null;
