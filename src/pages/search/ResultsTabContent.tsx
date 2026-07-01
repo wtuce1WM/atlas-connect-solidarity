@@ -21,6 +21,8 @@ import FrontStructureSubFilterContent from "@/components/FrontStructureSubFilter
 import FiltersOverlayFlow from "@/components/FiltersOverlayFlow";
 import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
+import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import type { Business } from "@/pages/search/types";
 import type { TimeSlot } from "@/lib/timeSlots";
