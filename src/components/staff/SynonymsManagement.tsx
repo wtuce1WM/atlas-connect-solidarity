@@ -38,7 +38,11 @@ interface SynonymFilter {
 interface SynonymEntry {
   id: string;
   key_word: string;
+  key_word_en: string | null;
+  key_word_ar: string | null;
   synonyms: string[];
+  synonyms_en: string[];
+  synonyms_ar: string[];
   subcategory_names: string[];
   service_names: string[];
   filters: SynonymFilter[];
