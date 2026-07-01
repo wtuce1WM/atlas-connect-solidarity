@@ -2507,13 +2507,22 @@ serve(async (req) => {
           return stripped !== w ? [w, stripped] : [w];
         }))];
         // For short words (≤4 chars), use word-boundary pattern to avoid "art" matching "Artisanat"
-        const nameConditions = nameSearchTerms.map(w => {
-          if (w.length <= 4) return `name_fr.ilike.% ${w} %,name_fr.ilike.% ${w},name_fr.ilike.${w} %,name_fr.ilike.${w},name_fr.ilike.%'${w}%,name_fr.ilike.%'${w}%`;
-          return `name_fr.ilike.%${w}%`;
+        const NAME_COLS = ["name_fr", "name_en", "name_ar"];
+        const nameConditions = nameSearchTerms.flatMap(w => {
+          if (w.length <= 4) {
+            return NAME_COLS.flatMap(col => [
+              `${col}.ilike.% ${w} %`,
+              `${col}.ilike.% ${w}`,
+              `${col}.ilike.${w} %`,
+              `${col}.ilike.${w}`,
+              `${col}.ilike.%'${w}%`,
+            ]);
+          }
+          return NAME_COLS.map(col => `${col}.ilike.%${w}%`);
         }).join(",");
         const { data: matchingByName } = await supabase
           .from("services")
-          .select("name_fr, keywords, subcategories!inner(name_fr)")
+          .select("name_fr, name_en, name_ar, keywords, subcategories!inner(name_fr)")
           .or(nameConditions);
 
         // Load all services (not only those with keywords) so accent-insensitive name matching works reliably
