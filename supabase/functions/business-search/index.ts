@@ -2654,35 +2654,33 @@ serve(async (req) => {
           });
           
           for (const svc of sortedByWordCount) {
-            // Filter out stop words from service name for matching (e.g. "Au feu de bois" → ["feu", "bois"])
-            const svcContentWords = svc.name_fr.toLowerCase().split(/[\s]+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
-            // Also split hyphenated words for matching (e.g. "Sur-mesure" → ["sur-mesure", "sur", "mesure"])
-            const svcContentWordsExpanded = svcContentWords.flatMap((w: string) => {
-              if (w.includes("-")) {
-                const parts = w.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p));
-                return [w, ...parts];
+            const svcAllNames = [svc.name_fr, (svc as any).name_en, (svc as any).name_ar].filter(Boolean) as string[];
+            let allSvcWordsMatched = false;
+            let matchedContentWords: string[] = [];
+            for (const svcName of svcAllNames) {
+              const svcContentWords = svcName.toLowerCase().split(/[\s]+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+              if (svcContentWords.length === 0) continue;
+              const ok = svcContentWords.every((w: string) => {
+                const candidates = w.includes("-")
+                  ? [w, ...w.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
+                  : [w];
+                return candidates.some(cand =>
+                  allQueryWordsForNameSearch.some(qw => {
+                    if (usedQueryWords.has(qw)) return false;
+                    return normalizeWordKw(qw) === normalizeWordKw(cand);
+                  })
+                );
+              });
+              if (ok) {
+                allSvcWordsMatched = true;
+                matchedContentWords = svcContentWords;
+                break;
               }
-              return [w];
-            });
-            const svcWords = svc.name_fr.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
-            const allSvcWordsMatched = svcContentWords.length > 0 && svcContentWords.every((w: string) => {
-              // For hyphenated words, match if ANY part matches a query word
-              const candidates = w.includes("-") 
-                ? [w, ...w.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
-                : [w];
-              // Use allQueryWordsForNameSearch (includes subcat words) so that
-              // "Excursions Vélo" can fully match when query is "Excursions Vélo"
-              return candidates.some(cand =>
-                allQueryWordsForNameSearch.some(qw => {
-                  if (usedQueryWords.has(qw)) return false;
-                  return normalizeWordKw(qw) === normalizeWordKw(cand);
-                })
-              );
-            });
+            }
             if (allSvcWordsMatched) {
               fullyMatchedServices.push(svc.name_fr);
               // Mark query words as used (only content words, not stop words)
-              for (const sw of svcContentWords) {
+              for (const sw of matchedContentWords) {
                 // For hyphenated words, also try matching individual parts
                 const candidates = sw.includes("-")
                   ? [sw, ...sw.split("-").filter((p: string) => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
