@@ -8,6 +8,8 @@ import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import { haversineKm } from "@/lib/haversine";
+import { mapLabel } from "@/lib/mapLabels";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
 
 interface PoiTabContentProps {
   selectedCity: string;
@@ -82,6 +84,7 @@ const PoiTabContent = ({
     },
   };
   const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
+  const { translateSubcategory } = useTaxonomyTranslations();
 
   const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
   useEffect(() => { onPanelOpenChange?.(!!poiSelectedBusinessId); }, [poiSelectedBusinessId, onPanelOpenChange]);
@@ -250,6 +253,7 @@ const PoiTabContent = ({
             center={mapCenterForResults}
             fitToMarkers
             userLocation={userCoords ?? null}
+            userMarkerLabel={mapLabel("youAreHere", language)}
           />
           {(subcatCounts.length > 0 || !!userCoords) && (
             <div className="absolute top-[64px] left-1/2 -translate-x-1/2 z-[60] flex flex-wrap items-center justify-center gap-2">
@@ -262,7 +266,7 @@ const PoiTabContent = ({
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcat ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                       >
                         <SlidersHorizontal className="h-3.5 w-3.5" />
-                        {poiSubcat ?? L.attractions}
+                        {poiSubcat ? translateSubcategory(poiSubcat, language) : L.attractions}
                         {poiSubcat && <span className="ml-0.5 opacity-70">{filteredPois.length}</span>}
                       </button>
                     </DropdownMenuTrigger>
@@ -274,7 +278,7 @@ const PoiTabContent = ({
                       )}
                       {subcatCounts.map(([name, count]) => (
                         <DropdownMenuItem key={name} onSelect={() => setPoiSubcat(name)}>
-                          {name} <span className="ml-1 opacity-60">({count})</span>
+                          {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
@@ -424,6 +428,7 @@ const PoiTabContent = ({
                   });
               }}
               userLocation={userCoords ?? null}
+              userMarkerLabel={mapLabel("youAreHere", language)}
             />
           </div>
         </div>

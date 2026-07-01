@@ -7,6 +7,7 @@ import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import { mapLabel } from "@/lib/mapLabels";
 
 interface DestinationsTabContentProps {
   selectedCity: string;
@@ -176,6 +177,7 @@ const DestinationsTabContent = ({
             center={mapCenterForResults}
             fitToMarkers
             userLocation={userCoords ?? null}
+            userMarkerLabel={mapLabel("youAreHere", language)}
           />
           <PanelSearchBar
             onSearch={onSearchNavigate}
@@ -273,6 +275,7 @@ const DestinationsTabContent = ({
                 }
               }}
               userLocation={userCoords ?? null}
+              userMarkerLabel={mapLabel("youAreHere", language)}
             />
           </div>
         </div>
