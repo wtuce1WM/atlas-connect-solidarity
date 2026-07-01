@@ -256,6 +256,7 @@ Deno.serve(async (req) => {
         hero_title_bottom: post.hero_title_bottom_fr ?? "",
         hero_subtitle: post.hero_subtitle_fr ?? "",
         intro: post.intro_fr ?? "",
+        content: post.content_fr ?? "",
       }, target);
 
       if (isFilled(post.title_fr) && !isFilled(post[titleKey])) update[titleKey] = translatedMeta.title ?? null;
@@ -264,6 +265,7 @@ Deno.serve(async (req) => {
       if (isFilled(post.hero_title_bottom_fr) && !isFilled(post[heroBottomKey])) update[heroBottomKey] = translatedMeta.hero_title_bottom ?? null;
       if (isFilled(post.hero_subtitle_fr) && !isFilled(post[heroSubtitleKey])) update[heroSubtitleKey] = translatedMeta.hero_subtitle ?? null;
       if (isFilled(post.intro_fr) && !isFilled(post[introKey])) update[introKey] = translatedMeta.intro ?? null;
+      if (isFilled(post.content_fr) && !isFilled(post[contentKey])) update[contentKey] = translatedMeta.content ?? null;
     }
 
     const start = safeExistingEntries.length;
