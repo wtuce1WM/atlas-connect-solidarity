@@ -192,7 +192,7 @@ const BusinessCard = ({
     // Fetch description + ai_review_summary from DB
     const { data } = await supabase
       .from("businesses")
-      .select("description, ai_review_summary")
+      .select("description, description_fr, description_en, description_ar, ai_review_summary")
       .eq("id", business.id)
       .single();
 
@@ -202,9 +202,13 @@ const BusinessCard = ({
       parts.push(`Leur spécialité : ${business.default_service}.`);
     }
 
-    // Description nettoyée
-    if (data?.description) {
-      const clean = data.description.replace(/<[^>]+>/g, "").trim();
+    // Description nettoyée (localisée)
+    const d: any = data || {};
+    const localizedDesc = language === "ar" ? (d.description_ar || d.description_fr || d.description)
+      : language === "en" ? (d.description_en || d.description_fr || d.description)
+      : (d.description_fr || d.description);
+    if (localizedDesc) {
+      const clean = localizedDesc.replace(/<[^>]+>/g, "").trim();
       if (clean.length > 0) {
         // Limiter à ~200 caractères pour rester dans les 30s
         parts.push(clean.length > 200 ? clean.slice(0, 200) + "…" : clean);
