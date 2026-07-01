@@ -5093,10 +5093,10 @@ const SearchPage = () => {
                     const aiWelcome = isWelcomeText && mapPoiItems.length === 0 && cityPois.length > 0;
                     const basePois = aiWelcome ? buildMapPoiItems(cityPois, true) : mapPoiItems;
                     const proxOpts: { km: number; label: string }[] = [
-                      { km: 0.5, label: "Moins de 500 m" },
-                      { km: 1, label: "Moins de 1 km" },
-                      { km: 5, label: "Moins de 5 km" },
-                      { km: 10, label: "Moins de 10 km" },
+                      { km: 0.5, label: mapLabel("lt500m", language) },
+                      { km: 1, label: mapLabel("lt1km", language) },
+                      { km: 5, label: mapLabel("lt5km", language) },
+                      { km: 10, label: mapLabel("lt10km", language) },
                     ];
                     const proxCounts: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
                     if (userCenter) {
