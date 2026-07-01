@@ -306,6 +306,9 @@ export type Database = {
           color_hex: string | null
           created_at: string | null
           description: string | null
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
           id: string
           is_active_on_front: boolean | null
           name_ar: string | null
@@ -320,6 +323,9 @@ export type Database = {
           color_hex?: string | null
           created_at?: string | null
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           id?: string
           is_active_on_front?: boolean | null
           name_ar?: string | null
@@ -334,6 +340,9 @@ export type Database = {
           color_hex?: string | null
           created_at?: string | null
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           id?: string
           is_active_on_front?: boolean | null
           name_ar?: string | null
@@ -2361,6 +2370,9 @@ export type Database = {
           country_id: string
           created_at: string | null
           description: string | null
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -2394,6 +2406,9 @@ export type Database = {
           country_id: string
           created_at?: string | null
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -2427,6 +2442,9 @@ export type Database = {
           country_id?: string
           created_at?: string | null
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -2766,6 +2784,9 @@ export type Database = {
           computed_rating: number | null
           created_at: string | null
           description: string | null
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
           google_maps_url: string | null
           google_rating: number | null
           google_review_count: number | null
@@ -2797,6 +2818,9 @@ export type Database = {
           computed_rating?: number | null
           created_at?: string | null
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           google_maps_url?: string | null
           google_rating?: number | null
           google_review_count?: number | null
@@ -2828,6 +2852,9 @@ export type Database = {
           computed_rating?: number | null
           created_at?: string | null
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           google_maps_url?: string | null
           google_rating?: number | null
           google_review_count?: number | null
@@ -4766,6 +4793,9 @@ export type Database = {
           city_id: string
           created_at: string | null
           description: string | null
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
           hook: string | null
           id: string
           image_url: string | null
@@ -4790,6 +4820,9 @@ export type Database = {
           city_id: string
           created_at?: string | null
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           hook?: string | null
           id?: string
           image_url?: string | null
@@ -4814,6 +4847,9 @@ export type Database = {
           city_id?: string
           created_at?: string | null
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           hook?: string | null
           id?: string
           image_url?: string | null
@@ -5579,6 +5615,8 @@ export type Database = {
           adj_fr: string | null
           category_id: string
           created_at: string | null
+          description_ar: string | null
+          description_en: string | null
           description_fr: string | null
           icon: string | null
           id: string
@@ -5599,6 +5637,8 @@ export type Database = {
           adj_fr?: string | null
           category_id: string
           created_at?: string | null
+          description_ar?: string | null
+          description_en?: string | null
           description_fr?: string | null
           icon?: string | null
           id?: string
@@ -5619,6 +5659,8 @@ export type Database = {
           adj_fr?: string | null
           category_id?: string
           created_at?: string | null
+          description_ar?: string | null
+          description_en?: string | null
           description_fr?: string | null
           icon?: string | null
           id?: string
