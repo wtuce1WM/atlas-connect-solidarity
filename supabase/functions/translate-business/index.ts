@@ -145,12 +145,19 @@ async function translateFlatMapAdaptive(entries: Array<{ key: string; text: stri
   } catch (_) {
     if (entries.length === 1) {
       const e = entries[0];
-      const v = await translatePlainText(e.text, target);
-      return { [e.key]: v };
+      try {
+        const v = await translatePlainText(e.text, target);
+        return isFilled(v) ? { [e.key]: v } : {};
+      } catch (err) {
+        console.warn(`[translate-business] leaf skip ${e.key}:`, err instanceof Error ? err.message : String(err));
+        return {};
+      }
     }
     const mid = Math.ceil(entries.length / 2);
-    const left = await translateFlatMapAdaptive(entries.slice(0, mid), target);
-    const right = await translateFlatMapAdaptive(entries.slice(mid), target);
+    let left: Record<string, string> = {};
+    let right: Record<string, string> = {};
+    try { left = await translateFlatMapAdaptive(entries.slice(0, mid), target); } catch (err) { console.warn("[translate-business] left skip:", err instanceof Error ? err.message : String(err)); }
+    try { right = await translateFlatMapAdaptive(entries.slice(mid), target); } catch (err) { console.warn("[translate-business] right skip:", err instanceof Error ? err.message : String(err)); }
     return { ...left, ...right };
   }
 }
@@ -183,18 +190,29 @@ async function translateHighlightsAdaptive(
     if (chunk.length === 1) {
       const item = chunk[0];
       const entries = Object.entries(item.missing).map(([key, text]) => ({ key, text }));
-      const row = await translateFlatMapAdaptive(entries, target);
-      return { [item.id]: row };
+      try {
+        const row = await translateFlatMapAdaptive(entries, target);
+        return Object.keys(row).length > 0 ? { [item.id]: row } : {};
+      } catch (err) {
+        console.warn(`[translate-business] highlight leaf skip ${item.id}:`, err instanceof Error ? err.message : String(err));
+        return {};
+      }
     }
     const mid = Math.ceil(chunk.length / 2);
-    const left = await translateHighlightsAdaptive(chunk.slice(0, mid), target);
-    const right = await translateHighlightsAdaptive(chunk.slice(mid), target);
+    let left: Record<string, Record<string, string>> = {};
+    let right: Record<string, Record<string, string>> = {};
+    try { left = await translateHighlightsAdaptive(chunk.slice(0, mid), target); } catch (err) { console.warn("[translate-business] hl left skip:", err instanceof Error ? err.message : String(err)); }
+    try { right = await translateHighlightsAdaptive(chunk.slice(mid), target); } catch (err) { console.warn("[translate-business] hl right skip:", err instanceof Error ? err.message : String(err)); }
     return { ...left, ...right };
   }
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+
+
+
 
   try {
     const authHeader = req.headers.get("Authorization");
@@ -345,6 +363,9 @@ Deno.serve(async (req) => {
       translated_meta: Object.keys(bizUpdate),
     });
   } catch (e) {
-    return jsonRes({ error: e instanceof Error ? e.message : String(e) }, 500);
+    const msg = e instanceof Error ? e.message : String(e);
+    const stack = e instanceof Error ? e.stack : "";
+    console.error("[translate-business] TOP CATCH:", msg, "\nSTACK:", stack);
+    return jsonRes({ error: msg, stack: stack?.split("\n").slice(0, 5).join(" | ") }, 500);
   }
 });
