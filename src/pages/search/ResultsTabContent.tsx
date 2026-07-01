@@ -197,6 +197,7 @@ export default function ResultsTabContent({
       proximity: "بالقرب",
       allDistances: "كل المسافات",
       lt500m: "أقل من 500 م", lt1km: "أقل من 1 كم", lt5km: "أقل من 5 كم", lt10km: "أقل من 10 كم",
+      youAreHere: "أنت هنا",
       of: "من",
     },
   };
