@@ -838,15 +838,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
 
           {/* Centered hook + "+" button to open full description overlay */}
-          {!cardsHidden && !flipped && (destination.hook || description) && (
+          {!cardsHidden && !flipped && (localizedHook || description) && (
             <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-4">
               <div className="relative flex items-center justify-center">
-                {destination.hook && (
+                {localizedHook && (
                   <p
                     className="hidden md:block absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-[85vw] md:w-xl max-w-xl text-lg md:text-xl text-white/90 font-bold text-center leading-relaxed pointer-events-none [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
-                    {destination.hook}
+                    {localizedHook}
                   </p>
                 )}
                 {description && (
