@@ -593,7 +593,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     );
     // fitBounds already includes the user location together with the POIs,
     // so the marker stays visible without overriding the framing.
-  }, [userLocation, ready]);
+  }, [userLocation, ready, userMarkerLabel]);
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
   useEffect(() => {
