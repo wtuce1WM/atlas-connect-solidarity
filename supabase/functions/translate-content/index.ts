@@ -100,6 +100,13 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
       { source: "description_fr", target: `description_${t}`, kind: "html" },
     ],
   }),
+  business_image_titles: (t) => ({
+    table: "business_image_titles", pk: "id",
+    textFields: [
+      { source: "title_fr", target: `title_${t}`, kind: "text" },
+      { source: "description_fr", target: `description_${t}`, kind: "text" },
+    ],
+  }),
 };
 
 const LANG_NAME: Record<string, string> = { en: "English", ar: "Arabic (Modern Standard)" };
