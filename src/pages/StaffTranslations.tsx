@@ -38,6 +38,7 @@ const CONFIGS: { key: string; label: string }[] = [
   { key: "certifications", label: "Certifications (titre lien + description)" },
   { key: "business_image_titles", label: "Images établissements (titre + description)" },
   { key: "affiliate_promotions", label: "Offres affiliées (titre + message)" },
+  { key: "search_synonyms", label: "Synonymes de recherche (mot-clé + liste)" },
 ];
 
 export default function StaffTranslations() {
