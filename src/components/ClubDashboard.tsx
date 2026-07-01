@@ -252,7 +252,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           const bIds = (bookmarksRes.data as any[]).map((b: any) => b.business_id);
           const [bizRes, promoRes] = await Promise.all([
             supabase.from("businesses").select("id, name, city, main_category, slug").in("id", bIds),
-            supabase.from("affiliate_business_promotions").select("id, business_id, title, promotion_type, promotion_value, promotion_currency, promotion_message, images, sort_order").in("business_id", bIds).order("sort_order", { ascending: true }),
+            supabase.from("affiliate_business_promotions").select("id, business_id, title, title_fr, title_en, title_ar, promotion_type, promotion_value, promotion_currency, promotion_message, promotion_message_fr, promotion_message_en, promotion_message_ar, images, sort_order").in("business_id", bIds).order("sort_order", { ascending: true }),
           ]);
           
           const bizMap = new Map((bizRes.data || []).map(b => [b.id, b]));
