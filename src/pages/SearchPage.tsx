@@ -5063,7 +5063,7 @@ const SearchPage = () => {
                           if (!txt) return null;
                           return (
                             <div className="px-3 py-1.5 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate shadow-sm pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                              {txt}
+                              {trFsName(txt) || txt}
                             </div>
                           );
                         })()}
