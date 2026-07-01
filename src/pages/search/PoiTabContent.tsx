@@ -266,7 +266,7 @@ const PoiTabContent = ({
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcat ? "bg-[#3B3B3B] text-white" : "text-white/90 hover:text-white"}`}
                       >
                         <SlidersHorizontal className="h-3.5 w-3.5" />
-                        {poiSubcat ?? L.attractions}
+                        {poiSubcat ? translateSubcategory(poiSubcat, language) : L.attractions}
                         {poiSubcat && <span className="ml-0.5 opacity-70">{filteredPois.length}</span>}
                       </button>
                     </DropdownMenuTrigger>
