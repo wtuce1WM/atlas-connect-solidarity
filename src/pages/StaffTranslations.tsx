@@ -45,6 +45,7 @@ const CONFIGS: { key: string; label: string }[] = [
   { key: "subcategory_search_config", label: "Config sous-catégories (synonyms)" },
   { key: "search_service_filters", label: "Filtres de service (keyword)" },
   { key: "neighborhoods", label: "Quartiers (hook + description)" },
+  { key: "neighborhoods_name", label: "Quartiers (nom + keywords/alias)" },
   { key: "event_types", label: "Types d'événements (nom)" },
 ];
 
