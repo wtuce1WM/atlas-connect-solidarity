@@ -112,7 +112,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
               backgroundColor: '#25D366',
               boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.45), inset 0 -1px 0 0 rgba(0,0,0,0.25), 0 4px 14px -2px rgba(0,0,0,0.35)',
             }}
-            aria-label="Masquer les cartes"
+            aria-label={L.hideAria}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
