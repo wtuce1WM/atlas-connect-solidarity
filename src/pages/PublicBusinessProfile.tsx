@@ -418,7 +418,7 @@ const PublicBusinessProfile = () => {
                         className="text-[14px] font-bold text-white leading-snug"
                         style={{ fontFamily: "'Montserrat', sans-serif" }}
                       >
-                        {p.title}
+                        {pickPromo(p, "title")}
                       </div>
                       {promoAmount && (
                         <div
@@ -429,10 +429,10 @@ const PublicBusinessProfile = () => {
                         </div>
                       )}
                     </div>
-                    {p.promotion_message && (
+                    {pickPromo(p, "promotion_message") && (
                       <div
                         className="mt-1.5 text-[13px] leading-relaxed text-neutral-300 [&_p]:m-0"
-                        dangerouslySetInnerHTML={{ __html: p.promotion_message }}
+                        dangerouslySetInnerHTML={{ __html: pickPromo(p, "promotion_message") }}
                       />
                     )}
                   </div>
