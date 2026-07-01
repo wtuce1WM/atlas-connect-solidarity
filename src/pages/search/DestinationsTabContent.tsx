@@ -177,6 +177,7 @@ const DestinationsTabContent = ({
             center={mapCenterForResults}
             fitToMarkers
             userLocation={userCoords ?? null}
+            userMarkerLabel={mapLabel("youAreHere", language)}
           />
           <PanelSearchBar
             onSearch={onSearchNavigate}
