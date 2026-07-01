@@ -1197,7 +1197,7 @@ serve(async (req) => {
       // Dynamic lookup: match query words against subcategory names AND keywords from DB
       const { data: subcats } = await supabase
         .from("subcategories")
-        .select("name_fr, keywords");
+        .select("name_fr, name_en, name_ar, keywords");
       
       if (subcats) {
         // Sort by name length DESC so longer names match first (e.g. "Night Club" before "Club")
