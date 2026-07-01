@@ -49,9 +49,7 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const MarrakechArtisanat5Jours = lazy(() => import("./pages/MarrakechArtisanat5Jours"));
 const MarrakechGaleriesArt = lazy(() => import("./pages/MarrakechGaleriesArt"));
 // Template-based blog articles are served dynamically via /blog/:slug from public.blog_posts.
-// Only custom-layout articles (MarrakechArtisanat5Jours, MarrakechGaleriesArt,
-// LouerVillaVacancesMarrakech) keep their own lazy imports above.
-const LouerVillaVacancesMarrakech = lazy(() => import("./pages/LouerVillaVacancesMarrakech"));
+// Only custom-layout articles (MarrakechArtisanat5Jours, MarrakechGaleriesArt) keep their own lazy imports above.
 const BlogAnimations = lazy(() => import("./pages/BlogAnimations"));
 const BlogTypography = lazy(() => import("./pages/BlogTypography"));
 const BlogBrummellTypography = lazy(() => import("./pages/BlogBrummellTypography"));
