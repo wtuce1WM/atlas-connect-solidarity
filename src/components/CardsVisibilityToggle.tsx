@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const TOGGLE_LABELS = {
+  fr: { show: "Afficher", hide: "Masquer", showAria: "Afficher les cartes", hideAria: "Masquer les cartes" },
+  en: { show: "Show", hide: "Hide", showAria: "Show cards", hideAria: "Hide cards" },
+  ar: { show: "عرض", hide: "إخفاء", showAria: "عرض البطاقات", hideAria: "إخفاء البطاقات" },
+} as const;
 
 /* ------------------------------------------------------------------ */
 /*  MediaCounterBar – media index counter with optional nav chevrons  */
