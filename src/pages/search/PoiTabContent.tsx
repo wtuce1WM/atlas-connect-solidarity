@@ -428,6 +428,7 @@ const PoiTabContent = ({
                   });
               }}
               userLocation={userCoords ?? null}
+              userMarkerLabel={mapLabel("youAreHere", language)}
             />
           </div>
         </div>
