@@ -76,7 +76,9 @@ const BusinessPromotionsList = ({ businessId, cardsHidden }: Props) => {
       <div className="relative w-full">
         {promotions.map((p, i) => {
           const active = i === index;
-          const maxWClass = p.promotion_message ? "max-w-[90%]" : "max-w-[60%]";
+          const localizedTitle = pickLocalized(p, lang, "title");
+          const localizedMessage = pickLocalized(p, lang, "promotion_message");
+          const maxWClass = localizedMessage ? "max-w-[90%]" : "max-w-[60%]";
           const positionClass = i === 0 ? "relative" : "absolute inset-0";
           return (
             <div className={`${positionClass} w-full flex justify-center`} key={p.id}>
