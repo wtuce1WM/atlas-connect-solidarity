@@ -263,6 +263,10 @@ const SynonymsManagement = () => {
     const svcNames = [...new Set(entry.filters.map(f => f.required_service).filter(Boolean) as string[])];
     const { error } = await supabase.from("search_synonyms").update({
       key_word: entry.key_word,
+      key_word_en: entry.key_word_en,
+      key_word_ar: entry.key_word_ar,
+      synonyms_en: entry.synonyms_en,
+      synonyms_ar: entry.synonyms_ar,
       filters: entry.filters,
       subcategory_names: subcatNames,
       service_names: svcNames,
