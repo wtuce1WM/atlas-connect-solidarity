@@ -35,6 +35,7 @@ const CONFIGS: { key: string; label: string }[] = [
   { key: "points_of_interest", label: "Points d'intérêt (nom + description)" },
   { key: "businesses_hook", label: "Établissements — accroche (hook)" },
   { key: "businesses_full", label: "Fiches établissements (hook + description + highlights)" },
+  { key: "certifications", label: "Certifications (titre lien + description)" },
 ];
 
 export default function StaffTranslations() {
