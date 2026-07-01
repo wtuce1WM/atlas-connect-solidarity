@@ -48,6 +48,9 @@ function getLogIcon(l: string) {
 }
 
 export default function SearchResultCard({ business, index, labelLogos, distanceKm, onClick, onMouseEnter, onMouseLeave }: SearchResultCardProps) {
+  const { language } = useLanguage();
+  const { translateService, translateSubcategory } = useTaxonomyTranslations();
+  const openStatus = useOpenStatus({ business, language });
   const rawImg = business.images?.[0] || business.logo_url;
   const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
   const size = Math.round(450 * dpr);
@@ -55,8 +58,10 @@ export default function SearchResultCard({ business, index, labelLogos, distance
   const isPriority = index < 2;
   const avgOn20 = business.computed_rating ?? business.rating ?? null;
   const totalReviews = business.total_review_count ?? 0;
-  const subcat = business.categories?.[0] || null;
-  const openBadge = getOpenBadge(business);
+  const subcatRaw = business.categories?.[0] || null;
+  const subcat = subcatRaw ? translateSubcategory(subcatRaw, language) : null;
+  const defaultService = business.default_service ? translateService(business.default_service, language) : null;
+  const openBadge = openStatus.text ? { label: openStatus.text, variant: (openStatus.isOpen ? "open" : "upcoming") as "open" | "upcoming" } : null;
 
   const engs = business.engagements || [];
   const standards = engs.filter(e => !e.startsWith("Logistique:") && !e.startsWith("Certification:"));
@@ -64,6 +69,11 @@ export default function SearchResultCard({ business, index, labelLogos, distance
   const logistics = engs.filter(e => e.startsWith("Logistique:")).map(e => e.replace("Logistique:", "").trim());
   const hasEngagements = standards.length > 0 || logistics.length > 0 || certifications.length > 0;
   const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(business.id);
+
+  const orderOnlineLabel = language === "en" ? "Order online" : language === "ar" ? "اطلب عبر الإنترنت" : "Commandez en ligne";
+  const reviewsLabel = language === "en" ? "reviews" : language === "ar" ? "تقييم" : "avis";
+  const removeBookmarkLabel = language === "en" ? "Remove from favorites" : language === "ar" ? "إزالة من المفضلة" : "Retirer des favoris";
+
 
   return (
     <div
