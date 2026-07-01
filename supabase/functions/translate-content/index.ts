@@ -107,6 +107,13 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
       { source: "description_fr", target: `description_${t}`, kind: "text" },
     ],
   }),
+  affiliate_promotions: (t) => ({
+    table: "affiliate_business_promotions", pk: "id",
+    textFields: [
+      { source: "title_fr", target: `title_${t}`, kind: "text" },
+      { source: "promotion_message_fr", target: `promotion_message_${t}`, kind: "html" },
+    ],
+  }),
 };
 
 const LANG_NAME: Record<string, string> = { en: "English", ar: "Arabic (Modern Standard)" };
