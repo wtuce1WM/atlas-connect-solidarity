@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const TOGGLE_LABELS = {
+  fr: { show: "Afficher", hide: "Masquer", showAria: "Afficher les cartes", hideAria: "Masquer les cartes" },
+  en: { show: "Show", hide: "Hide", showAria: "Show cards", hideAria: "Hide cards" },
+  ar: { show: "عرض", hide: "إخفاء", showAria: "عرض البطاقات", hideAria: "إخفاء البطاقات" },
+} as const;
 
 /* ------------------------------------------------------------------ */
 /*  MediaCounterBar – media index counter with optional nav chevrons  */
@@ -75,6 +82,8 @@ interface CardsToggleButtonProps {
 }
 
 export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot, middleSlot, openBadgeInfo }: CardsToggleButtonProps) => {
+  const { language } = useLanguage();
+  const L = TOGGLE_LABELS[language as "fr" | "en" | "ar"] ?? TOGGLE_LABELS.fr;
   return (
     <div className={`w-full shrink-0 pointer-events-auto relative z-20 ${openBadgeInfo?.text ? (middleSlot ? "pb-2 md:pb-0" : "pb-9 md:pb-0") : ""}`}>
       <div className="flex w-full items-center justify-center gap-3 h-[32px] mb-2 relative">
@@ -86,13 +95,13 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
               backgroundColor: '#25D366',
               boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.45), inset 0 -1px 0 0 rgba(0,0,0,0.25), 0 4px 14px -2px rgba(0,0,0,0.35)',
             }}
-            aria-label="Afficher les cartes"
+            aria-label={L.showAria}
             onClick={(e) => { e.stopPropagation(); showCards(); }}
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
           >
             <ChevronUp className="hidden md:inline-block h-3.5 w-3.5" />
-            <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Afficher</span>
+            <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{L.show}</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
           </button>
         ) : (
@@ -103,7 +112,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
               backgroundColor: '#25D366',
               boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.45), inset 0 -1px 0 0 rgba(0,0,0,0.25), 0 4px 14px -2px rgba(0,0,0,0.35)',
             }}
-            aria-label="Masquer les cartes"
+            aria-label={L.hideAria}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
@@ -115,7 +124,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             onTouchStart={(e) => e.stopPropagation()}
           >
             <ChevronDown className="h-3.5 w-3.5" />
-            <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Masquer</span>
+            <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{L.hide}</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
           </button>
         )}
