@@ -79,6 +79,7 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
     table: "destinations", pk: "id",
     textFields: [
       { source: "name_fr", target: `name_${t}`, kind: "text" },
+      { source: "hook_fr", target: `hook_${t}`, kind: "text" },
       { source: "description_fr", target: `description_${t}`, kind: "text" },
     ],
   }),
