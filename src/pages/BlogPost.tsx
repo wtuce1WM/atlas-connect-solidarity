@@ -64,6 +64,7 @@ const BlogPost = () => {
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [videos, setVideos] = useState<BlogArticleVideo[]>([]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -81,6 +82,26 @@ const BlogPost = () => {
     };
     fetchPost();
   }, [slug]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const cfg = post?.video_section_config;
+    if (!cfg || !cfg.badge_id) {
+      setVideos([]);
+      return;
+    }
+    (async () => {
+      try {
+        const list = await fetchBlogVideoSection(cfg);
+        if (!cancelled) setVideos(list);
+      } catch {
+        if (!cancelled) setVideos([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [post?.video_section_config]);
 
   // -- Language helpers ----------------------------------------------------
 
