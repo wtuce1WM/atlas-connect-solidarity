@@ -38,7 +38,11 @@ interface SynonymFilter {
 interface SynonymEntry {
   id: string;
   key_word: string;
+  key_word_en: string | null;
+  key_word_ar: string | null;
   synonyms: string[];
+  synonyms_en: string[];
+  synonyms_ar: string[];
   subcategory_names: string[];
   service_names: string[];
   filters: SynonymFilter[];
@@ -145,6 +149,10 @@ const SynonymsManagement = () => {
 
     if (data) setEntries(data.map((d: any) => ({
       ...d,
+      key_word_en: d.key_word_en ?? null,
+      key_word_ar: d.key_word_ar ?? null,
+      synonyms_en: d.synonyms_en || [],
+      synonyms_ar: d.synonyms_ar || [],
       subcategory_names: d.subcategory_names || [],
       service_names: d.service_names || [],
       filters: d.filters || [],
@@ -255,6 +263,10 @@ const SynonymsManagement = () => {
     const svcNames = [...new Set(entry.filters.map(f => f.required_service).filter(Boolean) as string[])];
     const { error } = await supabase.from("search_synonyms").update({
       key_word: entry.key_word,
+      key_word_en: entry.key_word_en,
+      key_word_ar: entry.key_word_ar,
+      synonyms_en: entry.synonyms_en,
+      synonyms_ar: entry.synonyms_ar,
       filters: entry.filters,
       subcategory_names: subcatNames,
       service_names: svcNames,
@@ -711,6 +723,49 @@ const SynonymsManagement = () => {
                 </Button>
               </div>
             </div>
+
+            {/* Traductions EN / AR */}
+            <div className="space-y-3 border-t pt-3">
+              <h4 className="text-sm font-semibold">Traductions (utilisées pour les recherches EN / AR)</h4>
+              <p className="text-xs text-muted-foreground">
+                Peut être rempli manuellement ou via <a href="/staff/translations" className="text-amber-700 hover:underline">/staff/translations</a> (batch « Synonymes de recherche »).
+              </p>
+              {(["en", "ar"] as const).map((lang) => {
+                const keyField = `key_word_${lang}` as const;
+                const synField = `synonyms_${lang}` as const;
+                const keyVal = (selectedEntry[keyField] as string | null) || "";
+                const synVal = ((selectedEntry[synField] as string[]) || []).join(", ");
+                return (
+                  <div key={lang} className="space-y-1.5" dir={lang === "ar" ? "rtl" : "ltr"}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono uppercase text-muted-foreground w-6">{lang}</span>
+                      <Input
+                        value={keyVal}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setEntries((prev) => prev.map((ent) => ent.id === selectedEntry.id ? { ...ent, [keyField]: v || null } : ent));
+                          setDirtyEntries((prev) => new Set(prev).add(selectedEntry.id));
+                        }}
+                        placeholder={lang === "en" ? "Keyword (EN)" : "الكلمة الرئيسية"}
+                        className="max-w-[240px] h-8 text-sm"
+                      />
+                    </div>
+                    <Input
+                      value={synVal}
+                      onChange={(e) => {
+                        const arr = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
+                        setEntries((prev) => prev.map((ent) => ent.id === selectedEntry.id ? { ...ent, [synField]: arr } : ent));
+                        setDirtyEntries((prev) => new Set(prev).add(selectedEntry.id));
+                      }}
+                      placeholder={lang === "en" ? "Synonyms (comma-separated)" : "المرادفات (مفصولة بفواصل)"}
+                      className="text-sm"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+
 
             {/* Filtres */}
             <div className="space-y-2 border-t pt-3">

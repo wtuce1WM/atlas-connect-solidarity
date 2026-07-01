@@ -18,7 +18,7 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
 // `i18n` describes the storage pattern:
 //   - "suffix": source = `${field}_fr`, target = `${field}_${target}`
 //   - "entries": JSONB column `entries_${target}` mirroring `entries_${source}`
-type FieldKind = "text" | "html" | "json_entries";
+type FieldKind = "text" | "html" | "json_entries" | "text_array";
 type TableConfig = {
   table: string;
   pk: string;
@@ -113,6 +113,13 @@ const CONFIGS: Record<string, (target: string) => TableConfig> = {
     textFields: [
       { source: "title_fr", target: `title_${t}`, kind: "text" },
       { source: "promotion_message_fr", target: `promotion_message_${t}`, kind: "html" },
+    ],
+  }),
+  search_synonyms: (t) => ({
+    table: "search_synonyms", pk: "id",
+    textFields: [
+      { source: "key_word", target: `key_word_${t}`, kind: "text" },
+      { source: "synonyms", target: `synonyms_${t}`, kind: "text_array" },
     ],
   }),
 };
@@ -301,8 +308,20 @@ Deno.serve(async (req) => {
         const updates: Record<string, unknown> = {};
 
         if (cfg.textFields?.length) {
+          // Handle text_array fields separately (translate each element)
+          for (const f of cfg.textFields.filter((x) => x.kind === "text_array")) {
+            const src = row[f.source];
+            const tgt = row[f.target];
+            if (Array.isArray(src) && src.length > 0 && (!Array.isArray(tgt) || tgt.length === 0)) {
+              const items = src.map((v: unknown) => String(v ?? "")).filter((s) => s.trim().length > 0);
+              if (items.length > 0) {
+                const translated = await translateBatch(items, target_lang, false);
+                updates[f.target] = translated;
+              }
+            }
+          }
           const toTranslate: { idx: number; text: string; field: typeof cfg.textFields[0] }[] = [];
-          cfg.textFields.forEach((f, i) => {
+          cfg.textFields.filter((x) => x.kind !== "text_array").forEach((f, i) => {
             const src = row[f.source];
             const tgt = row[f.target];
             if (src && !tgt) toTranslate.push({ idx: i, text: String(src), field: f });
