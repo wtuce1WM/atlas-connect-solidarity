@@ -1,0 +1,1 @@
+ALTER TABLE public.destinations ADD COLUMN IF NOT EXISTS hook_fr text, ADD COLUMN IF NOT EXISTS hook_en text, ADD COLUMN IF NOT EXISTS hook_ar text; UPDATE public.destinations SET hook_fr = hook WHERE hook_fr IS NULL AND hook IS NOT NULL;

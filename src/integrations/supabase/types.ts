@@ -2843,6 +2843,9 @@ export type Database = {
           google_review_count: number | null
           google_reviews_url: string | null
           hook: string | null
+          hook_ar: string | null
+          hook_en: string | null
+          hook_fr: string | null
           id: string
           image_url: string | null
           images: string[] | null
@@ -2877,6 +2880,9 @@ export type Database = {
           google_review_count?: number | null
           google_reviews_url?: string | null
           hook?: string | null
+          hook_ar?: string | null
+          hook_en?: string | null
+          hook_fr?: string | null
           id?: string
           image_url?: string | null
           images?: string[] | null
@@ -2911,6 +2917,9 @@ export type Database = {
           google_review_count?: number | null
           google_reviews_url?: string | null
           hook?: string | null
+          hook_ar?: string | null
+          hook_en?: string | null
+          hook_fr?: string | null
           id?: string
           image_url?: string | null
           images?: string[] | null

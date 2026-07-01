@@ -45,7 +45,13 @@ interface DestinationFull {
   name_en: string | null;
   name_ar: string | null;
   description: string | null;
+  description_fr?: string | null;
+  description_en?: string | null;
+  description_ar?: string | null;
   hook: string | null;
+  hook_fr?: string | null;
+  hook_en?: string | null;
+  hook_ar?: string | null;
   image_url: string | null;
   images: string[] | null;
   videos: string[] | null;
@@ -146,7 +152,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       setIsLoading(true);
       const { data } = await supabase
         .from("destinations")
-        .select("id, name_fr, name_en, name_ar, description, hook, image_url, images, videos, matterport_url, latitude, longitude, region, city_ids")
+        .select("id, name_fr, name_en, name_ar, description, description_fr, description_en, description_ar, hook, hook_fr, hook_en, hook_ar, image_url, images, videos, matterport_url, latitude, longitude, region, city_ids")
         .eq("id", destinationId)
         .maybeSingle();
       if (!cancelled) {
@@ -467,7 +473,16 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const mainImage = destination?.image_url;
   const allImages = mainImage && !images.includes(mainImage) ? [mainImage, ...images] : images;
   const matterportUrl = destination?.matterport_url || null;
-  const description = destination?.description || null;
+  const description = destination
+    ? (language === "en" ? (destination.description_en || destination.description_fr || destination.description)
+        : language === "ar" ? (destination.description_ar || destination.description_fr || destination.description)
+        : (destination.description_fr || destination.description)) || null
+    : null;
+  const localizedHook = destination
+    ? (language === "en" ? (destination.hook_en || destination.hook_fr || destination.hook)
+        : language === "ar" ? (destination.hook_ar || destination.hook_fr || destination.hook)
+        : (destination.hook_fr || destination.hook)) || null
+    : null;
 
   const fileVideos = videos.filter((v) => getVideoInfo(v).type === "file");
   const cityFileVideos = cityVideos.filter((cv) => getVideoInfo(cv.url).type === "file");
@@ -823,15 +838,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
 
           {/* Centered hook + "+" button to open full description overlay */}
-          {!cardsHidden && !flipped && (destination.hook || description) && (
+          {!cardsHidden && !flipped && (localizedHook || description) && (
             <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-4">
               <div className="relative flex items-center justify-center">
-                {destination.hook && (
+                {localizedHook && (
                   <p
                     className="hidden md:block absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-[85vw] md:w-xl max-w-xl text-lg md:text-xl text-white/90 font-bold text-center leading-relaxed pointer-events-none [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]"
                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
-                    {destination.hook}
+                    {localizedHook}
                   </p>
                 )}
                 {description && (

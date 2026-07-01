@@ -14,7 +14,13 @@ export interface DestinationItem {
   image_url: string | null;
   images: string[] | null;
   hook: string | null;
+  hook_fr?: string | null;
+  hook_en?: string | null;
+  hook_ar?: string | null;
   description: string | null;
+  description_fr?: string | null;
+  description_en?: string | null;
+  description_ar?: string | null;
   latitude: number | null;
   longitude: number | null;
   region: string[] | null;
@@ -42,7 +48,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
     const fetchDestinations = async () => {
       setIsLoading(true);
 
-      const selectFields = "id, name_fr, name_en, name_ar, image_url, images, hook, description, latitude, longitude, region, city_ids";
+      const selectFields = "id, name_fr, name_en, name_ar, image_url, images, hook, hook_fr, hook_en, hook_ar, description, description_fr, description_en, description_ar, latitude, longitude, region, city_ids";
 
       if (!city) {
         const { data } = await supabase
