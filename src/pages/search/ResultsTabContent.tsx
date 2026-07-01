@@ -21,6 +21,8 @@ import FrontStructureSubFilterContent from "@/components/FrontStructureSubFilter
 import FiltersOverlayFlow from "@/components/FiltersOverlayFlow";
 import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
+import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import type { Business } from "@/pages/search/types";
 import type { TimeSlot } from "@/lib/timeSlots";
@@ -165,6 +167,7 @@ export default function ResultsTabContent({
       proximity: "À proximité",
       allDistances: "Toutes distances",
       lt500m: "Moins de 500 m", lt1km: "Moins de 1 km", lt5km: "Moins de 5 km", lt10km: "Moins de 10 km",
+      youAreHere: "Vous êtes ici",
       of: "sur",
     },
     en: {
@@ -179,6 +182,7 @@ export default function ResultsTabContent({
       proximity: "Nearby",
       allDistances: "All distances",
       lt500m: "Under 500 m", lt1km: "Under 1 km", lt5km: "Under 5 km", lt10km: "Under 10 km",
+      youAreHere: "You are here",
       of: "of",
     },
     ar: {
@@ -193,10 +197,17 @@ export default function ResultsTabContent({
       proximity: "بالقرب",
       allDistances: "كل المسافات",
       lt500m: "أقل من 500 م", lt1km: "أقل من 1 كم", lt5km: "أقل من 5 كم", lt10km: "أقل من 10 كم",
+      youAreHere: "أنت هنا",
       of: "من",
     },
   };
   const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
+  const { translateSubcategory } = useTaxonomyTranslations();
+  const trFsName = (name: string) => {
+    const viaVignette = translateVignetteLabel(name, language as any);
+    if (viaVignette && viaVignette !== name) return viaVignette;
+    return translateSubcategory(name, language);
+  };
   const [, setSearchParams] = useSearchParams();
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
   const [activeFsSubId, setActiveFsSubId] = useState<string | null>(null);
@@ -674,7 +685,8 @@ export default function ResultsTabContent({
                 }}
                 center={mapCenterForResults}
                 fitToMarkers
-                userLocation={userCoords ?? null}
+                 userLocation={userCoords ?? null}
+                 userMarkerLabel={L.youAreHere}
               />
               <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col pointer-events-none">
                 <div className="relative h-[52px] w-full flex-shrink-0">
@@ -689,7 +701,13 @@ export default function ResultsTabContent({
 
                   <div className="absolute top-3 left-14 right-24 z-[10] flex justify-center w-[calc(100%-152px)]">
                     <div className="px-3 py-1.5 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate shadow-sm pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                      {(spokenText || searchQuery || labelFromUrl || "").trim()}
+                      {(() => {
+                        const raw = (spokenText || searchQuery || labelFromUrl || "").trim();
+                        if (!raw) return "";
+                        // If it matches a known vignette/front-structure label, translate it.
+                        const translated = trFsName(raw);
+                        return translated || raw;
+                      })()}
                     </div>
                   </div>
 
@@ -750,8 +768,8 @@ export default function ResultsTabContent({
                           const subs = tab.subcategories ?? [];
                           if (subs.length === 0) return null;
                           const activeSubName = activeFsSubId
-                            ? (subs.find(s => s.id === activeFsSubId)?.name ?? "Sous-catégorie")
-                            : "Sous-catégorie";
+                            ? (trFsName(subs.find(s => s.id === activeFsSubId)?.name ?? "") || L.subcategory)
+                            : L.subcategory;
                           return (
                             <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                               <DropdownMenu>
@@ -772,7 +790,7 @@ export default function ResultsTabContent({
                                   )}
                                   {subs.map((s) => (
                                     <DropdownMenuItem key={s.id} onSelect={() => handleFsSubClick(s.id)}>
-                                      {s.name} <span className="ml-1 opacity-60">({s.count})</span>
+                                      {trFsName(s.name)} <span className="ml-1 opacity-60">({s.count})</span>
                                     </DropdownMenuItem>
                                   ))}
                                 </DropdownMenuContent>
@@ -796,7 +814,7 @@ export default function ResultsTabContent({
                               <DropdownMenuContent align="end" className="z-[95] max-h-80 overflow-y-auto">
                                 {frontTabs.map((ft) => (
                                   <DropdownMenuItem key={ft.id} onSelect={() => handleFsTabClick(ft.id)}>
-                                    {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
+                                    {trFsName(ft.name)} <span className="ml-1 opacity-60">({ft.count})</span>
                                   </DropdownMenuItem>
                                 ))}
                               </DropdownMenuContent>

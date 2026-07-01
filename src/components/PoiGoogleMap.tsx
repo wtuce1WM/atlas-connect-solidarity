@@ -34,6 +34,8 @@ interface PoiGoogleMapProps {
   highlightColor?: { bg: string; fg: string; border: string };
   /** When provided, draws a terracotta dot at the user's geolocation. */
   userLocation?: { lat: number; lng: number } | null;
+  /** Label shown on the user geolocation marker. Defaults to "Vous êtes ici". */
+  userMarkerLabel?: string;
 }
 
 /* ── Google Maps loader (reuses shared singleton) ── */
@@ -191,7 +193,8 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
         ? "0 2px 8px rgba(0,0,0,0.4)"
         : "0 1px 4px rgba(0,0,0,0.15)";
       const scale = this.highlighted ? "scale(1.08)" : "scale(1)";
-      const z = this.name === "Vous êtes ici" ? "2000" : (this.customColor ? "999" : (this.highlighted ? "1000" : "1"));
+      const isUserMarker = this.customColor?.bg === "#C04F17" && this.customColor?.border === "#C04F17";
+      const z = isUserMarker ? "2000" : (this.customColor ? "999" : (this.highlighted ? "1000" : "1"));
 
       this.div.style.cssText = `
       position:absolute;
@@ -228,7 +231,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -579,7 +582,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     userMarkerRef.current = new LabelMarker(
       { lat: userLocation.lat, lng: userLocation.lng },
       map,
-      "Vous êtes ici",
+      userMarkerLabel || "Vous êtes ici",
       navIcon,
       false,
       undefined,
@@ -590,7 +593,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     );
     // fitBounds already includes the user location together with the POIs,
     // so the marker stays visible without overriding the framing.
-  }, [userLocation, ready]);
+  }, [userLocation, ready, userMarkerLabel]);
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
   useEffect(() => {
