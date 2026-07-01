@@ -84,6 +84,7 @@ const PoiTabContent = ({
     },
   };
   const L = LABELS[language as keyof typeof LABELS] ?? LABELS.fr;
+  const { translateSubcategory } = useTaxonomyTranslations();
 
   const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
   useEffect(() => { onPanelOpenChange?.(!!poiSelectedBusinessId); }, [poiSelectedBusinessId, onPanelOpenChange]);
