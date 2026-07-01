@@ -183,6 +183,12 @@ const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { translateSubcategory } = useTaxonomyTranslations();
+  const trFsName = (name: string) => {
+    const v = translateVignetteLabel(name, language as any);
+    if (v && v !== name) return v;
+    return translateSubcategory(name, language);
+  };
   const { toast } = useToast();
   const { saveSearch } = useSearchHistory();
   const isMobile = useIsMobile();
