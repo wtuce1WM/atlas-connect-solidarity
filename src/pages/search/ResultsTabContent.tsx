@@ -768,8 +768,8 @@ export default function ResultsTabContent({
                           const subs = tab.subcategories ?? [];
                           if (subs.length === 0) return null;
                           const activeSubName = activeFsSubId
-                            ? (subs.find(s => s.id === activeFsSubId)?.name ?? "Sous-catégorie")
-                            : "Sous-catégorie";
+                            ? (trFsName(subs.find(s => s.id === activeFsSubId)?.name ?? "") || L.subcategory)
+                            : L.subcategory;
                           return (
                             <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                               <DropdownMenu>
