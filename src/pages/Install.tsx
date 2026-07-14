@@ -9,15 +9,20 @@ import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
-import installIosMockup from "@/assets/install-ios-mockup.png.asset.json";
+import installIosMockupEn from "@/assets/install-ios-mockup-en.png.asset.json";
+import installIosMockupFr from "@/assets/install-ios-mockup-fr.png.asset.json";
 import installAndroidMockup from "@/assets/install-android-mockup.png.asset.json";
 import installMacMockup from "@/assets/install-mac-mockup.png.asset.json";
 import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const MOCKUPS: Record<"ios" | "android" | "mac" | "windows", { url: string; alt: Record<Lang, string> }> = {
+const MOCKUPS: Record<"ios" | "android" | "mac" | "windows", { url: Record<Lang, string> | string; alt: Record<Lang, string> }> = {
   ios: {
-    url: installIosMockup.url,
+    url: {
+      fr: installIosMockupFr.url,
+      en: installIosMockupEn.url,
+      ar: installIosMockupEn.url,
+    },
     alt: {
       fr: "Illustration : menu Partager de Safari sur iPhone avec « Sur l'écran d'accueil » entouré en terracotta",
       en: "Illustration: Safari Share menu on iPhone with 'Add to Home Screen' circled in terracotta",
@@ -592,7 +597,7 @@ const Install = () => {
           {/* Illustration provisoire — sera remplacée par de vraies captures */}
           <figure className="mb-6 flex flex-col items-center">
             <img
-              src={MOCKUPS[platform].url}
+              src={typeof MOCKUPS[platform].url === "string" ? (MOCKUPS[platform].url as string) : (MOCKUPS[platform].url as Record<Lang, string>)[lang]}
               alt={MOCKUPS[platform].alt[lang]}
               width={1024}
               height={1024}
