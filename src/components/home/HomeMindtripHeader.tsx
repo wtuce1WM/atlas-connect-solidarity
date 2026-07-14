@@ -46,31 +46,31 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
   }`;
 
   const getNavLinks = () => {
-    if (location.pathname === "/corporate") {
+    if (cleanPath === "/corporate") {
       return [
         { to: "/join", label: L.join },
         { to: "/card", label: L.card },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/join") {
+    } else if (cleanPath === "/join") {
       return [
         { to: "/corporate", label: L.concept },
         { to: "/card", label: L.card },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/card") {
+    } else if (cleanPath === "/card") {
       return [
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/devenir-affilie") {
+    } else if (cleanPath === "/devenir-affilie") {
       return [
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
         { to: "/card", label: L.card },
       ];
-    } else if (location.pathname === "/club") {
+    } else if (cleanPath === "/club") {
       return [
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
@@ -82,7 +82,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
         { to: "/join", label: L.join },
         { to: "/club", label: L.club },
       ];
-      if (location.pathname !== "/install") {
+      if (cleanPath !== "/install") {
         baseLinks.push({ to: "/install", label: L.app });
       }
       return baseLinks;
@@ -91,35 +91,35 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
 
   const getMobileLinks = () => {
     const base = [{ to: "/", label: L.home }];
-    if (location.pathname === "/corporate") {
+    if (cleanPath === "/corporate") {
       return [
         ...base,
         { to: "/join", label: L.join },
         { to: "/card", label: L.card },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/join") {
+    } else if (cleanPath === "/join") {
       return [
         ...base,
         { to: "/corporate", label: L.concept },
         { to: "/card", label: L.card },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/card") {
+    } else if (cleanPath === "/card") {
       return [
         ...base,
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/devenir-affilie") {
+    } else if (cleanPath === "/devenir-affilie") {
       return [
         ...base,
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
         { to: "/card", label: L.card },
       ];
-    } else if (location.pathname === "/club") {
+    } else if (cleanPath === "/club") {
       return [
         ...base,
         { to: "/corporate", label: L.concept },
@@ -133,7 +133,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
         { to: "/join", label: L.join },
         { to: "/club", label: L.club },
       ];
-      if (location.pathname !== "/install") {
+      if (cleanPath !== "/install") {
         baseLinks.push({ to: "/install", label: L.app });
       }
       return baseLinks;
