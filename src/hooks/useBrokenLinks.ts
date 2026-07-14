@@ -8,21 +8,8 @@ let cachedBrokenUrls: Set<string> | null = null;
 let fetchPromise: Promise<Set<string>> | null = null;
 
 async function fetchBrokenUrls(): Promise<Set<string>> {
-  const urls = new Set<string>();
-  let from = 0;
-  const pageSize = 1000;
-  while (true) {
-    const { data } = await (supabase as any)
-      .from("broken_links")
-      .select("url")
-      .eq("is_active", true)
-      .range(from, from + pageSize - 1);
-    if (!data || data.length === 0) break;
-    for (const r of data) urls.add(r.url);
-    if (data.length < pageSize) break;
-    from += pageSize;
-  }
-  return urls;
+  const { data } = await (supabase as any).rpc("get_broken_urls_list");
+  return new Set(((data as string[]) || []).filter(Boolean));
 }
 
 function getBrokenUrls(): Promise<Set<string>> {
