@@ -647,9 +647,9 @@ const Install = () => {
                         { left: "76%", top: "80%" },
                       ][i]
                     : [
-                        { left: "94%", top: "7%" },   // étape 1 : à côté du menu ⋮ en haut à droite
-                        { left: "18%", top: "51%" },  // étape 2 : à gauche de « Installer et créer… »
-                        { left: "90%", top: "70%" },  // étape 3 : à côté du bouton « Installer »
+                        { left: "82%", top: "8%" },   // étape 1 : sous/à gauche du menu ⋮ sans le cacher
+                        { left: "88%", top: "56%" },  // étape 2 : à droite de « Installer et créer… »
+                        { left: "88%", top: "72%" },  // étape 3 : à côté du bouton « Installer »
                       ][i];
                   return (
                     <div key={i} className="flex flex-col items-center">
