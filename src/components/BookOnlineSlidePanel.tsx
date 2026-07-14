@@ -219,7 +219,7 @@ const BookOnlineSlidePanelInner = ({
   useEffect(() => { setActiveBusinessIdRaw(propBusinessId); setPreviousBusinessId(null); setSerpApiOverlayCtx(null); setCameFromFallback(false); }, [propBusinessId]);
   const businessId = activeBusinessId;
   const [cameFromFallback, setCameFromFallback] = useState(false);
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
