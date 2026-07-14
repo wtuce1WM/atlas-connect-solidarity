@@ -715,9 +715,9 @@ const HomeMindtrip = () => {
                 placeholder={L.searchPlaceholder}
                 onSearch={(params) => {
                   const qs = new URLSearchParams(params).toString();
-                  navigate(`/search?${qs}`);
+                  navigate(localizeUrl(`/search?${qs}`));
                 }}
-                onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
+                onBusinessSelect={(businessId) => navigate(localizeUrl(`/search?openBusiness=${businessId}`))}
                 onMobileSearchClick={() => heroVoice.toggleRecording()}
                 onVoiceActiveChange={setInlineVoiceActive}
               />
