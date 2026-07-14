@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MapPin, Phone, Mail, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 const SOCIAL_ORDER = [
   "social_whatsapp", "social_tiktok", "social_instagram", "social_facebook",
