@@ -2306,7 +2306,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       zone_city_ids: (formData as any).zone_chalandise === "nationale" && (formData as any).zone_city_ids?.length > 0 ? (formData as any).zone_city_ids : [],
       languages: (formData as any).languages?.length > 0 ? (formData as any).languages : [],
       affiliate_id: (formData as any).affiliate_id || null,
-      internal_notes: formData.internal_notes ? formData.internal_notes.slice(0, 5000) : null,
+      // internal_notes moved to business_internal_notes (staff-only table)
       video_1_url: formData.video_1_url || null,
       matterport_url: formData.matterport_url || null,
       flipbook_url: (formData as any).flipbook_url || null,
