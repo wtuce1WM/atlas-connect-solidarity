@@ -24,6 +24,15 @@
     <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
     <link rel="dns-prefetch" href="https://i.ytimg.com">
 
+    <!-- Preload LCP hero background (responsive) — mobile vertical / desktop landscape.
+         Kept in sync with <picture> sources in src/pages/HomeMindtrip.tsx. -->
+    <link rel="preload" as="image" fetchpriority="high"
+          href="/__l5e/assets-v1/57bbc0a5-d19b-4f8d-bb9c-531ec94a20ed/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp"
+          media="(max-width: 767px)">
+    <link rel="preload" as="image" fetchpriority="high"
+          href="/__l5e/assets-v1/d1144d55-f3ff-4cef-b495-f3772d0df7d2/hero-home-bg-naked-tinted-1920x1080.webp"
+          media="(min-width: 1024px)">
+
     <!-- Early-prime homepage snapshot fetch. Runs in parallel with JS download.
          Result is parked on window.__HOME_SNAPSHOT__ so React reads it synchronously
          (0 round-trip before first paint). Also emits a <link rel="preload"> for the
