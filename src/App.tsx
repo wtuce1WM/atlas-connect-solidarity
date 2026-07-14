@@ -191,7 +191,8 @@ const LocalizedRoutes = () => {
               <Route path="/subcategory/:subcategoryName" element={renderLazyRoute(<SubcategoryPage />)} />
               <Route path="/hotels" element={renderLazyRoute(<HotelSearch />)} />
               <Route path="/club" element={renderLazyRoute(<Club />)} />
-              <Route path="/:lang(en|ar)/club" element={renderLazyRoute(<Club />)} />
+              <Route path="/en/club" element={renderLazyRoute(<Club />)} />
+              <Route path="/ar/club" element={renderLazyRoute(<Club />)} />
               <Route path="/staff/demo-effects" element={<StaffRouteGuard>{renderLazyRoute(<LogoEffectsDemo />)}</StaffRouteGuard>} />
               <Route path="/search-analytics" element={renderLazyRoute(<SearchAnalytics />)} />
               <Route path="/destination/:destinationName" element={renderLazyRoute(<DestinationResolver />)} />
