@@ -174,9 +174,9 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
 
   const defaultLeft = (
     <Link
-      to="/"
+      to={withLangPrefix("/", language as "fr" | "en" | "ar")}
       className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors overflow-hidden"
-      aria-label="Accueil"
+      aria-label={language === "ar" ? "الصفحة الرئيسية" : language === "en" ? "Home" : "Accueil"}
     >
       <img src="/logo-gold.webp" alt="Logo" className="h-7 w-7 object-contain" />
     </Link>
