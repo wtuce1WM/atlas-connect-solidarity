@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MapPin, Phone, Mail, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 const SOCIAL_ORDER = [
   "social_whatsapp", "social_tiktok", "social_instagram", "social_facebook",
@@ -133,7 +134,7 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
         <div className="mb-4">
           <h4 className="text-xs font-semibold text-gold mb-2">{t("footer.company")}</h4>
           <ul className="space-y-1.5 text-xs text-muted-foreground">
-            <li><Link to="/" className="hover:text-gold transition-colors" onClick={close}>Page d'accueil</Link></li>
+            <li><Link to={withLangPrefix("/", language as "fr" | "en" | "ar")} className="hover:text-gold transition-colors" onClick={close}>{language === "ar" ? "الصفحة الرئيسية" : language === "en" ? "Home" : "Page d'accueil"}</Link></li>
             <li><Link to="/conditions-generales" className="hover:text-gold transition-colors" onClick={close}>Conditions Générales</Link></li>
             <li><a href="/affiliates" className="hover:text-gold transition-colors" onClick={close}>{t("footer.affiliates")}</a></li>
             <li><Link to="/blog" className="hover:text-gold transition-colors" onClick={close}>{t("footer.blog")}</Link></li>

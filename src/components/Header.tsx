@@ -7,6 +7,7 @@ import HeaderMenuContent from "@/components/HeaderMenuContent";
 import StructureMenuContent from "@/components/StructureMenuContent";
 import GlobalHeaderToolbar from "@/components/home/GlobalHeaderToolbar";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 const SOCIAL_ORDER = [
   "social_whatsapp", "social_tiktok", "social_instagram", "social_facebook",
@@ -130,7 +131,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
       <div className="mb-4">
         <h4 className="text-xs font-semibold text-gold mb-2">{t("footer.company")}</h4>
         <ul className="space-y-1.5 text-xs text-muted-foreground">
-          <li><Link to="/" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>Page d'accueil</Link></li>
+          <li><Link to={withLangPrefix("/", language as "fr" | "en" | "ar")} className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{language === "ar" ? "الصفحة الرئيسية" : language === "en" ? "Home" : "Page d'accueil"}</Link></li>
           <li><Link to="/conditions-generales" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>Conditions Générales</Link></li>
           <li><a href="/affiliates" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.affiliates")}</a></li>
           <li><Link to="/blog" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.blog")}</Link></li>
@@ -173,9 +174,9 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
 
   const defaultLeft = (
     <Link
-      to="/"
+      to={withLangPrefix("/", language as "fr" | "en" | "ar")}
       className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors overflow-hidden"
-      aria-label="Accueil"
+      aria-label={language === "ar" ? "الصفحة الرئيسية" : language === "en" ? "Home" : "Accueil"}
     >
       <img src="/logo-gold.webp" alt="Logo" className="h-7 w-7 object-contain" />
     </Link>
