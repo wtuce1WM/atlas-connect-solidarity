@@ -6,11 +6,8 @@ let cachedDomains: Set<string> | null = null;
 let fetchPromise: Promise<Set<string>> | null = null;
 
 async function fetchBlockedDomains(): Promise<Set<string>> {
-  const { data } = await supabase
-    .from("blocked_domains")
-    .select("domain")
-    .eq("is_active", true);
-  return new Set((data || []).map((r: any) => r.domain));
+  const { data } = await (supabase as any).rpc("get_blocked_domains_list");
+  return new Set(((data as string[]) || []).filter(Boolean));
 }
 
 function getBlockedDomains(): Promise<Set<string>> {
