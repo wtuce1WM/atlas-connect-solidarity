@@ -9,7 +9,52 @@ import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
+import installIosMockup from "@/assets/install-ios-mockup.png.asset.json";
+import installAndroidMockup from "@/assets/install-android-mockup.png.asset.json";
+import installMacMockup from "@/assets/install-mac-mockup.png.asset.json";
+import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+const MOCKUPS: Record<"ios" | "android" | "mac" | "windows", { url: string; alt: Record<Lang, string> }> = {
+  ios: {
+    url: installIosMockup.url,
+    alt: {
+      fr: "Illustration : menu Partager de Safari sur iPhone avec « Sur l'écran d'accueil » entouré en terracotta",
+      en: "Illustration: Safari Share menu on iPhone with 'Add to Home Screen' circled in terracotta",
+      ar: "توضيح: قائمة المشاركة في Safari مع خيار «إضافة إلى الشاشة الرئيسية» محاط باللون التراكوتا",
+    },
+  },
+  android: {
+    url: installAndroidMockup.url,
+    alt: {
+      fr: "Illustration : menu ⋮ de Chrome Android avec « Installer l'application » entouré en terracotta",
+      en: "Illustration: Chrome Android ⋮ menu with 'Install app' circled in terracotta",
+      ar: "توضيح: قائمة ⋮ في Chrome على Android مع خيار «تثبيت التطبيق» محاط باللون التراكوتا",
+    },
+  },
+  mac: {
+    url: installMacMockup.url,
+    alt: {
+      fr: "Illustration : menu Fichier de Safari macOS avec « Ajouter au Dock… » entouré en terracotta",
+      en: "Illustration: Safari macOS File menu with 'Add to Dock…' circled in terracotta",
+      ar: "توضيح: قائمة ملف في Safari على macOS مع خيار «إضافة إلى Dock…» محاط باللون التراكوتا",
+    },
+  },
+  windows: {
+    url: installWindowsMockup.url,
+    alt: {
+      fr: "Illustration : barre d'adresse Chrome sur Windows avec l'icône ⊕ Installer entourée en terracotta",
+      en: "Illustration: Chrome address bar on Windows with the ⊕ Install icon circled in terracotta",
+      ar: "توضيح: شريط عناوين Chrome على Windows مع أيقونة ⊕ تثبيت محاطة باللون التراكوتا",
+    },
+  },
+};
+
+const MOCKUP_CAPTION: Record<Lang, string> = {
+  fr: "Illustration provisoire — les captures réelles arrivent bientôt.",
+  en: "Provisional illustration — real screenshots coming soon.",
+  ar: "توضيح مؤقت — لقطات الشاشة الحقيقية قريباً.",
+};
 
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
@@ -543,6 +588,23 @@ const Install = () => {
           <h2 className="font-josefin text-xl md:text-2xl font-light mb-6 text-center">
             {guide.title}
           </h2>
+
+          {/* Illustration provisoire — sera remplacée par de vraies captures */}
+          <figure className="mb-6 flex flex-col items-center">
+            <img
+              src={MOCKUPS[platform].url}
+              alt={MOCKUPS[platform].alt[lang]}
+              width={1024}
+              height={1024}
+              loading="lazy"
+              className="w-full max-w-sm md:max-w-md h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
+            />
+            <figcaption className="mt-3 text-xs text-muted-foreground/70 font-roboto italic text-center">
+              {MOCKUP_CAPTION[lang]}
+            </figcaption>
+          </figure>
+
+
 
           <ol className="space-y-5">
             {guide.steps.map((step, i) => (
