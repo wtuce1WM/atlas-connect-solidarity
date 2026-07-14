@@ -24,6 +24,7 @@ const HARDCODED_BLOG_ROUTES = ["etablissements-notes"];
 const staticEntries: SitemapEntry[] = [
   { path: "/", changefreq: "daily", priority: "1.0" },
   { path: "/search", changefreq: "daily", priority: "0.9" },
+  { path: "/videos", changefreq: "daily", priority: "0.8" },
   { path: "/carte", changefreq: "weekly", priority: "0.8" },
   { path: "/hotels", changefreq: "weekly", priority: "0.8" },
   { path: "/blog", changefreq: "weekly", priority: "0.9" },
@@ -37,7 +38,6 @@ const staticEntries: SitemapEntry[] = [
   { path: "/club", changefreq: "monthly", priority: "0.6" },
   { path: "/devenir-affilie", changefreq: "monthly", priority: "0.5" },
   { path: "/conditions-generales", changefreq: "yearly", priority: "0.3" },
-  { path: "/ancien-index", changefreq: "monthly", priority: "0.3" },
 ];
 
 function xmlEscape(s: string) {
