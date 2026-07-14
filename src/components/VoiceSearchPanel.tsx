@@ -35,6 +35,8 @@ interface Props {
 const ACCENT = "#194CFF";
 
 const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center", audioLevel = 0, micReady = true }: Props) => {
+  const { language } = useLanguage();
+  const L = LABELS[language as "fr" | "en" | "ar"] || LABELS.fr;
   const isStart = align === "start";
   const successFiredRef = useRef(false);
   const startedAtRef = useRef<number>(0);
