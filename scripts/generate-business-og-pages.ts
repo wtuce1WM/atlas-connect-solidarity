@@ -27,16 +27,55 @@ const PROTECTED_DIRS = new Set([
   "assets",
 ]);
 
-const CATEGORY_TO_SCHEMA: Record<string, string> = {
-  "Hôtels": "Hotel",
-  "Hotels": "Hotel",
-  "Restaurants": "Restaurant",
-  "Restaurant": "Restaurant",
-  "Cafés": "CafeOrCoffeeShop",
-  "Bars": "BarOrPub",
-  "Boutiques": "Store",
-  "Shopping": "Store",
-};
+// Mapping catégorie → type Schema.org. Testé sur `categories[]` (plus précis)
+// avec fallback sur `main_category`. Ordre = priorité (premier match gagne).
+const CATEGORY_MAPPINGS: Array<[RegExp, string]> = [
+  [/^Hôtel|^Hotel|Palace/i, "Hotel"],
+  [/Riad|Maison d'hôte|Guest ?house|Hébergement|Auberge|Ecolodge|Lodge/i, "LodgingBusiness"],
+  [/Restaurant|Restauration/i, "Restaurant"],
+  [/Café|Coffee|Salon de thé/i, "CafeOrCoffeeShop"],
+  [/^Bar$|Bar à|Rooftop|Cocktail/i, "BarOrPub"],
+  [/Boîte de nuit|Night ?club|Discothèque/i, "NightClub"],
+  [/Spa|Hammam|Bien-être/i, "HealthAndBeautyBusiness"],
+  [/Salle de sport|Gym|Fitness|Yoga/i, "ExerciseGym"],
+  [/Golf/i, "GolfCourse"],
+  [/Musée/i, "Museum"],
+  [/Galerie d'art|Art gallery/i, "ArtGallery"],
+  [/Pharmacie/i, "Pharmacy"],
+  [/Cinéma|Cinema/i, "MovieTheater"],
+  [/Parc|Jardin/i, "TouristAttraction"],
+  [/Plage|Beach/i, "Beach"],
+  [/Boulangerie|Pâtisserie/i, "Bakery"],
+  [/Boucherie/i, "Store"],
+  [/Boutique|Magasin|Commerce|Shop|Concept store/i, "Store"],
+  [/Agence de voyage|Tour ?opérat|Excursion/i, "TravelAgency"],
+  [/École|Ecole|Formation/i, "EducationalOrganization"],
+  [/Clinique|Hôpital|Cabinet/i, "MedicalClinic"],
+];
+
+function resolveSchemaType(biz: Biz): string {
+  const cats = [...(biz.categories || []), biz.main_category || ""].filter(Boolean);
+  for (const c of cats) {
+    for (const [re, type] of CATEGORY_MAPPINGS) {
+      if (re.test(c)) return type;
+    }
+  }
+  return "LocalBusiness";
+}
+
+// Cuisines détectables dans services/categories pour Restaurant.servesCuisine
+const CUISINE_KEYWORDS: Array<[RegExp, string]> = [
+  [/marocain/i, "Moroccan"],
+  [/italien|pizza|pasta/i, "Italian"],
+  [/français|french/i, "French"],
+  [/japonais|sushi/i, "Japanese"],
+  [/asiatique|thai|thaï|chinois/i, "Asian"],
+  [/libanais|mezze/i, "Lebanese"],
+  [/indien/i, "Indian"],
+  [/burger/i, "American"],
+  [/fruits de mer|poisson|seafood/i, "Seafood"],
+  [/végétarien|vegan|healthy/i, "Vegetarian"],
+];
 
 interface StaticArticle {
   path: string;
@@ -75,18 +114,91 @@ interface Biz {
   slug: string | null;
   name: string;
   city: string | null;
+  neighborhood: string | null;
+  region: string | null;
   description: string | null;
   hook_fr: string | null;
   images: string[] | null;
   main_category: string | null;
+  categories: string[] | null;
+  services: string[] | null;
+  languages: string[] | null;
   address: string | null;
   phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
   website: string | null;
   latitude: number | null;
   longitude: number | null;
   google_rating: number | null;
   google_review_count: number | null;
+  tripadvisor_rating: number | null;
+  tripadvisor_review_count: number | null;
+  min_price: number | null;
+  manual_price_range: string | null;
+  opening_hours: Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }> | null;
+  is_open_24h: boolean | null;
+  menu_url: string | null;
+  booking_url: string | null;
+  reserve_now_url: string | null;
+  facebook_url: string | null;
+  instagram_url: string | null;
+  tripadvisor_url: string | null;
+  youtube_url: string | null;
+  linkedin_url: string | null;
   is_active: boolean;
+}
+
+function buildOpeningHoursSpec(oh: Biz["opening_hours"], is24h: boolean | null): unknown[] | null {
+  if (is24h) {
+    return [{
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+      opens: "00:00", closes: "23:59",
+    }];
+  }
+  if (!oh || typeof oh !== "object") return null;
+  const specs: unknown[] = [];
+  const dayNames: Record<string, string> = {
+    monday: "Monday", tuesday: "Tuesday", wednesday: "Wednesday",
+    thursday: "Thursday", friday: "Friday", saturday: "Saturday", sunday: "Sunday",
+  };
+  for (const [day, dayName] of Object.entries(dayNames)) {
+    const d = oh[day];
+    if (!d || d.closed) continue;
+    const open = d.open, close = d.close;
+    if (!open || !close || !/^\d{1,2}:\d{2}$/.test(open) || !/^\d{1,2}:\d{2}$/.test(close)) continue;
+    specs.push({ "@type": "OpeningHoursSpecification", dayOfWeek: dayName, opens: open, closes: close });
+    if (d.open2 && d.close2 && /^\d{1,2}:\d{2}$/.test(d.open2) && /^\d{1,2}:\d{2}$/.test(d.close2)) {
+      specs.push({ "@type": "OpeningHoursSpecification", dayOfWeek: dayName, opens: d.open2, closes: d.close2 });
+    }
+  }
+  return specs.length ? specs : null;
+}
+
+function detectCuisines(biz: Biz): string[] {
+  const haystack = [
+    biz.main_category || "",
+    ...(biz.categories || []),
+    ...(biz.services || []),
+  ].join(" ");
+  const found = new Set<string>();
+  for (const [re, label] of CUISINE_KEYWORDS) {
+    if (re.test(haystack)) found.add(label);
+  }
+  return [...found];
+}
+
+function priceRangeFromBiz(biz: Biz): string | null {
+  if (biz.manual_price_range) return biz.manual_price_range;
+  if (typeof biz.min_price === "number" && biz.min_price > 0) {
+    // Convention Schema.org : $ à $$$$
+    if (biz.min_price < 150) return "$";
+    if (biz.min_price < 400) return "$$";
+    if (biz.min_price < 900) return "$$$";
+    return "$$$$";
+  }
+  return null;
 }
 
 function buildHtml(slug: string, biz: Biz): string {
@@ -95,7 +207,24 @@ function buildHtml(slug: string, biz: Biz): string {
   const description = stripHtml(rawDesc).substring(0, 160);
   const image = biz.images?.[0] || `${BASE_URL}/images/og-image.jpg`;
   const url = `${BASE_URL}/${slug}`;
-  const schemaType = (biz.main_category && CATEGORY_TO_SCHEMA[biz.main_category]) || "LocalBusiness";
+  const schemaType = resolveSchemaType(biz);
+  const isRestaurantLike = ["Restaurant", "CafeOrCoffeeShop", "BarOrPub"].includes(schemaType);
+
+  const sameAs: string[] = [];
+  if (biz.website) sameAs.push(biz.website);
+  if (biz.facebook_url) sameAs.push(biz.facebook_url);
+  if (biz.instagram_url) sameAs.push(biz.instagram_url);
+  if (biz.tripadvisor_url) sameAs.push(biz.tripadvisor_url);
+  if (biz.youtube_url) sameAs.push(biz.youtube_url);
+  if (biz.linkedin_url) sameAs.push(biz.linkedin_url);
+
+  const openingSpec = buildOpeningHoursSpec(biz.opening_hours, biz.is_open_24h);
+  const priceRange = priceRangeFromBiz(biz);
+  const cuisines = isRestaurantLike ? detectCuisines(biz) : [];
+  const reservationUrl = biz.booking_url || biz.reserve_now_url;
+  const keywords = (biz.services && biz.services.length)
+    ? biz.services.slice(0, 12).join(", ")
+    : null;
 
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -105,18 +234,36 @@ function buildHtml(slug: string, biz: Biz): string {
     ...(image && { image }),
     ...(description && { description }),
     ...(biz.phone && { telephone: biz.phone }),
-    ...(biz.website && { sameAs: [biz.website] }),
+    ...(sameAs.length && { sameAs }),
+    ...(biz.email && { email: biz.email }),
     ...(biz.address && {
       address: {
         "@type": "PostalAddress",
         streetAddress: biz.address,
-        ...(biz.city && { addressLocality: biz.city }),
+        ...(biz.neighborhood && { addressLocality: biz.neighborhood }),
+        ...(biz.city && { addressRegion: biz.city }),
+        ...(biz.region && !biz.city && { addressRegion: biz.region }),
         addressCountry: "MA",
       },
     }),
     ...(biz.latitude && biz.longitude && {
       geo: { "@type": "GeoCoordinates", latitude: biz.latitude, longitude: biz.longitude },
     }),
+    ...(openingSpec && { openingHoursSpecification: openingSpec }),
+    ...(priceRange && { priceRange }),
+    ...(cuisines.length && { servesCuisine: cuisines }),
+    ...(isRestaurantLike && reservationUrl && { acceptsReservations: "True" }),
+    ...(isRestaurantLike && biz.menu_url && { hasMenu: biz.menu_url }),
+    ...(reservationUrl && {
+      potentialAction: {
+        "@type": "ReserveAction",
+        target: reservationUrl,
+      },
+    }),
+    ...(biz.languages && biz.languages.length && {
+      availableLanguage: biz.languages,
+    }),
+    ...(keywords && { keywords }),
     ...(biz.google_rating && {
       aggregateRating: {
         "@type": "AggregateRating",
@@ -313,7 +460,7 @@ async function main() {
     const { data, error } = await supabase
       .from("businesses")
       .select(
-        "id, slug, name, city, description, hook_fr, images, main_category, address, phone, website, latitude, longitude, google_rating, google_review_count, is_active"
+        "id, slug, name, city, neighborhood, region, description, hook_fr, images, main_category, categories, services, languages, address, phone, whatsapp, email, website, latitude, longitude, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, min_price, manual_price_range, opening_hours, is_open_24h, menu_url, booking_url, reserve_now_url, facebook_url, instagram_url, tripadvisor_url, youtube_url, linkedin_url, is_active"
       )
       .in("id", chunk)
       .eq("is_active", true);
