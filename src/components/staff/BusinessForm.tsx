@@ -1339,7 +1339,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     presentation_mode: inferPresentationMode((business as any)?.unified_cta) || (business as any)?.presentation_mode || "reserver_en_ligne",
     languages: (business as any)?.languages || [],
     affiliate_id: (business as any)?.affiliate_id || "",
-    internal_notes: (business as any)?.internal_notes || "",
+    internal_notes: "",
     video_1_url: (business as any)?.video_1_url || "",
     matterport_url: (business as any)?.matterport_url || "",
     flipbook_url: (business as any)?.flipbook_url || "",
