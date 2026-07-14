@@ -720,7 +720,7 @@ const Install = () => {
 
 
 
-          {platform !== "android" && (
+          {platform !== "android" && platform !== "ios" && (
             <ol className="space-y-5">
               {guide.steps.map((step, i) => (
                 <li key={i} className="flex gap-4 items-start">
