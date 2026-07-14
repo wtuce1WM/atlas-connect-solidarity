@@ -688,6 +688,21 @@ const Install = () => {
                       <span className="mt-2 text-sm font-roboto font-medium text-[#C04F17]">
                         {m.label[lang]}
                       </span>
+                      {platform === "android" && guide.steps[i] && (
+                        <div className="mt-3 w-full">
+                          <div className="flex gap-4 items-start">
+                            <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-gold/10 text-gold border border-gold/20">
+                              {guide.steps[i].icon}
+                            </div>
+                            <div className="flex-1 pt-1.5">
+                              <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold mr-2">
+                                {i + 1}
+                              </span>
+                              <span className="font-roboto text-foreground/90 leading-relaxed">{guide.steps[i].text}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -711,21 +726,23 @@ const Install = () => {
 
 
 
-          <ol className="space-y-5">
-            {guide.steps.map((step, i) => (
-              <li key={i} className="flex gap-4 items-start">
-                <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-gold/10 text-gold border border-gold/20">
-                  {step.icon}
-                </div>
-                <div className="flex-1 pt-1.5">
-                  <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold mr-2">
-                    {i + 1}
-                  </span>
-                  <span className="font-roboto text-foreground/90 leading-relaxed">{step.text}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
+          {platform !== "android" && (
+            <ol className="space-y-5">
+              {guide.steps.map((step, i) => (
+                <li key={i} className="flex gap-4 items-start">
+                  <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-gold/10 text-gold border border-gold/20">
+                    {step.icon}
+                  </div>
+                  <div className="flex-1 pt-1.5">
+                    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold mr-2">
+                      {i + 1}
+                    </span>
+                    <span className="font-roboto text-foreground/90 leading-relaxed">{step.text}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
 
           {guide.note && (
             <p className="mt-6 pt-5 border-t border-border text-sm text-muted-foreground italic font-roboto">
