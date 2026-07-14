@@ -76,7 +76,7 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
     image_small_url_ar: sponsor?.image_small_url_ar || "",
     
     // Internal
-    internal_notes: sponsor?.internal_notes || "",
+    internal_notes: "",
   });
 
   const [uploading, setUploading] = useState<string | null>(null);
