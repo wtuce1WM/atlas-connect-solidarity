@@ -8,6 +8,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 
 type PublicBusiness = {
@@ -533,7 +534,7 @@ const PublicBusinessProfile = () => {
           </div>
 
           <a
-            href="/club"
+            href={withLangPrefix("/club", language)}
             className="b-rise-item mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
             style={{ 
               backgroundColor: "#ECD6B8",

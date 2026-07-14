@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import { supabase } from "@/integrations/supabase/client";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
@@ -156,7 +157,7 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
 
               <li><a href="/staff/login" className="transition-colors hover:text-gold">{t("footer.staff")}</a></li>
               <li><Link to="/blog" className="transition-colors hover:text-gold">{t("footer.blog")}</Link></li>
-              <li><Link to="/install" className="transition-colors hover:text-gold">{language === "en" ? "App" : language === "ar" ? "التطبيق" : "Application"}</Link></li>
+              <li><Link to={withLangPrefix("/install", language)} className="transition-colors hover:text-gold">{language === "en" ? "App" : language === "ar" ? "التطبيق" : "Application"}</Link></li>
               <li><Link to="/devenir-affilie" className="transition-colors hover:text-gold">{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
             </ul>
           </div>

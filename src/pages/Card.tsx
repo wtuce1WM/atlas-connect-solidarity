@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
 import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 const heroImageDesktop = originalHeroAsset.url;
 const heroImageTablet = zelligeBrunAsset.url;
@@ -453,7 +454,7 @@ const Card = () => {
               <li><span className="check">✓</span>{L.bullet5}</li>
             </ul>
             <div className="btn-row hero-rise" style={{ animationDelay: '.92s', animationFillMode: 'forwards' }}>
-              <Link to="/join" className="btn-primary" data-track-event="club_cta_click" data-track-location="card_hero" data-track-target="join">{L.btnCreate}</Link>
+              <Link to={withLangPrefix("/join", language)} className="btn-primary" data-track-event="club_cta_click" data-track-location="card_hero" data-track-target="join">{L.btnCreate}</Link>
               <a href="#avantages" className="btn-ghost">{L.btnBenefits}</a>
             </div>
           </div>
@@ -605,7 +606,7 @@ const Card = () => {
         <div className="wrap">
           <h2>{L.finalH2}</h2>
           <p>{L.finalP}</p>
-          <Link to="/join" className="btn-primary" data-track-event="club_cta_click" data-track-location="card_footer" data-track-target="join">{L.finalBtn}</Link>
+          <Link to={withLangPrefix("/join", language)} className="btn-primary" data-track-event="club_cta_click" data-track-location="card_footer" data-track-target="join">{L.finalBtn}</Link>
         </div>
       </section>
 

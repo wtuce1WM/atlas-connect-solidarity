@@ -691,7 +691,7 @@ const HomeMindtrip = () => {
             {L.heroTitle}
           </h1>
           <p className="mt-6 max-w-2xl mx-auto font-roboto text-base font-normal text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">
-            {L.heroLine1}<br /> {L.heroLine2}<br /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">{L.heroLearnMore}</Link>
+            {L.heroLine1}<br /> {L.heroLine2}<br /> <Link to={withLangPrefix("/corporate", language)} className="underline hover:text-white/80 transition-colors">{L.heroLearnMore}</Link>
           </p>
         </div>
 
@@ -704,7 +704,7 @@ const HomeMindtrip = () => {
             </h1>
 
             <p style={{ animationDelay: '.66s', animationFillMode: 'forwards' }} className="mt-6 md:mt-2 max-w-2xl md:max-lg:mx-0 md:max-lg:text-left lg:mx-auto lg:text-center font-roboto text-base font-normal text-white md:text-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] hero-rise">
-              {L.heroLine1}<br className="md:hidden" /> {L.heroLine2}<br className="md:hidden" /><br className="hidden md:inline lg:hidden" /> <Link to="/corporate" className="underline hover:text-white/80 transition-colors">{L.heroLearnMore}</Link>
+              {L.heroLine1}<br className="md:hidden" /> {L.heroLine2}<br className="md:hidden" /><br className="hidden md:inline lg:hidden" /> <Link to={withLangPrefix("/corporate", language)} className="underline hover:text-white/80 transition-colors">{L.heroLearnMore}</Link>
             </p>
           </div>
 
@@ -1143,7 +1143,7 @@ const HomeMindtrip = () => {
                                 )}
                                 <div className="flex justify-start">
                                   <Link 
-                                    to="/install"
+                                    to={withLangPrefix("/install", language)}
                                     className="relative group overflow-hidden rounded-[0.95rem] w-14 h-14 md:w-16 md:h-16 block border border-white/35 shadow-[0_12px_32px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 bg-white/5 backdrop-blur-[2px] btn-shimmer"
                                   >
                                     {/* Glass sheen effect */}

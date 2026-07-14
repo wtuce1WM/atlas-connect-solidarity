@@ -8,6 +8,8 @@ import ShareButton from "@/components/ShareButton";
 import HScroll from "@/components/HScroll";
 import { useSEO } from "@/hooks/useSEO";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 type PublicProfile = {
   nickname: string;
