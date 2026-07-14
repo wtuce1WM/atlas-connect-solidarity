@@ -1421,7 +1421,7 @@ const BookOnlineSlidePanelInner = ({
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
       {!cardsHidden && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
+        <div dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
           {(() => {
             const LANG_OPTIONS = [
               { code: "fr" as const, flag: "🇫🇷", label: "Français" },
