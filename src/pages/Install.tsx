@@ -647,8 +647,8 @@ const Install = () => {
                         { left: "76%", top: "80%" },
                       ][i]
                     : [
-                        { left: "92%", top: "8%" },   // étape 1 : vers le menu ⋮ en haut à droite
-                        { left: "86%", top: "45%" },  // étape 2 : sur la ligne de « Installer et créer… »
+                        { left: "94%", top: "8%" },   // étape 1 : vers le menu ⋮ en haut à droite
+                        { left: "86%", top: "48%" },  // étape 2 : sur la ligne de « Installer et créer… »
                         { left: "92%", top: "66%" },  // étape 3 : vers le bouton « Installer »
                       ][i];
                   return (
