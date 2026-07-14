@@ -27,29 +27,41 @@ const PROTECTED_DIRS = new Set([
   "assets",
 ]);
 
-const CATEGORY_TO_SCHEMA: Record<string, string> = {
-  "Hôtels": "Hotel",
-  "Hotels": "Hotel",
-  "Riads": "LodgingBusiness",
-  "Hébergements": "LodgingBusiness",
-  "Restaurants": "Restaurant",
-  "Restaurant": "Restaurant",
-  "Cafés": "CafeOrCoffeeShop",
-  "Bars": "BarOrPub",
-  "Boutiques": "Store",
-  "Shopping": "Store",
-  "Spa": "HealthAndBeautyBusiness",
-  "Spas": "HealthAndBeautyBusiness",
-  "Bien-être": "HealthAndBeautyBusiness",
-  "Golf": "GolfCourse",
-  "Musées": "Museum",
-  "Musée": "Museum",
-  "Galeries d'art": "ArtGallery",
-  "Pharmacies": "Pharmacy",
-  "Cinéma": "MovieTheater",
-  "Parc": "TouristAttraction",
-  "Plage": "Beach",
-};
+// Mapping catégorie → type Schema.org. Testé sur `categories[]` (plus précis)
+// avec fallback sur `main_category`. Ordre = priorité (premier match gagne).
+const CATEGORY_MAPPINGS: Array<[RegExp, string]> = [
+  [/^Hôtel|^Hotel|Palace/i, "Hotel"],
+  [/Riad|Maison d'hôte|Guest ?house|Hébergement|Auberge|Ecolodge|Lodge/i, "LodgingBusiness"],
+  [/Restaurant|Restauration/i, "Restaurant"],
+  [/Café|Coffee|Salon de thé/i, "CafeOrCoffeeShop"],
+  [/^Bar$|Bar à|Rooftop|Cocktail/i, "BarOrPub"],
+  [/Boîte de nuit|Night ?club|Discothèque/i, "NightClub"],
+  [/Spa|Hammam|Bien-être/i, "HealthAndBeautyBusiness"],
+  [/Salle de sport|Gym|Fitness|Yoga/i, "ExerciseGym"],
+  [/Golf/i, "GolfCourse"],
+  [/Musée/i, "Museum"],
+  [/Galerie d'art|Art gallery/i, "ArtGallery"],
+  [/Pharmacie/i, "Pharmacy"],
+  [/Cinéma|Cinema/i, "MovieTheater"],
+  [/Parc|Jardin/i, "TouristAttraction"],
+  [/Plage|Beach/i, "Beach"],
+  [/Boulangerie|Pâtisserie/i, "Bakery"],
+  [/Boucherie/i, "Store"],
+  [/Boutique|Magasin|Commerce|Shop|Concept store/i, "Store"],
+  [/Agence de voyage|Tour ?opérat|Excursion/i, "TravelAgency"],
+  [/École|Ecole|Formation/i, "EducationalOrganization"],
+  [/Clinique|Hôpital|Cabinet/i, "MedicalClinic"],
+];
+
+function resolveSchemaType(biz: Biz): string {
+  const cats = [...(biz.categories || []), biz.main_category || ""].filter(Boolean);
+  for (const c of cats) {
+    for (const [re, type] of CATEGORY_MAPPINGS) {
+      if (re.test(c)) return type;
+    }
+  }
+  return "LocalBusiness";
+}
 
 // Cuisines détectables dans services/categories pour Restaurant.servesCuisine
 const CUISINE_KEYWORDS: Array<[RegExp, string]> = [
@@ -64,11 +76,6 @@ const CUISINE_KEYWORDS: Array<[RegExp, string]> = [
   [/fruits de mer|poisson|seafood/i, "Seafood"],
   [/végétarien|vegan|healthy/i, "Vegetarian"],
 ];
-
-const DAY_MAP: Record<string, string> = {
-  monday: "Mo", tuesday: "Tu", wednesday: "We", thursday: "Th",
-  friday: "Fr", saturday: "Sa", sunday: "Su",
-};
 
 interface StaticArticle {
   path: string;
