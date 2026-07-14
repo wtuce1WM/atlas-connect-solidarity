@@ -92,26 +92,49 @@ export default function StaffTranslations() {
       if (configKey === "businesses_full") {
         const hookKey = `hook_${targetLang}`;
         const descKey = `description_${targetLang}`;
-        const { data: businessesRaw, error: bizError } = await supabase
-          .from("businesses")
-          .select(`id, name, hook_fr, description_fr, ${hookKey}, ${descKey}`)
-          .or(`hook_fr.not.is.null,description_fr.not.is.null`)
-          .order("id");
-        if (bizError) throw bizError;
-        const businesses = ((businessesRaw ?? []) as any[]);
+
+        const PAGE = 1000;
+        const businesses: any[] = [];
+        {
+          let from = 0;
+          while (true) {
+            const { data, error } = await supabase
+              .from("businesses")
+              .select(`id, name, hook_fr, description_fr, ${hookKey}, ${descKey}`)
+              .or(`hook_fr.not.is.null,description_fr.not.is.null`)
+              .order("id")
+              .range(from, from + PAGE - 1);
+            if (error) throw error;
+            if (!data || data.length === 0) break;
+            businesses.push(...data);
+            if (data.length < PAGE) break;
+            from += PAGE;
+          }
+        }
 
         const highlightFields = ["title", "description", "section_title", "section_intro", "metric_title", "metric_value"];
-        const { data: highlights, error: highlightError } = await supabase
-          .from("front_highlights")
-          .select(`business_id, title_fr, description_fr, section_title_fr, section_intro_fr, metric_title_fr, metric_value_fr, title_${targetLang}, description_${targetLang}, section_title_${targetLang}, section_intro_${targetLang}, metric_title_${targetLang}, metric_value_${targetLang}`)
-          .order("business_id");
-        if (highlightError) throw highlightError;
+        const highlights: any[] = [];
+        {
+          let from = 0;
+          while (true) {
+            const { data, error } = await supabase
+              .from("front_highlights")
+              .select(`business_id, title_fr, description_fr, section_title_fr, section_intro_fr, metric_title_fr, metric_value_fr, title_${targetLang}, description_${targetLang}, section_title_${targetLang}, section_intro_${targetLang}, metric_title_${targetLang}, metric_value_${targetLang}`)
+              .order("business_id")
+              .range(from, from + PAGE - 1);
+            if (error) throw error;
+            if (!data || data.length === 0) break;
+            highlights.push(...data);
+            if (data.length < PAGE) break;
+            from += PAGE;
+          }
+        }
 
         const bizIdsWithMissingHighlights = new Set<string>();
-        for (const highlight of ((highlights ?? []) as any[])) {
+        for (const highlight of highlights) {
           for (const field of highlightFields) {
-            const source = highlight[`${field}_fr` as keyof typeof highlight];
-            const target = highlight[`${field}_${targetLang}` as keyof typeof highlight];
+            const source = highlight[`${field}_fr`];
+            const target = highlight[`${field}_${targetLang}`];
             if (source && String(source).trim() && !(target && String(target).trim())) {
               bizIdsWithMissingHighlights.add(highlight.business_id);
               break;
@@ -119,7 +142,7 @@ export default function StaffTranslations() {
           }
         }
 
-        const pending = (businesses ?? []).filter((business) => {
+        const pending = businesses.filter((business) => {
           const needsHook = business.hook_fr?.trim() && !String((business as any)[hookKey] ?? "").trim();
           const needsDescription = business.description_fr?.trim() && !String((business as any)[descKey] ?? "").trim();
           return needsHook || needsDescription || bizIdsWithMissingHighlights.has(business.id);
