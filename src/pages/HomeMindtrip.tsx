@@ -906,7 +906,7 @@ const HomeMindtrip = () => {
                                   .maybeSingle();
                                 const badgeName: string = (badge as any)?.name_fr || v.label || "";
                                 if (badgeName.trim().startsWith("#")) {
-                                  navigate(`/search?city=${encodeURIComponent(selectedCity)}&badgeId=${encodeURIComponent(v.badgeId)}&badgeLabel=${encodeURIComponent(badgeName)}&_t=${Date.now()}`);
+                                  navigate(localizeUrl(`/search?city=${encodeURIComponent(selectedCity)}&badgeId=${encodeURIComponent(v.badgeId)}&badgeLabel=${encodeURIComponent(badgeName)}&_t=${Date.now()}`));
                                   return;
                                 }
                                 const [{ data: links }, { data: docLinks }] = await Promise.all([
