@@ -46,7 +46,8 @@ const SlidePanelHeader = ({
     : "shrink-0 flex items-center justify-between px-4 py-2 bg-card border-b border-border z-[75] relative overflow-visible";
 
   return (
-    <div className={baseClass}>
+    <div dir="ltr" className={baseClass}>
+
       <div className={`flex items-center gap-3 shrink-0 relative z-10 ${closeButtonContainerClassName}`}>
         <button
           type="button"

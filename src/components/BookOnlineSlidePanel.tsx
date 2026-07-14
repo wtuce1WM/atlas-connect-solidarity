@@ -2464,7 +2464,7 @@ const BookOnlineSlidePanelInner = ({
                         el.scrollLeft += e.deltaY;
                       }
                     }}
-                    className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-gold lg:flex-wrap lg:overflow-x-visible"
+                    dir="ltr" className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-gold lg:flex-wrap lg:overflow-x-visible"
                   >
                     {hasVideosBadge && (
                       <button
@@ -2501,7 +2501,7 @@ const BookOnlineSlidePanelInner = ({
                         el.scrollLeft += e.deltaY;
                       }
                     }}
-                    className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-gold lg:flex-wrap lg:overflow-x-visible"
+                    dir="ltr" className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-gold lg:flex-wrap lg:overflow-x-visible"
                   >
 
                     {externalLinks.map((link) => (
@@ -2528,7 +2528,7 @@ const BookOnlineSlidePanelInner = ({
                       el.scrollLeft += e.deltaY;
                     }
                   }}
-                  className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-gold lg:flex-wrap lg:overflow-x-visible"
+                  dir="ltr" className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-gold lg:flex-wrap lg:overflow-x-visible"
                 >
                   {socialItems.map((s, i) => (
                     <button
