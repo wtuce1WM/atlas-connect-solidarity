@@ -1422,42 +1422,46 @@ const BookOnlineSlidePanelInner = ({
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
       {!cardsHidden && (
         <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
-          {languages.length > 1 && (
-          <div className={`group cta-peek ${peekCta[0] ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
-            <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "We speak" : language === "ar" ? "نتحدث" : "Nous parlons"}</span>
-            <span
-              className="relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 group-hover:ml-2 transition-[margin] duration-300 cursor-help [&:hover>span]:opacity-100"
-              aria-label="Nous parlons français"
-              title="Nous parlons français"
-            >
-              🇫🇷
-              <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full z-50 mt-2 hidden md:block whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] md:text-xs text-white opacity-0 transition-opacity duration-150">
-                Nous parlons français
-              </span>
-            </span>
-            {languages.filter(l => !['fr','français','french'].includes(l.toLowerCase().trim())).length > 0 && (
-              <span className="flex items-center max-w-0 overflow-hidden opacity-0 group-hover:max-w-[300px] group-hover:opacity-100 transition-all duration-300 ease-out whitespace-nowrap gap-1.5 group-hover:ml-1.5">
-                {languages.filter(l => !['fr','français','french'].includes(l.toLowerCase().trim())).map((lang, i) => {
-                  const langAlt = getLangAlt(lang);
-                  return (
-                    <span
-                      key={i}
-                      className="relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 cursor-help [&:hover>span]:opacity-100"
-                      aria-label={langAlt}
-                      title={langAlt}
-                    >
-                      {getLangFlag(lang)}
-                      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full z-50 mt-2 hidden md:block whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] md:text-xs text-white opacity-0 transition-opacity duration-150">
-                        {langAlt}
-                      </span>
-                    </span>
-                  );
-                })}
-              </span>
-            )}
-          </div>
-          )}
+          {(() => {
+            const LANG_OPTIONS = [
+              { code: "fr" as const, flag: "🇫🇷", label: "Français" },
+              { code: "en" as const, flag: "🇬🇧", label: "English" },
+              { code: "ar" as const, flag: "🇲🇦", label: "العربية" },
+            ];
+            const ctaLabel = language === "en" ? "Language" : language === "ar" ? "اللغة" : "Langue";
+            return (
+              <div className={`group cta-peek ${peekCta[0] ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+                <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+                <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{ctaLabel}</span>
+                <span className="flex items-center gap-1.5 group-hover:ml-2 transition-[margin] duration-300">
+                  {LANG_OPTIONS.map((opt) => {
+                    const isActive = language === opt.code;
+                    return (
+                      <button
+                        key={opt.code}
+                        type="button"
+                        data-cta-tap
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isActive) {
+                            setLanguage(opt.code);
+                            import("@/lib/analytics").then(({ trackEvent }) =>
+                              trackEvent("language_switch", { from: language, to: opt.code, source: "slidepanel_cta" })
+                            ).catch(() => {});
+                          }
+                        }}
+                        aria-label={`Switch to ${opt.label}`}
+                        title={opt.label}
+                        className={`relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 transition-all duration-200 ${isActive ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-110'}`}
+                      >
+                        {opt.flag}
+                      </button>
+                    );
+                  })}
+                </span>
+              </div>
+            );
+          })()}
           {isHotelWithPrice ? (
             <div data-cta-tap onClick={handleCtaTap('dispo', () => setShowAvailabilitySearch(true))} className={`group cta-peek ${peekDispo || tappedCta === 'dispo' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
