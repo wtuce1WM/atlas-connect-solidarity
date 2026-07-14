@@ -413,6 +413,115 @@ function buildArticleHtml(article: StaticArticle): string {
 </html>`;
 }
 
+interface Hub {
+  kind: "destination" | "category" | "neighborhood";
+  slug: string;       // URL segment (encoded once at write time)
+  urlSegment: string; // segment used in canonical URL (may equal slug)
+  name: string;
+  hook: string | null;
+  description: string | null;
+  image: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  rating?: number | null;
+  reviewCount?: number | null;
+  wikipedia?: string | null;
+  city?: string | null;
+}
+
+function buildHubHtml(hub: Hub): string {
+  const kindLabel = hub.kind === "destination" ? "Destination"
+    : hub.kind === "category" ? "Catégorie"
+    : "Quartier";
+  const title = `${hub.name}${hub.city ? ` – ${hub.city}` : ""} | ${SITE_NAME}`;
+  const rawDesc = hub.hook || hub.description || `Découvrez ${hub.name} sur ${SITE_NAME} : établissements, expériences, adresses recommandées.`;
+  const description = stripHtml(rawDesc).substring(0, 200);
+  const image = hub.image || `${BASE_URL}/images/og-image.jpg`;
+  const url = `${BASE_URL}/${hub.kind}/${hub.urlSegment}`;
+
+  const schemaType = hub.kind === "destination" ? "TouristDestination"
+    : hub.kind === "neighborhood" ? "Place"
+    : "CollectionPage";
+
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": schemaType,
+    name: hub.name,
+    url,
+    ...(image && { image }),
+    ...(description && { description }),
+    ...(hub.latitude && hub.longitude && {
+      geo: { "@type": "GeoCoordinates", latitude: hub.latitude, longitude: hub.longitude },
+    }),
+    ...(hub.wikipedia && { sameAs: [hub.wikipedia] }),
+    ...(hub.rating && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: hub.rating,
+        bestRating: 5,
+        reviewCount: hub.reviewCount ?? 1,
+      },
+    }),
+    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: BASE_URL },
+  };
+
+  const e = {
+    title: escapeHtml(title),
+    description: escapeHtml(description),
+    image: escapeHtml(image),
+    url: escapeHtml(url),
+    name: escapeHtml(hub.name),
+    kindLabel: escapeHtml(kindLabel),
+  };
+
+  return `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>${e.title}</title>
+    <meta name="description" content="${e.description}" />
+    <link rel="canonical" href="${e.url}" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="${e.title}" />
+    <meta property="og:description" content="${e.description}" />
+    <meta property="og:url" content="${e.url}" />
+    <meta property="og:image" content="${e.image}" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${e.title}" />
+    <meta name="twitter:description" content="${e.description}" />
+    <meta name="twitter:image" content="${e.image}" />
+
+    <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>
+  </head>
+  <body style="background-color:#faf8f5;margin:0">
+    <script>
+      (function () {
+        var ua = navigator.userAgent || "";
+        var isPreviewBot = /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Pinterest|Discordbot|Googlebot|Google-InspectionTool|GoogleOther|Google-Extended|bingbot|GPTBot|OAI-SearchBot|ChatGPT-User|PerplexityBot|Perplexity-User|ClaudeBot|Claude-Web|anthropic-ai|Applebot|Applebot-Extended|Amazonbot|Bytespider|Meta-ExternalAgent|Meta-ExternalFetcher|DuckAssistBot|YouBot|CCBot|cohere-ai|Diffbot/i.test(ua);
+        if (isPreviewBot) return;
+        fetch("/index.html", { cache: "no-store" })
+          .then(function (response) { return response.text(); })
+          .then(function (html) {
+            document.open();
+            document.write(html);
+            document.close();
+          })
+          .catch(function () {});
+      })();
+    </script>
+    <noscript>
+      <h1>${e.kindLabel} : ${e.name}</h1>
+      <p>${e.description}</p>
+    </noscript>
+  </body>
+</html>`;
+}
+
 async function cleanPreviouslyGenerated() {
   if (!existsSync(PUBLIC_DIR)) return;
   for (const entry of readdirSync(PUBLIC_DIR)) {
