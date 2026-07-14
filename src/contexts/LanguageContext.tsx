@@ -1,6 +1,8 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, ReactNode, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getLangFromPath, withLangPrefix, type SiteLanguage } from "@/lib/localizedPath";
 
- type Language = "en" | "fr" | "ar";
+ type Language = SiteLanguage;
 
 interface LanguageContextType {
   language: Language;
@@ -449,14 +451,31 @@ const translations = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-   const [language, setLanguage] = useState<Language>("fr");
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Source of truth = URL prefix. FR = no prefix, EN = /en/*, AR = /ar/*.
+  const language = getLangFromPath(location.pathname);
+
+  const setLanguage = useCallback((lang: Language) => {
+    const nextPath = withLangPrefix(location.pathname, lang);
+    if (nextPath !== location.pathname) {
+      navigate(nextPath + location.search + location.hash);
+    }
+  }, [location.pathname, location.search, location.hash, navigate]);
 
   const t = (key: string): string => {
     return translations[language][key as keyof typeof translations.en] || key;
   };
 
-   const isRTL = language === "ar";
- 
+  const isRTL = language === "ar";
+
+  // Sync <html lang> and <html dir> so RTL applies globally for Arabic
+  // and screen readers get the right locale.
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = isRTL ? "rtl" : "ltr";
+  }, [language, isRTL]);
+
   return (
      <LanguageContext.Provider value={{ language, setLanguage, t, isRTL }}>
       {children}

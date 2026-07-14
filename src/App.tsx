@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate, useParams } from "react-router-dom";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { stripLangPrefix } from "@/lib/localizedPath";
 const FloatingSearchBar = lazy(() => import("@/components/FloatingSearchBar"));
 const StaffRouteGuard = lazy(() => import("@/components/StaffRouteGuard"));
 
@@ -135,32 +136,17 @@ const BackofficeBodyFlag = () => {
   return null;
 };
 
-const AppContent = () => {
-  const [activePanel, setActivePanel] = useState<"club" | "whatsapp" | null>(null);
-  const { isRTL } = useLanguage();
+const LocalizedRoutes = () => {
+  const location = useLocation();
+  // Strip /en or /ar prefix so all existing routes match unchanged.
+  // Browser URL stays prefixed; only the matcher sees the clean pathname.
+  const cleanPathname = stripLangPrefix(location.pathname);
+  const routingLocation = cleanPathname === location.pathname
+    ? location
+    : { ...location, pathname: cleanPathname };
 
-  // Listen for "open-club-panel" custom event (e.g. from BookmarkButton)
-  useEffect(() => {
-    const handler = () => setActivePanel("club");
-    window.addEventListener("open-club-panel", handler);
-    return () => window.removeEventListener("open-club-panel", handler);
-  }, []);
-  
   return (
-    <div dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "font-arabic" : ""}>
-        <TooltipProvider>
-          <Suspense fallback={null}><Toaster /></Suspense>
-          <Suspense fallback={null}><Sonner /></Suspense>
-          <BrowserRouter>
-          <BackofficeBodyFlag />
-          <ScrollToTop />
-          <AnalyticsTracker />
-          <RouteSeo />
-          <PageMetaOverridesLoader />
-          <Suspense fallback={null}><CookieBanner /></Suspense>
-
-          <RouteTransition>
-            <Routes>
+    <Routes location={routingLocation}>
               <Route path="/" element={renderLazyRoute(<HomeMindtrip />)} />
               <Route path="/videos" element={renderLazyRoute(<Test />)} />
               <Route path="/ancien-index" element={renderLazyRoute(<Index />)} />
@@ -193,8 +179,6 @@ const AppContent = () => {
               {/* Custom-layout blog articles (kept as React components — fetch dynamic data) */}
               <Route path="/blog/5-jours-marrakech-artisanat" element={renderLazyRoute(<MarrakechArtisanat5Jours />)} />
               <Route path="/blog/galeries-art-marrakech" element={renderLazyRoute(<MarrakechGaleriesArt />)} />
-              {/* louer-villa-vacances-marrakech now served dynamically via /blog/:slug (article_template + video_section_config). */}
-              {/* Other articles are served from public.blog_posts via /blog/:slug below. */}
               <Route path="/staff/animations" element={<StaffRouteGuard>{renderLazyRoute(<BlogAnimations />)}</StaffRouteGuard>} />
               <Route path="/staff/carousel-nav-demo" element={<StaffRouteGuard>{renderLazyRoute(<CarouselNavDemo />)}</StaffRouteGuard>} />
               <Route path="/blog/ancien-accueil" element={renderLazyRoute(<AncienAccueil />)} />
@@ -232,11 +216,38 @@ const AppContent = () => {
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="/:vanitySlug" element={renderLazyRoute(<VanityResolver />)} />
               <Route path="*" element={renderLazyRoute(<NotFound />)} />
-            </Routes>
+    </Routes>
+  );
+};
+
+const AppContent = () => {
+  const [activePanel, setActivePanel] = useState<"club" | "whatsapp" | null>(null);
+  const { isRTL } = useLanguage();
+
+  // Listen for "open-club-panel" custom event (e.g. from BookmarkButton)
+  useEffect(() => {
+    const handler = () => setActivePanel("club");
+    window.addEventListener("open-club-panel", handler);
+    return () => window.removeEventListener("open-club-panel", handler);
+  }, []);
+  
+  return (
+    <div dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "font-arabic" : ""}>
+        <TooltipProvider>
+          <Suspense fallback={null}><Toaster /></Suspense>
+          <Suspense fallback={null}><Sonner /></Suspense>
+          <BackofficeBodyFlag />
+          <ScrollToTop />
+          <AnalyticsTracker />
+          <RouteSeo />
+          <PageMetaOverridesLoader />
+          <Suspense fallback={null}><CookieBanner /></Suspense>
+
+          <RouteTransition>
+            <LocalizedRoutes />
           </RouteTransition>
           
           <FloatingButtonsGuard activePanel={activePanel} setActivePanel={setActivePanel} />
-        </BrowserRouter>
         </TooltipProvider>
     </div>
   );
@@ -244,9 +255,11 @@ const AppContent = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
+    <BrowserRouter>
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

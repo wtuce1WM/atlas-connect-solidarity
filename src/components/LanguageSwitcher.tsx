@@ -1,5 +1,4 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useEnglishFlag } from "@/hooks/useEnglishFlag";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,21 +7,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
-const ALL_LANGUAGES = [
-   { code: "en", name: "English (beta)", flag: "🇬🇧", dir: "ltr" },
-   { code: "fr", name: "Français", flag: "🇫🇷", dir: "ltr" },
-   { code: "ar", name: "العربية", flag: "🇲🇦", dir: "rtl" },
+const LANGUAGES = [
+  { code: "fr", name: "Français", flag: "🇫🇷", dir: "ltr" },
+  { code: "en", name: "English", flag: "🇬🇧", dir: "ltr" },
+  { code: "ar", name: "العربية", flag: "🇲🇦", dir: "rtl" },
 ] as const;
 
 const LanguageSwitcher = () => {
   const { language, setLanguage } = useLanguage();
-  const englishEnabled = useEnglishFlag();
-
-  const languages = englishEnabled
-    ? ALL_LANGUAGES
-    : ALL_LANGUAGES.filter((l) => l.code !== "en");
-
-  const currentLanguage = languages.find((l) => l.code === language) || languages[0];
+  const currentLanguage = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
 
   return (
     <DropdownMenu>
@@ -32,7 +25,7 @@ const LanguageSwitcher = () => {
         <ChevronDown className="h-4 w-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[140px]">
-        {languages.map((lang) => (
+        {LANGUAGES.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => {
