@@ -65,6 +65,10 @@ function toIata(input?: string): string | null {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const originBlock = assertAllowedOrigin(req, corsHeaders);
+  if (originBlock) return originBlock;
+
+
   try {
     const apiKey = Deno.env.get("SERPAPI_API_KEY");
     if (!apiKey) throw new Error("SERPAPI_API_KEY not configured");
