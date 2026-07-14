@@ -617,12 +617,12 @@ const Install = () => {
           {/* Illustration provisoire — sera remplacée par de vraies captures */}
           <figure className="mb-6 flex flex-col items-center">
             {platform === "ios" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+              <div className="grid grid-cols-1 gap-6 w-full max-w-sm mx-auto">
                 {MOCKUPS.ios.map((m, i) => (
                   <div key={i} className="flex flex-col items-center">
                     <div className="relative w-full">
                       <img
-                        src={m.url[lang]}
+                        src={m.url}
                         alt={m.alt[lang]}
                         width={1024}
                         height={1024}
