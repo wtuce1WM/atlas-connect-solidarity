@@ -102,7 +102,7 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
           WhatsApp
         </a>
         <Link
-          to="/club"
+          to={withLangPrefix("/club", language)}
           onClick={close}
           style={{ backgroundColor: "#6050DC" }}
           className="self-start flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:opacity-90 hover:shadow-xl"

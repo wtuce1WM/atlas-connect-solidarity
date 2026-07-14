@@ -87,10 +87,10 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
 
   const navLinks = (
     <>
-      <Link to="/corporate" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
+      <Link to={withLangPrefix("/corporate", language)} className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
         Le concept
       </Link>
-      <Link to="/join" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)} data-track-event="club_cta_click" data-track-location="header" data-track-target="join">
+      <Link to={withLangPrefix("/join", language)} className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)} data-track-event="club_cta_click" data-track-location="header" data-track-target="join">
         Rejoindre
       </Link>
       <Link to="/mission" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
