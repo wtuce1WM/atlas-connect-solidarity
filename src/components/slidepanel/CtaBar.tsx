@@ -282,7 +282,7 @@ export function CtaBar({
         style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}
       >
         <MapPin className="h-4 w-4 hidden md:block" />
-        <span className="whitespace-nowrap px-1">{language === "en" ? "Directions" : "Itinéraire"}</span>
+        <span className="whitespace-nowrap px-1">{language === "en" ? "Directions" : language === "ar" ? "Triq" : "Itinéraire"}</span>
       </button>
     );
   }

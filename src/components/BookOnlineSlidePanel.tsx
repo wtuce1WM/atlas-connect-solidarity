@@ -1579,14 +1579,14 @@ const BookOnlineSlidePanelInner = ({
                   type="button"
                   className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
                   style={{ backgroundColor: '#25D366' }}
-                  title="Afficher les cartes"
-                  aria-label="Afficher les cartes"
+                  title={language === "ar" ? "Werri l'cartes" : "Afficher les cartes"}
+                  aria-label={language === "ar" ? "Werri l'cartes" : "Afficher les cartes"}
                   onClick={(e) => { e.stopPropagation(); showCards(); }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onTouchStart={(e) => e.stopPropagation()}
                 >
                   <ChevronUp className="h-3.5 w-3.5" />
-                  <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">Afficher</span>
+                  <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "ar" ? "Werri" : "Afficher"}</span>
                   <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
                 </button>
                 <div className="min-w-0" />
@@ -1732,7 +1732,7 @@ const BookOnlineSlidePanelInner = ({
                         </span>
                       </div>
                       <span className="text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
+                        · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : language === "ar" ? "Ara" : "avis"}
                       </span>
                     </div>
                   );
