@@ -1,107 +1,78 @@
-# Sélecteur multilingue public EN/AR
+# Pré-rendu HTML+JSON-LD pour bots IA & moteurs
 
-Objectif : rendre les versions EN et AR indexables via des URLs distinctes, avec un sélecteur visible partout, sans casser le FR existant.
+## Objectif
 
-## 1. Structure d'URLs
+Servir aux bots (GPTBot, PerplexityBot, ClaudeBot, Googlebot, etc.) une version HTML statique riche (titre, description, JSON-LD, contenu textuel) au lieu du SPA React vide. Les humains continuent de voir le SPA normalement.
 
-```text
-/fiche/koulchi-pop           → FR (canonique, inchangé)
-/en/fiche/koulchi-pop        → EN
-/ar/fiche/koulchi-pop        → AR
-```
+## Principe
 
-Règles :
-- Le FR reste sur les URLs actuelles (pas de `/fr/`) — préserve tout le SEO acquis, pas de redirections massives.
-- `/en` et `/ar` sont juste un **préfixe** ajouté devant n'importe quelle route existante.
-- `/en` (sans slug) et `/ar` (sans slug) → homepage traduite.
+Une edge function `bot-prerender` intercepte les requêtes et détecte le User-Agent :
+- **Bot détecté** → renvoie HTML pré-rendu depuis la DB (titre, meta, JSON-LD, texte principal, liens internes)
+- **Humain** → renvoie le SPA React classique (`index.html`)
 
-## 2. Détection langue depuis l'URL
+Le routage se fait via un fichier `public/_headers` ou une règle Lovable côté hosting. Comme Lovable ne permet pas de rewrite au niveau CDN, on utilise une **approche hybride** :
 
-Nouveau hook `useUrlLanguage()` qui lit `location.pathname` :
-- Commence par `/en/` ou = `/en` → `en`
-- Commence par `/ar/` ou = `/ar` → `ar`
-- Sinon → `fr`
+1. Le SPA reste servi par défaut sur toutes les routes.
+2. Une edge function `bot-prerender` expose des URLs publiques que les bots peuvent crawler directement via le sitemap.
+3. Le sitemap pointe les bots vers `https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/bot-prerender?url=/fiche/xxx` — mais cette approche est fragile.
 
-`LanguageContext` est branché sur ce hook. La source de vérité devient l'URL (plus le localStorage). Le contexte expose toujours `language` et `setLanguage`, mais `setLanguage(lang)` fait un `navigate()` vers l'URL préfixée équivalente.
+**Meilleure approche** : générer des `.html` statiques au build/nightly via GitHub Actions et les servir depuis `public/` — comme on fait déjà pour les fiches individuelles (`public/dar-fragrance/index.html`).
 
-Suppression du gating `useEnglishFlag` sur le sélecteur (EN et AR deviennent publics). Le flag reste utilisable pour d'autres besoins internes mais n'affecte plus la visibilité du menu.
+## Ce qui existe déjà
 
-## 3. Router
+Le projet a déjà des fichiers HTML pré-rendus pour ~200+ fiches business dans `public/<slug>/index.html` avec :
+- Meta tags complets (title, description, canonical, OG, Twitter)
+- JSON-LD `LocalBusiness` (nom, image, geo, address, rating)
+- Fallback `<noscript>` avec H1 + description
+- Script JS qui hydrate le SPA pour les humains
 
-Dans `src/App.tsx`, wrapper toutes les routes existantes dans un layout qui monte 3 fois le même `<Routes>` sous 3 basenames :
+**C'est exactement l'architecture recommandée.** Il ne manque que :
+1. Étendre la couverture (blog articles, hubs catégories, quartiers)
+2. Enrichir le JSON-LD (Restaurant/Hotel typé + FAQ + Review)
+3. Régénérer automatiquement quand la DB change
 
-```text
-<Route path="/en/*" element={<LocalizedApp lang="en" />} />
-<Route path="/ar/*" element={<LocalizedApp lang="ar" />} />
-<Route path="/*" element={<LocalizedApp lang="fr" />} />
-```
+## Plan d'exécution (3 étapes)
 
-`LocalizedApp` définit la langue dans le contexte et rend l'arbre `<Routes>` actuel. Zéro duplication de routes.
+### Étape 1 — Auditer & enrichir les fiches existantes
 
-## 4. Sélecteur public
+Vérifier ce qu'on a :
+- Combien de fiches business ont leur `public/<slug>/index.html` ?
+- Quels champs manquent dans le JSON-LD actuel (Restaurant vs LocalBusiness, priceRange, openingHours, telephone, servesCuisine) ?
+- Le script de génération existe-t-il ? Où ? (probablement un edge function ou script Node)
 
-Refonte de `src/components/LanguageSwitcher.tsx` :
-- Supprime le gate `useEnglishFlag` → les 3 langues toujours visibles.
-- Au clic, calcule la nouvelle URL en remplaçant/ajoutant le préfixe et préserve le path + query :
-  - depuis `/fiche/x?y=1` + choix EN → `/en/fiche/x?y=1`
-  - depuis `/en/fiche/x` + choix FR → `/fiche/x`
-- Intégré dans le header global (déjà présent dans `HomeMindtripHeader` + `FrontStructureNavBar` d'après recherche).
+### Étape 2 — Étendre la couverture
 
-## 5. RTL pour l'arabe
+Générer des `.html` statiques pour :
+- **Articles blog** (`/blog/:slug`) → `Article` + `BlogPosting` JSON-LD
+- **Hubs catégorie** (`/category/:cat`) → `CollectionPage` + liste des business
+- **Hubs quartier** (`/neighborhood/:slug`) → `Place` + business associés
+- **Hub destination** (`/destination/:slug`) → `TouristDestination`
 
-Dans `LocalizedApp` (ou un effet global) :
-- Quand `lang === "ar"` : `document.documentElement.setAttribute("dir", "rtl")` + `lang="ar"`.
-- Sinon : `dir="ltr"` + `lang="fr"` ou `"en"`.
+### Étape 3 — Automatiser la régénération
 
-Aucun CSS RTL global dans ce turn (juste la direction du document). Le pass RTL complet reste hors scope.
+Edge function `regenerate-static-pages` déclenchée :
+- À la création/modification d'un business (trigger DB)
+- Nightly via cron pour rafraîchir ratings/reviews
+- Manuellement depuis le back-office
 
-## 6. Badge "Not yet translated"
+## Détails techniques
 
-Nouveau composant `<TranslationFallbackBadge />` réutilisable, affiché quand une page en EN/AR sert du contenu FR faute de traduction. Petit badge discret en haut de page (style neutre, terracotta) : *"Not yet translated — showing French version"* / *"غير مترجمة بعد"*.
+**Fichiers concernés** :
+- `public/<slug>/index.html` (existant, pattern à réutiliser)
+- Nouvel edge function `generate-static-page` (à créer)
+- Nouvel edge function `regenerate-all-static-pages` (batch)
+- Peut-être un bouton dans `/staff` pour déclencher la régénération
 
-Logique par surface (dans ce turn on branche 2 endroits pilotes, on itérera après) :
-- **Fiches business** (`BookOnlineSlidePanel` / `FicheImmersive`) : compare `hook_en/description_en` vs `hook_fr/description_fr`. Si vide en langue courante → badge + fallback FR.
-- **Homepage** : pas de badge (contenu géré par `LABELS` locaux et sections dynamiques).
+**JSON-LD à enrichir par type** :
+- `Restaurant` : `servesCuisine`, `priceRange`, `menu`, `acceptsReservations`
+- `Hotel`/`LodgingBusiness` : `starRating`, `amenityFeature`, `checkinTime`
+- `TouristAttraction` : `isAccessibleForFree`, `publicAccess`
+- Tous : `openingHoursSpecification`, `telephone`, `sameAs` (réseaux)
 
-Le reste du site continuera de servir FR silencieusement jusqu'à ce qu'on branche le badge dessus.
+**Détection bot côté script d'hydratation** : déjà fait dans les fichiers existants (regex WhatsApp|facebookexternalhit|Googlebot|bingbot). À étendre : `GPTBot|PerplexityBot|ClaudeBot|Google-Extended|Applebot`.
 
-## 7. hreflang (SEO)
+## Question avant de lancer
 
-Dans `RouteSeo.tsx` (et pour les pages dynamiques dans leurs `useSEO`), ajouter systématiquement :
+Je propose de commencer par **Étape 1 — audit** : je lis les fichiers existants, je vérifie combien de fiches sont couvertes, quel est le script de génération, et ce qui manque dans le JSON-LD. Je te livre un état des lieux précis avant de coder quoi que ce soit.
 
-```html
-<link rel="alternate" hreflang="fr" href="https://oneworldmorocco.com{path}" />
-<link rel="alternate" hreflang="en" href="https://oneworldmorocco.com/en{path}" />
-<link rel="alternate" hreflang="ar" href="https://oneworldmorocco.com/ar{path}" />
-<link rel="alternate" hreflang="x-default" href="https://oneworldmorocco.com{path}" />
-```
-
-Où `{path}` = pathname courant **sans préfixe langue**.
-
-Le canonical d'une page reste **self-referential** : `/en/fiche/x` a comme canonical `.../en/fiche/x` (règle Google : chaque variante hreflang doit avoir son canonical propre).
-
-## 8. Hors scope de ce turn
-
-- **Sitemap multilingue** (`generate-sitemap` edge function) — tu veux d'abord voir la structure vivre. On l'attaquera après validation.
-- **Pass CSS RTL complet** (miroir des layouts, spacing) — juste `dir="rtl"` posé, le rendu visuel sera imparfait.
-- **Traduction des `LABELS` locaux** dans les composants non encore i18n-isés.
-- **Rewrite du `slug`** en EN/AR (les slugs restent FR pour l'instant).
-
-## Fichiers modifiés
-
-- `src/App.tsx` — wrapper `LocalizedApp` + routes `/en/*` `/ar/*`
-- `src/contexts/LanguageContext.tsx` — source = URL, `setLanguage` = navigate
-- `src/components/LanguageSwitcher.tsx` — publique, navigation URL
-- `src/seo/RouteSeo.tsx` — hreflang
-- `src/hooks/useSEO.ts` — hreflang pour pages dynamiques
-- `src/components/TranslationFallbackBadge.tsx` — nouveau
-- `src/components/slidepanel/BookOnlineSlidePanel.tsx` (ou parent) — branchement badge fiche
-
-## Validation
-
-Après implémentation :
-1. `/` → FR normal, sélecteur montre les 3 langues
-2. `/en/fiche/koulchi-pop` → contenu EN si dispo, sinon FR + badge
-3. `/ar/fiche/koulchi-pop` → `dir="rtl"` sur `<html>`, contenu AR si dispo
-4. Switch de langue préserve le path + query
-5. `view-source` d'une fiche montre 3 balises `hreflang` + canonical auto-référencé
+OK pour cet audit d'abord, ou tu veux qu'on saute direct à l'Étape 2 (blog + hubs) ?
