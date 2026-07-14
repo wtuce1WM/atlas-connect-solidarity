@@ -9,52 +9,44 @@ import phoneMockupAsset from "@/assets/phone-mockup-hero.webp.asset.json";
 import iphoneTabletMockupAsset from "@/assets/og-install-app-v54-front-3q-minus45deg-1080x1920.webp.asset.json";
 import { useIsMobile } from "@/hooks/use-mobile";
 import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
-import installIosMockupEn from "@/assets/install-ios-mockup-en.png.asset.json";
-import installIosMockupFr from "@/assets/install-ios-mockup-fr.png.asset.json";
-import installIosMockupStep1En from "@/assets/install-ios-mockup-step1-en.png.asset.json";
-import installIosMockupStep1Fr from "@/assets/install-ios-mockup-step1-fr.png.asset.json";
+import installIosRealStep1 from "@/assets/install-ios-real-step1.webp.asset.json";
+import installIosRealStep2 from "@/assets/install-ios-real-step2.webp.asset.json";
+import installIosRealStep3 from "@/assets/install-ios-real-step3.webp.asset.json";
 import installAndroidMockup from "@/assets/install-android-mockup.png.asset.json";
 import installMacMockup from "@/assets/install-mac-mockup.png.asset.json";
 import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const MOCKUPS: Record<"android" | "mac" | "windows", { url: string; alt: Record<Lang, string> }> & {
-  ios: { url: Record<Lang, string>; alt: Record<Lang, string>; label: Record<Lang, string> }[];
+  ios: { url: string; alt: Record<Lang, string>; label: Record<Lang, string> }[];
 } = {
   ios: [
     {
-      url: {
-        fr: installIosMockupStep1Fr.url,
-        en: installIosMockupStep1En.url,
-        ar: installIosMockupStep1En.url,
-      },
+      url: installIosRealStep1.url,
       alt: {
-        fr: "Étape 1 : touche le bouton Partager en bas de Safari (carré avec une flèche vers le haut), entouré en terracotta",
-        en: "Step 1: tap the Share button at the bottom of Safari (square with an up arrow), circled in terracotta",
-        ar: "الخطوة 1: اضغط على زر المشاركة في أسفل Safari (مربع به سهم لأعلى)، محاط باللون التراكوتا",
+        fr: "Étape 1 : ouvre oneworldmorocco.com dans Safari sur iPhone",
+        en: "Step 1: open oneworldmorocco.com in Safari on iPhone",
+        ar: "الخطوة 1: افتح oneworldmorocco.com في Safari على iPhone",
       },
-      label: {
-        fr: "Étape 1",
-        en: "Step 1",
-        ar: "الخطوة 1",
-      },
+      label: { fr: "Étape 1 — Ouvre le site dans Safari", en: "Step 1 — Open the site in Safari", ar: "الخطوة 1 — افتح الموقع في Safari" },
     },
     {
-      url: {
-        fr: installIosMockupFr.url,
-        en: installIosMockupEn.url,
-        ar: installIosMockupEn.url,
-      },
+      url: installIosRealStep2.url,
       alt: {
-        fr: "Étape 2 : dans le menu Partager, choisis « Sur l'écran d'accueil », entouré en terracotta",
-        en: "Step 2: in the Share menu, choose 'Add to Home Screen', circled in terracotta",
-        ar: "الخطوة 2: في قائمة المشاركة، اختر «إضافة إلى الشاشة الرئيسية»، محاط باللون التراكوتا",
+        fr: "Étape 2 : touche le bouton Partager en bas de Safari",
+        en: "Step 2: tap the Share button at the bottom of Safari",
+        ar: "الخطوة 2: اضغط على زر المشاركة في أسفل Safari",
       },
-      label: {
-        fr: "Étape 2",
-        en: "Step 2",
-        ar: "الخطوة 2",
+      label: { fr: "Étape 2 — Touche « Partager »", en: "Step 2 — Tap 'Share'", ar: "الخطوة 2 — اضغط «مشاركة»" },
+    },
+    {
+      url: installIosRealStep3.url,
+      alt: {
+        fr: "Étape 3 : dans le menu Partager, choisis « Sur l'écran d'accueil »",
+        en: "Step 3: in the Share menu, choose 'Add to Home Screen'",
+        ar: "الخطوة 3: في قائمة المشاركة، اختر «إضافة إلى الشاشة الرئيسية»",
       },
+      label: { fr: "Étape 3 — « Sur l'écran d'accueil »", en: "Step 3 — 'Add to Home Screen'", ar: "الخطوة 3 — «إضافة إلى الشاشة الرئيسية»" },
     },
   ],
   android: {
@@ -625,12 +617,12 @@ const Install = () => {
           {/* Illustration provisoire — sera remplacée par de vraies captures */}
           <figure className="mb-6 flex flex-col items-center">
             {platform === "ios" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+              <div className="grid grid-cols-1 gap-6 w-full max-w-sm mx-auto">
                 {MOCKUPS.ios.map((m, i) => (
                   <div key={i} className="flex flex-col items-center">
                     <div className="relative w-full">
                       <img
-                        src={m.url[lang]}
+                        src={m.url}
                         alt={m.alt[lang]}
                         width={1024}
                         height={1024}
@@ -657,9 +649,11 @@ const Install = () => {
                 className="w-full max-w-sm md:max-w-md h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
               />
             )}
-            <figcaption className="mt-3 text-xs text-muted-foreground/70 font-roboto italic text-center">
-              {MOCKUP_CAPTION[lang]}
-            </figcaption>
+            {platform !== "ios" && (
+              <figcaption className="mt-3 text-xs text-muted-foreground/70 font-roboto italic text-center">
+                {MOCKUP_CAPTION[lang]}
+              </figcaption>
+            )}
           </figure>
 
 
