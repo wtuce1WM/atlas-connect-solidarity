@@ -608,7 +608,7 @@ const HomeMindtrip = () => {
 
 
   return (
-    <div className="min-h-screen bg-background">
+    <div dir="ltr" className="min-h-screen bg-background">
       {/* TOP BAR — sticky */}
       <HomeMindtripHeader />
 
