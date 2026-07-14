@@ -18,7 +18,7 @@ import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const MOCKUPS: Record<"android" | "mac" | "windows", { url: string; alt: Record<Lang, string> }> & {
-  ios: { url: Record<Lang, string>; alt: Record<Lang, string>; label: Record<Lang, string> }[];
+  ios: { url: string; alt: Record<Lang, string>; label: Record<Lang, string> }[];
 } = {
   ios: [
     {
