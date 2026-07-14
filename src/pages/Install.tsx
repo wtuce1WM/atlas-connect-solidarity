@@ -624,14 +624,39 @@ const Install = () => {
 
           {/* Illustration provisoire — sera remplacée par de vraies captures */}
           <figure className="mb-6 flex flex-col items-center">
-            <img
-              src={typeof MOCKUPS[platform].url === "string" ? (MOCKUPS[platform].url as string) : (MOCKUPS[platform].url as Record<Lang, string>)[lang]}
-              alt={MOCKUPS[platform].alt[lang]}
-              width={1024}
-              height={1024}
-              loading="lazy"
-              className="w-full max-w-sm md:max-w-md h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
-            />
+            {platform === "ios" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                {MOCKUPS.ios.map((m, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <div className="relative w-full">
+                      <img
+                        src={m.url[lang]}
+                        alt={m.alt[lang]}
+                        width={1024}
+                        height={1024}
+                        loading="lazy"
+                        className="w-full h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
+                      />
+                      <span className="absolute top-3 left-3 flex items-center justify-center h-7 w-7 rounded-full bg-[#C04F17] text-white text-sm font-bold shadow-md">
+                        {i + 1}
+                      </span>
+                    </div>
+                    <span className="mt-2 text-sm font-roboto font-medium text-[#C04F17]">
+                      {m.label[lang]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <img
+                src={MOCKUPS[platform].url}
+                alt={MOCKUPS[platform].alt[lang]}
+                width={1024}
+                height={1024}
+                loading="lazy"
+                className="w-full max-w-sm md:max-w-md h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
+              />
+            )}
             <figcaption className="mt-3 text-xs text-muted-foreground/70 font-roboto italic text-center">
               {MOCKUP_CAPTION[lang]}
             </figcaption>
