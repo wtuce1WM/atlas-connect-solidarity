@@ -163,8 +163,13 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     setDialogOpen(true);
   };
 
-  const openEditDialog = (affiliate: Affiliate) => {
+  const openEditDialog = async (affiliate: Affiliate) => {
     setEditingAffiliate(affiliate);
+    const { data: noteRow } = await supabase
+      .from('affiliate_internal_notes')
+      .select('notes')
+      .eq('affiliate_id', affiliate.id)
+      .maybeSingle();
     setFormData({
       account_type: affiliate.account_type || "",
       name: affiliate.name,
@@ -177,7 +182,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       contact_email: affiliate.contact_email || "",
       contact_name: affiliate.contact_name || "",
       contact_phone: affiliate.contact_phone || "",
-      internal_notes: affiliate.internal_notes || "",
+      internal_notes: noteRow?.notes || "",
       is_active: affiliate.is_active,
     });
     setDialogOpen(true);
