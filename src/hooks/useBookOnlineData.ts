@@ -757,11 +757,9 @@ export function useBookOnlineData(businessId: string) {
       };
 
       const fetchLiteApiMapping = async () => {
-        const { data: mapping } = await supabase
-          .from("hotel_api_mappings")
-          .select("liteapi_hotel_id")
-          .eq("business_id", businessId)
-          .maybeSingle();
+        const { data: mappings } = await (supabase as any)
+          .rpc("get_hotel_mapping_for_business", { _business_id: businessId });
+        const mapping = (mappings as any[] | null)?.[0] ?? null;
 
         if (!isCancelled) setLiteApiHotelId(mapping?.liteapi_hotel_id || null);
       };
