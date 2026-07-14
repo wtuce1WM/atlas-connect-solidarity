@@ -308,6 +308,7 @@ const HomeMindtrip = () => {
 
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const localizeUrl = (path: string) => withLangPrefix(path, language as "fr" | "en" | "ar");
   const L = HOME_LABELS[language] ?? HOME_LABELS.fr;
   const STEPS = getSteps((["fr", "en", "ar"].includes(language) ? language : "fr") as StepLang);
 
