@@ -935,11 +935,11 @@ const HomeMindtrip = () => {
                                     return (b.priority_score || 0) - (a.priority_score || 0);
                                   })
                                   .map((b) => b.id);
-                                if (ordered.length === 0) { navigate(defaultUrl); return; }
-                                navigate(`/search?pinIds=${ordered.join(",")}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`);
+                                if (ordered.length === 0) { navigate(localizeUrl(defaultUrl)); return; }
+                                navigate(localizeUrl(`/search?pinIds=${ordered.join(",")}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`));
                                 return;
                               }
-                              navigate(defaultUrl);
+                              navigate(localizeUrl(defaultUrl));
                             };
                             return (
                               <div key={v.key} className="group relative aspect-[9/16] w-[200px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[240px]">
