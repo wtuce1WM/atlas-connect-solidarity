@@ -1045,8 +1045,13 @@ const LocationManagement = () => {
     setPoiKeywordInput("");
   };
 
-  const openEditPoi = (p: PointOfInterest) => {
+  const openEditPoi = async (p: PointOfInterest) => {
     setEditingPoi(p);
+    const { data: noteRow } = await supabase
+      .from("poi_internal_notes")
+      .select("notes")
+      .eq("poi_id", p.id)
+      .maybeSingle();
     setPoiForm({
       city_id: p.city_id, name_fr: p.name_fr, name_en: p.name_en || "", name_ar: p.name_ar || "",
       latitude: p.latitude?.toString() || "", longitude: p.longitude?.toString() || "",
@@ -1054,7 +1059,7 @@ const LocationManagement = () => {
       official_site_fr: (p as any).official_site_fr || "", official_site_en: (p as any).official_site_en || "", official_site_ar: (p as any).official_site_ar || "",
       hook: p.hook || "", description: p.description || "", sort_order: p.sort_order || 0,
       image_url: p.image_url || "", keywords: p.keywords || [],
-      images: (p as any).images || [], internal_notes: (p as any).internal_notes || "",
+      images: (p as any).images || [], internal_notes: noteRow?.notes || "",
     });
     setPoiKeywordInput("");
     setShowPoiForm(true);
