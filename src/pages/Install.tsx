@@ -12,13 +12,16 @@ import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.js
 import installIosRealStep1 from "@/assets/install-ios-real-step1.webp.asset.json";
 import installIosRealStep2 from "@/assets/install-ios-real-step2.webp.asset.json";
 import installIosRealStep3 from "@/assets/install-ios-real-step3.webp.asset.json";
-import installAndroidMockup from "@/assets/install-android-mockup.png.asset.json";
+import installAndroidStep1 from "@/assets/android-step1.jpg.asset.json";
+import installAndroidStep2 from "@/assets/android-step2.jpg.asset.json";
+import installAndroidStep3 from "@/assets/android-step3.jpg.asset.json";
 import installMacMockup from "@/assets/install-mac-mockup.png.asset.json";
 import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const MOCKUPS: Record<"android" | "mac" | "windows", { url: string; alt: Record<Lang, string> }> & {
+const MOCKUPS: Record<"mac" | "windows", { url: string; alt: Record<Lang, string> }> & {
   ios: { url: string; alt: Record<Lang, string>; label: Record<Lang, string> }[];
+  android: { url: string; alt: Record<Lang, string>; label: Record<Lang, string> }[];
 } = {
   ios: [
     {
@@ -49,14 +52,35 @@ const MOCKUPS: Record<"android" | "mac" | "windows", { url: string; alt: Record<
       label: { fr: "Étape 3 — « Sur l'écran d'accueil »", en: "Step 3 — 'Add to Home Screen'", ar: "الخطوة 3 — «إضافة إلى الشاشة الرئيسية»" },
     },
   ],
-  android: {
-    url: installAndroidMockup.url,
-    alt: {
-      fr: "Illustration : menu ⋮ de Chrome Android avec « Installer l'application » entouré en terracotta",
-      en: "Illustration: Chrome Android ⋮ menu with 'Install app' circled in terracotta",
-      ar: "توضيح: قائمة ⋮ في Chrome على Android مع خيار «تثبيت التطبيق» محاط باللون التراكوتا",
+  android: [
+    {
+      url: installAndroidStep1.url,
+      alt: {
+        fr: "Étape 1 : ouvre oneworldmorocco.com dans Chrome sur Android, puis touche le menu ⋮ en haut à droite",
+        en: "Step 1: open oneworldmorocco.com in Chrome on Android, then tap the ⋮ menu at the top right",
+        ar: "الخطوة 1: افتح oneworldmorocco.com في Chrome على Android، ثم اضغط على قائمة ⋮ في الأعلى يمينًا",
+      },
+      label: { fr: "Étape 1 — Touche le menu ⋮", en: "Step 1 — Tap the ⋮ menu", ar: "الخطوة 1 — اضغط قائمة ⋮" },
     },
-  },
+    {
+      url: installAndroidStep2.url,
+      alt: {
+        fr: "Étape 2 : dans le menu Chrome, touche « Installer et créer… »",
+        en: "Step 2: in the Chrome menu, tap 'Install and create…'",
+        ar: "الخطوة 2: في قائمة Chrome، اضغط «تثبيت وإنشاء…»",
+      },
+      label: { fr: "Étape 2 — « Installer et créer… »", en: "Step 2 — 'Install and create…'", ar: "الخطوة 2 — «تثبيت وإنشاء…»" },
+    },
+    {
+      url: installAndroidStep3.url,
+      alt: {
+        fr: "Étape 3 : confirme en touchant « Installer » dans la boîte de dialogue",
+        en: "Step 3: confirm by tapping 'Install' in the dialog",
+        ar: "الخطوة 3: أكّد بالضغط على «تثبيت» في مربع الحوار",
+      },
+      label: { fr: "Étape 3 — Touche « Installer »", en: "Step 3 — Tap 'Install'", ar: "الخطوة 3 — اضغط «تثبيت»" },
+    },
+  ],
   mac: {
     url: installMacMockup.url,
     alt: {
@@ -122,12 +146,11 @@ const I18N = {
       android: {
         title: "Installer sur Android",
         steps: [
-          <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong> (obligatoire — n'utilise pas Samsung Internet ni Firefox, sinon Google Play Protect peut bloquer l'installation).</>,
-          <>Touche le menu <strong>⋮</strong> en haut à droite.</>,
-          <>Tout en haut du menu, touche l'icône <strong>⊞+ « Ajouter à… »</strong> (rangée d'icônes rapides). Un panneau s'ouvre.</>,
-          <>Dans ce panneau, choisis <strong>« Écran d'accueil »</strong> (ou <strong>« Installer l'application »</strong> si proposé), puis confirme. L'icône OW Morocco s'installe comme une vraie app.</>,
+          <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong>, puis touche le menu <strong>⋮</strong> en haut à droite.</>,
+          <>Dans le menu, touche <strong>« Installer et créer… »</strong> (fais défiler si nécessaire).</>,
+          <>Dans la boîte de dialogue <strong>« Installer l'application »</strong>, touche <strong>Installer</strong>. L'icône OW Morocco s'ajoute à ton écran d'accueil comme une vraie app.</>,
         ],
-        note: "Tu ne vois pas l'icône ⊞+ ? 1) Recharge la page une fois puis rouvre le menu ⋮ — l'icône « Ajouter à… » apparaît dans la rangée d'icônes en haut du menu (à côté de ⭐ Favori, ⬇ Télécharger, ℹ Infos page). 2) Sinon, fais défiler le menu ⋮ vers le bas et cherche « Ajouter à l'écran d'accueil » ou « Installer l'application ». 3) Si Google Play Protect affiche « Appli non sécurisée bloquée », c'est que l'installation s'est faite via Samsung Internet ou Firefox — touche « Plus de détails » puis « Installer quand même », ou réinstalle depuis Chrome.",
+        note: "Utilise bien Chrome (pas Samsung Internet ni Firefox), sinon Google Play Protect peut afficher « Appli non sécurisée bloquée » — dans ce cas, touche « Plus de détails » puis « Installer quand même », ou réinstalle depuis Chrome.",
       },
       mac: {
         title: "Installer sur Mac",
@@ -182,12 +205,11 @@ const I18N = {
       android: {
         title: "Install on Android",
         steps: [
-          <>Open <strong>oneworldmorocco.com</strong> in <strong>Chrome</strong> (required — don't use Samsung Internet or Firefox, otherwise Google Play Protect may block the install).</>,
-          <>Tap the <strong>⋮</strong> menu in the top right.</>,
-          <>At the very top of the menu, tap the <strong>⊞+ "Add to…"</strong> icon (quick actions row). A panel opens.</>,
-          <>In that panel, choose <strong>"Home screen"</strong> (or <strong>"Install app"</strong> if shown), then confirm. The OW Morocco icon installs like a real app.</>,
+          <>Open <strong>oneworldmorocco.com</strong> in <strong>Chrome</strong>, then tap the <strong>⋮</strong> menu at the top right.</>,
+          <>In the menu, tap <strong>"Install and create…"</strong> (scroll down if needed).</>,
+          <>In the <strong>"Install app"</strong> dialog, tap <strong>Install</strong>. The OW Morocco icon is added to your home screen like a real app.</>,
         ],
-        note: "Can't see the ⊞+ icon? 1) Reload the page once then reopen the ⋮ menu — the \"Add to…\" icon shows in the quick actions row at the top (next to ⭐ Bookmark, ⬇ Download, ℹ Page info). 2) Otherwise scroll down inside the ⋮ menu and look for \"Add to Home screen\" or \"Install app\". 3) If Google Play Protect shows \"Unsafe app blocked\", the install was done via Samsung Internet or Firefox — tap \"More details\" then \"Install anyway\", or reinstall from Chrome.",
+        note: "Use Chrome (not Samsung Internet or Firefox), otherwise Google Play Protect may show \"Unsafe app blocked\" — tap \"More details\" then \"Install anyway\", or reinstall from Chrome.",
       },
       mac: {
         title: "Install on Mac",
@@ -242,12 +264,11 @@ const I18N = {
       android: {
         title: "التثبيت على أندرويد",
         steps: [
-          <>افتح <strong>oneworldmorocco.com</strong> في <strong>Chrome</strong> (إلزامي — لا تستخدم Samsung Internet أو Firefox، وإلا قد يحجب Google Play Protect التثبيت).</>,
-          <>اضغط على قائمة <strong>⋮</strong> في الأعلى يمينًا.</>,
-          <>في أعلى القائمة، اضغط على أيقونة <strong>⊞+ «إضافة إلى…»</strong> (صف الإجراءات السريعة). تُفتح لوحة.</>,
-          <>في هذه اللوحة، اختر <strong>«الشاشة الرئيسية»</strong> (أو <strong>«تثبيت التطبيق»</strong> إن ظهر)، ثم أكّد. تُثبَّت أيقونة OW Morocco كتطبيق حقيقي.</>,
+          <>افتح <strong>oneworldmorocco.com</strong> في <strong>Chrome</strong>، ثم اضغط على قائمة <strong>⋮</strong> في الأعلى يمينًا.</>,
+          <>في القائمة، اضغط على <strong>«تثبيت وإنشاء…»</strong> (مرّر للأسفل عند الحاجة).</>,
+          <>في مربع الحوار <strong>«تثبيت التطبيق»</strong>، اضغط <strong>تثبيت</strong>. تُضاف أيقونة OW Morocco إلى شاشتك الرئيسية كتطبيق حقيقي.</>,
         ],
-        note: "لا ترى أيقونة ⊞+؟ 1) أعد تحميل الصفحة ثم افتح قائمة ⋮ مجددًا — تظهر أيقونة «إضافة إلى…» في صف الإجراءات السريعة أعلى القائمة (بجانب ⭐ المفضلة، ⬇ التنزيل، ℹ معلومات الصفحة). 2) وإلا، مرّر قائمة ⋮ للأسفل وابحث عن «إضافة إلى الشاشة الرئيسية» أو «تثبيت التطبيق». 3) إذا أظهر Google Play Protect «تم حجب تطبيق غير آمن»، فهذا يعني أن التثبيت تم عبر Samsung Internet أو Firefox — اضغط «مزيد من التفاصيل» ثم «التثبيت على أي حال»، أو أعد التثبيت من Chrome.",
+        note: "استخدم Chrome (وليس Samsung Internet أو Firefox)، وإلا قد يعرض Google Play Protect «تم حجب تطبيق غير آمن» — اضغط «مزيد من التفاصيل» ثم «التثبيت على أي حال»، أو أعد التثبيت من Chrome.",
       },
       mac: {
         title: "التثبيت على ماك",
@@ -616,15 +637,20 @@ const Install = () => {
 
           {/* Illustration provisoire — sera remplacée par de vraies captures */}
           <figure className="mb-6 flex flex-col items-center">
-            {platform === "ios" ? (
+            {platform === "ios" || platform === "android" ? (
               <div className="grid grid-cols-1 gap-6 w-full max-w-sm mx-auto">
-                {MOCKUPS.ios.map((m, i) => {
-                  // Positionne le badge à côté de l'élément cible sur chaque capture
-                  const badgePos = [
-                    { left: "90%", top: "94%" },  // étape 1 : à droite du "..." en bas de la barre d'adresse
-                    { left: "74%", top: "57%" },  // étape 2 : à droite de "Partager"
-                    { left: "76%", top: "80%" },  // étape 3 : à droite de "Sur l'écran d'accueil"
-                  ][i];
+                {MOCKUPS[platform].map((m, i) => {
+                  const badgePos = platform === "ios"
+                    ? [
+                        { left: "90%", top: "94%" },
+                        { left: "74%", top: "57%" },
+                        { left: "76%", top: "80%" },
+                      ][i]
+                    : [
+                        { left: "94%", top: "7%" },   // étape 1 : à côté du menu ⋮ en haut à droite
+                        { left: "18%", top: "51%" },  // étape 2 : à gauche de « Installer et créer… »
+                        { left: "90%", top: "70%" },  // étape 3 : à côté du bouton « Installer »
+                      ][i];
                   return (
                     <div key={i} className="flex flex-col items-center">
                       <div className="relative w-full">
@@ -660,7 +686,7 @@ const Install = () => {
                 className="w-full max-w-sm md:max-w-md h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
               />
             )}
-            {platform !== "ios" && (
+            {platform !== "ios" && platform !== "android" && (
               <figcaption className="mt-3 text-xs text-muted-foreground/70 font-roboto italic text-center">
                 {MOCKUP_CAPTION[lang]}
               </figcaption>
