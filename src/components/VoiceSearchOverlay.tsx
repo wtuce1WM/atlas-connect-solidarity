@@ -1,5 +1,28 @@
 import { Mic, X } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const LABELS = {
+  fr: {
+    speakNow: "Parlez maintenant",
+    waitSignal: "Attendez le signal sonore avant de parler",
+    hintLine1: "Cliquez sur le micro",
+    hintLine2: "ou attendez pour lancer la recherche",
+  },
+  en: {
+    speakNow: "Speak now",
+    waitSignal: "Wait for the beep before speaking",
+    hintLine1: "Tap the mic",
+    hintLine2: "or wait to launch the search",
+  },
+  ar: {
+    speakNow: "تحدث الآن",
+    waitSignal: "انتظر الإشارة الصوتية قبل التحدث",
+    hintLine1: "اضغط على الميكروفون",
+    hintLine2: "أو انتظر لبدء البحث",
+  },
+} as const;
+
 
 
 interface VoiceSearchOverlayProps {
