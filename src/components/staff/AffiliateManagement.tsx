@@ -41,7 +41,7 @@ interface Affiliate {
   contact_email: string | null;
   contact_name: string | null;
   contact_phone: string | null;
-  internal_notes: string | null;
+  internal_notes?: string | null;
   is_active: boolean;
   user_id: string | null;
   created_at: string;
@@ -163,8 +163,13 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     setDialogOpen(true);
   };
 
-  const openEditDialog = (affiliate: Affiliate) => {
+  const openEditDialog = async (affiliate: Affiliate) => {
     setEditingAffiliate(affiliate);
+    const { data: noteRow } = await supabase
+      .from('affiliate_internal_notes')
+      .select('notes')
+      .eq('affiliate_id', affiliate.id)
+      .maybeSingle();
     setFormData({
       account_type: affiliate.account_type || "",
       name: affiliate.name,
@@ -177,7 +182,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       contact_email: affiliate.contact_email || "",
       contact_name: affiliate.contact_name || "",
       contact_phone: affiliate.contact_phone || "",
-      internal_notes: affiliate.internal_notes || "",
+      internal_notes: noteRow?.notes || "",
       is_active: affiliate.is_active,
     });
     setDialogOpen(true);
@@ -216,11 +221,11 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       contact_email: formData.contact_email || null,
       contact_name: formData.contact_name || null,
       contact_phone: formData.contact_phone || null,
-      internal_notes: formData.internal_notes || null,
       is_active: formData.is_active,
     };
 
     let error;
+    let affiliateId = editingAffiliate?.id;
     if (editingAffiliate) {
       const result = await supabase
         .from('affiliates')
@@ -230,8 +235,25 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     } else {
       const result = await supabase
         .from('affiliates')
-        .insert(affiliateData);
+        .insert(affiliateData)
+        .select('id')
+        .single();
       error = result.error;
+      affiliateId = result.data?.id;
+    }
+
+    if (!error && affiliateId) {
+      const notes = formData.internal_notes?.trim() || null;
+      if (notes) {
+        await supabase
+          .from('affiliate_internal_notes')
+          .upsert({ affiliate_id: affiliateId, notes }, { onConflict: 'affiliate_id' });
+      } else {
+        await supabase
+          .from('affiliate_internal_notes')
+          .delete()
+          .eq('affiliate_id', affiliateId);
+      }
     }
 
     setSaving(false);

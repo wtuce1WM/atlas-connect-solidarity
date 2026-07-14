@@ -1109,6 +1109,21 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     return () => { cancelled = true; };
   }, [business?.id]);
   useEffect(() => {
+    if (!business?.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("business_internal_notes")
+        .select("notes")
+        .eq("business_id", business.id)
+        .maybeSingle();
+      if (!cancelled && data?.notes) {
+        setFormData((prev: any) => ({ ...prev, internal_notes: data.notes }));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [business?.id]);
+  useEffect(() => {
     const fetchTaxonomy = async () => {
       const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes, badgesRes, badgeSubcatsRes, destRes, poiRes, eventsRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
@@ -1339,7 +1354,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     presentation_mode: inferPresentationMode((business as any)?.unified_cta) || (business as any)?.presentation_mode || "reserver_en_ligne",
     languages: (business as any)?.languages || [],
     affiliate_id: (business as any)?.affiliate_id || "",
-    internal_notes: (business as any)?.internal_notes || "",
+    internal_notes: "",
     video_1_url: (business as any)?.video_1_url || "",
     matterport_url: (business as any)?.matterport_url || "",
     flipbook_url: (business as any)?.flipbook_url || "",
@@ -2306,7 +2321,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       zone_city_ids: (formData as any).zone_chalandise === "nationale" && (formData as any).zone_city_ids?.length > 0 ? (formData as any).zone_city_ids : [],
       languages: (formData as any).languages?.length > 0 ? (formData as any).languages : [],
       affiliate_id: (formData as any).affiliate_id || null,
-      internal_notes: formData.internal_notes ? formData.internal_notes.slice(0, 5000) : null,
+      // internal_notes moved to business_internal_notes (staff-only table)
       video_1_url: formData.video_1_url || null,
       matterport_url: formData.matterport_url || null,
       flipbook_url: (formData as any).flipbook_url || null,
@@ -2445,6 +2460,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         if (error) throw error;
         businessId = newBusiness?.id;
+      }
+
+      // Save internal_notes to staff-only table
+      if (businessId) {
+        const notesText = formData.internal_notes ? formData.internal_notes.slice(0, 5000).trim() : "";
+        if (notesText) {
+          await supabase
+            .from("business_internal_notes")
+            .upsert({ business_id: businessId, notes: notesText }, { onConflict: "business_id" });
+        } else {
+          await supabase
+            .from("business_internal_notes")
+            .delete()
+            .eq("business_id", businessId);
+        }
       }
 
       // Save business labels

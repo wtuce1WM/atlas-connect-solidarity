@@ -76,7 +76,7 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
     image_small_url_ar: sponsor?.image_small_url_ar || "",
     
     // Internal
-    internal_notes: sponsor?.internal_notes || "",
+    internal_notes: "",
   });
 
   const [uploading, setUploading] = useState<string | null>(null);
@@ -92,7 +92,17 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
       setLoadingCities(false);
     };
     fetchCities();
-  }, []);
+    if (sponsor?.id) {
+      supabase
+        .from('sponsor_internal_notes')
+        .select('notes')
+        .eq('sponsor_id', sponsor.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.notes) setFormData(prev => ({ ...prev, internal_notes: data.notes }));
+        });
+    }
+  }, [sponsor?.id]);
 
   const handleInputChange = (field: string, value: string | number | boolean | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -140,19 +150,34 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
 
     setLoading(true);
     try {
+      const { internal_notes, ...sponsorPayload } = formData;
+      let sponsorId = sponsor?.id;
       if (sponsor?.id) {
         const { error } = await supabase
           .from('sponsors')
-          .update(formData)
+          .update(sponsorPayload)
           .eq('id', sponsor.id);
         if (error) throw error;
         toast({ title: "Succès", description: "Sponsor mis à jour." });
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('sponsors')
-          .insert(formData);
+          .insert(sponsorPayload)
+          .select('id')
+          .single();
         if (error) throw error;
+        sponsorId = data?.id;
         toast({ title: "Succès", description: "Sponsor créé." });
+      }
+      if (sponsorId) {
+        const notesText = (internal_notes || "").trim();
+        if (notesText) {
+          await supabase
+            .from('sponsor_internal_notes')
+            .upsert({ sponsor_id: sponsorId, notes: notesText }, { onConflict: 'sponsor_id' });
+        } else {
+          await supabase.from('sponsor_internal_notes').delete().eq('sponsor_id', sponsorId);
+        }
       }
       onSuccess();
     } catch (error: any) {

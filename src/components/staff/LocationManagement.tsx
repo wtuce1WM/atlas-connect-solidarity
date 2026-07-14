@@ -129,7 +129,7 @@ interface Destination {
   image_url: string | null;
   keywords: string[] | null;
   is_searchable: boolean;
-  internal_notes: string | null;
+  internal_notes?: string | null;
   videos: string[] | null;
   city_ids: string[] | null;
   google_maps_url: string | null;
@@ -925,8 +925,13 @@ const LocationManagement = () => {
     setDestVideoUrlInput("");
   };
 
-  const openEditDestination = (d: Destination) => {
+  const openEditDestination = async (d: Destination) => {
     setEditingDestination(d);
+    const { data: noteRow } = await supabase
+      .from("destination_internal_notes")
+      .select("notes")
+      .eq("destination_id", d.id)
+      .maybeSingle();
     setDestinationForm({
       name_fr: d.name_fr, name_en: d.name_en || "", name_ar: d.name_ar || "",
       regions: d.region || [],
@@ -936,7 +941,7 @@ const LocationManagement = () => {
       image_url: d.image_url || "", keywords: d.keywords || [],
       is_searchable: (d as any).is_searchable ?? false,
       images: (d as any).images || [],
-      internal_notes: d.internal_notes || "",
+      internal_notes: noteRow?.notes || "",
       videos: d.videos || [],
       city_ids: (d as any).city_ids || [],
       google_maps_url: d.google_maps_url || "",
@@ -964,6 +969,7 @@ const LocationManagement = () => {
       finalKeywords.push(pending);
       destinationKeywordInputRef.current!.value = '';
     }
+    const notesText = destinationForm.internal_notes.trim().slice(0, 5000);
     const data = {
       name_fr: destinationForm.name_fr.trim(),
       name_en: destinationForm.name_en.trim() || null,
@@ -981,7 +987,6 @@ const LocationManagement = () => {
       keywords: finalKeywords.length > 0 ? finalKeywords : [],
       is_searchable: destinationForm.is_searchable,
       images: destinationForm.images.length > 0 ? destinationForm.images : [],
-      internal_notes: destinationForm.internal_notes.trim().slice(0, 5000) || null,
       videos: destinationForm.videos.length > 0 ? destinationForm.videos : [],
       city_ids: destinationForm.city_ids.length > 0 ? destinationForm.city_ids : [],
       google_maps_url: destinationForm.google_maps_url.trim() || null,
@@ -990,16 +995,25 @@ const LocationManagement = () => {
       google_review_count: destinationForm.google_review_count ? parseInt(destinationForm.google_review_count) : null,
     };
     let error;
+    let destId = editingDestination?.id;
     if (editingDestination) {
       const res = await (supabase.from("destinations" as any) as any).update(data).eq("id", editingDestination.id);
       error = res.error;
     } else {
-      const res = await (supabase.from("destinations" as any) as any).insert(data);
+      const res = await (supabase.from("destinations" as any) as any).insert(data).select("id").single();
       error = res.error;
+      destId = res.data?.id;
     }
     if (error) {
       toast({ variant: "destructive", title: "Erreur", description: error.message });
     } else {
+      if (destId) {
+        if (notesText) {
+          await supabase.from("destination_internal_notes").upsert({ destination_id: destId, notes: notesText }, { onConflict: "destination_id" });
+        } else {
+          await supabase.from("destination_internal_notes").delete().eq("destination_id", destId);
+        }
+      }
       toast({ title: "Succès", description: editingDestination ? "Destination mise à jour." : "Destination créée." });
       resetDestinationForm();
       setShowDestinationForm(false);
@@ -1031,8 +1045,13 @@ const LocationManagement = () => {
     setPoiKeywordInput("");
   };
 
-  const openEditPoi = (p: PointOfInterest) => {
+  const openEditPoi = async (p: PointOfInterest) => {
     setEditingPoi(p);
+    const { data: noteRow } = await supabase
+      .from("poi_internal_notes")
+      .select("notes")
+      .eq("poi_id", p.id)
+      .maybeSingle();
     setPoiForm({
       city_id: p.city_id, name_fr: p.name_fr, name_en: p.name_en || "", name_ar: p.name_ar || "",
       latitude: p.latitude?.toString() || "", longitude: p.longitude?.toString() || "",
@@ -1040,7 +1059,7 @@ const LocationManagement = () => {
       official_site_fr: (p as any).official_site_fr || "", official_site_en: (p as any).official_site_en || "", official_site_ar: (p as any).official_site_ar || "",
       hook: p.hook || "", description: p.description || "", sort_order: p.sort_order || 0,
       image_url: p.image_url || "", keywords: p.keywords || [],
-      images: (p as any).images || [], internal_notes: (p as any).internal_notes || "",
+      images: (p as any).images || [], internal_notes: noteRow?.notes || "",
     });
     setPoiKeywordInput("");
     setShowPoiForm(true);
@@ -1069,6 +1088,7 @@ const LocationManagement = () => {
 
     const mergedKeywords = Array.from(new Set([...poiForm.keywords, poiKeywordInput.trim()].filter(Boolean))); 
 
+    const notesText = poiForm.internal_notes.trim().slice(0, 5000);
     const data = {
       city_id: poiForm.city_id,
       name_fr: poiForm.name_fr.trim(),
@@ -1088,19 +1108,27 @@ const LocationManagement = () => {
       image_url: poiForm.image_url.trim() || null,
       keywords: mergedKeywords,
       images: poiForm.images.length > 0 ? poiForm.images : [],
-      internal_notes: poiForm.internal_notes.trim().slice(0, 5000) || null,
     };
     let error;
+    let poiId = editingPoi?.id;
     if (editingPoi) {
       const res = await (supabase.from("points_of_interest" as any) as any).update(data).eq("id", editingPoi.id);
       error = res.error;
     } else {
-      const res = await (supabase.from("points_of_interest" as any) as any).insert(data);
+      const res = await (supabase.from("points_of_interest" as any) as any).insert(data).select("id").single();
       error = res.error;
+      poiId = res.data?.id;
     }
     if (error) {
       toast({ variant: "destructive", title: "Erreur", description: error.message });
     } else {
+      if (poiId) {
+        if (notesText) {
+          await supabase.from("poi_internal_notes").upsert({ poi_id: poiId, notes: notesText }, { onConflict: "poi_id" });
+        } else {
+          await supabase.from("poi_internal_notes").delete().eq("poi_id", poiId);
+        }
+      }
       toast({ title: "Succès", description: editingPoi ? "Point d'intérêt mis à jour." : "Point d'intérêt créé." });
       resetPoiForm();
       setShowPoiForm(false);
