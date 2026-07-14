@@ -233,6 +233,7 @@ function buildHtml(slug: string, biz: Biz): string {
   if (biz.tripadvisor_url) sameAs.push(biz.tripadvisor_url);
   if (biz.youtube_url) sameAs.push(biz.youtube_url);
   if (biz.linkedin_url) sameAs.push(biz.linkedin_url);
+  sameAs.push(...authorityLinksFor(slug));
 
   const openingSpec = buildOpeningHoursSpec(biz.opening_hours, biz.is_open_24h);
   const priceRange = priceRangeFromBiz(biz);
