@@ -877,8 +877,8 @@ const HomeMindtrip = () => {
                                 ? (v.subcategoryNames.length > 0 ? v.subcategoryNames : await fetchFrontStructureSubcategoryNames(v.label || ""))
                                 : [];
                               return subcategoryNames.length > 0
-                                ? `/search?subcats=${encodeURIComponent(subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
-                                : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
+                                ? localizeUrl(`/search?subcats=${encodeURIComponent(subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`)
+                                : localizeUrl(`/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`);
                             };
                             const goSearch = async (e: React.MouseEvent) => {
                               e.preventDefault();
