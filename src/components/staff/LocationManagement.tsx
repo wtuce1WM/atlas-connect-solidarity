@@ -1088,6 +1088,7 @@ const LocationManagement = () => {
 
     const mergedKeywords = Array.from(new Set([...poiForm.keywords, poiKeywordInput.trim()].filter(Boolean))); 
 
+    const notesText = poiForm.internal_notes.trim().slice(0, 5000);
     const data = {
       city_id: poiForm.city_id,
       name_fr: poiForm.name_fr.trim(),
@@ -1107,19 +1108,27 @@ const LocationManagement = () => {
       image_url: poiForm.image_url.trim() || null,
       keywords: mergedKeywords,
       images: poiForm.images.length > 0 ? poiForm.images : [],
-      internal_notes: poiForm.internal_notes.trim().slice(0, 5000) || null,
     };
     let error;
+    let poiId = editingPoi?.id;
     if (editingPoi) {
       const res = await (supabase.from("points_of_interest" as any) as any).update(data).eq("id", editingPoi.id);
       error = res.error;
     } else {
-      const res = await (supabase.from("points_of_interest" as any) as any).insert(data);
+      const res = await (supabase.from("points_of_interest" as any) as any).insert(data).select("id").single();
       error = res.error;
+      poiId = res.data?.id;
     }
     if (error) {
       toast({ variant: "destructive", title: "Erreur", description: error.message });
     } else {
+      if (poiId) {
+        if (notesText) {
+          await supabase.from("poi_internal_notes").upsert({ poi_id: poiId, notes: notesText }, { onConflict: "poi_id" });
+        } else {
+          await supabase.from("poi_internal_notes").delete().eq("poi_id", poiId);
+        }
+      }
       toast({ title: "Succès", description: editingPoi ? "Point d'intérêt mis à jour." : "Point d'intérêt créé." });
       resetPoiForm();
       setShowPoiForm(false);
