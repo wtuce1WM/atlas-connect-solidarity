@@ -92,12 +92,13 @@ export default function StaffTranslations() {
       if (configKey === "businesses_full") {
         const hookKey = `hook_${targetLang}`;
         const descKey = `description_${targetLang}`;
-        const { data: businesses, error: bizError } = await supabase
+        const { data: businessesRaw, error: bizError } = await supabase
           .from("businesses")
           .select(`id, name, hook_fr, description_fr, ${hookKey}, ${descKey}`)
           .or(`hook_fr.not.is.null,description_fr.not.is.null`)
           .order("id");
         if (bizError) throw bizError;
+        const businesses = ((businessesRaw ?? []) as any[]);
 
         const highlightFields = ["title", "description", "section_title", "section_intro", "metric_title", "metric_value"];
         const { data: highlights, error: highlightError } = await supabase
@@ -107,7 +108,7 @@ export default function StaffTranslations() {
         if (highlightError) throw highlightError;
 
         const bizIdsWithMissingHighlights = new Set<string>();
-        for (const highlight of highlights ?? []) {
+        for (const highlight of ((highlights ?? []) as any[])) {
           for (const field of highlightFields) {
             const source = highlight[`${field}_fr` as keyof typeof highlight];
             const target = highlight[`${field}_${targetLang}` as keyof typeof highlight];
