@@ -124,10 +124,10 @@ const I18N = {
         steps: [
           <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong> (obligatoire — n'utilise pas Samsung Internet ni Firefox, sinon Google Play Protect peut bloquer l'installation).</>,
           <>Touche le menu <strong>⋮</strong> en haut à droite.</>,
-          <>Choisis <strong>« Installer l'application »</strong>, <strong>« Ajouter à l'écran d'accueil »</strong> ou <strong>« Ajouter l'onglet à l'écran d'accueil »</strong> (nouveau libellé Chrome, visible tout en haut du menu ⋮ sur Samsung/Android récent).</>,
-          <>Confirme. L'icône OW Morocco s'installe comme une vraie app.</>,
+          <>Tout en haut du menu, touche l'icône <strong>⊞+ « Ajouter à… »</strong> (rangée d'icônes rapides). Un panneau s'ouvre.</>,
+          <>Dans ce panneau, choisis <strong>« Écran d'accueil »</strong> (ou <strong>« Installer l'application »</strong> si proposé), puis confirme. L'icône OW Morocco s'installe comme une vraie app.</>,
         ],
-        note: "Tu ne vois aucune de ces options ? 1) Fais défiler le menu ⋮ vers le bas — l'option peut être en bas de la liste. 2) Sur Chrome récent (Samsung/Android), l'option s'appelle « Ajouter l'onglet à l'écran d'accueil » et se trouve tout en haut du menu (icône ⊞ avec un +). 3) Recharge la page une fois puis rouvre le menu. 4) Si Google Play Protect affiche « Appli non sécurisée bloquée », c'est que l'installation s'est faite via Samsung Internet ou Firefox — touche « Plus de détails » puis « Installer quand même », ou réinstalle depuis Chrome.",
+        note: "Tu ne vois pas l'icône ⊞+ ? 1) Recharge la page une fois puis rouvre le menu ⋮ — l'icône « Ajouter à… » apparaît dans la rangée d'icônes en haut du menu (à côté de ⭐ Favori, ⬇ Télécharger, ℹ Infos page). 2) Sinon, fais défiler le menu ⋮ vers le bas et cherche « Ajouter à l'écran d'accueil » ou « Installer l'application ». 3) Si Google Play Protect affiche « Appli non sécurisée bloquée », c'est que l'installation s'est faite via Samsung Internet ou Firefox — touche « Plus de détails » puis « Installer quand même », ou réinstalle depuis Chrome.",
       },
       mac: {
         title: "Installer sur Mac",
