@@ -470,7 +470,12 @@ function buildHubHtml(hub: Hub): string {
     ...(hub.latitude && hub.longitude && {
       geo: { "@type": "GeoCoordinates", latitude: hub.latitude, longitude: hub.longitude },
     }),
-    ...(hub.wikipedia && { sameAs: [hub.wikipedia] }),
+    ...((() => {
+      const links: string[] = [];
+      if (hub.wikipedia) links.push(hub.wikipedia);
+      links.push(...authorityLinksFor(hub.slug));
+      return links.length ? { sameAs: [...new Set(links)] } : {};
+    })()),
     ...(hub.rating && {
       aggregateRating: {
         "@type": "AggregateRating",
