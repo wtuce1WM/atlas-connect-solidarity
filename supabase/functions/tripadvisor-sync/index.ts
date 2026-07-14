@@ -114,6 +114,9 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const auth = await assertStaff(req, corsHeaders);
+  if (auth instanceof Response) return auth;
+
   try {
     const apiKey = Deno.env.get('TRIPADVISOR_API_KEY');
     if (!apiKey) {
