@@ -340,10 +340,29 @@ async function main() {
     written++;
   }
 
+  // 5) Récupère les articles blog publiés depuis la DB (blog_posts)
   const blogDir = join(PUBLIC_DIR, "blog");
   mkdirSync(blogDir, { recursive: true });
   writeFileSync(join(blogDir, MARKER_FILE), "", "utf8");
-  for (const article of STATIC_ARTICLES) {
+
+  const { data: posts, error: postsErr } = await supabase
+    .from("blog_posts")
+    .select("slug, title_fr, excerpt_fr, cover_image_url, custom_hero_image_url, published_at, updated_at, is_published")
+    .eq("is_published", true);
+  if (postsErr) console.error("[og-pages] blog_posts fetch error:", postsErr);
+
+  const articles: StaticArticle[] = (posts || [])
+    .filter((p: any) => p.slug && p.title_fr)
+    .map((p: any): StaticArticle => ({
+      path: `blog/${p.slug}`,
+      title: `${p.title_fr} — ${SITE_NAME}`,
+      description: p.excerpt_fr || `Découvrez ${p.title_fr} sur ${SITE_NAME}.`,
+      image: p.custom_hero_image_url || p.cover_image_url || `${BASE_URL}/og-install-app.jpg`,
+      publishedAt: p.published_at || p.updated_at || new Date().toISOString(),
+      modifiedAt: p.updated_at || p.published_at || new Date().toISOString(),
+    }));
+
+  for (const article of articles) {
     // Supprime un éventuel fichier sans extension (ancienne génération) qui était téléchargé
     const legacyFile = join(PUBLIC_DIR, article.path);
     try {
@@ -355,7 +374,7 @@ async function main() {
     writeFileSync(join(articleDir, "index.html"), buildArticleHtml(article), "utf8");
   }
 
-  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${STATIC_ARTICLES.length} articles.`);
+  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog.`);
 }
 
 main().catch((err) => {
