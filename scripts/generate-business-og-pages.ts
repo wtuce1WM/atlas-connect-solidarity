@@ -5,9 +5,25 @@
 // Usage : `bunx tsx scripts/generate-business-og-pages.ts`
 // Branché sur `prebuild` (cf. package.json).
 
-import { mkdirSync, writeFileSync, rmSync, existsSync, readdirSync, statSync } from "fs";
+import { mkdirSync, writeFileSync, rmSync, existsSync, readdirSync, statSync, readFileSync } from "fs";
 import { resolve, join } from "path";
 import { createClient } from "@supabase/supabase-js";
+
+// Mapping curé slug -> liens d'autorité (Wikipedia FR/EN, Wikidata) ajoutés à sameAs.
+// Édite scripts/wikidata-links.json pour enrichir cette liste.
+let WIKIDATA_LINKS: Record<string, { wikipedia_fr?: string; wikipedia_en?: string; wikidata?: string }> = {};
+try {
+  const raw = readFileSync(resolve(process.cwd(), "scripts/wikidata-links.json"), "utf8");
+  WIKIDATA_LINKS = JSON.parse(raw);
+  delete (WIKIDATA_LINKS as any)._comment;
+} catch (e) {
+  console.warn("[og-pages] wikidata-links.json introuvable, skip");
+}
+function authorityLinksFor(slug: string): string[] {
+  const entry = WIKIDATA_LINKS[slug];
+  if (!entry) return [];
+  return [entry.wikipedia_fr, entry.wikipedia_en, entry.wikidata].filter(Boolean) as string[];
+}
 
 const BASE_URL = "https://oneworldmorocco.com";
 const SITE_NAME = "ONE WORLD MOROCCO";
@@ -217,6 +233,7 @@ function buildHtml(slug: string, biz: Biz): string {
   if (biz.tripadvisor_url) sameAs.push(biz.tripadvisor_url);
   if (biz.youtube_url) sameAs.push(biz.youtube_url);
   if (biz.linkedin_url) sameAs.push(biz.linkedin_url);
+  sameAs.push(...authorityLinksFor(slug));
 
   const openingSpec = buildOpeningHoursSpec(biz.opening_hours, biz.is_open_24h);
   const priceRange = priceRangeFromBiz(biz);
@@ -413,6 +430,120 @@ function buildArticleHtml(article: StaticArticle): string {
 </html>`;
 }
 
+interface Hub {
+  kind: "destination" | "category" | "neighborhood";
+  slug: string;       // URL segment (encoded once at write time)
+  urlSegment: string; // segment used in canonical URL (may equal slug)
+  name: string;
+  hook: string | null;
+  description: string | null;
+  image: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  rating?: number | null;
+  reviewCount?: number | null;
+  wikipedia?: string | null;
+  city?: string | null;
+}
+
+function buildHubHtml(hub: Hub): string {
+  const kindLabel = hub.kind === "destination" ? "Destination"
+    : hub.kind === "category" ? "Catégorie"
+    : "Quartier";
+  const title = `${hub.name}${hub.city ? ` – ${hub.city}` : ""} | ${SITE_NAME}`;
+  const rawDesc = hub.hook || hub.description || `Découvrez ${hub.name} sur ${SITE_NAME} : établissements, expériences, adresses recommandées.`;
+  const description = stripHtml(rawDesc).substring(0, 200);
+  const image = hub.image || `${BASE_URL}/images/og-image.jpg`;
+  const url = `${BASE_URL}/${hub.kind}/${hub.urlSegment}`;
+
+  const schemaType = hub.kind === "destination" ? "TouristDestination"
+    : hub.kind === "neighborhood" ? "Place"
+    : "CollectionPage";
+
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": schemaType,
+    name: hub.name,
+    url,
+    ...(image && { image }),
+    ...(description && { description }),
+    ...(hub.latitude && hub.longitude && {
+      geo: { "@type": "GeoCoordinates", latitude: hub.latitude, longitude: hub.longitude },
+    }),
+    ...((() => {
+      const links: string[] = [];
+      if (hub.wikipedia) links.push(hub.wikipedia);
+      links.push(...authorityLinksFor(hub.slug));
+      return links.length ? { sameAs: [...new Set(links)] } : {};
+    })()),
+    ...(hub.rating && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: hub.rating,
+        bestRating: 5,
+        reviewCount: hub.reviewCount ?? 1,
+      },
+    }),
+    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: BASE_URL },
+  };
+
+  const e = {
+    title: escapeHtml(title),
+    description: escapeHtml(description),
+    image: escapeHtml(image),
+    url: escapeHtml(url),
+    name: escapeHtml(hub.name),
+    kindLabel: escapeHtml(kindLabel),
+  };
+
+  return `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>${e.title}</title>
+    <meta name="description" content="${e.description}" />
+    <link rel="canonical" href="${e.url}" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="${e.title}" />
+    <meta property="og:description" content="${e.description}" />
+    <meta property="og:url" content="${e.url}" />
+    <meta property="og:image" content="${e.image}" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${e.title}" />
+    <meta name="twitter:description" content="${e.description}" />
+    <meta name="twitter:image" content="${e.image}" />
+
+    <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>
+  </head>
+  <body style="background-color:#faf8f5;margin:0">
+    <script>
+      (function () {
+        var ua = navigator.userAgent || "";
+        var isPreviewBot = /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Pinterest|Discordbot|Googlebot|Google-InspectionTool|GoogleOther|Google-Extended|bingbot|GPTBot|OAI-SearchBot|ChatGPT-User|PerplexityBot|Perplexity-User|ClaudeBot|Claude-Web|anthropic-ai|Applebot|Applebot-Extended|Amazonbot|Bytespider|Meta-ExternalAgent|Meta-ExternalFetcher|DuckAssistBot|YouBot|CCBot|cohere-ai|Diffbot/i.test(ua);
+        if (isPreviewBot) return;
+        fetch("/index.html", { cache: "no-store" })
+          .then(function (response) { return response.text(); })
+          .then(function (html) {
+            document.open();
+            document.write(html);
+            document.close();
+          })
+          .catch(function () {});
+      })();
+    </script>
+    <noscript>
+      <h1>${e.kindLabel} : ${e.name}</h1>
+      <p>${e.description}</p>
+    </noscript>
+  </body>
+</html>`;
+}
+
 async function cleanPreviouslyGenerated() {
   if (!existsSync(PUBLIC_DIR)) return;
   for (const entry of readdirSync(PUBLIC_DIR)) {
@@ -521,7 +652,121 @@ async function main() {
     writeFileSync(join(articleDir, "index.html"), buildArticleHtml(article), "utf8");
   }
 
-  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog.`);
+  // 6) Génère les pages HUBS (destinations, catégories, quartiers)
+  // Ces répertoires racines sont marqués pour être nettoyables au prochain run.
+  const destDir = join(PUBLIC_DIR, "destination");
+  const catDir = join(PUBLIC_DIR, "category");
+  const nbhDir = join(PUBLIC_DIR, "neighborhood");
+  mkdirSync(destDir, { recursive: true });
+  mkdirSync(catDir, { recursive: true });
+  mkdirSync(nbhDir, { recursive: true });
+  writeFileSync(join(destDir, MARKER_FILE), "", "utf8");
+  writeFileSync(join(catDir, MARKER_FILE), "", "utf8");
+  writeFileSync(join(nbhDir, MARKER_FILE), "", "utf8");
+
+  const hubs: Hub[] = [];
+
+  // 6a) Destinations (jointure vanity_urls -> destinations)
+  const destVanities: { slug: string; target_id: string }[] = [];
+  {
+    let from = 0;
+    while (true) {
+      const { data, error } = await supabase
+        .from("vanity_urls")
+        .select("slug, target_id")
+        .eq("target_type", "destination")
+        .range(from, from + VPAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      destVanities.push(...(data as { slug: string; target_id: string }[]));
+      if (data.length < VPAGE) break;
+      from += VPAGE;
+    }
+  }
+  const destIds = destVanities.map((v) => v.target_id);
+  const { data: destRows } = destIds.length
+    ? await supabase
+        .from("destinations")
+        .select("id, name_fr, hook_fr, description_fr, image_url, images, latitude, longitude, wikipedia_fr, google_rating, google_review_count")
+        .in("id", destIds)
+    : { data: [] as any[] };
+  const destById = new Map((destRows || []).map((d: any) => [d.id, d]));
+  for (const v of destVanities) {
+    const d = destById.get(v.target_id);
+    if (!d) continue;
+    hubs.push({
+      kind: "destination",
+      slug: v.slug,
+      urlSegment: v.slug,
+      name: d.name_fr,
+      hook: d.hook_fr,
+      description: d.description_fr,
+      image: d.image_url || (Array.isArray(d.images) && d.images[0]) || null,
+      latitude: d.latitude,
+      longitude: d.longitude,
+      rating: d.google_rating,
+      reviewCount: d.google_review_count,
+      wikipedia: d.wikipedia_fr,
+    });
+  }
+
+  // 6b) Catégories
+  const { data: catRows } = await supabase
+    .from("categories")
+    .select("name_fr, og_image_url, adj_fr");
+  for (const c of catRows || []) {
+    if (!c.name_fr) continue;
+    const encoded = encodeURIComponent(c.name_fr);
+    hubs.push({
+      kind: "category",
+      slug: encoded,
+      urlSegment: encoded,
+      name: c.name_fr,
+      hook: c.adj_fr ? `Découvrez les meilleurs établissements ${c.adj_fr} au Maroc.` : null,
+      description: `Toutes les adresses ${c.name_fr.toLowerCase()} recommandées à Marrakech, Essaouira et au Maroc.`,
+      image: c.og_image_url || null,
+    });
+  }
+
+  // 6c) Quartiers
+  const { data: nbhRows } = await supabase
+    .from("neighborhoods")
+    .select("name_fr, hook_fr, description_fr, image_url, latitude, longitude, city_id");
+  // Résout le nom de ville
+  const cityIds = [...new Set((nbhRows || []).map((n: any) => n.city_id).filter(Boolean))];
+  const { data: cityRows } = cityIds.length
+    ? await supabase.from("destinations").select("id, name_fr").in("id", cityIds)
+    : { data: [] as any[] };
+  const cityById = new Map((cityRows || []).map((c: any) => [c.id, c.name_fr]));
+  for (const n of nbhRows || []) {
+    if (!n.name_fr) continue;
+    const encoded = encodeURIComponent(n.name_fr);
+    hubs.push({
+      kind: "neighborhood",
+      slug: encoded,
+      urlSegment: encoded,
+      name: n.name_fr,
+      hook: n.hook_fr,
+      description: n.description_fr,
+      image: n.image_url || null,
+      latitude: n.latitude,
+      longitude: n.longitude,
+      city: cityById.get(n.city_id) || null,
+    });
+  }
+
+  // 6d) Écriture
+  let hubsWritten = 0;
+  for (const h of hubs) {
+    // Le slug encodé peut contenir % : on garde tel quel dans le nom de dossier
+    // (Vite/Lovable sert public/ directement, fs supporte % dans les noms).
+    const dir = join(PUBLIC_DIR, h.kind, h.slug);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "index.html"), buildHubHtml(h), "utf8");
+    hubsWritten++;
+  }
+
+  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog + ${hubsWritten} hubs (destinations/catégories/quartiers).`);
 }
 
 main().catch((err) => {
