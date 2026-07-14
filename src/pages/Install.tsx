@@ -662,6 +662,13 @@ const Install = () => {
                           loading="lazy"
                           className="w-full h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
                         />
+                        {platform === "android" && i === 0 && (
+                          <span
+                            className="absolute h-10 w-10 rounded-full border-2 border-[#C04F17] bg-[#C04F17]/15 shadow-[0_0_12px_rgba(192,79,23,0.5)] animate-pulse"
+                            style={{ left: "96%", top: "6%", transform: "translate(-50%, -50%)" }}
+                            aria-hidden="true"
+                          />
+                        )}
                         <span
                           className="absolute flex items-center justify-center h-7 w-7 rounded-full bg-[#C04F17] text-white text-sm font-bold shadow-md"
                           style={{ left: badgePos.left, top: badgePos.top, transform: "translate(-50%, -50%)" }}
