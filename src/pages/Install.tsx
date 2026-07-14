@@ -697,11 +697,6 @@ const Install = () => {
                           {i + 1}
                         </span>
                       </div>
-                      {platform !== "android" && (
-                        <span className="mt-2 text-sm font-roboto font-medium text-[#C04F17]">
-                          {m.label[lang]}
-                        </span>
-                      )}
                     </div>
                   );
                 })}
