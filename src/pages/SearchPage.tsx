@@ -4026,7 +4026,7 @@ const SearchPage = () => {
   return (
     <div dir="ltr" className={`min-h-screen ${activeTab === "youtube" ? "bg-transparent" : "bg-background"}`} style={{ overflowX: 'clip' }}>
       <Header compact variant={activeTab === "youtube" ? "city" : undefined} rightContent={
-        <div data-tab-bar ref={tabBarRef} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        <div dir="ltr" data-tab-bar ref={tabBarRef} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none", direction: "ltr" }}>
           {[
             { key: "suggestions", icon: <Search className="h-4 w-4" />, label: language === "ar" ? "بحث" : language === "en" ? "Search" : "Recherche", count: totalCount },
             { key: "ai", icon: <Sparkles className="h-4 w-4" />, label: language === "ar" ? "ذكاء اصطناعي" : language === "en" ? "AI" : "IA" },
