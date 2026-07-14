@@ -719,10 +719,41 @@ function getSearchLevelMessage(level: string, language: string = "fr"): string {
   return messages[language]?.[level] || messages.fr[level] || "";
 }
 
+// In-memory IP rate limiter: max 30 requests per minute per IP.
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 30;
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || entry.resetAt < now) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count += 1;
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  // Rate limit by client IP to protect expensive cascading search.
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-real-ip") ||
+    "unknown";
+  if (!checkRateLimit(ip)) {
+    return new Response(
+      JSON.stringify({ error: "Rate limit exceeded. Please try again in a minute." }),
+      { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "60" } },
+    );
+  }
+
 
   try {
     const _searchStartMs = Date.now();
