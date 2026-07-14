@@ -920,7 +920,7 @@ const HomeMindtrip = () => {
                                   ...((links as any[]) || []).map((l) => l.business_id),
                                   ...((docLinks as any[]) || []).map((l) => l.business_documents?.linked_business_id || l.business_documents?.business_id),
                                 ].filter(Boolean)));
-                                if (ids.length === 0) { navigate(defaultUrl); return; }
+                                if (ids.length === 0) { navigate(localizeUrl(defaultUrl)); return; }
                                 const { data: bizRows } = await supabase
                                   .from("businesses")
                                   .select("id, city, priority_score, wtuce_status")
