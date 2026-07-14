@@ -191,12 +191,14 @@ const LocalizedRoutes = () => {
               <Route path="/subcategory/:subcategoryName" element={renderLazyRoute(<SubcategoryPage />)} />
               <Route path="/hotels" element={renderLazyRoute(<HotelSearch />)} />
               <Route path="/club" element={renderLazyRoute(<Club />)} />
+              <Route path="/en/club" element={renderLazyRoute(<Club />)} />
+              <Route path="/ar/club" element={renderLazyRoute(<Club />)} />
               <Route path="/staff/demo-effects" element={<StaffRouteGuard>{renderLazyRoute(<LogoEffectsDemo />)}</StaffRouteGuard>} />
               <Route path="/search-analytics" element={renderLazyRoute(<SearchAnalytics />)} />
               <Route path="/destination/:destinationName" element={renderLazyRoute(<DestinationResolver />)} />
               <Route path="/conditions-generales" element={renderLazyRoute(<CGF />)} />
               <Route path="/staff/search-layouts" element={<StaffRouteGuard>{renderLazyRoute(<SearchLayoutDemo />)}</StaffRouteGuard>} />
-              
+
               <Route path="/staff/mode-strict" element={<StaffRouteGuard>{renderLazyRoute(<StrictModePage />)}</StaffRouteGuard>} />
               <Route path="/staff/ai-effects" element={<StaffRouteGuard>{renderLazyRoute(<AIEffectsDemo />)}</StaffRouteGuard>} />
               <Route path="/blog/icon-preview" element={renderLazyRoute(<IconPreview />)} />
@@ -206,10 +208,20 @@ const LocalizedRoutes = () => {
               <Route path="/fiche/:slug" element={renderLazyRoute(<FicheImmersive />)} />
               <Route path="/test" element={renderLazyRoute(<Test />)} />
               <Route path="/install" element={renderLazyRoute(<Install />)} />
+              <Route path="/en/install" element={renderLazyRoute(<Install />)} />
+              <Route path="/ar/install" element={renderLazyRoute(<Install />)} />
               <Route path="/studio-video" element={renderLazyRoute(<StudioVideo />)} />
+              <Route path="/en/studio-video" element={renderLazyRoute(<StudioVideo />)} />
+              <Route path="/ar/studio-video" element={renderLazyRoute(<StudioVideo />)} />
               <Route path="/corporate" element={renderLazyRoute(<Corporate />)} />
+              <Route path="/en/corporate" element={renderLazyRoute(<Corporate />)} />
+              <Route path="/ar/corporate" element={renderLazyRoute(<Corporate />)} />
               <Route path="/join" element={renderLazyRoute(<Join />)} />
+              <Route path="/en/join" element={renderLazyRoute(<Join />)} />
+              <Route path="/ar/join" element={renderLazyRoute(<Join />)} />
               <Route path="/card" element={renderLazyRoute(<Card />)} />
+              <Route path="/en/card" element={renderLazyRoute(<Card />)} />
+              <Route path="/ar/card" element={renderLazyRoute(<Card />)} />
               <Route path="/y/:slug" element={renderLazyRoute(<YouTubeChannelResolver />)} />
               <Route path="/u/:pseudo" element={renderLazyRoute(<PublicClubProfile />)} />
               <Route path="/b/:slug" element={renderLazyRoute(<PublicBusinessProfile />)} />
