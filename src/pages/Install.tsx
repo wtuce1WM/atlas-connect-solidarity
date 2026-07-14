@@ -12,13 +12,16 @@ import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.js
 import installIosRealStep1 from "@/assets/install-ios-real-step1.webp.asset.json";
 import installIosRealStep2 from "@/assets/install-ios-real-step2.webp.asset.json";
 import installIosRealStep3 from "@/assets/install-ios-real-step3.webp.asset.json";
-import installAndroidMockup from "@/assets/install-android-mockup.png.asset.json";
+import installAndroidStep1 from "@/assets/android-step1.jpg.asset.json";
+import installAndroidStep2 from "@/assets/android-step2.jpg.asset.json";
+import installAndroidStep3 from "@/assets/android-step3.jpg.asset.json";
 import installMacMockup from "@/assets/install-mac-mockup.png.asset.json";
 import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const MOCKUPS: Record<"android" | "mac" | "windows", { url: string; alt: Record<Lang, string> }> & {
+const MOCKUPS: Record<"mac" | "windows", { url: string; alt: Record<Lang, string> }> & {
   ios: { url: string; alt: Record<Lang, string>; label: Record<Lang, string> }[];
+  android: { url: string; alt: Record<Lang, string>; label: Record<Lang, string> }[];
 } = {
   ios: [
     {
@@ -49,14 +52,35 @@ const MOCKUPS: Record<"android" | "mac" | "windows", { url: string; alt: Record<
       label: { fr: "Étape 3 — « Sur l'écran d'accueil »", en: "Step 3 — 'Add to Home Screen'", ar: "الخطوة 3 — «إضافة إلى الشاشة الرئيسية»" },
     },
   ],
-  android: {
-    url: installAndroidMockup.url,
-    alt: {
-      fr: "Illustration : menu ⋮ de Chrome Android avec « Installer l'application » entouré en terracotta",
-      en: "Illustration: Chrome Android ⋮ menu with 'Install app' circled in terracotta",
-      ar: "توضيح: قائمة ⋮ في Chrome على Android مع خيار «تثبيت التطبيق» محاط باللون التراكوتا",
+  android: [
+    {
+      url: installAndroidStep1.url,
+      alt: {
+        fr: "Étape 1 : ouvre oneworldmorocco.com dans Chrome sur Android, puis touche le menu ⋮ en haut à droite",
+        en: "Step 1: open oneworldmorocco.com in Chrome on Android, then tap the ⋮ menu at the top right",
+        ar: "الخطوة 1: افتح oneworldmorocco.com في Chrome على Android، ثم اضغط على قائمة ⋮ في الأعلى يمينًا",
+      },
+      label: { fr: "Étape 1 — Touche le menu ⋮", en: "Step 1 — Tap the ⋮ menu", ar: "الخطوة 1 — اضغط قائمة ⋮" },
     },
-  },
+    {
+      url: installAndroidStep2.url,
+      alt: {
+        fr: "Étape 2 : dans le menu Chrome, touche « Installer et créer… »",
+        en: "Step 2: in the Chrome menu, tap 'Install and create…'",
+        ar: "الخطوة 2: في قائمة Chrome، اضغط «تثبيت وإنشاء…»",
+      },
+      label: { fr: "Étape 2 — « Installer et créer… »", en: "Step 2 — 'Install and create…'", ar: "الخطوة 2 — «تثبيت وإنشاء…»" },
+    },
+    {
+      url: installAndroidStep3.url,
+      alt: {
+        fr: "Étape 3 : confirme en touchant « Installer » dans la boîte de dialogue",
+        en: "Step 3: confirm by tapping 'Install' in the dialog",
+        ar: "الخطوة 3: أكّد بالضغط على «تثبيت» في مربع الحوار",
+      },
+      label: { fr: "Étape 3 — Touche « Installer »", en: "Step 3 — Tap 'Install'", ar: "الخطوة 3 — اضغط «تثبيت»" },
+    },
+  ],
   mac: {
     url: installMacMockup.url,
     alt: {
