@@ -6629,6 +6629,8 @@ export type Database = {
         Returns: number
       }
       generate_slug: { Args: { input_text: string }; Returns: string }
+      get_blocked_domains_list: { Args: never; Returns: string[] }
+      get_broken_urls_list: { Args: never; Returns: string[] }
       get_business_analytics: {
         Args: { p_business_id: string; p_range?: string }
         Returns: Json
@@ -6650,6 +6652,19 @@ export type Database = {
           phone: string
           user_id: string
           whatsapp: string
+        }[]
+      }
+      get_hotel_mapping_for_business: {
+        Args: { _business_id: string }
+        Returns: {
+          liteapi_hotel_id: string
+        }[]
+      }
+      get_hotel_mappings_by_liteapi_ids: {
+        Args: { _ids: string[] }
+        Returns: {
+          business_id: string
+          liteapi_hotel_id: string
         }[]
       }
       get_public_club_profile: {
