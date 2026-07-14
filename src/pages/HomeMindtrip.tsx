@@ -31,6 +31,7 @@ const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = koutoubiaVerticalBgAsset.url;
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
