@@ -653,6 +653,18 @@ const Install = () => {
                       ][i];
                   return (
                     <div key={i} className="flex flex-col items-center">
+                      {platform === "android" ? (
+                        <>
+                          <span className="text-sm font-roboto font-medium text-[#C04F17]">
+                            {m.label[lang]}
+                          </span>
+                          {guide.steps[i] && (
+                            <p className="mt-1 mb-3 w-full font-roboto text-foreground/90 leading-relaxed text-center">
+                              {guide.steps[i].text}
+                            </p>
+                          )}
+                        </>
+                      ) : null}
                       <div className="relative w-full">
                         <img
                           src={m.url}
@@ -685,13 +697,10 @@ const Install = () => {
                           {i + 1}
                         </span>
                       </div>
-                      <span className="mt-2 text-sm font-roboto font-medium text-[#C04F17]">
-                        {m.label[lang]}
-                      </span>
-                      {platform === "android" && guide.steps[i] && (
-                        <p className="mt-3 w-full font-roboto text-foreground/90 leading-relaxed text-center">
-                          {guide.steps[i].text}
-                        </p>
+                      {platform !== "android" && (
+                        <span className="mt-2 text-sm font-roboto font-medium text-[#C04F17]">
+                          {m.label[lang]}
+                        </span>
                       )}
                     </div>
                   );
