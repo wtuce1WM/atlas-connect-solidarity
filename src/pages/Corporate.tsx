@@ -12,6 +12,7 @@ import corporateCss from "./corporate.scoped.css?raw";
 // @ts-ignore
 import corporateBody from "./corporate.body.html?raw";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 const LABELS = {
   fr: {
