@@ -12,6 +12,7 @@ import corporateCss from "./corporate.scoped.css?raw";
 // @ts-ignore
 import corporateBody from "./corporate.body.html?raw";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 const LABELS = {
   fr: {
@@ -126,7 +127,7 @@ const Corporate = () => {
       // Internal route (starts with "/" and not "//")
       if (href.startsWith("/") && !href.startsWith("//")) {
         e.preventDefault();
-        navigate(href);
+        navigate(withLangPrefix(href, language));
       }
     };
 

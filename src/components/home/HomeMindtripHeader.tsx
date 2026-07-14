@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useEnglishFlag } from "@/hooks/useEnglishFlag";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix, stripLangPrefix } from "@/lib/localizedPath";
 
 type CustomLink = { label: string; to?: string; onClick?: () => void; danger?: boolean };
 
@@ -24,8 +25,9 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
   const location = useLocation();
   const { language } = useLanguage();
   const L = NAV_LABELS[language] ?? NAV_LABELS.fr;
-  const isWhiteHeaderPage = location.pathname === "/" || location.pathname === "/corporate" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/club";
-  const blackHamburger = (location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/devenir-affilie") && !isWhiteHeaderPage;
+  const cleanPath = stripLangPrefix(location.pathname);
+  const isWhiteHeaderPage = cleanPath === "/" || cleanPath === "/corporate" || cleanPath === "/join" || cleanPath === "/card" || cleanPath === "/club";
+  const blackHamburger = (cleanPath === "/" || cleanPath === "/install" || cleanPath === "/join" || cleanPath === "/devenir-affilie") && !isWhiteHeaderPage;
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const englishEnabled = useEnglishFlag();
@@ -44,31 +46,31 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
   }`;
 
   const getNavLinks = () => {
-    if (location.pathname === "/corporate") {
+    if (cleanPath === "/corporate") {
       return [
         { to: "/join", label: L.join },
         { to: "/card", label: L.card },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/join") {
+    } else if (cleanPath === "/join") {
       return [
         { to: "/corporate", label: L.concept },
         { to: "/card", label: L.card },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/card") {
+    } else if (cleanPath === "/card") {
       return [
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/devenir-affilie") {
+    } else if (cleanPath === "/devenir-affilie") {
       return [
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
         { to: "/card", label: L.card },
       ];
-    } else if (location.pathname === "/club") {
+    } else if (cleanPath === "/club") {
       return [
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
@@ -80,7 +82,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
         { to: "/join", label: L.join },
         { to: "/club", label: L.club },
       ];
-      if (location.pathname !== "/install") {
+      if (cleanPath !== "/install") {
         baseLinks.push({ to: "/install", label: L.app });
       }
       return baseLinks;
@@ -89,35 +91,35 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
 
   const getMobileLinks = () => {
     const base = [{ to: "/", label: L.home }];
-    if (location.pathname === "/corporate") {
+    if (cleanPath === "/corporate") {
       return [
         ...base,
         { to: "/join", label: L.join },
         { to: "/card", label: L.card },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/join") {
+    } else if (cleanPath === "/join") {
       return [
         ...base,
         { to: "/corporate", label: L.concept },
         { to: "/card", label: L.card },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/card") {
+    } else if (cleanPath === "/card") {
       return [
         ...base,
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
         { to: "/devenir-affilie", label: L.affiliate },
       ];
-    } else if (location.pathname === "/devenir-affilie") {
+    } else if (cleanPath === "/devenir-affilie") {
       return [
         ...base,
         { to: "/corporate", label: L.concept },
         { to: "/join", label: L.join },
         { to: "/card", label: L.card },
       ];
-    } else if (location.pathname === "/club") {
+    } else if (cleanPath === "/club") {
       return [
         ...base,
         { to: "/corporate", label: L.concept },
@@ -131,7 +133,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
         { to: "/join", label: L.join },
         { to: "/club", label: L.club },
       ];
-      if (location.pathname !== "/install") {
+      if (cleanPath !== "/install") {
         baseLinks.push({ to: "/install", label: L.app });
       }
       return baseLinks;
@@ -147,7 +149,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
       }`}
     >
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
-        <Link to="/" aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
+        <Link to={withLangPrefix("/", language)} aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
           <img
             src={logoSrc}
             alt="One World Morocco"
@@ -169,7 +171,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
             return (
               <Link
                 key={item.to}
-                to={item.to}
+                to={withLangPrefix(item.to, language)}
                 className={linkClass}
                 {...(isClubCta ? { "data-track-event": "club_cta_click", "data-track-location": "nav_top", "data-track-target": item.to.slice(1) } : {})}
               >
@@ -210,7 +212,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
                 }`;
                 if (item.to) {
                   return (
-                    <Link key={`${item.label}-${idx}`} to={item.to} onClick={() => { setMenuOpen(false); window.scrollTo({ top: 0, behavior: "auto" }); }} className={baseClass}>
+                    <Link key={`${item.label}-${idx}`} to={withLangPrefix(item.to, language)} onClick={() => { setMenuOpen(false); window.scrollTo({ top: 0, behavior: "auto" }); }} className={baseClass}>
                       {item.label}
                     </Link>
                   );
@@ -228,11 +230,11 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
               })
             ) : (
               getMobileLinks()
-                .filter((item) => item.to !== location.pathname)
+                .filter((item) => item.to !== cleanPath)
                 .map((item) => (
                   <Link
                     key={item.to}
-                    to={item.to}
+                    to={withLangPrefix(item.to, language)}
                     onClick={() => setMenuOpen(false)}
                     className="rounded-xl px-4 py-3 font-josefin text-sm uppercase tracking-[0.2em] text-white/90 bg-white/5 border border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] backdrop-blur-xl transition-all hover:bg-white/15 hover:text-white"
                   >
