@@ -304,11 +304,9 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
       // Filter to mapped hotels only
       if (fbHotels.length > 0) {
         const fbIds = fbHotels.map(h => h.hotelId);
-        const { data: mappings } = await supabase
-          .from("hotel_api_mappings")
-          .select("liteapi_hotel_id, business_id")
-          .in("liteapi_hotel_id", fbIds);
-        const mappingMap = new Map((mappings || []).map(m => [m.liteapi_hotel_id, m.business_id]));
+        const { data: mappings } = await (supabase as any)
+          .rpc("get_hotel_mappings_by_liteapi_ids", { _ids: fbIds });
+        const mappingMap = new Map(((mappings as any[]) || []).map((m: any) => [m.liteapi_hotel_id, m.business_id]));
         // Enrich with our DB data
         const businessIds2 = [...mappingMap.values()].filter(Boolean) as string[];
         let bizDataMap2 = new Map<string, any>();
