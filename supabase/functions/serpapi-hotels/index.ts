@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { assertAllowedOrigin } from "../_shared/auth-helpers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -77,6 +78,10 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const originBlock = assertAllowedOrigin(req, corsHeaders);
+  if (originBlock) return originBlock;
+
 
   try {
     const apiKey = Deno.env.get("SERPAPI_API_KEY");

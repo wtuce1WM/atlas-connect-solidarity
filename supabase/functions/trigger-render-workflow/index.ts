@@ -1,7 +1,18 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { assertStaff } from '../_shared/auth-helpers.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+
+  // Allow calls from the DB trigger (uses SUPABASE_SERVICE_ROLE_KEY as Bearer),
+  // otherwise require a staff user.
+  const bearer = (req.headers.get('Authorization') || '').replace('Bearer ', '');
+  const serviceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!bearer || bearer !== serviceRole) {
+    const auth = await assertStaff(req, corsHeaders);
+    if (auth instanceof Response) return auth;
+  }
+
 
   try {
     const pat = Deno.env.get('GITHUB_PAT');

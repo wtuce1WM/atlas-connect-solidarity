@@ -1,3 +1,5 @@
+import { assertAllowedOrigin } from "../_shared/auth-helpers.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -36,6 +38,9 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const originBlock = assertAllowedOrigin(req, corsHeaders);
+  if (originBlock) return originBlock;
 
   try {
     const apiKey = Deno.env.get("LITEAPI_API_KEY");
