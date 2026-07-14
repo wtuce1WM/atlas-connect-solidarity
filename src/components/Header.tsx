@@ -7,6 +7,7 @@ import HeaderMenuContent from "@/components/HeaderMenuContent";
 import StructureMenuContent from "@/components/StructureMenuContent";
 import GlobalHeaderToolbar from "@/components/home/GlobalHeaderToolbar";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 const SOCIAL_ORDER = [
   "social_whatsapp", "social_tiktok", "social_instagram", "social_facebook",
