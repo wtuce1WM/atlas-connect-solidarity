@@ -969,6 +969,7 @@ const LocationManagement = () => {
       finalKeywords.push(pending);
       destinationKeywordInputRef.current!.value = '';
     }
+    const notesText = destinationForm.internal_notes.trim().slice(0, 5000);
     const data = {
       name_fr: destinationForm.name_fr.trim(),
       name_en: destinationForm.name_en.trim() || null,
@@ -986,7 +987,6 @@ const LocationManagement = () => {
       keywords: finalKeywords.length > 0 ? finalKeywords : [],
       is_searchable: destinationForm.is_searchable,
       images: destinationForm.images.length > 0 ? destinationForm.images : [],
-      internal_notes: destinationForm.internal_notes.trim().slice(0, 5000) || null,
       videos: destinationForm.videos.length > 0 ? destinationForm.videos : [],
       city_ids: destinationForm.city_ids.length > 0 ? destinationForm.city_ids : [],
       google_maps_url: destinationForm.google_maps_url.trim() || null,
@@ -995,16 +995,25 @@ const LocationManagement = () => {
       google_review_count: destinationForm.google_review_count ? parseInt(destinationForm.google_review_count) : null,
     };
     let error;
+    let destId = editingDestination?.id;
     if (editingDestination) {
       const res = await (supabase.from("destinations" as any) as any).update(data).eq("id", editingDestination.id);
       error = res.error;
     } else {
-      const res = await (supabase.from("destinations" as any) as any).insert(data);
+      const res = await (supabase.from("destinations" as any) as any).insert(data).select("id").single();
       error = res.error;
+      destId = res.data?.id;
     }
     if (error) {
       toast({ variant: "destructive", title: "Erreur", description: error.message });
     } else {
+      if (destId) {
+        if (notesText) {
+          await supabase.from("destination_internal_notes").upsert({ destination_id: destId, notes: notesText }, { onConflict: "destination_id" });
+        } else {
+          await supabase.from("destination_internal_notes").delete().eq("destination_id", destId);
+        }
+      }
       toast({ title: "Succès", description: editingDestination ? "Destination mise à jour." : "Destination créée." });
       resetDestinationForm();
       setShowDestinationForm(false);
