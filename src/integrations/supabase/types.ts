@@ -102,6 +102,32 @@ export type Database = {
           },
         ]
       }
+      affiliate_internal_notes: {
+        Row: {
+          affiliate_id: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_internal_notes_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: true
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliates: {
         Row: {
           account_type: string | null
@@ -112,7 +138,6 @@ export type Database = {
           created_at: string
           ice: string | null
           id: string
-          internal_notes: string | null
           is_active: boolean
           kp_regroupement: string | null
           main_category: string | null
@@ -131,7 +156,6 @@ export type Database = {
           created_at?: string
           ice?: string | null
           id?: string
-          internal_notes?: string | null
           is_active?: boolean
           kp_regroupement?: string | null
           main_category?: string | null
@@ -150,7 +174,6 @@ export type Database = {
           created_at?: string
           ice?: string | null
           id?: string
-          internal_notes?: string | null
           is_active?: boolean
           kp_regroupement?: string | null
           main_category?: string | null
@@ -1110,6 +1133,39 @@ export type Database = {
           },
         ]
       }
+      business_internal_notes: {
+        Row: {
+          business_id: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_internal_notes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_internal_notes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_labels: {
         Row: {
           business_id: string
@@ -1818,7 +1874,6 @@ export type Database = {
           id: string
           images: string[] | null
           instagram_url: string | null
-          internal_notes: string | null
           is_active: boolean
           is_featured: boolean | null
           is_master: boolean
@@ -1995,7 +2050,6 @@ export type Database = {
           id?: string
           images?: string[] | null
           instagram_url?: string | null
-          internal_notes?: string | null
           is_active?: boolean
           is_featured?: boolean | null
           is_master?: boolean
@@ -2172,7 +2226,6 @@ export type Database = {
           id?: string
           images?: string[] | null
           instagram_url?: string | null
-          internal_notes?: string | null
           is_active?: boolean
           is_featured?: boolean | null
           is_master?: boolean
@@ -2773,6 +2826,32 @@ export type Database = {
         }
         Relationships: []
       }
+      destination_internal_notes: {
+        Row: {
+          destination_id: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          destination_id: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          destination_id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destination_internal_notes_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: true
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       destination_reviews: {
         Row: {
           author_name: string | null
@@ -2849,7 +2928,6 @@ export type Database = {
           id: string
           image_url: string | null
           images: string[] | null
-          internal_notes: string | null
           is_searchable: boolean
           keywords: string[] | null
           latitude: number | null
@@ -2886,7 +2964,6 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
-          internal_notes?: string | null
           is_searchable?: boolean
           keywords?: string[] | null
           latitude?: number | null
@@ -2923,7 +3000,6 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
-          internal_notes?: string | null
           is_searchable?: boolean
           keywords?: string[] | null
           latitude?: number | null
@@ -4878,6 +4954,32 @@ export type Database = {
         }
         Relationships: []
       }
+      poi_internal_notes: {
+        Row: {
+          notes: string | null
+          poi_id: string
+          updated_at: string
+        }
+        Insert: {
+          notes?: string | null
+          poi_id: string
+          updated_at?: string
+        }
+        Update: {
+          notes?: string | null
+          poi_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poi_internal_notes_poi_id_fkey"
+            columns: ["poi_id"]
+            isOneToOne: true
+            referencedRelation: "points_of_interest"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       points_of_interest: {
         Row: {
           city_id: string
@@ -4890,7 +4992,6 @@ export type Database = {
           id: string
           image_url: string | null
           images: string[] | null
-          internal_notes: string | null
           keywords: string[] | null
           latitude: number | null
           longitude: number | null
@@ -4917,7 +5018,6 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
-          internal_notes?: string | null
           keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
@@ -4944,7 +5044,6 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
-          internal_notes?: string | null
           keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
@@ -5611,6 +5710,32 @@ export type Database = {
         }
         Relationships: []
       }
+      sponsor_internal_notes: {
+        Row: {
+          notes: string | null
+          sponsor_id: string
+          updated_at: string
+        }
+        Insert: {
+          notes?: string | null
+          sponsor_id: string
+          updated_at?: string
+        }
+        Update: {
+          notes?: string | null
+          sponsor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsor_internal_notes_sponsor_id_fkey"
+            columns: ["sponsor_id"]
+            isOneToOne: true
+            referencedRelation: "sponsors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sponsors: {
         Row: {
           city_ids: string[] | null
@@ -5622,7 +5747,6 @@ export type Database = {
           image_small_url_ar: string | null
           image_small_url_en: string | null
           image_small_url_fr: string | null
-          internal_notes: string | null
           is_active: boolean | null
           logo_big_url_ar: string | null
           logo_big_url_en: string | null
@@ -5650,7 +5774,6 @@ export type Database = {
           image_small_url_ar?: string | null
           image_small_url_en?: string | null
           image_small_url_fr?: string | null
-          internal_notes?: string | null
           is_active?: boolean | null
           logo_big_url_ar?: string | null
           logo_big_url_en?: string | null
@@ -5678,7 +5801,6 @@ export type Database = {
           image_small_url_ar?: string | null
           image_small_url_en?: string | null
           image_small_url_fr?: string | null
-          internal_notes?: string | null
           is_active?: boolean | null
           logo_big_url_ar?: string | null
           logo_big_url_en?: string | null
@@ -6810,7 +6932,6 @@ export type Database = {
               id: string
               images: string[] | null
               instagram_url: string | null
-              internal_notes: string | null
               is_active: boolean
               is_featured: boolean | null
               is_master: boolean
@@ -7003,7 +7124,6 @@ export type Database = {
               id: string
               images: string[] | null
               instagram_url: string | null
-              internal_notes: string | null
               is_active: boolean
               is_featured: boolean | null
               is_master: boolean
