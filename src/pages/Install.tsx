@@ -11,6 +11,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.json";
 import installIosMockupEn from "@/assets/install-ios-mockup-en.png.asset.json";
 import installIosMockupFr from "@/assets/install-ios-mockup-fr.png.asset.json";
+import installIosMockupStep1En from "@/assets/install-ios-mockup-step1-en.png.asset.json";
+import installIosMockupStep1Fr from "@/assets/install-ios-mockup-step1-fr.png.asset.json";
 import installAndroidMockup from "@/assets/install-android-mockup.png.asset.json";
 import installMacMockup from "@/assets/install-mac-mockup.png.asset.json";
 import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json";
