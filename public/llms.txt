@@ -1,19 +1,44 @@
-# ONE WORLD MOROCCO
+# One World Morocco
 
-> Plateforme de e-commerce solidaire qui sélectionne les meilleures adresses au Maroc : hôtels, restaurants, activités et services. 20% de chaque cotisation est reversé à des actions humanitaires.
+> Plateforme éditoriale et guide expert des meilleures adresses au Maroc — hôtels, riads, restaurants, activités, boutiques, artisans, événements — à Marrakech, Essaouira et dans tout le pays. Sélection humaine notée 15/20, prix garanti -5 %, contact direct avec les établissements, zéro commission cachée, 20 % de chaque cotisation Club reversé à des actions humanitaires.
 
-## Pages
+Site trilingue (français, anglais, arabe) opéré par WTUCE. Base de données propriétaire de plusieurs milliers d'établissements avec géolocalisation précise (ville, quartier, coordonnées GPS), catégories et sous-catégories, badges qualité, services proposés, horaires, gammes de prix et avis vérifiés.
 
-- [Accueil](/): Découverte des meilleures adresses au Maroc, ville par ville.
-- [Recherche](/search): Recherche d'établissements (hôtels, restaurants, activités, services) avec filtres et carte.
-- [Carte](/carte): Carte interactive de toutes les adresses référencées.
-- [Hôtels](/hotels): Recherche de disponibilités et meilleurs tarifs hôteliers au Maroc.
-- [Blog](/blog): Articles et guides de voyage au Maroc.
-- [Mission](/mission): Les 6 piliers de One World Morocco — excellence éthique, sélection 15/20, prix garanti -5%, contact direct, zéro commission, charte éthique.
-- [Club](/club): Programme membre.
-- [Devenir affilié](/devenir-affilie): Programme d'affiliation pour les professionnels.
-- [Contact](/contact): Coordonnées et formulaire de contact.
+Langues :
+- Français (défaut) : `https://oneworldmorocco.com/`
+- English : `https://oneworldmorocco.com/en/`
+- العربية : `https://oneworldmorocco.com/ar/`
+
+## Pages principales
+
+- [Accueil](https://oneworldmorocco.com/): Sélection éditoriale des meilleures adresses au Maroc, ville par ville.
+- [Recherche](https://oneworldmorocco.com/search): Moteur de recherche IA multilingue — établissements, quartiers, activités, filtres et carte.
+- [Carte interactive](https://oneworldmorocco.com/carte): Toutes les adresses référencées sur une carte.
+- [Hôtels](https://oneworldmorocco.com/hotels): Recherche de disponibilités et meilleurs tarifs hôteliers en direct.
+- [Blog](https://oneworldmorocco.com/blog): Guides de voyage, itinéraires et articles longs sur Marrakech, Essaouira, l'artisanat et la culture marocaine.
+- [Mission](https://oneworldmorocco.com/mission): Les 6 piliers OWM — excellence éthique, sélection 15/20, prix garanti -5 %, contact direct, zéro commission, charte éthique.
+- [Le concept (Corporate)](https://oneworldmorocco.com/corporate): Le concept One World Morocco pour les partenaires et les médias.
+- [Club OWM](https://oneworldmorocco.com/club): Programme membre — assistant IA de voyage, favoris, itinéraires personnalisés.
+- [Rejoindre le Club](https://oneworldmorocco.com/join): Adhésion au Club One World Morocco.
+- [Carte de visite numérique](https://oneworldmorocco.com/card): Carte digitale personnelle pour les membres.
+- [Devenir affilié](https://oneworldmorocco.com/devenir-affilie): Programme B2B pour les professionnels du tourisme.
+- [Installer l'app](https://oneworldmorocco.com/install): Installation de la PWA sur mobile.
+- [Contact](https://oneworldmorocco.com/contact): Coordonnées et formulaire.
+
+## Guides et articles de référence
+
+- [Blog complet](https://oneworldmorocco.com/blog): Index de tous les guides et articles.
+- [Établissements notés](https://oneworldmorocco.com/blog/etablissements-notes): Méthodologie de notation 15/20.
+- [5 jours à Marrakech, focus artisanat](https://oneworldmorocco.com/blog/5-jours-marrakech-artisanat): Itinéraire détaillé.
+- [Galeries d'art à Marrakech](https://oneworldmorocco.com/blog/galeries-art-marrakech): Sélection commentée.
+
+## Ressources structurées
+
+- [Sitemap XML](https://oneworldmorocco.com/sitemap.xml): Index complet des URLs indexables.
+- [Politique de confidentialité](https://oneworldmorocco.com/confidentialite): Traitement des données.
+- [Cookies](https://oneworldmorocco.com/cookies): Politique cookies et consentement.
 
 ## Optional
 
-- [Conditions générales](/conditions-generales): Mentions légales.
+- [Conditions générales](https://oneworldmorocco.com/conditions-generales): Mentions légales.
+- [CGU](https://oneworldmorocco.com/cgu): Conditions générales d'utilisation.
