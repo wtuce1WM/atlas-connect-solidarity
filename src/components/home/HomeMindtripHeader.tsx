@@ -171,7 +171,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
             return (
               <Link
                 key={item.to}
-                to={item.to}
+                to={withLangPrefix(item.to, language)}
                 className={linkClass}
                 {...(isClubCta ? { "data-track-event": "club_cta_click", "data-track-location": "nav_top", "data-track-target": item.to.slice(1) } : {})}
               >
