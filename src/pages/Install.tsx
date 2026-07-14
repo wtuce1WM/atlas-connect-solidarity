@@ -647,7 +647,7 @@ const Install = () => {
                         { left: "76%", top: "80%" },
                       ][i]
                     : [
-                        { left: "96%", top: "11%" },  // étape 1 : vers le menu ⋮ en haut à droite
+                        { left: "95%", top: "13%" },  // étape 1 : badge sous le menu ⋮
                         { left: "86%", top: "48%" },  // étape 2 : sur la ligne de « Installer et créer… »
                         { left: "92%", top: "66%" },  // étape 3 : vers le bouton « Installer »
                       ][i];
@@ -663,14 +663,23 @@ const Install = () => {
                           className="w-full h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
                         />
                         {platform === "android" && i === 0 && (
-                          <span
-                            className="absolute h-10 w-10 rounded-full border-2 border-[#C04F17] bg-[#C04F17]/15 shadow-[0_0_12px_rgba(192,79,23,0.5)] animate-pulse"
-                            style={{ left: "95%", top: "5%", transform: "translate(-50%, -50%)" }}
-                            aria-hidden="true"
-                          />
+                          <>
+                            {/* Halo autour du ⋮ */}
+                            <span
+                              className="absolute h-10 w-10 rounded-full border-2 border-[#C04F17] bg-[#3C3C3C]"
+                              style={{ left: "95%", top: "5%", transform: "translate(-50%, -50%)" }}
+                              aria-hidden="true"
+                            />
+                            {/* Tige reliant le halo au badge 1 */}
+                            <span
+                              className="absolute w-0.5 bg-[#C04F17]"
+                              style={{ left: "95%", top: "5%", height: "8%", transform: "translateX(-50%)" }}
+                              aria-hidden="true"
+                            />
+                          </>
                         )}
                         <span
-                          className="absolute flex items-center justify-center h-7 w-7 rounded-full bg-[#C04F17] text-white text-sm font-bold shadow-md"
+                          className={`absolute flex items-center justify-center h-7 w-7 rounded-full bg-[#C04F17] text-white text-sm font-bold shadow-md ${platform === "android" && i === 0 ? "ring-2 ring-white" : ""}`}
                           style={{ left: badgePos.left, top: badgePos.top, transform: "translate(-50%, -50%)" }}
                         >
                           {i + 1}
