@@ -618,26 +618,37 @@ const Install = () => {
           <figure className="mb-6 flex flex-col items-center">
             {platform === "ios" ? (
               <div className="grid grid-cols-1 gap-6 w-full max-w-sm mx-auto">
-                {MOCKUPS.ios.map((m, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <div className="relative w-full">
-                      <img
-                        src={m.url}
-                        alt={m.alt[lang]}
-                        width={1024}
-                        height={1024}
-                        loading="lazy"
-                        className="w-full h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
-                      />
-                      <span className="absolute top-3 left-3 flex items-center justify-center h-7 w-7 rounded-full bg-[#C04F17] text-white text-sm font-bold shadow-md">
-                        {i + 1}
+                {MOCKUPS.ios.map((m, i) => {
+                  // Positionne le badge à côté de l'élément cible sur chaque capture
+                  const badgePos = [
+                    { left: "90%", top: "94%" },  // étape 1 : à droite du "..." en bas de la barre d'adresse
+                    { left: "74%", top: "57%" },  // étape 2 : à droite de "Partager"
+                    { left: "76%", top: "80%" },  // étape 3 : à droite de "Sur l'écran d'accueil"
+                  ][i];
+                  return (
+                    <div key={i} className="flex flex-col items-center">
+                      <div className="relative w-full">
+                        <img
+                          src={m.url}
+                          alt={m.alt[lang]}
+                          width={1024}
+                          height={1024}
+                          loading="lazy"
+                          className="w-full h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
+                        />
+                        <span
+                          className="absolute flex items-center justify-center h-7 w-7 rounded-full bg-[#C04F17] text-white text-sm font-bold shadow-md"
+                          style={{ left: badgePos.left, top: badgePos.top, transform: "translate(-50%, -50%)" }}
+                        >
+                          {i + 1}
+                        </span>
+                      </div>
+                      <span className="mt-2 text-sm font-roboto font-medium text-[#C04F17]">
+                        {m.label[lang]}
                       </span>
                     </div>
-                    <span className="mt-2 text-sm font-roboto font-medium text-[#C04F17]">
-                      {m.label[lang]}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <img
