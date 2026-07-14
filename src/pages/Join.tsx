@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import originalHeroAsset from "@/assets/hero-home-bg-naked-tinted-1920x1080.webp.asset.json";
 import zelligeBrunAsset from "@/assets/backgr-brun-zelliges-2.webp.asset.json";
 import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
@@ -677,7 +678,7 @@ const Join = () => {
                 <li><Check color="#ffffff" />{L.way2Li4}</li>
                 <li><Check color="#ffffff" />{L.way2Li5}</li>
               </ul>
-              <Link to="/card" className="way-cta" style={{ alignSelf: "center", marginTop: 4, marginBottom: 14 }}>{L.way2Cta}</Link>
+              <Link to={withLangPrefix("/card", language)} className="way-cta" style={{ alignSelf: "center", marginTop: 4, marginBottom: 14 }}>{L.way2Cta}</Link>
               <div className="tag">{L.way2Tag}</div>
             </article>
 
