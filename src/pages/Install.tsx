@@ -18,19 +18,45 @@ import installMacMockup from "@/assets/install-mac-mockup.png.asset.json";
 import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const MOCKUPS: Record<"ios" | "android" | "mac" | "windows", { url: Record<Lang, string> | string; alt: Record<Lang, string> }> = {
-  ios: {
-    url: {
-      fr: installIosMockupFr.url,
-      en: installIosMockupEn.url,
-      ar: installIosMockupEn.url,
+const MOCKUPS: Record<"android" | "mac" | "windows", { url: string; alt: Record<Lang, string> }> & {
+  ios: { url: Record<Lang, string>; alt: Record<Lang, string>; label: Record<Lang, string> }[];
+} = {
+  ios: [
+    {
+      url: {
+        fr: installIosMockupStep1Fr.url,
+        en: installIosMockupStep1En.url,
+        ar: installIosMockupStep1En.url,
+      },
+      alt: {
+        fr: "Étape 1 : touche le bouton Partager en bas de Safari (carré avec une flèche vers le haut), entouré en terracotta",
+        en: "Step 1: tap the Share button at the bottom of Safari (square with an up arrow), circled in terracotta",
+        ar: "الخطوة 1: اضغط على زر المشاركة في أسفل Safari (مربع به سهم لأعلى)، محاط باللون التراكوتا",
+      },
+      label: {
+        fr: "Étape 1",
+        en: "Step 1",
+        ar: "الخطوة 1",
+      },
     },
-    alt: {
-      fr: "Illustration : menu Partager de Safari sur iPhone avec « Sur l'écran d'accueil » entouré en terracotta",
-      en: "Illustration: Safari Share menu on iPhone with 'Add to Home Screen' circled in terracotta",
-      ar: "توضيح: قائمة المشاركة في Safari مع خيار «إضافة إلى الشاشة الرئيسية» محاط باللون التراكوتا",
+    {
+      url: {
+        fr: installIosMockupFr.url,
+        en: installIosMockupEn.url,
+        ar: installIosMockupEn.url,
+      },
+      alt: {
+        fr: "Étape 2 : dans le menu Partager, choisis « Sur l'écran d'accueil », entouré en terracotta",
+        en: "Step 2: in the Share menu, choose 'Add to Home Screen', circled in terracotta",
+        ar: "الخطوة 2: في قائمة المشاركة، اختر «إضافة إلى الشاشة الرئيسية»، محاط باللون التراكوتا",
+      },
+      label: {
+        fr: "Étape 2",
+        en: "Step 2",
+        ar: "الخطوة 2",
+      },
     },
-  },
+  ],
   android: {
     url: installAndroidMockup.url,
     alt: {
