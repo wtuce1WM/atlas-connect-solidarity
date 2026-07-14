@@ -640,15 +640,20 @@ const Install = () => {
 
           {/* Illustration provisoire — sera remplacée par de vraies captures */}
           <figure className="mb-6 flex flex-col items-center">
-            {platform === "ios" ? (
+            {platform === "ios" || platform === "android" ? (
               <div className="grid grid-cols-1 gap-6 w-full max-w-sm mx-auto">
-                {MOCKUPS.ios.map((m, i) => {
-                  // Positionne le badge à côté de l'élément cible sur chaque capture
-                  const badgePos = [
-                    { left: "90%", top: "94%" },  // étape 1 : à droite du "..." en bas de la barre d'adresse
-                    { left: "74%", top: "57%" },  // étape 2 : à droite de "Partager"
-                    { left: "76%", top: "80%" },  // étape 3 : à droite de "Sur l'écran d'accueil"
-                  ][i];
+                {MOCKUPS[platform].map((m, i) => {
+                  const badgePos = platform === "ios"
+                    ? [
+                        { left: "90%", top: "94%" },
+                        { left: "74%", top: "57%" },
+                        { left: "76%", top: "80%" },
+                      ][i]
+                    : [
+                        { left: "94%", top: "7%" },   // étape 1 : à côté du menu ⋮ en haut à droite
+                        { left: "18%", top: "51%" },  // étape 2 : à gauche de « Installer et créer… »
+                        { left: "90%", top: "70%" },  // étape 3 : à côté du bouton « Installer »
+                      ][i];
                   return (
                     <div key={i} className="flex flex-col items-center">
                       <div className="relative w-full">
@@ -684,7 +689,7 @@ const Install = () => {
                 className="w-full max-w-sm md:max-w-md h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
               />
             )}
-            {platform !== "ios" && (
+            {platform !== "ios" && platform !== "android" && (
               <figcaption className="mt-3 text-xs text-muted-foreground/70 font-roboto italic text-center">
                 {MOCKUP_CAPTION[lang]}
               </figcaption>
