@@ -30,12 +30,44 @@ const PROTECTED_DIRS = new Set([
 const CATEGORY_TO_SCHEMA: Record<string, string> = {
   "Hôtels": "Hotel",
   "Hotels": "Hotel",
+  "Riads": "LodgingBusiness",
+  "Hébergements": "LodgingBusiness",
   "Restaurants": "Restaurant",
   "Restaurant": "Restaurant",
   "Cafés": "CafeOrCoffeeShop",
   "Bars": "BarOrPub",
   "Boutiques": "Store",
   "Shopping": "Store",
+  "Spa": "HealthAndBeautyBusiness",
+  "Spas": "HealthAndBeautyBusiness",
+  "Bien-être": "HealthAndBeautyBusiness",
+  "Golf": "GolfCourse",
+  "Musées": "Museum",
+  "Musée": "Museum",
+  "Galeries d'art": "ArtGallery",
+  "Pharmacies": "Pharmacy",
+  "Cinéma": "MovieTheater",
+  "Parc": "TouristAttraction",
+  "Plage": "Beach",
+};
+
+// Cuisines détectables dans services/categories pour Restaurant.servesCuisine
+const CUISINE_KEYWORDS: Array<[RegExp, string]> = [
+  [/marocain/i, "Moroccan"],
+  [/italien|pizza|pasta/i, "Italian"],
+  [/français|french/i, "French"],
+  [/japonais|sushi/i, "Japanese"],
+  [/asiatique|thai|thaï|chinois/i, "Asian"],
+  [/libanais|mezze/i, "Lebanese"],
+  [/indien/i, "Indian"],
+  [/burger/i, "American"],
+  [/fruits de mer|poisson|seafood/i, "Seafood"],
+  [/végétarien|vegan|healthy/i, "Vegetarian"],
+];
+
+const DAY_MAP: Record<string, string> = {
+  monday: "Mo", tuesday: "Tu", wednesday: "We", thursday: "Th",
+  friday: "Fr", saturday: "Sa", sunday: "Su",
 };
 
 interface StaticArticle {
