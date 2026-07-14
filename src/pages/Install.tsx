@@ -689,19 +689,9 @@ const Install = () => {
                         {m.label[lang]}
                       </span>
                       {platform === "android" && guide.steps[i] && (
-                        <div className="mt-3 w-full">
-                          <div className="flex gap-4 items-start">
-                            <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-gold/10 text-gold border border-gold/20">
-                              {guide.steps[i].icon}
-                            </div>
-                            <div className="flex-1 pt-1.5">
-                              <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold mr-2">
-                                {i + 1}
-                              </span>
-                              <span className="font-roboto text-foreground/90 leading-relaxed">{guide.steps[i].text}</span>
-                            </div>
-                          </div>
-                        </div>
+                        <p className="mt-3 w-full font-roboto text-foreground/90 leading-relaxed text-center">
+                          {guide.steps[i].text}
+                        </p>
                       )}
                     </div>
                   );
