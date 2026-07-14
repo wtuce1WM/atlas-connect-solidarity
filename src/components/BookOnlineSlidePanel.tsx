@@ -1733,7 +1733,7 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                       <span className="text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
-                    </span>
+                      </span>
                     </div>
                   );
                 }
