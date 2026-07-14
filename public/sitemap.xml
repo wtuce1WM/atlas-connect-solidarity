@@ -601,6 +601,18 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/atelier-44-m-avenue</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/atelier-44-marrakech-gueliz</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/atelier-beni</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
@@ -4166,7 +4178,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/jardin-bio-aromatique-d-ourika</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
