@@ -453,7 +453,7 @@ async function main() {
     const { data, error } = await supabase
       .from("businesses")
       .select(
-        "id, slug, name, city, description, hook_fr, images, main_category, address, phone, website, latitude, longitude, google_rating, google_review_count, is_active"
+        "id, slug, name, city, neighborhood, region, description, hook_fr, images, main_category, categories, services, languages, address, phone, whatsapp, email, website, latitude, longitude, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, min_price, manual_price_range, opening_hours, is_open_24h, menu_url, booking_url, reserve_now_url, facebook_url, instagram_url, tripadvisor_url, youtube_url, linkedin_url, is_active"
       )
       .in("id", chunk)
       .eq("is_active", true);
