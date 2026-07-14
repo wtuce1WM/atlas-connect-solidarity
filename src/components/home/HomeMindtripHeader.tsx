@@ -25,8 +25,9 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
   const location = useLocation();
   const { language } = useLanguage();
   const L = NAV_LABELS[language] ?? NAV_LABELS.fr;
-  const isWhiteHeaderPage = location.pathname === "/" || location.pathname === "/corporate" || location.pathname === "/join" || location.pathname === "/card" || location.pathname === "/club";
-  const blackHamburger = (location.pathname === "/" || location.pathname === "/install" || location.pathname === "/join" || location.pathname === "/devenir-affilie") && !isWhiteHeaderPage;
+  const cleanPath = stripLangPrefix(location.pathname);
+  const isWhiteHeaderPage = cleanPath === "/" || cleanPath === "/corporate" || cleanPath === "/join" || cleanPath === "/card" || cleanPath === "/club";
+  const blackHamburger = (cleanPath === "/" || cleanPath === "/install" || cleanPath === "/join" || cleanPath === "/devenir-affilie") && !isWhiteHeaderPage;
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const englishEnabled = useEnglishFlag();
