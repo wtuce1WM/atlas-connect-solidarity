@@ -12,9 +12,9 @@ import appIconHamsaAsset from "@/assets/app-icon-hamsa-250-rounded.webp.asset.js
 import installIosRealStep1 from "@/assets/install-ios-real-step1.webp.asset.json";
 import installIosRealStep2 from "@/assets/install-ios-real-step2.webp.asset.json";
 import installIosRealStep3 from "@/assets/install-ios-real-step3.webp.asset.json";
-import installAndroidStep1 from "@/assets/android-step1.jpg.asset.json";
-import installAndroidStep2 from "@/assets/android-step2.jpg.asset.json";
-import installAndroidStep3 from "@/assets/android-step3.jpg.asset.json";
+import installAndroidStep1 from "@/assets/android-step1.webp.asset.json";
+import installAndroidStep2 from "@/assets/android-step2.webp.asset.json";
+import installAndroidStep3 from "@/assets/android-step3.webp.asset.json";
 import installMacMockup from "@/assets/install-mac-mockup.png.asset.json";
 import installWindowsMockup from "@/assets/install-windows-mockup.png.asset.json";
 import { useLanguage } from "@/contexts/LanguageContext";
