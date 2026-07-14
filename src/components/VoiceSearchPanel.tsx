@@ -65,8 +65,8 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
   }, [liveTranscript, align]);
 
   const hint = !micReady
-    ? "Attendez le signal sonore avant de parler"
-    : "Parlez maintenant";
+    ? L.waitSignal
+    : L.speakNow;
   return (
     <div className={`w-full flex flex-col gap-6 py-6 ${isStart ? "items-start" : "items-center"}`}>
       {/* Transcript / hint */}
