@@ -193,10 +193,10 @@ function buildHtml(slug: string, biz: Biz): string {
 </html>`;
 }
 
-function buildArticleHtml(article: (typeof STATIC_ARTICLES)[number]): string {
+function buildArticleHtml(article: StaticArticle): string {
   const title = article.title;
   const description = stripHtml(article.description).substring(0, 200);
-  const image = `${BASE_URL}/og-install-app.jpg`;
+  const image = article.image || `${BASE_URL}/og-install-app.jpg`;
   const url = `${BASE_URL}/${article.path}`;
   const cleanTitle = title.replace(` — ${SITE_NAME}`, "");
   const jsonLd = {
