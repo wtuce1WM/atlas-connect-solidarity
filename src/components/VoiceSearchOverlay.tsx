@@ -44,6 +44,9 @@ interface VoiceSearchOverlayProps {
 const ACCENT = "#194CFF";
 
 const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, micReady = true, onClose, onFinish, contained = false, bgClassName = "bg-[#BED1FF]" }: VoiceSearchOverlayProps) => {
+  const { language } = useLanguage();
+  const L = LABELS[language as "fr" | "en" | "ar"] || LABELS.fr;
+
   // Anti-rebond mobile : ignore les clics synthétisés (ghost click) durant les
   // premières 500ms après l'ouverture, sinon le tap sur le mic qui a déclenché
   // l'ouverture est rejoué sur les boutons de l'overlay et le referme aussitôt.
