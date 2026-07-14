@@ -653,7 +653,7 @@ const Install = () => {
                       ][i];
                   return (
                     <div key={i} className="flex flex-col items-center">
-                      {platform === "android" ? (
+                      {(platform === "android" || platform === "ios") ? (
                         <>
                           <span className="text-sm font-roboto font-medium text-[#C04F17]">
                             {m.label[lang]}
@@ -697,11 +697,6 @@ const Install = () => {
                           {i + 1}
                         </span>
                       </div>
-                      {platform !== "android" && (
-                        <span className="mt-2 text-sm font-roboto font-medium text-[#C04F17]">
-                          {m.label[lang]}
-                        </span>
-                      )}
                     </div>
                   );
                 })}
@@ -725,7 +720,7 @@ const Install = () => {
 
 
 
-          {platform !== "android" && (
+          {platform !== "android" && platform !== "ios" && (
             <ol className="space-y-5">
               {guide.steps.map((step, i) => (
                 <li key={i} className="flex gap-4 items-start">
