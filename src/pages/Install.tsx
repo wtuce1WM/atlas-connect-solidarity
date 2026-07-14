@@ -589,6 +589,23 @@ const Install = () => {
             {guide.title}
           </h2>
 
+          {/* Illustration provisoire — sera remplacée par de vraies captures */}
+          <figure className="mb-6 flex flex-col items-center">
+            <img
+              src={MOCKUPS[platform].url}
+              alt={MOCKUPS[platform].alt[lang]}
+              width={1024}
+              height={1024}
+              loading="lazy"
+              className="w-full max-w-sm md:max-w-md h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
+            />
+            <figcaption className="mt-3 text-xs text-muted-foreground/70 font-roboto italic text-center">
+              {MOCKUP_CAPTION[lang]}
+            </figcaption>
+          </figure>
+
+
+
           <ol className="space-y-5">
             {guide.steps.map((step, i) => (
               <li key={i} className="flex gap-4 items-start">
