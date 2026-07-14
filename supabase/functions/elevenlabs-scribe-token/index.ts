@@ -1,9 +1,14 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { assertAllowedOrigin } from '../_shared/auth-helpers.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
+
+  const originBlock = assertAllowedOrigin(req, corsHeaders);
+  if (originBlock) return originBlock;
+
 
   try {
     const apiKey = Deno.env.get('ELEVENLABS_API_KEY');
