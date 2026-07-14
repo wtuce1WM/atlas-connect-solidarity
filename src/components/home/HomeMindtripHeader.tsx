@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useEnglishFlag } from "@/hooks/useEnglishFlag";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix, stripLangPrefix } from "@/lib/localizedPath";
 
 type CustomLink = { label: string; to?: string; onClick?: () => void; danger?: boolean };
 
