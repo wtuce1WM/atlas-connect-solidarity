@@ -131,7 +131,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
       <div className="mb-4">
         <h4 className="text-xs font-semibold text-gold mb-2">{t("footer.company")}</h4>
         <ul className="space-y-1.5 text-xs text-muted-foreground">
-          <li><Link to="/" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>Page d'accueil</Link></li>
+          <li><Link to={withLangPrefix("/", language as "fr" | "en" | "ar")} className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{language === "ar" ? "الصفحة الرئيسية" : language === "en" ? "Home" : "Page d'accueil"}</Link></li>
           <li><Link to="/conditions-generales" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>Conditions Générales</Link></li>
           <li><a href="/affiliates" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.affiliates")}</a></li>
           <li><Link to="/blog" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.blog")}</Link></li>
