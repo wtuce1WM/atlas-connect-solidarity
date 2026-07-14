@@ -127,7 +127,7 @@ const Corporate = () => {
       // Internal route (starts with "/" and not "//")
       if (href.startsWith("/") && !href.startsWith("//")) {
         e.preventDefault();
-        navigate(href);
+        navigate(withLangPrefix(href, language));
       }
     };
 
