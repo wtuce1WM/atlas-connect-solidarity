@@ -38,48 +38,15 @@ const CATEGORY_TO_SCHEMA: Record<string, string> = {
   "Shopping": "Store",
 };
 
-const STATIC_ARTICLES = [
-  {
-    path: "blog/fermes-pedagogiques-marrakech",
-    title: `Les fermes pédagogiques à Marrakech — ${SITE_NAME}`,
-    description:
-      "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
-    publishedAt: "2026-06-12T08:00:00+01:00",
-    modifiedAt: "2026-06-13T08:00:00+01:00",
-  },
-  {
-    path: "blog/activites-enfants-marrakech",
-    title: `Activités pour les enfants à Marrakech — ${SITE_NAME}`,
-    description:
-      "Notre sélection d'activités et d'adresses pour les enfants à Marrakech : parcs aquatiques, ateliers, kids clubs, restaurants familiaux et plus.",
-    publishedAt: "2026-06-12T08:00:00+01:00",
-    modifiedAt: "2026-06-13T08:00:00+01:00",
-  },
-  {
-    path: "blog/galeries-art-marrakech",
-    title: `Les galeries d'art à Marrakech — ${SITE_NAME}`,
-    description:
-      "Notre sélection de 24 galeries d'art à Marrakech : Guéliz, Médina, Sidi Ghanem et au-delà. Art contemporain, design, photographie et scène picturale marocaine.",
-    publishedAt: "2026-06-12T08:00:00+01:00",
-    modifiedAt: "2026-06-13T08:00:00+01:00",
-  },
-  {
-    path: "blog/5-jours-marrakech-artisanat",
-    title: `5 jours à Marrakech pour découvrir l'artisanat marocain — ${SITE_NAME}`,
-    description:
-      "Itinéraire de 5 jours à Marrakech : 44 adresses sélectionnées (Guéliz, Médina, Sidi Ghanem) pour découvrir le meilleur de l'artisanat marocain.",
-    publishedAt: "2026-06-12T08:00:00+01:00",
-    modifiedAt: "2026-06-13T08:00:00+01:00",
-  },
-  {
-    path: "blog/essaouira-vue-mer",
-    title: `Les adresses avec vue sur mer à Essaouira — ${SITE_NAME}`,
-    description:
-      "Notre sélection des meilleures adresses face à l'océan à Essaouira : hôtels, restaurants, cafés et rooftops pour profiter de la brise atlantique.",
-    publishedAt: "2026-06-12T08:00:00+01:00",
-    modifiedAt: "2026-06-13T08:00:00+01:00",
-  },
-];
+interface StaticArticle {
+  path: string;
+  title: string;
+  description: string;
+  image: string;
+  publishedAt: string;
+  modifiedAt: string;
+}
+
 
 function escapeHtml(s: string): string {
   return String(s)
