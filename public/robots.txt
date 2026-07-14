@@ -18,6 +18,81 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+# AI crawlers — explicitly allowed (aligned with Googlebot rules)
+User-agent: GPTBot
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+Disallow: /test
+Disallow: /ancien-index
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+Disallow: /test
+Disallow: /ancien-index
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+Disallow: /test
+Disallow: /ancien-index
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+Disallow: /test
+Disallow: /ancien-index
+
+User-agent: Perplexity-User
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+Disallow: /test
+Disallow: /ancien-index
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+Disallow: /test
+Disallow: /ancien-index
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+
+User-agent: Amazonbot
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+
+User-agent: Bytespider
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+
+User-agent: Meta-ExternalAgent
+Allow: /
+Disallow: /staff/
+Disallow: /affiliates/
+
+
+
 User-agent: *
 Allow: /
 Disallow: /staff/
