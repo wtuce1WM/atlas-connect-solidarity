@@ -1,6 +1,27 @@
 import { Mic } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
+const LABELS = {
+  fr: {
+    waitSignal: "Attendez le signal sonore avant de parler",
+    speakNow: "Parlez maintenant",
+    hintLine1: "Cliquez sur le micro",
+    hintLine2: "ou attendez pour lancer la recherche",
+  },
+  en: {
+    waitSignal: "Wait for the beep before speaking",
+    speakNow: "Speak now",
+    hintLine1: "Tap the mic",
+    hintLine2: "or wait to launch the search",
+  },
+  ar: {
+    waitSignal: "انتظر الإشارة الصوتية قبل التحدث",
+    speakNow: "تحدث الآن",
+    hintLine1: "اضغط على الميكروفون",
+    hintLine2: "أو انتظر لبدء البحث",
+  },
+} as const;
 
 interface Props {
   liveTranscript: string;
@@ -14,6 +35,8 @@ interface Props {
 const ACCENT = "#194CFF";
 
 const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center", audioLevel = 0, micReady = true }: Props) => {
+  const { language } = useLanguage();
+  const L = LABELS[language as "fr" | "en" | "ar"] || LABELS.fr;
   const isStart = align === "start";
   const successFiredRef = useRef(false);
   const startedAtRef = useRef<number>(0);
@@ -42,8 +65,8 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
   }, [liveTranscript, align]);
 
   const hint = !micReady
-    ? "Attendez le signal sonore avant de parler"
-    : "Parlez maintenant";
+    ? L.waitSignal
+    : L.speakNow;
   return (
     <div className={`w-full flex flex-col gap-6 py-6 ${isStart ? "items-start" : "items-center"}`}>
       {/* Transcript / hint */}
@@ -125,7 +148,7 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
 
 
       <p className={`text-base md:text-lg text-black md:text-white font-semibold px-4 ${isStart ? "text-left" : "text-center"}`}>
-        Cliquez sur le micro<br />ou attendez pour lancer la recherche
+        {L.hintLine1}<br />{L.hintLine2}
       </p>
     </div>
   );
