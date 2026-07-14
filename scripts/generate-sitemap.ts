@@ -149,6 +149,24 @@ async function fetchDynamicEntries(): Promise<SitemapEntry[]> {
     });
   }
 
+  // Quartiers distincts (route = /neighborhood/:neighborhood)
+  const { data: nbRows, error: nbErr } = await supabase
+    .from("businesses")
+    .select("neighborhood")
+    .eq("is_active", true)
+    .not("neighborhood", "is", null);
+  if (nbErr) throw nbErr;
+  const neighborhoods = Array.from(
+    new Set(((nbRows || []) as { neighborhood: string }[]).map((r) => r.neighborhood).filter(Boolean)),
+  );
+  for (const n of neighborhoods) {
+    entries.push({
+      path: `/neighborhood/${encodeURIComponent(n)}`,
+      changefreq: "weekly",
+      priority: "0.6",
+    });
+  }
+
   return entries;
 }
 
