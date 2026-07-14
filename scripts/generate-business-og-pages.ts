@@ -630,7 +630,121 @@ async function main() {
     writeFileSync(join(articleDir, "index.html"), buildArticleHtml(article), "utf8");
   }
 
-  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog.`);
+  // 6) Génère les pages HUBS (destinations, catégories, quartiers)
+  // Ces répertoires racines sont marqués pour être nettoyables au prochain run.
+  const destDir = join(PUBLIC_DIR, "destination");
+  const catDir = join(PUBLIC_DIR, "category");
+  const nbhDir = join(PUBLIC_DIR, "neighborhood");
+  mkdirSync(destDir, { recursive: true });
+  mkdirSync(catDir, { recursive: true });
+  mkdirSync(nbhDir, { recursive: true });
+  writeFileSync(join(destDir, MARKER_FILE), "", "utf8");
+  writeFileSync(join(catDir, MARKER_FILE), "", "utf8");
+  writeFileSync(join(nbhDir, MARKER_FILE), "", "utf8");
+
+  const hubs: Hub[] = [];
+
+  // 6a) Destinations (jointure vanity_urls -> destinations)
+  const destVanities: { slug: string; target_id: string }[] = [];
+  {
+    let from = 0;
+    while (true) {
+      const { data, error } = await supabase
+        .from("vanity_urls")
+        .select("slug, target_id")
+        .eq("target_type", "destination")
+        .range(from, from + VPAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      destVanities.push(...(data as { slug: string; target_id: string }[]));
+      if (data.length < VPAGE) break;
+      from += VPAGE;
+    }
+  }
+  const destIds = destVanities.map((v) => v.target_id);
+  const { data: destRows } = destIds.length
+    ? await supabase
+        .from("destinations")
+        .select("id, name_fr, hook_fr, description_fr, image_url, images, latitude, longitude, wikipedia_fr, google_rating, google_review_count")
+        .in("id", destIds)
+    : { data: [] as any[] };
+  const destById = new Map((destRows || []).map((d: any) => [d.id, d]));
+  for (const v of destVanities) {
+    const d = destById.get(v.target_id);
+    if (!d) continue;
+    hubs.push({
+      kind: "destination",
+      slug: v.slug,
+      urlSegment: v.slug,
+      name: d.name_fr,
+      hook: d.hook_fr,
+      description: d.description_fr,
+      image: d.image_url || (Array.isArray(d.images) && d.images[0]) || null,
+      latitude: d.latitude,
+      longitude: d.longitude,
+      rating: d.google_rating,
+      reviewCount: d.google_review_count,
+      wikipedia: d.wikipedia_fr,
+    });
+  }
+
+  // 6b) Catégories
+  const { data: catRows } = await supabase
+    .from("categories")
+    .select("name_fr, og_image_url, adj_fr");
+  for (const c of catRows || []) {
+    if (!c.name_fr) continue;
+    const encoded = encodeURIComponent(c.name_fr);
+    hubs.push({
+      kind: "category",
+      slug: encoded,
+      urlSegment: encoded,
+      name: c.name_fr,
+      hook: c.adj_fr ? `Découvrez les meilleurs établissements ${c.adj_fr} au Maroc.` : null,
+      description: `Toutes les adresses ${c.name_fr.toLowerCase()} recommandées à Marrakech, Essaouira et au Maroc.`,
+      image: c.og_image_url || null,
+    });
+  }
+
+  // 6c) Quartiers
+  const { data: nbhRows } = await supabase
+    .from("neighborhoods")
+    .select("name_fr, hook_fr, description_fr, image_url, latitude, longitude, city_id");
+  // Résout le nom de ville
+  const cityIds = [...new Set((nbhRows || []).map((n: any) => n.city_id).filter(Boolean))];
+  const { data: cityRows } = cityIds.length
+    ? await supabase.from("destinations").select("id, name_fr").in("id", cityIds)
+    : { data: [] as any[] };
+  const cityById = new Map((cityRows || []).map((c: any) => [c.id, c.name_fr]));
+  for (const n of nbhRows || []) {
+    if (!n.name_fr) continue;
+    const encoded = encodeURIComponent(n.name_fr);
+    hubs.push({
+      kind: "neighborhood",
+      slug: encoded,
+      urlSegment: encoded,
+      name: n.name_fr,
+      hook: n.hook_fr,
+      description: n.description_fr,
+      image: n.image_url || null,
+      latitude: n.latitude,
+      longitude: n.longitude,
+      city: cityById.get(n.city_id) || null,
+    });
+  }
+
+  // 6d) Écriture
+  let hubsWritten = 0;
+  for (const h of hubs) {
+    // Le slug encodé peut contenir % : on garde tel quel dans le nom de dossier
+    // (Vite/Lovable sert public/ directement, fs supporte % dans les noms).
+    const dir = join(PUBLIC_DIR, h.kind, h.slug);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "index.html"), buildHubHtml(h), "utf8");
+    hubsWritten++;
+  }
+
+  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog + ${hubsWritten} hubs (destinations/catégories/quartiers).`);
 }
 
 main().catch((err) => {
