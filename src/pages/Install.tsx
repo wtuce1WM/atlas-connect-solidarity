@@ -666,14 +666,14 @@ const Install = () => {
                           <>
                             {/* Halo autour du ⋮ */}
                             <span
-                              className="absolute h-10 w-10 rounded-full border-2 border-[#C04F17] bg-[#3C3C3C]"
-                              style={{ left: "93%", top: "5%", transform: "translate(-50%, -50%)" }}
+                              className="absolute h-8 w-8 rounded-full border-2 border-[#C04F17] bg-transparent shadow-[0_0_0_2px_rgba(255,255,255,0.95)]"
+                              style={{ left: "93.7%", top: "7%", transform: "translate(-50%, -50%)" }}
                               aria-hidden="true"
                             />
                             {/* Tige reliant le halo au badge 1 */}
                             <span
                               className="absolute w-0.5 bg-[#C04F17]"
-                              style={{ left: "93%", top: "5%", height: "8%", transform: "translateX(-50%)" }}
+                              style={{ left: "93.7%", top: "8.6%", height: "2.9%", transform: "translateX(-50%)" }}
                               aria-hidden="true"
                             />
                           </>
