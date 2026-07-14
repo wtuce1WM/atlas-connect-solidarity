@@ -597,7 +597,7 @@ const Install = () => {
           {/* Illustration provisoire — sera remplacée par de vraies captures */}
           <figure className="mb-6 flex flex-col items-center">
             <img
-              src={MOCKUPS[platform].url}
+              src={typeof MOCKUPS[platform].url === "string" ? (MOCKUPS[platform].url as string) : (MOCKUPS[platform].url as Record<Lang, string>)[lang]}
               alt={MOCKUPS[platform].alt[lang]}
               width={1024}
               height={1024}
