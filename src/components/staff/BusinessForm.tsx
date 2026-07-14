@@ -2447,6 +2447,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         businessId = newBusiness?.id;
       }
 
+      // Save internal_notes to staff-only table
+      if (businessId) {
+        const notesText = formData.internal_notes ? formData.internal_notes.slice(0, 5000).trim() : "";
+        if (notesText) {
+          await supabase
+            .from("business_internal_notes")
+            .upsert({ business_id: businessId, notes: notesText }, { onConflict: "business_id" });
+        } else {
+          await supabase
+            .from("business_internal_notes")
+            .delete()
+            .eq("business_id", businessId);
+        }
+      }
+
       // Save business labels
       if (businessId) {
         // Delete existing labels
