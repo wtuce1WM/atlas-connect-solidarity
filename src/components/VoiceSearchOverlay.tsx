@@ -1,5 +1,28 @@
 import { Mic, X } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const LABELS = {
+  fr: {
+    speakNow: "Parlez maintenant",
+    waitSignal: "Attendez le signal sonore avant de parler",
+    hintLine1: "Cliquez sur le micro",
+    hintLine2: "ou attendez pour lancer la recherche",
+  },
+  en: {
+    speakNow: "Speak now",
+    waitSignal: "Wait for the beep before speaking",
+    hintLine1: "Tap the mic",
+    hintLine2: "or wait to launch the search",
+  },
+  ar: {
+    speakNow: "تحدث الآن",
+    waitSignal: "انتظر الإشارة الصوتية قبل التحدث",
+    hintLine1: "اضغط على الميكروفون",
+    hintLine2: "أو انتظر لبدء البحث",
+  },
+} as const;
+
 
 
 interface VoiceSearchOverlayProps {
@@ -21,6 +44,9 @@ interface VoiceSearchOverlayProps {
 const ACCENT = "#194CFF";
 
 const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, micReady = true, onClose, onFinish, contained = false, bgClassName = "bg-[#BED1FF]" }: VoiceSearchOverlayProps) => {
+  const { language } = useLanguage();
+  const L = LABELS[language as "fr" | "en" | "ar"] || LABELS.fr;
+
   // Anti-rebond mobile : ignore les clics synthétisés (ghost click) durant les
   // premières 500ms après l'ouverture, sinon le tap sur le mic qui a déclenché
   // l'ouverture est rejoué sur les boutons de l'overlay et le referme aussitôt.
@@ -54,7 +80,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, micReady =
           </p>
         ) : (
           <p className="text-xl md:text-2xl text-black font-bold text-center leading-relaxed">
-            {micReady ? "Parlez maintenant" : "Attendez le signal sonore avant de parler"}
+            {micReady ? L.speakNow : L.waitSignal}
           </p>
         )}
       </div>
@@ -129,7 +155,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, micReady =
       {/* Hint (positioned in the bottom area) */}
       <div className="absolute bottom-[12%] left-0 right-0 px-6 text-center z-10">
         <p className="text-base md:text-lg text-black/80 font-medium leading-relaxed max-w-sm mx-auto">
-          Cliquez sur le micro<br />ou attendez pour lancer la recherche
+          {L.hintLine1}<br />{L.hintLine2}
         </p>
       </div>
     </div>
