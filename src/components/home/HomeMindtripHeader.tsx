@@ -149,7 +149,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
       }`}
     >
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 md:px-12">
-        <Link to="/" aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
+        <Link to={withLangPrefix("/", language)} aria-label="Accueil" className="flex items-center gap-2 md:gap-3" onClick={() => setMenuOpen(false)}>
           <img
             src={logoSrc}
             alt="One World Morocco"
