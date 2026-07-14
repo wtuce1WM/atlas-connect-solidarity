@@ -146,12 +146,11 @@ const I18N = {
       android: {
         title: "Installer sur Android",
         steps: [
-          <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong> (obligatoire — n'utilise pas Samsung Internet ni Firefox, sinon Google Play Protect peut bloquer l'installation).</>,
-          <>Touche le menu <strong>⋮</strong> en haut à droite.</>,
-          <>Tout en haut du menu, touche l'icône <strong>⊞+ « Ajouter à… »</strong> (rangée d'icônes rapides). Un panneau s'ouvre.</>,
-          <>Dans ce panneau, choisis <strong>« Écran d'accueil »</strong> (ou <strong>« Installer l'application »</strong> si proposé), puis confirme. L'icône OW Morocco s'installe comme une vraie app.</>,
+          <>Ouvre <strong>oneworldmorocco.com</strong> dans <strong>Chrome</strong>, puis touche le menu <strong>⋮</strong> en haut à droite.</>,
+          <>Dans le menu, touche <strong>« Installer et créer… »</strong> (fais défiler si nécessaire).</>,
+          <>Dans la boîte de dialogue <strong>« Installer l'application »</strong>, touche <strong>Installer</strong>. L'icône OW Morocco s'ajoute à ton écran d'accueil comme une vraie app.</>,
         ],
-        note: "Tu ne vois pas l'icône ⊞+ ? 1) Recharge la page une fois puis rouvre le menu ⋮ — l'icône « Ajouter à… » apparaît dans la rangée d'icônes en haut du menu (à côté de ⭐ Favori, ⬇ Télécharger, ℹ Infos page). 2) Sinon, fais défiler le menu ⋮ vers le bas et cherche « Ajouter à l'écran d'accueil » ou « Installer l'application ». 3) Si Google Play Protect affiche « Appli non sécurisée bloquée », c'est que l'installation s'est faite via Samsung Internet ou Firefox — touche « Plus de détails » puis « Installer quand même », ou réinstalle depuis Chrome.",
+        note: "Utilise bien Chrome (pas Samsung Internet ni Firefox), sinon Google Play Protect peut afficher « Appli non sécurisée bloquée » — dans ce cas, touche « Plus de détails » puis « Installer quand même », ou réinstalle depuis Chrome.",
       },
       mac: {
         title: "Installer sur Mac",
@@ -206,12 +205,11 @@ const I18N = {
       android: {
         title: "Install on Android",
         steps: [
-          <>Open <strong>oneworldmorocco.com</strong> in <strong>Chrome</strong> (required — don't use Samsung Internet or Firefox, otherwise Google Play Protect may block the install).</>,
-          <>Tap the <strong>⋮</strong> menu in the top right.</>,
-          <>At the very top of the menu, tap the <strong>⊞+ "Add to…"</strong> icon (quick actions row). A panel opens.</>,
-          <>In that panel, choose <strong>"Home screen"</strong> (or <strong>"Install app"</strong> if shown), then confirm. The OW Morocco icon installs like a real app.</>,
+          <>Open <strong>oneworldmorocco.com</strong> in <strong>Chrome</strong>, then tap the <strong>⋮</strong> menu at the top right.</>,
+          <>In the menu, tap <strong>"Install and create…"</strong> (scroll down if needed).</>,
+          <>In the <strong>"Install app"</strong> dialog, tap <strong>Install</strong>. The OW Morocco icon is added to your home screen like a real app.</>,
         ],
-        note: "Can't see the ⊞+ icon? 1) Reload the page once then reopen the ⋮ menu — the \"Add to…\" icon shows in the quick actions row at the top (next to ⭐ Bookmark, ⬇ Download, ℹ Page info). 2) Otherwise scroll down inside the ⋮ menu and look for \"Add to Home screen\" or \"Install app\". 3) If Google Play Protect shows \"Unsafe app blocked\", the install was done via Samsung Internet or Firefox — tap \"More details\" then \"Install anyway\", or reinstall from Chrome.",
+        note: "Use Chrome (not Samsung Internet or Firefox), otherwise Google Play Protect may show \"Unsafe app blocked\" — tap \"More details\" then \"Install anyway\", or reinstall from Chrome.",
       },
       mac: {
         title: "Install on Mac",
