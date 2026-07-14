@@ -95,11 +95,9 @@ export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPri
       setLoadingDb(true);
       try {
         // 1. Check manual mapping first
-        const { data: mapping } = await supabase
-          .from("hotel_api_mappings")
-          .select("business_id")
-          .eq("liteapi_hotel_id", hotel.hotel.hotelId)
-          .maybeSingle();
+        const { data: mappings } = await (supabase as any)
+          .rpc("get_hotel_mappings_by_liteapi_ids", { _ids: [hotel.hotel.hotelId] });
+        const mapping = (mappings as any[] | null)?.[0] ?? null;
 
         if (mapping?.business_id) {
           const { data: biz } = await supabase
