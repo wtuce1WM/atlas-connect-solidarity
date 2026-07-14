@@ -653,7 +653,7 @@ const Install = () => {
                       ][i];
                   return (
                     <div key={i} className="flex flex-col items-center">
-                      {platform === "android" ? (
+                      {(platform === "android" || platform === "ios") ? (
                         <>
                           <span className="text-sm font-roboto font-medium text-[#C04F17]">
                             {m.label[lang]}
