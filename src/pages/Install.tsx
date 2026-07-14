@@ -665,7 +665,7 @@ const Install = () => {
                         {platform === "android" && i === 0 && (
                           <span
                             className="absolute h-10 w-10 rounded-full border-2 border-[#C04F17] bg-[#C04F17]/15 shadow-[0_0_12px_rgba(192,79,23,0.5)] animate-pulse"
-                            style={{ left: "96%", top: "6%", transform: "translate(-50%, -50%)" }}
+                            style={{ left: "95%", top: "5%", transform: "translate(-50%, -50%)" }}
                             aria-hidden="true"
                           />
                         )}
