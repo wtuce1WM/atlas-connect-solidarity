@@ -89,6 +89,56 @@ export default function StaffTranslations() {
   const run = async () => {
     setRunning(true);
     try {
+      if (configKey === "businesses_full") {
+        const hookKey = `hook_${targetLang}`;
+        const descKey = `description_${targetLang}`;
+        const { data: businesses, error: bizError } = await supabase
+          .from("businesses")
+          .select(`id, name, hook_fr, description_fr, ${hookKey}, ${descKey}`)
+          .or(`hook_fr.not.is.null,description_fr.not.is.null`)
+          .order("id");
+        if (bizError) throw bizError;
+
+        const highlightFields = ["title", "description", "section_title", "section_intro", "metric_title", "metric_value"];
+        const { data: highlights, error: highlightError } = await supabase
+          .from("front_highlights")
+          .select(`business_id, title_fr, description_fr, section_title_fr, section_intro_fr, metric_title_fr, metric_value_fr, title_${targetLang}, description_${targetLang}, section_title_${targetLang}, section_intro_${targetLang}, metric_title_${targetLang}, metric_value_${targetLang}`)
+          .order("business_id");
+        if (highlightError) throw highlightError;
+
+        const bizIdsWithMissingHighlights = new Set<string>();
+        for (const highlight of highlights ?? []) {
+          for (const field of highlightFields) {
+            const source = highlight[`${field}_fr` as keyof typeof highlight];
+            const target = highlight[`${field}_${targetLang}` as keyof typeof highlight];
+            if (source && String(source).trim() && !(target && String(target).trim())) {
+              bizIdsWithMissingHighlights.add(highlight.business_id);
+              break;
+            }
+          }
+        }
+
+        const pending = (businesses ?? []).filter((business) => {
+          const needsHook = business.hook_fr?.trim() && !String((business as any)[hookKey] ?? "").trim();
+          const needsDescription = business.description_fr?.trim() && !String((business as any)[descKey] ?? "").trim();
+          return needsHook || needsDescription || bizIdsWithMissingHighlights.has(business.id);
+        }).slice(0, limit);
+
+        let success = 0;
+        let errors = 0;
+        for (const business of pending) {
+          const { data, error } = await supabase.functions.invoke("translate-business", {
+            body: { business_id: business.id, target: targetLang },
+          });
+          if (error || !data?.ok) errors++;
+          else success++;
+        }
+
+        toast.success(`Batch fiches terminé — ${success} OK, ${errors} erreurs (${pending.length} lignes)`);
+        await loadJobs();
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("translate-content", {
         body: { config_key: configKey, target_lang: targetLang, limit, dry_run: dryRun },
       });
