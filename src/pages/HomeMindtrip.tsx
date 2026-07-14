@@ -31,6 +31,7 @@ const heroImageTablet = zelligeBrunAsset.url;
 const heroImageMobile = koutoubiaVerticalBgAsset.url;
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import etape5Bg from "@/assets/etape5-immersif.webp.asset.json";
@@ -307,6 +308,7 @@ const HomeMindtrip = () => {
 
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const localizeUrl = (path: string) => withLangPrefix(path, language as "fr" | "en" | "ar");
   const L = HOME_LABELS[language] ?? HOME_LABELS.fr;
   const STEPS = getSteps((["fr", "en", "ar"].includes(language) ? language : "fr") as StepLang);
 
@@ -713,9 +715,9 @@ const HomeMindtrip = () => {
                 placeholder={L.searchPlaceholder}
                 onSearch={(params) => {
                   const qs = new URLSearchParams(params).toString();
-                  navigate(`/search?${qs}`);
+                  navigate(localizeUrl(`/search?${qs}`));
                 }}
-                onBusinessSelect={(businessId) => navigate(`/search?openBusiness=${businessId}`)}
+                onBusinessSelect={(businessId) => navigate(localizeUrl(`/search?openBusiness=${businessId}`))}
                 onMobileSearchClick={() => heroVoice.toggleRecording()}
                 onVoiceActiveChange={setInlineVoiceActive}
               />
@@ -875,8 +877,8 @@ const HomeMindtrip = () => {
                                 ? (v.subcategoryNames.length > 0 ? v.subcategoryNames : await fetchFrontStructureSubcategoryNames(v.label || ""))
                                 : [];
                               return subcategoryNames.length > 0
-                                ? `/search?subcats=${encodeURIComponent(subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`
-                                : `/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`;
+                                ? localizeUrl(`/search?subcats=${encodeURIComponent(subcategoryNames.join("|"))}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`)
+                                : localizeUrl(`/search?q=${encodeURIComponent(`${v.label} ${selectedCity}`)}&_t=${Date.now()}`);
                             };
                             const goSearch = async (e: React.MouseEvent) => {
                               e.preventDefault();
@@ -893,7 +895,7 @@ const HomeMindtrip = () => {
                                 businessId = (card as any)?.business_id || null;
                               }
                               if (!v.badgeId && !v.eventId && businessId) {
-                                navigate(`/search?pinIds=${encodeURIComponent(businessId)}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label || "")}&openBusiness=${encodeURIComponent(businessId)}&_t=${Date.now()}`);
+                                navigate(localizeUrl(`/search?pinIds=${encodeURIComponent(businessId)}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label || "")}&openBusiness=${encodeURIComponent(businessId)}&_t=${Date.now()}`));
                                 return;
                               }
                               if (v.badgeId) {
@@ -904,7 +906,7 @@ const HomeMindtrip = () => {
                                   .maybeSingle();
                                 const badgeName: string = (badge as any)?.name_fr || v.label || "";
                                 if (badgeName.trim().startsWith("#")) {
-                                  navigate(`/search?city=${encodeURIComponent(selectedCity)}&badgeId=${encodeURIComponent(v.badgeId)}&badgeLabel=${encodeURIComponent(badgeName)}&_t=${Date.now()}`);
+                                  navigate(localizeUrl(`/search?city=${encodeURIComponent(selectedCity)}&badgeId=${encodeURIComponent(v.badgeId)}&badgeLabel=${encodeURIComponent(badgeName)}&_t=${Date.now()}`));
                                   return;
                                 }
                                 const [{ data: links }, { data: docLinks }] = await Promise.all([
@@ -918,7 +920,7 @@ const HomeMindtrip = () => {
                                   ...((links as any[]) || []).map((l) => l.business_id),
                                   ...((docLinks as any[]) || []).map((l) => l.business_documents?.linked_business_id || l.business_documents?.business_id),
                                 ].filter(Boolean)));
-                                if (ids.length === 0) { navigate(defaultUrl); return; }
+                                if (ids.length === 0) { navigate(localizeUrl(defaultUrl)); return; }
                                 const { data: bizRows } = await supabase
                                   .from("businesses")
                                   .select("id, city, priority_score, wtuce_status")
@@ -933,11 +935,11 @@ const HomeMindtrip = () => {
                                     return (b.priority_score || 0) - (a.priority_score || 0);
                                   })
                                   .map((b) => b.id);
-                                if (ordered.length === 0) { navigate(defaultUrl); return; }
-                                navigate(`/search?pinIds=${ordered.join(",")}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`);
+                                if (ordered.length === 0) { navigate(localizeUrl(defaultUrl)); return; }
+                                navigate(localizeUrl(`/search?pinIds=${ordered.join(",")}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label)}&_t=${Date.now()}`));
                                 return;
                               }
-                              navigate(defaultUrl);
+                              navigate(localizeUrl(defaultUrl));
                             };
                             return (
                               <div key={v.key} className="group relative aspect-[9/16] w-[200px] shrink-0 snap-start overflow-hidden rounded-lg bg-muted md:w-[240px]">
