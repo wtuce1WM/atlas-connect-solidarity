@@ -212,7 +212,7 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
                 }`;
                 if (item.to) {
                   return (
-                    <Link key={`${item.label}-${idx}`} to={item.to} onClick={() => { setMenuOpen(false); window.scrollTo({ top: 0, behavior: "auto" }); }} className={baseClass}>
+                    <Link key={`${item.label}-${idx}`} to={withLangPrefix(item.to, language)} onClick={() => { setMenuOpen(false); window.scrollTo({ top: 0, behavior: "auto" }); }} className={baseClass}>
                       {item.label}
                     </Link>
                   );
