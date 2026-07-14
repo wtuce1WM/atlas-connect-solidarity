@@ -895,7 +895,7 @@ const HomeMindtrip = () => {
                                 businessId = (card as any)?.business_id || null;
                               }
                               if (!v.badgeId && !v.eventId && businessId) {
-                                navigate(`/search?pinIds=${encodeURIComponent(businessId)}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label || "")}&openBusiness=${encodeURIComponent(businessId)}&_t=${Date.now()}`);
+                                navigate(localizeUrl(`/search?pinIds=${encodeURIComponent(businessId)}&city=${encodeURIComponent(selectedCity)}&label=${encodeURIComponent(v.label || "")}&openBusiness=${encodeURIComponent(businessId)}&_t=${Date.now()}`));
                                 return;
                               }
                               if (v.badgeId) {
