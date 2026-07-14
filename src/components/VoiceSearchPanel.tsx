@@ -1,6 +1,27 @@
 import { Mic } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
+const LABELS = {
+  fr: {
+    waitSignal: "Attendez le signal sonore avant de parler",
+    speakNow: "Parlez maintenant",
+    hintLine1: "Cliquez sur le micro",
+    hintLine2: "ou attendez pour lancer la recherche",
+  },
+  en: {
+    waitSignal: "Wait for the beep before speaking",
+    speakNow: "Speak now",
+    hintLine1: "Tap the mic",
+    hintLine2: "or wait to launch the search",
+  },
+  ar: {
+    waitSignal: "انتظر الإشارة الصوتية قبل التحدث",
+    speakNow: "تحدث الآن",
+    hintLine1: "اضغط على الميكروفون",
+    hintLine2: "أو انتظر لبدء البحث",
+  },
+} as const;
 
 interface Props {
   liveTranscript: string;
