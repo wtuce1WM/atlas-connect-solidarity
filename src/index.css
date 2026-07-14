@@ -953,3 +953,80 @@ body[data-slidepanel-popup-open="1"] .slidepanel-container {
   box-shadow: none !important;
   border-left-color: transparent !important;
 }
+
+/* ============================================================
+   RTL PASS — Arabic (dir="rtl") — first pass
+   Font stack, directional icon mirroring, panel border side,
+   prose alignment, and common physical-property fixes for
+   terracotta surfaces.
+   ============================================================ */
+
+html[dir="rtl"],
+html[dir="rtl"] body {
+  font-family: "Noto Naskh Arabic", "Geeza Pro", "Segoe UI", "Tahoma",
+    "Avenir", "Nunito Sans", system-ui, sans-serif;
+}
+
+/* Mirror directional lucide icons automatically. */
+[dir="rtl"] .lucide-chevron-right,
+[dir="rtl"] .lucide-chevron-left,
+[dir="rtl"] .lucide-arrow-right,
+[dir="rtl"] .lucide-arrow-left,
+[dir="rtl"] .lucide-arrow-up-right,
+[dir="rtl"] .lucide-arrow-down-right,
+[dir="rtl"] .lucide-corner-up-right,
+[dir="rtl"] .lucide-corner-down-right,
+[dir="rtl"] .lucide-send,
+[dir="rtl"] .lucide-send-horizontal,
+[dir="rtl"] .lucide-move-right,
+[dir="rtl"] .lucide-move-left,
+[dir="rtl"] .lucide-log-out,
+[dir="rtl"] .lucide-log-in,
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Slide panel border side flips in RTL. */
+[dir="rtl"] .slidepanel-container {
+  border-left: none;
+  border-right: 1px solid hsl(var(--border));
+}
+[dir="rtl"] body[data-slidepanel-popup-open="1"] .slidepanel-container {
+  border-right-color: transparent !important;
+}
+
+/* Prose blocks read right-aligned in Arabic. */
+[dir="rtl"] .prose,
+[dir="rtl"] .prose p,
+[dir="rtl"] .prose li,
+[dir="rtl"] .prose h1,
+[dir="rtl"] .prose h2,
+[dir="rtl"] .prose h3,
+[dir="rtl"] .prose h4 {
+  text-align: right;
+}
+
+/* Numbers, phone numbers, times stay LTR inside RTL text. */
+[dir="rtl"] .ltr-num,
+[dir="rtl"] time,
+[dir="rtl"] [data-force-ltr] {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+
+/* Ensure horizontal scroll rails follow RTL flow. */
+[dir="rtl"] .scrollbar-hide {
+  direction: rtl;
+}
+
+/* CTA peek utility — mirror physical paddings/margins. */
+[dir="rtl"] .cta-peek.is-peek {
+  padding-left: 0 !important;
+  padding-right: 1rem !important;
+}
+[dir="rtl"] .cta-peek.is-peek > svg {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+  transform: scaleX(-1);
+}
