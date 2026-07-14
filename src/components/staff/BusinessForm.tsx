@@ -1109,6 +1109,21 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     return () => { cancelled = true; };
   }, [business?.id]);
   useEffect(() => {
+    if (!business?.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("business_internal_notes")
+        .select("notes")
+        .eq("business_id", business.id)
+        .maybeSingle();
+      if (!cancelled && data?.notes) {
+        setFormData((prev: any) => ({ ...prev, internal_notes: data.notes }));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [business?.id]);
+  useEffect(() => {
     const fetchTaxonomy = async () => {
       const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes, badgesRes, badgeSubcatsRes, destRes, poiRes, eventsRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
