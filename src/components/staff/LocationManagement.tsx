@@ -925,8 +925,13 @@ const LocationManagement = () => {
     setDestVideoUrlInput("");
   };
 
-  const openEditDestination = (d: Destination) => {
+  const openEditDestination = async (d: Destination) => {
     setEditingDestination(d);
+    const { data: noteRow } = await supabase
+      .from("destination_internal_notes")
+      .select("notes")
+      .eq("destination_id", d.id)
+      .maybeSingle();
     setDestinationForm({
       name_fr: d.name_fr, name_en: d.name_en || "", name_ar: d.name_ar || "",
       regions: d.region || [],
@@ -936,7 +941,7 @@ const LocationManagement = () => {
       image_url: d.image_url || "", keywords: d.keywords || [],
       is_searchable: (d as any).is_searchable ?? false,
       images: (d as any).images || [],
-      internal_notes: d.internal_notes || "",
+      internal_notes: noteRow?.notes || "",
       videos: d.videos || [],
       city_ids: (d as any).city_ids || [],
       google_maps_url: d.google_maps_url || "",
