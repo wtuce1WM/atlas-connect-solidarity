@@ -5,9 +5,25 @@
 // Usage : `bunx tsx scripts/generate-business-og-pages.ts`
 // Branché sur `prebuild` (cf. package.json).
 
-import { mkdirSync, writeFileSync, rmSync, existsSync, readdirSync, statSync } from "fs";
+import { mkdirSync, writeFileSync, rmSync, existsSync, readdirSync, statSync, readFileSync } from "fs";
 import { resolve, join } from "path";
 import { createClient } from "@supabase/supabase-js";
+
+// Mapping curé slug -> liens d'autorité (Wikipedia FR/EN, Wikidata) ajoutés à sameAs.
+// Édite scripts/wikidata-links.json pour enrichir cette liste.
+let WIKIDATA_LINKS: Record<string, { wikipedia_fr?: string; wikipedia_en?: string; wikidata?: string }> = {};
+try {
+  const raw = readFileSync(resolve(process.cwd(), "scripts/wikidata-links.json"), "utf8");
+  WIKIDATA_LINKS = JSON.parse(raw);
+  delete (WIKIDATA_LINKS as any)._comment;
+} catch (e) {
+  console.warn("[og-pages] wikidata-links.json introuvable, skip");
+}
+function authorityLinksFor(slug: string): string[] {
+  const entry = WIKIDATA_LINKS[slug];
+  if (!entry) return [];
+  return [entry.wikipedia_fr, entry.wikipedia_en, entry.wikidata].filter(Boolean) as string[];
+}
 
 const BASE_URL = "https://oneworldmorocco.com";
 const SITE_NAME = "ONE WORLD MOROCCO";
