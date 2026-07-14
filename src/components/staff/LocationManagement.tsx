@@ -129,7 +129,7 @@ interface Destination {
   image_url: string | null;
   keywords: string[] | null;
   is_searchable: boolean;
-  internal_notes: string | null;
+  internal_notes?: string | null;
   videos: string[] | null;
   city_ids: string[] | null;
   google_maps_url: string | null;
