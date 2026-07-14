@@ -92,7 +92,17 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
       setLoadingCities(false);
     };
     fetchCities();
-  }, []);
+    if (sponsor?.id) {
+      supabase
+        .from('sponsor_internal_notes')
+        .select('notes')
+        .eq('sponsor_id', sponsor.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.notes) setFormData(prev => ({ ...prev, internal_notes: data.notes }));
+        });
+    }
+  }, [sponsor?.id]);
 
   const handleInputChange = (field: string, value: string | number | boolean | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
