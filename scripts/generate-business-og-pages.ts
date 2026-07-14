@@ -207,7 +207,7 @@ function buildHtml(slug: string, biz: Biz): string {
   const description = stripHtml(rawDesc).substring(0, 160);
   const image = biz.images?.[0] || `${BASE_URL}/images/og-image.jpg`;
   const url = `${BASE_URL}/${slug}`;
-  const schemaType = (biz.main_category && CATEGORY_TO_SCHEMA[biz.main_category]) || "LocalBusiness";
+  const schemaType = resolveSchemaType(biz);
   const isRestaurantLike = ["Restaurant", "CafeOrCoffeeShop", "BarOrPub"].includes(schemaType);
 
   const sameAs: string[] = [];
