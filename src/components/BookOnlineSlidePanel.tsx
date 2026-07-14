@@ -2715,7 +2715,7 @@ const BookOnlineSlidePanelInner = ({
         const activeProx = proxOpts.find((o) => o.km === poiProximityKm) || null;
         return (
         <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
-          <div className="absolute inset-0">
+          <div dir="ltr" className="absolute inset-0">
             <button
               onClick={() => { setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
               className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"

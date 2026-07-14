@@ -1030,3 +1030,14 @@ html[dir="rtl"] body {
   margin-right: 0.5rem !important;
   transform: scaleX(-1);
 }
+
+/* Keep left-panel CTAs LTR in AR (do not mirror peek paddings/margins). */
+[dir="rtl"] [dir="ltr"] .cta-peek.is-peek {
+  padding-left: 1rem !important;
+  padding-right: 0.75rem !important;
+}
+[dir="rtl"] [dir="ltr"] .cta-peek.is-peek > svg {
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
+  transform: none;
+}
