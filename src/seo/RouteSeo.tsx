@@ -3,8 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { PAGE_META } from "./pageMeta";
 import { mergeMeta } from "./pageMetaOverrides";
 import { usePageMetaOverridesVersion } from "./usePageMetaOverrides";
-
-const SITE_URL = "https://oneworldmorocco.com";
+import { getLangFromPath, stripLangPrefix, withLangPrefix, SITE_URL } from "@/lib/localizedPath";
 
 // Routes that manage their own SEO dynamically via useSEO (data-driven titles,
 // descriptions, OG images, JSON-LD). RouteSeo must NOT inject a generic
