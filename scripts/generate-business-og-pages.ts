@@ -38,48 +38,15 @@ const CATEGORY_TO_SCHEMA: Record<string, string> = {
   "Shopping": "Store",
 };
 
-const STATIC_ARTICLES = [
-  {
-    path: "blog/fermes-pedagogiques-marrakech",
-    title: `Les fermes pédagogiques à Marrakech — ${SITE_NAME}`,
-    description:
-      "Huit adresses à quelques minutes de la ville ocre, pour offrir aux enfants — et aux parents — une vraie journée de nature, entre animaux, ateliers et plantes aromatiques.",
-    publishedAt: "2026-06-12T08:00:00+01:00",
-    modifiedAt: "2026-06-13T08:00:00+01:00",
-  },
-  {
-    path: "blog/activites-enfants-marrakech",
-    title: `Activités pour les enfants à Marrakech — ${SITE_NAME}`,
-    description:
-      "Notre sélection d'activités et d'adresses pour les enfants à Marrakech : parcs aquatiques, ateliers, kids clubs, restaurants familiaux et plus.",
-    publishedAt: "2026-06-12T08:00:00+01:00",
-    modifiedAt: "2026-06-13T08:00:00+01:00",
-  },
-  {
-    path: "blog/galeries-art-marrakech",
-    title: `Les galeries d'art à Marrakech — ${SITE_NAME}`,
-    description:
-      "Notre sélection de 24 galeries d'art à Marrakech : Guéliz, Médina, Sidi Ghanem et au-delà. Art contemporain, design, photographie et scène picturale marocaine.",
-    publishedAt: "2026-06-12T08:00:00+01:00",
-    modifiedAt: "2026-06-13T08:00:00+01:00",
-  },
-  {
-    path: "blog/5-jours-marrakech-artisanat",
-    title: `5 jours à Marrakech pour découvrir l'artisanat marocain — ${SITE_NAME}`,
-    description:
-      "Itinéraire de 5 jours à Marrakech : 44 adresses sélectionnées (Guéliz, Médina, Sidi Ghanem) pour découvrir le meilleur de l'artisanat marocain.",
-    publishedAt: "2026-06-12T08:00:00+01:00",
-    modifiedAt: "2026-06-13T08:00:00+01:00",
-  },
-  {
-    path: "blog/essaouira-vue-mer",
-    title: `Les adresses avec vue sur mer à Essaouira — ${SITE_NAME}`,
-    description:
-      "Notre sélection des meilleures adresses face à l'océan à Essaouira : hôtels, restaurants, cafés et rooftops pour profiter de la brise atlantique.",
-    publishedAt: "2026-06-12T08:00:00+01:00",
-    modifiedAt: "2026-06-13T08:00:00+01:00",
-  },
-];
+interface StaticArticle {
+  path: string;
+  title: string;
+  description: string;
+  image: string;
+  publishedAt: string;
+  modifiedAt: string;
+}
+
 
 function escapeHtml(s: string): string {
   return String(s)
@@ -204,7 +171,7 @@ function buildHtml(slug: string, biz: Biz): string {
     <script>
       (function () {
         var ua = navigator.userAgent || "";
-        var isPreviewBot = /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Pinterest|Discordbot|Googlebot|bingbot/i.test(ua);
+        var isPreviewBot = /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Pinterest|Discordbot|Googlebot|Google-InspectionTool|GoogleOther|Google-Extended|bingbot|GPTBot|OAI-SearchBot|ChatGPT-User|PerplexityBot|Perplexity-User|ClaudeBot|Claude-Web|anthropic-ai|Applebot|Applebot-Extended|Amazonbot|Bytespider|Meta-ExternalAgent|Meta-ExternalFetcher|DuckAssistBot|YouBot|CCBot|cohere-ai|Diffbot/i.test(ua);
         if (isPreviewBot) return;
         fetch("/index.html", { cache: "no-store" })
           .then(function (response) { return response.text(); })
@@ -226,10 +193,10 @@ function buildHtml(slug: string, biz: Biz): string {
 </html>`;
 }
 
-function buildArticleHtml(article: (typeof STATIC_ARTICLES)[number]): string {
+function buildArticleHtml(article: StaticArticle): string {
   const title = article.title;
   const description = stripHtml(article.description).substring(0, 200);
-  const image = `${BASE_URL}/og-install-app.jpg`;
+  const image = article.image || `${BASE_URL}/og-install-app.jpg`;
   const url = `${BASE_URL}/${article.path}`;
   const cleanTitle = title.replace(` — ${SITE_NAME}`, "");
   const jsonLd = {
@@ -279,7 +246,7 @@ function buildArticleHtml(article: (typeof STATIC_ARTICLES)[number]): string {
     <script>
       (function () {
         var ua = navigator.userAgent || "";
-        var isPreviewBot = /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Pinterest|Discordbot|Googlebot|Google-InspectionTool|GoogleOther|bingbot/i.test(ua);
+        var isPreviewBot = /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Pinterest|Discordbot|Googlebot|Google-InspectionTool|GoogleOther|Google-Extended|bingbot|GPTBot|OAI-SearchBot|ChatGPT-User|PerplexityBot|Perplexity-User|ClaudeBot|Claude-Web|anthropic-ai|Applebot|Applebot-Extended|Amazonbot|Bytespider|Meta-ExternalAgent|Meta-ExternalFetcher|DuckAssistBot|YouBot|CCBot|cohere-ai|Diffbot/i.test(ua);
         if (isPreviewBot) return;
         fetch("/index.html", { cache: "no-store" })
           .then(function (response) { return response.text(); })
@@ -373,10 +340,29 @@ async function main() {
     written++;
   }
 
+  // 5) Récupère les articles blog publiés depuis la DB (blog_posts)
   const blogDir = join(PUBLIC_DIR, "blog");
   mkdirSync(blogDir, { recursive: true });
   writeFileSync(join(blogDir, MARKER_FILE), "", "utf8");
-  for (const article of STATIC_ARTICLES) {
+
+  const { data: posts, error: postsErr } = await supabase
+    .from("blog_posts")
+    .select("slug, title_fr, excerpt_fr, cover_image_url, custom_hero_image_url, published_at, updated_at, is_published")
+    .eq("is_published", true);
+  if (postsErr) console.error("[og-pages] blog_posts fetch error:", postsErr);
+
+  const articles: StaticArticle[] = (posts || [])
+    .filter((p: any) => p.slug && p.title_fr)
+    .map((p: any): StaticArticle => ({
+      path: `blog/${p.slug}`,
+      title: `${p.title_fr} — ${SITE_NAME}`,
+      description: p.excerpt_fr || `Découvrez ${p.title_fr} sur ${SITE_NAME}.`,
+      image: p.custom_hero_image_url || p.cover_image_url || `${BASE_URL}/og-install-app.jpg`,
+      publishedAt: p.published_at || p.updated_at || new Date().toISOString(),
+      modifiedAt: p.updated_at || p.published_at || new Date().toISOString(),
+    }));
+
+  for (const article of articles) {
     // Supprime un éventuel fichier sans extension (ancienne génération) qui était téléchargé
     const legacyFile = join(PUBLIC_DIR, article.path);
     try {
@@ -388,7 +374,7 @@ async function main() {
     writeFileSync(join(articleDir, "index.html"), buildArticleHtml(article), "utf8");
   }
 
-  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${STATIC_ARTICLES.length} articles.`);
+  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog.`);
 }
 
 main().catch((err) => {
