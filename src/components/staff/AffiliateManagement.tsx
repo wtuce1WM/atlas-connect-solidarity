@@ -41,7 +41,7 @@ interface Affiliate {
   contact_email: string | null;
   contact_name: string | null;
   contact_phone: string | null;
-  internal_notes: string | null;
+  internal_notes?: string | null;
   is_active: boolean;
   user_id: string | null;
   created_at: string;
