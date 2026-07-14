@@ -23,6 +23,9 @@ const TEMPLATES = [
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  const auth = await assertStaff(req, corsHeaders);
+  if (auth instanceof Response) return auth;
+
   try {
     const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id, options } = await req.json();
 
