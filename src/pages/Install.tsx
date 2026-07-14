@@ -649,9 +649,11 @@ const Install = () => {
                 className="w-full max-w-sm md:max-w-md h-auto rounded-2xl border border-border/60 bg-[#F5EFE6] shadow-sm"
               />
             )}
-            <figcaption className="mt-3 text-xs text-muted-foreground/70 font-roboto italic text-center">
-              {MOCKUP_CAPTION[lang]}
-            </figcaption>
+            {platform !== "ios" && (
+              <figcaption className="mt-3 text-xs text-muted-foreground/70 font-roboto italic text-center">
+                {MOCKUP_CAPTION[lang]}
+              </figcaption>
+            )}
           </figure>
 
 
