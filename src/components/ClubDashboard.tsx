@@ -511,6 +511,38 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                   onChange={handleAvatarUpload}
                 />
               </div>
+              {form.nickname && (
+                <a
+                  href={`/u/${encodeURIComponent(form.nickname)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center gap-1.5 group"
+                  aria-label="Digital ID"
+                >
+                  <span className="relative h-24 w-24 rounded-full overflow-hidden border border-white/30 bg-white/10 hover:scale-[1.03] active:scale-95 transition shadow-[inset_0_2px_8px_rgba(0,0,0,0.15)]">
+                    <iframe
+                      src={`/u/${encodeURIComponent(form.nickname)}`}
+                      title="Digital ID preview"
+                      loading="lazy"
+                      scrolling="no"
+                      tabIndex={-1}
+                      aria-hidden="true"
+                      className="pointer-events-none border-0"
+                      style={{
+                        width: "1200px",
+                        height: "1600px",
+                        transform: "scale(0.08)",
+                        transformOrigin: "top left",
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                      }}
+                    />
+                    <span className="absolute inset-0 rounded-full ring-1 ring-white/40 pointer-events-none" />
+                  </span>
+                  <span className="text-xs font-semibold text-white text-center leading-tight">Digital ID</span>
+                </a>
+              )}
             </div>
           </div>
 
