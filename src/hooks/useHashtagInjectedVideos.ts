@@ -52,6 +52,9 @@ export function useHashtagInjectedVideos(cityName?: string | null): InjectedHash
 
   useEffect(() => {
     let cancelled = false;
+    // Neutralisé : injection de vidéos hashtag/génériques désactivée dans
+    // le carousel de /search. Réversible en supprimant ce return.
+    return;
     (async () => {
       // 0. Resolve city id (strict city scoping). If no city → no geo filter.
       let cityId: string | null = null;
