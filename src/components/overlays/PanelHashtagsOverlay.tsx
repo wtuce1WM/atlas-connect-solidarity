@@ -26,6 +26,8 @@ interface Props {
 const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { language } = useLanguage();
+  const tr = (k: keyof typeof T) => T[k][language as "fr" | "en" | "ar"] || T[k].fr;
   const [badges, setBadges] = useState<HashtagBadge[]>([]);
 
   useEffect(() => {
