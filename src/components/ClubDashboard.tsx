@@ -544,7 +544,6 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 </a>
               )}
             </div>
-            </div>
           </div>
 
 
