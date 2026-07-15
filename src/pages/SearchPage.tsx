@@ -4360,11 +4360,13 @@ const SearchPage = () => {
 
                       <p className="text-lg md:text-xl font-bold text-foreground mt-1">
                         {(() => {
-                          const fallbackLabel = (labelFromUrl || badgeLabelParam || "").replace(/^#+/, "").trim();
+                          const rawLabel = (labelFromUrl || badgeLabelParam || "").replace(/^#+/, "").trim();
+                          const fallbackLabel = translateVignetteLabel(rawLabel, language);
                           const fallbackCity = (selectedCity && selectedCity !== "all" ? selectedCity : "") || cityFromUrlForThumbs || "";
                           const display = (spokenText || searchQuery) || [fallbackCity, fallbackLabel].filter(Boolean).join(" ");
                           return <>«&nbsp;{display}&nbsp;»</>;
                         })()}
+
                       </p>
 
                       {!isLoading && (
