@@ -333,10 +333,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       setAvatarPath(path);
       const { data: signed } = await supabase.storage.from("club-avatars").createSignedUrl(path, 3600);
       if (signed?.signedUrl) setAvatarUrl(signed.signedUrl);
-      toast({ title: "Photo mise à jour" });
+      toast({ title: language === "en" ? "Photo updated" : language === "ar" ? "تم تحديث الصورة" : "Photo mise à jour" });
     } catch (err) {
       console.error("Avatar upload error:", err);
-      toast({ title: "Échec du téléversement", variant: "destructive" });
+      toast({ title: language === "en" ? "Upload failed" : language === "ar" ? "فشل الرفع" : "Échec du téléversement", variant: "destructive" });
+
     } finally {
       setUploadingAvatar(false);
     }
