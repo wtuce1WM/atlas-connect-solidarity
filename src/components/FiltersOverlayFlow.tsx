@@ -267,7 +267,7 @@ export default function FiltersOverlayFlow({
               className={`${badgeBase} ${badgeIdle}`}
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              <span>{tab.name}</span>
+              <span>{translateFrontStructure(tab.name, language)}</span>
               <span className="text-xs font-normal opacity-70">({tab.count})</span>
             </button>
           ))}
