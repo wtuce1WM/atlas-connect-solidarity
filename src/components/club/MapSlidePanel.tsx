@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { X, Share2, Bookmark, BookmarkCheck, Navigation } from "lucide-react";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { haversineKm } from "@/lib/haversine";
 import {
   DropdownMenu,
@@ -10,6 +11,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+
+const MT = {
+  fr: { places: "lieux", close: "Fermer", bookmark: "Bookmark", removeBookmark: "Retirer le bookmark", addBookmark: "Bookmarker", share: "Partager", top20: "Top 20", all: "Tous", nearby: "À proximité", allDistances: "Toutes distances", d500: "Moins de 500 m", d1: "Moins de 1 km", d5: "Moins de 5 km", d10: "Moins de 10 km" },
+  en: { places: "places", close: "Close", bookmark: "Bookmark", removeBookmark: "Remove bookmark", addBookmark: "Bookmark", share: "Share", top20: "Top 20", all: "All", nearby: "Nearby", allDistances: "All distances", d500: "Under 500 m", d1: "Under 1 km", d5: "Under 5 km", d10: "Under 10 km" },
+  ar: { places: "أماكن", close: "إغلاق", bookmark: "إشارة مرجعية", removeBookmark: "إزالة الإشارة", addBookmark: "إضافة إشارة", share: "مشاركة", top20: "أفضل 20", all: "الكل", nearby: "قريب", allDistances: "كل المسافات", d500: "أقل من 500 م", d1: "أقل من 1 كم", d5: "أقل من 5 كم", d10: "أقل من 10 كم" },
+} as const;
+
 
 export interface MapPanelBusiness {
   id: string;
