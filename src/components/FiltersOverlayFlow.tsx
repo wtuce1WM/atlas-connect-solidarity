@@ -300,7 +300,7 @@ export default function FiltersOverlayFlow({
                 className={`${badgeBase} ${selected ? badgeSelected : badgeIdle}`}
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
-                <span>{s.name_fr}</span>
+                <span>{translateService(s.name_fr, language)}</span>
                 <span className="text-xs font-normal opacity-70">({serviceCounts.get(s.name_fr) || 0})</span>
               </button>
             );
