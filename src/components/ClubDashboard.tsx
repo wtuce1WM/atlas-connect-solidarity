@@ -456,27 +456,43 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full" orientation="vertical">
         <div className="flex flex-col gap-6">
-          <div className={`flex flex-col items-center justify-center px-1 gap-2 transition-[width,max-width,margin] duration-300 ease-out ${panelOpen ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:mr-auto lg:ml-0" : "w-full"}`}>
-            <button
-              type="button"
-              onClick={() => avatarInputRef.current?.click()}
-              disabled={uploadingAvatar}
-              aria-label={language === "en" ? "Change profile photo" : language === "ar" ? "تغيير الصورة الشخصية" : "Changer la photo de profil"}
-              className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
-            >
-              <img
-                src={avatarUrl || accountAvatar}
-                alt={language === "en" ? "Profile photo" : language === "ar" ? "الصورة الشخصية" : "Photo de profil"}
-                className="h-full w-full object-cover"
-
-                loading="lazy"
-              />
-              {uploadingAvatar && (
-                <span className="absolute inset-0 flex items-center justify-center bg-background/60">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                </span>
-              )}
-            </button>
+          <div className={`flex flex-col items-center justify-center px-1 gap-3 transition-[width,max-width,margin] duration-300 ease-out ${panelOpen ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:mr-auto lg:ml-0" : "w-full"}`}>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {quickTabs.map(({ tab, icon: Icon, label }) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => handleTabChange(tab)}
+                  className="flex flex-col items-center gap-1.5 group"
+                >
+                  <span
+                    className={`h-24 w-24 rounded-full flex items-center justify-center border border-white/30 transition hover:scale-[1.03] active:scale-95 ${activeTab === tab ? "bg-[#C04F17] text-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.25)]" : "bg-white/10 text-white hover:bg-white/20"}`}
+                  >
+                    <Icon className="h-10 w-10" />
+                  </span>
+                  <span className="text-xs font-semibold text-white text-center leading-tight">{label}</span>
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                aria-label={language === "en" ? "Change profile photo" : language === "ar" ? "تغيير الصورة الشخصية" : "Changer la photo de profil"}
+                className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
+              >
+                <img
+                  src={avatarUrl || accountAvatar}
+                  alt={language === "en" ? "Profile photo" : language === "ar" ? "الصورة الشخصية" : "Photo de profil"}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                {uploadingAvatar && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-background/60">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  </span>
+                )}
+              </button>
+            </div>
             {form.nickname && (
               <div className="text-white text-sm font-semibold">@{form.nickname}</div>
             )}
