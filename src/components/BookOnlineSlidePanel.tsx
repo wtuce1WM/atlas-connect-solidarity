@@ -399,6 +399,7 @@ const BookOnlineSlidePanelInner = ({
   const { coords: userCoords } = geo;
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
+  const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
   useEffect(() => {
