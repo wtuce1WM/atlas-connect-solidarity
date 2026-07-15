@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { X, Share2, Bookmark, BookmarkCheck, Navigation } from "lucide-react";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { haversineKm } from "@/lib/haversine";
 import {
   DropdownMenu,
@@ -10,6 +11,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+
+const MT = {
+  fr: { places: "lieux", close: "Fermer", bookmark: "Bookmark", removeBookmark: "Retirer le bookmark", addBookmark: "Bookmarker", share: "Partager", top20: "Top 20", all: "Tous", nearby: "À proximité", allDistances: "Toutes distances", d500: "Moins de 500 m", d1: "Moins de 1 km", d5: "Moins de 5 km", d10: "Moins de 10 km" },
+  en: { places: "places", close: "Close", bookmark: "Bookmark", removeBookmark: "Remove bookmark", addBookmark: "Bookmark", share: "Share", top20: "Top 20", all: "All", nearby: "Nearby", allDistances: "All distances", d500: "Under 500 m", d1: "Under 1 km", d5: "Under 5 km", d10: "Under 10 km" },
+  ar: { places: "أماكن", close: "إغلاق", bookmark: "إشارة مرجعية", removeBookmark: "إزالة الإشارة", addBookmark: "إضافة إشارة", share: "مشاركة", top20: "أفضل 20", all: "الكل", nearby: "قريب", allDistances: "كل المسافات", d500: "أقل من 500 م", d1: "أقل من 1 كم", d5: "أقل من 5 كم", d10: "أقل من 10 كم" },
+} as const;
+
 
 export interface MapPanelBusiness {
   id: string;
@@ -58,6 +66,9 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
 const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
 const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked }: MapSlidePanelProps) => {
+  const { language } = useLanguage();
+  const mt = MT[language as keyof typeof MT] || MT.fr;
+
   const geo = useGeolocation();
   const [browserPos, setBrowserPos] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -211,7 +222,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                 type="button"
                 onClick={onClose}
                 className="absolute top-3 left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity pointer-events-auto"
-                aria-label="Fermer"
+                aria-label={mt.close}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -221,7 +232,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                   className="px-3 py-1.5 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate shadow-sm pointer-events-auto"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
-                  {title || `${mapBusinesses.length} lieux`}
+                  {title || `${mapBusinesses.length} ${mt.places}`}
                 </div>
               </div>
 
@@ -231,8 +242,8 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                     type="button"
                     onClick={onBookmark}
                     className="h-9 w-9 flex items-center justify-center rounded-full bg-white shadow-lg hover:bg-white/90"
-                    aria-label="Bookmark"
-                    title={isBookmarked ? "Retirer le bookmark" : "Bookmarker"}
+                    aria-label={mt.bookmark}
+                    title={isBookmarked ? mt.removeBookmark : mt.addBookmark}
                   >
                     {isBookmarked ? (
                       <BookmarkCheck className="h-4 w-4 text-[#6050DC]" fill="currentColor" strokeWidth={2.5} />
@@ -246,8 +257,8 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                     type="button"
                     onClick={onShare}
                     className="h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90"
-                    aria-label="Partager"
-                    title="Partager"
+                    aria-label={mt.share}
+                    title={mt.share}
                   >
                     <Share2 className="h-4 w-4" />
                   </button>
@@ -267,23 +278,23 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                     onClick={() => setShowAll(false)}
                     className={`px-3 py-1 rounded-full transition-colors ${!showAll ? "bg-[#C04F17] text-white" : "text-white/80 hover:text-white"}`}
                   >
-                    Top 20
+                    {mt.top20}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAll(true)}
                     className={`px-3 py-1 rounded-full transition-colors ${showAll ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                   >
-                    Tous <span className="ml-0.5 opacity-70">{total}</span>
+                    {mt.all} <span className="ml-0.5 opacity-70">{total}</span>
                   </button>
                 </div>
               )}
               {userPos && (() => {
                 const opts: { km: number; label: string }[] = [
-                  { km: 0.5, label: "Moins de 500 m" },
-                  { km: 1, label: "Moins de 1 km" },
-                  { km: 5, label: "Moins de 5 km" },
-                  { km: 10, label: "Moins de 10 km" },
+                  { km: 0.5, label: mt.d500 },
+                  { km: 1, label: mt.d1 },
+                  { km: 5, label: mt.d5 },
+                  { km: 10, label: mt.d10 },
                 ];
                 const active = opts.find((o) => o.km === proximityKm);
                 return (
@@ -298,7 +309,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${proximityActive ? "bg-[#3B3B3B] text-white" : "text-white/80 hover:text-white"}`}
                         >
                           <Navigation className="h-3.5 w-3.5" />
-                          {active ? active.label : "À proximité"}
+                          {active ? active.label : mt.nearby}
                           {proximityActive && (
                             <span className="ml-0.5 opacity-70">{proximityCount}</span>
                           )}
@@ -307,7 +318,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                       <DropdownMenuContent align="end" className="z-[95]">
                         {proximityKm != null && (
                           <DropdownMenuItem onSelect={() => setProximityKm(null)}>
-                            Toutes distances
+                            {mt.allDistances}
                           </DropdownMenuItem>
                         )}
                         {opts.map((o) => {
@@ -327,6 +338,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
                           );
                         })}
                       </DropdownMenuContent>
+
                     </DropdownMenu>
                   </div>
                 );

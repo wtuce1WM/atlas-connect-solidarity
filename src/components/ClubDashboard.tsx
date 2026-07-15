@@ -333,10 +333,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       setAvatarPath(path);
       const { data: signed } = await supabase.storage.from("club-avatars").createSignedUrl(path, 3600);
       if (signed?.signedUrl) setAvatarUrl(signed.signedUrl);
-      toast({ title: "Photo mise à jour" });
+      toast({ title: language === "en" ? "Photo updated" : language === "ar" ? "تم تحديث الصورة" : "Photo mise à jour" });
     } catch (err) {
       console.error("Avatar upload error:", err);
-      toast({ title: "Échec du téléversement", variant: "destructive" });
+      toast({ title: language === "en" ? "Upload failed" : language === "ar" ? "فشل الرفع" : "Échec du téléversement", variant: "destructive" });
+
     } finally {
       setUploadingAvatar(false);
     }
@@ -345,9 +346,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const handleSave = async () => {
     if (!form.nickname.trim()) return;
     if (plainTextLength(form.description) > MAX_DESCRIPTION_LENGTH) {
-      toast({ title: `Description : ${MAX_DESCRIPTION_LENGTH} caractères max`, variant: "destructive" });
+      toast({ title: language === "en" ? `Description: ${MAX_DESCRIPTION_LENGTH} characters max` : language === "ar" ? `الوصف: ${MAX_DESCRIPTION_LENGTH} حرف كحد أقصى` : `Description : ${MAX_DESCRIPTION_LENGTH} caractères max`, variant: "destructive" });
       return;
     }
+
     setIsSaving(true);
     try {
       const payload = {
@@ -441,8 +443,9 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </Button>
           <ShareButton 
             shareUrl={form.nickname ? `https://oneworldmorocco.com/u/${form.nickname}` : `https://oneworldmorocco.com/u/`}
-            title="Mon profil One World Morocco"
+            title={language === "en" ? "My One World Morocco profile" : language === "ar" ? "ملفي على One World Morocco" : "Mon profil One World Morocco"}
             previewImage={hamsaBlueAsset.url}
+
             avatarImage={avatarUrl}
             variant="dark"
           />
@@ -458,13 +461,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               type="button"
               onClick={() => avatarInputRef.current?.click()}
               disabled={uploadingAvatar}
-              aria-label="Changer la photo de profil"
+              aria-label={language === "en" ? "Change profile photo" : language === "ar" ? "تغيير الصورة الشخصية" : "Changer la photo de profil"}
               className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
             >
               <img
                 src={avatarUrl || accountAvatar}
-                alt="Photo de profil"
+                alt={language === "en" ? "Profile photo" : language === "ar" ? "الصورة الشخصية" : "Photo de profil"}
                 className="h-full w-full object-cover"
+
                 loading="lazy"
               />
               {uploadingAvatar && (
@@ -572,7 +576,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           <div className="flex items-center justify-between mb-2">
             <label className="text-sm text-white font-semibold flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-gold" />
-              Description
+              {language === "en" ? "Description" : language === "ar" ? "الوصف" : "Description"}
             </label>
             <span className={`text-xs ${plainTextLength(form.description) > MAX_DESCRIPTION_LENGTH ? "text-red-300 font-semibold" : "text-white/70"}`}>
               {plainTextLength(form.description)} / {MAX_DESCRIPTION_LENGTH}
@@ -582,11 +586,12 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             <RichTextEditor
               content={form.description}
               onChange={(html) => setForm(prev => ({ ...prev, description: html }))}
-              placeholder="Quelques mots sur vous (200 caractères max)…"
+              placeholder={language === "en" ? "A few words about you (200 characters max)…" : language === "ar" ? "بعض الكلمات عنك (200 حرف كحد أقصى)…" : "Quelques mots sur vous (200 caractères max)…"}
               maxHeight="320px"
               bgClass="bg-[#ECD6B8] text-black border-none"
             />
           </div>
+
         </div>
 
         {/* External links */}
@@ -632,7 +637,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-foreground"
-                    aria-label={`Ouvrir ${label}`}
+                    aria-label={`${language === "en" ? "Open" : language === "ar" ? "فتح" : "Ouvrir"} ${label}`}
                   >
                     <ExternalLink className="h-4 w-4" />
                   </a>

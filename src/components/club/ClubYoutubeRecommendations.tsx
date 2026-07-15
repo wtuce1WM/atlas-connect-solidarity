@@ -1,7 +1,9 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Play } from "lucide-react";
+
 
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
 
@@ -47,7 +49,9 @@ const normalizeCity = (value?: string | null): DestinationKey | null => {
 };
 
 const ClubYoutubeRecommendations = () => {
+  const { language } = useLanguage();
   const geo = useGeolocation();
+
   const [fallbackDestination, setFallbackDestination] = useState<DestinationKey | null>(null);
   const [videos, setVideos] = useState<Video[]>([]);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
@@ -155,9 +159,10 @@ const ClubYoutubeRecommendations = () => {
       videos.map((v) => ({
         id: v.id,
         url: v.url,
-        business_name: v.title || "Vidéo",
+        business_name: v.title || (language === "en" ? "Video" : language === "ar" ? "فيديو" : "Vidéo"),
         pageBusinessName: null,
         pageBusinessId: null,
+
         owner: null,
         social: null,
         showSocialBadge: false,
@@ -177,8 +182,9 @@ const ClubYoutubeRecommendations = () => {
       <section className="w-full px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-white text-xl md:text-2xl font-bold mb-4 !font-sans">
-            Vidéos Youtube recommandées
+            {language === "en" ? "Recommended YouTube videos" : language === "ar" ? "فيديوهات يوتيوب موصى بها" : "Vidéos Youtube recommandées"}
             <span className="text-white/60 text-sm font-normal ml-2">· {label}</span>
+
           </h2>
           <div className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-hide">
             {videos.map((v) => (
@@ -194,7 +200,7 @@ const ClubYoutubeRecommendations = () => {
                 {v.thumbnail ? (
                   <img
                     src={v.thumbnail}
-                    alt={v.title || "Vidéo YouTube"}
+                    alt={v.title || (language === "en" ? "YouTube video" : language === "ar" ? "فيديو يوتيوب" : "Vidéo YouTube")}
                     loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />

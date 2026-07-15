@@ -8,9 +8,152 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from "@/contexts/LanguageContext";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
+
+const AT = {
+  fr: {
+    newChat: "Nouvelle conversation", noChats: "Aucune conversation pour l'instant.", rename: "Renommer", del: "Supprimer",
+    confirmDel: "Supprimer cette conversation ?", renamePrompt: "Renommer la conversation", delError: "Suppression impossible", renameError: "Renommage impossible",
+    voiceMode: "Mode vocal", voiceModeTip: "Mode vocal : lecture automatique + réouverture du micro",
+    removeBookmark: "Retirer le bookmark", addBookmark: "Bookmarker",
+    hello: "Bonjour 👋", helloDesc: "Demandez-moi la météo, retrouvez une adresse sauvegardée, ou explorez le Maroc.",
+    myTrips: "Mes voyages", ongoing: "En cours", linked: "liée", linkeds: "liées", address: "adresse", addresses: "adresses",
+    moreSuggestions: "Autres suggestions", placesOnMap: "lieux sur la carte", openMap: "Ouvrir la carte →",
+    stopPlayback: "Arrêter la lecture", listen: "Écouter", stop: "Stop",
+    thinking: "L'assistant réfléchit…", speak: "Parler", sendBtn: "Envoyer",
+    ficheNotFound: "Fiche introuvable", ficheNotFoundOpen: "Impossible d'ouvrir cette fiche.", ficheNotFoundFor: (n: string) => `Aucune fiche trouvée pour "${n}".`,
+    micError: "Micro", chatError: "Erreur", cantReach: "Impossible de joindre l'assistant.",
+    linkCopied: "Lien copié", linkCopiedDesc: "Le lien de la conversation a été copié.", myClubSpace: "Mon espace Club",
+    placeholder: "Demandez la météo, un lieu, ou reprenez un chat…",
+    openFiche: "Ouvrir la fiche",
+    localeTz: "fr-FR",
+    tripPrompt: (title: string, dates: string, cities: string, names: string) => [
+      `Aide-moi à préparer mon voyage « ${title} » (${dates}).`,
+      cities ? `Villes : ${cities}.` : "",
+      names ? `Adresses déjà sauvegardées : ${names}.` : "",
+      `Propose-moi un planning jour par jour, des bonnes adresses complémentaires (restos, activités, vie nocturne) et l'agenda culturel sur place.`,
+    ].filter(Boolean).join(" "),
+    suggestions: [
+      "Montre-moi sur une carte les hôtels avec piscine à Marrakech",
+      "Mes adresses sauvegardées à Marrakech",
+      "Un dîner romantique ce soir près de moi",
+      "Météo à Essaouira ce weekend",
+      "Suggère-moi un spa similaire à mes favoris",
+      "Une activité originale en famille demain",
+      "Un rooftop avec vue pour l'apéro",
+      "Numéros d'urgence à Marrakech",
+      "Un brunch healthy dimanche matin",
+      "Une excursion d'une journée depuis Marrakech",
+      "Un riad de charme dans la médina",
+      "Une pharmacie de garde ce soir",
+      "Un restaurant marocain authentique pas cher",
+      "Que faire à Essaouira sous la pluie",
+      "Une boutique d'artisanat éthique",
+      "Un cours de cuisine marocaine",
+      "Un café calme pour télétravailler",
+      "Une soirée avec musique live ce weekend",
+      "Un hammam traditionnel bien noté",
+      "Une plage tranquille près d'Essaouira",
+      "Un spot photo au lever du soleil",
+    ],
+  },
+  en: {
+    newChat: "New conversation", noChats: "No conversation yet.", rename: "Rename", del: "Delete",
+    confirmDel: "Delete this conversation?", renamePrompt: "Rename conversation", delError: "Delete failed", renameError: "Rename failed",
+    voiceMode: "Voice mode", voiceModeTip: "Voice mode: auto playback + mic reopens",
+    removeBookmark: "Remove bookmark", addBookmark: "Bookmark",
+    hello: "Hello 👋", helloDesc: "Ask me about the weather, find a saved place, or explore Morocco.",
+    myTrips: "My trips", ongoing: "Ongoing", linked: "linked", linkeds: "linked", address: "place", addresses: "places",
+    moreSuggestions: "More suggestions", placesOnMap: "places on the map", openMap: "Open the map →",
+    stopPlayback: "Stop playback", listen: "Listen", stop: "Stop",
+    thinking: "The assistant is thinking…", speak: "Speak", sendBtn: "Send",
+    ficheNotFound: "Listing not found", ficheNotFoundOpen: "Unable to open this listing.", ficheNotFoundFor: (n: string) => `No listing found for "${n}".`,
+    micError: "Microphone", chatError: "Error", cantReach: "Unable to reach the assistant.",
+    linkCopied: "Link copied", linkCopiedDesc: "The conversation link has been copied.", myClubSpace: "My Club Space",
+    placeholder: "Ask about weather, a place, or resume a chat…",
+    openFiche: "Open listing",
+    localeTz: "en-GB",
+    tripPrompt: (title: string, dates: string, cities: string, names: string) => [
+      `Help me prepare my trip "${title}" (${dates}).`,
+      cities ? `Cities: ${cities}.` : "",
+      names ? `Already saved places: ${names}.` : "",
+      `Suggest a day-by-day itinerary, good complementary places (restaurants, activities, nightlife) and the local cultural agenda.`,
+    ].filter(Boolean).join(" "),
+    suggestions: [
+      "Show me hotels with a pool in Marrakech on a map",
+      "My saved places in Marrakech",
+      "A romantic dinner tonight near me",
+      "Weather in Essaouira this weekend",
+      "Suggest a spa similar to my favorites",
+      "An original family activity tomorrow",
+      "A rooftop with a view for sunset drinks",
+      "Emergency numbers in Marrakech",
+      "A healthy Sunday brunch",
+      "A day trip from Marrakech",
+      "A charming riad in the medina",
+      "A pharmacy open tonight",
+      "An affordable authentic Moroccan restaurant",
+      "What to do in Essaouira in the rain",
+      "An ethical craft boutique",
+      "A Moroccan cooking class",
+      "A quiet café to work from",
+      "Live music night this weekend",
+      "A well-rated traditional hammam",
+      "A quiet beach near Essaouira",
+      "A sunrise photo spot",
+    ],
+  },
+  ar: {
+    newChat: "محادثة جديدة", noChats: "لا توجد محادثات بعد.", rename: "إعادة تسمية", del: "حذف",
+    confirmDel: "حذف هذه المحادثة؟", renamePrompt: "إعادة تسمية المحادثة", delError: "فشل الحذف", renameError: "فشل إعادة التسمية",
+    voiceMode: "الوضع الصوتي", voiceModeTip: "الوضع الصوتي: تشغيل تلقائي + إعادة فتح الميكروفون",
+    removeBookmark: "إزالة الإشارة", addBookmark: "إشارة مرجعية",
+    hello: "مرحباً 👋", helloDesc: "اسألني عن الطقس، ابحث عن مكان محفوظ، أو استكشف المغرب.",
+    myTrips: "رحلاتي", ongoing: "جارٍ", linked: "مرتبط", linkeds: "مرتبطة", address: "مكان", addresses: "أماكن",
+    moreSuggestions: "اقتراحات أخرى", placesOnMap: "أماكن على الخريطة", openMap: "فتح الخريطة →",
+    stopPlayback: "إيقاف", listen: "استماع", stop: "إيقاف",
+    thinking: "المساعد يفكّر…", speak: "تحدّث", sendBtn: "إرسال",
+    ficheNotFound: "لم يتم العثور على البطاقة", ficheNotFoundOpen: "تعذّر فتح هذه البطاقة.", ficheNotFoundFor: (n: string) => `لا توجد بطاقة لـ "${n}".`,
+    micError: "الميكروفون", chatError: "خطأ", cantReach: "تعذّر الوصول إلى المساعد.",
+    linkCopied: "تم نسخ الرابط", linkCopiedDesc: "تم نسخ رابط المحادثة.", myClubSpace: "مساحتي في النادي",
+    placeholder: "اسأل عن الطقس، مكان، أو استأنف محادثة…",
+    openFiche: "فتح البطاقة",
+    localeTz: "ar-MA",
+    tripPrompt: (title: string, dates: string, cities: string, names: string) => [
+      `ساعدني في تحضير رحلتي « ${title} » (${dates}).`,
+      cities ? `المدن: ${cities}.` : "",
+      names ? `أماكن محفوظة مسبقاً: ${names}.` : "",
+      `اقترح لي برنامجاً يومياً وأماكن إضافية جيدة (مطاعم، أنشطة، سهرات) والأجندة الثقافية المحلية.`,
+    ].filter(Boolean).join(" "),
+    suggestions: [
+      "أرني على الخريطة فنادق مع مسبح في مراكش",
+      "أماكني المحفوظة في مراكش",
+      "عشاء رومانسي الليلة قريب مني",
+      "الطقس في الصويرة هذا الأسبوع",
+      "اقترح لي سبا مشابهاً لمفضلاتي",
+      "نشاط عائلي أصلي غداً",
+      "روفتوب بإطلالة لأمسية",
+      "أرقام الطوارئ في مراكش",
+      "برانش صحي يوم الأحد",
+      "رحلة يوم من مراكش",
+      "رياض ساحر في المدينة القديمة",
+      "صيدلية مناوبة الليلة",
+      "مطعم مغربي أصيل بسعر مناسب",
+      "ماذا أفعل في الصويرة تحت المطر",
+      "متجر حرف يدوية أخلاقي",
+      "درس طبخ مغربي",
+      "مقهى هادئ للعمل",
+      "سهرة موسيقى حية هذا الأسبوع",
+      "حمام تقليدي مقيّم جيداً",
+      "شاطئ هادئ قرب الصويرة",
+      "مكان تصوير عند شروق الشمس",
+    ],
+  },
+} as const;
+
 
 // Resolve a business slug (or id) to its UUID, with in-memory cache.
 const slugIdCache = new Map<string, string>();
@@ -97,8 +240,11 @@ function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] }
 
 
 const ClubAiAssistant = ({ userId }: Props) => {
+  const { language } = useLanguage();
+  const at = AT[language as keyof typeof AT] || AT.fr;
   const [searchParams, setSearchParams] = useSearchParams();
   const activeId = searchParams.get("assistant") || null;
+
 
   const [chats, setChats] = useState<ChatRow[]>([]);
   const [loadingList, setLoadingList] = useState(true);
@@ -137,7 +283,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     onTranscript: (_keywords, spoken) => {
       if (spoken?.trim()) send(spoken.trim());
     },
-    onError: (msg) => toast({ title: "Micro", description: msg, variant: "destructive" }),
+    onError: (msg) => toast({ title: at.micError, description: msg, variant: "destructive" }),
   });
   const isMobileHook = useIsMobile();
   const [isTabletOrBelow, setIsTabletOrBelow] = useState<boolean>(
@@ -173,7 +319,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     if (id) {
       setOpenBusinessId(id);
     } else {
-      toast({ title: "Fiche introuvable", description: "Impossible d'ouvrir cette fiche.", variant: "destructive" });
+      toast({ title: at.ficheNotFound, description: at.ficheNotFoundOpen, variant: "destructive" });
     }
     return true;
   };
@@ -191,7 +337,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     const { data } = await supabase.from("businesses").select("id").ilike("name", n).limit(1).maybeSingle();
     const id = (data as any)?.id;
     if (id) setOpenBusinessId(id);
-    else toast({ title: "Fiche introuvable", description: `Aucune fiche trouvée pour "${n}".`, variant: "destructive" });
+    else toast({ title: at.ficheNotFound, description: at.ficheNotFoundFor(n), variant: "destructive" });
   };
 
 
@@ -289,7 +435,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   };
 
   const deleteChat = async (id: string) => {
-    if (!confirm("Supprimer cette conversation ?")) return;
+    if (!confirm(at.confirmDel)) return;
     deletedChatIdsRef.current.add(id);
     const urlActiveId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("assistant") : activeId;
     // Always clear local state for the deleted chat — even if React Router has
@@ -307,14 +453,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
       .select("id");
     if (error) {
       deletedChatIdsRef.current.delete(id);
-      toast({ title: "Suppression impossible", description: error.message, variant: "destructive" });
+      toast({ title: at.delError, description: error.message, variant: "destructive" });
     }
     // Re-sync with the server so the sidebar reflects the true state.
     await loadChats();
   };
 
   const renameChat = async (id: string, currentTitle: string) => {
-    const next = window.prompt("Renommer la conversation", currentTitle || "")?.trim();
+    const next = window.prompt(at.renamePrompt, currentTitle || "")?.trim();
     if (!next || next === currentTitle) return;
     const title = next.slice(0, 200);
     setChats((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)));
@@ -325,7 +471,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       .eq("id", id)
       .eq("user_id", userId);
     if (error) {
-      toast({ title: "Renommage impossible", description: error.message, variant: "destructive" });
+      toast({ title: at.renameError, description: error.message, variant: "destructive" });
       await loadChats();
     }
   };
@@ -378,8 +524,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
     try {
       const { data, error } = await supabase.functions.invoke("club-ai-chat", {
-        body: { chatId: safeChatId, messages: newMsgs, clientContext },
+        body: { chatId: safeChatId, messages: newMsgs, clientContext, language },
       });
+
       if (error) throw error;
       const answer = (data as any)?.answer || "";
       import("@/lib/analytics").then(({ trackEvent }) =>
@@ -398,7 +545,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         activeChatIdRef.current = newId;
         setActiveChat((prev) => prev?.id === newId
           ? { ...prev, messages: fullMessages, updated_at: new Date().toISOString() }
-          : { id: newId, title: text.slice(0, 200) || "Nouvelle conversation", updated_at: new Date().toISOString(), is_bookmarked: false, messages: fullMessages }
+          : { id: newId, title: text.slice(0, 200) || at.newChat, updated_at: new Date().toISOString(), is_bookmarked: false, messages: fullMessages }
         );
       }
       if (newId && newId !== safeChatId) {
@@ -413,7 +560,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         setTimeout(() => { try { tts.speak(answer); } catch {/* noop */} }, 100);
       }
     } catch (e: any) {
-      toast({ title: "Erreur", description: e?.message || "Impossible de joindre l'assistant.", variant: "destructive" });
+      toast({ title: at.chatError, description: e?.message || at.cantReach, variant: "destructive" });
       messagesRef.current = newMsgs;
       setMessages(newMsgs);
       import("@/lib/analytics").then(({ trackEvent }) =>
@@ -438,29 +585,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
     tts.speak(content);
   };
 
-  const allSuggestions = useMemo(() => [
-    "Montre-moi sur une carte les hôtels avec piscine à Marrakech",
-    "Mes adresses sauvegardées à Marrakech",
-    "Un dîner romantique ce soir près de moi",
-    "Météo à Essaouira ce weekend",
-    "Suggère-moi un spa similaire à mes favoris",
-    "Une activité originale en famille demain",
-    "Un rooftop avec vue pour l'apéro",
-    "Numéros d'urgence à Marrakech",
-    "Un brunch healthy dimanche matin",
-    "Une excursion d'une journée depuis Marrakech",
-    "Un riad de charme dans la médina",
-    "Une pharmacie de garde ce soir",
-    "Un restaurant marocain authentique pas cher",
-    "Que faire à Essaouira sous la pluie",
-    "Une boutique d'artisanat éthique",
-    "Un cours de cuisine marocaine",
-    "Un café calme pour télétravailler",
-    "Une soirée avec musique live ce weekend",
-    "Un hammam traditionnel bien noté",
-    "Une plage tranquille près d'Essaouira",
-    "Un spot photo au lever du soleil",
-  ], []);
+  const allSuggestions = useMemo(() => at.suggestions, [at]);
+
 
   const [suggestionPage, setSuggestionPage] = useState(0);
   const visibleSuggestions = useMemo(() => {
@@ -516,57 +642,53 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   const fmtTripDates = (a: string, d: string) => {
     const opt: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
-    const ad = new Date(a).toLocaleDateString("fr-FR", opt);
-    const dd = new Date(d).toLocaleDateString("fr-FR", opt);
+    const ad = new Date(a).toLocaleDateString(at.localeTz, opt);
+    const dd = new Date(d).toLocaleDateString(at.localeTz, opt);
     return ad === dd ? ad : `${ad} – ${dd}`;
   };
 
-  const startTripPrompt = (t: TripCard) => {
-    const cities = Array.from(new Set(t.businesses.map((b) => b.city).filter(Boolean))).join(", ");
-    const names = t.businesses.map((b) => b.name).slice(0, 6).join(", ");
-    const dates = fmtTripDates(t.arrival_date, t.departure_date);
-    const lines = [
-      `Aide-moi à préparer mon voyage « ${t.title} » (${dates}).`,
-      cities ? `Villes : ${cities}.` : "",
-      names ? `Adresses déjà sauvegardées : ${names}.` : "",
-      `Propose-moi un planning jour par jour, des bonnes adresses complémentaires (restos, activités, vie nocturne) et l'agenda culturel sur place.`,
-    ].filter(Boolean);
-    send(lines.join(" "));
+  const startTripPrompt = (tr: TripCard) => {
+    const cities = Array.from(new Set(tr.businesses.map((b) => b.city).filter(Boolean))).join(", ");
+    const names = tr.businesses.map((b) => b.name).slice(0, 6).join(", ");
+    const dates = fmtTripDates(tr.arrival_date, tr.departure_date);
+    send(at.tripPrompt(tr.title, dates, cities, names));
   };
+
 
   const emptyHint = useMemo(() => (
     <div className="text-center py-10 px-4 text-[#C04F17]">
       <MessageSquare className="h-8 w-8 mx-auto mb-3 opacity-70" />
-      <div className="text-sm font-semibold mb-1">Bonjour 👋</div>
-      <div className="text-base opacity-80 mb-4">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou explorez le Maroc.</div>
+      <div className="text-sm font-semibold mb-1">{at.hello}</div>
+      <div className="text-base opacity-80 mb-4">{at.helloDesc}</div>
 
       {trips.length > 0 && (
         <div className="max-w-md mx-auto mb-5">
-          <div className="text-[11px] uppercase tracking-wide font-semibold opacity-70 mb-2 text-left">Mes voyages</div>
+          <div className="text-[11px] uppercase tracking-wide font-semibold opacity-70 mb-2 text-left">{at.myTrips}</div>
           <div className="flex flex-col gap-2">
-            {trips.map((t) => (
+            {trips.map((tr) => (
               <button
-                key={t.id}
-                onClick={() => startTripPrompt(t)}
+                key={tr.id}
+                onClick={() => startTripPrompt(tr)}
                 disabled={sending}
                 className="w-full text-left bg-white hover:bg-[#C04F17] hover:text-white transition-colors rounded-lg px-3 py-2 border border-[#C04F17]/20 disabled:opacity-50"
               >
                 <div className="text-xs font-semibold flex items-center gap-1.5">
                   <span>✈️</span>
-                  <span className="truncate flex-1">{t.title}</span>
-                  {t.is_ongoing && (
+                  <span className="truncate flex-1">{tr.title}</span>
+                  {tr.is_ongoing && (
                     <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase tracking-wide">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      En cours
+                      {at.ongoing}
                     </span>
                   )}
                 </div>
                 <div className="text-[11px] opacity-80 mt-0.5">
-                  {fmtTripDates(t.arrival_date, t.departure_date)}
-                  {t.businesses.length > 0 && ` · ${t.businesses.length} adresse${t.businesses.length > 1 ? "s" : ""} liée${t.businesses.length > 1 ? "s" : ""}`}
+                  {fmtTripDates(tr.arrival_date, tr.departure_date)}
+                  {tr.businesses.length > 0 && ` · ${tr.businesses.length} ${tr.businesses.length > 1 ? at.addresses : at.address} ${tr.businesses.length > 1 ? at.linkeds : at.linked}`}
                 </div>
               </button>
             ))}
+
           </div>
         </div>
       )}
@@ -589,7 +711,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         className="mt-4 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[#C04F17] text-white hover:bg-[#C04F17]/90 transition-colors disabled:opacity-50"
       >
         <RefreshCw className="h-3 w-3" />
-        Autres suggestions
+        {at.moreSuggestions}
       </button>
     </div>
   ), [visibleSuggestions, sending, trips]);
@@ -605,13 +727,13 @@ const ClubAiAssistant = ({ userId }: Props) => {
           onClick={() => newChat()}
           className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg bg-[#C04F17] text-white text-sm font-semibold hover:bg-[#1240d6] transition-colors"
         >
-          <Plus className="h-4 w-4" /> Nouvelle conversation
+          <Plus className="h-4 w-4" /> {at.newChat}
         </button>
         <div className="flex-1 overflow-y-auto">
           {loadingList ? (
             <div className="flex items-center justify-center py-8 text-[#C04F17]"><Loader2 className="h-4 w-4 animate-spin" /></div>
           ) : chats.length === 0 ? (
-            <div className="text-sm text-[#C04F17] py-4 text-center opacity-70">Aucune conversation pour l'instant.</div>
+            <div className="text-sm text-[#C04F17] py-4 text-center opacity-70">{at.noChats}</div>
           ) : (
             <ul className="flex flex-col gap-1">
               {chats.map((c) => (
@@ -622,14 +744,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
                       {c.title}
                     </div>
                     <div className="text-[10px] text-[#C04F17]/70">
-                      {new Date(c.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                      {new Date(c.updated_at).toLocaleDateString(at.localeTz, { day: "numeric", month: "short" })}
                     </div>
                   </button>
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); renameChat(c.id, c.title); }}
                     className="opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded text-[#C04F17] hover:bg-white"
-                    title="Renommer"
+                    title={at.rename}
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -637,7 +759,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                     type="button"
                     onClick={(e) => { e.stopPropagation(); deleteChat(c.id); }}
                     className="opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded text-red-600 hover:bg-red-100"
-                    title="Supprimer"
+                    title={at.del}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -652,7 +774,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col lg:max-h-[820px] min-h-[720px]">
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
           <div className="text-sm font-semibold text-[#C04F17] flex-1 break-words">
-            {activeChat?.title || "Nouvelle conversation"}
+            {activeChat?.title || at.newChat}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button
@@ -662,15 +784,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 if (!next) { try { tts.stop(); } catch {/* noop */} }
               }}
               className={`h-8 px-2.5 flex items-center gap-1.5 rounded-full text-[11px] font-semibold transition-colors ${voiceMode ? "bg-[#C04F17] text-white" : "bg-white/70 text-[#C04F17] hover:bg-white"}`}
-              title="Mode vocal : lecture automatique + réouverture du micro"
+              title={at.voiceModeTip}
             >
-              <Headphones className="h-3.5 w-3.5" /> Mode vocal
+              <Headphones className="h-3.5 w-3.5" /> {at.voiceMode}
             </button>
             {activeChat && (
               <button
                 onClick={toggleBookmark}
                 className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-white/60 text-[#C04F17]"
-                title={activeChat.is_bookmarked ? "Retirer le bookmark" : "Bookmarker"}
+                title={activeChat.is_bookmarked ? at.removeBookmark : at.addBookmark}
               >
                 {activeChat.is_bookmarked ? <BookmarkCheck className="h-4 w-4" fill="currentColor" /> : <Bookmark className="h-4 w-4" />}
               </button>
@@ -728,7 +850,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                                 onClick={() => void handleOpenBusinessName(trimmed)}
                                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessName(trimmed); } }}
                                 className="cursor-pointer hover:underline"
-                                title="Ouvrir la fiche"
+                                title={at.openFiche}
                               >{children}</strong>
                             );
                           }
@@ -749,14 +871,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="text-sm font-semibold text-[#C04F17] truncate">
-                            {mp.title || `${mp.businesses.length} lieux sur la carte`}
+                            {mp.title || `${mp.businesses.length} ${at.placesOnMap}`}
                           </div>
                           <div className="text-[11px] text-[#0a1d6b]/70 truncate">
                             {mp.businesses.slice(0, 3).map((b) => b.name).join(" · ")}
                             {mp.businesses.length > 3 ? ` · +${mp.businesses.length - 3}` : ""}
                           </div>
                           <div className="text-[11px] text-[#C04F17] mt-0.5 font-medium group-hover/map:underline">
-                            Ouvrir la carte →
+                            {at.openMap}
                           </div>
                         </div>
                       </button>
@@ -764,11 +886,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
                     <button
                       onClick={() => handleSpeakMessage(clean)}
                       className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#C04F17] hover:text-[#0a1d6b] opacity-70 hover:opacity-100 transition-opacity"
-                      title={ttsBusy && lastSpokenRef.current === clean ? "Arrêter la lecture" : "Écouter"}
+                      title={ttsBusy && lastSpokenRef.current === clean ? at.stopPlayback : at.listen}
                     >
                       {ttsBusy && lastSpokenRef.current === clean
-                        ? (<><Square className="h-3 w-3" /> Stop</>)
-                        : (<><Volume2 className="h-3 w-3" /> Écouter</>)}
+                        ? (<><Square className="h-3 w-3" /> {at.stop}</>)
+                        : (<><Volume2 className="h-3 w-3" /> {at.listen}</>)}
+
                     </button>
                   </div>
                 )}
@@ -777,7 +900,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
           })}
           {sending && (
             <div className="flex items-center gap-2 text-[#C04F17] text-xs">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> L'assistant réfléchit…
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> {at.thinking}
             </div>
           )}
         </div>
@@ -789,7 +912,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKeyDown}
             rows={2}
-            placeholder="Demandez la météo, un lieu, ou reprenez un chat…"
+            placeholder={at.placeholder}
             className="w-full resize-none rounded-lg border border-white bg-white px-3 py-2 text-base text-[#0a1d6b] placeholder:text-[#C04F17]/50 focus:outline-none focus:ring-2 focus:ring-[#C04F17]"
             disabled={sending}
           />
@@ -809,7 +932,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 type="button"
                 onClick={() => voice.toggleRecording()}
                 disabled={sending}
-                title="Parler"
+                title={at.speak}
                 className="relative w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/40 transition-transform hover:scale-105 disabled:opacity-50"
                 style={{
                   background: "linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15))",
@@ -831,7 +954,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 type="button"
                 onClick={() => send()}
                 disabled={sending || !input.trim()}
-                title="Envoyer"
+                title={at.sendBtn}
                 className="relative w-12 h-12 rounded-full flex items-center justify-center border border-white/40 transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background: "linear-gradient(135deg, #C04F17, #A03E0F)",
@@ -873,10 +996,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
           const url = window.location.href;
           try {
             if (navigator.share) {
-              await navigator.share({ title: activeChat?.title || "Mon espace Club", url });
+              await navigator.share({ title: activeChat?.title || at.myClubSpace, url });
             } else {
               await navigator.clipboard.writeText(url);
-              toast({ title: "Lien copié", description: "Le lien de la conversation a été copié." });
+              toast({ title: at.linkCopied, description: at.linkCopiedDesc });
             }
           } catch { /* user cancelled */ }
         }}

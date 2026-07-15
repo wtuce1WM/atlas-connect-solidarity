@@ -664,7 +664,14 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { chatId, messages = [], clientContext = {} }: { chatId?: string; messages: Msg[]; clientContext?: { activeCity?: string; localTime?: string; coords?: { lat: number; lng: number } } } = await req.json();
+    const { chatId, messages = [], clientContext = {}, language = "fr" }: { chatId?: string; messages: Msg[]; clientContext?: { activeCity?: string; localTime?: string; coords?: { lat: number; lng: number } }; language?: string } = await req.json();
+    const lang = (language === "en" || language === "ar") ? language : "fr";
+    const languageInstruction = lang === "en"
+      ? "IMPORTANT: Always reply in English, regardless of the language of tool results or the system prompt language. Keep the same warm, concise tone."
+      : lang === "ar"
+      ? "مهم: أجب دائماً بالعربية، بغض النظر عن لغة نتائج الأدوات أو لغة التعليمات. حافظ على نبرة دافئة وموجزة."
+      : "IMPORTANT : réponds toujours en français, sauf si l'utilisateur écrit dans une autre langue.";
+
 
     // Load Club member profile (lightweight context)
     const { data: member } = await admin
@@ -714,7 +721,10 @@ RÈGLES DE PRÉCISION (critiques) :
 Outils disponibles : get_weather, search_businesses, get_business_details, search_events, get_my_trips, link_business_to_trip, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search, show_on_map.
 
 11. **Lier une adresse à un voyage (link_business_to_trip)** : si le membre demande explicitement « ajoute X à mon voyage Y », appelle d'abord get_my_trips pour récupérer trip_id et search_businesses pour obtenir le slug exact, puis link_business_to_trip. Confirme ensuite poliment ce qui a été ajouté. Si plusieurs voyages possibles, demande au membre lequel cibler avant d'agir.
-12. **Affichage sur carte (show_on_map)** : dès que le membre demande explicitement de visualiser des adresses sur une carte (« montre-moi sur une carte », « situe les », « localise », « où sont-ils »), ou quand visualiser géographiquement aide vraiment la décision, appelle d'abord search_businesses avec limit: 30 pour récupérer un maximum de candidats pertinents, puis appelle show_on_map avec TOUS les slugs retournés (jusqu'à 30). La carte et le panneau s'affichent automatiquement côté UI ; tu n'as donc pas à répéter la liste ni à coller une URL Google Maps. Dans ta réponse, indique le nombre total de résultats (total_count) — par exemple « Voici 18 hôtels avec piscine à Marrakech affichés sur la carte (sur 47 au total) » — et propose d'élargir si pertinent. Ne l'appelle pas pour 1 seul lieu.`;
+12. **Affichage sur carte (show_on_map)** : dès que le membre demande explicitement de visualiser des adresses sur une carte (« montre-moi sur une carte », « situe les », « localise », « où sont-ils »), ou quand visualiser géographiquement aide vraiment la décision, appelle d'abord search_businesses avec limit: 30 pour récupérer un maximum de candidats pertinents, puis appelle show_on_map avec TOUS les slugs retournés (jusqu'à 30). La carte et le panneau s'affichent automatiquement côté UI ; tu n'as donc pas à répéter la liste ni à coller une URL Google Maps. Dans ta réponse, indique le nombre total de résultats (total_count) — par exemple « Voici 18 hôtels avec piscine à Marrakech affichés sur la carte (sur 47 au total) » — et propose d'élargir si pertinent. Ne l'appelle pas pour 1 seul lieu.
+
+${languageInstruction}`;
+
 
     const convo: Msg[] = [{ role: "system", content: system }, ...messages];
     const ctx = { userId: user.id, supabase: admin };
@@ -788,7 +798,7 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
           headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
             model: FALLBACK_MODEL,
-            messages: [...convo, { role: "user", content: "Synthétise maintenant une réponse claire et chaleureuse pour le membre, en français, en t'appuyant uniquement sur les résultats d'outils ci-dessus. Si aucun résultat exploitable, propose poliment une reformulation." }],
+            messages: [...convo, { role: "user", content: lang === "en" ? "Now synthesize a clear, warm reply for the member in English, based only on the tool results above. If nothing usable, politely propose a reformulation." : lang === "ar" ? "الآن قدّم جواباً واضحاً ودافئاً للعضو بالعربية، بالاعتماد فقط على نتائج الأدوات أعلاه. إذا لم يكن هناك شيء مفيد، اقترح إعادة صياغة مؤدباً." : "Synthétise maintenant une réponse claire et chaleureuse pour le membre, en français, en t'appuyant uniquement sur les résultats d'outils ci-dessus. Si aucun résultat exploitable, propose poliment une reformulation." }],
             temperature: 0.4,
             max_tokens: 1500,
           }),
