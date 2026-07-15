@@ -2861,17 +2861,6 @@ const BookOnlineSlidePanelInner = ({
                                 label: ft.name,
                                 _t: String(Date.now()),
                               });
-                              // Preserve the current URL language prefix (/en, /ar, or FR).
-                              const params = new URLSearchParams({
-                                subcats: Array.from(ft.subcategoryNames).join("|"),
-                                city: business.city,
-                                label: ft.name,
-                                _t: String(Date.now()),
-                              });
-                              const target = `${withLangPrefix("/search", language as any)}?${params.toString()}`;
-                              if (window.location.pathname + window.location.search !== target) {
-                                window.history.replaceState(null, "", target);
-                              }
                             }
                           }}>
 
