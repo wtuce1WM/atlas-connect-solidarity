@@ -66,6 +66,10 @@ export default function FiltersOverlayFlow({
   pool,
   onClose,
 }: Props) {
+  const { language } = useLanguage();
+  const { translateSubcategory, translateService } = useTaxonomyTranslations();
+  const tr = (k: keyof typeof T) => T[k][language as "fr" | "en" | "ar"] || T[k].fr;
+
   const activeTab = activeFsTabId ? frontTabs.find((t) => t.id === activeFsTabId) || null : null;
   const activeSub = activeFsSubId && activeTab
     ? activeTab.subcategories.find((s) => s.id === activeFsSubId) || null
