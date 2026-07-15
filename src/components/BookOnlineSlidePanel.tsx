@@ -66,6 +66,8 @@ import { useHotelAvailability } from "@/hooks/useHotelAvailability";
 import { useOpenStatus } from "@/hooks/useOpenStatus";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
+import { translateFrontStructure } from "@/lib/frontStructureTranslations";
 import { ToolbarPortals } from "@/components/slidepanel/ToolbarPortals";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { CtaBar, CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
@@ -397,6 +399,7 @@ const BookOnlineSlidePanelInner = ({
   const { coords: userCoords } = geo;
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
+  const { translateSubcategory } = useTaxonomyTranslations();
   const activePoiCategoryBusinesses = poiCatFilter && poiCategoryBusinessCatId === poiCatFilter ? poiCategoryBusinesses : [];
 
   useEffect(() => {
@@ -2759,8 +2762,8 @@ const BookOnlineSlidePanelInner = ({
                 <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {activeFrontTab ? (
                     <>
-                      {activeFrontTab.name}
-                      {poiSubcatFilter ? <span className="opacity-60"> / {poiSubcatFilter}</span> : null}
+                      {translateFrontStructure(activeFrontTab.name, language)}
+                      {poiSubcatFilter ? <span className="opacity-60"> / {translateSubcategory(poiSubcatFilter, language)}</span> : null}
                     </>
                   ) : (
                     <>
@@ -2787,14 +2790,14 @@ const BookOnlineSlidePanelInner = ({
                       onClick={() => setPoiShowAll(false)}
                       className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                     >
-                      Top 20
+                      {language === "en" ? "Top 20" : language === "ar" ? "أفضل 20" : "Top 20"}
                     </button>
                     <button
                       type="button"
                       onClick={() => setPoiShowAll(true)}
                       className={`px-3 py-1 rounded-full transition-colors ${poiShowAll ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                     >
-                      Tous <span className="ml-0.5 opacity-70">{total}</span>
+                      {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"} <span className="ml-0.5 opacity-70">{total}</span>
                     </button>
                   </div>
                 )}
@@ -2806,7 +2809,7 @@ const BookOnlineSlidePanelInner = ({
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                       >
                         <MapPin className="h-3.5 w-3.5" />
-                        {poiSubcatFilter || (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                        {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
@@ -2817,7 +2820,7 @@ const BookOnlineSlidePanelInner = ({
                       )}
                       {poiSubcatList.map(([name, count]) => (
                         <DropdownMenuItem key={name} onSelect={() => setPoiSubcatFilter(name)}>
-                          {name} <span className="ml-1 opacity-60">({count})</span>
+                          {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
@@ -2832,7 +2835,7 @@ const BookOnlineSlidePanelInner = ({
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <SlidersHorizontal className="h-3.5 w-3.5" />
-                          {activeFrontTab?.name || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
+                          {(activeFrontTab && translateFrontStructure(activeFrontTab.name, language)) || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
@@ -2860,7 +2863,7 @@ const BookOnlineSlidePanelInner = ({
                             }
                           }}>
 
-                            {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
+                            {translateFrontStructure(ft.name, language)} <span className="ml-1 opacity-60">({ft.count})</span>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
