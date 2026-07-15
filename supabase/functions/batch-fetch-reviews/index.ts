@@ -4,6 +4,7 @@ const corsHeaders = {
 };
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { assertStaff } from "../_shared/auth-helpers.ts";
 
 interface ReviewText {
   source: string;
@@ -179,6 +180,9 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const auth = await assertStaff(req, corsHeaders);
+  if (auth instanceof Response) return auth;
 
   try {
     const { offset = 0, limit = 20 } = await req.json().catch(() => ({}));
