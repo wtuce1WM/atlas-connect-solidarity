@@ -2,6 +2,14 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Trash2, ExternalLink, Bookmark, Share2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const T = {
+  fr: { loading: "Chargement…", empty: "Aucune conversation sauvegardée. Bookmarkez une conversation depuis l'Assistant IA ou l'onglet IA pour la retrouver ici.", startedOn: "Démarrée le", open: "Ouvrir", share: "Partager", del: "Supprimer", confirmDel: "Supprimer cette conversation ?", copied: "Lien copié", clubBadge: "Club", locale: "fr-FR" },
+  en: { loading: "Loading…", empty: "No saved conversation. Bookmark a chat from the AI Assistant or AI tab to find it here.", startedOn: "Started on", open: "Open", share: "Share", del: "Delete", confirmDel: "Delete this conversation?", copied: "Link copied", clubBadge: "Club", locale: "en-GB" },
+  ar: { loading: "جارٍ التحميل…", empty: "لا توجد محادثات محفوظة. احفظ محادثة من مساعد الذكاء لتجدها هنا.", startedOn: "بُدئت في", open: "فتح", share: "مشاركة", del: "حذف", confirmDel: "حذف هذه المحادثة؟", copied: "تم نسخ الرابط", clubBadge: "نادي", locale: "ar-MA" },
+} as const;
+
 
 type Row = {
   id: string;
