@@ -44,14 +44,63 @@ export function setConsent(analytics: ConsentChoice) {
   }
 }
 
+/** Detecte le mode d'exécution: PWA installée (standalone) vs onglet navigateur. */
+function getAppMode(): "standalone" | "browser" {
+  if (typeof window === "undefined") return "browser";
+  try {
+    // iOS Safari standalone
+    // @ts-expect-error non-standard iOS property
+    if (window.navigator.standalone === true) return "standalone";
+    if (window.matchMedia?.("(display-mode: standalone)").matches) return "standalone";
+    if (window.matchMedia?.("(display-mode: fullscreen)").matches) return "standalone";
+    if (window.matchMedia?.("(display-mode: minimal-ui)").matches) return "standalone";
+  } catch { /* noop */ }
+  return "browser";
+}
+
+/** Détecte les webviews d'apps (WhatsApp, Instagram, Facebook, TikTok, Gmail, LinkedIn). */
+function getInAppBrowser(): string | null {
+  if (typeof navigator === "undefined") return null;
+  const ua = navigator.userAgent || "";
+  if (/FBAN|FBAV|FB_IAB/i.test(ua)) return "facebook";
+  if (/Instagram/i.test(ua)) return "instagram";
+  if (/WhatsApp/i.test(ua)) return "whatsapp";
+  if (/Line\//i.test(ua)) return "line";
+  if (/TikTok|BytedanceWebview|musical_ly/i.test(ua)) return "tiktok";
+  if (/GSA\//i.test(ua)) return "google_app";
+  if (/LinkedInApp/i.test(ua)) return "linkedin";
+  if (/Snapchat/i.test(ua)) return "snapchat";
+  if (/Twitter|TwitterAndroid/i.test(ua)) return "twitter";
+  if (/Threads/i.test(ua)) return "threads";
+  if (/GmailMobile|Pinterest/i.test(ua)) return "email_or_pinterest";
+  return null;
+}
+
+let pwaLaunchFired = false;
+
 export function trackPageView(path: string, title?: string) {
   if (typeof window === "undefined" || typeof window.gtag !== "function") return;
+  const app_mode = getAppMode();
+  const in_app_browser = getInAppBrowser();
   window.gtag("event", "page_view", {
     page_path: path,
     page_location: window.location.href,
     page_title: title ?? document.title,
+    app_mode,
+    is_pwa: app_mode === "standalone",
+    in_app_browser: in_app_browser ?? "none",
     send_to: GA_ID,
   });
+  // Fire-once par session pour isoler proprement les lancements PWA / webview.
+  if (!pwaLaunchFired) {
+    pwaLaunchFired = true;
+    if (app_mode === "standalone") {
+      window.gtag("event", "pwa_launch", { app_mode, in_app_browser: in_app_browser ?? "none" });
+    }
+    if (in_app_browser) {
+      window.gtag("event", "in_app_browser_launch", { in_app_browser, app_mode });
+    }
+  }
 }
 
 export function trackEvent(
