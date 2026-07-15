@@ -49,7 +49,9 @@ const normalizeCity = (value?: string | null): DestinationKey | null => {
 };
 
 const ClubYoutubeRecommendations = () => {
+  const { language } = useLanguage();
   const geo = useGeolocation();
+
   const [fallbackDestination, setFallbackDestination] = useState<DestinationKey | null>(null);
   const [videos, setVideos] = useState<Video[]>([]);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
