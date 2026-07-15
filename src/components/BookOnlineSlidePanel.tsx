@@ -2701,10 +2701,10 @@ const BookOnlineSlidePanelInner = ({
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi" && !!userCoords && poiBusinesses.some((p) => p.latitude != null && p.longitude != null);
         const proxOpts: { km: number; label: string }[] = [
-          { km: 0.5, label: "Moins de 500 m" },
-          { km: 1, label: "Moins de 1 km" },
-          { km: 5, label: "Moins de 5 km" },
-          { km: 10, label: "Moins de 10 km" },
+          { km: 0.5, label: language === "en" ? "Less than 500 m" : language === "ar" ? "أقل من 500 م" : "Moins de 500 m" },
+          { km: 1, label: language === "en" ? "Less than 1 km" : language === "ar" ? "أقل من 1 كم" : "Moins de 1 km" },
+          { km: 5, label: language === "en" ? "Less than 5 km" : language === "ar" ? "أقل من 5 كم" : "Moins de 5 km" },
+          { km: 10, label: language === "en" ? "Less than 10 km" : language === "ar" ? "أقل من 10 كم" : "Moins de 10 km" },
         ];
         const proxCountsByKm: Record<number, number> = {};
         if (showProxPill) {
@@ -2745,7 +2745,7 @@ const BookOnlineSlidePanelInner = ({
                 }
                 return (
                   <ShareButton
-                    title={business?.name || (language === "en" ? "Nearby" : "À proximité")}
+                    title={business?.name || (language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité")}
                     variant="dark"
                     className="shrink-0"
                     previewImage={business?.images?.[0] || null}
@@ -2765,10 +2765,10 @@ const BookOnlineSlidePanelInner = ({
                   ) : (
                     <>
                       <span className="sm:hidden">
-                        {language === "en" ? "Nearby" : "À proximité"}
+                        {language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité"}
                       </span>
                       <span className="hidden sm:inline">
-                        {language === "en" ? `Near ${business?.name}` : `À proximité de ${business?.name}`}
+                        {language === "en" ? `Near ${business?.name}` : language === "ar" ? `بالقرب من ${business?.name}` : `À proximité de ${business?.name}`}
                       </span>
                     </>
                   )}
@@ -2806,13 +2806,13 @@ const BookOnlineSlidePanelInner = ({
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                       >
                         <MapPin className="h-3.5 w-3.5" />
-                        {poiSubcatFilter || "Points d'intérêt"}
+                        {poiSubcatFilter || (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
                       {poiSubcatFilter && (
                         <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
-                          Tous les points d'intérêt
+                          {language === "en" ? "All points of interest" : language === "ar" ? "جميع نقاط الاهتمام" : "Tous les points d'intérêt"}
                         </DropdownMenuItem>
                       )}
                       {poiSubcatList.map(([name, count]) => (
@@ -2832,13 +2832,13 @@ const BookOnlineSlidePanelInner = ({
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <SlidersHorizontal className="h-3.5 w-3.5" />
-                          {activeFrontTab?.name || "Catégories"}
+                          {activeFrontTab?.name || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
                         {poiCatFilter && (
                           <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiCategoryBusinesses([]); setPoiCategoryBusinessCatId(null); setDescGridPage(0); setDescGridSection("poi"); setPoiShowAll(false); }}>
-                            Toutes les catégories
+                            {language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
                           </DropdownMenuItem>
                         )}
                         {frontTabs.map((ft) => (
@@ -2876,7 +2876,7 @@ const BookOnlineSlidePanelInner = ({
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityKm != null ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <Navigation className="h-3.5 w-3.5" />
-                          {activeProx ? activeProx.label : "À proximité"}
+                          {activeProx ? activeProx.label : (language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité")}
                           {poiProximityKm != null && (
                             <span className="ml-0.5 opacity-70">{afterProx.length}</span>
                           )}
@@ -2885,7 +2885,7 @@ const BookOnlineSlidePanelInner = ({
                       <DropdownMenuContent align="end" className="z-[260]">
                         {poiProximityKm != null && (
                           <DropdownMenuItem onSelect={() => setPoiProximityKm(null)}>
-                            Toutes distances
+                            {language === "en" ? "All distances" : language === "ar" ? "جميع المسافات" : "Toutes distances"}
                           </DropdownMenuItem>
                         )}
                         {proxOpts.map((o) => {
