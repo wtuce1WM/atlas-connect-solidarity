@@ -815,10 +815,17 @@ serve(async (req) => {
     }
 
 
-    const systemPrompt = `${persona}
+    const languageHeader = language === "en"
+      ? "OUTPUT LANGUAGE: ENGLISH. The entire answer must be written in English, regardless of the language used in the instructions or business data below.\n\n"
+      : language === "ar"
+        ? "لغة الإخراج: العربية. يجب كتابة الإجابة بأكملها باللغة العربية، بغض النظر عن اللغة المستخدمة في التعليمات أو بيانات الأنشطة أدناه.\n\n"
+        : "";
+
+    const systemPrompt = `${languageHeader}${persona}
 
 RÈGLES :
 - ${langInstructions}
+
 - ${effectiveHasRenderResults ? "Réponds avec une accroche courte puis un paragraphe distinct par établissement cité. Ne te limite pas artificiellement à 5-8 phrases quand plusieurs adresses nécessitent chacune une vraie description." : `Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.`}
 - Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${modeInstructions || (effectiveHasRenderResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
