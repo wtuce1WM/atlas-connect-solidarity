@@ -4774,6 +4774,7 @@ const SearchPage = () => {
                                       displayContent,
                                       aiInlineBusinessPool,
                                       (b: AIBusinessData) => {
+                                        ttsStop();
                                         setShowAiPopup(false);
                                         setOverlaySelectedBusiness(null);
                                         openCompactPanel(b);
