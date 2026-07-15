@@ -6308,7 +6308,7 @@ const SearchPage = () => {
                 onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
-                  navigate(`/search?${sp.toString()}`);
+                  navigate(`${withLangPrefix("/search", language as any)}?${sp.toString()}`);
                 }}
                 onHotelSearch={handleHotelSearch}
                 onBusinessSelect={(bizId) => {
