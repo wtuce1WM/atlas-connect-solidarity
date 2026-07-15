@@ -664,7 +664,14 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { chatId, messages = [], clientContext = {} }: { chatId?: string; messages: Msg[]; clientContext?: { activeCity?: string; localTime?: string; coords?: { lat: number; lng: number } } } = await req.json();
+    const { chatId, messages = [], clientContext = {}, language = "fr" }: { chatId?: string; messages: Msg[]; clientContext?: { activeCity?: string; localTime?: string; coords?: { lat: number; lng: number } }; language?: string } = await req.json();
+    const lang = (language === "en" || language === "ar") ? language : "fr";
+    const languageInstruction = lang === "en"
+      ? "IMPORTANT: Always reply in English, regardless of the language of tool results or the system prompt language. Keep the same warm, concise tone."
+      : lang === "ar"
+      ? "مهم: أجب دائماً بالعربية، بغض النظر عن لغة نتائج الأدوات أو لغة التعليمات. حافظ على نبرة دافئة وموجزة."
+      : "IMPORTANT : réponds toujours en français, sauf si l'utilisateur écrit dans une autre langue.";
+
 
     // Load Club member profile (lightweight context)
     const { data: member } = await admin
