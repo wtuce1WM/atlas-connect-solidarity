@@ -662,31 +662,32 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
       {trips.length > 0 && (
         <div className="max-w-md mx-auto mb-5">
-          <div className="text-[11px] uppercase tracking-wide font-semibold opacity-70 mb-2 text-left">Mes voyages</div>
+          <div className="text-[11px] uppercase tracking-wide font-semibold opacity-70 mb-2 text-left">{at.myTrips}</div>
           <div className="flex flex-col gap-2">
-            {trips.map((t) => (
+            {trips.map((tr) => (
               <button
-                key={t.id}
-                onClick={() => startTripPrompt(t)}
+                key={tr.id}
+                onClick={() => startTripPrompt(tr)}
                 disabled={sending}
                 className="w-full text-left bg-white hover:bg-[#C04F17] hover:text-white transition-colors rounded-lg px-3 py-2 border border-[#C04F17]/20 disabled:opacity-50"
               >
                 <div className="text-xs font-semibold flex items-center gap-1.5">
                   <span>✈️</span>
-                  <span className="truncate flex-1">{t.title}</span>
-                  {t.is_ongoing && (
+                  <span className="truncate flex-1">{tr.title}</span>
+                  {tr.is_ongoing && (
                     <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase tracking-wide">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      En cours
+                      {at.ongoing}
                     </span>
                   )}
                 </div>
                 <div className="text-[11px] opacity-80 mt-0.5">
-                  {fmtTripDates(t.arrival_date, t.departure_date)}
-                  {t.businesses.length > 0 && ` · ${t.businesses.length} adresse${t.businesses.length > 1 ? "s" : ""} liée${t.businesses.length > 1 ? "s" : ""}`}
+                  {fmtTripDates(tr.arrival_date, tr.departure_date)}
+                  {tr.businesses.length > 0 && ` · ${tr.businesses.length} ${tr.businesses.length > 1 ? at.addresses : at.address} ${tr.businesses.length > 1 ? at.linkeds : at.linked}`}
                 </div>
               </button>
             ))}
+
           </div>
         </div>
       )}
