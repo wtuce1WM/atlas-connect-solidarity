@@ -2,6 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { FrontStructureSubTab } from "@/hooks/useFrontStructureTabs";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
+import { translateFrontStructure } from "@/lib/frontStructureTranslations";
+
+const T = {
+  categories: { fr: "Catégories", en: "Categories", ar: "الفئات" },
+  breadcrumb: { fr: "Fil d'Ariane", en: "Breadcrumb", ar: "مسار التصفح" },
+  close: { fr: "Fermer les filtres", en: "Close filters", ar: "إغلاق الفلاتر" },
+  back: { fr: "Retour", en: "Back", ar: "رجوع" },
+} as const;
 
 interface FrontTab {
   id: string;
@@ -56,6 +66,10 @@ export default function FiltersOverlayFlow({
   pool,
   onClose,
 }: Props) {
+  const { language } = useLanguage();
+  const { translateSubcategory, translateService } = useTaxonomyTranslations();
+  const tr = (k: keyof typeof T) => T[k][language as "fr" | "en" | "ar"] || T[k].fr;
+
   const activeTab = activeFsTabId ? frontTabs.find((t) => t.id === activeFsTabId) || null : null;
   const activeSub = activeFsSubId && activeTab
     ? activeTab.subcategories.find((s) => s.id === activeFsSubId) || null
@@ -199,21 +213,21 @@ export default function FiltersOverlayFlow({
           onClick={handleBack}
           className="w-9 h-9 rounded-full bg-black hover:bg-black/90 flex items-center justify-center text-white cursor-pointer touch-manipulation"
           style={{ WebkitTapHighlightColor: "transparent" }}
-          aria-label={step === 1 ? "Fermer les filtres" : "Retour"}
+          aria-label={step === 1 ? tr("close") : tr("back")}
         >
           <X className="h-4 w-4 pointer-events-none" />
         </button>
         <nav
           className="flex-1 min-w-0 px-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-white"
           style={{ fontFamily: "'Montserrat', sans-serif" }}
-          aria-label="Fil d'Ariane"
+          aria-label={tr("breadcrumb")}
         >
           <button
             type="button"
             onClick={() => onTabClick(null)}
             className={`truncate hover:underline ${step === 1 ? "opacity-100" : "opacity-60"}`}
           >
-            Catégories
+            {tr("categories")}
           </button>
           {activeTab && (
             <>
@@ -223,7 +237,7 @@ export default function FiltersOverlayFlow({
                 onClick={() => onSubClick(null)}
                 className={`truncate hover:underline ${step === 2 ? "opacity-100" : "opacity-60"}`}
               >
-                {activeTab.name}
+                {translateFrontStructure(activeTab.name, language)}
               </button>
             </>
           )}
@@ -235,7 +249,7 @@ export default function FiltersOverlayFlow({
                 onClick={() => onSubClick(activeSub.id)}
                 className="truncate hover:underline"
               >
-                {activeSub.name}
+                {translateSubcategory(activeSub.name, language)}
               </button>
             </>
           )}
@@ -253,7 +267,7 @@ export default function FiltersOverlayFlow({
               className={`${badgeBase} ${badgeIdle}`}
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              <span>{tab.name}</span>
+              <span>{translateFrontStructure(tab.name, language)}</span>
               <span className="text-xs font-normal opacity-70">({tab.count})</span>
             </button>
           ))}
@@ -265,7 +279,7 @@ export default function FiltersOverlayFlow({
               className={`${badgeBase} ${badgeIdle}`}
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              <span>{sub.name}</span>
+              <span>{translateSubcategory(sub.name, language)}</span>
               <span className="text-xs font-normal opacity-70">({sub.count})</span>
             </button>
           ))}
@@ -286,7 +300,7 @@ export default function FiltersOverlayFlow({
                 className={`${badgeBase} ${selected ? badgeSelected : badgeIdle}`}
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
-                <span>{s.name_fr}</span>
+                <span>{translateService(s.name_fr, language)}</span>
                 <span className="text-xs font-normal opacity-70">({serviceCounts.get(s.name_fr) || 0})</span>
               </button>
             );

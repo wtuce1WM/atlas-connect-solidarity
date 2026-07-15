@@ -3,7 +3,15 @@ import { X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { readLastHomepageCity } from "@/lib/cityHomepage";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
+
+const T = {
+  empty: { fr: "Aucun hashtag.", en: "No hashtags.", ar: "لا توجد وسوم." },
+  filterBy: { fr: "Filtrer par", en: "Filter by", ar: "تصفية حسب" },
+  close: { fr: "Fermer", en: "Close", ar: "إغلاق" },
+} as const;
 
 interface HashtagBadge {
   id: string;
@@ -18,6 +26,8 @@ interface Props {
 const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { language } = useLanguage();
+  const tr = (k: keyof typeof T) => T[k][language as "fr" | "en" | "ar"] || T[k].fr;
   const [badges, setBadges] = useState<HashtagBadge[]>([]);
 
   useEffect(() => {
@@ -48,7 +58,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
     sp.set("badgeLabel", badge.name_fr);
     // Close any previously opened slide panel so it doesn't reappear over the hashtag results.
     try { window.dispatchEvent(new CustomEvent("close-compact-panel")); } catch {}
-    navigate(`/search?${sp.toString()}`);
+    navigate(`${withLangPrefix("/search", language as any)}?${sp.toString()}`);
     onClose();
   };
 
@@ -62,7 +72,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
       <button
         type="button"
         onClick={onClose}
-        aria-label="Close"
+        aria-label={tr("close")}
         className="absolute top-3 left-3 z-30 w-9 h-9 rounded-full bg-black hover:bg-black/90 flex items-center justify-center text-white"
       >
         <X className="h-4 w-4" />
@@ -75,13 +85,13 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
               type="button"
               onClick={() => goBadge(b)}
               className="relative inline-flex items-center rounded-full border-2 border-black bg-white/20 text-black hover:bg-white/30 px-4 py-2 text-sm md:px-6 md:py-3 md:text-lg font-semibold transition-all overflow-hidden backdrop-blur-xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),inset_0_-1px_2px_0_rgba(255,255,255,0.25),0_4px_16px_-4px_rgba(0,0,0,0.3)] before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-br before:from-white/50 before:via-white/10 before:to-white/30 before:pointer-events-none [&>*]:relative [&>*]:z-10"
-              title={`Filtrer par ${b.name_fr}`}
+              title={`${tr("filterBy")} ${b.name_fr}`}
             >
               <span>{b.name_fr}</span>
             </button>
           ))}
           {badges.length === 0 && (
-            <p className="text-xs text-muted-foreground">Aucun hashtag.</p>
+            <p className="text-xs text-muted-foreground">{tr("empty")}</p>
           )}
         </div>
       </div>
