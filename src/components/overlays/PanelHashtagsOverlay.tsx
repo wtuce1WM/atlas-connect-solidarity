@@ -91,7 +91,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
             </button>
           ))}
           {badges.length === 0 && (
-            <p className="text-xs text-muted-foreground">Aucun hashtag.</p>
+            <p className="text-xs text-muted-foreground">{tr("empty")}</p>
           )}
         </div>
       </div>
