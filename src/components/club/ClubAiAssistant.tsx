@@ -888,8 +888,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
                       title={ttsBusy && lastSpokenRef.current === clean ? at.stopPlayback : at.listen}
                     >
                       {ttsBusy && lastSpokenRef.current === clean
-                        ? (<><Square className="h-3 w-3" /> Stop</>)
-                        : (<><Volume2 className="h-3 w-3" /> Écouter</>)}
+                        ? (<><Square className="h-3 w-3" /> {at.stop}</>)
+                        : (<><Volume2 className="h-3 w-3" /> {at.listen}</>)}
+
                     </button>
                   </div>
                 )}
