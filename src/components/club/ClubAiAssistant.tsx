@@ -584,29 +584,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
     tts.speak(content);
   };
 
-  const allSuggestions = useMemo(() => [
-    "Montre-moi sur une carte les hôtels avec piscine à Marrakech",
-    "Mes adresses sauvegardées à Marrakech",
-    "Un dîner romantique ce soir près de moi",
-    "Météo à Essaouira ce weekend",
-    "Suggère-moi un spa similaire à mes favoris",
-    "Une activité originale en famille demain",
-    "Un rooftop avec vue pour l'apéro",
-    "Numéros d'urgence à Marrakech",
-    "Un brunch healthy dimanche matin",
-    "Une excursion d'une journée depuis Marrakech",
-    "Un riad de charme dans la médina",
-    "Une pharmacie de garde ce soir",
-    "Un restaurant marocain authentique pas cher",
-    "Que faire à Essaouira sous la pluie",
-    "Une boutique d'artisanat éthique",
-    "Un cours de cuisine marocaine",
-    "Un café calme pour télétravailler",
-    "Une soirée avec musique live ce weekend",
-    "Un hammam traditionnel bien noté",
-    "Une plage tranquille près d'Essaouira",
-    "Un spot photo au lever du soleil",
-  ], []);
+  const allSuggestions = useMemo(() => at.suggestions, [at]);
+
 
   const [suggestionPage, setSuggestionPage] = useState(0);
   const visibleSuggestions = useMemo(() => {
