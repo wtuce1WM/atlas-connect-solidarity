@@ -27,6 +27,8 @@ interface Props {
 }
 
 const AiChatsList = ({ userId }: Props) => {
+  const { language } = useLanguage();
+  const t = T[language as keyof typeof T] || T.fr;
   const [loading, setLoading] = useState(true);
   const [chats, setChats] = useState<Row[]>([]);
 
@@ -48,7 +50,7 @@ const AiChatsList = ({ userId }: Props) => {
   }, [userId]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer cette conversation ?")) return;
+    if (!confirm(t.confirmDel)) return;
     await supabase.from("ai_chats").delete().eq("id", id);
     setChats((prev) => prev.filter((c) => c.id !== id));
   };
@@ -62,7 +64,7 @@ const AiChatsList = ({ userId }: Props) => {
       try { await navigator.share({ title: c.title, url }); } catch {/* noop */}
     } else {
       await navigator.clipboard.writeText(url);
-      alert("Lien copié");
+      alert(t.copied);
     }
   };
 
@@ -77,7 +79,7 @@ const AiChatsList = ({ userId }: Props) => {
   if (chats.length === 0) {
     return (
       <div className="text-center py-12 text-white/90 text-sm font-medium">
-        Aucune conversation sauvegardée. Bookmarkez une conversation depuis l'Assistant IA ou l'onglet IA pour la retrouver ici.
+        {t.empty}
       </div>
     );
   }
@@ -91,18 +93,18 @@ const AiChatsList = ({ userId }: Props) => {
             <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               {c.title}
               {c.kind === "club" && (
-                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-[#C04F17] text-white align-middle">Club</span>
+                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-[#C04F17] text-white align-middle">{t.clubBadge}</span>
               )}
             </div>
             <div className="text-xs text-white/70">
               {c.city ? `${c.city} · ` : ""}
-              Démarrée le {new Date(c.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+              {t.startedOn} {new Date(c.created_at).toLocaleDateString(t.locale, { day: "numeric", month: "short", year: "numeric" })}
             </div>
           </div>
           <Link
             to={linkFor(c)}
             className="h-8 w-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
-            title="Ouvrir"
+            title={t.open}
           >
             <ExternalLink className="h-4 w-4" />
           </Link>
@@ -110,7 +112,7 @@ const AiChatsList = ({ userId }: Props) => {
             type="button"
             onClick={() => handleShare(c)}
             className="h-8 w-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
-            title="Partager"
+            title={t.share}
           >
             <Share2 className="h-4 w-4" />
           </button>
@@ -118,7 +120,7 @@ const AiChatsList = ({ userId }: Props) => {
             type="button"
             onClick={() => handleDelete(c.id)}
             className="h-8 w-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-red-500/20 transition-colors text-red-200"
-            title="Supprimer"
+            title={t.del}
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -127,5 +129,6 @@ const AiChatsList = ({ userId }: Props) => {
     </ul>
   );
 };
+
 
 export default AiChatsList;
