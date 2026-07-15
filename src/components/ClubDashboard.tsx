@@ -56,7 +56,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     { tab: "assistant", icon: Bot, label: language === "en" ? "AI Assistant" : language === "ar" ? "مساعد الذكاء" : "Assistant IA" },
     { tab: "addresses", icon: MapPin, label: language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses" },
     { tab: "travel", icon: Plane, label: language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage" },
-    { tab: "ai-chats", icon: MessageCircle, label: language === "en" ? "AI chats" : language === "ar" ? "محادثات الذكاء" : "Conversations IA" },
+    { tab: "ai-chats", icon: MessageCircle, label: language === "en" ? "AI chats" : language === "ar" ? "محادثات الذكاء" : "IA CHAT" },
   ];
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
