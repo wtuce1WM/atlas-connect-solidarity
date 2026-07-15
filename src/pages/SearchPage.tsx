@@ -12,6 +12,7 @@ import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHour
 import { haversineKm } from "@/lib/haversine";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import { mapLabel } from "@/lib/mapLabels";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
@@ -3870,7 +3871,7 @@ const SearchPage = () => {
     } else {
       params.set("category", category);
     }
-    navigate(`/search?${params.toString()}`, { replace: true });
+    navigate(`${withLangPrefix("/search", language as any)}?${params.toString()}`, { replace: true });
   };
 
   const goToPage = async (page: number) => {
@@ -6307,7 +6308,7 @@ const SearchPage = () => {
                 onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
-                  navigate(`/search?${sp.toString()}`);
+                  navigate(`${withLangPrefix("/search", language as any)}?${sp.toString()}`);
                 }}
                 onHotelSearch={handleHotelSearch}
                 onBusinessSelect={(bizId) => {
