@@ -240,8 +240,11 @@ function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] }
 
 
 const ClubAiAssistant = ({ userId }: Props) => {
+  const { language } = useLanguage();
+  const at = AT[language as keyof typeof AT] || AT.fr;
   const [searchParams, setSearchParams] = useSearchParams();
   const activeId = searchParams.get("assistant") || null;
+
 
   const [chats, setChats] = useState<ChatRow[]>([]);
   const [loadingList, setLoadingList] = useState(true);
