@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "sdk_version": "0.22.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "one-world-morocco",
+      "version": "0.1.0",
+      "title": "One World Morocco"
+    },
+    "tools": [
+      {
+        "name": "search_businesses",
+        "title": "Search One World Morocco businesses",
+        "description": "Search the public One World Morocco catalog of curated businesses (restaurants, hotels, riads, activities, boutiques) in Marrakech, Essaouira and across Morocco. Returns name, city, category, rating, price range, hook description and public URL.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Free-text search: a name, cuisine, activity, neighborhood, e.g. 'rooftop marrakech', 'riad essaouira', 'couscous'."
+            },
+            "city": {
+              "description": "Optional city filter, e.g. 'Marrakech', 'Essaouira'.",
+              "type": "string"
+            },
+            "category": {
+              "description": "Optional main category filter, e.g. 'Restaurant', 'Hotel', 'Activity'.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Max results to return (1-20, default 10).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            }
+          },
+          "required": [
+            "query"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_business",
+        "title": "Get One World Morocco business details",
+        "description": "Fetch the full public details of a single One World Morocco business by its slug (from the URL, e.g. 'dar-fragrance'). Returns description, address, phone, website, hours, ratings, prices and social links.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Business slug from the oneworldmorocco.com URL, e.g. 'dar-fragrance'."
+            }
+          },
+          "required": [
+            "slug"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
