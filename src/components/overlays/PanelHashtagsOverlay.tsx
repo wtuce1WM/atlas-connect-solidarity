@@ -3,7 +3,15 @@ import { X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { readLastHomepageCity } from "@/lib/cityHomepage";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
+
+const T = {
+  empty: { fr: "Aucun hashtag.", en: "No hashtags.", ar: "لا توجد وسوم." },
+  filterBy: { fr: "Filtrer par", en: "Filter by", ar: "تصفية حسب" },
+  close: { fr: "Fermer", en: "Close", ar: "إغلاق" },
+} as const;
 
 interface HashtagBadge {
   id: string;
