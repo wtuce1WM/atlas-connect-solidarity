@@ -2,6 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { FrontStructureSubTab } from "@/hooks/useFrontStructureTabs";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
+import { translateFrontStructure } from "@/lib/frontStructureTranslations";
+
+const T = {
+  categories: { fr: "Catégories", en: "Categories", ar: "الفئات" },
+  breadcrumb: { fr: "Fil d'Ariane", en: "Breadcrumb", ar: "مسار التصفح" },
+  close: { fr: "Fermer les filtres", en: "Close filters", ar: "إغلاق الفلاتر" },
+  back: { fr: "Retour", en: "Back", ar: "رجوع" },
+} as const;
 
 interface FrontTab {
   id: string;
