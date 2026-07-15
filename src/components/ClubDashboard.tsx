@@ -473,7 +473,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                   className="flex flex-col items-center gap-1.5 group"
                 >
                   <span
-                    className={`h-24 w-24 rounded-full flex items-center justify-center border border-white/30 transition hover:scale-[1.03] active:scale-95 ${activeTab === tab ? "bg-[#C04F17] text-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.25)]" : "bg-white/10 text-white hover:bg-white/20"}`}
+                    className={`h-24 w-24 rounded-full flex items-center justify-center border border-white/30 transition hover:scale-[1.03] active:scale-95 ${activeTab === tab ? "bg-gold text-black ring-2 ring-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.15)]" : "bg-white/10 text-white hover:bg-white/20"}`}
                   >
                     <Icon className="h-10 w-10" />
                   </span>
