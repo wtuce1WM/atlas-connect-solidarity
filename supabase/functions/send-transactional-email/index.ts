@@ -41,6 +41,14 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders })
   }
 
+  // Block cURL/bots/off-site callers: only requests coming from an allowed
+  // frontend origin (oneworldmorocco.com, *.lovable.app/dev, localhost) may
+  // trigger site emails. Server-to-server callers (other edge functions using
+  // the service role) send no Origin/Referer and are still allowed.
+  const originBlocked = assertAllowedOrigin(req, corsHeaders)
+  if (originBlocked) return originBlocked
+
+
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
