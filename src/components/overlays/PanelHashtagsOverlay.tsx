@@ -58,7 +58,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
     sp.set("badgeLabel", badge.name_fr);
     // Close any previously opened slide panel so it doesn't reappear over the hashtag results.
     try { window.dispatchEvent(new CustomEvent("close-compact-panel")); } catch {}
-    navigate(`/search?${sp.toString()}`);
+    navigate(`${withLangPrefix("/search", language as any)}?${sp.toString()}`);
     onClose();
   };
 
