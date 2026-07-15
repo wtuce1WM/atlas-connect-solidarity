@@ -12,7 +12,7 @@ import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHour
 import { haversineKm } from "@/lib/haversine";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { withLangPrefix } from "@/lib/localizedPath";
+import { withLangPrefix, getLangFromPath } from "@/lib/localizedPath";
 import { mapLabel } from "@/lib/mapLabels";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
@@ -191,9 +191,13 @@ const SearchPage = () => {
     const current = new URLSearchParams(window.location.search);
     const resolved = typeof next === "function" ? next(current) : next;
     const sp = resolved instanceof URLSearchParams ? resolved : new URLSearchParams(resolved as Record<string, string>);
-    const target = `${withLangPrefix("/search", language as any)}?${sp.toString()}`;
+    // Derive the language prefix from the LIVE browser URL — not from the
+    // context `language` (which can lag by one render right after a lang
+    // switch) — so we never accidentally rewrite /en/search back to /search.
+    const liveLang = getLangFromPath(window.location.pathname);
+    const target = `${withLangPrefix("/search", liveLang)}?${sp.toString()}`;
     navigate(target, { replace: opts?.replace });
-  }, [navigate, language]);
+  }, [navigate]);
   const { translateSubcategory } = useTaxonomyTranslations();
   const trFsName = (name: string) => {
     const v = translateVignetteLabel(name, language as any);
@@ -3892,7 +3896,7 @@ const SearchPage = () => {
     } else {
       params.set("category", category);
     }
-    navigate(`${withLangPrefix("/search", language as any)}?${params.toString()}`, { replace: true });
+    navigate(`${withLangPrefix("/search", getLangFromPath(window.location.pathname))}?${params.toString()}`, { replace: true });
   };
 
   const goToPage = async (page: number) => {
@@ -6329,7 +6333,7 @@ const SearchPage = () => {
                 onAiClick={() => window.dispatchEvent(new Event("open-ai-tab"))}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
-                  navigate(`${withLangPrefix("/search", language as any)}?${sp.toString()}`);
+                  navigate(`${withLangPrefix("/search", getLangFromPath(window.location.pathname))}?${sp.toString()}`);
                 }}
                 onHotelSearch={handleHotelSearch}
                 onBusinessSelect={(bizId) => {
