@@ -66,6 +66,8 @@ import { useHotelAvailability } from "@/hooks/useHotelAvailability";
 import { useOpenStatus } from "@/hooks/useOpenStatus";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
+import { translateFrontStructure } from "@/lib/frontStructureTranslations";
 import { ToolbarPortals } from "@/components/slidepanel/ToolbarPortals";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { CtaBar, CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
