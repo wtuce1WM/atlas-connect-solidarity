@@ -66,6 +66,9 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
 const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
 const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked }: MapSlidePanelProps) => {
+  const { language } = useLanguage();
+  const mt = MT[language as keyof typeof MT] || MT.fr;
+
   const geo = useGeolocation();
   const [browserPos, setBrowserPos] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
