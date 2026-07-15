@@ -1056,13 +1056,25 @@ const BookOnlineSlidePanelInner = ({
 ;
     }
 
+    // Overlay closed → restore playback and re-apply the user's global sound preference
+    // (previously the video always resumed muted, so the sound stayed OFF after closing
+    // e.g. the Filters overlay even when the user had turned it ON before).
+    const shouldBeMuted = !globalSoundOn;
     const v = videoRef.current;
-    if (v && v.paused) {
-      v.muted = true;
-      v.play().catch(() => {});
+    if (v) {
+      v.muted = shouldBeMuted;
+      v.volume = shouldBeMuted ? 0 : 1;
+      if (v.paused) v.play().catch(() => {});
     }
-    ytPost("mute");
-    ytPost("setVolume", [0]);
+    setVideoMuted(shouldBeMuted);
+    setYtBgMuted(shouldBeMuted);
+    if (shouldBeMuted) {
+      ytPost("mute");
+      ytPost("setVolume", [0]);
+    } else {
+      ytPost("unMute");
+      ytPost("setVolume", [100]);
+    }
     ytPost("playVideo");
 
   }, [
