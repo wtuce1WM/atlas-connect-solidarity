@@ -2863,7 +2863,7 @@ const BookOnlineSlidePanelInner = ({
                             }
                           }}>
 
-                            {ft.name} <span className="ml-1 opacity-60">({ft.count})</span>
+                            {translateFrontStructure(ft.name, language)} <span className="ml-1 opacity-60">({ft.count})</span>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
