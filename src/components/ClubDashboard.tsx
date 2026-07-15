@@ -51,6 +51,13 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     next.set("tab", v);
     setSearchParams(next, { replace: true });
   };
+
+  const quickTabs = [
+    { tab: "assistant", icon: Bot, label: language === "en" ? "AI Assistant" : language === "ar" ? "مساعد الذكاء" : "Assistant IA" },
+    { tab: "addresses", icon: MapPin, label: language === "en" ? "My places" : language === "ar" ? "عناويني" : "Mes adresses" },
+    { tab: "travel", icon: Plane, label: language === "en" ? "Travel" : language === "ar" ? "سفر" : "Voyage" },
+    { tab: "ai-chats", icon: MessageCircle, label: language === "en" ? "AI chats" : language === "ar" ? "محادثات الذكاء" : "Conversations IA" },
+  ];
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [memberId, setMemberId] = useState<string | null>(null);
