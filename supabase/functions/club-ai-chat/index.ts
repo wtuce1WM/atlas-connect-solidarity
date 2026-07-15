@@ -798,7 +798,7 @@ ${languageInstruction}`;
           headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
             model: FALLBACK_MODEL,
-            messages: [...convo, { role: "user", content: "Synthétise maintenant une réponse claire et chaleureuse pour le membre, en français, en t'appuyant uniquement sur les résultats d'outils ci-dessus. Si aucun résultat exploitable, propose poliment une reformulation." }],
+            messages: [...convo, { role: "user", content: lang === "en" ? "Now synthesize a clear, warm reply for the member in English, based only on the tool results above. If nothing usable, politely propose a reformulation." : lang === "ar" ? "الآن قدّم جواباً واضحاً ودافئاً للعضو بالعربية، بالاعتماد فقط على نتائج الأدوات أعلاه. إذا لم يكن هناك شيء مفيد، اقترح إعادة صياغة مؤدباً." : "Synthétise maintenant une réponse claire et chaleureuse pour le membre, en français, en t'appuyant uniquement sur les résultats d'outils ci-dessus. Si aucun résultat exploitable, propose poliment une reformulation." }],
             temperature: 0.4,
             max_tokens: 1500,
           }),
