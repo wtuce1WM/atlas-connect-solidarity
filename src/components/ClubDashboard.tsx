@@ -464,29 +464,29 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full" orientation="vertical">
         <div className="flex flex-col gap-6">
           <div className={`flex flex-col items-center justify-center px-1 gap-3 transition-[width,max-width,margin] duration-300 ease-out ${panelOpen ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:mr-auto lg:ml-0" : "w-full"}`}>
-            <div className="flex flex-wrap items-center justify-center gap-4" dir="ltr">
+            <div className="grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-2 md:flex md:w-auto md:flex-wrap md:items-center md:justify-center md:gap-4" dir="ltr">
               {quickTabs.map(({ tab, icon: Icon, label }) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => handleTabChange(tab)}
-                  className="flex flex-col items-center gap-1.5 group"
+                  className="flex w-20 flex-col items-center gap-1 group md:w-auto md:gap-1.5"
                 >
                   <span
-                    className={`h-24 w-24 rounded-full flex items-center justify-center border border-white/30 transition hover:scale-[1.03] active:scale-95 ${activeTab === tab ? "bg-gold text-black ring-2 ring-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.15)]" : "bg-white/10 text-white hover:bg-white/20"}`}
+                    className={`h-16 w-16 rounded-full flex items-center justify-center border border-white/30 transition hover:scale-[1.03] active:scale-95 md:h-24 md:w-24 ${activeTab === tab ? "bg-gold text-black ring-2 ring-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.15)]" : "bg-white/10 text-white hover:bg-white/20"}`}
                   >
-                    <Icon className="h-10 w-10" />
+                    <Icon className="h-7 w-7 md:h-10 md:w-10" />
                   </span>
-                  <span className="text-xs font-semibold text-white text-center leading-tight">{label}</span>
+                  <span className="text-[10px] font-semibold text-white text-center leading-tight md:text-xs">{label}</span>
                 </button>
               ))}
-              <div className="flex flex-col items-center gap-1.5">
+              <div className="flex w-20 flex-col items-center gap-1 md:w-auto md:gap-1.5">
                 <button
                   type="button"
                   onClick={() => avatarInputRef.current?.click()}
                   disabled={uploadingAvatar}
                   aria-label={language === "en" ? "Change profile photo" : language === "ar" ? "تغيير الصورة الشخصية" : "Changer la photo de profil"}
-                  className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
+                  className="relative h-16 w-16 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50 md:h-24 md:w-24"
                 >
                   <img
                     src={avatarUrl || accountAvatar}
@@ -501,7 +501,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                   )}
                 </button>
                 {form.nickname && (
-                  <div className="text-white text-sm font-semibold">@{form.nickname}</div>
+                  <div className="max-w-full truncate text-center text-[10px] font-semibold text-white md:text-sm">@{form.nickname}</div>
                 )}
                 <input
                   ref={avatarInputRef}
@@ -516,10 +516,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                   href={`/u/${encodeURIComponent(form.nickname)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-col items-center gap-1.5 group"
+                  className="flex w-20 flex-col items-center gap-1 group md:w-auto md:gap-1.5"
                   aria-label="Digital ID"
                 >
-                  <span className="relative h-24 w-24 rounded-full overflow-hidden border border-white/30 bg-white/10 hover:scale-[1.03] active:scale-95 transition shadow-[inset_0_2px_8px_rgba(0,0,0,0.15)]">
+                  <span className="relative h-16 w-16 rounded-full overflow-hidden border border-white/30 bg-white/10 hover:scale-[1.03] active:scale-95 transition shadow-[inset_0_2px_8px_rgba(0,0,0,0.15)] md:h-24 md:w-24">
                     <iframe
                       src={`/u/${encodeURIComponent(form.nickname)}`}
                       title="Digital ID preview"
@@ -531,7 +531,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                       style={{
                         width: "1200px",
                         height: "1600px",
-                        transform: "scale(0.08)",
+                        transform: "scale(0.053333)",
                         transformOrigin: "top left",
                         position: "absolute",
                         top: 0,
@@ -540,7 +540,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                     />
                     <span className="absolute inset-0 rounded-full ring-1 ring-white/40 pointer-events-none" />
                   </span>
-                  <span className="text-xs font-semibold text-white text-center leading-tight">Digital ID</span>
+                  <span className="text-[10px] font-semibold text-white text-center leading-tight md:text-xs">Digital ID</span>
                 </a>
               )}
             </div>
