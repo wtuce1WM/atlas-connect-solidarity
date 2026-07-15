@@ -324,6 +324,11 @@ export default function ResultsTabContent({
   };
 
   useEffect(() => { if (compactPanelBusiness) setShowFiltersOverlay(false); }, [compactPanelBusiness]);
+  // Notify listeners (e.g. SearchPage → BookOnlineSlidePanel) so they can pause/mute
+  // background media while the filters overlay is open.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("results-filters-overlay-toggle", { detail: { open: showFiltersOverlay } }));
+  }, [showFiltersOverlay]);
   useEffect(() => {
     const handler = () => setShowFiltersOverlay(true);
     window.addEventListener("open-results-filters", handler);

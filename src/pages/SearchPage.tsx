@@ -1314,6 +1314,17 @@ const SearchPage = () => {
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
   const [showAiPopup, setShowAiPopup] = useState(false);
+  // Tracks the Filters overlay (managed inside ResultsTabContent) so the compact
+  // BookOnlineSlidePanel can pause + mute its background video while it's open.
+  const [filtersOverlayOpen, setFiltersOverlayOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ open?: boolean }>).detail;
+      setFiltersOverlayOpen(!!detail?.open);
+    };
+    window.addEventListener("results-filters-overlay-toggle", handler);
+    return () => window.removeEventListener("results-filters-overlay-toggle", handler);
+  }, []);
   const [warningDismissed, setWarningDismissed] = useState(false);
   const [mobileSearchOverlayOpen, setMobileSearchOverlayOpen] = useState(false);
   const [businessLabelLogos, setBusinessLabelLogos] = useState<Record<string, string[]>>({});
@@ -6405,7 +6416,7 @@ const SearchPage = () => {
                   businessId={compactPanelBusiness.id}
                   initialVideoUrl={compactPanelInitialVideoUrl || undefined}
                   onClose={closeCompactPanel}
-                  externalOverlayActive={showAiPopup}
+                  externalOverlayActive={showAiPopup || filtersOverlayOpen}
                   forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                   interceptCloseRef={compactPanelInterceptCloseRef}
                   showSearchBar
