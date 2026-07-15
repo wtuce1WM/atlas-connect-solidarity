@@ -2790,14 +2790,14 @@ const BookOnlineSlidePanelInner = ({
                       onClick={() => setPoiShowAll(false)}
                       className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                     >
-                      Top 20
+                      {language === "en" ? "Top 20" : language === "ar" ? "أفضل 20" : "Top 20"}
                     </button>
                     <button
                       type="button"
                       onClick={() => setPoiShowAll(true)}
                       className={`px-3 py-1 rounded-full transition-colors ${poiShowAll ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                     >
-                      Tous <span className="ml-0.5 opacity-70">{total}</span>
+                      {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"} <span className="ml-0.5 opacity-70">{total}</span>
                     </button>
                   </div>
                 )}
