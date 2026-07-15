@@ -37,12 +37,18 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
     (async () => {
       const { data } = await (supabase as any)
         .from("badges")
-        .select("id, name_fr")
+        .select("id, name_fr, name_en, name_ar")
         .like("name_fr", "#%")
         .order("name_fr", { ascending: true });
       setBadges(((data as any[]) || []) as HashtagBadge[]);
     })();
   }, [open]);
+
+  const localizedName = (b: HashtagBadge) => {
+    if (language === "en") return b.name_en || b.name_fr;
+    if (language === "ar") return b.name_ar || b.name_fr;
+    return b.name_fr;
+  };
 
   if (!open) return null;
 
