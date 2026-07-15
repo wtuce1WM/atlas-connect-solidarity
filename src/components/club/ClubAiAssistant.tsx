@@ -743,7 +743,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                       {c.title}
                     </div>
                     <div className="text-[10px] text-[#C04F17]/70">
-                      {new Date(c.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                      {new Date(c.updated_at).toLocaleDateString(at.localeTz, { day: "numeric", month: "short" })}
                     </div>
                   </button>
                   <button
