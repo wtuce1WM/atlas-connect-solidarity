@@ -1,7 +1,9 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Play } from "lucide-react";
+
 
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
 
