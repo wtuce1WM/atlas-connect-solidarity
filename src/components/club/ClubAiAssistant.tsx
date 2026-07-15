@@ -641,23 +641,18 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   const fmtTripDates = (a: string, d: string) => {
     const opt: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
-    const ad = new Date(a).toLocaleDateString("fr-FR", opt);
-    const dd = new Date(d).toLocaleDateString("fr-FR", opt);
+    const ad = new Date(a).toLocaleDateString(at.localeTz, opt);
+    const dd = new Date(d).toLocaleDateString(at.localeTz, opt);
     return ad === dd ? ad : `${ad} – ${dd}`;
   };
 
-  const startTripPrompt = (t: TripCard) => {
-    const cities = Array.from(new Set(t.businesses.map((b) => b.city).filter(Boolean))).join(", ");
-    const names = t.businesses.map((b) => b.name).slice(0, 6).join(", ");
-    const dates = fmtTripDates(t.arrival_date, t.departure_date);
-    const lines = [
-      `Aide-moi à préparer mon voyage « ${t.title} » (${dates}).`,
-      cities ? `Villes : ${cities}.` : "",
-      names ? `Adresses déjà sauvegardées : ${names}.` : "",
-      `Propose-moi un planning jour par jour, des bonnes adresses complémentaires (restos, activités, vie nocturne) et l'agenda culturel sur place.`,
-    ].filter(Boolean);
-    send(lines.join(" "));
+  const startTripPrompt = (tr: TripCard) => {
+    const cities = Array.from(new Set(tr.businesses.map((b) => b.city).filter(Boolean))).join(", ");
+    const names = tr.businesses.map((b) => b.name).slice(0, 6).join(", ");
+    const dates = fmtTripDates(tr.arrival_date, tr.departure_date);
+    send(at.tripPrompt(tr.title, dates, cities, names));
   };
+
 
   const emptyHint = useMemo(() => (
     <div className="text-center py-10 px-4 text-[#C04F17]">
