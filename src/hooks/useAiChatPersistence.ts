@@ -145,7 +145,11 @@ export function useAiChatPersistence({
           setIsPublic(!!data.is_public);
           const next = new URLSearchParams(searchParams);
           next.set("aiChat", data.id);
-          setSearchParams(next, { replace: true });
+          // Preserve the current pathname (including any /en or /ar language prefix)
+          // — setSearchParams would route through the LocalizedRoutes stripped location
+          // and drop the language prefix from the URL.
+          const nextUrl = `${window.location.pathname}?${next.toString()}${window.location.hash || ""}`;
+          window.history.replaceState(window.history.state, "", nextUrl);
           lastSavedRef.current = JSON.stringify({ chatId: data.id, payload });
         }
       } else {
