@@ -2835,7 +2835,7 @@ const BookOnlineSlidePanelInner = ({
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <SlidersHorizontal className="h-3.5 w-3.5" />
-                          {activeFrontTab?.name || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
+                          {(activeFrontTab && translateFrontStructure(activeFrontTab.name, language)) || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
