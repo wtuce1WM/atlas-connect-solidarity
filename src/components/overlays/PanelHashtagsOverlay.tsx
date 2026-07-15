@@ -72,7 +72,7 @@ const PanelHashtagsOverlay = ({ open, onClose }: Props) => {
       <button
         type="button"
         onClick={onClose}
-        aria-label="Close"
+        aria-label={tr("close")}
         className="absolute top-3 left-3 z-30 w-9 h-9 rounded-full bg-black hover:bg-black/90 flex items-center justify-center text-white"
       >
         <X className="h-4 w-4" />
