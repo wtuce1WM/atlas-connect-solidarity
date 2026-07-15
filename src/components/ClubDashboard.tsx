@@ -443,8 +443,9 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </Button>
           <ShareButton 
             shareUrl={form.nickname ? `https://oneworldmorocco.com/u/${form.nickname}` : `https://oneworldmorocco.com/u/`}
-            title="Mon profil One World Morocco"
+            title={language === "en" ? "My One World Morocco profile" : language === "ar" ? "ملفي على One World Morocco" : "Mon profil One World Morocco"}
             previewImage={hamsaBlueAsset.url}
+
             avatarImage={avatarUrl}
             variant="dark"
           />
