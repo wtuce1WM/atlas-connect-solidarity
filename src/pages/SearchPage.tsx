@@ -181,9 +181,17 @@ const addAiReadableBreaks = (text: string, businesses: AIBusinessData[]) => {
 
 
 const SearchPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParamsRaw] = useSearchParams();
   const navigate = useNavigate();
   const { language } = useLanguage();
+  // Wrap setSearchParams so it always keeps the /en or /ar URL prefix.
+  // LocalizedRoutes strips the prefix from the Routes matcher, which causes
+  // the default setSearchParams to write back to "/search" and lose the lang.
+  const setSearchParams = useCallback((next: any, opts?: { replace?: boolean }) => {
+    const sp = next instanceof URLSearchParams ? next : new URLSearchParams(next as Record<string, string>);
+    const target = `${withLangPrefix("/search", language as any)}?${sp.toString()}`;
+    navigate(target, { replace: opts?.replace });
+  }, [navigate, language]);
   const { translateSubcategory } = useTaxonomyTranslations();
   const trFsName = (name: string) => {
     const v = translateVignetteLabel(name, language as any);
