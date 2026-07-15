@@ -575,7 +575,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           <div className="flex items-center justify-between mb-2">
             <label className="text-sm text-white font-semibold flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-gold" />
-              Description
+              {language === "en" ? "Description" : language === "ar" ? "الوصف" : "Description"}
             </label>
             <span className={`text-xs ${plainTextLength(form.description) > MAX_DESCRIPTION_LENGTH ? "text-red-300 font-semibold" : "text-white/70"}`}>
               {plainTextLength(form.description)} / {MAX_DESCRIPTION_LENGTH}
@@ -585,11 +585,12 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             <RichTextEditor
               content={form.description}
               onChange={(html) => setForm(prev => ({ ...prev, description: html }))}
-              placeholder="Quelques mots sur vous (200 caractères max)…"
+              placeholder={language === "en" ? "A few words about you (200 characters max)…" : language === "ar" ? "بعض الكلمات عنك (200 حرف كحد أقصى)…" : "Quelques mots sur vous (200 caractères max)…"}
               maxHeight="320px"
               bgClass="bg-[#ECD6B8] text-black border-none"
             />
           </div>
+
         </div>
 
         {/* External links */}
