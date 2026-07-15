@@ -317,8 +317,9 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     if (!query || !businesses.length) return "";
     const names = businesses.slice(0, 10).map(b => b.name).join("|");
     const geoKey = geo.isEnabled && geo.coords ? `${geo.coords.lat.toFixed(3)},${geo.coords.lng.toFixed(3)}` : "no-geo";
-    return `${query}::${names}::${regenerateCount}::${externalRegenerateKey ?? 0}::${geoKey}`;
-  }, [query, businesses, externalRegenerateKey, geo.isEnabled, geo.coords]);
+    return `${language}::${query}::${names}::${regenerateCount}::${externalRegenerateKey ?? 0}::${geoKey}`;
+  }, [query, businesses, externalRegenerateKey, geo.isEnabled, geo.coords, language]);
+
 
   useEffect(() => {
     setIsDismissed(false);
