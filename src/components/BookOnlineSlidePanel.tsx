@@ -1253,7 +1253,7 @@ const BookOnlineSlidePanelInner = ({
   const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId);
 
   // Video info via extracted hook
-  const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
+  // (globalSoundOn / setGlobalSoundOn hoisted earlier — see top of component)
   // Force sound ON at slide panel mount (overrides any stored "off" preference).
   // Defer while a Popup/Offre overlay is open — sound activates only once the card is closed,
   // mirroring how video autoplay is neutralized during overlays.
