@@ -524,8 +524,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
     try {
       const { data, error } = await supabase.functions.invoke("club-ai-chat", {
-        body: { chatId: safeChatId, messages: newMsgs, clientContext },
+        body: { chatId: safeChatId, messages: newMsgs, clientContext, language },
       });
+
       if (error) throw error;
       const answer = (data as any)?.answer || "";
       import("@/lib/analytics").then(({ trackEvent }) =>
