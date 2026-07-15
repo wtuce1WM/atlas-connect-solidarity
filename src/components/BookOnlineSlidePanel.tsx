@@ -2762,8 +2762,8 @@ const BookOnlineSlidePanelInner = ({
                 <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {activeFrontTab ? (
                     <>
-                      {activeFrontTab.name}
-                      {poiSubcatFilter ? <span className="opacity-60"> / {poiSubcatFilter}</span> : null}
+                      {translateFrontStructure(activeFrontTab.name, language)}
+                      {poiSubcatFilter ? <span className="opacity-60"> / {translateSubcategory(poiSubcatFilter, language)}</span> : null}
                     </>
                   ) : (
                     <>
