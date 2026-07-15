@@ -460,13 +460,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               type="button"
               onClick={() => avatarInputRef.current?.click()}
               disabled={uploadingAvatar}
-              aria-label="Changer la photo de profil"
+              aria-label={language === "en" ? "Change profile photo" : language === "ar" ? "تغيير الصورة الشخصية" : "Changer la photo de profil"}
               className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
             >
               <img
                 src={avatarUrl || accountAvatar}
-                alt="Photo de profil"
+                alt={language === "en" ? "Profile photo" : language === "ar" ? "الصورة الشخصية" : "Photo de profil"}
                 className="h-full w-full object-cover"
+
                 loading="lazy"
               />
               {uploadingAvatar && (
