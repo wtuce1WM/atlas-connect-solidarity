@@ -346,9 +346,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const handleSave = async () => {
     if (!form.nickname.trim()) return;
     if (plainTextLength(form.description) > MAX_DESCRIPTION_LENGTH) {
-      toast({ title: `Description : ${MAX_DESCRIPTION_LENGTH} caractères max`, variant: "destructive" });
+      toast({ title: language === "en" ? `Description: ${MAX_DESCRIPTION_LENGTH} characters max` : language === "ar" ? `الوصف: ${MAX_DESCRIPTION_LENGTH} حرف كحد أقصى` : `Description : ${MAX_DESCRIPTION_LENGTH} caractères max`, variant: "destructive" });
       return;
     }
+
     setIsSaving(true);
     try {
       const payload = {
