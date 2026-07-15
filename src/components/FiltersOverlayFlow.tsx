@@ -279,7 +279,7 @@ export default function FiltersOverlayFlow({
               className={`${badgeBase} ${badgeIdle}`}
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
-              <span>{sub.name}</span>
+              <span>{translateSubcategory(sub.name, language)}</span>
               <span className="text-xs font-normal opacity-70">({sub.count})</span>
             </button>
           ))}
