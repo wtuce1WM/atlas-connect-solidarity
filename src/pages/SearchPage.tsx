@@ -12,7 +12,7 @@ import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHour
 import { haversineKm } from "@/lib/haversine";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { withLangPrefix } from "@/lib/localizedPath";
+import { withLangPrefix, getLangFromPath } from "@/lib/localizedPath";
 import { mapLabel } from "@/lib/mapLabels";
 import { translateVignetteLabel } from "@/lib/vignetteLabels";
 import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
