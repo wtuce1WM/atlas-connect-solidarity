@@ -947,6 +947,9 @@ const BookOnlineSlidePanelInner = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(false);
+  // Global sound preference must be resolved BEFORE the overlay mute/unmute effect
+  // so the effect can restore the correct muted state when overlays close.
+  const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -1056,19 +1059,31 @@ const BookOnlineSlidePanelInner = ({
 ;
     }
 
+    // Overlay closed → restore playback and re-apply the user's global sound preference
+    // (previously the video always resumed muted, so the sound stayed OFF after closing
+    // e.g. the Filters overlay even when the user had turned it ON before).
+    const shouldBeMuted = !globalSoundOn;
     const v = videoRef.current;
-    if (v && v.paused) {
-      v.muted = true;
-      v.play().catch(() => {});
+    if (v) {
+      v.muted = shouldBeMuted;
+      v.volume = shouldBeMuted ? 0 : 1;
+      if (v.paused) v.play().catch(() => {});
     }
-    ytPost("mute");
-    ytPost("setVolume", [0]);
+    setVideoMuted(shouldBeMuted);
+    setYtBgMuted(shouldBeMuted);
+    if (shouldBeMuted) {
+      ytPost("mute");
+      ytPost("setVolume", [0]);
+    } else {
+      ytPost("unMute");
+      ytPost("setVolume", [100]);
+    }
     ytPost("playVideo");
 
   }, [
     forceMuted, showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId,
     docOverlay, showBookingOverlay, showYoutubeOverlay, showExternalVideosOverlay, showMosaic, externalOverlayActive,
-    showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay, showWelcomePopup,
+    showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay, showWelcomePopup, globalSoundOn,
   ]);
 
 
@@ -1238,7 +1253,7 @@ const BookOnlineSlidePanelInner = ({
   const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId);
 
   // Video info via extracted hook
-  const { soundOn: globalSoundOn, setSoundOn: setGlobalSoundOn } = useVideoSoundPreference();
+  // (globalSoundOn / setGlobalSoundOn hoisted earlier — see top of component)
   // Force sound ON at slide panel mount (overrides any stored "off" preference).
   // Defer while a Popup/Offre overlay is open — sound activates only once the card is closed,
   // mirroring how video autoplay is neutralized during overlays.
