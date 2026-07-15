@@ -283,7 +283,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     onTranscript: (_keywords, spoken) => {
       if (spoken?.trim()) send(spoken.trim());
     },
-    onError: (msg) => toast({ title: "Micro", description: msg, variant: "destructive" }),
+    onError: (msg) => toast({ title: at.micError, description: msg, variant: "destructive" }),
   });
   const isMobileHook = useIsMobile();
   const [isTabletOrBelow, setIsTabletOrBelow] = useState<boolean>(
@@ -319,7 +319,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     if (id) {
       setOpenBusinessId(id);
     } else {
-      toast({ title: "Fiche introuvable", description: "Impossible d'ouvrir cette fiche.", variant: "destructive" });
+      toast({ title: at.ficheNotFound, description: at.ficheNotFoundOpen, variant: "destructive" });
     }
     return true;
   };
@@ -337,7 +337,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     const { data } = await supabase.from("businesses").select("id").ilike("name", n).limit(1).maybeSingle();
     const id = (data as any)?.id;
     if (id) setOpenBusinessId(id);
-    else toast({ title: "Fiche introuvable", description: `Aucune fiche trouvée pour "${n}".`, variant: "destructive" });
+    else toast({ title: at.ficheNotFound, description: at.ficheNotFoundFor(n), variant: "destructive" });
   };
 
 
@@ -435,7 +435,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   };
 
   const deleteChat = async (id: string) => {
-    if (!confirm("Supprimer cette conversation ?")) return;
+    if (!confirm(at.confirmDel)) return;
     deletedChatIdsRef.current.add(id);
     const urlActiveId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("assistant") : activeId;
     // Always clear local state for the deleted chat — even if React Router has
@@ -453,14 +453,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
       .select("id");
     if (error) {
       deletedChatIdsRef.current.delete(id);
-      toast({ title: "Suppression impossible", description: error.message, variant: "destructive" });
+      toast({ title: at.delError, description: error.message, variant: "destructive" });
     }
     // Re-sync with the server so the sidebar reflects the true state.
     await loadChats();
   };
 
   const renameChat = async (id: string, currentTitle: string) => {
-    const next = window.prompt("Renommer la conversation", currentTitle || "")?.trim();
+    const next = window.prompt(at.renamePrompt, currentTitle || "")?.trim();
     if (!next || next === currentTitle) return;
     const title = next.slice(0, 200);
     setChats((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)));
@@ -471,7 +471,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       .eq("id", id)
       .eq("user_id", userId);
     if (error) {
-      toast({ title: "Renommage impossible", description: error.message, variant: "destructive" });
+      toast({ title: at.renameError, description: error.message, variant: "destructive" });
       await loadChats();
     }
   };
@@ -544,7 +544,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         activeChatIdRef.current = newId;
         setActiveChat((prev) => prev?.id === newId
           ? { ...prev, messages: fullMessages, updated_at: new Date().toISOString() }
-          : { id: newId, title: text.slice(0, 200) || "Nouvelle conversation", updated_at: new Date().toISOString(), is_bookmarked: false, messages: fullMessages }
+          : { id: newId, title: text.slice(0, 200) || at.newChat, updated_at: new Date().toISOString(), is_bookmarked: false, messages: fullMessages }
         );
       }
       if (newId && newId !== safeChatId) {
@@ -559,7 +559,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         setTimeout(() => { try { tts.speak(answer); } catch {/* noop */} }, 100);
       }
     } catch (e: any) {
-      toast({ title: "Erreur", description: e?.message || "Impossible de joindre l'assistant.", variant: "destructive" });
+      toast({ title: at.chatError, description: e?.message || at.cantReach, variant: "destructive" });
       messagesRef.current = newMsgs;
       setMessages(newMsgs);
       import("@/lib/analytics").then(({ trackEvent }) =>
@@ -683,8 +683,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const emptyHint = useMemo(() => (
     <div className="text-center py-10 px-4 text-[#C04F17]">
       <MessageSquare className="h-8 w-8 mx-auto mb-3 opacity-70" />
-      <div className="text-sm font-semibold mb-1">Bonjour 👋</div>
-      <div className="text-base opacity-80 mb-4">Demandez-moi la météo, retrouvez une adresse sauvegardée, ou explorez le Maroc.</div>
+      <div className="text-sm font-semibold mb-1">{at.hello}</div>
+      <div className="text-base opacity-80 mb-4">{at.helloDesc}</div>
 
       {trips.length > 0 && (
         <div className="max-w-md mx-auto mb-5">
@@ -735,7 +735,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         className="mt-4 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[#C04F17] text-white hover:bg-[#C04F17]/90 transition-colors disabled:opacity-50"
       >
         <RefreshCw className="h-3 w-3" />
-        Autres suggestions
+        {at.moreSuggestions}
       </button>
     </div>
   ), [visibleSuggestions, sending, trips]);
@@ -751,13 +751,13 @@ const ClubAiAssistant = ({ userId }: Props) => {
           onClick={() => newChat()}
           className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg bg-[#C04F17] text-white text-sm font-semibold hover:bg-[#1240d6] transition-colors"
         >
-          <Plus className="h-4 w-4" /> Nouvelle conversation
+          <Plus className="h-4 w-4" /> {at.newChat}
         </button>
         <div className="flex-1 overflow-y-auto">
           {loadingList ? (
             <div className="flex items-center justify-center py-8 text-[#C04F17]"><Loader2 className="h-4 w-4 animate-spin" /></div>
           ) : chats.length === 0 ? (
-            <div className="text-sm text-[#C04F17] py-4 text-center opacity-70">Aucune conversation pour l'instant.</div>
+            <div className="text-sm text-[#C04F17] py-4 text-center opacity-70">{at.noChats}</div>
           ) : (
             <ul className="flex flex-col gap-1">
               {chats.map((c) => (
@@ -775,7 +775,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                     type="button"
                     onClick={(e) => { e.stopPropagation(); renameChat(c.id, c.title); }}
                     className="opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded text-[#C04F17] hover:bg-white"
-                    title="Renommer"
+                    title={at.rename}
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -783,7 +783,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                     type="button"
                     onClick={(e) => { e.stopPropagation(); deleteChat(c.id); }}
                     className="opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded text-red-600 hover:bg-red-100"
-                    title="Supprimer"
+                    title={at.del}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -798,7 +798,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col lg:max-h-[820px] min-h-[720px]">
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
           <div className="text-sm font-semibold text-[#C04F17] flex-1 break-words">
-            {activeChat?.title || "Nouvelle conversation"}
+            {activeChat?.title || at.newChat}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button
@@ -808,15 +808,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 if (!next) { try { tts.stop(); } catch {/* noop */} }
               }}
               className={`h-8 px-2.5 flex items-center gap-1.5 rounded-full text-[11px] font-semibold transition-colors ${voiceMode ? "bg-[#C04F17] text-white" : "bg-white/70 text-[#C04F17] hover:bg-white"}`}
-              title="Mode vocal : lecture automatique + réouverture du micro"
+              title={at.voiceModeTip}
             >
-              <Headphones className="h-3.5 w-3.5" /> Mode vocal
+              <Headphones className="h-3.5 w-3.5" /> {at.voiceMode}
             </button>
             {activeChat && (
               <button
                 onClick={toggleBookmark}
                 className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-white/60 text-[#C04F17]"
-                title={activeChat.is_bookmarked ? "Retirer le bookmark" : "Bookmarker"}
+                title={activeChat.is_bookmarked ? at.removeBookmark : at.addBookmark}
               >
                 {activeChat.is_bookmarked ? <BookmarkCheck className="h-4 w-4" fill="currentColor" /> : <Bookmark className="h-4 w-4" />}
               </button>
@@ -874,7 +874,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                                 onClick={() => void handleOpenBusinessName(trimmed)}
                                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessName(trimmed); } }}
                                 className="cursor-pointer hover:underline"
-                                title="Ouvrir la fiche"
+                                title={at.openFiche}
                               >{children}</strong>
                             );
                           }
@@ -895,14 +895,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="text-sm font-semibold text-[#C04F17] truncate">
-                            {mp.title || `${mp.businesses.length} lieux sur la carte`}
+                            {mp.title || `${mp.businesses.length} ${at.placesOnMap}`}
                           </div>
                           <div className="text-[11px] text-[#0a1d6b]/70 truncate">
                             {mp.businesses.slice(0, 3).map((b) => b.name).join(" · ")}
                             {mp.businesses.length > 3 ? ` · +${mp.businesses.length - 3}` : ""}
                           </div>
                           <div className="text-[11px] text-[#C04F17] mt-0.5 font-medium group-hover/map:underline">
-                            Ouvrir la carte →
+                            {at.openMap}
                           </div>
                         </div>
                       </button>
@@ -910,7 +910,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                     <button
                       onClick={() => handleSpeakMessage(clean)}
                       className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#C04F17] hover:text-[#0a1d6b] opacity-70 hover:opacity-100 transition-opacity"
-                      title={ttsBusy && lastSpokenRef.current === clean ? "Arrêter la lecture" : "Écouter"}
+                      title={ttsBusy && lastSpokenRef.current === clean ? at.stopPlayback : at.listen}
                     >
                       {ttsBusy && lastSpokenRef.current === clean
                         ? (<><Square className="h-3 w-3" /> Stop</>)
@@ -935,7 +935,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKeyDown}
             rows={2}
-            placeholder="Demandez la météo, un lieu, ou reprenez un chat…"
+            placeholder={at.placeholder}
             className="w-full resize-none rounded-lg border border-white bg-white px-3 py-2 text-base text-[#0a1d6b] placeholder:text-[#C04F17]/50 focus:outline-none focus:ring-2 focus:ring-[#C04F17]"
             disabled={sending}
           />
@@ -955,7 +955,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 type="button"
                 onClick={() => voice.toggleRecording()}
                 disabled={sending}
-                title="Parler"
+                title={at.speak}
                 className="relative w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-2xl backdrop-saturate-150 border border-white/40 transition-transform hover:scale-105 disabled:opacity-50"
                 style={{
                   background: "linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15))",
@@ -977,7 +977,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 type="button"
                 onClick={() => send()}
                 disabled={sending || !input.trim()}
-                title="Envoyer"
+                title={at.sendBtn}
                 className="relative w-12 h-12 rounded-full flex items-center justify-center border border-white/40 transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background: "linear-gradient(135deg, #C04F17, #A03E0F)",
@@ -1019,10 +1019,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
           const url = window.location.href;
           try {
             if (navigator.share) {
-              await navigator.share({ title: activeChat?.title || "Mon espace Club", url });
+              await navigator.share({ title: activeChat?.title || at.myClubSpace, url });
             } else {
               await navigator.clipboard.writeText(url);
-              toast({ title: "Lien copié", description: "Le lien de la conversation a été copié." });
+              toast({ title: at.linkCopied, description: at.linkCopiedDesc });
             }
           } catch { /* user cancelled */ }
         }}
