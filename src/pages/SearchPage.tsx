@@ -191,9 +191,13 @@ const SearchPage = () => {
     const current = new URLSearchParams(window.location.search);
     const resolved = typeof next === "function" ? next(current) : next;
     const sp = resolved instanceof URLSearchParams ? resolved : new URLSearchParams(resolved as Record<string, string>);
-    const target = `${withLangPrefix("/search", language as any)}?${sp.toString()}`;
+    // Derive the language prefix from the LIVE browser URL — not from the
+    // context `language` (which can lag by one render right after a lang
+    // switch) — so we never accidentally rewrite /en/search back to /search.
+    const liveLang = getLangFromPath(window.location.pathname);
+    const target = `${withLangPrefix("/search", liveLang)}?${sp.toString()}`;
     navigate(target, { replace: opts?.replace });
-  }, [navigate, language]);
+  }, [navigate]);
   const { translateSubcategory } = useTaxonomyTranslations();
   const trFsName = (name: string) => {
     const v = translateVignetteLabel(name, language as any);
