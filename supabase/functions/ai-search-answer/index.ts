@@ -572,10 +572,11 @@ serve(async (req) => {
     let businessContext = buildBusinessContext(renderBusinesses, effectiveHasRenderResults);
 
     const langInstructions = language === "en"
-      ? "Answer in English."
+      ? "WRITE YOUR ENTIRE ANSWER IN ENGLISH ONLY. Do not use any French words or phrases, even if the instructions and business data below are in French. Translate any French descriptive text into natural English."
       : language === "ar"
-        ? "Answer in Arabic."
+        ? "اكتب إجابتك بالكامل باللغة العربية فقط. لا تستخدم أي كلمات أو عبارات فرنسية، حتى لو كانت التعليمات وبيانات الأنشطة أدناه بالفرنسية. ترجم أي نص وصفي فرنسي إلى العربية الطبيعية."
         : "Réponds en français.";
+
 
     // noResultsInstructions est désormais inliné directement dans le prompt
     // pour pouvoir s'appuyer sur effectiveHasRenderResults (post-filtre proximité).
