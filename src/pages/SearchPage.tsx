@@ -4575,6 +4575,7 @@ const SearchPage = () => {
                     displayAiText,
                     linkDataSource,
                     (b: AIBusinessData) => {
+                      ttsStop();
                       if (activeTab === "poi") {
                         // For POI, close overlay and open POI business panel
                         setShowAiPopup(false);
@@ -4773,6 +4774,7 @@ const SearchPage = () => {
                                       displayContent,
                                       aiInlineBusinessPool,
                                       (b: AIBusinessData) => {
+                                        ttsStop();
                                         setShowAiPopup(false);
                                         setOverlaySelectedBusiness(null);
                                         openCompactPanel(b);
