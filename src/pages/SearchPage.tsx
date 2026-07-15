@@ -5690,7 +5690,7 @@ const SearchPage = () => {
                   <X className="h-4 w-4" />
                 </button>
                 <span className="flex-1 text-sm font-medium text-black truncate">
-                  {mobileMapPoiItemsFinal.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{mobileFsTabId ? `${mobileFrontTabs.find(t => t.id === mobileFsTabId)?.name || ''}${effectiveCityForMap ? ` à ${effectiveCityForMap}` : ''}`.trim() : (searchQuery || (labelFromUrl ? `${labelFromUrl}${effectiveCityForMap ? ` à ${effectiveCityForMap}` : ''}`.trim() : ''))}"
+                  {mobileMapPoiItemsFinal.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{mobileFsTabId ? `${mobileFrontTabs.find(t => t.id === mobileFsTabId)?.name || ''}${effectiveCityForMap ? ` à ${effectiveCityForMap}` : ''}`.trim() : (searchQuery || (labelFromUrl ? `${translateVignetteLabel(labelFromUrl, language)}${effectiveCityForMap ? ` à ${effectiveCityForMap}` : ''}`.trim() : ''))}"
                 </span>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
