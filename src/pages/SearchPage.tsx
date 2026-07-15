@@ -6416,7 +6416,7 @@ const SearchPage = () => {
                   businessId={compactPanelBusiness.id}
                   initialVideoUrl={compactPanelInitialVideoUrl || undefined}
                   onClose={closeCompactPanel}
-                  externalOverlayActive={showAiPopup}
+                  externalOverlayActive={showAiPopup || filtersOverlayOpen}
                   forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                   interceptCloseRef={compactPanelInterceptCloseRef}
                   showSearchBar
