@@ -188,7 +188,9 @@ const SearchPage = () => {
   // LocalizedRoutes strips the prefix from the Routes matcher, which causes
   // the default setSearchParams to write back to "/search" and lose the lang.
   const setSearchParams = useCallback((next: any, opts?: { replace?: boolean }) => {
-    const sp = next instanceof URLSearchParams ? next : new URLSearchParams(next as Record<string, string>);
+    const current = new URLSearchParams(window.location.search);
+    const resolved = typeof next === "function" ? next(current) : next;
+    const sp = resolved instanceof URLSearchParams ? resolved : new URLSearchParams(resolved as Record<string, string>);
     const target = `${withLangPrefix("/search", language as any)}?${sp.toString()}`;
     navigate(target, { replace: opts?.replace });
   }, [navigate, language]);
