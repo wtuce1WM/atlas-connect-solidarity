@@ -16,6 +16,8 @@ const T = {
 interface HashtagBadge {
   id: string;
   name_fr: string;
+  name_en: string | null;
+  name_ar: string | null;
 }
 
 interface Props {
