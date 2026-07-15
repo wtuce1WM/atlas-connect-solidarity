@@ -159,9 +159,10 @@ const ClubYoutubeRecommendations = () => {
       videos.map((v) => ({
         id: v.id,
         url: v.url,
-        business_name: v.title || "Vidéo",
+        business_name: v.title || (language === "en" ? "Video" : language === "ar" ? "فيديو" : "Vidéo"),
         pageBusinessName: null,
         pageBusinessId: null,
+
         owner: null,
         social: null,
         showSocialBadge: false,
