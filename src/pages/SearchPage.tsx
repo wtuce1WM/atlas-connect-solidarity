@@ -3871,7 +3871,7 @@ const SearchPage = () => {
     } else {
       params.set("category", category);
     }
-    navigate(`/search?${params.toString()}`, { replace: true });
+    navigate(`${withLangPrefix("/search", language as any)}?${params.toString()}`, { replace: true });
   };
 
   const goToPage = async (page: number) => {
