@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { assertStaff } from "../_shared/auth-helpers.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -50,6 +51,9 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const auth = await assertStaff(req, corsHeaders);
+  if (auth instanceof Response) return auth;
 
   try {
     const { limit = 50, targetLang = 'fr' } = await req.json().catch(() => ({}));

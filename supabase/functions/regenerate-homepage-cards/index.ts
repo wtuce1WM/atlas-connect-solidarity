@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { assertStaff } from "../_shared/auth-helpers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -337,6 +338,9 @@ async function buildSnapshot(supabase: any, city: string) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const auth = await assertStaff(req, corsHeaders);
+  if (auth instanceof Response) return auth;
 
   try {
     const supabase = createClient(

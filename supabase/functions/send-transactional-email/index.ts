@@ -2,6 +2,7 @@ import * as React from 'npm:react@18.3.1'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
+import { assertAllowedOrigin } from '../_shared/auth-helpers.ts'
 
 // Configuration baked in at scaffold time — do NOT change these manually.
 // To update, re-run the email domain setup flow.
@@ -39,6 +40,14 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
+
+  // Block cURL/bots/off-site callers: only requests coming from an allowed
+  // frontend origin (oneworldmorocco.com, *.lovable.app/dev, localhost) may
+  // trigger site emails. Server-to-server callers (other edge functions using
+  // the service role) send no Origin/Referer and are still allowed.
+  const originBlocked = assertAllowedOrigin(req, corsHeaders)
+  if (originBlocked) return originBlocked
+
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
