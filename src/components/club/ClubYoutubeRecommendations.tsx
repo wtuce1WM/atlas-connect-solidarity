@@ -200,7 +200,7 @@ const ClubYoutubeRecommendations = () => {
                 {v.thumbnail ? (
                   <img
                     src={v.thumbnail}
-                    alt={v.title || "Vidéo YouTube"}
+                    alt={v.title || (language === "en" ? "YouTube video" : language === "ar" ? "فيديو يوتيوب" : "Vidéo YouTube")}
                     loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
