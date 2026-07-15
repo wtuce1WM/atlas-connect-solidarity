@@ -68,6 +68,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
 import { translateFrontStructure } from "@/lib/frontStructureTranslations";
+import { withLangPrefix } from "@/lib/localizedPath";
 import { ToolbarPortals } from "@/components/slidepanel/ToolbarPortals";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { CtaBar, CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
@@ -2860,6 +2861,17 @@ const BookOnlineSlidePanelInner = ({
                                 label: ft.name,
                                 _t: String(Date.now()),
                               });
+                              // Preserve the current URL language prefix (/en, /ar, or FR).
+                              const params = new URLSearchParams({
+                                subcats: Array.from(ft.subcategoryNames).join("|"),
+                                city: business.city,
+                                label: ft.name,
+                                _t: String(Date.now()),
+                              });
+                              const target = `${withLangPrefix("/search", language as any)}?${params.toString()}`;
+                              if (window.location.pathname + window.location.search !== target) {
+                                window.history.replaceState(null, "", target);
+                              }
                             }
                           }}>
 
