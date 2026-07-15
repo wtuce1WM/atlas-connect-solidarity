@@ -480,36 +480,38 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                   <span className="text-xs font-semibold text-white text-center leading-tight">{label}</span>
                 </button>
               ))}
-              <button
-                type="button"
-                onClick={() => avatarInputRef.current?.click()}
-                disabled={uploadingAvatar}
-                aria-label={language === "en" ? "Change profile photo" : language === "ar" ? "تغيير الصورة الشخصية" : "Changer la photo de profil"}
-                className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
-              >
-                <img
-                  src={avatarUrl || accountAvatar}
-                  alt={language === "en" ? "Profile photo" : language === "ar" ? "الصورة الشخصية" : "Photo de profil"}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-                {uploadingAvatar && (
-                  <span className="absolute inset-0 flex items-center justify-center bg-background/60">
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  </span>
+              <div className="flex flex-col items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  aria-label={language === "en" ? "Change profile photo" : language === "ar" ? "تغيير الصورة الشخصية" : "Changer la photo de profil"}
+                  className="relative h-24 w-24 rounded-full overflow-hidden border border-border bg-muted hover:opacity-90 transition disabled:opacity-50"
+                >
+                  <img
+                    src={avatarUrl || accountAvatar}
+                    alt={language === "en" ? "Profile photo" : language === "ar" ? "الصورة الشخصية" : "Photo de profil"}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  {uploadingAvatar && (
+                    <span className="absolute inset-0 flex items-center justify-center bg-background/60">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    </span>
+                  )}
+                </button>
+                {form.nickname && (
+                  <div className="text-white text-sm font-semibold">@{form.nickname}</div>
                 )}
-              </button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
+              </div>
             </div>
-            {form.nickname && (
-              <div className="text-white text-sm font-semibold">@{form.nickname}</div>
-            )}
-            <input
-              ref={avatarInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarUpload}
-            />
           </div>
 
 
