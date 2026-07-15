@@ -637,7 +637,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-foreground"
-                    aria-label={`Ouvrir ${label}`}
+                    aria-label={`${language === "en" ? "Open" : language === "ar" ? "فتح" : "Ouvrir"} ${label}`}
                   >
                     <ExternalLink className="h-4 w-4" />
                   </a>
