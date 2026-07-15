@@ -4,6 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
 import { prerenderOgPlugin } from "./scripts/prerender-og";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -23,6 +24,7 @@ export default defineConfig(({ mode }) => ({
     // Bundle analyzer — only when ANALYZE=1 is set. Generates dist/stats.html.
     process.env.ANALYZE === "1" && (visualizer({ filename: "dist/stats.html", template: "treemap", gzipSize: true, brotliSize: false }) as any),
     prerenderOgPlugin(),
+    mcpPlugin(),
   ].filter(Boolean),
   resolve: {
     alias: {
