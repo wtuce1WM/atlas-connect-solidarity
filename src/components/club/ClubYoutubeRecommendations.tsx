@@ -182,8 +182,9 @@ const ClubYoutubeRecommendations = () => {
       <section className="w-full px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-white text-xl md:text-2xl font-bold mb-4 !font-sans">
-            Vidéos Youtube recommandées
+            {language === "en" ? "Recommended YouTube videos" : language === "ar" ? "فيديوهات يوتيوب موصى بها" : "Vidéos Youtube recommandées"}
             <span className="text-white/60 text-sm font-normal ml-2">· {label}</span>
+
           </h2>
           <div className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-hide">
             {videos.map((v) => (
