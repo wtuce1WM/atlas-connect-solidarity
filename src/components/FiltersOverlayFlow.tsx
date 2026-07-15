@@ -213,21 +213,21 @@ export default function FiltersOverlayFlow({
           onClick={handleBack}
           className="w-9 h-9 rounded-full bg-black hover:bg-black/90 flex items-center justify-center text-white cursor-pointer touch-manipulation"
           style={{ WebkitTapHighlightColor: "transparent" }}
-          aria-label={step === 1 ? "Fermer les filtres" : "Retour"}
+          aria-label={step === 1 ? tr("close") : tr("back")}
         >
           <X className="h-4 w-4 pointer-events-none" />
         </button>
         <nav
           className="flex-1 min-w-0 px-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-white"
           style={{ fontFamily: "'Montserrat', sans-serif" }}
-          aria-label="Fil d'Ariane"
+          aria-label={tr("breadcrumb")}
         >
           <button
             type="button"
             onClick={() => onTabClick(null)}
             className={`truncate hover:underline ${step === 1 ? "opacity-100" : "opacity-60"}`}
           >
-            Catégories
+            {tr("categories")}
           </button>
           {activeTab && (
             <>
@@ -237,7 +237,7 @@ export default function FiltersOverlayFlow({
                 onClick={() => onSubClick(null)}
                 className={`truncate hover:underline ${step === 2 ? "opacity-100" : "opacity-60"}`}
               >
-                {activeTab.name}
+                {translateFrontStructure(activeTab.name, language)}
               </button>
             </>
           )}
@@ -249,7 +249,7 @@ export default function FiltersOverlayFlow({
                 onClick={() => onSubClick(activeSub.id)}
                 className="truncate hover:underline"
               >
-                {activeSub.name}
+                {translateSubcategory(activeSub.name, language)}
               </button>
             </>
           )}
