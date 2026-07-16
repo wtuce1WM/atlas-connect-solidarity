@@ -1636,6 +1636,21 @@ ${urls}
           responses: { "200": { description: "OK", content: { "application/json": {} } } },
         },
       },
+      "/ai/cities.json": {
+        get: { summary: "Villes avec quartiers + compteur d'établissements", responses: { "200": { description: "OK", content: { "application/json": {} } } } },
+      },
+      "/ai/neighborhoods.json": {
+        get: { summary: "Quartiers avec liste d'établissements", responses: { "200": { description: "OK", content: { "application/json": {} } } } },
+      },
+      "/ai/pois.json": {
+        get: { summary: "Points d'intérêt avec établissements à proximité", responses: { "200": { description: "OK", content: { "application/json": {} } } } },
+      },
+      "/ai/destinations.json": {
+        get: { summary: "Destinations touristiques (régions/villes agrégées)", responses: { "200": { description: "OK", content: { "application/json": {} } } } },
+      },
+      "/ai/graph.jsonld": {
+        get: { summary: "Graphe Schema.org complet (villes, quartiers, POIs, destinations, établissements + arêtes)", responses: { "200": { description: "OK", content: { "application/ld+json": {} } } } },
+      },
       "/ai/sitemap.xml": {
         get: {
           summary: "Sitemap XML dédié aux fiches établissement",
