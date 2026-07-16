@@ -578,6 +578,7 @@ function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = [], relations: 
     <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>
   </head>
   <body style="background-color:#faf8f5;margin:0">
+    ${buildSeoBody(biz, reviews, relations, distanceProps, faqItems, url, slugify)}
     <script>
       (function () {
         var ua = navigator.userAgent || "";
@@ -595,10 +596,6 @@ function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = [], relations: 
           });
       })();
     </script>
-    <noscript>
-      <h1>${e.title}</h1>
-      <p>${e.description}</p>
-    </noscript>
   </body>
 </html>`;
 }
