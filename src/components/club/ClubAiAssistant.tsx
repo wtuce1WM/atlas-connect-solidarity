@@ -303,6 +303,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   // Map slide-panel state (opened when the user clicks a mini-map card in a message).
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [isBusinessPanelClosing, setIsBusinessPanelClosing] = useState(false);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   // Notify the parent Club page so it can hide its 4-CTA HomeBottomBar
   // while the slide-panel (with its own 6-CTA PanelSearchBar) is open.
@@ -349,6 +350,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
   };
   const goNextBusiness = () => {
     if (hasNextBusiness) void openBusinessBySlug(businessSlugsInOrder[currentSlugIdx + 1]);
+  };
+
+  const closeBusinessPanel = () => {
+    setIsBusinessPanelClosing(true);
+    window.setTimeout(() => {
+      setOpenBusinessId(null);
+      setIsBusinessPanelClosing(false);
+    }, 300);
   };
 
   const handleOpenBusinessLink = async (href: string | undefined) => {
@@ -912,14 +921,16 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
       {openBusinessId && (
         <div
-          className="fixed top-0 left-0 right-0 bottom-0 z-[60] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:left-1/2 lg:bottom-auto lg:h-screen lg:border-l lg:border-border"
+          className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col transform-gpu will-change-transform lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:w-1/2 ${isBusinessPanelClosing ? "animate-slide-out-right" : "animate-slide-in-right"}`}
+          style={{ height: "100dvh" }}
         >
-          <SlidePanelHeader onClose={() => setOpenBusinessId(null)} alwaysDark />
+          <SlidePanelHeader onClose={closeBusinessPanel} alwaysDark glassClose />
           <div className="flex-1 min-h-0 overflow-visible">
             <Suspense fallback={null}>
               <BookOnlineSlidePanel
+                key={openBusinessId}
                 businessId={openBusinessId}
-                onClose={() => setOpenBusinessId(null)}
+                onClose={closeBusinessPanel}
                 showSearchBar
                 onPrevBusiness={goPrevBusiness}
                 onNextBusiness={goNextBusiness}
