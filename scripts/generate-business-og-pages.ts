@@ -426,6 +426,75 @@ function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = [], relations: 
     (businessNode as any).additionalProperty = distanceProps;
   }
 
+  // containedInPlace : Quartier → Ville → Région → Maroc (chaîne d'appartenance)
+  // Signal fort pour les LLM et Google : localise l'entité dans la hiérarchie géo.
+  const containedChain: Array<Record<string, unknown>> = [];
+  if (biz.city) {
+    const cityNode: Record<string, unknown> = { "@type": "City", name: biz.city, address: { "@type": "PostalAddress", addressLocality: biz.city, addressCountry: "MA" } };
+    if (biz.region) {
+      cityNode.containedInPlace = { "@type": "AdministrativeArea", name: biz.region, containedInPlace: { "@type": "Country", name: "Maroc", identifier: "MA" } };
+    } else {
+      cityNode.containedInPlace = { "@type": "Country", name: "Maroc", identifier: "MA" };
+    }
+    if (biz.neighborhood) {
+      containedChain.push({ "@type": "Place", name: biz.neighborhood, containedInPlace: cityNode });
+    } else {
+      containedChain.push(cityNode);
+    }
+  } else if (biz.region) {
+    containedChain.push({ "@type": "AdministrativeArea", name: biz.region, containedInPlace: { "@type": "Country", name: "Maroc", identifier: "MA" } });
+  }
+  if (containedChain.length) {
+    (businessNode as any).containedInPlace = containedChain.length === 1 ? containedChain[0] : containedChain;
+  }
+
+  // nearbyAttraction : POIs liés à la fiche (business_poi_businesses) + destinations touristiques
+  const attractions: Array<Record<string, unknown>> = [];
+  for (const p of relations.pois || []) {
+    if (!p.name) continue;
+    const node: Record<string, unknown> = { "@type": "TouristAttraction", name: p.name };
+    if (p.latitude && p.longitude) node.geo = { "@type": "GeoCoordinates", latitude: p.latitude, longitude: p.longitude };
+    if (p.image) node.image = p.image;
+    const sa: string[] = [];
+    if (p.wikipedia) sa.push(p.wikipedia);
+    if (p.url) sa.push(p.url);
+    if (sa.length) node.sameAs = sa;
+    attractions.push(node);
+  }
+  for (const d of relations.destinations || []) {
+    if (!d.name) continue;
+    const node: Record<string, unknown> = { "@type": "TouristDestination", name: d.name };
+    if (d.latitude && d.longitude) node.geo = { "@type": "GeoCoordinates", latitude: d.latitude, longitude: d.longitude };
+    if (d.image) node.image = d.image;
+    const sa: string[] = [];
+    if (d.wikipedia) sa.push(d.wikipedia);
+    if (d.url) sa.push(d.url);
+    if (sa.length) node.sameAs = sa;
+    attractions.push(node);
+  }
+  if (attractions.length) {
+    (businessNode as any).nearbyAttraction = attractions.slice(0, 15);
+  }
+
+  // event : événements récurrents/ponctuels rattachés (event_businesses)
+  const evts = (relations.events || []).filter((e) => e.name).slice(0, 10).map((e) => {
+    const node: Record<string, unknown> = { "@type": "Event", name: e.name };
+    if (e.start_date) node.startDate = e.start_date;
+    if (e.end_date) node.endDate = e.end_date;
+    if (e.url) node.url = e.url;
+    if (e.image) node.image = e.image;
+    if (e.description) node.description = stripHtml(e.description).substring(0, 300);
+    if (e.latitude && e.longitude) {
+      node.location = { "@type": "Place", name: biz.name, geo: { "@type": "GeoCoordinates", latitude: e.latitude, longitude: e.longitude } };
+    } else {
+      node.location = { "@type": "Place", name: biz.name };
+    }
+    return node;
+  });
+  if (evts.length) {
+    (businessNode as any).event = evts;
+  }
+
   // BreadcrumbList : Maroc › (Ville) › (Quartier) › Fiche — signal fort pour Google/IA
   const slugify = (s: string) =>
     s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
