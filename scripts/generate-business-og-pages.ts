@@ -334,7 +334,13 @@ function normalizeFaqItems(raw: Biz["faq"]): Array<{ q: string; a: string }> {
     .slice(0, 20);
 }
 
-function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = []): string {
+export interface BizRelations {
+  pois?: Array<{ name: string; latitude?: number | null; longitude?: number | null; wikipedia?: string | null; url?: string | null; image?: string | null }>;
+  destinations?: Array<{ name: string; wikipedia?: string | null; url?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null }>;
+  events?: Array<{ name: string; start_date?: string | null; end_date?: string | null; url?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; description?: string | null }>;
+}
+
+function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = [], relations: BizRelations = {}): string {
   const title = `${biz.name}${biz.city ? ` – ${biz.city}` : ""} | ${SITE_NAME}`;
   const rawDesc = biz.hook_fr || biz.description || `Découvrez ${biz.name}.`;
   const description = stripHtml(rawDesc).substring(0, 160);
