@@ -341,6 +341,12 @@ function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = []): string {
     }),
   };
 
+  // Reviews individuels (Schema.org Review) : jusqu'à 5, source Google/TripAdvisor…
+  const reviewNodes = buildReviewNodes(reviews, biz.id, biz.name);
+  if (reviewNodes.length) {
+    (businessNode as any).review = reviewNodes;
+  }
+
   // BreadcrumbList : Maroc › (Ville) › (Quartier) › Fiche — signal fort pour Google/IA
   const slugify = (s: string) =>
     s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -362,9 +368,25 @@ function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = []): string {
     })),
   };
 
+  const graph: unknown[] = [businessNode, breadcrumbNode];
+
+  // FAQPage : injecté quand la fiche a une FAQ éditoriale
+  const faqItems = normalizeFaqItems(biz.faq);
+  if (faqItems.length) {
+    graph.push({
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      mainEntity: faqItems.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    });
+  }
+
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@graph": [businessNode, breadcrumbNode],
+    "@graph": graph,
   };
 
   const e = {
