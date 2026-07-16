@@ -641,9 +641,6 @@ const ClubAiAssistant = ({ userId }: Props) => {
           >
             <Plus className="h-4 w-4" /> {at.newChat}
           </button>
-          <div className="text-sm font-semibold text-[#C04F17] flex-1 break-words text-center">
-            {activeChat?.title || at.newChat}
-          </div>
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => {
