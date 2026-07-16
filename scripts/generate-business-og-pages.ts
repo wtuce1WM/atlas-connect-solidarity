@@ -340,6 +340,140 @@ export interface BizRelations {
   events?: Array<{ name: string; start_date?: string | null; end_date?: string | null; url?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; description?: string | null }>;
 }
 
+const DAY_LABELS_FR: Record<string, string> = {
+  monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu",
+  friday: "Ven", saturday: "Sam", sunday: "Dim",
+};
+
+function formatOpeningHoursText(oh: Biz["opening_hours"], is24h: boolean | null): string | null {
+  if (is24h) return "Ouvert 24h/24, 7j/7";
+  if (!oh || typeof oh !== "object") return null;
+  const parts: string[] = [];
+  for (const key of Object.keys(DAY_LABELS_FR)) {
+    const d = oh[key];
+    if (!d) continue;
+    if (d.closed) { parts.push(`${DAY_LABELS_FR[key]} : fermé`); continue; }
+    if (d.continuous) { parts.push(`${DAY_LABELS_FR[key]} : ouvert en continu`); continue; }
+    if (d.open && d.close) {
+      let s = `${DAY_LABELS_FR[key]} : ${d.open}–${d.close}`;
+      if (d.open2 && d.close2) s += `, ${d.open2}–${d.close2}`;
+      parts.push(s);
+    }
+  }
+  return parts.length ? parts.join(" · ") : null;
+}
+
+function buildSeoBody(
+  biz: Biz,
+  reviews: DbReview[],
+  relations: BizRelations,
+  distanceProps: Array<Record<string, unknown>>,
+  faqItems: Array<{ q: string; a: string }>,
+  url: string,
+  slugify: (s: string) => string,
+): string {
+  const parts: string[] = [];
+  const img = biz.images?.[0];
+  const heading = escapeHtml(`${biz.name}${biz.city ? ` — ${biz.city}` : ""}`);
+  parts.push(`<h1>${heading}</h1>`);
+  if (img) parts.push(`<img src="${escapeHtml(img)}" alt="${escapeHtml(biz.name)}" loading="lazy" width="1200" height="630" />`);
+
+  const longDesc = stripHtml(biz.description || biz.hook_fr || "");
+  if (longDesc) parts.push(`<p>${escapeHtml(longDesc)}</p>`);
+
+  // Informations
+  const infoRows: string[] = [];
+  if (biz.main_category) infoRows.push(`<li><strong>Catégorie&nbsp;:</strong> ${escapeHtml(biz.main_category)}</li>`);
+  const addrBits = [biz.address, biz.neighborhood, biz.city].filter(Boolean).join(", ");
+  if (addrBits) infoRows.push(`<li><strong>Adresse&nbsp;:</strong> ${escapeHtml(addrBits)}</li>`);
+  if (biz.phone) infoRows.push(`<li><strong>Téléphone&nbsp;:</strong> ${escapeHtml(biz.phone)}</li>`);
+  if (biz.whatsapp) infoRows.push(`<li><strong>WhatsApp&nbsp;:</strong> ${escapeHtml(biz.whatsapp)}</li>`);
+  if (biz.email) infoRows.push(`<li><strong>Email&nbsp;:</strong> ${escapeHtml(biz.email)}</li>`);
+  if (biz.website) infoRows.push(`<li><strong>Site web&nbsp;:</strong> <a href="${escapeHtml(biz.website)}" rel="noopener">${escapeHtml(biz.website)}</a></li>`);
+  const priceStr = biz.manual_price_range
+    || (typeof biz.min_price === "number" && biz.min_price > 0 ? `à partir de ${biz.min_price} MAD` : null);
+  if (priceStr) infoRows.push(`<li><strong>Prix&nbsp;:</strong> ${escapeHtml(priceStr)}</li>`);
+  if (biz.languages && biz.languages.length) infoRows.push(`<li><strong>Langues&nbsp;:</strong> ${escapeHtml(biz.languages.join(", "))}</li>`);
+  if (biz.google_rating) infoRows.push(`<li><strong>Note Google&nbsp;:</strong> ${biz.google_rating}/5 (${biz.google_review_count ?? 0} avis)</li>`);
+  const hoursText = formatOpeningHoursText(biz.opening_hours, biz.is_open_24h);
+  if (hoursText) infoRows.push(`<li><strong>Horaires&nbsp;:</strong> ${escapeHtml(hoursText)}</li>`);
+  if (infoRows.length) {
+    parts.push(`<section><h2>Informations pratiques</h2><ul>${infoRows.join("")}</ul></section>`);
+  }
+
+  // Services
+  if (biz.services && biz.services.length) {
+    const items = biz.services.slice(0, 20).map((s) => `<li>${escapeHtml(s)}</li>`).join("");
+    parts.push(`<section><h2>Services proposés</h2><ul>${items}</ul></section>`);
+  }
+
+  // Catégories additionnelles
+  if (biz.categories && biz.categories.length > 1) {
+    const items = biz.categories.slice(0, 10).map((c) => `<li>${escapeHtml(c)}</li>`).join("");
+    parts.push(`<section><h2>Catégories</h2><ul>${items}</ul></section>`);
+  }
+
+  // Avis (top 3 avec texte)
+  const topReviews = reviews
+    .filter((r) => r.business_id === biz.id)
+    .filter((r) => (r.text_fr || r.text || r.text_en || "").trim().length >= 30)
+    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+    .slice(0, 3);
+  if (topReviews.length) {
+    const items = topReviews.map((r) => {
+      const body = stripHtml(r.text_fr || r.text || r.text_en || "").substring(0, 400);
+      const author = escapeHtml(r.author_name || "Visiteur");
+      const rating = r.rating ? ` (${r.rating}/5)` : "";
+      const src = r.source ? ` — ${escapeHtml(r.source)}` : "";
+      return `<article><p><strong>${author}${rating}${src}</strong></p><p>${escapeHtml(body)}</p></article>`;
+    }).join("");
+    parts.push(`<section><h2>Avis clients</h2>${items}</section>`);
+  }
+
+  // FAQ
+  if (faqItems.length) {
+    const items = faqItems.slice(0, 10).map((f) =>
+      `<div><h3>${escapeHtml(f.q)}</h3><p>${escapeHtml(f.a)}</p></div>`
+    ).join("");
+    parts.push(`<section><h2>Questions fréquentes</h2>${items}</section>`);
+  }
+
+  // À proximité (POIs de la relation + distances landmarks)
+  const nearby: string[] = [];
+  for (const p of (relations.pois || []).slice(0, 8)) {
+    if (p.name) nearby.push(`<li>${escapeHtml(p.name)}</li>`);
+  }
+  for (const dp of distanceProps) {
+    const name = String(dp.name || "");
+    const val = String(dp.value || "");
+    if (name.startsWith("Distance ") && val) {
+      nearby.push(`<li>${escapeHtml(name.replace("Distance ", ""))} : ${escapeHtml(val)}&nbsp;km</li>`);
+    }
+  }
+  if (nearby.length) {
+    parts.push(`<section><h2>À proximité</h2><ul>${nearby.join("")}</ul></section>`);
+  }
+
+  // Événements
+  if (relations.events && relations.events.length) {
+    const items = relations.events.slice(0, 5).map((e) => {
+      const date = e.start_date ? ` (${escapeHtml(e.start_date.substring(0, 10))})` : "";
+      return `<li>${escapeHtml(e.name)}${date}</li>`;
+    }).join("");
+    parts.push(`<section><h2>Événements</h2><ul>${items}</ul></section>`);
+  }
+
+  // Navigation contextuelle
+  const navLinks: string[] = [];
+  if (biz.city) navLinks.push(`<a href="/destination/${slugify(biz.city)}">Découvrir ${escapeHtml(biz.city)}</a>`);
+  if (biz.neighborhood) navLinks.push(`<a href="/neighborhood/${slugify(biz.neighborhood)}">Quartier ${escapeHtml(biz.neighborhood)}</a>`);
+  if (biz.main_category) navLinks.push(`<a href="/category/${slugify(biz.main_category)}">Autres ${escapeHtml(biz.main_category)}</a>`);
+  navLinks.push(`<a href="${escapeHtml(url)}">Voir la fiche complète</a>`);
+  parts.push(`<nav>${navLinks.join(" · ")}</nav>`);
+
+  return `<main hidden aria-hidden="true">${parts.join("")}</main>`;
+}
+
 function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = [], relations: BizRelations = {}): string {
   const title = `${biz.name}${biz.city ? ` – ${biz.city}` : ""} | ${SITE_NAME}`;
   const rawDesc = biz.hook_fr || biz.description || `Découvrez ${biz.name}.`;
