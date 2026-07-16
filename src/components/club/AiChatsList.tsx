@@ -5,9 +5,9 @@ import { Loader2, Trash2, ExternalLink, Bookmark, Share2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const T = {
-  fr: { loading: "Chargement…", empty: "Aucune conversation sauvegardée. Bookmarkez une conversation depuis l'Assistant IA ou l'onglet IA pour la retrouver ici.", startedOn: "Démarrée le", open: "Ouvrir", share: "Partager", del: "Supprimer", confirmDel: "Supprimer cette conversation ?", copied: "Lien copié", clubBadge: "Club", locale: "fr-FR" },
-  en: { loading: "Loading…", empty: "No saved conversation. Bookmark a chat from the AI Assistant or AI tab to find it here.", startedOn: "Started on", open: "Open", share: "Share", del: "Delete", confirmDel: "Delete this conversation?", copied: "Link copied", clubBadge: "Club", locale: "en-GB" },
-  ar: { loading: "جارٍ التحميل…", empty: "لا توجد محادثات محفوظة. احفظ محادثة من مساعد الذكاء لتجدها هنا.", startedOn: "بُدئت في", open: "فتح", share: "مشاركة", del: "حذف", confirmDel: "حذف هذه المحادثة؟", copied: "تم نسخ الرابط", clubBadge: "نادي", locale: "ar-MA" },
+  fr: { loading: "Chargement…", empty: "Aucune conversation pour le moment. Démarrez une discussion depuis l'Assistant IA ou l'onglet IA de la recherche.", startedOn: "Démarrée le", open: "Ouvrir", share: "Partager", del: "Supprimer", confirmDel: "Supprimer cette conversation ?", copied: "Lien copié", clubBadge: "Club", locale: "fr-FR" },
+  en: { loading: "Loading…", empty: "No conversation yet. Start one from the AI Assistant or the AI tab in search.", startedOn: "Started on", open: "Open", share: "Share", del: "Delete", confirmDel: "Delete this conversation?", copied: "Link copied", clubBadge: "Club", locale: "en-GB" },
+  ar: { loading: "جارٍ التحميل…", empty: "لا توجد محادثات بعد. ابدأ محادثة من مساعد الذكاء أو تبويب الذكاء في البحث.", startedOn: "بُدئت في", open: "فتح", share: "مشاركة", del: "حذف", confirmDel: "حذف هذه المحادثة؟", copied: "تم نسخ الرابط", clubBadge: "نادي", locale: "ar-MA" },
 } as const;
 
 
@@ -38,8 +38,7 @@ const AiChatsList = ({ userId }: Props) => {
       .from("ai_chats")
       .select("id,title,city,created_at,updated_at,is_bookmarked,is_public,kind")
       .eq("user_id", userId)
-      .eq("is_bookmarked", true)
-      .order("created_at", { ascending: false });
+      .order("updated_at", { ascending: false });
     setChats((data as any as Row[]) || []);
     setLoading(false);
   };
@@ -88,7 +87,7 @@ const AiChatsList = ({ userId }: Props) => {
     <ul className="flex flex-col gap-2">
       {chats.map((c) => (
         <li key={c.id} className="flex items-center gap-3 p-3 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 transition-colors">
-          <Bookmark className="h-4 w-4 text-[#D4AF37] shrink-0" fill="currentColor" />
+          <Bookmark className={`h-4 w-4 shrink-0 ${c.is_bookmarked ? "text-[#D4AF37]" : "text-white/30"}`} fill={c.is_bookmarked ? "currentColor" : "none"} />
           <div className="flex-1 min-w-0">
             <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               {c.title}

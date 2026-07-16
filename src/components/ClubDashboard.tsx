@@ -11,6 +11,7 @@ import { User as UserIcon, MapPin, Plane, Lightbulb, Bell, Home, Bot } from "luc
 import ClubTrips from "@/components/club/ClubTrips";
 import BookmarkTripLinker from "@/components/club/BookmarkTripLinker";
 import ClubAiAssistant from "@/components/club/ClubAiAssistant";
+import AiChatsList from "@/components/club/AiChatsList";
 import { MessageCircle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -836,14 +837,9 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="ai-chats" className="mt-6">
-          <div className="rounded-lg border border-dashed border-white/30 bg-white/10 p-10 text-center text-sm text-white/90">
-            {language === "en"
-              ? "Your conversations are now in the AI Assistant tab."
-              : language === "ar"
-              ? "محادثاتك الآن في تبويب مساعد الذكاء."
-              : "Vos conversations sont maintenant dans l'onglet Assistant IA."}
-          </div>
+          <AiChatsList userId={user.id} />
         </TabsContent>
+
 
 
         <TabsContent value="profile" className="mt-6">
