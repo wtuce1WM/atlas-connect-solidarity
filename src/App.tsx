@@ -48,6 +48,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 const MarrakechArtisanat5Jours = lazy(() => import("./pages/MarrakechArtisanat5Jours"));
+const EventsPage = lazy(() => import("./pages/EventsPage"));
 const MarrakechGaleriesArt = lazy(() => import("./pages/MarrakechGaleriesArt"));
 // Template-based blog articles are served dynamically via /blog/:slug from public.blog_posts.
 // Only custom-layout articles (MarrakechArtisanat5Jours, MarrakechGaleriesArt) keep their own lazy imports above.
