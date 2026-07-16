@@ -1,78 +1,83 @@
-# Pré-rendu HTML+JSON-LD pour bots IA & moteurs
+## Problème (cause racine confirmée)
 
-## Objectif
+Le script `buildHtml` dans `scripts/generate-business-og-pages.ts` produit un `<body>` qui contient :
+1. Un script qui, pour Googlebot (inclus dans `isPreviewBot`), fait `return` early — **la SPA n'est jamais injectée pour Googlebot**.
+2. Un `<noscript>` — invisible pour Googlebot puisqu'il exécute JS.
 
-Servir aux bots (GPTBot, PerplexityBot, ClaudeBot, Googlebot, etc.) une version HTML statique riche (titre, description, JSON-LD, contenu textuel) au lieu du SPA React vide. Les humains continuent de voir le SPA normalement.
+Résultat : Googlebot voit meta tags + JSON-LD OK, mais **zéro contenu visible** → il classe la page en soft 404 malgré la présence de données structurées.
 
-## Principe
+## Solution
 
-Une edge function `bot-prerender` intercepte les requêtes et détecte le User-Agent :
-- **Bot détecté** → renvoie HTML pré-rendu depuis la DB (titre, meta, JSON-LD, texte principal, liens internes)
-- **Humain** → renvoie le SPA React classique (`index.html`)
+Injecter, **avant le script** (donc visible dans le DOM initial pour Googlebot), un vrai contenu HTML riche à partir des données déjà chargées depuis Supabase. Ce contenu est écrasé par `document.write(html)` pour les vrais utilisateurs → aucun impact UX.
 
-Le routage se fait via un fichier `public/_headers` ou une règle Lovable côté hosting. Comme Lovable ne permet pas de rewrite au niveau CDN, on utilise une **approche hybride** :
+## Modifications
 
-1. Le SPA reste servi par défaut sur toutes les routes.
-2. Une edge function `bot-prerender` expose des URLs publiques que les bots peuvent crawler directement via le sitemap.
-3. Le sitemap pointe les bots vers `https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/bot-prerender?url=/fiche/xxx` — mais cette approche est fragile.
+Un seul fichier à modifier : `scripts/generate-business-og-pages.ts`, fonction `buildHtml` (ligne 343), section body (lignes 580-602).
 
-**Meilleure approche** : générer des `.html` statiques au build/nightly via GitHub Actions et les servir depuis `public/` — comme on fait déjà pour les fiches individuelles (`public/dar-fragrance/index.html`).
+Le nouveau body suivra cette structure sémantique (style inline neutre pour rester invisible côté humains grâce au `document.write` qui remplace tout) :
 
-## Ce qui existe déjà
+```text
+<body>
+  <main hidden>
+    <h1>{name} — {city}</h1>
+    <img src="{image1}" alt="{name}" />
 
-Le projet a déjà des fichiers HTML pré-rendus pour ~200+ fiches business dans `public/<slug>/index.html` avec :
-- Meta tags complets (title, description, canonical, OG, Twitter)
-- JSON-LD `LocalBusiness` (nom, image, geo, address, rating)
-- Fallback `<noscript>` avec H1 + description
-- Script JS qui hydrate le SPA pour les humains
+    <p>{description complète, non tronquée}</p>
 
-**C'est exactement l'architecture recommandée.** Il ne manque que :
-1. Étendre la couverture (blog articles, hubs catégories, quartiers)
-2. Enrichir le JSON-LD (Restaurant/Hotel typé + FAQ + Review)
-3. Régénérer automatiquement quand la DB change
+    <section>
+      <h2>Informations</h2>
+      - Catégorie : {main_category}
+      - Adresse : {address}, {neighborhood}, {city}
+      - Téléphone : {phone}
+      - Prix : {priceRange ou min_price}
+      - Langues : {languages}
+      - Horaires : résumé lisible
+    </section>
 
-## Plan d'exécution (3 étapes)
+    <section>
+      <h2>Services</h2>
+      <ul>{services jusqu'à 15}</ul>
+    </section>
 
-### Étape 1 — Auditer & enrichir les fiches existantes
+    <section hidden={si aucun avis}>
+      <h2>Avis</h2>
+      3 meilleurs avis (text_fr, auteur, note)
+    </section>
 
-Vérifier ce qu'on a :
-- Combien de fiches business ont leur `public/<slug>/index.html` ?
-- Quels champs manquent dans le JSON-LD actuel (Restaurant vs LocalBusiness, priceRange, openingHours, telephone, servesCuisine) ?
-- Le script de génération existe-t-il ? Où ? (probablement un edge function ou script Node)
+    <section hidden={si aucune FAQ}>
+      <h2>Questions fréquentes</h2>
+      {faq items q/a}
+    </section>
 
-### Étape 2 — Étendre la couverture
+    <section hidden={si aucun landmark}>
+      <h2>À proximité</h2>
+      Distances aux POIs de référence (déjà calculées via buildDistancePropertyValues)
+    </section>
 
-Générer des `.html` statiques pour :
-- **Articles blog** (`/blog/:slug`) → `Article` + `BlogPosting` JSON-LD
-- **Hubs catégorie** (`/category/:cat`) → `CollectionPage` + liste des business
-- **Hubs quartier** (`/neighborhood/:slug`) → `Place` + business associés
-- **Hub destination** (`/destination/:slug`) → `TouristDestination`
+    <nav>
+      <a href="/{city}">Voir {city}</a>
+      <a href="/category/{main_category}">Voir la catégorie</a>
+    </nav>
+  </main>
 
-### Étape 3 — Automatiser la régénération
+  <script>...bot detection existant, inchangé...</script>
+</body>
+```
 
-Edge function `regenerate-static-pages` déclenchée :
-- À la création/modification d'un business (trigger DB)
-- Nightly via cron pour rafraîchir ratings/reviews
-- Manuellement depuis le back-office
+Notes techniques :
+- L'attribut `hidden` sur `<main>` ne bloque pas l'indexation Google (bien documenté) mais garantit que si la SPA échoue à s'injecter pour un vrai utilisateur, il ne voit pas ce contenu brut peu stylé.
+- Les données sont déjà toutes disponibles dans les paramètres `biz`, `reviews`, `relations` — pas de fetch supplémentaire, pas d'impact sur le temps de build.
+- Le `<noscript>` actuel est retiré (redondant avec le nouveau contenu et jamais lu par Googlebot).
 
-## Détails techniques
+## Vérification
 
-**Fichiers concernés** :
-- `public/<slug>/index.html` (existant, pattern à réutiliser)
-- Nouvel edge function `generate-static-page` (à créer)
-- Nouvel edge function `regenerate-all-static-pages` (batch)
-- Peut-être un bouton dans `/staff` pour déclencher la régénération
+Après régénération (`bunx tsx scripts/generate-business-og-pages.ts`) :
+1. `curl -s https://oneworldmorocco.com/nox-agency | grep -c "<h2>"` → doit renvoyer ≥ 2
+2. Test dans GSC → Inspection d'URL → « Tester l'URL en direct » sur 2-3 URLs listées dans le rapport soft 404 → vérifier que "Contenu de la page" affiche maintenant du texte substantiel.
+3. Demander à Google la revalidation du rapport soft 404 (bouton "Valider la correction" dans GSC).
 
-**JSON-LD à enrichir par type** :
-- `Restaurant` : `servesCuisine`, `priceRange`, `menu`, `acceptsReservations`
-- `Hotel`/`LodgingBusiness` : `starRating`, `amenityFeature`, `checkinTime`
-- `TouristAttraction` : `isAccessibleForFree`, `publicAccess`
-- Tous : `openingHoursSpecification`, `telephone`, `sameAs` (réseaux)
+## Portée
 
-**Détection bot côté script d'hydratation** : déjà fait dans les fichiers existants (regex WhatsApp|facebookexternalhit|Googlebot|bingbot). À étendre : `GPTBot|PerplexityBot|ClaudeBot|Google-Extended|Applebot`.
-
-## Question avant de lancer
-
-Je propose de commencer par **Étape 1 — audit** : je lis les fichiers existants, je vérifie combien de fiches sont couvertes, quel est le script de génération, et ce qui manque dans le JSON-LD. Je te livre un état des lieux précis avant de coder quoi que ce soit.
-
-OK pour cet audit d'abord, ou tu veux qu'on saute direct à l'Étape 2 (blog + hubs) ?
+- ~1500 fichiers `public/{slug}/index.html` régénérés au prochain build.
+- Aucun impact sur : SPA, UX, sitemap, autres routes, taille de build (~20-40 Ko par page, négligeable sur CDN).
+- Le fix couvre aussi les futures pages générées (event, destination, category, POI qui partagent le même pattern de body — je l'appliquerai partout).
