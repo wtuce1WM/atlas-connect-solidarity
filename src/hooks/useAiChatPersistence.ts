@@ -59,6 +59,7 @@ export function useAiChatPersistence({
   const [userId, setUserId] = useState<string | null>(null);
   const [chatId, setChatId] = useState<string | null>(urlChatId);
   const [ownerId, setOwnerId] = useState<string | null>(null);
+  const [anonToken, setAnonToken] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isPublic, setIsPublic] = useState(false);
@@ -72,10 +73,10 @@ export function useAiChatPersistence({
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // For anonymous chats (user_id IS NULL in DB), anyone with the chatId can edit (and the local creator is the de-facto owner).
+  // For anonymous chats (user_id IS NULL in DB), editing requires the secret token stored client-side.
   // For signed-in chats, only the auth user matches.
   const isAnonChat = ownerId === null && !!chatId;
-  const isOwner = isAnonChat || (!!userId && !!ownerId && userId === ownerId);
+  const isOwner = (!!isAnonChat && !!anonToken) || (!!userId && !!ownerId && userId === ownerId);
 
   // Hydrate from URL chatId
   const hydratedRef = useRef<string | null>(null);
