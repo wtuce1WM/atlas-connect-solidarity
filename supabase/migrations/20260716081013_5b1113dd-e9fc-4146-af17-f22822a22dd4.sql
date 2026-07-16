@@ -1,0 +1,1 @@
+REVOKE SELECT (notes) ON public.knowledge_entries FROM anon;
