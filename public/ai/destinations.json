@@ -1,0 +1,756 @@
+{
+  "@meta": {
+    "source": "ONE WORLD MOROCCO",
+    "url": "https://oneworldmorocco.com/ai/destinations.json",
+    "generated_at": "2026-07-16T08:46:13.308Z",
+    "count": 42
+  },
+  "destinations": [
+    {
+      "id": "e6e43af9-1523-4aaf-833d-645f7f5a9aa1",
+      "name": "Anti-Atlas",
+      "name_en": "Anti-Atlas",
+      "region": [
+        "Dakhla-Oued Ed-Dahab",
+        "Souss-Massa",
+        "Guelmim-Oued Noun"
+      ],
+      "latitude": 30,
+      "longitude": -8.5,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Anti-Atlas",
+      "hook": "Peu fréquentée par le tourisme de masse, l’Anti-Atlas offre des paysages spectaculaires.",
+      "description": "L’ Anti-Atlas est une chaîne de montagnes située au sud-ouest du Maroc , souvent nommée Petit Atlas , s’étendant sur des centaines de kilomètres entre le Haut Atlas central, le Souss et les plateaux sahariens. Cette région aride, façonnée il y a près de 300 millions d’années, est aujourd’hui le territoire traditionnel des tribus berbères Chleuh qui y vivent depuis des millénaires, pratiquant une a",
+      "cities": [
+        "Agadir",
+        "Taroudant"
+      ]
+    },
+    {
+      "id": "b33fc9ec-628b-4354-b11f-580917119d50",
+      "name": "Mont M’Goun",
+      "name_en": "Mount M’Goun",
+      "region": [
+        "Drâa-Tafilalet"
+      ],
+      "latitude": 31.5094444,
+      "longitude": -6.4469444,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/logos/b33fc9ec-628b-4354-b11f-580917119d50-logo-1772437385566.jpg",
+      "wikipedia": "https://fr.wikipedia.org/wiki/Ighil_M%27Goun",
+      "hook": null,
+      "description": "Le Maroc, avec sa diversité géographique à couper le souffle, est un paradis pour les amateurs de randonnée et d’escalade. Parmi ses montagnes les plus impressionnantes et les moins explorées se trouve le Mont M’Goun, une expérience inoubliable pour les aventuriers en quête de panoramas spectaculaires et de défis en altitude. L’Ighil M’Goun, culminant à 4 071 mètres d’altitude, se hisse en troisiè",
+      "cities": [
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "2f006ce4-6aed-437b-92d4-8b7318cc39bb",
+      "name": "Ouarzazate",
+      "name_en": "Ouarzazate",
+      "region": [
+        "Drâa-Tafilalet"
+      ],
+      "latitude": 30.9335436,
+      "longitude": -6.937016,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Ouarzazate",
+      "hook": "Ourzazate et Ait Benhadou",
+      "description": "Ouarzazate est un trait d’union entre les montages du Haut-Atlas, les oasis des vallées du Dadès et du Draa et le plateau désertique du sud marocain La visite de l'ait Ben Haddou Kasbah et Ouarzazate explore une région qui est un peu plus loin de Marrakech, mais peut encore être achevé en une journée. La Kasbah est classée comme site du patrimoine mondial de l'UNESCO et est accessible en passant p",
+      "cities": [
+        "Marrakech",
+        "Ouarzazate",
+        "Zagora",
+        "Merzouga",
+        "Béni Mellal"
+      ]
+    },
+    {
+      "id": "95bd215b-2f97-409f-9490-0c711da2baac",
+      "name": "Ait Ben Haddou",
+      "name_en": "Ait Ben Haddou",
+      "region": [
+        "Drâa-Tafilalet"
+      ],
+      "latitude": 31.0470904,
+      "longitude": -7.1294148,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Ksar_d%27A%C3%AFt-ben-Haddou",
+      "hook": "Classée comme site du patrimoine mondial de l'UNESCO",
+      "description": "La visite de l'ait Ben Haddou Kasbah et Ouarzazate explore une région qui est un peu plus loin de Marrakech, mais peut encore être achevé en une journée. La Kasbah est classée comme site du patrimoine mondial de l'UNESCO et est accessible en passant par les magnifiques paysages des montagnes de l'Atlas. Ensuite, découvrez Ouarzazate, qui est une ville magique considérée comme la porte d'entrée du ",
+      "cities": [
+        "Marrakech",
+        "Ouarzazate",
+        "Merzouga",
+        "Zagora",
+        "Béni Mellal"
+      ]
+    },
+    {
+      "id": "e834b9a5-ba58-4854-b76a-ecf4e9f7e9b2",
+      "name": "Vallée des roses",
+      "name_en": "Rose Valley",
+      "region": [
+        "Drâa-Tafilalet"
+      ],
+      "latitude": 31.2723471,
+      "longitude": -6.137974,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Vall%C3%A9e_des_roses_(Maroc)",
+      "hook": null,
+      "description": "La Vallée des Roses est un incontournable du Maroc et du Haut Atlas. C'est ici que l'on trouve la fameuse rose de Damas, ou Rosa Damascena, introduite par des pèlerins de retour de la Mecque il y a plus de 1000 ans. C'est aussi le point de départ de nombreuses randonnées dans les Kelâat M'gouna. Aussi appelées Agouti, ces gorges verdoyantes sont Considérées comme les plus belles du Haut Atlas. N'a",
+      "cities": [
+        "Marrakech",
+        "Ouarzazate",
+        "Merzouga",
+        "Béni Mellal",
+        "Zagora"
+      ]
+    },
+    {
+      "id": "7282dce6-860d-4427-a12e-84f58f921b35",
+      "name": "Lac Lalla Takerkoust",
+      "name_en": "Lalla Takerkoust Lake",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.3490148,
+      "longitude": -8.1430957,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": "À environ 40 kilomètres au sud-ouest de Marrakech, le lac de Lalla-Takerkoust est une étendue d’eau douce artificielle qui offre une échappée rafraîchissante loin de l’animation de la ville rouge. Créé dans les années 1930 suite à la construction d’un barrage sur l’oued N’Fis, ce lac de barrage joue un rôle essentiel pour l’irrigation des terres agricoles et l’approvisionnement en eau de la région",
+      "cities": [
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "60b6775a-4761-44f7-a95f-41b413c4c63e",
+      "name": "Cascades d'Ouzoud",
+      "name_en": "Ouzoud Falls",
+      "region": [
+        "Béni Mellal-Khénifra"
+      ],
+      "latitude": 32.0151371,
+      "longitude": -6.7201469,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Cascades_d%27Ouzoud",
+      "hook": "Évadez-vous aux Cascades d'Ouzoud 🌿💦, un paradis naturel spectaculaire à couper le souffle !",
+      "description": "Situées à environ 150 km de Marrakech, ces cascades spectaculaires plongent à plus de 100 mètres de hauteur sur plusieurs niveaux 😍🌊, offrant un spectacle naturel impressionnant au cœur de l’Atlas 🌿 Dès votre arrivée, vous êtes plongé dans une véritable oasis de fraîcheur : oliviers, figuiers et végétation luxuriante contrastent avec les paysages arides alentours 🌳🌞 💦 Le bruit apaisant de l’",
+      "cities": [
+        "Béni Mellal",
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "a9d44995-4f67-4fdf-87c9-1da8c0629a85",
+      "name": "Asilah",
+      "name_en": "Asilah",
+      "region": [
+        "Tanger-Tétouan-Al Hoceïma"
+      ],
+      "latitude": 35.4646127,
+      "longitude": -6.0308654,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/logos/destination-logo-1772505055487.webp",
+      "wikipedia": "https://fr.wikipedia.org/wiki/Assilah",
+      "hook": "Le refuge artistique de l'Atlantique",
+      "description": "Sur le littoral atlantique, Asilah brille par son élégance blanche et son dynamisme culturel. Cette ancienne cité portugaise s'est métamorphosée en une galerie d'art à ciel ouvert grâce à son festival international. Chaque année, les remparts historiques se parent de fresques murales éphémères créées par des artistes mondiaux. Moins fréquentée qu'Essaouira, elle offre une médina immaculée bordée p",
+      "cities": []
+    },
+    {
+      "id": "36c4bf50-d51d-4764-a6bc-c21a418d5730",
+      "name": "Vallée de l’Ourika",
+      "name_en": "Ourika Valley",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.22994,
+      "longitude": -7.6684583,
+      "image": null,
+      "wikipedia": "Vallée de l'Ourika",
+      "hook": "Setti-Fatma et la vallée de l’Ourika",
+      "description": "La vallée de l'Ourika, à 65 km de Marrakech, est parfaite pour des randonnées vers les 7 cascades. Dégustez un déjeuner dans des restaurants au bord de la rivière après l'excursion Le tour vallée de l'Ourika est le plus proche voyage d'une journée de Marrakech et c'est une belle et préservée vallée verdoyante qui s'étend entre les contreforts des montagnes de l'Atlas. La visite comprend des servic",
+      "cities": [
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "3f6c9e9e-5fcb-4f82-89b0-fa222df730ec",
+      "name": "Moulay Idriss Zerhoun",
+      "name_en": "Moulay Idriss Zerhoun",
+      "region": [
+        "Fès-Meknès"
+      ],
+      "latitude": 34.056811,
+      "longitude": -5.5229519,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/logos/destination-logo-1772505387462.webp",
+      "wikipedia": "https://fr.wikipedia.org/wiki/Moulay_Driss_Zerhoun",
+      "hook": "La ville sainte méconnue",
+      "description": "Perchée sur deux collines rocheuses, Moulay Idriss Zerhoun est l'un des lieux les plus sacrés du pays. Elle abrite le sanctuaire du fondateur de la première dynastie musulmane du Maroc. Longtemps interdite aux non-musulmans, elle conserve une atmosphère mystique et une architecture unique en escaliers. Ses terrasses offrent une vue panoramique sur les ruines romaines de Volubilis, situées à quelqu",
+      "cities": []
+    },
+    {
+      "id": "6aa66892-a359-4980-8aa8-42022b467eaa",
+      "name": "Jebel Saghro",
+      "name_en": "Jebel Saghro",
+      "region": [
+        "Drâa-Tafilalet"
+      ],
+      "latitude": 31.1361111,
+      "longitude": -5.7755556,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Djebel_Saghro",
+      "hook": "Un désert de pierre volcanique et de pitons spectaculaires, terre sacrée des nomades Aït Atta.",
+      "description": "Véritable trait d'union minéral entre le Haut Atlas et le Sahara, le Djebel Saghro dévoile un visage lunaire et sauvage du Maroc. Ce massif volcanique, sculpté par l'érosion, offre des paysages saisissants : des forêts de pitons basaltiques, comme les célèbres aiguilles de Bab n'Ali, s'élèvent au-dessus de canyons profonds et de rares oasis de verdure. C'est le sanctuaire de la tribu des Aït Atta,",
+      "cities": [
+        "Marrakech",
+        "Ouarzazate",
+        "Merzouga",
+        "Béni Mellal",
+        "Zagora"
+      ]
+    },
+    {
+      "id": "0dbdcd8a-3fae-4c07-af7e-082a9b4a1a8f",
+      "name": "Gorges du Dadès",
+      "name_en": "Dades Gorges",
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 31.4532146,
+      "longitude": -5.9675869,
+      "image": null,
+      "wikipedia": null,
+      "hook": "Domptez les lacets spectaculaires des Gorges du Dadès : une symphonie de roches rouges et de jardins suspendus au Maroc.",
+      "description": "Surnommée la « Vallée des mille Kasbahs », la route des Gorges du Dadès offre l’un des panoramas les plus photogéniques du Haut Atlas. Le long de l’oued, les falaises d’un rouge flamboyant contrastent avec le vert tendre des vergers de peupliers. Le point d’orgue du trajet reste les célèbres lacets de Tisdrine, une route en épingle à cheveux vertigineuse qui domine le canyon. Entre les formations ",
+      "cities": [
+        "Marrakech",
+        "Ouarzazate",
+        "Béni Mellal"
+      ]
+    },
+    {
+      "id": "d0bb2ac7-9fee-4e1d-8625-b23e1d28aa9e",
+      "name": "Marrakech",
+      "name_en": "Marrakech",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.6225224,
+      "longitude": -7.9898258,
+      "image": null,
+      "wikipedia": null,
+      "hook": "Marrakech, la Ville Ocre 🌅✨ : une explosion de couleurs, de culture et d’émotions au cœur du Maroc !",
+      "description": "Surnommée la « Ville Ocre », Marrakech est l’une des destinations les plus emblématiques du Maroc. Ce surnom vient de la couleur rouge-orangée qui habille ses remparts, ses maisons et ses monuments, donnant à la ville une atmosphère chaleureuse et unique, surtout au coucher du soleil. Fondée au XIe siècle par les Almoravides, Marrakech est une cité impériale chargée d’histoire. Elle a été tour à t",
+      "cities": [
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "e6301631-81aa-4389-a511-73f3e51df562",
+      "name": "Moulay Bouzerktoun",
+      "name_en": "Moulay Bouzerktoun",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.6387244,
+      "longitude": -9.6452714,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Essaouira"
+      ]
+    },
+    {
+      "id": "7248afd7-cd9d-4fe5-a029-3a5b263555c7",
+      "name": "Désert de Merzouga",
+      "name_en": "Merzouga Desert",
+      "region": [
+        "Drâa-Tafilalet"
+      ],
+      "latitude": 31.117805,
+      "longitude": -4.0172744,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Merzouga",
+      "hook": "Le désert de Merzouga et les dunes de l'Erg Chebbi offrent le cadre idéal pour une rencontre avec le Sahara.",
+      "description": "Explorez le désert de Merzouga 🐪✨, dunes géantes, silence absolu et nuits magiques sous les étoiles ! Bienvenue dans le désert de Merzouga 🐪✨, l’expérience saharienne la plus spectaculaire du Maroc 🇲🇦 Situé au sud-est du pays, aux portes du Sahara, Merzouga est célèbre pour ses majestueuses dunes de l’Erg Chebbi, parmi les plus impressionnantes du Maroc, pouvant atteindre jusqu’à 150 mètres de",
+      "cities": [
+        "Merzouga"
+      ]
+    },
+    {
+      "id": "38afb831-9a9c-4a6d-b2fd-e068a5e59f90",
+      "name": "Jbel Siroua",
+      "name_en": "Jbel Sirwa",
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 30.704,
+      "longitude": -7.6215,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/logos/38afb831-9a9c-4a6d-b2fd-e068a5e59f90-logo-1772505759184.webp",
+      "wikipedia": "https://fr.wikipedia.org/wiki/Djebel_Sirwa",
+      "hook": "Le point culminant de l’Anti-Atlas",
+      "description": "Point culminant de l’Anti-Atlas, le djebel Siroua est un ancien volcan explosé. Des vallées riantes où coulent des oueds aux eaux limpides ; des villages de vallée aux bergeries d’altitude ; des gorges aux couleurs ocre ; des champs en terrasses aux crêtes dénudées. C’est sur ces terres que l’on cultive le précieux safran, cette épice rouge si rare et si célèbre. Les habitants du massif du Siroua ",
+      "cities": [
+        "Marrakech",
+        "Agadir"
+      ]
+    },
+    {
+      "id": "66dc6b0e-2595-4e83-9f01-3e346dfcb04b",
+      "name": "Imsouane",
+      "name_en": "Imsouane",
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 30.8122917,
+      "longitude": -9.7790227,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Imsouane",
+      "hook": "Village surf mythique, vagues infinies, nature sauvage et ambiance chill face à l’Atlantique 🌊",
+      "description": "Imsouane est un charmant village de pêcheurs situé sur la côte atlantique, entre Agadir et Essaouira, réputé pour son atmosphère paisible et authentique. Longtemps préservé du tourisme de masse, il séduit aujourd’hui les voyageurs en quête de nature, de calme et de déconnexion. Ce petit coin de paradis est mondialement connu pour ses spots de surf exceptionnels, notamment la célèbre “Magic Bay”, q",
+      "cities": [
+        "Essaouira",
+        "Agadir"
+      ]
+    },
+    {
+      "id": "a9dd2090-a978-41c8-9b71-5d0ea5ff03ad",
+      "name": "Cascade Sidi M’barek",
+      "name_en": "Sidi M'barek Waterfall",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.2651417,
+      "longitude": -9.8057937,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": "D’une érosion hydrique importante de l’oued Aghbalou, qui a réussi à ronger l’inclinaison des couches tendres, sont nées les cascades permanentes de Sidi M’barek. A 12 Km de Sidi Kaouki, ces cascades échappent à la vue du visiteur puisqu’aucune signalétique n’indique l’existence des cascades aux environs. La descente vers ces cascades se fait au milieu du oued Aghbalou, toujours alimenté d’un fil ",
+      "cities": [
+        "Essaouira"
+      ]
+    },
+    {
+      "id": "f0d16b1f-9943-4e3a-b42d-32d4388fff59",
+      "name": "Vallée Heureuse",
+      "name_en": "Happy Valley",
+      "region": [
+        "Béni Mellal-Khénifra"
+      ],
+      "latitude": 31.6586121,
+      "longitude": -6.4332389,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Vall%C3%A9e_des_A%C3%AFt_Bouguemez",
+      "hook": "La « Vallée Heureuse » : un sanctuaire berbère de jardins suspendus et de sommets enneigés au Haut Atlas",
+      "description": "Surnommée la Vallée Heureuse, la région des Aït Bougmez est une enclave de sérénité nichée à 1 800 mètres d’altitude. Dominée par le géant M’Goun, cette haute vallée déploie une mosaïque de cultures en terrasses irriguées par un réseau millénaire. Les villages de pisé s’agrippent aux flancs des montagnes, offrant un contraste saisissant entre l’ocre de la terre et le vert tendre des vergers. Ici, ",
+      "cities": [
+        "Béni Mellal",
+        "Marrakech",
+        "Ouarzazate",
+        "Merzouga",
+        "Zagora"
+      ]
+    },
+    {
+      "id": "c1fba0b2-d186-4034-a6cf-ddda05627803",
+      "name": "Iftane",
+      "name_en": "Iftane",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.194017,
+      "longitude": -9.815846,
+      "image": null,
+      "wikipedia": null,
+      "hook": "Un paradis sauvage près d’Essaouira entre falaises, sable doré et océan à perte de vue.",
+      "description": "Située au sud d’Essaouira, la plage d’Iftane est l’un des joyaux cachés de la côte atlantique marocaine. Encore préservée du tourisme de masse, cette plage sauvage séduit les voyageurs en quête d’authenticité, de grands espaces et de paysages spectaculaires. Bordée de falaises ocre et accessible après une piste ou une randonnée, Iftane offre une immersion totale dans une nature brute et intacte. A",
+      "cities": [
+        "Essaouira"
+      ]
+    },
+    {
+      "id": "e48bb3e2-a2f9-48ed-b057-3e75fcaa3d5f",
+      "name": "Désert d’Agafay",
+      "name_en": "Agafay Desert",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.4896832,
+      "longitude": -8.1879744,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/D%C3%A9sert_d%27Agafay",
+      "hook": "Paysage unique avec des vues imprenables sur les montagnes de l'Atlas aux portes de Marrakech.",
+      "description": "Le désert d'Agafay, situé aux portes de Marrakech, offre un paysage unique de terrain aride et rocailleux, avec des vues imprenables sur les montagnes de l'Atlas. Contrairement aux déserts de sable classiques, Agafay se caractérise par des collines escarpées et une végétation clairsemée, offrant un contraste saisissant avec la végétation luxuriante de Marrakech. Les visiteurs peuvent s'adonner à d",
+      "cities": [
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "2d8105f8-aa16-4631-b459-9ea907c7d922",
+      "name": "Tafedna",
+      "name_en": "Tafedna",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.0966206,
+      "longitude": -9.8213397,
+      "image": null,
+      "wikipedia": "https://en.wikipedia.org/wiki/Tafedna",
+      "hook": "Tafedna : plage secrète près d’Essaouira, entre nature sauvage, calme absolu et paysages préservés 🌊",
+      "description": "Tafedna est un petit village côtier authentique situé au sud d’Essaouira, réputé pour sa plage sauvage et préservée, encore épargnée par le tourisme de masse. Nichée entre falaises et forêts d’arganiers, sa baie s’étend sur plusieurs kilomètres de sable fin, offrant un cadre naturel spectaculaire et paisible . Contrairement à d’autres plages de la région, Tafedna bénéficie d’un environnement proté",
+      "cities": [
+        "Essaouira"
+      ]
+    },
+    {
+      "id": "251e4126-f151-40d9-9d56-5a456a439fc2",
+      "name": "Sidi Kaouki",
+      "name_en": "Sidi Kaouki",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.3514195,
+      "longitude": -9.7971511,
+      "image": null,
+      "wikipedia": "https://en.wikipedia.org/wiki/Sidi_Kaouki",
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Essaouira"
+      ]
+    },
+    {
+      "id": "bf65f95b-0acf-4622-985d-497204d3f870",
+      "name": "Chefchaouen",
+      "name_en": "Chefchaouen",
+      "region": [
+        "Tanger-Tétouan-Al Hoceïma"
+      ],
+      "latitude": 35.168796,
+      "longitude": -5.2683641,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Chefchaouen",
+      "hook": "La perle bleue du Rif",
+      "description": "Nichée dans les montagnes du Rif, Chefchaouen captive par ses nuances infinies de bleu indigo et de cobalt. Fondée en 1471, cette cité est restée longtemps fermée au monde, préservant une âme authentique. Ses ruelles escarpées forment un labyrinthe apaisant où chaque mur peint raconte une histoire spirituelle ou pratique. Entre le tissage traditionnel de la laine et la quiétude de la place Outa el",
+      "cities": []
+    },
+    {
+      "id": "2d9e6262-bbb5-4930-a198-868263e41891",
+      "name": "Aghroud",
+      "name_en": "Aghroud",
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 30.1139416,
+      "longitude": -9.5656078,
+      "image": null,
+      "wikipedia": null,
+      "hook": "Village arc-en-ciel & plage sauvage 🌈🌊 : Aghroud, le spot secret près d’Agadir à découvrir !",
+      "description": "Situé à quelques kilomètres au nord d’Agadir, Aghroud est un petit village côtier encore préservé, entre océan Atlantique et reliefs du Haut Atlas 🌊⛰️. Loin des foules, ce lieu offre une parenthèse hors du temps, idéale pour se reconnecter à la nature et ralentir le rythme. Ce qui rend Aghroud unique, ce sont ses maisons aux couleurs éclatantes 🎨🌈. Bleu, rose, jaune ou vert… le village s’est tr",
+      "cities": [
+        "Agadir",
+        "Taroudant",
+        "Essaouira"
+      ]
+    },
+    {
+      "id": "3947db1f-daaa-4f7f-a617-e5988d9d86db",
+      "name": "Essaouira",
+      "name_en": "Essaouira",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.5084926,
+      "longitude": -9.7595041,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Essaouira",
+      "hook": "Essaouira 🌊✨ : la perle de l’Atlantique entre médina UNESCO, plages sauvages et ambiance bohème unique !",
+      "description": "Située sur la côte atlantique du Maroc, Essaouira est une destination incontournable qui séduit par son atmosphère unique, mêlant histoire, culture et nature. Anciennement appelée Mogador, cette ville portuaire offre un cadre authentique, loin de l’agitation des grandes villes, avec une identité forte et un charme intemporel. Classée au patrimoine mondial de l’UNESCO, sa médina est un véritable jo",
+      "cities": [
+        "Essaouira"
+      ]
+    },
+    {
+      "id": "94418998-a243-4518-b4f5-fe0be6388f75",
+      "name": "Montagnes de l’Atlas",
+      "name_en": "Atlas Mountains",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.791702,
+      "longitude": -7.09262,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Atlas_(massif)",
+      "hook": null,
+      "description": "Les montagnes de l’Atlas s’étendent sur plus de 2 500 km, du nord au sud du Maroc. Véritable colonne vertébrale du pays, elles abritent des paysages à couper le souffle : vallées verdoyantes, sommets enneigés, villages en terre rouge et forêts de cèdres. Entre aventure, nature et culture, la région de l’Atlas séduit les amateurs de randonnée et les voyageurs en quête d’authenticité. Ce guide prati",
+      "cities": [
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "60a01dec-db7f-4a00-82b4-0c182f91fb05",
+      "name": "Désert de Zagora",
+      "name_en": "Zagora Desert",
+      "region": [
+        "Drâa-Tafilalet"
+      ],
+      "latitude": 30.351954,
+      "longitude": -5.7594421,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Zagora_(Maroc)",
+      "hook": "Une oasis pittoresque, point de départ idéal pour explorer le Sahara et les vallées environnantes.",
+      "description": "Vivez l’expérience du désert de Zagora 🐪✨, entre dunes dorées, bivouacs et nuits étoilées inoubliables ! Cap sur le désert de Zagora 🐪✨, une immersion magique aux portes du Sahara marocain 🇲🇦 Situé au sud du Maroc, à environ 360 km de Marrakech, le désert de Zagora est souvent considéré comme la porte d’entrée du désert 🌍🔥. Accessible en quelques heures de route, il offre une première expéri",
+      "cities": [
+        "Zagora"
+      ]
+    },
+    {
+      "id": "bc083653-be8b-4396-825c-e543b6d4db5d",
+      "name": "Gorges du Todra",
+      "name_en": "Todra Gorges",
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 31.5883012,
+      "longitude": -5.5946749,
+      "image": null,
+      "wikipedia": null,
+      "hook": "Dominez le vertige aux Gorges du Todra : un canyon titanesque aux parois ocres, véritable paradis du Haut Atlas.",
+      "description": "Situées à une quinzaine de kilomètres de Tinghir, les Gorges du Todra offrent l'un des spectacles naturels les plus saisissants du Maroc. Ici, l’oued a patiemment sculpté un canyon calcaire dont les parois vertigineuses s’élèvent jusqu’à 300 mètres de haut, se resserrant parfois à peine sur une dizaine de mètres de large. Ce corridor de roche ocre, baigné d'une lumière changeante, est le terrain d",
+      "cities": [
+        "Marrakech",
+        "Merzouga",
+        "Ouarzazate",
+        "Zagora",
+        "Béni Mellal"
+      ]
+    },
+    {
+      "id": "1c839512-a839-4015-9180-36eaff24c786",
+      "name": "Agadir",
+      "name_en": "Agadir",
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 30.4280405,
+      "longitude": -9.5925444,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Agadir",
+      "hook": "Agadir 🌴☀️, plage infinie, soleil toute l’année et vibes chill entre surf, détente et couchers de soleil magiques !",
+      "description": "Agadir 🌴☀️, plage infinie, soleil toute l’année et vibes chill entre surf, détente et couchers de soleil magiques ! Bienvenue à Agadir 🌴☀️, la perle balnéaire du Maroc 🇲🇦 Située sur la côte Atlantique, Agadir est l’une des destinations les plus prisées du pays, réputée pour sa plage de sable fin longue de plus de 10 km et son ambiance détendue toute l’année 🌊✨ 🌞 Ici, le climat est un véritab",
+      "cities": [
+        "Agadir",
+        "Taroudant"
+      ]
+    },
+    {
+      "id": "973c69bf-7cb4-42d7-8a99-6ffdf96eb60b",
+      "name": "Cap Sim",
+      "name_en": "Cap Sim",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.398024,
+      "longitude": -9.835832,
+      "image": null,
+      "wikipedia": null,
+      "hook": "Plage sauvage près d’Essaouira, entre falaises, océan et paysages naturels à couper le souffle 🌊",
+      "description": "Cap Sim est un site naturel spectaculaire situé sur la côte Atlantique, à proximité d’Essaouira, réputé pour ses paysages sauvages et préservés. Cette zone se distingue par ses longues plages de sable fin bordées de falaises, offrant un panorama unique entre océan turquoise et reliefs désertiques. La plage s’étend sur plusieurs kilomètres, créant un environnement idéal pour les amateurs de tranqui",
+      "cities": [
+        "Essaouira"
+      ]
+    },
+    {
+      "id": "38eb8925-123e-4312-875f-72e70415e5bc",
+      "name": "Palmeraie de Marrakech",
+      "name_en": "Marrakech Palm Grove",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.6853155,
+      "longitude": -7.9690258,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": "Située au nord de la ville, la Palmeraie de Marrakech est l’un des sites naturels les plus emblématiques du Maroc. Véritable oasis aux portes de la médina, elle s’étend sur plus de 13 000 hectares et abrite plus de 100 000 palmiers, offrant un paysage spectaculaire entre désert et verdure. Créée au XIe siècle sous la dynastie des Almoravides, cette palmeraie millénaire est née grâce à un ingénieux",
+      "cities": [
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "1472e022-cf19-45e9-85ad-dd161471270b",
+      "name": "Oukaïmeden",
+      "name_en": "Oukaïmeden",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.2026742,
+      "longitude": -7.8585562,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": [
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "4d299a7c-b434-4157-97ac-520fcbc75c23",
+      "name": "Sefrou",
+      "name_en": "Sefrou",
+      "region": [
+        "Fès-Meknès"
+      ],
+      "latitude": 33.8305244,
+      "longitude": -4.8353154,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/logos/destination-logo-1772505596724.webp",
+      "wikipedia": null,
+      "hook": "La capitale des cerises",
+      "description": "Située au pied du Moyen Atlas, Sefrou est une oasis de fraîcheur et de cohabitation historique. Connue pour son Festival des Cerises classé à l'UNESCO, la ville fut jadis un carrefour important où les communautés juive et musulmane vivaient en parfaite harmonie dans son Mellah. Traversée par la rivière Oued Aggaï, elle offre des paysages verdoyants et des cascades rafraîchissantes. Sefrou est le p",
+      "cities": []
+    },
+    {
+      "id": "5ad4fd31-330b-42a3-a05d-d303bdee5113",
+      "name": "Médina de Marrakech",
+      "name_en": "Marrakech Medina",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.6225646,
+      "longitude": -7.9898698,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/M%C3%A9dina_de_Marrakech",
+      "hook": "Labyrinthe mythique entre souks, histoire millénaire et ambiance unique au cœur du Maroc",
+      "description": "La Médina de Marrakech est le cœur historique et culturel de la ville, fondée au XIe siècle par les Almoravides, et classée au patrimoine mondial de l’UNESCO depuis 1985 . Véritable labyrinthe de ruelles animées, elle s’étend sur des centaines d’hectares et conserve encore aujourd’hui son organisation traditionnelle faite de souks, de riads, de fondouks et de quartiers artisanaux 🏺. Ancienne capi",
+      "cities": [
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "0b467639-3123-4707-adc1-dee5312d3c25",
+      "name": "Fès",
+      "name_en": "Fez",
+      "region": [
+        "Fès-Meknès"
+      ],
+      "latitude": 34.0181246,
+      "longitude": -5.0078451,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": null,
+      "cities": []
+    },
+    {
+      "id": "179a7d36-2a52-44a7-8593-685b1a19243e",
+      "name": "Haut Atlas",
+      "name_en": "High Atlas",
+      "region": [
+        "Béni Mellal-Khénifra"
+      ],
+      "latitude": 31.791702,
+      "longitude": -7.09262,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Haut_Atlas",
+      "hook": null,
+      "description": "Le Haut Atlas est la plus haute chaîne de montagnes du Maroc. Il s’étend sur environ 700 km du sud-ouest au nord-est du pays et constitue une barrière naturelle entre les régions atlantiques et méditerranéennes au nord et les zones désertiques du Sahara au sud. Son point culminant est le Djebel Toubkal, qui atteint 4 165 m et représente le sommet le plus élevé d’Afrique du Nord. La chaîne du Haut ",
+      "cities": [
+        "Marrakech",
+        "Béni Mellal",
+        "Ouarzazate"
+      ]
+    },
+    {
+      "id": "90899d95-b85d-4b79-a485-cb70e7b4a618",
+      "name": "Oualidia",
+      "name_en": "Oualidia",
+      "region": [
+        "Casablanca-Settat"
+      ],
+      "latitude": 32.7342264,
+      "longitude": -9.0332723,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Oualidia",
+      "hook": "Entre lagune turquoise et Atlantique sauvage, Oualidia est un havre secret où nature, calme et fruits de mer règnent.",
+      "description": "Nichée sur la côte atlantique du Maroc, entre El Jadida et Safi, Oualidia est une petite station balnéaire au charme discret, encore préservée du tourisme de masse. Cette destination authentique séduit par sa célèbre lagune naturelle, véritable joyau protégé des vagues de l’océan, où les eaux calmes offrent un cadre idéal pour la baignade, le kayak ou les balades en barque. Ici, le temps semble su",
+      "cities": [
+        "Essaouira",
+        "Casablanca",
+        "Safi"
+      ]
+    },
+    {
+      "id": "4dcf6848-7cf3-401f-8f09-f61c390a38d6",
+      "name": "Taroudant",
+      "name_en": "Taroudant",
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 30.4727126,
+      "longitude": -8.8748765,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Taroudant",
+      "hook": "La grand-mère de Marrakech",
+      "description": "Surnommée la « grand-mère de Marrakech », Taroudant est une escale hors du temps dans la vallée du Souss. Ses remparts de pisé rouge, s'étendant sur six kilomètres, sont parmi les mieux conservés du Maroc. Contrairement à sa \"petite-fille\" Marrakech, Taroudant cultive une discrétion chaleureuse. Ses souks regorgent de trésors artisanaux, notamment de bijoux en argent et de cuirs de haute qualité, ",
+      "cities": [
+        "Agadir",
+        "Essaouira"
+      ]
+    },
+    {
+      "id": "9ba40113-9240-4ebc-b065-74c6d3656c50",
+      "name": "Toubkal",
+      "name_en": "Toubkal",
+      "region": [
+        "Souss-Massa"
+      ],
+      "latitude": 31.0600719,
+      "longitude": -7.9147482,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/logos/9ba40113-9240-4ebc-b065-74c6d3656c50-logo-1772437650665.avif",
+      "wikipedia": "https://fr.wikipedia.org/wiki/Djebel_Toubkal",
+      "hook": "Le point le plus élevé du Maroc, de la chaîne de l'Atlas et de toute l'Afrique du Nord.",
+      "description": "Culminant à 4 167 mètres d'altitude, le Jbel Toubkal est le point le plus élevé du Maroc, de la chaîne de l'Atlas et de toute l'Afrique du Nord . 📍 Localisation et Accès Emplacement : Situé à environ 63 km au sud de Marrakech , au cœur du Parc National de Toubkal . Point de départ : La randonnée commence généralement au village d' Imlil (1 740 m). 🥾 L'Ascension Difficulté : Le trek n'est pas con",
+      "cities": [
+        "Marrakech",
+        "Ouarzazate",
+        "Béni Mellal",
+        "Merzouga",
+        "Zagora"
+      ]
+    },
+    {
+      "id": "3b281d2f-40c8-4c09-9a37-714a21632535",
+      "name": "Imlil",
+      "name_en": "Imlil",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.1356474,
+      "longitude": -7.9194842,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/logos/3b281d2f-40c8-4c09-9a37-714a21632535-logo-1771763529785.jpg",
+      "wikipedia": "https://fr.wikipedia.org/wiki/Imlil",
+      "hook": null,
+      "description": "Depuis le petit village d’Imlil, porte d’entrée du massif du Toubkal, vous aurez accès à des sentiers magnifiques serpentant entre forêts de noyers et villages berbères perchés. La randonnée vers Aroumd est parfaite pour une première découverte tout en douceur. Generation Voyage vous conseille de faire une halte sur les hauteurs d’Aroumd pour admirer le panorama. Cette région est incontournable po",
+      "cities": [
+        "Marrakech"
+      ]
+    },
+    {
+      "id": "1d2603b7-38f3-44e7-9724-51d605e83c17",
+      "name": "Moyen Atlas",
+      "name_en": "Middle Atlas",
+      "region": [
+        "Fès-Meknès"
+      ],
+      "latitude": 33.5000015,
+      "longitude": -4.5000014,
+      "image": null,
+      "wikipedia": "https://fr.wikipedia.org/wiki/Moyen_Atlas",
+      "hook": null,
+      "description": null,
+      "cities": []
+    }
+  ]
+}

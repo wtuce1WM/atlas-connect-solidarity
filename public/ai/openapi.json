@@ -1,0 +1,145 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ONE WORLD MOROCCO — AI Data Feed",
+    "version": "1.0.0",
+    "description": "Flux lecture seule pour LLM et agents IA : catalogue d'établissements et événements au Maroc.",
+    "contact": {
+      "name": "ONE WORLD MOROCCO",
+      "url": "https://oneworldmorocco.com/contact"
+    },
+    "license": {
+      "name": "Attribution requise",
+      "url": "https://oneworldmorocco.com/mission"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://oneworldmorocco.com"
+    }
+  ],
+  "paths": {
+    "/ai/catalog.json": {
+      "get": {
+        "summary": "Catalogue complet des établissements (JSON à plat)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/ai/catalog.jsonld": {
+      "get": {
+        "summary": "Catalogue complet en JSON-LD (Schema.org ItemList)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/ld+json": {}
+            }
+          }
+        }
+      }
+    },
+    "/ai/events.json": {
+      "get": {
+        "summary": "Événements à venir (JSON)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/ai/cities.json": {
+      "get": {
+        "summary": "Villes avec quartiers + compteur d'établissements",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/ai/neighborhoods.json": {
+      "get": {
+        "summary": "Quartiers avec liste d'établissements",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/ai/pois.json": {
+      "get": {
+        "summary": "Points d'intérêt avec établissements à proximité",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/ai/destinations.json": {
+      "get": {
+        "summary": "Destinations touristiques (régions/villes agrégées)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/ai/graph.jsonld": {
+      "get": {
+        "summary": "Graphe Schema.org complet (villes, quartiers, POIs, destinations, établissements + arêtes)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/ld+json": {}
+            }
+          }
+        }
+      }
+    },
+    "/ai/sitemap.xml": {
+      "get": {
+        "summary": "Sitemap XML dédié aux fiches établissement",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/xml": {}
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-mcp-server": {
+    "transport": "streamable-http",
+    "url": "https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/mcp",
+    "description": "Serveur MCP public (lecture seule) exposant le catalogue."
+  }
+}
