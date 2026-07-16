@@ -556,8 +556,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     }
   }, [clearSilenceTimer]);
 
+  // Force la langue de reconnaissance sur celle de l'app (fr/en/ar) au lieu
+  // de laisser Scribe auto-détecter — sinon un fragment court/bruité est
+  // parfois transcrit en coréen/chinois, et l'IA répond dans cette langue.
+  const scribeLangCode = (lang || "fr-FR").slice(0, 2).toLowerCase();
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
+    languageCode: scribeLangCode,
     commitStrategy: CommitStrategy.VAD,
     onPartialTranscript: (data: { text: string }) => {
       console.log("[Scribe] partial:", data.text);
