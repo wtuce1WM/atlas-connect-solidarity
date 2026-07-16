@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -40,6 +40,8 @@ const heroImageMobile = koutoubiaVerticalBgAsset.url;
 const Club = () => {
   const { language } = useLanguage();
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "assistant";
   useSEO({
     title: language === "en"
       ? "Club – Join the community"
@@ -817,27 +819,29 @@ const Club = () => {
       )}
 
       {user && (
-        <main className="pb-40 md:pb-24">
+        <main className={activeTab === "assistant" ? "" : "pb-40 md:pb-24"}>
           <section className="w-full pt-20 pb-12 px-4">
             <div className="w-full">
               <ClubDashboard user={user} onLogout={handleLogout} />
             </div>
           </section>
-          <div className="flex justify-center pb-8">
-            <button
-              type="button"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              aria-label={t.backToTop}
-              className="text-white/70 transition hover:text-white"
-            >
-              <ArrowUp className="mx-auto mb-2 h-5 w-5 animate-bounce" />
-              <span className="block font-josefin text-xs uppercase tracking-[0.3em]">{t.backToTop}</span>
-            </button>
-          </div>
+          {activeTab !== "assistant" && (
+            <div className="flex justify-center pb-8">
+              <button
+                type="button"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                aria-label={t.backToTop}
+                className="text-white/70 transition hover:text-white"
+              >
+                <ArrowUp className="mx-auto mb-2 h-5 w-5 animate-bounce" />
+                <span className="block font-josefin text-xs uppercase tracking-[0.3em]">{t.backToTop}</span>
+              </button>
+            </div>
+          )}
         </main>
       )}
-      {user && <ClubYoutubeRecommendations />}
-      <Footer variant="verified" />
+      {user && activeTab !== "assistant" && <ClubYoutubeRecommendations />}
+      {activeTab !== "assistant" && <Footer variant="verified" />}
       <ClubBottomBarSlot />
     </div>
   );
