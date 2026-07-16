@@ -515,29 +515,17 @@ const ClubAiAssistant = ({ userId }: Props) => {
   }, [activeId, chats, loadingList]);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const el = scrollRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+      try { el.scrollIntoView({ block: "end", behavior: "smooth" }); } catch { /* noop */ }
+    }
   }, [messages, sending]);
 
-  // Prevent the whole page from scrolling while the AI assistant is visible:
-  // the conversation should scroll inside its own flex-1 area, not push the Club page.
-  // BUT: release the lock while a business SlidePanel is open, otherwise iOS Safari
-  // freezes the internal vertical touch scroll of nested scroll containers.
-  useEffect(() => {
-    if (openBusinessId) return;
-    const html = document.documentElement;
-    const body = document.body;
-    const prevHtmlOverflow = html.style.overflow;
-    const prevBodyOverflow = body.style.overflow;
-    const prevBodyHeight = body.style.height;
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-    body.style.height = "100dvh";
-    return () => {
-      html.style.overflow = prevHtmlOverflow;
-      body.style.overflow = prevBodyOverflow;
-      body.style.height = prevBodyHeight;
-    };
-  }, [openBusinessId]);
+  // (Previously locked html/body overflow to force an internal scroll area.
+  // The conversation now grows with content and the page scrolls naturally,
+  // so no scroll lock is needed.)
+
 
   useEffect(() => { inputRef.current?.focus(); }, [activeId]);
 
@@ -771,7 +759,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   return (
     <div className={`flex flex-col gap-4 min-h-[520px] transition-[width,max-width,padding] duration-300 ease-out ${openBusinessId ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:pr-2" : "w-full"}`}>
       {/* Chat */}
-      <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col min-h-[300px] h-[calc(100dvh-30rem)] md:h-[calc(100dvh-24rem)] max-h-[520px]">
+      <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col min-h-[300px]">
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
           <button
             onClick={() => newChat()}
@@ -803,7 +791,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
           </div>
         </header>
 
-        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4 space-y-3 scrollbar-hide" style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        <div ref={scrollRef} className="px-4 py-4 space-y-3">
           {messages.length === 0 && !sending && emptyHint}
           {messages.map((m, i) => {
             const { clean, maps } = m.role === "assistant"
