@@ -1196,8 +1196,26 @@ async function main() {
 
   const eventsWritten = writeEventsHub(eventRows || [], eventCityById);
 
+  // 7b) Fetch reference tables for /ai feeds : cities, neighborhoods, pois, destinations
+  const [citiesRes, nbhRes, poisRes, destsRes] = await Promise.all([
+    supabase.from("cities").select("id, name_fr, name_en, region, latitude, longitude, wikipedia_fr, description_fr, image_url, is_active"),
+    supabase.from("neighborhoods").select("id, city_id, name, name_en, latitude, longitude, hook, image_url"),
+    supabase.from("points_of_interest").select("id, city_id, name_fr, name_en, latitude, longitude, wikipedia_fr, official_site_fr, image_url, hook, description"),
+    supabase.from("destinations").select("id, name_fr, name_en, region, city_ids, latitude, longitude, wikipedia_fr, image_url, hook_fr, description_fr"),
+  ]);
+
   // 8) Espace IA — flux machine-readable pour LLMs / agents (JSON, JSON-LD, OpenAPI)
-  const aiWritten = writeAiFeed(businesses, vanities, eventRows || [], eventCityById);
+  const aiWritten = writeAiFeed(
+    businesses,
+    vanities,
+    eventRows || [],
+    eventCityById,
+    relationsByBiz,
+    (citiesRes.data || []) as any[],
+    (nbhRes.data || []) as any[],
+    (poisRes.data || []) as any[],
+    (destsRes.data || []) as any[],
+  );
 
   console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog + ${hubsWritten} hubs + ${eventsWritten} events dans /events + ${aiWritten} fichiers dans /ai.`);
 }
