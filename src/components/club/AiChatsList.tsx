@@ -38,8 +38,7 @@ const AiChatsList = ({ userId }: Props) => {
       .from("ai_chats")
       .select("id,title,city,created_at,updated_at,is_bookmarked,is_public,kind")
       .eq("user_id", userId)
-      .eq("is_bookmarked", true)
-      .order("created_at", { ascending: false });
+      .order("updated_at", { ascending: false });
     setChats((data as any as Row[]) || []);
     setLoading(false);
   };
