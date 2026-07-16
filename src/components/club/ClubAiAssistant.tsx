@@ -301,6 +301,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   // Map slide-panel state (opened when the user clicks a mini-map card in a message).
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [activeSlug, setActiveSlug] = useState<string | null>(null);
   // Notify the parent Club page so it can hide its 4-CTA HomeBottomBar
   // while the slide-panel (with its own 6-CTA PanelSearchBar) is open.
   useEffect(() => {
@@ -309,18 +310,50 @@ const ClubAiAssistant = ({ userId }: Props) => {
       window.dispatchEvent(new CustomEvent("club:panel", { detail: { open: false } }));
     };
   }, [openBusinessId]);
+  useEffect(() => { if (!openBusinessId) setActiveSlug(null); }, [openBusinessId]);
   // Index of business name -> slug, fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
   const nameToSlugRef = useRef<Map<string, string>>(new Map());
+
+  // Ordered, deduped list of business slugs cited across the conversation.
+  // Feeds the vertical swipe navigation (prev/next business) inside BookOnlineSlidePanel.
+  const businessSlugsInOrder = useMemo(() => {
+    const seen = new Set<string>();
+    const list: string[] = [];
+    for (const m of messages) {
+      if (m.role !== "assistant") continue;
+      const { maps } = extractMapPayloads(m.content);
+      for (const mp of maps) {
+        for (const b of mp.businesses) {
+          const s = b?.slug;
+          if (s && !seen.has(s)) { seen.add(s); list.push(s); }
+        }
+      }
+    }
+    return list;
+  }, [messages]);
+
+  const currentSlugIdx = activeSlug ? businessSlugsInOrder.indexOf(activeSlug) : -1;
+  const hasPrevBusiness = currentSlugIdx > 0;
+  const hasNextBusiness = currentSlugIdx >= 0 && currentSlugIdx < businessSlugsInOrder.length - 1;
+
+  const openBusinessBySlug = async (slug: string) => {
+    const id = await resolveBusinessId(slug);
+    if (id) { setActiveSlug(slug); setOpenBusinessId(id); return true; }
+    return false;
+  };
+
+  const goPrevBusiness = () => {
+    if (hasPrevBusiness) void openBusinessBySlug(businessSlugsInOrder[currentSlugIdx - 1]);
+  };
+  const goNextBusiness = () => {
+    if (hasNextBusiness) void openBusinessBySlug(businessSlugsInOrder[currentSlugIdx + 1]);
+  };
 
   const handleOpenBusinessLink = async (href: string | undefined) => {
     const slug = extractBusinessSlugFromHref(href);
     if (!slug) return false;
-    const id = await resolveBusinessId(slug);
-    if (id) {
-      setOpenBusinessId(id);
-    } else {
-      toast({ title: at.ficheNotFound, description: at.ficheNotFoundOpen, variant: "destructive" });
-    }
+    const ok = await openBusinessBySlug(slug);
+    if (!ok) toast({ title: at.ficheNotFound, description: at.ficheNotFoundOpen, variant: "destructive" });
     return true;
   };
 
@@ -330,14 +363,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
     // Try cached map payloads (name -> slug) first
     const slug = nameToSlugRef.current.get(n.toLowerCase());
     if (slug) {
-      const id = await resolveBusinessId(slug);
-      if (id) { setOpenBusinessId(id); return; }
+      const ok = await openBusinessBySlug(slug);
+      if (ok) return;
     }
-    // Fallback: look up by exact name in DB
-    const { data } = await supabase.from("businesses").select("id").ilike("name", n).limit(1).maybeSingle();
+    // Fallback: look up by exact name in DB (also fetch slug to enable prev/next nav)
+    const { data } = await supabase.from("businesses").select("id,slug").ilike("name", n).limit(1).maybeSingle();
     const id = (data as any)?.id;
-    if (id) setOpenBusinessId(id);
-    else toast({ title: at.ficheNotFound, description: at.ficheNotFoundFor(n), variant: "destructive" });
+    const dbSlug = (data as any)?.slug;
+    if (id) {
+      setActiveSlug(dbSlug || null);
+      setOpenBusinessId(id);
+    } else {
+      toast({ title: at.ficheNotFound, description: at.ficheNotFoundFor(n), variant: "destructive" });
+    }
   };
 
 
