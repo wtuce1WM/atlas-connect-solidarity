@@ -243,9 +243,9 @@ function buildHtml(slug: string, biz: Biz): string {
     ? biz.services.slice(0, 12).join(", ")
     : null;
 
-  const jsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org",
+  const businessNode: Record<string, unknown> = {
     "@type": schemaType,
+    "@id": `${url}#business`,
     name: biz.name,
     url,
     ...(image && { image }),
@@ -289,6 +289,32 @@ function buildHtml(slug: string, biz: Biz): string {
         reviewCount: biz.google_review_count ?? 1,
       },
     }),
+  };
+
+  // BreadcrumbList : Maroc › (Ville) › (Quartier) › Fiche — signal fort pour Google/IA
+  const slugify = (s: string) =>
+    s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const crumbs: Array<{ name: string; item: string }> = [
+    { name: "Maroc", item: `${BASE_URL}/` },
+  ];
+  if (biz.city) crumbs.push({ name: biz.city, item: `${BASE_URL}/destination/${slugify(biz.city)}` });
+  if (biz.neighborhood) crumbs.push({ name: biz.neighborhood, item: `${BASE_URL}/neighborhood/${slugify(biz.neighborhood)}` });
+  crumbs.push({ name: biz.name, item: url });
+
+  const breadcrumbNode = {
+    "@type": "BreadcrumbList",
+    "@id": `${url}#breadcrumb`,
+    itemListElement: crumbs.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: c.item,
+    })),
+  };
+
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@graph": [businessNode, breadcrumbNode],
   };
 
   const e = {
