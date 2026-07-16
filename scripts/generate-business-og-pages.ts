@@ -456,6 +456,12 @@ function buildArticleHtml(article: StaticArticle): string {
 </html>`;
 }
 
+interface HubItem {
+  name: string;
+  url: string;
+  image?: string | null;
+}
+
 interface Hub {
   kind: "destination" | "category" | "neighborhood";
   slug: string;       // URL segment (encoded once at write time)
@@ -470,6 +476,7 @@ interface Hub {
   reviewCount?: number | null;
   wikipedia?: string | null;
   city?: string | null;
+  items?: HubItem[];
 }
 
 function buildHubHtml(hub: Hub): string {
@@ -486,9 +493,9 @@ function buildHubHtml(hub: Hub): string {
     : hub.kind === "neighborhood" ? "Place"
     : "CollectionPage";
 
-  const jsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org",
+  const hubNode: Record<string, unknown> = {
     "@type": schemaType,
+    "@id": `${url}#hub`,
     name: hub.name,
     url,
     ...(image && { image }),
@@ -512,6 +519,26 @@ function buildHubHtml(hub: Hub): string {
     }),
     isPartOf: { "@type": "WebSite", name: SITE_NAME, url: BASE_URL },
   };
+
+  const graph: unknown[] = [hubNode];
+
+  if (hub.items && hub.items.length) {
+    graph.push({
+      "@type": "ItemList",
+      "@id": `${url}#itemlist`,
+      name: `${hub.name} — sélection ${SITE_NAME}`,
+      numberOfItems: hub.items.length,
+      itemListElement: hub.items.map((it, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: it.url,
+        name: it.name,
+        ...(it.image && { image: it.image }),
+      })),
+    });
+  }
+
+  const jsonLd = { "@context": "https://schema.org", "@graph": graph };
 
   const e = {
     title: escapeHtml(title),
@@ -781,18 +808,193 @@ async function main() {
     });
   }
 
-  // 6d) Écriture
+  // 6d) Enrichissement ItemList : top établissements par hub (max 20, tri google_rating desc)
+  const slugByBizId = new Map(vanities.map((v) => [v.target_id, v.slug]));
+  const eligibleBiz = businesses.filter((b) => slugByBizId.has(b.id));
+  const norm = (s: string | null | undefined) =>
+    (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  for (const h of hubs) {
+    const key = norm(h.name);
+    let matches: Biz[] = [];
+    if (h.kind === "destination") {
+      matches = eligibleBiz.filter((b) => norm(b.city) === key);
+    } else if (h.kind === "neighborhood") {
+      matches = eligibleBiz.filter((b) => norm(b.neighborhood) === key);
+    } else {
+      matches = eligibleBiz.filter(
+        (b) => norm(b.main_category) === key || (b.categories || []).some((c) => norm(c) === key),
+      );
+    }
+    matches.sort((a, b) => (b.google_rating ?? 0) - (a.google_rating ?? 0));
+    h.items = matches.slice(0, 20).map((b) => ({
+      name: b.name,
+      url: `${BASE_URL}/${slugByBizId.get(b.id)}`,
+      image: b.images?.[0] || null,
+    }));
+  }
+
+  // 6e) Écriture des hubs
   let hubsWritten = 0;
   for (const h of hubs) {
-    // Le slug encodé peut contenir % : on garde tel quel dans le nom de dossier
-    // (Vite/Lovable sert public/ directement, fs supporte % dans les noms).
     const dir = join(PUBLIC_DIR, h.kind, h.slug);
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "index.html"), buildHubHtml(h), "utf8");
     hubsWritten++;
   }
 
-  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog + ${hubsWritten} hubs (destinations/catégories/quartiers).`);
+  // 7) Page /events : ItemList d'Event Schema.org (agrégation)
+  const { data: eventRows } = await supabase
+    .from("events")
+    .select("id, name, hook, description, start_date, end_date, start_time, end_time, images, logo_url, city_id, neighborhood_id, url, google_maps_url, latitude, longitude, recurrence, days_of_week, type")
+    .order("start_date", { ascending: true, nullsFirst: false })
+    .limit(200);
+
+  const eventCityIds = [...new Set((eventRows || []).map((e: any) => e.city_id).filter(Boolean))];
+  const { data: eventCityRows } = eventCityIds.length
+    ? await supabase.from("destinations").select("id, name_fr, latitude, longitude").in("id", eventCityIds)
+    : { data: [] as any[] };
+  const eventCityById = new Map((eventCityRows || []).map((c: any) => [c.id, c]));
+
+  const eventsWritten = writeEventsHub(eventRows || [], eventCityById);
+
+  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog + ${hubsWritten} hubs + ${eventsWritten} events dans /events.`);
+}
+
+function writeEventsHub(
+  eventRows: Array<Record<string, any>>,
+  cityById: Map<string, { name_fr: string; latitude?: number; longitude?: number }>,
+): number {
+  const today = new Date().toISOString().slice(0, 10);
+  const events = eventRows
+    .filter((e) => e.name)
+    // Garde événements à venir OU récurrents OU sans date (permanents)
+    .filter((e) => !e.end_date || e.end_date >= today);
+
+  const eventNodes = events.map((ev) => {
+    const city = ev.city_id ? cityById.get(ev.city_id) : null;
+    const startISO = ev.start_date
+      ? (ev.start_time ? `${ev.start_date}T${ev.start_time}:00` : ev.start_date)
+      : null;
+    const endISO = ev.end_date
+      ? (ev.end_time ? `${ev.end_date}T${ev.end_time}:00` : ev.end_date)
+      : null;
+    const isRecurring = !!(ev.recurrence || (ev.days_of_week && ev.days_of_week.length));
+    const eventUrl = ev.url || `${BASE_URL}/search?q=${encodeURIComponent(ev.name)}`;
+    const node: Record<string, unknown> = {
+      "@type": isRecurring ? "Event" : "Event",
+      name: ev.name,
+      ...(ev.hook || ev.description ? { description: stripHtml(ev.hook || ev.description || "").substring(0, 300) } : {}),
+      ...(startISO ? { startDate: startISO } : {}),
+      ...(endISO ? { endDate: endISO } : {}),
+      eventStatus: "https://schema.org/EventScheduled",
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      ...(ev.images?.[0] || ev.logo_url ? { image: ev.images?.[0] || ev.logo_url } : {}),
+      url: eventUrl,
+      location: {
+        "@type": "Place",
+        name: city?.name_fr || "Maroc",
+        ...(ev.google_maps_url && { hasMap: ev.google_maps_url }),
+        address: {
+          "@type": "PostalAddress",
+          ...(city?.name_fr && { addressLocality: city.name_fr }),
+          addressCountry: "MA",
+        },
+        ...((ev.latitude && ev.longitude) || (city?.latitude && city?.longitude)
+          ? {
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: ev.latitude ?? city?.latitude,
+                longitude: ev.longitude ?? city?.longitude,
+              },
+            }
+          : {}),
+      },
+      organizer: { "@type": "Organization", name: SITE_NAME, url: BASE_URL },
+    };
+    return node;
+  });
+
+  const url = `${BASE_URL}/events`;
+  const title = `Événements & sorties au Maroc | ${SITE_NAME}`;
+  const description = `Concerts, festivals, marchés, retraites et sorties récurrentes sélectionnés à Marrakech, Essaouira et partout au Maroc.`;
+  const image = `${BASE_URL}/images/og-image.jpg`;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${url}#page`,
+        name: title,
+        description,
+        url,
+        isPartOf: { "@type": "WebSite", name: SITE_NAME, url: BASE_URL },
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${url}#events`,
+        name: `Événements ${SITE_NAME}`,
+        numberOfItems: eventNodes.length,
+        itemListElement: eventNodes.map((ev, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: ev,
+        })),
+      },
+    ],
+  };
+
+  const e = {
+    title: escapeHtml(title),
+    description: escapeHtml(description),
+    image: escapeHtml(image),
+    url: escapeHtml(url),
+  };
+  const html = `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>${e.title}</title>
+    <meta name="description" content="${e.description}" />
+    <link rel="canonical" href="${e.url}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="${e.title}" />
+    <meta property="og:description" content="${e.description}" />
+    <meta property="og:url" content="${e.url}" />
+    <meta property="og:image" content="${e.image}" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${e.title}" />
+    <meta name="twitter:description" content="${e.description}" />
+    <meta name="twitter:image" content="${e.image}" />
+    <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>
+  </head>
+  <body style="background-color:#faf8f5;margin:0">
+    <script>
+      (function () {
+        var ua = navigator.userAgent || "";
+        var isPreviewBot = /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Pinterest|Discordbot|Googlebot|Google-InspectionTool|GoogleOther|Google-Extended|bingbot|GPTBot|OAI-SearchBot|ChatGPT-User|PerplexityBot|Perplexity-User|ClaudeBot|Claude-Web|anthropic-ai|Applebot|Applebot-Extended|Amazonbot|Bytespider|Meta-ExternalAgent|Meta-ExternalFetcher|DuckAssistBot|YouBot|CCBot|cohere-ai|Diffbot/i.test(ua);
+        if (isPreviewBot) return;
+        fetch("/index.html", { cache: "no-store" })
+          .then(function (response) { return response.text(); })
+          .then(function (html) { document.open(); document.write(html); document.close(); })
+          .catch(function () {});
+      })();
+    </script>
+    <noscript>
+      <h1>${e.title}</h1>
+      <p>${e.description}</p>
+    </noscript>
+  </body>
+</html>`;
+
+  const eventsDir = join(PUBLIC_DIR, "events");
+  mkdirSync(eventsDir, { recursive: true });
+  writeFileSync(join(eventsDir, "index.html"), html, "utf8");
+  writeFileSync(join(eventsDir, ".og-generated"), "", "utf8");
+  return eventNodes.length;
 }
 
 main().catch((err) => {
