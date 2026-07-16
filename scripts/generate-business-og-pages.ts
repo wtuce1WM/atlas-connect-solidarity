@@ -230,7 +230,44 @@ function priceRangeFromBiz(biz: Biz): string | null {
   return null;
 }
 
-function buildHtml(slug: string, biz: Biz): string {
+function buildReviewNodes(reviews: DbReview[], businessId: string, businessName: string): Array<Record<string, unknown>> {
+  // Prend jusqu'à 5 avis avec du texte, meilleure note d'abord.
+  const eligible = reviews
+    .filter((r) => r.business_id === businessId)
+    .filter((r) => (r.text_fr || r.text || r.text_en || "").trim().length >= 30)
+    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+    .slice(0, 5);
+  return eligible.map((r) => {
+    const body = stripHtml(r.text_fr || r.text || r.text_en || "").substring(0, 500);
+    const authorName = r.author_name || "Visiteur";
+    return {
+      "@type": "Review",
+      author: { "@type": "Person", name: authorName },
+      reviewBody: body,
+      inLanguage: r.language || "fr",
+      ...(r.rating && {
+        reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5 },
+      }),
+      ...(r.published_at && { datePublished: r.published_at.substring(0, 10) }),
+      itemReviewed: { "@type": "Thing", name: businessName },
+      publisher: r.source ? { "@type": "Organization", name: r.source } : undefined,
+    };
+  });
+}
+
+function normalizeFaqItems(raw: Biz["faq"]): Array<{ q: string; a: string }> {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((it) => {
+      const q = (it?.q ?? it?.question ?? "").toString().trim();
+      const a = (it?.a ?? it?.answer ?? "").toString().trim();
+      return { q, a };
+    })
+    .filter((it) => it.q.length > 2 && it.a.length > 2)
+    .slice(0, 20);
+}
+
+function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = []): string {
   const title = `${biz.name}${biz.city ? ` – ${biz.city}` : ""} | ${SITE_NAME}`;
   const rawDesc = biz.hook_fr || biz.description || `Découvrez ${biz.name}.`;
   const description = stripHtml(rawDesc).substring(0, 160);
