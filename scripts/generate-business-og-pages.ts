@@ -456,6 +456,12 @@ function buildArticleHtml(article: StaticArticle): string {
 </html>`;
 }
 
+interface HubItem {
+  name: string;
+  url: string;
+  image?: string | null;
+}
+
 interface Hub {
   kind: "destination" | "category" | "neighborhood";
   slug: string;       // URL segment (encoded once at write time)
@@ -470,6 +476,7 @@ interface Hub {
   reviewCount?: number | null;
   wikipedia?: string | null;
   city?: string | null;
+  items?: HubItem[];
 }
 
 function buildHubHtml(hub: Hub): string {
