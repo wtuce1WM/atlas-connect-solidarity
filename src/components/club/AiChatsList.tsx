@@ -87,7 +87,7 @@ const AiChatsList = ({ userId }: Props) => {
     <ul className="flex flex-col gap-2">
       {chats.map((c) => (
         <li key={c.id} className="flex items-center gap-3 p-3 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 transition-colors">
-          <Bookmark className="h-4 w-4 text-[#D4AF37] shrink-0" fill="currentColor" />
+          <Bookmark className={`h-4 w-4 shrink-0 ${c.is_bookmarked ? "text-[#D4AF37]" : "text-white/30"}`} fill={c.is_bookmarked ? "currentColor" : "none"} />
           <div className="flex-1 min-w-0">
             <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               {c.title}
