@@ -771,7 +771,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   return (
     <div className={`flex flex-col gap-4 min-h-[520px] transition-[width,max-width,padding] duration-300 ease-out ${openBusinessId ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:pr-2" : "w-full"}`}>
       {/* Chat */}
-      <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col min-h-[300px] h-[calc(100dvh-30rem)] md:h-[calc(100dvh-24rem)] max-h-[520px]">
+      <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col min-h-[300px]">
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
           <button
             onClick={() => newChat()}
