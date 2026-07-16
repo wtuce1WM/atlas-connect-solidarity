@@ -42,6 +42,13 @@ Deno.serve(async (req) => {
     apiFormData.append('tag_audio_events', 'false');
     apiFormData.append('diarize', 'false');
 
+    // Forwarde la langue attendue (ISO 639-1 côté front -> ISO 639-3 pour
+    // scribe_v2) pour éviter les auto-détections aberrantes en asiatique
+    // sur des fragments courts/bruités.
+    const langRaw = String(formData.get('language') || '').slice(0, 2).toLowerCase();
+    const iso3: Record<string, string> = { fr: 'fra', en: 'eng', ar: 'ara', es: 'spa', de: 'deu', it: 'ita', pt: 'por', nl: 'nld' };
+    if (iso3[langRaw]) apiFormData.append('language_code', iso3[langRaw]);
+
     const response = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
       method: 'POST',
       headers: {
