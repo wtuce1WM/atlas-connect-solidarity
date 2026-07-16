@@ -188,8 +188,28 @@ function stripFicheLinks(text: string): string {
     .replace(/\s+([,.;:!?])/g, "$1");
 }
 
+function extractStrongBusinessCandidates(markdown: string): string[] {
+  const seen = new Set<string>();
+  const names: string[] = [];
+  const add = (value: string) => {
+    const name = value.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/[`*_#>]/g, "").trim();
+    if (!name || name.length > 80 || name.includes("\n")) return;
+    const key = name.toLowerCase();
+    if (!seen.has(key)) { seen.add(key); names.push(name); }
+  };
+  const re = /(\*\*|__)([\s\S]*?)\1/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(markdown))) {
+    add(match[2]);
+    add(match[2].replace(/\s*\([^)]*\)\s*$/g, ""));
+  }
+  return names;
+}
+
 
 type Msg = { role: "user" | "assistant"; content: string };
+
+type BusinessPanelRef = { id: string; slug: string | null; name: string };
 
 type ChatRow = {
   id: string;
@@ -305,6 +325,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [isBusinessPanelClosing, setIsBusinessPanelClosing] = useState(false);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const [orderedBusinessRefs, setOrderedBusinessRefs] = useState<BusinessPanelRef[]>([]);
   // Notify the parent Club page so it can hide its 4-CTA HomeBottomBar
   // while the slide-panel (with its own 6-CTA PanelSearchBar) is open.
   useEffect(() => {
@@ -317,39 +338,85 @@ const ClubAiAssistant = ({ userId }: Props) => {
   // Index of business name -> slug, fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
   const nameToSlugRef = useRef<Map<string, string>>(new Map());
 
-  // Ordered, deduped list of business slugs cited across the conversation.
-  // Feeds the vertical swipe navigation (prev/next business) inside BookOnlineSlidePanel.
-  const businessSlugsInOrder = useMemo(() => {
-    const seen = new Set<string>();
-    const list: string[] = [];
+  // Ordered, deduped list of businesses cited across the conversation.
+  // Mirrors blog article panels: the BookOnlineSlidePanel receives prev/next IDs.
+  useEffect(() => {
+    let cancelled = false;
+
+    const buildOrderedRefs = async () => {
+      const refs: BusinessPanelRef[] = [];
+      const seenIds = new Set<string>();
+      const seenNames = new Set<string>();
+      const strongNames: string[] = [];
+      const addRef = (id?: string | null, slug?: string | null, name?: string | null) => {
+        if (!id || seenIds.has(id)) return;
+        seenIds.add(id);
+        if (name) seenNames.add(name.toLowerCase());
+        refs.push({ id, slug: slug || null, name: name || slug || id });
+      };
+
     for (const m of messages) {
       if (m.role !== "assistant") continue;
-      const { maps } = extractMapPayloads(m.content);
-      for (const mp of maps) {
-        for (const b of mp.businesses) {
-          const s = b?.slug;
-          if (s && !seen.has(s)) { seen.add(s); list.push(s); }
+        const { maps } = extractMapPayloads(m.content);
+        for (const mp of maps) {
+          for (const b of mp.businesses) {
+            addRef(b?.id, b?.slug || null, b?.name || null);
+          }
+        }
+        for (const name of extractStrongBusinessCandidates(m.content)) {
+          if (!seenNames.has(name.toLowerCase())) strongNames.push(name);
         }
       }
-    }
-    return list;
+
+      if (strongNames.length) {
+        const resolved = await Promise.all(strongNames.slice(0, 30).map(async (name) => {
+          const { data } = await supabase
+            .from("businesses")
+            .select("id,slug,name")
+            .eq("is_active", true)
+            .ilike("name", name)
+            .limit(1);
+          const row = Array.isArray(data) ? data[0] : null;
+          return row ? { id: row.id as string, slug: (row as any).slug as string | null, name: (row as any).name as string } : null;
+        }));
+        for (const row of resolved) addRef(row?.id, row?.slug || null, row?.name || null);
+      }
+
+      if (!cancelled) setOrderedBusinessRefs(refs);
+    };
+
+    void buildOrderedRefs();
+    return () => { cancelled = true; };
   }, [messages]);
 
-  const currentSlugIdx = activeSlug ? businessSlugsInOrder.indexOf(activeSlug) : -1;
-  const hasPrevBusiness = currentSlugIdx > 0;
-  const hasNextBusiness = currentSlugIdx >= 0 && currentSlugIdx < businessSlugsInOrder.length - 1;
+  const currentBusinessIdx = openBusinessId ? orderedBusinessRefs.findIndex((b) => b.id === openBusinessId) : -1;
+  const hasPrevBusiness = currentBusinessIdx > 0;
+  const hasNextBusiness = currentBusinessIdx >= 0 && currentBusinessIdx < orderedBusinessRefs.length - 1;
 
   const openBusinessBySlug = async (slug: string) => {
     const id = await resolveBusinessId(slug);
-    if (id) { setActiveSlug(slug); setOpenBusinessId(id); return true; }
+    if (id) {
+      setActiveSlug(slug);
+      setOpenBusinessId(id);
+      setOrderedBusinessRefs((prev) => prev.some((b) => b.id === id) ? prev : [...prev, { id, slug, name: slug }]);
+      return true;
+    }
     return false;
   };
 
   const goPrevBusiness = () => {
-    if (hasPrevBusiness) void openBusinessBySlug(businessSlugsInOrder[currentSlugIdx - 1]);
+    if (hasPrevBusiness) {
+      const prev = orderedBusinessRefs[currentBusinessIdx - 1];
+      setActiveSlug(prev.slug);
+      setOpenBusinessId(prev.id);
+    }
   };
   const goNextBusiness = () => {
-    if (hasNextBusiness) void openBusinessBySlug(businessSlugsInOrder[currentSlugIdx + 1]);
+    if (hasNextBusiness) {
+      const next = orderedBusinessRefs[currentBusinessIdx + 1];
+      setActiveSlug(next.slug);
+      setOpenBusinessId(next.id);
+    }
   };
 
   const closeBusinessPanel = () => {
@@ -384,6 +451,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     if (id) {
       setActiveSlug(dbSlug || null);
       setOpenBusinessId(id);
+      setOrderedBusinessRefs((prev) => prev.some((b) => b.id === id) ? prev : [...prev, { id, slug: dbSlug || null, name: n }]);
     } else {
       toast({ title: at.ficheNotFound, description: at.ficheNotFoundFor(n), variant: "destructive" });
     }
