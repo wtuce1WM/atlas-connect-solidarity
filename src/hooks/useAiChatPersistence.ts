@@ -2,6 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const anonTokenKey = (chatId: string) => `ai_chat_token_${chatId}`;
+
+function generateAnonToken() {
+  return crypto.randomUUID();
+}
+
 export type AiChatMessage = {
   role: "user" | "assistant";
   content: string;
