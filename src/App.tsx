@@ -227,6 +227,7 @@ const LocalizedRoutes = () => {
               <Route path="/u/:pseudo" element={renderLazyRoute(<PublicClubProfile />)} />
               <Route path="/b/:slug" element={renderLazyRoute(<PublicBusinessProfile />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/events" element={renderLazyRoute(<EventsPage />)} />
               <Route path="/:vanitySlug" element={renderLazyRoute(<VanityResolver />)} />
               <Route path="*" element={renderLazyRoute(<NotFound />)} />
     </Routes>
