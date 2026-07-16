@@ -1023,8 +1023,283 @@ async function main() {
 
   const eventsWritten = writeEventsHub(eventRows || [], eventCityById);
 
-  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog + ${hubsWritten} hubs + ${eventsWritten} events dans /events.`);
+  // 8) Espace IA — flux machine-readable pour LLMs / agents (JSON, JSON-LD, OpenAPI)
+  const aiWritten = writeAiFeed(businesses, vanities, eventRows || [], eventCityById);
+
+  console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog + ${hubsWritten} hubs + ${eventsWritten} events dans /events + ${aiWritten} fichiers dans /ai.`);
 }
+
+function writeAiFeed(
+  businesses: Biz[],
+  vanities: { slug: string; target_id: string }[],
+  eventRows: Array<Record<string, any>>,
+  cityById: Map<string, { name_fr: string; latitude?: number; longitude?: number }>,
+): number {
+  const aiDir = join(PUBLIC_DIR, "ai");
+  mkdirSync(aiDir, { recursive: true });
+  writeFileSync(join(aiDir, MARKER_FILE), "", "utf8");
+
+  const slugByBizId = new Map(vanities.map((v) => [v.target_id, v.slug]));
+
+  // 8a) catalog.json — flux plat, champs essentiels
+  const catalog = businesses
+    .filter((b) => slugByBizId.has(b.id))
+    .map((b) => {
+      const slug = slugByBizId.get(b.id)!;
+      return {
+        id: b.id,
+        slug,
+        url: `${BASE_URL}/${slug}`,
+        name: b.name,
+        hook: b.hook_fr || null,
+        description: b.description ? stripHtml(b.description).substring(0, 500) : null,
+        main_category: b.main_category || null,
+        categories: b.categories || [],
+        services: b.services || [],
+        city: b.city || null,
+        neighborhood: b.neighborhood || null,
+        region: b.region || null,
+        country: "MA",
+        latitude: b.latitude,
+        longitude: b.longitude,
+        address: b.address || null,
+        phone: b.phone || null,
+        whatsapp: b.whatsapp || null,
+        website: b.website || null,
+        image: b.images?.[0] || null,
+        google_rating: b.google_rating,
+        google_review_count: b.google_review_count,
+        price_range: priceRangeFromBiz(b),
+        min_price_mad: b.min_price,
+        languages: b.languages || [],
+        opening_hours: b.opening_hours || null,
+        is_open_24h: !!b.is_open_24h,
+        booking_url: b.booking_url || b.reserve_now_url || null,
+        menu_url: b.menu_url || null,
+        social: {
+          instagram: b.instagram_url || null,
+          facebook: b.facebook_url || null,
+          tripadvisor: b.tripadvisor_url || null,
+          youtube: b.youtube_url || null,
+          linkedin: b.linkedin_url || null,
+        },
+      };
+    });
+
+  const catalogPayload = {
+    "@meta": {
+      source: SITE_NAME,
+      url: `${BASE_URL}/ai/catalog.json`,
+      generated_at: new Date().toISOString(),
+      license: "Attribution requise · Contact : https://oneworldmorocco.com/contact",
+      count: catalog.length,
+    },
+    businesses: catalog,
+  };
+  writeFileSync(join(aiDir, "catalog.json"), JSON.stringify(catalogPayload, null, 2), "utf8");
+
+  // 8b) catalog.jsonld — même contenu en Schema.org ItemList
+  const catalogJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Catalogue ${SITE_NAME}`,
+    url: `${BASE_URL}/ai/catalog.jsonld`,
+    numberOfItems: catalog.length,
+    itemListElement: catalog.map((b, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: b.url,
+      item: {
+        "@type": "LocalBusiness",
+        "@id": `${b.url}#business`,
+        name: b.name,
+        url: b.url,
+        ...(b.image && { image: b.image }),
+        ...(b.description && { description: b.description }),
+        ...(b.address && {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: b.address,
+            ...(b.neighborhood && { addressLocality: b.neighborhood }),
+            ...(b.city && { addressRegion: b.city }),
+            addressCountry: "MA",
+          },
+        }),
+        ...(b.latitude && b.longitude && {
+          geo: { "@type": "GeoCoordinates", latitude: b.latitude, longitude: b.longitude },
+        }),
+        ...(b.phone && { telephone: b.phone }),
+        ...(b.google_rating && {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: b.google_rating,
+            reviewCount: b.google_review_count ?? 1,
+            bestRating: 5,
+          },
+        }),
+      },
+    })),
+  };
+  writeFileSync(join(aiDir, "catalog.jsonld"), JSON.stringify(catalogJsonLd, null, 2), "utf8");
+
+  // 8c) events.json — flux événements à venir/permanents
+  const today = new Date().toISOString().slice(0, 10);
+  const eventsFeed = eventRows
+    .filter((e) => e.name && (!e.end_date || e.end_date >= today))
+    .map((ev) => {
+      const city = ev.city_id ? cityById.get(ev.city_id) : null;
+      return {
+        id: ev.id,
+        name: ev.name,
+        hook: ev.hook || null,
+        description: ev.description ? stripHtml(ev.description).substring(0, 400) : null,
+        start_date: ev.start_date || null,
+        end_date: ev.end_date || null,
+        start_time: ev.start_time || null,
+        end_time: ev.end_time || null,
+        recurrence: ev.recurrence || null,
+        days_of_week: ev.days_of_week || [],
+        type: ev.type || null,
+        city: city?.name_fr || null,
+        latitude: ev.latitude ?? city?.latitude ?? null,
+        longitude: ev.longitude ?? city?.longitude ?? null,
+        image: (ev.images && ev.images[0]) || ev.logo_url || null,
+        url: ev.url || `${BASE_URL}/events`,
+      };
+    });
+  writeFileSync(
+    join(aiDir, "events.json"),
+    JSON.stringify(
+      {
+        "@meta": {
+          source: SITE_NAME,
+          url: `${BASE_URL}/ai/events.json`,
+          generated_at: new Date().toISOString(),
+          count: eventsFeed.length,
+        },
+        events: eventsFeed,
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
+
+  // 8d) sitemap.xml — sitemap IA ciblé (uniquement fiches business)
+  const urls = catalog
+    .map(
+      (b) => `  <url>
+    <loc>${b.url}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`,
+    )
+    .join("\n");
+  writeFileSync(
+    join(aiDir, "sitemap.xml"),
+    `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>
+`,
+    "utf8",
+  );
+
+  // 8e) openapi.json — spec OpenAPI 3.1 minimale des endpoints lisibles
+  const openapi = {
+    openapi: "3.1.0",
+    info: {
+      title: `${SITE_NAME} — AI Data Feed`,
+      version: "1.0.0",
+      description: "Flux lecture seule pour LLM et agents IA : catalogue d'établissements et événements au Maroc.",
+      contact: { name: SITE_NAME, url: `${BASE_URL}/contact` },
+      license: { name: "Attribution requise", url: `${BASE_URL}/mission` },
+    },
+    servers: [{ url: BASE_URL }],
+    paths: {
+      "/ai/catalog.json": {
+        get: {
+          summary: "Catalogue complet des établissements (JSON à plat)",
+          responses: { "200": { description: "OK", content: { "application/json": {} } } },
+        },
+      },
+      "/ai/catalog.jsonld": {
+        get: {
+          summary: "Catalogue complet en JSON-LD (Schema.org ItemList)",
+          responses: { "200": { description: "OK", content: { "application/ld+json": {} } } },
+        },
+      },
+      "/ai/events.json": {
+        get: {
+          summary: "Événements à venir (JSON)",
+          responses: { "200": { description: "OK", content: { "application/json": {} } } },
+        },
+      },
+      "/ai/sitemap.xml": {
+        get: {
+          summary: "Sitemap XML dédié aux fiches établissement",
+          responses: { "200": { description: "OK", content: { "application/xml": {} } } },
+        },
+      },
+    },
+    "x-mcp-server": {
+      transport: "streamable-http",
+      url: "https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/mcp",
+      description: "Serveur MCP public (lecture seule) exposant le catalogue.",
+    },
+  };
+  writeFileSync(join(aiDir, "openapi.json"), JSON.stringify(openapi, null, 2), "utf8");
+
+  // 8f) index.html — page humaine décrivant les flux
+  const indexHtml = `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Espace IA & agents | ${SITE_NAME}</title>
+    <meta name="description" content="Flux machine-readable de ${SITE_NAME} pour LLMs, agents IA et moteurs de recherche : catalogue JSON, JSON-LD, OpenAPI, sitemap dédié, serveur MCP." />
+    <link rel="canonical" href="${BASE_URL}/ai/" />
+    <meta property="og:title" content="Espace IA & agents | ${SITE_NAME}" />
+    <meta property="og:description" content="Catalogue JSON, JSON-LD, OpenAPI, sitemap dédié, serveur MCP." />
+    <meta property="og:url" content="${BASE_URL}/ai/" />
+    <style>
+      body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; max-width: 780px; margin: 2rem auto; padding: 0 1.5rem; color: #1a1a1a; background: #faf8f5; line-height: 1.55; }
+      h1 { font-size: 1.8rem; margin-bottom: .3rem; }
+      h2 { margin-top: 2rem; font-size: 1.15rem; border-bottom: 1px solid #e5ddd0; padding-bottom: .3rem; }
+      code { background: #f0e9de; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+      a { color: #C04F17; }
+      ul { padding-left: 1.2rem; }
+      li { margin: .35rem 0; }
+      .meta { color: #6b6b6b; font-size: .9rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Espace IA & agents</h1>
+    <p class="meta">Flux lecture seule pour LLMs, agents IA et moteurs. Généré au build depuis la base ${SITE_NAME}.</p>
+
+    <h2>Flux disponibles</h2>
+    <ul>
+      <li><a href="/ai/catalog.json">/ai/catalog.json</a> — Catalogue complet (${catalog.length} établissements) en JSON à plat</li>
+      <li><a href="/ai/catalog.jsonld">/ai/catalog.jsonld</a> — Même catalogue en Schema.org <code>ItemList</code> / <code>LocalBusiness</code></li>
+      <li><a href="/ai/events.json">/ai/events.json</a> — Événements à venir (${eventsFeed.length})</li>
+      <li><a href="/ai/sitemap.xml">/ai/sitemap.xml</a> — Sitemap ciblé fiches établissement</li>
+      <li><a href="/ai/openapi.json">/ai/openapi.json</a> — Spec OpenAPI 3.1</li>
+      <li><a href="/llms.txt">/llms.txt</a> — Index racine style llmstxt.org</li>
+    </ul>
+
+    <h2>Serveur MCP</h2>
+    <p>Un serveur <a href="https://modelcontextprotocol.io">Model Context Protocol</a> public (lecture seule) expose la recherche et la fiche business :</p>
+    <p><code>https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/mcp</code></p>
+
+    <h2>Licence & usage</h2>
+    <p>Réutilisation autorisée avec <strong>attribution</strong> (${SITE_NAME} + lien vers la fiche source). Pour un usage commercial ou une reprise en volume, <a href="${BASE_URL}/contact">contactez-nous</a>.</p>
+  </body>
+</html>`;
+  writeFileSync(join(aiDir, "index.html"), indexHtml, "utf8");
+
+  return 6;
+}
+
 
 function writeEventsHub(
   eventRows: Array<Record<string, any>>,
