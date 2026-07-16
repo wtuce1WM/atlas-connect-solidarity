@@ -163,6 +163,19 @@ interface Biz {
   youtube_url: string | null;
   linkedin_url: string | null;
   is_active: boolean;
+  faq: Array<{ q?: string; a?: string; question?: string; answer?: string }> | null;
+}
+
+interface DbReview {
+  business_id: string;
+  source: string;
+  author_name: string | null;
+  rating: number | null;
+  text: string | null;
+  text_fr: string | null;
+  text_en: string | null;
+  published_at: string | null;
+  language: string | null;
 }
 
 function buildOpeningHoursSpec(oh: Biz["opening_hours"], is24h: boolean | null): unknown[] | null {
