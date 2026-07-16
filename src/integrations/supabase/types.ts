@@ -1850,6 +1850,7 @@ export type Database = {
           email: string | null
           engagements: string[]
           facebook_url: string | null
+          faq: Json | null
           flipbook_language: string | null
           flipbook_name: string | null
           flipbook_url: string | null
@@ -2026,6 +2027,7 @@ export type Database = {
           email?: string | null
           engagements?: string[]
           facebook_url?: string | null
+          faq?: Json | null
           flipbook_language?: string | null
           flipbook_name?: string | null
           flipbook_url?: string | null
@@ -2202,6 +2204,7 @@ export type Database = {
           email?: string | null
           engagements?: string[]
           facebook_url?: string | null
+          faq?: Json | null
           flipbook_language?: string | null
           flipbook_name?: string | null
           flipbook_url?: string | null
@@ -6908,6 +6911,7 @@ export type Database = {
               email: string | null
               engagements: string[]
               facebook_url: string | null
+              faq: Json | null
               flipbook_language: string | null
               flipbook_name: string | null
               flipbook_url: string | null
@@ -7100,6 +7104,7 @@ export type Database = {
               email: string | null
               engagements: string[]
               facebook_url: string | null
+              faq: Json | null
               flipbook_language: string | null
               flipbook_name: string | null
               flipbook_url: string | null
