@@ -493,9 +493,9 @@ function buildHubHtml(hub: Hub): string {
     : hub.kind === "neighborhood" ? "Place"
     : "CollectionPage";
 
-  const jsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org",
+  const hubNode: Record<string, unknown> = {
     "@type": schemaType,
+    "@id": `${url}#hub`,
     name: hub.name,
     url,
     ...(image && { image }),
@@ -519,6 +519,26 @@ function buildHubHtml(hub: Hub): string {
     }),
     isPartOf: { "@type": "WebSite", name: SITE_NAME, url: BASE_URL },
   };
+
+  const graph: unknown[] = [hubNode];
+
+  if (hub.items && hub.items.length) {
+    graph.push({
+      "@type": "ItemList",
+      "@id": `${url}#itemlist`,
+      name: `${hub.name} — sélection ${SITE_NAME}`,
+      numberOfItems: hub.items.length,
+      itemListElement: hub.items.map((it, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: it.url,
+        name: it.name,
+        ...(it.image && { image: it.image }),
+      })),
+    });
+  }
+
+  const jsonLd = { "@context": "https://schema.org", "@graph": graph };
 
   const e = {
     title: escapeHtml(title),
