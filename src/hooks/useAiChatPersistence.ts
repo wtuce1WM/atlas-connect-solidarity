@@ -136,17 +136,19 @@ export function useAiChatPersistence({
 
       if (!chatId) {
         // Anonymous chats are public by default so the share link works without auth.
+        const newAnonToken = userId ? null : generateAnonToken();
         const insertPayload: any = {
           user_id: userId,
           title: finalTitle,
           messages: payload as any,
           city: city ?? null,
           is_public: userId ? false : true,
+          ...(newAnonToken ? { anon_token: newAnonToken } : {}),
         };
         const { data, error } = await supabase
           .from("ai_chats")
           .insert(insertPayload)
-          .select("id,title,user_id,is_bookmarked,is_public")
+          .select("id,title,user_id,is_bookmarked,is_public,anon_token")
           .single();
         if (!error && data) {
           setChatId(data.id);
@@ -154,6 +156,10 @@ export function useAiChatPersistence({
           setTitle(data.title);
           setIsBookmarked(!!data.is_bookmarked);
           setIsPublic(!!data.is_public);
+          if (!data.user_id && data.anon_token) {
+            localStorage.setItem(anonTokenKey(data.id), data.anon_token);
+            setAnonToken(data.anon_token);
+          }
           const next = new URLSearchParams(searchParams);
           next.set("aiChat", data.id);
           // Preserve the current pathname (including any /en or /ar language prefix)
@@ -163,12 +169,27 @@ export function useAiChatPersistence({
           window.history.replaceState(window.history.state, "", nextUrl);
           lastSavedRef.current = JSON.stringify({ chatId: data.id, payload });
         }
-      } else {
+      } else if (userId) {
         const { error } = await supabase
           .from("ai_chats")
           .update({ messages: payload as any, title: finalTitle, city: city ?? null })
           .eq("id", chatId);
         if (!error) lastSavedRef.current = signature;
+      } else if (anonToken) {
+        // Anonymous updates must prove ownership via the secret token header.
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/ai_chats?id=eq.${chatId}`, {
+          method: "PATCH",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            "x-anon-token": anonToken,
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify({ messages: payload as any, title: finalTitle, city: city ?? null }),
+        });
+        if (res.ok) lastSavedRef.current = signature;
+        else console.error("Anonymous chat update failed:", res.status);
       }
     }, 1000);
 
