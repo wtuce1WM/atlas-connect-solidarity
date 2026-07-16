@@ -334,7 +334,13 @@ function normalizeFaqItems(raw: Biz["faq"]): Array<{ q: string; a: string }> {
     .slice(0, 20);
 }
 
-function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = []): string {
+export interface BizRelations {
+  pois?: Array<{ name: string; latitude?: number | null; longitude?: number | null; wikipedia?: string | null; url?: string | null; image?: string | null }>;
+  destinations?: Array<{ name: string; wikipedia?: string | null; url?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null }>;
+  events?: Array<{ name: string; start_date?: string | null; end_date?: string | null; url?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; description?: string | null }>;
+}
+
+function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = [], relations: BizRelations = {}): string {
   const title = `${biz.name}${biz.city ? ` – ${biz.city}` : ""} | ${SITE_NAME}`;
   const rawDesc = biz.hook_fr || biz.description || `Découvrez ${biz.name}.`;
   const description = stripHtml(rawDesc).substring(0, 160);
@@ -418,6 +424,75 @@ function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = []): string {
   const distanceProps = buildDistancePropertyValues(biz);
   if (distanceProps.length) {
     (businessNode as any).additionalProperty = distanceProps;
+  }
+
+  // containedInPlace : Quartier → Ville → Région → Maroc (chaîne d'appartenance)
+  // Signal fort pour les LLM et Google : localise l'entité dans la hiérarchie géo.
+  const containedChain: Array<Record<string, unknown>> = [];
+  if (biz.city) {
+    const cityNode: Record<string, unknown> = { "@type": "City", name: biz.city, address: { "@type": "PostalAddress", addressLocality: biz.city, addressCountry: "MA" } };
+    if (biz.region) {
+      cityNode.containedInPlace = { "@type": "AdministrativeArea", name: biz.region, containedInPlace: { "@type": "Country", name: "Maroc", identifier: "MA" } };
+    } else {
+      cityNode.containedInPlace = { "@type": "Country", name: "Maroc", identifier: "MA" };
+    }
+    if (biz.neighborhood) {
+      containedChain.push({ "@type": "Place", name: biz.neighborhood, containedInPlace: cityNode });
+    } else {
+      containedChain.push(cityNode);
+    }
+  } else if (biz.region) {
+    containedChain.push({ "@type": "AdministrativeArea", name: biz.region, containedInPlace: { "@type": "Country", name: "Maroc", identifier: "MA" } });
+  }
+  if (containedChain.length) {
+    (businessNode as any).containedInPlace = containedChain.length === 1 ? containedChain[0] : containedChain;
+  }
+
+  // nearbyAttraction : POIs liés à la fiche (business_poi_businesses) + destinations touristiques
+  const attractions: Array<Record<string, unknown>> = [];
+  for (const p of relations.pois || []) {
+    if (!p.name) continue;
+    const node: Record<string, unknown> = { "@type": "TouristAttraction", name: p.name };
+    if (p.latitude && p.longitude) node.geo = { "@type": "GeoCoordinates", latitude: p.latitude, longitude: p.longitude };
+    if (p.image) node.image = p.image;
+    const sa: string[] = [];
+    if (p.wikipedia) sa.push(p.wikipedia);
+    if (p.url) sa.push(p.url);
+    if (sa.length) node.sameAs = sa;
+    attractions.push(node);
+  }
+  for (const d of relations.destinations || []) {
+    if (!d.name) continue;
+    const node: Record<string, unknown> = { "@type": "TouristDestination", name: d.name };
+    if (d.latitude && d.longitude) node.geo = { "@type": "GeoCoordinates", latitude: d.latitude, longitude: d.longitude };
+    if (d.image) node.image = d.image;
+    const sa: string[] = [];
+    if (d.wikipedia) sa.push(d.wikipedia);
+    if (d.url) sa.push(d.url);
+    if (sa.length) node.sameAs = sa;
+    attractions.push(node);
+  }
+  if (attractions.length) {
+    (businessNode as any).nearbyAttraction = attractions.slice(0, 15);
+  }
+
+  // event : événements récurrents/ponctuels rattachés (event_businesses)
+  const evts = (relations.events || []).filter((e) => e.name).slice(0, 10).map((e) => {
+    const node: Record<string, unknown> = { "@type": "Event", name: e.name };
+    if (e.start_date) node.startDate = e.start_date;
+    if (e.end_date) node.endDate = e.end_date;
+    if (e.url) node.url = e.url;
+    if (e.image) node.image = e.image;
+    if (e.description) node.description = stripHtml(e.description).substring(0, 300);
+    if (e.latitude && e.longitude) {
+      node.location = { "@type": "Place", name: biz.name, geo: { "@type": "GeoCoordinates", latitude: e.latitude, longitude: e.longitude } };
+    } else {
+      node.location = { "@type": "Place", name: biz.name };
+    }
+    return node;
+  });
+  if (evts.length) {
+    (businessNode as any).event = evts;
   }
 
   // BreadcrumbList : Maroc › (Ville) › (Quartier) › Fiche — signal fort pour Google/IA
@@ -817,6 +892,103 @@ async function main() {
     }
   }
 
+  // 2c) Récupère les relations business → POIs / destinations / events
+  // Ces jointures alimentent nearbyAttraction / containedInPlace / event dans le JSON-LD.
+  const relationsByBiz = new Map<string, BizRelations>();
+  const getRel = (id: string): BizRelations => {
+    let r = relationsByBiz.get(id);
+    if (!r) { r = { pois: [], destinations: [], events: [] }; relationsByBiz.set(id, r); }
+    return r;
+  };
+
+  // POIs liés
+  try {
+    const poiLinks: Array<{ business_id: string; poi_business_id: string }> = [];
+    for (let i = 0; i < activeIds.length; i += PAGE) {
+      const chunk = activeIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("business_poi_businesses").select("business_id, poi_business_id").in("business_id", chunk);
+      if (data) poiLinks.push(...(data as any));
+    }
+    const poiIds = [...new Set(poiLinks.map((l) => l.poi_business_id).filter(Boolean))];
+    const poiById = new Map<string, any>();
+    for (let i = 0; i < poiIds.length; i += PAGE) {
+      const chunk = poiIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("points_of_interest").select("id, name_fr, latitude, longitude, wikipedia_fr, official_site_fr, image_url").in("id", chunk);
+      for (const p of (data || []) as any[]) poiById.set(p.id, p);
+    }
+    for (const l of poiLinks) {
+      const p = poiById.get(l.poi_business_id);
+      if (!p?.name_fr) continue;
+      getRel(l.business_id).pois!.push({
+        name: p.name_fr,
+        latitude: p.latitude,
+        longitude: p.longitude,
+        wikipedia: p.wikipedia_fr,
+        url: p.official_site_fr,
+        image: p.image_url,
+      });
+    }
+  } catch (e) { console.warn("[og-pages] POI relations fetch failed:", (e as Error).message); }
+
+  // Destinations liées
+  try {
+    const destLinks: Array<{ business_id: string; destination_id: string }> = [];
+    for (let i = 0; i < activeIds.length; i += PAGE) {
+      const chunk = activeIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("business_destinations").select("business_id, destination_id").in("business_id", chunk);
+      if (data) destLinks.push(...(data as any));
+    }
+    const destIds = [...new Set(destLinks.map((l) => l.destination_id).filter(Boolean))];
+    const destById = new Map<string, any>();
+    for (let i = 0; i < destIds.length; i += PAGE) {
+      const chunk = destIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("destinations").select("id, name_fr, latitude, longitude, wikipedia_fr, image_url").in("id", chunk);
+      for (const d of (data || []) as any[]) destById.set(d.id, d);
+    }
+    for (const l of destLinks) {
+      const d = destById.get(l.destination_id);
+      if (!d?.name_fr) continue;
+      getRel(l.business_id).destinations!.push({
+        name: d.name_fr,
+        latitude: d.latitude,
+        longitude: d.longitude,
+        wikipedia: d.wikipedia_fr,
+        image: d.image_url,
+      });
+    }
+  } catch (e) { console.warn("[og-pages] destination relations fetch failed:", (e as Error).message); }
+
+  // Events liés
+  try {
+    const evtLinks: Array<{ business_id: string; event_id: string }> = [];
+    for (let i = 0; i < activeIds.length; i += PAGE) {
+      const chunk = activeIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("event_businesses").select("business_id, event_id").in("business_id", chunk);
+      if (data) evtLinks.push(...(data as any));
+    }
+    const evtIds = [...new Set(evtLinks.map((l) => l.event_id).filter(Boolean))];
+    const evtById = new Map<string, any>();
+    for (let i = 0; i < evtIds.length; i += PAGE) {
+      const chunk = evtIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("events").select("id, name, description, start_date, end_date, latitude, longitude, url, images, logo_url").in("id", chunk);
+      for (const ev of (data || []) as any[]) evtById.set(ev.id, ev);
+    }
+    for (const l of evtLinks) {
+      const ev = evtById.get(l.event_id);
+      if (!ev?.name) continue;
+      getRel(l.business_id).events!.push({
+        name: ev.name,
+        description: ev.description,
+        start_date: ev.start_date,
+        end_date: ev.end_date,
+        latitude: ev.latitude,
+        longitude: ev.longitude,
+        url: ev.url,
+        image: (Array.isArray(ev.images) && ev.images[0]) || ev.logo_url || null,
+      });
+    }
+  } catch (e) { console.warn("[og-pages] event relations fetch failed:", (e as Error).message); }
+
   // 3) Nettoie l'ancienne génération
   await cleanPreviouslyGenerated();
 
@@ -831,7 +1003,8 @@ async function main() {
     const dir = join(PUBLIC_DIR, slug);
     mkdirSync(dir, { recursive: true });
     const bizReviews = reviewsByBiz.get(biz.id) || [];
-    writeFileSync(join(dir, "index.html"), buildHtml(slug, biz, bizReviews), "utf8");
+    const bizRelations = relationsByBiz.get(biz.id) || {};
+    writeFileSync(join(dir, "index.html"), buildHtml(slug, biz, bizReviews, bizRelations), "utf8");
     writeFileSync(join(dir, MARKER_FILE), "", "utf8");
     written++;
   }
