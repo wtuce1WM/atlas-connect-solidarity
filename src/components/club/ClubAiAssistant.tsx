@@ -919,6 +919,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 businessId={openBusinessId}
                 onClose={() => setOpenBusinessId(null)}
                 showSearchBar
+                onPrevBusiness={goPrevBusiness}
+                onNextBusiness={goNextBusiness}
+                hasPrevBusiness={hasPrevBusiness}
+                hasNextBusiness={hasNextBusiness}
               />
             </Suspense>
           </div>
