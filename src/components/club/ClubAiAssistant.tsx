@@ -515,7 +515,11 @@ const ClubAiAssistant = ({ userId }: Props) => {
   }, [activeId, chats, loadingList]);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const el = scrollRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+      try { el.scrollIntoView({ block: "end", behavior: "smooth" }); } catch { /* noop */ }
+    }
   }, [messages, sending]);
 
   // (Previously locked html/body overflow to force an internal scroll area.
