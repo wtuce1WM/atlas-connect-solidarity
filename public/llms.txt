@@ -39,6 +39,11 @@ Langues :
 - [Espace IA & agents](https://oneworldmorocco.com/ai/): Flux machine-readable — JSON, JSON-LD, OpenAPI, sitemap dédié, serveur MCP.
 - [Catalogue JSON](https://oneworldmorocco.com/ai/catalog.json): Tous les établissements actifs (id, url, nom, ville, quartier, coordonnées, catégories, prix, note).
 - [Catalogue JSON-LD](https://oneworldmorocco.com/ai/catalog.jsonld): Même catalogue en Schema.org `ItemList` / `LocalBusiness`.
+- [Graphe JSON-LD](https://oneworldmorocco.com/ai/graph.jsonld): Graphe Schema.org complet — villes, quartiers, POIs, destinations, établissements + arêtes `containedInPlace` / `nearbyAttraction` / `event`.
+- [Villes JSON](https://oneworldmorocco.com/ai/cities.json): Villes avec quartiers et compteur d'établissements.
+- [Quartiers JSON](https://oneworldmorocco.com/ai/neighborhoods.json): Quartiers avec liste d'établissements.
+- [POIs JSON](https://oneworldmorocco.com/ai/pois.json): Points d'intérêt avec établissements à proximité.
+- [Destinations JSON](https://oneworldmorocco.com/ai/destinations.json): Destinations touristiques (régions/villes agrégées).
 - [Événements JSON](https://oneworldmorocco.com/ai/events.json): Événements à venir avec géolocalisation.
 - [OpenAPI 3.1](https://oneworldmorocco.com/ai/openapi.json): Spec des endpoints IA.
 - [Sitemap XML](https://oneworldmorocco.com/sitemap.xml): Index complet des URLs indexables.
