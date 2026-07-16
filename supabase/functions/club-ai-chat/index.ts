@@ -726,7 +726,17 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
 ${languageInstruction}`;
 
 
-    const convo: Msg[] = [{ role: "system", content: system }, ...messages];
+    // Strip SHOW_ON_MAP markers (huge JSON payloads with images) from prior assistant
+    // messages before sending them back to the LLM. Otherwise the model:
+    //  1) bloats its context with URLs/coords it doesn't need,
+    //  2) tends to echo/regurgitate a truncated marker in its next reply,
+    //     which the client-side regex can't match and displays as raw JSON.
+    const sanitizedMessages: Msg[] = messages.map((m) =>
+      m.role === "assistant" && typeof m.content === "string"
+        ? { ...m, content: m.content.replace(/<!--SHOW_ON_MAP:[\s\S]*?-->/g, "").replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "").trim() }
+        : m
+    );
+    const convo: Msg[] = [{ role: "system", content: system }, ...sanitizedMessages];
     const ctx = { userId: user.id, supabase: admin };
 
     // Tool-calling loop (max 4 iterations — reduced from 6 for cost control)
