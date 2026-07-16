@@ -11,6 +11,7 @@ import { User as UserIcon, MapPin, Plane, Lightbulb, Bell, Home, Bot } from "luc
 import ClubTrips from "@/components/club/ClubTrips";
 import BookmarkTripLinker from "@/components/club/BookmarkTripLinker";
 import ClubAiAssistant from "@/components/club/ClubAiAssistant";
+import AiChatsList from "@/components/club/AiChatsList";
 import { MessageCircle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
