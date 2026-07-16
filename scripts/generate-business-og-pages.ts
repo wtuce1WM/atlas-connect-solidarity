@@ -716,7 +716,7 @@ async function main() {
     const { data, error } = await supabase
       .from("businesses")
       .select(
-        "id, slug, name, city, neighborhood, region, description, hook_fr, images, main_category, categories, services, languages, address, phone, whatsapp, email, website, latitude, longitude, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, min_price, manual_price_range, opening_hours, is_open_24h, menu_url, booking_url, reserve_now_url, facebook_url, instagram_url, tripadvisor_url, youtube_url, linkedin_url, is_active"
+        "id, slug, name, city, neighborhood, region, description, hook_fr, images, main_category, categories, services, languages, address, phone, whatsapp, email, website, latitude, longitude, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, min_price, manual_price_range, opening_hours, is_open_24h, menu_url, booking_url, reserve_now_url, facebook_url, instagram_url, tripadvisor_url, youtube_url, linkedin_url, is_active, faq"
       )
       .in("id", chunk)
       .eq("is_active", true);
@@ -724,6 +724,25 @@ async function main() {
     if (data) businesses.push(...(data as Biz[]));
   }
   const bizById = new Map(businesses.map((b) => [b.id, b]));
+
+  // 2b) Récupère les reviews individuels (max 10 par fiche, avec texte) pour Schema.org Review
+  const reviewsByBiz = new Map<string, DbReview[]>();
+  const activeIds = businesses.map((b) => b.id);
+  for (let i = 0; i < activeIds.length; i += PAGE) {
+    const chunk = activeIds.slice(i, i + PAGE);
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("business_id, source, author_name, rating, text, text_fr, text_en, published_at, language")
+      .in("business_id", chunk)
+      .eq("is_hidden", false)
+      .order("rating", { ascending: false })
+      .limit(500);
+    if (error) { console.warn("[og-pages] reviews fetch error:", error.message); continue; }
+    for (const r of (data || []) as DbReview[]) {
+      const arr = reviewsByBiz.get(r.business_id) || [];
+      if (arr.length < 10) { arr.push(r); reviewsByBiz.set(r.business_id, arr); }
+    }
+  }
 
   // 3) Nettoie l'ancienne génération
   await cleanPreviouslyGenerated();
@@ -738,10 +757,12 @@ async function main() {
     if (!slug || PROTECTED_DIRS.has(slug)) { skipped++; continue; }
     const dir = join(PUBLIC_DIR, slug);
     mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, "index.html"), buildHtml(slug, biz), "utf8");
+    const bizReviews = reviewsByBiz.get(biz.id) || [];
+    writeFileSync(join(dir, "index.html"), buildHtml(slug, biz, bizReviews), "utf8");
     writeFileSync(join(dir, MARKER_FILE), "", "utf8");
     written++;
   }
+
 
   // 5) Récupère les articles blog publiés depuis la DB (blog_posts)
   const blogDir = join(PUBLIC_DIR, "blog");
