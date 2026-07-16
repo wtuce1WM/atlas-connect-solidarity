@@ -803,7 +803,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
           </div>
         </header>
 
-        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4 space-y-3 scrollbar-hide" style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        <div ref={scrollRef} className="px-4 py-4 space-y-3">
           {messages.length === 0 && !sending && emptyHint}
           {messages.map((m, i) => {
             const { clean, maps } = m.role === "assistant"
