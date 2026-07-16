@@ -34,8 +34,6 @@ Langues :
 
 ## Ressources structurées
 
-## Ressources structurées
-
 - [Espace IA & agents](https://oneworldmorocco.com/ai/): Flux machine-readable — JSON, JSON-LD, OpenAPI, sitemap dédié, serveur MCP.
 - [Catalogue JSON](https://oneworldmorocco.com/ai/catalog.json): Tous les établissements actifs (id, url, nom, ville, quartier, coordonnées, catégories, prix, note).
 - [Catalogue JSON-LD](https://oneworldmorocco.com/ai/catalog.jsonld): Même catalogue en Schema.org `ItemList` / `LocalBusiness`.
