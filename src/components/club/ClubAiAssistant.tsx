@@ -410,20 +410,6 @@ const ClubAiAssistant = ({ userId }: Props) => {
   // Stop TTS when leaving / switching chat
   useEffect(() => () => { try { tts.stop(); } catch {/* noop */} }, []); // eslint-disable-line
 
-  const openChat = (id: string) => {
-    try { tts.stop(); } catch {/* noop */}
-    const found = chats.find((c) => c.id === id);
-    if (found) {
-      deletedChatIdsRef.current.delete(id);
-      const nextMessages = Array.isArray(found.messages) ? found.messages : [];
-      activeChatIdRef.current = id;
-      messagesRef.current = nextMessages;
-      setActiveChat(found);
-      setMessages(nextMessages);
-    }
-    updateAssistantParam(id, false);
-  };
-
   const newChat = (replace = false) => {
     try { tts.stop(); } catch {/* noop */}
     updateAssistantParam(null, replace);
@@ -432,48 +418,6 @@ const ClubAiAssistant = ({ userId }: Props) => {
     setActiveChat(null);
     setMessages([]);
     setTimeout(() => inputRef.current?.focus(), 50);
-  };
-
-  const deleteChat = async (id: string) => {
-    if (!confirm(at.confirmDel)) return;
-    deletedChatIdsRef.current.add(id);
-    const urlActiveId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("assistant") : activeId;
-    // Always clear local state for the deleted chat — even if React Router has
-    // not re-rendered yet — so a quick next prompt never reuses a stale chatId.
-    const wasActive = activeIdRef.current === id || activeChatIdRef.current === id || urlActiveId === id;
-    setChats((prev) => prev.filter((c) => c.id !== id));
-    if (wasActive) {
-      newChat(true);
-    }
-    const { error } = await supabase
-      .from("ai_chats")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", userId)
-      .select("id");
-    if (error) {
-      deletedChatIdsRef.current.delete(id);
-      toast({ title: at.delError, description: error.message, variant: "destructive" });
-    }
-    // Re-sync with the server so the sidebar reflects the true state.
-    await loadChats();
-  };
-
-  const renameChat = async (id: string, currentTitle: string) => {
-    const next = window.prompt(at.renamePrompt, currentTitle || "")?.trim();
-    if (!next || next === currentTitle) return;
-    const title = next.slice(0, 200);
-    setChats((prev) => prev.map((c) => (c.id === id ? { ...c, title } : c)));
-    if (activeChat?.id === id) setActiveChat({ ...activeChat, title });
-    const { error } = await supabase
-      .from("ai_chats")
-      .update({ title })
-      .eq("id", id)
-      .eq("user_id", userId);
-    if (error) {
-      toast({ title: at.renameError, description: error.message, variant: "destructive" });
-      await loadChats();
-    }
   };
 
   const toggleBookmark = async () => {
@@ -661,38 +605,6 @@ const ClubAiAssistant = ({ userId }: Props) => {
       <div className="text-sm font-semibold mb-1">{at.hello}</div>
       <div className="text-base opacity-80 mb-4">{at.helloDesc}</div>
 
-      {trips.length > 0 && (
-        <div className="max-w-md mx-auto mb-5">
-          <div className="text-[11px] uppercase tracking-wide font-semibold opacity-70 mb-2 text-left">{at.myTrips}</div>
-          <div className="flex flex-col gap-2">
-            {trips.map((tr) => (
-              <button
-                key={tr.id}
-                onClick={() => startTripPrompt(tr)}
-                disabled={sending}
-                className="w-full text-left bg-white hover:bg-[#C04F17] hover:text-white transition-colors rounded-lg px-3 py-2 border border-[#C04F17]/20 disabled:opacity-50"
-              >
-                <div className="text-xs font-semibold flex items-center gap-1.5">
-                  <span>✈️</span>
-                  <span className="truncate flex-1">{tr.title}</span>
-                  {tr.is_ongoing && (
-                    <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase tracking-wide">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      {at.ongoing}
-                    </span>
-                  )}
-                </div>
-                <div className="text-[11px] opacity-80 mt-0.5">
-                  {fmtTripDates(tr.arrival_date, tr.departure_date)}
-                  {tr.businesses.length > 0 && ` · ${tr.businesses.length} ${tr.businesses.length > 1 ? at.addresses : at.address} ${tr.businesses.length > 1 ? at.linkeds : at.linked}`}
-                </div>
-              </button>
-            ))}
-
-          </div>
-        </div>
-      )}
-
       <div className="flex flex-wrap gap-2 justify-center max-w-md mx-auto">
         {visibleSuggestions.map((s) => (
           <button
@@ -714,66 +626,22 @@ const ClubAiAssistant = ({ userId }: Props) => {
         {at.moreSuggestions}
       </button>
     </div>
-  ), [visibleSuggestions, sending, trips]);
+  ), [visibleSuggestions, sending]);
 
   const ttsBusy = tts.status === "loading" || tts.status === "playing" || tts.status === "paused";
 
   return (
     <div className={`flex flex-col gap-4 min-h-[520px] transition-[width,max-width,padding] duration-300 ease-out ${openBusinessId ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:pr-2" : "w-full"}`}>
-      {/* Threads */}
-      <aside className="bg-[#ECD6B8] rounded-xl p-3 flex flex-col gap-2 max-h-[320px]">
-
-        <button
-          onClick={() => newChat()}
-          className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg bg-[#C04F17] text-white text-sm font-semibold hover:bg-[#1240d6] transition-colors"
-        >
-          <Plus className="h-4 w-4" /> {at.newChat}
-        </button>
-        <div className="flex-1 overflow-y-auto">
-          {loadingList ? (
-            <div className="flex items-center justify-center py-8 text-[#C04F17]"><Loader2 className="h-4 w-4 animate-spin" /></div>
-          ) : chats.length === 0 ? (
-            <div className="text-sm text-[#C04F17] py-4 text-center opacity-70">{at.noChats}</div>
-          ) : (
-            <ul className="flex flex-col gap-1">
-              {chats.map((c) => (
-                <li key={c.id} className={`group flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer transition-colors ${activeId === c.id ? "bg-white" : "hover:bg-white/60"}`}>
-                  <button onClick={() => openChat(c.id)} className="flex-1 text-left min-w-0">
-                    <div className="text-xs font-semibold text-[#C04F17] truncate flex items-center gap-1">
-                      {c.is_bookmarked && <Bookmark className="h-3 w-3" fill="currentColor" />}
-                      {c.title}
-                    </div>
-                    <div className="text-[10px] text-[#C04F17]/70">
-                      {new Date(c.updated_at).toLocaleDateString(at.localeTz, { day: "numeric", month: "short" })}
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); renameChat(c.id, c.title); }}
-                    className="opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded text-[#C04F17] hover:bg-white"
-                    title={at.rename}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); deleteChat(c.id); }}
-                    className="opacity-0 group-hover:opacity-100 h-6 w-6 flex items-center justify-center rounded text-red-600 hover:bg-red-100"
-                    title={at.del}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </aside>
-
       {/* Chat */}
       <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col lg:max-h-[820px] min-h-[720px]">
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
-          <div className="text-sm font-semibold text-[#C04F17] flex-1 break-words">
+          <button
+            onClick={() => newChat()}
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[#C04F17] text-white text-sm font-semibold hover:bg-[#1240d6] transition-colors shrink-0"
+          >
+            <Plus className="h-4 w-4" /> {at.newChat}
+          </button>
+          <div className="text-sm font-semibold text-[#C04F17] flex-1 break-words text-center">
             {activeChat?.title || at.newChat}
           </div>
           <div className="flex items-center gap-1 shrink-0">

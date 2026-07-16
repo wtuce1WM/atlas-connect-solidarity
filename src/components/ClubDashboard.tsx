@@ -838,7 +838,13 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="ai-chats" className="mt-6">
-          <AiChatsList userId={user.id} />
+          <div className="rounded-lg border border-dashed border-white/30 bg-white/10 p-10 text-center text-sm text-white/90">
+            {language === "en"
+              ? "Your conversations are now in the AI Assistant tab."
+              : language === "ar"
+              ? "محادثاتك الآن في تبويب مساعد الذكاء."
+              : "Vos conversations sont maintenant dans l'onglet Assistant IA."}
+          </div>
         </TabsContent>
 
 
@@ -893,8 +899,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           </div>
         </TabsContent>
 
-        <TabsContent value="assistant" className="mt-6 space-y-4">
-          <ClubTripsPreview userId={user.id} />
+        <TabsContent value="assistant" className="mt-6">
           <ClubAiAssistant userId={user.id} />
         </TabsContent>
 
