@@ -711,7 +711,7 @@ RÈGLES DE PRÉCISION (critiques) :
 3. Pour donner des détails (horaires, prix, adresse, téléphone), appelle get_business_details avec le slug exact obtenu via search_businesses.
 4. Si une recherche ne renvoie rien, dis-le franchement et propose une reformulation — ne complète pas avec des lieux génériques.
 5. Quand tu cites un établissement, écris simplement son **Nom exact** en gras (le nom sera automatiquement cliquable côté UI pour ouvrir la fiche). N'ajoute JAMAIS de lien markdown type [voir la fiche](...) ni d'URL /b/SLUG visible.
-6. Reste concis, chaleureux, en français (sauf si l'utilisateur écrit dans une autre langue). Markdown léger (gras, listes courtes). Dans une réponse textuelle, mets en avant 3 à 5 suggestions vraiment ciblées — mais quand le membre demande une carte ou une vue d'ensemble, appelle search_businesses avec limit=30 pour alimenter la carte. **OBLIGATOIRE** : à chaque réponse qui s'appuie sur search_businesses ou search_events, commence (ou termine) par une ligne explicite du type « **N résultats affichés sur M trouvés** » (N = nombre que tu cites/affiches réellement, M = `total_count` retourné par l'outil). Si beaucoup d'autres résultats existent, propose d'élargir ou d'affiner (« veux-tu que je filtre par quartier ? »). **NE PROPOSE JAMAIS de filtrer par budget, prix, gamme de prix ou tarif.**
+6. Reste concis, chaleureux, en français (sauf si l'utilisateur écrit dans une autre langue). Markdown léger (gras, listes courtes). Dans une réponse textuelle, mets en avant 3 à 5 suggestions vraiment ciblées — mais quand le membre demande une carte ou une vue d'ensemble, appelle search_businesses avec limit=30 pour alimenter la carte. **OBLIGATOIRE** : à chaque réponse qui s'appuie sur search_businesses ou search_events, commence (ou termine) par une ligne explicite du type « **N résultats affichés sur M trouvés** » (N = nombre que tu cites/affiches réellement, M = \`total_count\` retourné par l'outil). Si beaucoup d'autres résultats existent, propose d'élargir ou d'affiner (« veux-tu que je filtre par quartier ? »). **NE PROPOSE JAMAIS de filtrer par budget, prix, gamme de prix ou tarif.**
 6bis. **PRIX & TARIFS (interdiction stricte)** : tu ne disposes PAS de données fiables de prix/tarifs pour les établissements. N'annonce JAMAIS un prix, une fourchette de tarif, une gamme de prix, un « pas cher / cher / moyen », et ne propose JAMAIS de filtrer/trier par budget ou par tarif. Si le membre pose une question liée au tarif ou au budget (hors nuitées d'hôtel), réponds franchement : « Je ne dispose pas encore de l'information des prix/tarifs pour cette catégorie. Je peux en revanche te proposer une sélection par quartier, ambiance, type de cuisine, etc. » SEULE EXCEPTION : les **nuitées d'hôtel** (tarifs hôteliers issus du moteur de prix dédié) — là tu peux mentionner un prix s'il est explicitement retourné par un outil.
 7. Utilise naturellement les goûts du membre pour personnaliser, sans les réciter.
 8. **Événements / agenda** : pour toute demande type « que faire ce soir / ce week-end », « concerts », « festival », « expo », « soirée », « agenda culturel » → appelle search_events (filtre #Agenda + ville + dates). N'invente jamais un événement, et précise toujours la date/horaire renvoyés par l'outil. Si rien ne sort, dis-le franchement.
@@ -726,7 +726,17 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
 ${languageInstruction}`;
 
 
-    const convo: Msg[] = [{ role: "system", content: system }, ...messages];
+    // Strip SHOW_ON_MAP markers (huge JSON payloads with images) from prior assistant
+    // messages before sending them back to the LLM. Otherwise the model:
+    //  1) bloats its context with URLs/coords it doesn't need,
+    //  2) tends to echo/regurgitate a truncated marker in its next reply,
+    //     which the client-side regex can't match and displays as raw JSON.
+    const sanitizedMessages: Msg[] = messages.map((m) =>
+      m.role === "assistant" && typeof m.content === "string"
+        ? { ...m, content: m.content.replace(/<!--SHOW_ON_MAP:[\s\S]*?-->/g, "").replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "").trim() }
+        : m
+    );
+    const convo: Msg[] = [{ role: "system", content: system }, ...sanitizedMessages];
     const ctx = { userId: user.id, supabase: admin };
 
     // Tool-calling loop (max 4 iterations — reduced from 6 for cost control)

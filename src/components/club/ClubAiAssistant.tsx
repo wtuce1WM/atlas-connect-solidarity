@@ -226,7 +226,7 @@ type MapPayload = { title?: string; businesses: MapPanelBusiness[] };
 function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] } {
   if (!text || !text.includes("<!--SHOW_ON_MAP:")) return { clean: text, maps: [] };
   const maps: MapPayload[] = [];
-  const clean = text.replace(MAP_RE, (_m, raw) => {
+  let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
       if (parsed && Array.isArray(parsed.businesses) && parsed.businesses.length) {
@@ -234,7 +234,9 @@ function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] }
       }
     } catch { /* ignore */ }
     return "";
-  }).trim();
+  });
+  // Safety net: strip any unclosed/truncated marker (would otherwise render as raw JSON).
+  clean = clean.replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "").trim();
   return { clean, maps };
 }
 
