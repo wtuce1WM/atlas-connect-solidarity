@@ -514,6 +514,9 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
     if (blob.size < 2048) return "";
     const fd = new FormData();
     fd.append("audio", blob, "recording.webm");
+    // Force la langue attendue pour éviter les auto-détections en asiatique
+    // sur des fragments courts/bruités.
+    fd.append("language", (lang || "fr-FR").slice(0, 2).toLowerCase());
     try {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/elevenlabs-transcribe`, {
         method: "POST",
@@ -530,7 +533,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       console.warn("[VoiceSearch] fallback transcribe failed:", e);
       return "";
     }
-  }, []);
+  }, [lang]);
 
 
   // On iOS, the native Web Speech API uses Siri's local dictation which is
