@@ -1697,6 +1697,11 @@ ${urls}
     <ul>
       <li><a href="/ai/catalog.json">/ai/catalog.json</a> — Catalogue complet (${catalog.length} établissements) en JSON à plat</li>
       <li><a href="/ai/catalog.jsonld">/ai/catalog.jsonld</a> — Même catalogue en Schema.org <code>ItemList</code> / <code>LocalBusiness</code></li>
+      <li><a href="/ai/graph.jsonld">/ai/graph.jsonld</a> — Graphe Schema.org complet : villes, quartiers, POIs, destinations, établissements + arêtes (<code>containedInPlace</code>, <code>nearbyAttraction</code>, <code>event</code>)</li>
+      <li><a href="/ai/cities.json">/ai/cities.json</a> — Villes (${citiesFeed.length}) avec quartiers</li>
+      <li><a href="/ai/neighborhoods.json">/ai/neighborhoods.json</a> — Quartiers (${neighborhoodsFeed.length}) avec établissements</li>
+      <li><a href="/ai/pois.json">/ai/pois.json</a> — Points d'intérêt (${poisFeed.length}) avec établissements à proximité</li>
+      <li><a href="/ai/destinations.json">/ai/destinations.json</a> — Destinations touristiques (${destinationsFeed.length})</li>
       <li><a href="/ai/events.json">/ai/events.json</a> — Événements à venir (${eventsFeed.length})</li>
       <li><a href="/ai/sitemap.xml">/ai/sitemap.xml</a> — Sitemap ciblé fiches établissement</li>
       <li><a href="/ai/openapi.json">/ai/openapi.json</a> — Spec OpenAPI 3.1</li>
