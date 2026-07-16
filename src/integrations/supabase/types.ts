@@ -224,6 +224,7 @@ export type Database = {
       }
       ai_chats: {
         Row: {
+          anon_token: string | null
           city: string | null
           created_at: string
           id: string
@@ -236,6 +237,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          anon_token?: string | null
           city?: string | null
           created_at?: string
           id?: string
@@ -248,6 +250,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          anon_token?: string | null
           city?: string | null
           created_at?: string
           id?: string

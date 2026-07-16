@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { assertAllowedOrigin } from "../_shared/auth-helpers.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,6 +10,9 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const originCheck = assertAllowedOrigin(req, corsHeaders);
+  if (originCheck instanceof Response) return originCheck;
 
   try {
     const rawKey = Deno.env.get('ELEVENLABS_API_KEY') ?? '';

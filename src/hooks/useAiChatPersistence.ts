@@ -2,6 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const anonTokenKey = (chatId: string) => `ai_chat_token_${chatId}`;
+
+function generateAnonToken() {
+  return crypto.randomUUID();
+}
+
 export type AiChatMessage = {
   role: "user" | "assistant";
   content: string;
@@ -51,6 +59,7 @@ export function useAiChatPersistence({
   const [userId, setUserId] = useState<string | null>(null);
   const [chatId, setChatId] = useState<string | null>(urlChatId);
   const [ownerId, setOwnerId] = useState<string | null>(null);
+  const [anonToken, setAnonToken] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isPublic, setIsPublic] = useState(false);
@@ -64,10 +73,10 @@ export function useAiChatPersistence({
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // For anonymous chats (user_id IS NULL in DB), anyone with the chatId can edit (and the local creator is the de-facto owner).
+  // For anonymous chats (user_id IS NULL in DB), editing requires the secret token stored client-side.
   // For signed-in chats, only the auth user matches.
   const isAnonChat = ownerId === null && !!chatId;
-  const isOwner = isAnonChat || (!!userId && !!ownerId && userId === ownerId);
+  const isOwner = (!!isAnonChat && !!anonToken) || (!!userId && !!ownerId && userId === ownerId);
 
   // Hydrate from URL chatId
   const hydratedRef = useRef<string | null>(null);
@@ -94,9 +103,11 @@ export function useAiChatPersistence({
         if (Array.isArray(payload.businessPool) && setRestoredBusinessPool) {
           setRestoredBusinessPool(payload.businessPool);
         }
-        // Anonymous chats (user_id NULL) are editable by anyone who has the link.
+        // Anonymous chats are editable only if the creator's secret token is present locally.
         // Signed-in chats are read-only unless the viewer is the owner.
-        const ownsIt = data.user_id === null || (!!userId && data.user_id === userId);
+        const storedToken = data.user_id === null ? localStorage.getItem(anonTokenKey(data.id)) : null;
+        setAnonToken(storedToken);
+        const ownsIt = (!!storedToken && data.user_id === null) || (!!userId && data.user_id === userId);
         setIsReadOnly(!ownsIt);
       }
       setHydrating(false);
@@ -125,17 +136,19 @@ export function useAiChatPersistence({
 
       if (!chatId) {
         // Anonymous chats are public by default so the share link works without auth.
+        const newAnonToken = userId ? null : generateAnonToken();
         const insertPayload: any = {
           user_id: userId,
           title: finalTitle,
           messages: payload as any,
           city: city ?? null,
           is_public: userId ? false : true,
+          ...(newAnonToken ? { anon_token: newAnonToken } : {}),
         };
         const { data, error } = await supabase
           .from("ai_chats")
           .insert(insertPayload)
-          .select("id,title,user_id,is_bookmarked,is_public")
+          .select("id,title,user_id,is_bookmarked,is_public,anon_token")
           .single();
         if (!error && data) {
           setChatId(data.id);
@@ -143,6 +156,10 @@ export function useAiChatPersistence({
           setTitle(data.title);
           setIsBookmarked(!!data.is_bookmarked);
           setIsPublic(!!data.is_public);
+          if (!data.user_id && data.anon_token) {
+            localStorage.setItem(anonTokenKey(data.id), data.anon_token);
+            setAnonToken(data.anon_token);
+          }
           const next = new URLSearchParams(searchParams);
           next.set("aiChat", data.id);
           // Preserve the current pathname (including any /en or /ar language prefix)
@@ -152,12 +169,27 @@ export function useAiChatPersistence({
           window.history.replaceState(window.history.state, "", nextUrl);
           lastSavedRef.current = JSON.stringify({ chatId: data.id, payload });
         }
-      } else {
+      } else if (userId) {
         const { error } = await supabase
           .from("ai_chats")
           .update({ messages: payload as any, title: finalTitle, city: city ?? null })
           .eq("id", chatId);
         if (!error) lastSavedRef.current = signature;
+      } else if (anonToken) {
+        // Anonymous updates must prove ownership via the secret token header.
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/ai_chats?id=eq.${chatId}`, {
+          method: "PATCH",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            "x-anon-token": anonToken,
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify({ messages: payload as any, title: finalTitle, city: city ?? null }),
+        });
+        if (res.ok) lastSavedRef.current = signature;
+        else console.error("Anonymous chat update failed:", res.status);
       }
     }, 1000);
 

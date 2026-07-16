@@ -4,6 +4,7 @@ const corsHeaders = {
 };
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { assertStaff } from "../_shared/auth-helpers.ts";
 
 interface ReviewResult {
   google_rating?: number | null;
@@ -1000,6 +1001,9 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const staffCheck = await assertStaff(req, corsHeaders);
+  if (staffCheck instanceof Response) return staffCheck;
 
   try {
     const { business_id, google_only } = await req.json();
