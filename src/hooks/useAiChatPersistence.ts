@@ -103,9 +103,11 @@ export function useAiChatPersistence({
         if (Array.isArray(payload.businessPool) && setRestoredBusinessPool) {
           setRestoredBusinessPool(payload.businessPool);
         }
-        // Anonymous chats (user_id NULL) are editable by anyone who has the link.
+        // Anonymous chats are editable only if the creator's secret token is present locally.
         // Signed-in chats are read-only unless the viewer is the owner.
-        const ownsIt = data.user_id === null || (!!userId && data.user_id === userId);
+        const storedToken = data.user_id === null ? localStorage.getItem(anonTokenKey(data.id)) : null;
+        setAnonToken(storedToken);
+        const ownsIt = (!!storedToken && data.user_id === null) || (!!userId && data.user_id === userId);
         setIsReadOnly(!ownsIt);
       }
       setHydrating(false);
