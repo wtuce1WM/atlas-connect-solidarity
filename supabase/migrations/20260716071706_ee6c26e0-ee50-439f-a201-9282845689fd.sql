@@ -1,0 +1,2 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS faq JSONB;
+COMMENT ON COLUMN public.businesses.faq IS 'FAQ éditoriale [{q: string, a: string}, ...] utilisée pour générer un Schema.org FAQPage sur la page statique.';
