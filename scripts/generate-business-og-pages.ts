@@ -414,6 +414,12 @@ function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = []): string {
     (businessNode as any).review = reviewNodes;
   }
 
+  // Distances aux POIs de référence + quartier — additionalProperty (PropertyValue)
+  const distanceProps = buildDistancePropertyValues(biz);
+  if (distanceProps.length) {
+    (businessNode as any).additionalProperty = distanceProps;
+  }
+
   // BreadcrumbList : Maroc › (Ville) › (Quartier) › Fiche — signal fort pour Google/IA
   const slugify = (s: string) =>
     s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
