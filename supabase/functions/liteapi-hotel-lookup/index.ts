@@ -1,3 +1,5 @@
+import { assertStaff } from "../_shared/auth-helpers.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -10,6 +12,9 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const staffCheck = await assertStaff(req, corsHeaders);
+  if (staffCheck instanceof Response) return staffCheck;
 
   try {
     const apiKey = Deno.env.get("LITEAPI_API_KEY");

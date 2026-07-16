@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { assertAllowedOrigin } from "../_shared/auth-helpers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,6 +27,9 @@ const isLatLng = (v: unknown): v is LatLng =>
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const originCheck = assertAllowedOrigin(req, corsHeaders);
+  if (originCheck instanceof Response) return originCheck;
 
   try {
     const key = Deno.env.get("GOOGLE_MAPS_API_KEY");

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { assertStaff } from "../_shared/auth-helpers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -129,10 +130,41 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const staffCheck = await assertStaff(req, corsHeaders);
+  if (staffCheck instanceof Response) return staffCheck;
+
   try {
     const { url } = await req.json();
     if (!url) {
       return new Response(JSON.stringify({ error: "URL is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Only resolve Google Maps URLs to prevent SSRF/probing abuse.
+    const allowedHosts = [
+      "google.com",
+      "www.google.com",
+      "maps.google.com",
+      "maps.app.goo.gl",
+      "goo.gl",
+      "googleusercontent.com",
+      "googlemaps.com",
+    ];
+    let inputUrl: URL;
+    try {
+      inputUrl = new URL(url);
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid URL" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const hostname = inputUrl.hostname.toLowerCase();
+    const isGoogleMaps = allowedHosts.some((h) => hostname === h || hostname.endsWith(`.${h}`));
+    if (!isGoogleMaps) {
+      return new Response(JSON.stringify({ error: "Only Google Maps URLs are allowed" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

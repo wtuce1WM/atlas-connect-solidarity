@@ -1,3 +1,5 @@
+import { assertAllowedOrigin } from "../_shared/auth-helpers.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -216,6 +218,9 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const originCheck = assertAllowedOrigin(req, corsHeaders);
+  if (originCheck instanceof Response) return originCheck;
 
   try {
     const params: HotelAvailRequest = await req.json();
