@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Espace IA & agents | ONE WORLD MOROCCO</title>
+    <meta name="description" content="Flux machine-readable de ONE WORLD MOROCCO pour LLMs, agents IA et moteurs de recherche : catalogue JSON, JSON-LD, OpenAPI, sitemap dédié, serveur MCP." />
+    <link rel="canonical" href="https://oneworldmorocco.com/ai/" />
+    <meta property="og:title" content="Espace IA & agents | ONE WORLD MOROCCO" />
+    <meta property="og:description" content="Catalogue JSON, JSON-LD, OpenAPI, sitemap dédié, serveur MCP." />
+    <meta property="og:url" content="https://oneworldmorocco.com/ai/" />
+    <style>
+      body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; max-width: 780px; margin: 2rem auto; padding: 0 1.5rem; color: #1a1a1a; background: #faf8f5; line-height: 1.55; }
+      h1 { font-size: 1.8rem; margin-bottom: .3rem; }
+      h2 { margin-top: 2rem; font-size: 1.15rem; border-bottom: 1px solid #e5ddd0; padding-bottom: .3rem; }
+      code { background: #f0e9de; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+      a { color: #C04F17; }
+      ul { padding-left: 1.2rem; }
+      li { margin: .35rem 0; }
+      .meta { color: #6b6b6b; font-size: .9rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Espace IA & agents</h1>
+    <p class="meta">Flux lecture seule pour LLMs, agents IA et moteurs. Généré au build depuis la base ONE WORLD MOROCCO.</p>
+
+    <h2>Flux disponibles</h2>
+    <ul>
+      <li><a href="/ai/catalog.json">/ai/catalog.json</a> — Catalogue complet (1834 établissements) en JSON à plat</li>
+      <li><a href="/ai/catalog.jsonld">/ai/catalog.jsonld</a> — Même catalogue en Schema.org <code>ItemList</code> / <code>LocalBusiness</code></li>
+      <li><a href="/ai/graph.jsonld">/ai/graph.jsonld</a> — Graphe Schema.org complet : villes, quartiers, POIs, destinations, établissements + arêtes (<code>containedInPlace</code>, <code>nearbyAttraction</code>, <code>event</code>)</li>
+      <li><a href="/ai/cities.json">/ai/cities.json</a> — Villes (32) avec quartiers</li>
+      <li><a href="/ai/neighborhoods.json">/ai/neighborhoods.json</a> — Quartiers (104) avec établissements</li>
+      <li><a href="/ai/pois.json">/ai/pois.json</a> — Points d'intérêt (15) avec établissements à proximité</li>
+      <li><a href="/ai/destinations.json">/ai/destinations.json</a> — Destinations touristiques (42)</li>
+      <li><a href="/ai/events.json">/ai/events.json</a> — Événements à venir (40)</li>
+      <li><a href="/ai/sitemap.xml">/ai/sitemap.xml</a> — Sitemap ciblé fiches établissement</li>
+      <li><a href="/ai/openapi.json">/ai/openapi.json</a> — Spec OpenAPI 3.1</li>
+      <li><a href="/llms.txt">/llms.txt</a> — Index racine style llmstxt.org</li>
+    </ul>
+
+    <h2>Serveur MCP</h2>
+    <p>Un serveur <a href="https://modelcontextprotocol.io">Model Context Protocol</a> public (lecture seule) expose la recherche et la fiche business :</p>
+    <p><code>https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/mcp</code></p>
+
+    <h2>Licence & usage</h2>
+    <p>Réutilisation autorisée avec <strong>attribution</strong> (ONE WORLD MOROCCO + lien vers la fiche source). Pour un usage commercial ou une reprise en volume, <a href="https://oneworldmorocco.com/contact">contactez-nous</a>.</p>
+  </body>
+</html>
