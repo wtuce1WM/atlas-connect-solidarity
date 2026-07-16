@@ -230,6 +230,73 @@ function priceRangeFromBiz(biz: Biz): string | null {
   return null;
 }
 
+// POIs de référence par ville — sert à calculer les distances "à vol d'oiseau"
+// exposées comme additionalProperty (PropertyValue) dans le Schema.org.
+// Les valeurs de villes doivent matcher `biz.city` normalisé (lowercase, sans accents).
+interface LandmarkPoint { name: string; lat: number; lng: number }
+const LANDMARKS_BY_CITY: Record<string, LandmarkPoint[]> = {
+  marrakech: [
+    { name: "Jemaa el-Fna", lat: 31.6258, lng: -7.9891 },
+    { name: "Koutoubia", lat: 31.6242, lng: -7.9931 },
+    { name: "Jardin Majorelle", lat: 31.6417, lng: -8.0033 },
+    { name: "Aéroport Marrakech-Menara", lat: 31.6069, lng: -8.0363 },
+    { name: "Gare Marrakech", lat: 31.6360, lng: -8.0173 },
+    { name: "Palais de la Bahia", lat: 31.6215, lng: -7.9829 },
+  ],
+  essaouira: [
+    { name: "Place Moulay Hassan", lat: 31.5127, lng: -9.7699 },
+    { name: "Port d'Essaouira", lat: 31.5091, lng: -9.7749 },
+    { name: "Skala de la Kasbah", lat: 31.5145, lng: -9.7736 },
+    { name: "Plage d'Essaouira", lat: 31.5049, lng: -9.7657 },
+    { name: "Aéroport Essaouira-Mogador", lat: 31.3975, lng: -9.6817 },
+  ],
+  casablanca: [
+    { name: "Mosquée Hassan II", lat: 33.6084, lng: -7.6326 },
+    { name: "Aéroport Mohammed V", lat: 33.3675, lng: -7.5898 },
+  ],
+  rabat: [
+    { name: "Tour Hassan", lat: 34.0243, lng: -6.8221 },
+    { name: "Kasbah des Oudayas", lat: 34.0330, lng: -6.8367 },
+  ],
+};
+
+function normCity(s: string | null | undefined): string {
+  return (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+}
+
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+function buildDistancePropertyValues(biz: Biz): Array<Record<string, unknown>> {
+  if (typeof biz.latitude !== "number" || typeof biz.longitude !== "number") return [];
+  const landmarks = LANDMARKS_BY_CITY[normCity(biz.city)];
+  if (!landmarks || !landmarks.length) return [];
+  const props: Array<Record<string, unknown>> = [];
+  for (const lm of landmarks) {
+    const km = haversineKm(biz.latitude, biz.longitude, lm.lat, lm.lng);
+    if (km > 60) continue; // ignore les POI trop éloignés (autre agglomération)
+    props.push({
+      "@type": "PropertyValue",
+      name: `Distance ${lm.name}`,
+      value: km < 10 ? km.toFixed(2) : km.toFixed(1),
+      unitCode: "KMT",
+      unitText: "km",
+    });
+  }
+  // Quartier explicite (utile pour les LLM même si déjà dans address)
+  if (biz.neighborhood) {
+    props.push({ "@type": "PropertyValue", name: "Quartier", value: biz.neighborhood });
+  }
+  return props;
+}
+
 function buildReviewNodes(reviews: DbReview[], businessId: string, businessName: string): Array<Record<string, unknown>> {
   // Prend jusqu'à 5 avis avec du texte, meilleure note d'abord.
   const eligible = reviews
@@ -345,6 +412,12 @@ function buildHtml(slug: string, biz: Biz, reviews: DbReview[] = []): string {
   const reviewNodes = buildReviewNodes(reviews, biz.id, biz.name);
   if (reviewNodes.length) {
     (businessNode as any).review = reviewNodes;
+  }
+
+  // Distances aux POIs de référence + quartier — additionalProperty (PropertyValue)
+  const distanceProps = buildDistancePropertyValues(biz);
+  if (distanceProps.length) {
+    (businessNode as any).additionalProperty = distanceProps;
   }
 
   // BreadcrumbList : Maroc › (Ville) › (Quartier) › Fiche — signal fort pour Google/IA
