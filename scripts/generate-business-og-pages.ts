@@ -1196,8 +1196,26 @@ async function main() {
 
   const eventsWritten = writeEventsHub(eventRows || [], eventCityById);
 
+  // 7b) Fetch reference tables for /ai feeds : cities, neighborhoods, pois, destinations
+  const [citiesRes, nbhRes, poisRes, destsRes] = await Promise.all([
+    supabase.from("cities").select("id, name_fr, name_en, region, latitude, longitude, wikipedia_fr, description_fr, image_url, is_active"),
+    supabase.from("neighborhoods").select("id, city_id, name, name_en, latitude, longitude, hook, image_url"),
+    supabase.from("points_of_interest").select("id, city_id, name_fr, name_en, latitude, longitude, wikipedia_fr, official_site_fr, image_url, hook, description"),
+    supabase.from("destinations").select("id, name_fr, name_en, region, city_ids, latitude, longitude, wikipedia_fr, image_url, hook_fr, description_fr"),
+  ]);
+
   // 8) Espace IA — flux machine-readable pour LLMs / agents (JSON, JSON-LD, OpenAPI)
-  const aiWritten = writeAiFeed(businesses, vanities, eventRows || [], eventCityById);
+  const aiWritten = writeAiFeed(
+    businesses,
+    vanities,
+    eventRows || [],
+    eventCityById,
+    relationsByBiz,
+    (citiesRes.data || []) as any[],
+    (nbhRes.data || []) as any[],
+    (poisRes.data || []) as any[],
+    (destsRes.data || []) as any[],
+  );
 
   console.log(`[og-pages] ${written} fichiers business générés (${skipped} ignorés) + ${articles.length} articles blog + ${hubsWritten} hubs + ${eventsWritten} events dans /events + ${aiWritten} fichiers dans /ai.`);
 }
@@ -1207,6 +1225,11 @@ function writeAiFeed(
   vanities: { slug: string; target_id: string }[],
   eventRows: Array<Record<string, any>>,
   cityById: Map<string, { name_fr: string; latitude?: number; longitude?: number }>,
+  relationsByBiz: Map<string, BizRelations>,
+  cityRows: Array<Record<string, any>>,
+  neighborhoodRows: Array<Record<string, any>>,
+  poiRows: Array<Record<string, any>>,
+  destinationRows: Array<Record<string, any>>,
 ): number {
   const aiDir = join(PUBLIC_DIR, "ai");
   mkdirSync(aiDir, { recursive: true });
@@ -1378,6 +1401,211 @@ ${urls}
     "utf8",
   );
 
+  // 8d-bis) cities.json / neighborhoods.json / pois.json — nomenclatures géo/POI
+  const bizByCity = new Map<string, Array<{ slug: string; name: string }>>();
+  const bizByNeighborhood = new Map<string, Array<{ slug: string; name: string }>>();
+  const bizByPoi = new Map<string, Array<{ slug: string; name: string }>>();
+  for (const b of businesses) {
+    const slug = slugByBizId.get(b.id);
+    if (!slug) continue;
+    const entry = { slug, name: b.name };
+    if (b.city) {
+      const k = b.city.toLowerCase();
+      const arr = bizByCity.get(k) || []; arr.push(entry); bizByCity.set(k, arr);
+    }
+    if (b.neighborhood) {
+      const k = b.neighborhood.toLowerCase();
+      const arr = bizByNeighborhood.get(k) || []; arr.push(entry); bizByNeighborhood.set(k, arr);
+    }
+    const rels = relationsByBiz.get(b.id);
+    for (const p of rels?.pois || []) {
+      const k = p.name.toLowerCase();
+      const arr = bizByPoi.get(k) || []; arr.push(entry); bizByPoi.set(k, arr);
+    }
+  }
+
+  const cityIdToNeighborhoods = new Map<string, Array<Record<string, any>>>();
+  for (const n of neighborhoodRows) {
+    if (!n.city_id) continue;
+    const arr = cityIdToNeighborhoods.get(n.city_id) || [];
+    arr.push(n); cityIdToNeighborhoods.set(n.city_id, arr);
+  }
+
+  const citiesFeed = cityRows
+    .filter((c) => c.is_active !== false && c.name_fr)
+    .map((c) => ({
+      id: c.id,
+      name: c.name_fr,
+      name_en: c.name_en || null,
+      region: c.region || null,
+      country: "MA",
+      latitude: c.latitude,
+      longitude: c.longitude,
+      image: c.image_url || null,
+      wikipedia: c.wikipedia_fr || null,
+      description: c.description_fr ? stripHtml(c.description_fr).substring(0, 400) : null,
+      url: `${BASE_URL}/destination/${(c.name_fr || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`,
+      neighborhoods: (cityIdToNeighborhoods.get(c.id) || []).map((n) => n.name).filter(Boolean),
+      businesses_count: bizByCity.get((c.name_fr || "").toLowerCase())?.length || 0,
+    }));
+  writeFileSync(join(aiDir, "cities.json"), JSON.stringify({
+    "@meta": { source: SITE_NAME, url: `${BASE_URL}/ai/cities.json`, generated_at: new Date().toISOString(), count: citiesFeed.length },
+    cities: citiesFeed,
+  }, null, 2), "utf8");
+
+  const cityNameById = new Map(cityRows.map((c) => [c.id, c.name_fr]));
+  const neighborhoodsFeed = neighborhoodRows
+    .filter((n) => n.name)
+    .map((n) => ({
+      id: n.id,
+      name: n.name,
+      name_en: n.name_en || null,
+      city: n.city_id ? cityNameById.get(n.city_id) || null : null,
+      latitude: n.latitude,
+      longitude: n.longitude,
+      image: n.image_url || null,
+      hook: n.hook || null,
+      businesses: (bizByNeighborhood.get((n.name || "").toLowerCase()) || []).slice(0, 30).map((b) => ({ name: b.name, url: `${BASE_URL}/${b.slug}` })),
+    }));
+  writeFileSync(join(aiDir, "neighborhoods.json"), JSON.stringify({
+    "@meta": { source: SITE_NAME, url: `${BASE_URL}/ai/neighborhoods.json`, generated_at: new Date().toISOString(), count: neighborhoodsFeed.length },
+    neighborhoods: neighborhoodsFeed,
+  }, null, 2), "utf8");
+
+  const poisFeed = poiRows
+    .filter((p) => p.name_fr)
+    .map((p) => ({
+      id: p.id,
+      name: p.name_fr,
+      name_en: p.name_en || null,
+      city: p.city_id ? cityNameById.get(p.city_id) || null : null,
+      latitude: p.latitude,
+      longitude: p.longitude,
+      image: p.image_url || null,
+      wikipedia: p.wikipedia_fr || null,
+      official_site: p.official_site_fr || null,
+      hook: p.hook || null,
+      description: p.description ? stripHtml(p.description).substring(0, 400) : null,
+      nearby_businesses: (bizByPoi.get((p.name_fr || "").toLowerCase()) || []).slice(0, 30).map((b) => ({ name: b.name, url: `${BASE_URL}/${b.slug}` })),
+    }));
+  writeFileSync(join(aiDir, "pois.json"), JSON.stringify({
+    "@meta": { source: SITE_NAME, url: `${BASE_URL}/ai/pois.json`, generated_at: new Date().toISOString(), count: poisFeed.length },
+    points_of_interest: poisFeed,
+  }, null, 2), "utf8");
+
+  const destinationsFeed = destinationRows
+    .filter((d) => d.name_fr)
+    .map((d) => ({
+      id: d.id,
+      name: d.name_fr,
+      name_en: d.name_en || null,
+      region: d.region || null,
+      latitude: d.latitude,
+      longitude: d.longitude,
+      image: d.image_url || null,
+      wikipedia: d.wikipedia_fr || null,
+      hook: d.hook_fr || null,
+      description: d.description_fr ? stripHtml(d.description_fr).substring(0, 400) : null,
+      cities: (d.city_ids || []).map((cid: string) => cityNameById.get(cid)).filter(Boolean),
+    }));
+  writeFileSync(join(aiDir, "destinations.json"), JSON.stringify({
+    "@meta": { source: SITE_NAME, url: `${BASE_URL}/ai/destinations.json`, generated_at: new Date().toISOString(), count: destinationsFeed.length },
+    destinations: destinationsFeed,
+  }, null, 2), "utf8");
+
+  // 8d-ter) graph.jsonld — graphe complet Schema.org (entités + arêtes)
+  const graphNodes: unknown[] = [];
+  // Cities
+  for (const c of citiesFeed) {
+    graphNodes.push({
+      "@type": "City",
+      "@id": `${BASE_URL}/ai/city/${c.id}`,
+      name: c.name,
+      ...(c.latitude && c.longitude && { geo: { "@type": "GeoCoordinates", latitude: c.latitude, longitude: c.longitude } }),
+      ...(c.wikipedia && { sameAs: [c.wikipedia] }),
+      containedInPlace: { "@type": "Country", name: "Maroc", identifier: "MA" },
+    });
+  }
+  // Neighborhoods
+  const nbhIdByKey = new Map<string, string>();
+  for (const n of neighborhoodRows) {
+    if (!n.name) continue;
+    const id = `${BASE_URL}/ai/neighborhood/${n.id}`;
+    nbhIdByKey.set((n.name || "").toLowerCase(), id);
+    graphNodes.push({
+      "@type": "Place",
+      "@id": id,
+      name: n.name,
+      ...(n.latitude && n.longitude && { geo: { "@type": "GeoCoordinates", latitude: n.latitude, longitude: n.longitude } }),
+      ...(n.city_id && cityNameById.get(n.city_id) && {
+        containedInPlace: { "@type": "City", name: cityNameById.get(n.city_id) },
+      }),
+    });
+  }
+  // POIs
+  const poiIdByKey = new Map<string, string>();
+  for (const p of poiRows) {
+    if (!p.name_fr) continue;
+    const id = `${BASE_URL}/ai/poi/${p.id}`;
+    poiIdByKey.set((p.name_fr || "").toLowerCase(), id);
+    graphNodes.push({
+      "@type": "TouristAttraction",
+      "@id": id,
+      name: p.name_fr,
+      ...(p.latitude && p.longitude && { geo: { "@type": "GeoCoordinates", latitude: p.latitude, longitude: p.longitude } }),
+      ...(p.wikipedia_fr && { sameAs: [p.wikipedia_fr] }),
+      ...(p.image_url && { image: p.image_url }),
+      ...(p.city_id && cityNameById.get(p.city_id) && {
+        containedInPlace: { "@type": "City", name: cityNameById.get(p.city_id) },
+      }),
+    });
+  }
+  // Destinations
+  for (const d of destinationsFeed) {
+    graphNodes.push({
+      "@type": "TouristDestination",
+      "@id": `${BASE_URL}/ai/destination/${d.id}`,
+      name: d.name,
+      ...(d.latitude && d.longitude && { geo: { "@type": "GeoCoordinates", latitude: d.latitude, longitude: d.longitude } }),
+      ...(d.wikipedia && { sameAs: [d.wikipedia] }),
+      ...(d.image && { image: d.image }),
+    });
+  }
+  // Businesses avec leurs arêtes
+  for (const b of catalog) {
+    const rels = relationsByBiz.get(b.id) || {};
+    const nearby: Array<Record<string, unknown>> = [];
+    for (const p of rels.pois || []) {
+      const id = poiIdByKey.get((p.name || "").toLowerCase());
+      nearby.push(id ? { "@id": id } : { "@type": "TouristAttraction", name: p.name });
+    }
+    const evts = (rels.events || []).map((e) => ({
+      "@type": "Event",
+      name: e.name,
+      ...(e.start_date && { startDate: e.start_date }),
+      ...(e.end_date && { endDate: e.end_date }),
+      ...(e.url && { url: e.url }),
+    }));
+    const bizNode: Record<string, unknown> = {
+      "@type": "LocalBusiness",
+      "@id": `${b.url}#business`,
+      name: b.name,
+      url: b.url,
+      ...(b.image && { image: b.image }),
+      ...(b.latitude && b.longitude && { geo: { "@type": "GeoCoordinates", latitude: b.latitude, longitude: b.longitude } }),
+      ...(b.city && { containedInPlace: { "@type": "City", name: b.city } }),
+      ...(nearby.length && { nearbyAttraction: nearby.slice(0, 10) }),
+      ...(evts.length && { event: evts.slice(0, 10) }),
+    };
+    graphNodes.push(bizNode);
+  }
+
+  const graphJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": graphNodes,
+  };
+  writeFileSync(join(aiDir, "graph.jsonld"), JSON.stringify(graphJsonLd), "utf8");
+
   // 8e) openapi.json — spec OpenAPI 3.1 minimale des endpoints lisibles
   const openapi = {
     openapi: "3.1.0",
@@ -1407,6 +1635,21 @@ ${urls}
           summary: "Événements à venir (JSON)",
           responses: { "200": { description: "OK", content: { "application/json": {} } } },
         },
+      },
+      "/ai/cities.json": {
+        get: { summary: "Villes avec quartiers + compteur d'établissements", responses: { "200": { description: "OK", content: { "application/json": {} } } } },
+      },
+      "/ai/neighborhoods.json": {
+        get: { summary: "Quartiers avec liste d'établissements", responses: { "200": { description: "OK", content: { "application/json": {} } } } },
+      },
+      "/ai/pois.json": {
+        get: { summary: "Points d'intérêt avec établissements à proximité", responses: { "200": { description: "OK", content: { "application/json": {} } } } },
+      },
+      "/ai/destinations.json": {
+        get: { summary: "Destinations touristiques (régions/villes agrégées)", responses: { "200": { description: "OK", content: { "application/json": {} } } } },
+      },
+      "/ai/graph.jsonld": {
+        get: { summary: "Graphe Schema.org complet (villes, quartiers, POIs, destinations, établissements + arêtes)", responses: { "200": { description: "OK", content: { "application/ld+json": {} } } } },
       },
       "/ai/sitemap.xml": {
         get: {
@@ -1454,6 +1697,11 @@ ${urls}
     <ul>
       <li><a href="/ai/catalog.json">/ai/catalog.json</a> — Catalogue complet (${catalog.length} établissements) en JSON à plat</li>
       <li><a href="/ai/catalog.jsonld">/ai/catalog.jsonld</a> — Même catalogue en Schema.org <code>ItemList</code> / <code>LocalBusiness</code></li>
+      <li><a href="/ai/graph.jsonld">/ai/graph.jsonld</a> — Graphe Schema.org complet : villes, quartiers, POIs, destinations, établissements + arêtes (<code>containedInPlace</code>, <code>nearbyAttraction</code>, <code>event</code>)</li>
+      <li><a href="/ai/cities.json">/ai/cities.json</a> — Villes (${citiesFeed.length}) avec quartiers</li>
+      <li><a href="/ai/neighborhoods.json">/ai/neighborhoods.json</a> — Quartiers (${neighborhoodsFeed.length}) avec établissements</li>
+      <li><a href="/ai/pois.json">/ai/pois.json</a> — Points d'intérêt (${poisFeed.length}) avec établissements à proximité</li>
+      <li><a href="/ai/destinations.json">/ai/destinations.json</a> — Destinations touristiques (${destinationsFeed.length})</li>
       <li><a href="/ai/events.json">/ai/events.json</a> — Événements à venir (${eventsFeed.length})</li>
       <li><a href="/ai/sitemap.xml">/ai/sitemap.xml</a> — Sitemap ciblé fiches établissement</li>
       <li><a href="/ai/openapi.json">/ai/openapi.json</a> — Spec OpenAPI 3.1</li>
@@ -1470,7 +1718,7 @@ ${urls}
 </html>`;
   writeFileSync(join(aiDir, "index.html"), indexHtml, "utf8");
 
-  return 6;
+  return 11;
 }
 
 

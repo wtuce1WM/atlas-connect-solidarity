@@ -103,13 +103,144 @@ var get_business_default = defineTool2({
   }
 });
 
+// src/lib/mcp/tools/get-business-relations.ts
+import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.22.0";
+import { createClient as createClient3 } from "npm:@supabase/supabase-js@^2.94.1";
+import { z as z3 } from "npm:zod@^4.3.6";
+var SUPABASE_URL3 = "https://plnphgdrawpsnumnejzc.supabase.co";
+var SUPABASE_ANON_KEY3 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
+var get_business_relations_default = defineTool3({
+  name: "get_business_relations",
+  title: "Get related POIs, destinations and events for a business",
+  description: "For a One World Morocco business (by slug), return the linked points of interest (nearby attractions), destinations (tourist zones), and events. Use to answer 'what's around', 'what's happening at', 'which zone' questions.",
+  inputSchema: {
+    slug: z3.string().min(1).describe("Business slug from the oneworldmorocco.com URL, e.g. 'dar-fragrance'.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ slug }) => {
+    const supabase = createClient3(SUPABASE_URL3, SUPABASE_ANON_KEY3, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    const { data: biz, error: bizErr } = await supabase.from("businesses").select("id, name, slug, city, neighborhood").eq("slug", slug).eq("is_active", true).maybeSingle();
+    if (bizErr) return { content: [{ type: "text", text: `Error: ${bizErr.message}` }], isError: true };
+    if (!biz) return { content: [{ type: "text", text: `No business found with slug '${slug}'.` }], isError: true };
+    const [poiLinks, destLinks, evtLinks] = await Promise.all([
+      supabase.from("business_poi_businesses").select("poi_business_id").eq("business_id", biz.id),
+      supabase.from("business_destinations").select("destination_id").eq("business_id", biz.id),
+      supabase.from("event_businesses").select("event_id").eq("business_id", biz.id)
+    ]);
+    const poiIds = (poiLinks.data || []).map((r) => r.poi_business_id).filter(Boolean);
+    const destIds = (destLinks.data || []).map((r) => r.destination_id).filter(Boolean);
+    const evtIds = (evtLinks.data || []).map((r) => r.event_id).filter(Boolean);
+    const [poisRes, destsRes, evtsRes] = await Promise.all([
+      poiIds.length ? supabase.from("points_of_interest").select("id, name_fr, latitude, longitude, wikipedia_fr, official_site_fr, hook").in("id", poiIds) : Promise.resolve({ data: [] }),
+      destIds.length ? supabase.from("destinations").select("id, name_fr, region, latitude, longitude, wikipedia_fr, hook_fr").in("id", destIds) : Promise.resolve({ data: [] }),
+      evtIds.length ? supabase.from("events").select("id, name, hook, start_date, end_date, start_time, end_time, recurrence, days_of_week, url, latitude, longitude").in("id", evtIds) : Promise.resolve({ data: [] })
+    ]);
+    const payload = {
+      business: {
+        name: biz.name,
+        slug: biz.slug,
+        city: biz.city,
+        neighborhood: biz.neighborhood,
+        url: `https://oneworldmorocco.com/${biz.slug}`
+      },
+      nearby_attractions: (poisRes.data || []).map((p) => ({
+        name: p.name_fr,
+        latitude: p.latitude,
+        longitude: p.longitude,
+        wikipedia: p.wikipedia_fr,
+        official_site: p.official_site_fr,
+        hook: p.hook
+      })),
+      destinations: (destsRes.data || []).map((d) => ({
+        name: d.name_fr,
+        region: d.region,
+        latitude: d.latitude,
+        longitude: d.longitude,
+        wikipedia: d.wikipedia_fr,
+        hook: d.hook_fr
+      })),
+      events: (evtsRes.data || []).map((ev) => ({
+        name: ev.name,
+        hook: ev.hook,
+        start_date: ev.start_date,
+        end_date: ev.end_date,
+        start_time: ev.start_time,
+        end_time: ev.end_time,
+        recurrence: ev.recurrence,
+        days_of_week: ev.days_of_week,
+        url: ev.url
+      }))
+    };
+    return {
+      content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
+      structuredContent: payload
+    };
+  }
+});
+
+// src/lib/mcp/tools/list-businesses-near-poi.ts
+import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.22.0";
+import { createClient as createClient4 } from "npm:@supabase/supabase-js@^2.94.1";
+import { z as z4 } from "npm:zod@^4.3.6";
+var SUPABASE_URL4 = "https://plnphgdrawpsnumnejzc.supabase.co";
+var SUPABASE_ANON_KEY4 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
+var list_businesses_near_poi_default = defineTool4({
+  name: "list_businesses_near_poi",
+  title: "List One World Morocco businesses linked to a POI",
+  description: "For a given point of interest name (e.g. 'Jemaa el-Fna', 'Jardin Majorelle', 'Skala de la Kasbah'), return the curated businesses explicitly linked to that POI (walking distance / cluster). Use for 'near / around / next to <landmark>' questions.",
+  inputSchema: {
+    poi: z4.string().min(1).describe("POI name (French). Fuzzy match on `points_of_interest.name_fr`."),
+    limit: z4.number().int().min(1).max(30).optional().describe("Max businesses (1-30, default 15).")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ poi, limit }) => {
+    const supabase = createClient4(SUPABASE_URL4, SUPABASE_ANON_KEY4, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    const { data: pois, error: poiErr } = await supabase.from("points_of_interest").select("id, name_fr, city_id, latitude, longitude, wikipedia_fr").ilike("name_fr", `%${poi}%`).limit(3);
+    if (poiErr) return { content: [{ type: "text", text: `Error: ${poiErr.message}` }], isError: true };
+    if (!pois || !pois.length) {
+      return { content: [{ type: "text", text: `No POI matching '${poi}'.` }], isError: true };
+    }
+    const poiIds = pois.map((p) => p.id);
+    const { data: links, error: linkErr } = await supabase.from("business_poi_businesses").select("business_id, poi_business_id").in("poi_business_id", poiIds);
+    if (linkErr) return { content: [{ type: "text", text: `Error: ${linkErr.message}` }], isError: true };
+    const bizIds = [...new Set((links || []).map((l) => l.business_id))];
+    if (!bizIds.length) {
+      return {
+        content: [{ type: "text", text: `POI found but no linked businesses.` }],
+        structuredContent: { poi: pois[0].name_fr, results: [], count: 0 }
+      };
+    }
+    const { data: biz, error: bizErr } = await supabase.from("businesses").select("name, slug, main_category, city, neighborhood, hook_fr, hook_en, computed_rating, total_review_count, min_price, manual_price_range, priority_score").in("id", bizIds).eq("is_active", true).order("priority_score", { ascending: false, nullsFirst: false }).limit(Math.min(limit ?? 15, 30));
+    if (bizErr) return { content: [{ type: "text", text: `Error: ${bizErr.message}` }], isError: true };
+    const results = (biz || []).map((b) => ({
+      name: b.name,
+      category: b.main_category,
+      city: b.city,
+      neighborhood: b.neighborhood,
+      rating: b.computed_rating,
+      review_count: b.total_review_count,
+      price_range: b.manual_price_range ?? (b.min_price ? `from ${b.min_price} MAD` : null),
+      hook: b.hook_fr ?? b.hook_en,
+      url: b.slug ? `https://oneworldmorocco.com/${b.slug}` : null
+    }));
+    return {
+      content: [{ type: "text", text: JSON.stringify({ poi: pois[0].name_fr, results }, null, 2) }],
+      structuredContent: { poi: pois[0].name_fr, results, count: results.length }
+    };
+  }
+});
+
 // src/lib/mcp/index.ts
 var mcp_default = defineMcp({
   name: "one-world-morocco",
   title: "One World Morocco",
-  version: "0.1.0",
-  instructions: "Public read-only access to the One World Morocco catalog: curated restaurants, hotels, riads, activities and boutiques in Marrakech, Essaouira and across Morocco. Use `search_businesses` to find places (by name, cuisine, activity, city, neighborhood) and `get_business` to fetch full details of one place by its slug. All data is public \u2014 no personal or member data is exposed.",
-  tools: [search_businesses_default, get_business_default]
+  version: "0.2.0",
+  instructions: "Public read-only access to the One World Morocco catalog: curated restaurants, hotels, riads, activities and boutiques in Marrakech, Essaouira and across Morocco. Tools: `search_businesses` (free-text search), `get_business` (full details by slug), `get_business_relations` (linked POIs, destinations, events for a business), `list_businesses_near_poi` (businesses tied to a landmark like Jemaa el-Fna or Jardin Majorelle). All data is public \u2014 no personal or member data is exposed.",
+  tools: [search_businesses_default, get_business_default, get_business_relations_default, list_businesses_near_poi_default]
 });
 
 // lovable-mcp-supabase-entry.ts

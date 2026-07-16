@@ -8,7 +8,7 @@
   "mcp": {
     "server": {
       "name": "one-world-morocco",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "title": "One World Morocco"
     },
     "tools": [
@@ -72,6 +72,62 @@
           },
           "required": [
             "slug"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_business_relations",
+        "title": "Get related POIs, destinations and events for a business",
+        "description": "For a One World Morocco business (by slug), return the linked points of interest (nearby attractions), destinations (tourist zones), and events. Use to answer 'what's around', 'what's happening at', 'which zone' questions.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Business slug from the oneworldmorocco.com URL, e.g. 'dar-fragrance'."
+            }
+          },
+          "required": [
+            "slug"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_businesses_near_poi",
+        "title": "List One World Morocco businesses linked to a POI",
+        "description": "For a given point of interest name (e.g. 'Jemaa el-Fna', 'Jardin Majorelle', 'Skala de la Kasbah'), return the curated businesses explicitly linked to that POI (walking distance / cluster). Use for 'near / around / next to <landmark>' questions.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "poi": {
+              "type": "string",
+              "minLength": 1,
+              "description": "POI name (French). Fuzzy match on `points_of_interest.name_fr`."
+            },
+            "limit": {
+              "description": "Max businesses (1-30, default 15).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            }
+          },
+          "required": [
+            "poi"
           ]
         },
         "outputSchema": null
