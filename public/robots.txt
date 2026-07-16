@@ -102,3 +102,4 @@ Disallow: /ancien-index
 
 Sitemap: https://oneworldmorocco.com/sitemap.xml
 Sitemap: https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/generate-sitemap
+Sitemap: https://oneworldmorocco.com/ai/sitemap.xml
