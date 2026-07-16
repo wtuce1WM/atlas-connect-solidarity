@@ -1718,7 +1718,7 @@ ${urls}
 </html>`;
   writeFileSync(join(aiDir, "index.html"), indexHtml, "utf8");
 
-  return 6;
+  return 11;
 }
 
 
