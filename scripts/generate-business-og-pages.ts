@@ -1225,6 +1225,11 @@ function writeAiFeed(
   vanities: { slug: string; target_id: string }[],
   eventRows: Array<Record<string, any>>,
   cityById: Map<string, { name_fr: string; latitude?: number; longitude?: number }>,
+  relationsByBiz: Map<string, BizRelations>,
+  cityRows: Array<Record<string, any>>,
+  neighborhoodRows: Array<Record<string, any>>,
+  poiRows: Array<Record<string, any>>,
+  destinationRows: Array<Record<string, any>>,
 ): number {
   const aiDir = join(PUBLIC_DIR, "ai");
   mkdirSync(aiDir, { recursive: true });
