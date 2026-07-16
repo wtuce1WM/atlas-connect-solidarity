@@ -518,26 +518,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, sending]);
 
-  // Prevent the whole page from scrolling while the AI assistant is visible:
-  // the conversation should scroll inside its own flex-1 area, not push the Club page.
-  // BUT: release the lock while a business SlidePanel is open, otherwise iOS Safari
-  // freezes the internal vertical touch scroll of nested scroll containers.
-  useEffect(() => {
-    if (openBusinessId) return;
-    const html = document.documentElement;
-    const body = document.body;
-    const prevHtmlOverflow = html.style.overflow;
-    const prevBodyOverflow = body.style.overflow;
-    const prevBodyHeight = body.style.height;
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-    body.style.height = "100dvh";
-    return () => {
-      html.style.overflow = prevHtmlOverflow;
-      body.style.overflow = prevBodyOverflow;
-      body.style.height = prevBodyHeight;
-    };
-  }, [openBusinessId]);
+  // (Previously locked html/body overflow to force an internal scroll area.
+  // The conversation now grows with content and the page scrolls naturally,
+  // so no scroll lock is needed.)
+
 
   useEffect(() => { inputRef.current?.focus(); }, [activeId]);
 
