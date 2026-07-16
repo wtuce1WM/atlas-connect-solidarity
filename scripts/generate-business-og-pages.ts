@@ -892,6 +892,103 @@ async function main() {
     }
   }
 
+  // 2c) Récupère les relations business → POIs / destinations / events
+  // Ces jointures alimentent nearbyAttraction / containedInPlace / event dans le JSON-LD.
+  const relationsByBiz = new Map<string, BizRelations>();
+  const getRel = (id: string): BizRelations => {
+    let r = relationsByBiz.get(id);
+    if (!r) { r = { pois: [], destinations: [], events: [] }; relationsByBiz.set(id, r); }
+    return r;
+  };
+
+  // POIs liés
+  try {
+    const poiLinks: Array<{ business_id: string; poi_business_id: string }> = [];
+    for (let i = 0; i < activeIds.length; i += PAGE) {
+      const chunk = activeIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("business_poi_businesses").select("business_id, poi_business_id").in("business_id", chunk);
+      if (data) poiLinks.push(...(data as any));
+    }
+    const poiIds = [...new Set(poiLinks.map((l) => l.poi_business_id).filter(Boolean))];
+    const poiById = new Map<string, any>();
+    for (let i = 0; i < poiIds.length; i += PAGE) {
+      const chunk = poiIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("points_of_interest").select("id, name_fr, latitude, longitude, wikipedia_fr, official_site_fr, image_url").in("id", chunk);
+      for (const p of (data || []) as any[]) poiById.set(p.id, p);
+    }
+    for (const l of poiLinks) {
+      const p = poiById.get(l.poi_business_id);
+      if (!p?.name_fr) continue;
+      getRel(l.business_id).pois!.push({
+        name: p.name_fr,
+        latitude: p.latitude,
+        longitude: p.longitude,
+        wikipedia: p.wikipedia_fr,
+        url: p.official_site_fr,
+        image: p.image_url,
+      });
+    }
+  } catch (e) { console.warn("[og-pages] POI relations fetch failed:", (e as Error).message); }
+
+  // Destinations liées
+  try {
+    const destLinks: Array<{ business_id: string; destination_id: string }> = [];
+    for (let i = 0; i < activeIds.length; i += PAGE) {
+      const chunk = activeIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("business_destinations").select("business_id, destination_id").in("business_id", chunk);
+      if (data) destLinks.push(...(data as any));
+    }
+    const destIds = [...new Set(destLinks.map((l) => l.destination_id).filter(Boolean))];
+    const destById = new Map<string, any>();
+    for (let i = 0; i < destIds.length; i += PAGE) {
+      const chunk = destIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("destinations").select("id, name_fr, latitude, longitude, wikipedia_fr, image_url").in("id", chunk);
+      for (const d of (data || []) as any[]) destById.set(d.id, d);
+    }
+    for (const l of destLinks) {
+      const d = destById.get(l.destination_id);
+      if (!d?.name_fr) continue;
+      getRel(l.business_id).destinations!.push({
+        name: d.name_fr,
+        latitude: d.latitude,
+        longitude: d.longitude,
+        wikipedia: d.wikipedia_fr,
+        image: d.image_url,
+      });
+    }
+  } catch (e) { console.warn("[og-pages] destination relations fetch failed:", (e as Error).message); }
+
+  // Events liés
+  try {
+    const evtLinks: Array<{ business_id: string; event_id: string }> = [];
+    for (let i = 0; i < activeIds.length; i += PAGE) {
+      const chunk = activeIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("event_businesses").select("business_id, event_id").in("business_id", chunk);
+      if (data) evtLinks.push(...(data as any));
+    }
+    const evtIds = [...new Set(evtLinks.map((l) => l.event_id).filter(Boolean))];
+    const evtById = new Map<string, any>();
+    for (let i = 0; i < evtIds.length; i += PAGE) {
+      const chunk = evtIds.slice(i, i + PAGE);
+      const { data } = await supabase.from("events").select("id, name, description, start_date, end_date, latitude, longitude, url, images, logo_url").in("id", chunk);
+      for (const ev of (data || []) as any[]) evtById.set(ev.id, ev);
+    }
+    for (const l of evtLinks) {
+      const ev = evtById.get(l.event_id);
+      if (!ev?.name) continue;
+      getRel(l.business_id).events!.push({
+        name: ev.name,
+        description: ev.description,
+        start_date: ev.start_date,
+        end_date: ev.end_date,
+        latitude: ev.latitude,
+        longitude: ev.longitude,
+        url: ev.url,
+        image: (Array.isArray(ev.images) && ev.images[0]) || ev.logo_url || null,
+      });
+    }
+  } catch (e) { console.warn("[og-pages] event relations fetch failed:", (e as Error).message); }
+
   // 3) Nettoie l'ancienne génération
   await cleanPreviouslyGenerated();
 
@@ -906,7 +1003,8 @@ async function main() {
     const dir = join(PUBLIC_DIR, slug);
     mkdirSync(dir, { recursive: true });
     const bizReviews = reviewsByBiz.get(biz.id) || [];
-    writeFileSync(join(dir, "index.html"), buildHtml(slug, biz, bizReviews), "utf8");
+    const bizRelations = relationsByBiz.get(biz.id) || {};
+    writeFileSync(join(dir, "index.html"), buildHtml(slug, biz, bizReviews, bizRelations), "utf8");
     writeFileSync(join(dir, MARKER_FILE), "", "utf8");
     written++;
   }
