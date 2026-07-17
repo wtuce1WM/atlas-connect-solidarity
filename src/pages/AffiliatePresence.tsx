@@ -390,7 +390,6 @@ const AffiliatePresence = () => {
                         address={getCurrentValue(currentBusiness.id, "address", currentBusiness.address)}
                         neighborhood={getCurrentValue(currentBusiness.id, "neighborhood", currentBusiness.neighborhood)}
                         city={getCurrentValue(currentBusiness.id, "city", currentBusiness.city)}
-                        region={getCurrentValue(currentBusiness.id, "region", currentBusiness.region)}
                         googleMapsUrl={getCurrentValue(currentBusiness.id, "google_maps_url", currentBusiness.links.google_maps_url)}
                         latitude={getCurrentValue(currentBusiness.id, "latitude", currentBusiness.latitude)}
                         longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
@@ -402,7 +401,6 @@ const AffiliatePresence = () => {
                         onAddressChange={(v) => handleFieldChange(currentBusiness.id, "address", v)}
                         onNeighborhoodChange={(v) => handleFieldChange(currentBusiness.id, "neighborhood", v)}
                         onCityChange={(v) => handleFieldChange(currentBusiness.id, "city", v)}
-                        onRegionChange={(v) => handleFieldChange(currentBusiness.id, "region", v)}
                         onGoogleMapsUrlChange={(v) => handleFieldChange(currentBusiness.id, "google_maps_url", v)}
                         onLatitudeChange={(v) => handleFieldChange(currentBusiness.id, "latitude", v)}
                         onLongitudeChange={(v) => handleFieldChange(currentBusiness.id, "longitude", v)}
