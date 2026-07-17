@@ -416,13 +416,13 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/apprendre-le-darija-avec-baraka</loc>
-    <lastmod>2026-06-29</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/apprends-le-darija-marocain-avec-aurelie</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -752,7 +752,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/au-dela-d-une-assiette</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1046,7 +1046,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/barnes-marrakech</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4280,7 +4280,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/juste-zoe</loc>
-    <lastmod>2026-06-05</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5036,7 +5036,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/la-vie-rurale-a-chefchaouen</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -6698,7 +6698,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/mehdi-cherrak</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -8852,7 +8852,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/riad-dar-najat</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-07-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -11588,11 +11588,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/neighborhood/Douar%20Graoua</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://oneworldmorocco.com/neighborhood/Agdal</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -11739,6 +11734,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/neighborhood/Route%20d&apos;Agafay</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/neighborhood/Douar%20Graoua</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
