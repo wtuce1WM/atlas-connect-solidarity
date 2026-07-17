@@ -358,8 +358,8 @@ const AffiliatePresence = () => {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{b.name}</p>
-                        <p className="text-xs text-muted-foreground">{b.city || "—"}</p>
+                        <p className={`text-sm font-medium truncate ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
+                        <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
                       </div>
                       <Badge
                         variant={comp.percent === 100 ? "default" : comp.percent > 50 ? "secondary" : "destructive"}
