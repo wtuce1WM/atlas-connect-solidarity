@@ -625,6 +625,11 @@ const AffiliatePresence = () => {
                       <AffiliateHighlightsEditor businessId={currentBusiness.id} />
                     </TabsContent>
 
+                    {/* Images Tab */}
+                    <TabsContent value="images">
+                      <AffiliateImagesEditor businessId={currentBusiness.id} />
+                    </TabsContent>
+
                     {/* Platform Help Tab */}
                     <TabsContent value="help">
                       <AffiliatePlatformHelp />
