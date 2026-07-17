@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -13,7 +14,7 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video, Plus
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
@@ -111,9 +112,75 @@ const AffiliatePresence = () => {
   const [selectedBusiness, setSelectedBusiness] = useState<string | null>(null);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
+  const [affiliateId, setAffiliateId] = useState<string | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newBusinessName, setNewBusinessName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+
+  const loadBusinesses = async (targetAffiliateId: string) => {
+    const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
+      "address", "neighborhood", "latitude", "longitude", "opening_hours",
+      "show_opening_hours", "closure_message", "vacation_dates",
+      "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
+      ...PLATFORMS.map(p => p.key),
+      ...CTA_EXTRA_FIELDS,
+      ...REVIEW_FIELDS].join(",");
+
+    const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
+      supabase.from("businesses").select(selectFields).eq("affiliate_id", targetAffiliateId).eq("is_active", true).order("name"),
+      supabase.from("cities").select("id, name_fr, region").order("name_fr"),
+      supabase.from("neighborhoods").select("id, name, city_id").order("name"),
+    ]);
+    setCities((citiesData as CityOption[]) || []);
+    setNeighborhoods((neighborhoodsData as NeighborhoodOption[]) || []);
+
+    const mapped: BusinessPresence[] = (biz || []).map((b: any) => {
+      const cta: Record<string, any> = {};
+      CTA_URL_DEFS.forEach(d => {
+        cta[d.urlField] = b[d.urlField] ?? null;
+        cta[d.ctaField] = b[d.ctaField] ?? null;
+        cta[d.externalField] = b[d.externalField] ?? false;
+      });
+      const reviews: Record<string, any> = {};
+      REVIEW_FIELDS.forEach(f => { reviews[f] = b[f] ?? null; });
+      return {
+        id: b.id,
+        name: b.name,
+        city: b.city,
+        main_category: b.main_category,
+        logo_url: b.logo_url,
+        phone: b.phone,
+        whatsapp: b.whatsapp,
+        email: b.email,
+        address: b.address,
+        neighborhood: b.neighborhood,
+        latitude: b.latitude,
+        longitude: b.longitude,
+        opening_hours: b.opening_hours as OpeningHours | null,
+        show_opening_hours: b.show_opening_hours ?? true,
+        closure_message: b.closure_message ?? null,
+        vacation_dates: (b.vacation_dates as VacationPeriod[] | null) ?? [],
+        links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
+        cta,
+        reviews,
+        hook_fr: b.hook_fr ?? null,
+        hook_en: b.hook_en ?? null,
+        hook_ar: b.hook_ar ?? null,
+        description: b.description ?? null,
+        description_en: b.description_en ?? null,
+        description_ar: b.description_ar ?? null,
+      };
+    });
+
+    setBusinesses(mapped);
+    if (mapped.length > 0 && !mapped.find(b => b.id === selectedBusiness)) {
+      setSelectedBusiness(mapped[0].id);
+    }
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    const load = async () => {
+    const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/affiliates"); return; }
 
@@ -129,65 +196,10 @@ const AffiliatePresence = () => {
         return;
       }
 
-      const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
-        "address", "neighborhood", "latitude", "longitude", "opening_hours",
-        "show_opening_hours", "closure_message", "vacation_dates",
-        "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
-        ...PLATFORMS.map(p => p.key),
-        ...CTA_EXTRA_FIELDS,
-        ...REVIEW_FIELDS].join(",");
-
-      const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
-        supabase.from("businesses").select(selectFields).eq("affiliate_id", affiliate.id).eq("is_active", true).order("name"),
-        supabase.from("cities").select("id, name_fr, region").order("name_fr"),
-        supabase.from("neighborhoods").select("id, name, city_id").order("name"),
-      ]);
-      setCities((citiesData as CityOption[]) || []);
-      setNeighborhoods((neighborhoodsData as NeighborhoodOption[]) || []);
-
-      const mapped: BusinessPresence[] = (biz || []).map((b: any) => {
-        const cta: Record<string, any> = {};
-        CTA_URL_DEFS.forEach(d => {
-          cta[d.urlField] = b[d.urlField] ?? null;
-          cta[d.ctaField] = b[d.ctaField] ?? null;
-          cta[d.externalField] = b[d.externalField] ?? false;
-        });
-        const reviews: Record<string, any> = {};
-        REVIEW_FIELDS.forEach(f => { reviews[f] = b[f] ?? null; });
-        return {
-          id: b.id,
-          name: b.name,
-          city: b.city,
-          main_category: b.main_category,
-          logo_url: b.logo_url,
-          phone: b.phone,
-          whatsapp: b.whatsapp,
-          email: b.email,
-          address: b.address,
-          neighborhood: b.neighborhood,
-          latitude: b.latitude,
-          longitude: b.longitude,
-          opening_hours: b.opening_hours as OpeningHours | null,
-          show_opening_hours: b.show_opening_hours ?? true,
-          closure_message: b.closure_message ?? null,
-          vacation_dates: (b.vacation_dates as VacationPeriod[] | null) ?? [],
-          links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
-          cta,
-          reviews,
-          hook_fr: b.hook_fr ?? null,
-          hook_en: b.hook_en ?? null,
-          hook_ar: b.hook_ar ?? null,
-          description: b.description ?? null,
-          description_en: b.description_en ?? null,
-          description_ar: b.description_ar ?? null,
-        };
-      });
-
-      setBusinesses(mapped);
-      if (mapped.length > 0) setSelectedBusiness(mapped[0].id);
-      setIsLoading(false);
+      setAffiliateId(affiliate.id);
+      await loadBusinesses(affiliate.id);
     };
-    load();
+    init();
   }, [navigate, toast]);
 
   const getBusinessCompleteness = (b: BusinessPresence) => {
@@ -255,6 +267,34 @@ const AffiliatePresence = () => {
       toast({ title: "Modifications enregistrées ✓" });
     }
     setSavingId(null);
+  };
+
+  const handleCreateBusiness = async () => {
+    const name = newBusinessName.trim();
+    if (!name) {
+      toast({ title: "Nom requis", description: "Veuillez saisir le nom de l'établissement.", variant: "destructive" });
+      return;
+    }
+    if (!affiliateId) {
+      toast({ title: "Erreur", description: "Compte affilié introuvable.", variant: "destructive" });
+      return;
+    }
+    setIsCreating(true);
+    const { data, error } = await supabase
+      .from("businesses")
+      .insert({ name, affiliate_id: affiliateId, is_active: true })
+      .select("id")
+      .single();
+    if (error || !data) {
+      toast({ title: "Erreur lors de la création", description: error?.message || "Réponse vide", variant: "destructive" });
+    } else {
+      toast({ title: "Établissement créé ✓" });
+      setNewBusinessName("");
+      setIsCreateDialogOpen(false);
+      await loadBusinesses(affiliateId);
+      setSelectedBusiness(data.id);
+    }
+    setIsCreating(false);
   };
 
   const currentBusiness = businesses.find(b => b.id === selectedBusiness);
