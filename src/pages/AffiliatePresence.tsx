@@ -186,28 +186,46 @@ const AffiliatePresence = () => {
     const edits = editedFields[businessId];
     if (!edits || Object.keys(edits).length === 0) return;
 
+    const reviewNumericKeys = new Set(REVIEW_FIELDS.filter(f => f.endsWith("_rating") || f.endsWith("_review_count")));
+    const payload: Record<string, any> = {};
+    Object.entries(edits).forEach(([k, v]) => {
+      if (reviewNumericKeys.has(k)) {
+        if (v === "" || v === null || v === undefined) payload[k] = null;
+        else {
+          const n = Number(v);
+          payload[k] = Number.isFinite(n) ? n : null;
+        }
+      } else {
+        payload[k] = v;
+      }
+    });
+
     setSavingId(businessId);
     const { error } = await supabase
       .from("businesses")
-      .update(edits)
+      .update(payload)
       .eq("id", businessId);
 
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
       const ctaKeys = new Set(CTA_URL_DEFS.flatMap(d => [d.urlField, d.ctaField, d.externalField]));
+      const reviewKeys = new Set(REVIEW_FIELDS);
       setBusinesses(prev => prev.map(b => {
         if (b.id !== businessId) return b;
-        const updated = { ...b, cta: { ...b.cta } };
-        Object.entries(edits).forEach(([k, v]) => {
+        const updated = { ...b, cta: { ...b.cta }, reviews: { ...b.reviews } };
+        Object.entries(payload).forEach(([k, v]) => {
           if (ctaKeys.has(k)) {
             updated.cta[k] = typeof v === "boolean" ? v : (v === "" ? null : v);
+          }
+          if (reviewKeys.has(k)) {
+            updated.reviews[k] = v;
           }
           if (k in b.links) {
             (updated.links as any)[k] = v || null;
           } else if (k === "opening_hours") {
             updated.opening_hours = v;
-          } else if (!ctaKeys.has(k)) {
+          } else if (!ctaKeys.has(k) && !reviewKeys.has(k)) {
             (updated as any)[k] = v === "" ? null : v;
           }
         });
