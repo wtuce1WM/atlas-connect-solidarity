@@ -14,7 +14,7 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video, Plus
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video, Plus, Tag
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
@@ -26,6 +26,7 @@ import YextSyncButton from "@/components/affiliate/YextSyncButton";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
 import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
+import AffiliatePromotionsEditor from "@/components/affiliate/AffiliatePromotionsEditor";
 import AffiliateImagesEditor from "@/components/affiliate/AffiliateImagesEditor";
 import AffiliateVideosEditor from "@/components/affiliate/AffiliateVideosEditor";
 import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
@@ -466,6 +467,9 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="blocks" className="gap-1.5 shrink-0">
                         <Sparkles className="h-3.5 w-3.5 shrink-0" /> Blocs
                       </TabsTrigger>
+                      <TabsTrigger value="promotions" className="gap-1.5 shrink-0">
+                        <Tag className="h-3.5 w-3.5 shrink-0" /> Offres
+                      </TabsTrigger>
                       <TabsTrigger value="images" className="gap-1.5 shrink-0">
                         <ImageIcon className="h-3.5 w-3.5 shrink-0" /> Images
                       </TabsTrigger>
@@ -664,6 +668,10 @@ const AffiliatePresence = () => {
                     {/* Blocks Tab */}
                     <TabsContent value="blocks">
                       <AffiliateHighlightsEditor businessId={currentBusiness.id} />
+                    </TabsContent>
+
+                    <TabsContent value="promotions">
+                      {affiliateId && <AffiliatePromotionsEditor businessId={currentBusiness.id} affiliateId={affiliateId} />}
                     </TabsContent>
 
                     {/* Images Tab */}
