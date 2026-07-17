@@ -189,16 +189,6 @@ const AffiliatePresence = () => {
     load();
   }, [navigate, toast]);
 
-  const auditStats = useMemo(() => {
-    const total = businesses.length * PLATFORMS.length;
-    let filled = 0;
-    businesses.forEach(b => {
-      PLATFORMS.forEach(p => { if (b.links[p.key]) filled++; });
-    });
-    return { total, filled, missing: total - filled, percent: total > 0 ? Math.round((filled / total) * 100) : 0 };
-  }, [businesses]);
-
-
   const getBusinessCompleteness = (b: BusinessPresence) => {
     const filled = PLATFORMS.filter(p => b.links[p.key]).length;
     return { filled, total: PLATFORMS.length, percent: Math.round((filled / PLATFORMS.length) * 100) };
