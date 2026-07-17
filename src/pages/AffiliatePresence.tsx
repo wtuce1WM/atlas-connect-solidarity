@@ -22,6 +22,7 @@ import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp"
 import AffiliateYextInfo from "@/components/affiliate/AffiliateYextInfo";
 import YextSyncButton from "@/components/affiliate/YextSyncButton";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
+import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
 import { Label } from "@/components/ui/label";
 
