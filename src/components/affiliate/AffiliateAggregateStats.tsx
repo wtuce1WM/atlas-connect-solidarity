@@ -226,10 +226,41 @@ export default function AffiliateAggregateStats() {
         })}
       </div>
 
-      {/* Evolution chart */}
+      {/* Conversion rate cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {[
+          { label: "Taux d'intention", desc: "Intentions ÷ vues", curr: conversionRates.intentRate, prev: conversionRates.prevIntentRate, color: "text-green-500", bg: "bg-green-500/20" },
+          { label: "Taux de réservation", desc: "Réservations ÷ vues", curr: conversionRates.bookingRate, prev: conversionRates.prevBookingRate, color: "text-gold", bg: "bg-gold/20" },
+        ].map((r) => {
+          const delta = r.prev > 0 ? Math.round(((r.curr - r.prev) / r.prev) * 100) : (r.curr > 0 ? 100 : null);
+          return (
+            <Card key={r.label} className="bg-card border-border">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-start justify-between mb-1">
+                  <div className={`rounded-full ${r.bg} p-2`}>
+                    <TrendingUp className={`h-4 w-4 ${r.color}`} />
+                  </div>
+                  {!loading && delta !== null && (
+                    <span className={`text-xs font-medium flex items-center gap-0.5 ${delta >= 0 ? "text-green-500" : "text-destructive"}`}>
+                      {delta >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {Math.abs(delta)}%
+                    </span>
+                  )}
+                </div>
+                <p className="text-xl font-bold text-foreground leading-tight">
+                  {loading ? "—" : `${r.curr.toFixed(1).replace(".", ",")} %`}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{r.label} — {r.desc}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Evolution chart with N vs N-1 */}
       <Card className="bg-card border-border">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base text-foreground">Évolution</CardTitle>
+          <CardTitle className="text-base text-foreground">Évolution — période actuelle vs précédente</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64">
@@ -244,8 +275,11 @@ export default function AffiliateAggregateStats() {
                   <XAxis dataKey="day" className="text-xs" />
                   <YAxis className="text-xs" />
                   <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Line type="monotone" dataKey="Vues" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="Vues N-1" stroke="hsl(var(--primary))" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
                   <Line type="monotone" dataKey="Intentions" stroke="#C04F17" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="Intentions N-1" stroke="#C04F17" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -254,10 +288,11 @@ export default function AffiliateAggregateStats() {
       </Card>
 
       {/* Breakdowns */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <BreakdownCard title="Pays" rows={aggregate.by_country} labelKey="country" />
         <BreakdownCard title="Appareil" rows={aggregate.by_device} labelKey="device" />
-        <BreakdownCard title="Pages d'origine" rows={aggregate.by_source_page} labelKey="source_page" />
+        <BreakdownCard title="Pages d'origine (interne)" rows={aggregate.by_source_page} labelKey="source_page" />
+        <BreakdownCard title="Top référents externes" rows={aggregate.top_referrers} labelKey="referrer_domain" />
       </div>
 
       {/* Businesses list */}
