@@ -120,6 +120,28 @@ export default function AffiliateAggregateStats() {
     };
   }, [businesses, analyticsQueries]);
 
+  const trackedLoadRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (loading) return;
+    const key = `${range}|${businesses?.length ?? 0}`;
+    if (trackedLoadRef.current === key) return;
+    trackedLoadRef.current = key;
+    trackEvent("affiliate_stats_loaded", {
+      range,
+      businesses_count: businesses?.length ?? 0,
+      views: aggregate.totals.view || 0,
+      whatsapp: aggregate.totals.whatsapp_click || 0,
+      phone: aggregate.totals.phone_click || 0,
+      email: aggregate.totals.email_click || 0,
+      directions: aggregate.totals.directions_click || 0,
+      reservations: aggregate.totals.affiliate_click || 0,
+      countries_count: aggregate.by_country.length,
+      devices_count: aggregate.by_device.length,
+      source_pages_count: aggregate.by_source_page.length,
+    });
+  }, [loading, range, businesses, aggregate]);
+
+
   return (
     <div className="space-y-6 mb-8">
       <div className="flex items-center justify-between gap-3">
