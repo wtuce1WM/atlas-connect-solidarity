@@ -21,6 +21,8 @@ import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type 
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
 import YextSyncButton from "@/components/affiliate/YextSyncButton";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
+import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
+import { Label } from "@/components/ui/label";
 
 const PLATFORMS = [
   { key: "google_maps_url", label: "Google Business", icon: <MapPin className="h-4 w-4" />, color: "text-blue-500" },
