@@ -226,6 +226,15 @@ const AffiliateReviewsEditor = ({ businessId, data, onFieldChange, onDataRefresh
           );
         })}
       </div>
+
+      {/* Détail des avis clients (par plateforme) */}
+      <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-3">
+        <Label className="text-base font-semibold flex items-center gap-2">
+          <MessageSquare className="h-4 w-4" />
+          Détail des avis clients
+        </Label>
+        <ReviewsEditor businessId={businessId} />
+      </div>
     </div>
   );
 };
