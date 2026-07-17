@@ -488,6 +488,46 @@ const AffiliatePresence = () => {
                       />
                     </TabsContent>
 
+                    {/* Reviews Tab */}
+                    <TabsContent value="reviews">
+                      {(() => {
+                        // Build merged reviews data: original + local edits + URLs from links map.
+                        const merged: ReviewsData = {
+                          ...currentBusiness.reviews,
+                          google_reviews_url: getCurrentValue(currentBusiness.id, "google_reviews_url", currentBusiness.links.google_reviews_url),
+                          tripadvisor_review_url: getCurrentValue(currentBusiness.id, "tripadvisor_review_url", currentBusiness.links.tripadvisor_review_url),
+                          restaurant_guru_url: getCurrentValue(currentBusiness.id, "restaurant_guru_url", currentBusiness.links.restaurant_guru_url),
+                        };
+                        REVIEW_FIELDS.forEach(f => {
+                          (merged as any)[f] = getCurrentValue(currentBusiness.id, f, currentBusiness.reviews[f]);
+                        });
+                        return (
+                          <AffiliateReviewsEditor
+                            businessId={currentBusiness.id}
+                            data={merged}
+                            onFieldChange={(field, value) => handleFieldChange(currentBusiness.id, field, value)}
+                            onDataRefreshed={(patch) => {
+                              // Update local business state & links map, clear edits for touched keys.
+                              setBusinesses(prev => prev.map(b => {
+                                if (b.id !== currentBusiness.id) return b;
+                                const updated = { ...b, reviews: { ...b.reviews }, links: { ...b.links } };
+                                Object.entries(patch).forEach(([k, v]) => {
+                                  if (k in updated.links) (updated.links as any)[k] = v || null;
+                                  if (k in updated.reviews || REVIEW_FIELDS.includes(k)) updated.reviews[k] = v;
+                                });
+                                return updated;
+                              }));
+                              setEditedFields(prev => {
+                                const cur = { ...(prev[currentBusiness.id] || {}) };
+                                Object.keys(patch).forEach(k => { delete cur[k]; });
+                                return { ...prev, [currentBusiness.id]: cur };
+                              });
+                            }}
+                          />
+                        );
+                      })()}
+                    </TabsContent>
+
                     {/* Hours Tab */}
                     <TabsContent value="hours">
                       <OpeningHoursEditor
