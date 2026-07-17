@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
+import HScroll from "@/components/HScroll";
 import {
   Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
   Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video
@@ -293,31 +294,33 @@ const AffiliatePresence = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-            {/* Business List Sidebar */}
-            <div className="space-y-2">
+          <div className="space-y-6">
+            {/* Business horizontal strip */}
+            <div>
               <p className="text-xs font-medium text-white uppercase tracking-wider mb-2">
                 Vos établissements
               </p>
-              {businesses.map(b => {
-                const isSelected = b.id === selectedBusiness;
-                return (
-                  <button
-                    key={b.id}
-                    onClick={() => setSelectedBusiness(b.id)}
-                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                      isSelected
-                        ? "border-primary bg-primary/10"
-                        : "border-border bg-card hover:border-muted-foreground/30"
-                    }`}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
-                      <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
-                    </div>
-                  </button>
-                );
-              })}
+              <HScroll className="flex gap-3 pb-3 -mb-1 overflow-x-auto">
+                {businesses.map(b => {
+                  const isSelected = b.id === selectedBusiness;
+                  return (
+                    <button
+                      key={b.id}
+                      onClick={() => setSelectedBusiness(b.id)}
+                      className={`shrink-0 text-left p-3 rounded-lg border transition-colors min-w-[200px] max-w-[260px] ${
+                        isSelected
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-card hover:border-muted-foreground/30"
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-medium truncate ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
+                        <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </HScroll>
             </div>
 
             {/* Editor Panel */}
