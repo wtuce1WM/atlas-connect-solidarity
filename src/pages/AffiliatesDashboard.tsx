@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Users, LogOut, BarChart3, Link as LinkIcon, DollarSign } from "lucide-react";
+import { Loader2, Users, LogOut, Link as LinkIcon } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
