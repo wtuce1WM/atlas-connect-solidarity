@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Users, LogOut, Link as LinkIcon } from "lucide-react";
-import Header from "@/components/Header";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
 import AffiliateAggregateStats from "@/components/affiliate/AffiliateAggregateStats";
@@ -97,7 +97,7 @@ const AffiliatesDashboard = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <Header />
+      <HomeMindtripHeader />
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         {/* Header Section */}
