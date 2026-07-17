@@ -123,18 +123,20 @@ const AffiliateOpeningHoursEditor = ({ value, onChange, showOpeningHours = true 
     onClick,
     children,
     variant,
+    neutralized = false,
   }: {
     active: boolean;
     onClick: () => void;
     children: React.ReactNode;
     variant: "open" | "closed" | "247";
+    neutralized?: boolean;
   }) => (
     <button
       type="button"
       onClick={onClick}
       className={cn(
         "text-[11px] font-medium px-2.5 py-1 rounded-full border transition-colors",
-        active
+        active && !neutralized
           ? variant === "open"
             ? "bg-emerald-100 text-emerald-800 border-emerald-300"
             : variant === "closed"
