@@ -121,48 +121,8 @@ const AffiliatesDashboard = () => {
           </Button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-card border-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="rounded-full bg-primary/20 p-3">
-                  <BarChart3 className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{t.totalClicks}</p>
-                  <p className="text-2xl font-bold text-foreground">0</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="rounded-full bg-green-500/20 p-3">
-                  <LinkIcon className="h-6 w-6 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{t.totalConversions}</p>
-                  <p className="text-2xl font-bold text-foreground">0</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="rounded-full bg-gold/20 p-3">
-                  <DollarSign className="h-6 w-6 text-gold" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{t.totalEarnings}</p>
-                  <p className="text-2xl font-bold text-foreground">0 MAD</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Aggregated stats + businesses list */}
+        <AffiliateAggregateStats />
 
         {/* Analytics par établissement (temps réel) */}
         <Card className="bg-card border-border mb-8">
@@ -193,18 +153,6 @@ const AffiliatesDashboard = () => {
                   </CardDescription>
                 </div>
               </div>
-            </CardHeader>
-          </Card>
-
-          <Card className="bg-card border-border">
-            <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                <img src={logoGold} alt="Logo" className="h-16 w-16 object-contain opacity-50" />
-              </div>
-              <CardTitle className="text-xl text-foreground">{t.comingSoon}</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                {t.comingSoonDesc}
-              </CardDescription>
             </CardHeader>
           </Card>
         </div>
