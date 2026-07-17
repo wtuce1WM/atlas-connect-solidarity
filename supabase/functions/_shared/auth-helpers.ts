@@ -77,3 +77,47 @@ export async function assertStaff(
   }
   return { userId };
 }
+
+/**
+ * Ensures caller is staff OR is the affiliate that owns the given business.
+ */
+export async function assertStaffOrAffiliateBusiness(
+  req: Request,
+  corsHeaders: Record<string, string>,
+  businessId: string,
+): Promise<{ userId: string } | Response> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } },
+  );
+  const token = authHeader.replace("Bearer ", "");
+  const { data: claimsData, error } = await supabase.auth.getClaims(token);
+  if (error || !claimsData?.claims) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  const userId = claimsData.claims.sub as string;
+  const { data: isStaff } = await supabase.rpc("is_staff", { _user_id: userId });
+  if (isStaff) return { userId };
+  if (businessId) {
+    const { data: isOwner } = await supabase.rpc("is_own_affiliate_business", {
+      _user_id: userId,
+      _business_id: businessId,
+    });
+    if (isOwner) return { userId };
+  }
+  return new Response(JSON.stringify({ error: "Forbidden" }), {
+    status: 403,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
