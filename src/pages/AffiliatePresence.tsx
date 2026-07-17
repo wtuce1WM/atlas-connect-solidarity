@@ -177,15 +177,19 @@ const AffiliatePresence = () => {
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
+      const ctaKeys = new Set(CTA_URL_DEFS.flatMap(d => [d.urlField, d.ctaField, d.externalField]));
       setBusinesses(prev => prev.map(b => {
         if (b.id !== businessId) return b;
-        const updated = { ...b };
+        const updated = { ...b, cta: { ...b.cta } };
         Object.entries(edits).forEach(([k, v]) => {
+          if (ctaKeys.has(k)) {
+            updated.cta[k] = typeof v === "boolean" ? v : (v === "" ? null : v);
+          }
           if (k in b.links) {
             (updated.links as any)[k] = v || null;
           } else if (k === "opening_hours") {
             updated.opening_hours = v;
-          } else {
+          } else if (!ctaKeys.has(k)) {
             (updated as any)[k] = v === "" ? null : v;
           }
         });
