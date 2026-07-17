@@ -15,7 +15,8 @@ import {
   Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
-import OpeningHoursEditor, { OpeningHours } from "@/components/staff/OpeningHoursEditor";
+import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
+import AffiliateOpeningHoursEditor from "@/components/affiliate/AffiliateOpeningHoursEditor";
 import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type CtaUrlItem } from "@/components/affiliate/AffiliateContactEditor";
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
 import YextSyncButton from "@/components/affiliate/YextSyncButton";
