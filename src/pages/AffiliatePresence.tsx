@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import OpeningHoursEditor, { OpeningHours } from "@/components/staff/OpeningHoursEditor";
-import AffiliateContactEditor from "@/components/affiliate/AffiliateContactEditor";
+import AffiliateContactEditor, { type CityOption, type NeighborhoodOption } from "@/components/affiliate/AffiliateContactEditor";
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
 import YextSyncButton from "@/components/affiliate/YextSyncButton";
 
