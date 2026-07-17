@@ -114,7 +114,8 @@ const AffiliatePresence = () => {
       const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
         "address", "neighborhood", "latitude", "longitude", "opening_hours",
         ...PLATFORMS.map(p => p.key),
-        ...CTA_EXTRA_FIELDS].join(",");
+        ...CTA_EXTRA_FIELDS,
+        ...REVIEW_FIELDS].join(",");
 
       const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
         supabase.from("businesses").select(selectFields).eq("affiliate_id", affiliate.id).eq("is_active", true).order("name"),
@@ -131,6 +132,8 @@ const AffiliatePresence = () => {
           cta[d.ctaField] = b[d.ctaField] ?? null;
           cta[d.externalField] = b[d.externalField] ?? false;
         });
+        const reviews: Record<string, any> = {};
+        REVIEW_FIELDS.forEach(f => { reviews[f] = b[f] ?? null; });
         return {
           id: b.id,
           name: b.name,
@@ -147,6 +150,7 @@ const AffiliatePresence = () => {
           opening_hours: b.opening_hours as OpeningHours | null,
           links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
           cta,
+          reviews,
         };
       });
 
