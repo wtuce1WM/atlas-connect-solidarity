@@ -90,12 +90,13 @@ const AffiliatePresence = () => {
         "address", "neighborhood", "region", "latitude", "longitude", "opening_hours",
         ...PLATFORMS.map(p => p.key)].join(",");
 
-      const { data: biz } = await supabase
-        .from("businesses")
-        .select(selectFields)
-        .eq("affiliate_id", affiliate.id)
-        .eq("is_active", true)
-        .order("name");
+      const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
+        supabase.from("businesses").select(selectFields).eq("affiliate_id", affiliate.id).eq("is_active", true).order("name"),
+        supabase.from("cities").select("id, name_fr, region").order("name_fr"),
+        supabase.from("neighborhoods").select("id, name, city_id").order("name"),
+      ]);
+      setCities((citiesData as CityOption[]) || []);
+      setNeighborhoods((neighborhoodsData as NeighborhoodOption[]) || []);
 
       const mapped: BusinessPresence[] = (biz || []).map((b: any) => ({
         id: b.id,
