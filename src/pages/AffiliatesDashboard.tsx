@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -9,6 +9,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
 import AffiliateAggregateStats from "@/components/affiliate/AffiliateAggregateStats";
+import { trackEvent } from "@/lib/analytics";
 
 
 const AffiliatesDashboard = () => {
@@ -61,6 +62,8 @@ const AffiliatesDashboard = () => {
 
   const t = translations[language] || translations.fr;
 
+  const trackedViewRef = useRef(false);
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -70,6 +73,10 @@ const AffiliatesDashboard = () => {
       }
       setUserEmail(session.user.email);
       setIsLoading(false);
+      if (!trackedViewRef.current) {
+        trackedViewRef.current = true;
+        trackEvent("affiliate_dashboard_view", { user_id: session.user.id });
+      }
     };
     checkAuth();
 
@@ -83,6 +90,7 @@ const AffiliatesDashboard = () => {
   }, [navigate]);
 
   const handleLogout = async () => {
+    trackEvent("affiliate_logout_click", {});
     await supabase.auth.signOut();
     navigate("/affiliates");
   };
@@ -140,7 +148,7 @@ const AffiliatesDashboard = () => {
 
         {/* Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer" onClick={() => navigate("/affiliates/presence")}>
+          <Card className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer" onClick={() => { trackEvent("affiliate_presence_click", {}); navigate("/affiliates/presence"); }}>
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-primary/20 p-3">

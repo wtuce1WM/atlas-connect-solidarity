@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Eye, MessageCircle, Phone, Mail, MapPin, ExternalLink, TrendingUp, TrendingDown } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { useBusinessAnalytics, type AnalyticsRange } from "@/hooks/useBusinessAnalytics";
+import { trackEvent } from "@/lib/analytics";
 
 
 interface BusinessOption { id: string; name: string }
@@ -106,6 +107,26 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, s
     Intentions: d.intents,
   })), [data]);
 
+  const trackedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!activeBusinessId || !data) return;
+    const key = `${mode}|${activeBusinessId}|${range}`;
+    if (trackedRef.current === key) return;
+    trackedRef.current = key;
+    trackEvent("affiliate_drilldown_loaded", {
+      mode,
+      business_id: activeBusinessId,
+      range,
+      views: data.totals?.view || 0,
+      whatsapp: data.totals?.whatsapp_click || 0,
+      phone: data.totals?.phone_click || 0,
+      email: data.totals?.email_click || 0,
+      directions: data.totals?.directions_click || 0,
+      reservations: data.totals?.affiliate_click || 0,
+    });
+  }, [mode, activeBusinessId, range, data]);
+
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
@@ -121,7 +142,7 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, s
           {mode !== "fixed" && (
             <Select
               value={activeBusinessId ?? ""}
-              onValueChange={(v) => setSelectedId(v)}
+              onValueChange={(v) => { trackEvent("affiliate_drilldown_business_change", { mode, business_id: v, range }); setSelectedId(v); }}
               disabled={loadingBiz || !businesses?.length}
             >
               <SelectTrigger className="w-full sm:w-[280px] bg-card border-border">
@@ -141,7 +162,7 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, s
               key={r.value}
               size="sm"
               variant={range === r.value ? "default" : "ghost"}
-              onClick={() => setRange(r.value)}
+              onClick={() => { trackEvent("affiliate_drilldown_range_change", { mode, range: r.value, from: range, business_id: activeBusinessId }); setRange(r.value); }}
               className="h-7 px-3 text-xs"
             >
               {r.label}
