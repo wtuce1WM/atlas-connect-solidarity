@@ -420,6 +420,9 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="hours" className="gap-1.5">
                         <Clock className="h-3.5 w-3.5" /> Horaires
                       </TabsTrigger>
+                      <TabsTrigger value="text" className="gap-1.5">
+                        <FileText className="h-3.5 w-3.5" /> Texte
+                      </TabsTrigger>
                       <TabsTrigger value="help" className="gap-1.5">
                         <HelpCircle className="h-3.5 w-3.5" /> Plateformes
                       </TabsTrigger>
