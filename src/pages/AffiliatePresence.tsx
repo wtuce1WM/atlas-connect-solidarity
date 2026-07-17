@@ -285,34 +285,6 @@ const AffiliatePresence = () => {
           </div>
         </div>
 
-        {/* Global Audit Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-card border-border">
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-3xl font-bold text-foreground">{businesses.length}</p>
-              <p className="text-xs text-muted-foreground">Établissements</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-3xl font-bold text-emerald-500">{auditStats.filled}</p>
-              <p className="text-xs text-muted-foreground">Profils renseignés</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-3xl font-bold text-orange-500">{auditStats.missing}</p>
-              <p className="text-xs text-muted-foreground">Profils manquants</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-3xl font-bold text-primary">{auditStats.percent}%</p>
-              <p className="text-xs text-muted-foreground">Complétude</p>
-            </CardContent>
-          </Card>
-        </div>
-
         {businesses.length === 0 ? (
           <Card className="bg-card border-border">
             <CardContent className="py-12 text-center">
