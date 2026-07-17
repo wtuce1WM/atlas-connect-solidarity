@@ -616,6 +616,11 @@ const AffiliatePresence = () => {
                       />
                     </TabsContent>
 
+                    {/* Blocks Tab */}
+                    <TabsContent value="blocks">
+                      <AffiliateHighlightsEditor businessId={currentBusiness.id} />
+                    </TabsContent>
+
                     {/* Platform Help Tab */}
                     <TabsContent value="help">
                       <AffiliatePlatformHelp />
