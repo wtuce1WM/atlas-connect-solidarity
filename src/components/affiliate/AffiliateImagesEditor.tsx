@@ -5,6 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import {
   Loader2,
@@ -14,6 +24,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import {
   DndContext,
@@ -66,6 +77,7 @@ interface SortableCardProps {
   isPopup: boolean;
   meta?: ImageMeta;
   onPreview: (url: string) => void;
+  onDelete: (url: string) => void;
   onTitleChange: (v: string) => void;
   onDescriptionChange: (v: string) => void;
   onPopupToggle: () => void;
@@ -79,6 +91,7 @@ const SortableCard = ({
   isPopup,
   meta,
   onPreview,
+  onDelete,
   onTitleChange,
   onDescriptionChange,
   onPopupToggle,
@@ -125,6 +138,19 @@ const SortableCard = ({
           />
           <span className="text-[9px] text-foreground font-medium">popup</span>
         </label>
+
+        {/* Delete button */}
+        <button
+          type="button"
+          className="absolute top-2 right-2 z-20 p-1.5 rounded border border-border/60 bg-destructive/90 text-destructive-foreground shadow-sm cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(url);
+          }}
+          aria-label="Supprimer l'image"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
 
         {/* Index + dims + size */}
         <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center justify-between pointer-events-none">
@@ -186,6 +212,8 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
     const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
     const [imageSizes, setImageSizes] = useState<Record<string, number | null>>({});
     const [imageDims, setImageDims] = useState<Record<string, { w: number; h: number } | null>>({});
+    const [deleteUrl, setDeleteUrl] = useState<string | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     const sensors = useSensors(
       useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -275,6 +303,53 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
     const togglePopup = (url: string) => {
       setPopupUrl((prev) => (prev === url ? null : url));
       markDirty();
+    };
+
+    const confirmDelete = async (url: string) => {
+      setDeleting(true);
+      try {
+        setImages((prev) => prev.filter((u) => u !== url));
+        if (popupUrl === url) setPopupUrl(null);
+        setTitles((prev) => {
+          const next = { ...prev };
+          delete next[url];
+          return next;
+        });
+        setDescriptions((prev) => {
+          const next = { ...prev };
+          delete next[url];
+          return next;
+        });
+        setImageSizes((prev) => {
+          const next = { ...prev };
+          delete next[url];
+          return next;
+        });
+        setImageDims((prev) => {
+          const next = { ...prev };
+          delete next[url];
+          return next;
+        });
+
+        // Try to remove from storage if it's ours
+        try {
+          const pathMatch = url.match(/\/storage\/v1\/object\/public\/business-images\/(.+?)(\?|$)/);
+          if (pathMatch) {
+            const filePath = decodeURIComponent(pathMatch[1]);
+            await supabase.storage.from("business-images").remove([filePath]);
+          }
+        } catch {
+          // ignore storage delete failures — keep list clean
+        }
+
+        markDirty();
+        toast({ title: "Image supprimée ✓" });
+      } catch (e: any) {
+        toast({ variant: "destructive", title: "Erreur", description: e.message });
+      } finally {
+        setDeleting(false);
+        setDeleteUrl(null);
+      }
     };
 
     const handleFileUpload = useCallback(
@@ -425,6 +500,7 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
                       height: imageDims[url]?.h,
                     }}
                     onPreview={setLightboxUrl}
+                    onDelete={setDeleteUrl}
                     onTitleChange={(v) => {
                       setTitles((prev) => ({ ...prev, [url]: v }));
                       markDirty();
@@ -564,6 +640,31 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
             </div>
           </div>
         )}
+
+        {/* Delete confirmation dialog */}
+        <AlertDialog open={!!deleteUrl} onOpenChange={(open) => !open && setDeleteUrl(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer cette image ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                L'image sera retirée de la fiche et supprimée du stockage. Cette action est irréversible.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setDeleteUrl(null)} disabled={deleting}>
+                Annuler
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteUrl && confirmDelete(deleteUrl)}
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Trash2 className="h-4 w-4 mr-1" />}
+                Supprimer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }
