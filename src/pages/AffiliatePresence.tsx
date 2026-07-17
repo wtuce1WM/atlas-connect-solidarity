@@ -670,6 +670,10 @@ const AffiliatePresence = () => {
                       <AffiliateHighlightsEditor businessId={currentBusiness.id} />
                     </TabsContent>
 
+                    <TabsContent value="promotions">
+                      {affiliateId && <AffiliatePromotionsEditor businessId={currentBusiness.id} affiliateId={affiliateId} />}
+                    </TabsContent>
+
                     {/* Images Tab */}
                     <TabsContent value="images">
                       <AffiliateImagesEditor businessId={currentBusiness.id} />
