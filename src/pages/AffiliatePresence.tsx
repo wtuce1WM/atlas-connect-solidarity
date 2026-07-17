@@ -160,10 +160,11 @@ const AffiliatePresence = () => {
         Object.entries(edits).forEach(([k, v]) => {
           if (k in b.links) {
             (updated.links as any)[k] = v || null;
-          } else if (k === "phone") updated.phone = v || null;
-          else if (k === "whatsapp") updated.whatsapp = v || null;
-          else if (k === "email") updated.email = v || null;
-          else if (k === "opening_hours") updated.opening_hours = v;
+          } else if (k === "opening_hours") {
+            updated.opening_hours = v;
+          } else {
+            (updated as any)[k] = v === "" ? null : v;
+          }
         });
         return updated;
       }));
