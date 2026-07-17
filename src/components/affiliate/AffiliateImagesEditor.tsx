@@ -305,6 +305,53 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
       markDirty();
     };
 
+    const confirmDelete = async (url: string) => {
+      setDeleting(true);
+      try {
+        setImages((prev) => prev.filter((u) => u !== url));
+        if (popupUrl === url) setPopupUrl(null);
+        setTitles((prev) => {
+          const next = { ...prev };
+          delete next[url];
+          return next;
+        });
+        setDescriptions((prev) => {
+          const next = { ...prev };
+          delete next[url];
+          return next;
+        });
+        setImageSizes((prev) => {
+          const next = { ...prev };
+          delete next[url];
+          return next;
+        });
+        setImageDims((prev) => {
+          const next = { ...prev };
+          delete next[url];
+          return next;
+        });
+
+        // Try to remove from storage if it's ours
+        try {
+          const pathMatch = url.match(/\/storage\/v1\/object\/public\/business-images\/(.+?)(\?|$)/);
+          if (pathMatch) {
+            const filePath = decodeURIComponent(pathMatch[1]);
+            await supabase.storage.from("business-images").remove([filePath]);
+          }
+        } catch {
+          // ignore storage delete failures — keep list clean
+        }
+
+        markDirty();
+        toast({ title: "Image supprimée ✓" });
+      } catch (e: any) {
+        toast({ variant: "destructive", title: "Erreur", description: e.message });
+      } finally {
+        setDeleting(false);
+        setDeleteUrl(null);
+      }
+    };
+
     const handleFileUpload = useCallback(
       async (files: FileList | null) => {
         if (!files || files.length === 0) return;
