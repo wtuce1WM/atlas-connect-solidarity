@@ -500,6 +500,7 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
                       height: imageDims[url]?.h,
                     }}
                     onPreview={setLightboxUrl}
+                    onDelete={setDeleteUrl}
                     onTitleChange={(v) => {
                       setTitles((prev) => ({ ...prev, [url]: v }));
                       markDirty();
