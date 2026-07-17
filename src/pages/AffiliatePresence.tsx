@@ -39,10 +39,10 @@ const PLATFORMS = [
 
 type PlatformKey = typeof PLATFORMS[number]["key"];
 
-const CTA_URL_DEFS: Array<{ urlField: string; ctaField: string; externalField: string; label: string }> = [
-  { urlField: "website",         ctaField: "website_cta",       externalField: "website_force_external",       label: "URL 1 · Site web" },
-  { urlField: "reserve_now_url", ctaField: "reserve_now_cta",   externalField: "reserve_now_force_external",   label: "URL 2 · Réserver" },
-  { urlField: "online_shop_url", ctaField: "online_shop_cta",   externalField: "online_shop_force_external",   label: "URL 3 · Boutique" },
+const CTA_URL_DEFS: Array<{ urlField: string; ctaField: string; externalField: string; label: string; defaultCta?: string }> = [
+  { urlField: "website",         ctaField: "website_cta",       externalField: "website_force_external",       label: "URL 1 · Site web", defaultCta: "Site web" },
+  { urlField: "reserve_now_url", ctaField: "reserve_now_cta",   externalField: "reserve_now_force_external",   label: "URL 2 · Réserver", defaultCta: "Réservez" },
+  { urlField: "online_shop_url", ctaField: "online_shop_cta",   externalField: "online_shop_force_external",   label: "URL 3 · Boutique", defaultCta: "Achetez" },
   { urlField: "url_4",           ctaField: "url_4_cta",         externalField: "url_4_force_external",         label: "URL 4" },
   { urlField: "url_5",           ctaField: "url_5_cta",         externalField: "url_5_force_external",         label: "URL 5" },
 ];
@@ -432,7 +432,7 @@ const AffiliatePresence = () => {
                             externalField: d.externalField,
                             label: d.label,
                             url: getCurrentValue(currentBusiness.id, d.urlField, originalUrl) ?? "",
-                            cta: getCurrentValue(currentBusiness.id, d.ctaField, currentBusiness.cta[d.ctaField]) ?? "",
+                            cta: getCurrentValue(currentBusiness.id, d.ctaField, currentBusiness.cta[d.ctaField] || d.defaultCta) ?? "",
                             forceExternal: !!getCurrentValue(currentBusiness.id, d.externalField, currentBusiness.cta[d.externalField]),
                           };
                         })}
