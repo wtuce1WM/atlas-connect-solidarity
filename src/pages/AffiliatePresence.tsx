@@ -99,7 +99,8 @@ const AffiliatePresence = () => {
 
       const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
         "address", "neighborhood", "latitude", "longitude", "opening_hours",
-        ...PLATFORMS.map(p => p.key)].join(",");
+        ...PLATFORMS.map(p => p.key),
+        ...CTA_EXTRA_FIELDS].join(",");
 
       const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
         supabase.from("businesses").select(selectFields).eq("affiliate_id", affiliate.id).eq("is_active", true).order("name"),
@@ -109,22 +110,31 @@ const AffiliatePresence = () => {
       setCities((citiesData as CityOption[]) || []);
       setNeighborhoods((neighborhoodsData as NeighborhoodOption[]) || []);
 
-      const mapped: BusinessPresence[] = (biz || []).map((b: any) => ({
-        id: b.id,
-        name: b.name,
-        city: b.city,
-        main_category: b.main_category,
-        logo_url: b.logo_url,
-        phone: b.phone,
-        whatsapp: b.whatsapp,
-        email: b.email,
-        address: b.address,
-        neighborhood: b.neighborhood,
-        latitude: b.latitude,
-        longitude: b.longitude,
-        opening_hours: b.opening_hours as OpeningHours | null,
-        links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
-      }));
+      const mapped: BusinessPresence[] = (biz || []).map((b: any) => {
+        const cta: Record<string, any> = {};
+        CTA_URL_DEFS.forEach(d => {
+          cta[d.urlField] = b[d.urlField] ?? null;
+          cta[d.ctaField] = b[d.ctaField] ?? null;
+          cta[d.externalField] = b[d.externalField] ?? false;
+        });
+        return {
+          id: b.id,
+          name: b.name,
+          city: b.city,
+          main_category: b.main_category,
+          logo_url: b.logo_url,
+          phone: b.phone,
+          whatsapp: b.whatsapp,
+          email: b.email,
+          address: b.address,
+          neighborhood: b.neighborhood,
+          latitude: b.latitude,
+          longitude: b.longitude,
+          opening_hours: b.opening_hours as OpeningHours | null,
+          links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
+          cta,
+        };
+      });
 
       setBusinesses(mapped);
       if (mapped.length > 0) setSelectedBusiness(mapped[0].id);
