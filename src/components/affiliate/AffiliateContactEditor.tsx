@@ -1,24 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, MessageCircle, MapPin, Home, Building2, Map, Navigation, Wand2 } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Home, Building2, Navigation, Wand2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMemo } from "react";
-
-const REGIONS = [
-  "Tanger-Tétouan-Al Hoceïma",
-  "L'Oriental",
-  "Fès-Meknès",
-  "Rabat-Salé-Kénitra",
-  "Béni Mellal-Khénifra",
-  "Casablanca-Settat",
-  "Marrakech-Safi",
-  "Drâa-Tafilalet",
-  "Souss-Massa",
-  "Guelmim-Oued Noun",
-  "Laâyoune-Sakia El Hamra",
-  "Dakhla-Oued Ed-Dahab",
-];
 
 export interface CityOption { id: string; name_fr: string; region: string | null }
 export interface NeighborhoodOption { id: string; name: string; city_id: string }
@@ -30,7 +15,6 @@ interface AffiliateContactEditorProps {
   address: string;
   neighborhood: string;
   city: string;
-  region: string;
   googleMapsUrl: string;
   latitude: number | string;
   longitude: number | string;
@@ -42,7 +26,6 @@ interface AffiliateContactEditorProps {
   onAddressChange: (v: string) => void;
   onNeighborhoodChange: (v: string) => void;
   onCityChange: (v: string) => void;
-  onRegionChange: (v: string) => void;
   onGoogleMapsUrlChange: (v: string) => void;
   onLatitudeChange: (v: number | null) => void;
   onLongitudeChange: (v: number | null) => void;
