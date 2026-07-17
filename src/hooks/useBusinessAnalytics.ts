@@ -6,9 +6,11 @@ export type AnalyticsRange = "7d" | "30d" | "90d" | "12m";
 export interface BusinessAnalytics {
   range: AnalyticsRange;
   since: string;
+  prev_since?: string;
   totals: Record<string, number>;
   previous_totals: Record<string, number>;
   timeseries: Array<{ day: string; views: number; intents: number }>;
+  previous_timeseries?: Array<{ day: string; views: number; intents: number }>;
   by_source_page: Array<{ source_page: string; c: number }>;
   by_country: Array<{ country: string; c: number }>;
   by_device: Array<{ device: string; c: number }>;
