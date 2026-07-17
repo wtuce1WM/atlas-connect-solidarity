@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +21,16 @@ const LANGS: Array<{ code: "fr" | "en" | "ar"; label: string; dir?: "rtl" | "ltr
   { code: "ar", label: "العربية", dir: "rtl" },
 ];
 
+const MAX_HOOK = 120;
+const MAX_DESC = 2000;
+
+const stripHtml = (html: string): string => {
+  if (!html) return "";
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || "";
+};
+
 const AffiliateTextEditor = ({
   hookFr, hookEn, hookAr,
   descriptionFr, descriptionEn, descriptionAr,
@@ -27,6 +38,21 @@ const AffiliateTextEditor = ({
 }: AffiliateTextEditorProps) => {
   const hooks = { fr: hookFr, en: hookEn, ar: hookAr };
   const descriptions = { fr: descriptionFr, en: descriptionEn, ar: descriptionAr };
+  const lastValidDesc = useRef<Record<"fr" | "en" | "ar", string>>({
+    fr: descriptionFr || "",
+    en: descriptionEn || "",
+    ar: descriptionAr || "",
+  });
+
+  const handleDescriptionChange = (lang: "fr" | "en" | "ar", html: string) => {
+    const textLength = stripHtml(html).length;
+    if (textLength <= MAX_DESC) {
+      lastValidDesc.current[lang] = html;
+      onDescriptionChange(lang, html);
+    } else {
+      onDescriptionChange(lang, lastValidDesc.current[lang]);
+    }
+  };
 
   return (
     <Tabs defaultValue="fr" className="w-full">
@@ -39,28 +65,35 @@ const AffiliateTextEditor = ({
       {LANGS.map(l => {
         const hookValue = hooks[l.code] || "";
         const descValue = descriptions[l.code] || "";
+        const descTextLength = stripHtml(descValue).length;
+        const descOver = descTextLength > MAX_DESC;
         return (
           <TabsContent key={l.code} value={l.code} className="space-y-6" dir={l.dir}>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor={`hook_${l.code}`}>Accroche ({l.label})</Label>
-                <span className="text-xs text-muted-foreground">{hookValue.length}/120</span>
+                <span className="text-xs text-muted-foreground">{hookValue.length}/{MAX_HOOK}</span>
               </div>
               <Input
                 id={`hook_${l.code}`}
                 value={hookValue}
-                onChange={(e) => onHookChange(l.code, e.target.value.slice(0, 120))}
-                placeholder={`Accroche courte en ${l.label.toLowerCase()} (max 120 caractères)`}
-                maxLength={120}
+                onChange={(e) => onHookChange(l.code, e.target.value.slice(0, MAX_HOOK))}
+                placeholder={`Accroche courte en ${l.label.toLowerCase()} (max ${MAX_HOOK} caractères)`}
+                maxLength={MAX_HOOK}
                 className="!text-lg font-semibold h-12"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Description ({l.label})</Label>
+              <div className="flex items-center justify-between">
+                <Label>Description ({l.label})</Label>
+                <span className={`text-xs ${descOver ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                  {descTextLength}/{MAX_DESC}
+                </span>
+              </div>
               <RichTextEditor
                 content={descValue}
-                onChange={(html) => onDescriptionChange(l.code, html)}
+                onChange={(html) => handleDescriptionChange(l.code, html)}
                 maxHeight="500px"
               />
             </div>
