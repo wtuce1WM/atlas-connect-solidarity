@@ -640,6 +640,31 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
             </div>
           </div>
         )}
+
+        {/* Delete confirmation dialog */}
+        <AlertDialog open={!!deleteUrl} onOpenChange={(open) => !open && setDeleteUrl(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer cette image ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                L'image sera retirée de la fiche et supprimée du stockage. Cette action est irréversible.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setDeleteUrl(null)} disabled={deleting}>
+                Annuler
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteUrl && confirmDelete(deleteUrl)}
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Trash2 className="h-4 w-4 mr-1" />}
+                Supprimer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }
