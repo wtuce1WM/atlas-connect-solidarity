@@ -6842,6 +6842,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_affiliate: { Args: { _user_id: string }; Returns: boolean }
       is_own_affiliate_business: {
         Args: { _business_id: string; _user_id: string }
         Returns: boolean
