@@ -48,6 +48,11 @@ interface BusinessPresence {
   phone: string | null;
   whatsapp: string | null;
   email: string | null;
+  address: string | null;
+  neighborhood: string | null;
+  region: string | null;
+  latitude: number | null;
+  longitude: number | null;
   opening_hours: OpeningHours | null;
   links: Record<PlatformKey, string | null>;
 }
