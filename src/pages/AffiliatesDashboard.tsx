@@ -62,6 +62,8 @@ const AffiliatesDashboard = () => {
 
   const t = translations[language] || translations.fr;
 
+  const trackedViewRef = useRef(false);
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -71,6 +73,10 @@ const AffiliatesDashboard = () => {
       }
       setUserEmail(session.user.email);
       setIsLoading(false);
+      if (!trackedViewRef.current) {
+        trackedViewRef.current = true;
+        trackEvent("affiliate_dashboard_view", { user_id: session.user.id });
+      }
     };
     checkAuth();
 
@@ -84,6 +90,7 @@ const AffiliatesDashboard = () => {
   }, [navigate]);
 
   const handleLogout = async () => {
+    trackEvent("affiliate_logout_click", {});
     await supabase.auth.signOut();
     navigate("/affiliates");
   };
