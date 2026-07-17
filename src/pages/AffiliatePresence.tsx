@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import OpeningHoursEditor, { OpeningHours } from "@/components/staff/OpeningHoursEditor";
-import AffiliateContactEditor, { type CityOption, type NeighborhoodOption } from "@/components/affiliate/AffiliateContactEditor";
+import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type CtaUrlItem } from "@/components/affiliate/AffiliateContactEditor";
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
 import YextSyncButton from "@/components/affiliate/YextSyncButton";
 
@@ -39,6 +39,17 @@ const PLATFORMS = [
 
 type PlatformKey = typeof PLATFORMS[number]["key"];
 
+const CTA_URL_DEFS: Array<{ urlField: string; ctaField: string; externalField: string; label: string }> = [
+  { urlField: "website",         ctaField: "website_cta",       externalField: "website_force_external",       label: "URL 1 · Site web" },
+  { urlField: "reserve_now_url", ctaField: "reserve_now_cta",   externalField: "reserve_now_force_external",   label: "URL 2 · Réserver" },
+  { urlField: "online_shop_url", ctaField: "online_shop_cta",   externalField: "online_shop_force_external",   label: "URL 3 · Boutique" },
+  { urlField: "url_4",           ctaField: "url_4_cta",         externalField: "url_4_force_external",         label: "URL 4" },
+  { urlField: "url_5",           ctaField: "url_5_cta",         externalField: "url_5_force_external",         label: "URL 5" },
+];
+
+const CTA_EXTRA_FIELDS = CTA_URL_DEFS.flatMap(d => [d.urlField, d.ctaField, d.externalField])
+  .filter(f => f !== "website"); // website is already in PLATFORMS
+
 interface BusinessPresence {
   id: string;
   name: string;
@@ -54,6 +65,7 @@ interface BusinessPresence {
   longitude: number | null;
   opening_hours: OpeningHours | null;
   links: Record<PlatformKey, string | null>;
+  cta: Record<string, any>;
 }
 
 const AffiliatePresence = () => {
@@ -87,7 +99,8 @@ const AffiliatePresence = () => {
 
       const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
         "address", "neighborhood", "latitude", "longitude", "opening_hours",
-        ...PLATFORMS.map(p => p.key)].join(",");
+        ...PLATFORMS.map(p => p.key),
+        ...CTA_EXTRA_FIELDS].join(",");
 
       const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
         supabase.from("businesses").select(selectFields).eq("affiliate_id", affiliate.id).eq("is_active", true).order("name"),
@@ -97,22 +110,31 @@ const AffiliatePresence = () => {
       setCities((citiesData as CityOption[]) || []);
       setNeighborhoods((neighborhoodsData as NeighborhoodOption[]) || []);
 
-      const mapped: BusinessPresence[] = (biz || []).map((b: any) => ({
-        id: b.id,
-        name: b.name,
-        city: b.city,
-        main_category: b.main_category,
-        logo_url: b.logo_url,
-        phone: b.phone,
-        whatsapp: b.whatsapp,
-        email: b.email,
-        address: b.address,
-        neighborhood: b.neighborhood,
-        latitude: b.latitude,
-        longitude: b.longitude,
-        opening_hours: b.opening_hours as OpeningHours | null,
-        links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
-      }));
+      const mapped: BusinessPresence[] = (biz || []).map((b: any) => {
+        const cta: Record<string, any> = {};
+        CTA_URL_DEFS.forEach(d => {
+          cta[d.urlField] = b[d.urlField] ?? null;
+          cta[d.ctaField] = b[d.ctaField] ?? null;
+          cta[d.externalField] = b[d.externalField] ?? false;
+        });
+        return {
+          id: b.id,
+          name: b.name,
+          city: b.city,
+          main_category: b.main_category,
+          logo_url: b.logo_url,
+          phone: b.phone,
+          whatsapp: b.whatsapp,
+          email: b.email,
+          address: b.address,
+          neighborhood: b.neighborhood,
+          latitude: b.latitude,
+          longitude: b.longitude,
+          opening_hours: b.opening_hours as OpeningHours | null,
+          links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
+          cta,
+        };
+      });
 
       setBusinesses(mapped);
       if (mapped.length > 0) setSelectedBusiness(mapped[0].id);
@@ -155,15 +177,19 @@ const AffiliatePresence = () => {
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
+      const ctaKeys = new Set(CTA_URL_DEFS.flatMap(d => [d.urlField, d.ctaField, d.externalField]));
       setBusinesses(prev => prev.map(b => {
         if (b.id !== businessId) return b;
-        const updated = { ...b };
+        const updated = { ...b, cta: { ...b.cta } };
         Object.entries(edits).forEach(([k, v]) => {
+          if (ctaKeys.has(k)) {
+            updated.cta[k] = typeof v === "boolean" ? v : (v === "" ? null : v);
+          }
           if (k in b.links) {
             (updated.links as any)[k] = v || null;
           } else if (k === "opening_hours") {
             updated.opening_hours = v;
-          } else {
+          } else if (!ctaKeys.has(k)) {
             (updated as any)[k] = v === "" ? null : v;
           }
         });
@@ -395,6 +421,21 @@ const AffiliatePresence = () => {
                         longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
                         cities={cities}
                         neighborhoods={neighborhoods}
+                        ctaUrls={CTA_URL_DEFS.map<CtaUrlItem>((d) => {
+                          // website URL lives in the links map, others live at top-level
+                          const originalUrl = d.urlField === "website"
+                            ? currentBusiness.links.website
+                            : currentBusiness.cta[d.urlField];
+                          return {
+                            urlField: d.urlField,
+                            ctaField: d.ctaField,
+                            externalField: d.externalField,
+                            label: d.label,
+                            url: getCurrentValue(currentBusiness.id, d.urlField, originalUrl) ?? "",
+                            cta: getCurrentValue(currentBusiness.id, d.ctaField, currentBusiness.cta[d.ctaField]) ?? "",
+                            forceExternal: !!getCurrentValue(currentBusiness.id, d.externalField, currentBusiness.cta[d.externalField]),
+                          };
+                        })}
                         onPhoneChange={(v) => handleFieldChange(currentBusiness.id, "phone", v)}
                         onWhatsappChange={(v) => handleFieldChange(currentBusiness.id, "whatsapp", v)}
                         onEmailChange={(v) => handleFieldChange(currentBusiness.id, "email", v)}
@@ -404,6 +445,7 @@ const AffiliatePresence = () => {
                         onGoogleMapsUrlChange={(v) => handleFieldChange(currentBusiness.id, "google_maps_url", v)}
                         onLatitudeChange={(v) => handleFieldChange(currentBusiness.id, "latitude", v)}
                         onLongitudeChange={(v) => handleFieldChange(currentBusiness.id, "longitude", v)}
+                        onCtaFieldChange={(field, value) => handleFieldChange(currentBusiness.id, field, value)}
                       />
                     </TabsContent>
 

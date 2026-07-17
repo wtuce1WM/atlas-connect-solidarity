@@ -1,12 +1,38 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, MessageCircle, MapPin, Home, Building2, Navigation, Wand2 } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Home, Building2, Navigation, Wand2, Link2, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMemo } from "react";
 
 export interface CityOption { id: string; name_fr: string; region: string | null }
 export interface NeighborhoodOption { id: string; name: string; city_id: string }
+
+export interface CtaUrlItem {
+  urlField: string;
+  ctaField: string;
+  externalField: string;
+  label: string;
+  url: string;
+  cta: string;
+  forceExternal: boolean;
+}
+
+const CTA_SELECT_OPTIONS = [
+  "Acheter en ligne", "Achetez", "Accréditations", "App Store", "Application",
+  "Billetterie", "Boissons", "Carte des soins", "Carte des vins", "Cocktails",
+  "Consulter notre offre", "Contactez-moi", "Contactez nous", "Day Pass",
+  "En savoir +", "Forfaits", "Google Play", "Hammam", "Hotel", "La carte",
+  "Les boissons", "Menu", "Nos services", "Notre offre", "Plus d'informations",
+  "Programme", "Réserver en ligne", "Réservez", "Restaurant", "Riad",
+  "Séances", "Site web", "Spa", "WhatsApp",
+];
+
+const getCtaOptions = (current: string) =>
+  current && !CTA_SELECT_OPTIONS.includes(current)
+    ? [current, ...CTA_SELECT_OPTIONS]
+    : CTA_SELECT_OPTIONS;
 
 interface AffiliateContactEditorProps {
   phone: string;
@@ -20,6 +46,7 @@ interface AffiliateContactEditorProps {
   longitude: number | string;
   cities: CityOption[];
   neighborhoods: NeighborhoodOption[];
+  ctaUrls: CtaUrlItem[];
   onPhoneChange: (v: string) => void;
   onWhatsappChange: (v: string) => void;
   onEmailChange: (v: string) => void;
@@ -29,6 +56,7 @@ interface AffiliateContactEditorProps {
   onGoogleMapsUrlChange: (v: string) => void;
   onLatitudeChange: (v: number | null) => void;
   onLongitudeChange: (v: number | null) => void;
+  onCtaFieldChange: (field: string, value: any) => void;
 }
 
 const extractCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
@@ -59,10 +87,11 @@ const AffiliateContactEditor = ({
   phone, whatsapp, email,
   address, neighborhood, city,
   googleMapsUrl, latitude, longitude,
-  cities, neighborhoods,
+  cities, neighborhoods, ctaUrls,
   onPhoneChange, onWhatsappChange, onEmailChange,
   onAddressChange, onNeighborhoodChange, onCityChange,
   onGoogleMapsUrlChange, onLatitudeChange, onLongitudeChange,
+  onCtaFieldChange,
 }: AffiliateContactEditorProps) => {
   const { toast } = useToast();
 
@@ -178,6 +207,61 @@ const AffiliateContactEditor = ({
           />
         </Row>
       </div>
+
+      {ctaUrls && ctaUrls.length > 0 && (
+        <div className="border-t border-border pt-4 space-y-4">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Boutons d'action (CTA) affichés sur la fiche
+          </p>
+          {ctaUrls.map((item) => (
+            <div key={item.urlField} className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Link2 className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-sm font-medium text-foreground">{item.label}</span>
+                {item.url && (
+                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2 pl-6">
+                <div className="flex items-center gap-1.5 shrink-0" title="Ouvrir en lien externe">
+                  <Switch
+                    checked={!!item.forceExternal}
+                    onCheckedChange={(checked) => onCtaFieldChange(item.externalField, checked)}
+                  />
+                  <span className="text-[10px] text-muted-foreground">⚡ Externe</span>
+                </div>
+                <Input
+                  value={item.url}
+                  onChange={(e) => onCtaFieldChange(item.urlField, e.target.value)}
+                  placeholder="https://"
+                  className="text-xs flex-1 min-w-[180px]"
+                />
+                <Select
+                  value={item.cta || "__none__"}
+                  onValueChange={(v) => onCtaFieldChange(item.ctaField, v === "__none__" ? "" : v)}
+                >
+                  <SelectTrigger className="text-xs h-9 w-[200px] shrink-0">
+                    <SelectValue placeholder="🎯 Contenu du CTA" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px] bg-background z-50">
+                    <SelectItem value="__none__">—</SelectItem>
+                    {getCtaOptions(item.cta).map((opt) => (
+                      <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {item.forceExternal && (
+                <div className="pl-6">
+                  <span className="text-[11px] text-orange-500">⚡ Lien externe activé</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
