@@ -97,7 +97,7 @@ const AffiliatesDashboard = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <Header />
+      <HomeMindtripHeader />
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         {/* Header Section */}
