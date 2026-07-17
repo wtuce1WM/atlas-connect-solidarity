@@ -79,7 +79,9 @@ export default function AffiliateAggregateStats() {
     (businesses ?? []).forEach((b, i) => {
       const d = analyticsQueries[i]?.data;
       if (!d) { perBusiness.push({ ...b, views: 0, intents: 0, bookings: 0, convRate: 0, bookingRate: 0, whatsapp: 0, phone: 0, email: 0, directions: 0 }); return; }
-      for (const k of KPIS.map((x) => x.key)) {
+      const extraKeys = ["video_play", "document_open", "share_open", "bookmark_add", "bookmark_remove"];
+      const allKeys = new Set<string>([...KPIS.map((x) => x.key), ...extraKeys]);
+      for (const k of allKeys) {
         totals[k] = (totals[k] || 0) + (Number(d.totals?.[k]) || 0);
         prevTotals[k] = (prevTotals[k] || 0) + (Number(d.previous_totals?.[k]) || 0);
       }
