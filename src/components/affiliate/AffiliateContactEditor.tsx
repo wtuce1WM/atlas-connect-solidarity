@@ -46,6 +46,7 @@ interface AffiliateContactEditorProps {
   longitude: number | string;
   cities: CityOption[];
   neighborhoods: NeighborhoodOption[];
+  ctaUrls: CtaUrlItem[];
   onPhoneChange: (v: string) => void;
   onWhatsappChange: (v: string) => void;
   onEmailChange: (v: string) => void;
@@ -55,6 +56,7 @@ interface AffiliateContactEditorProps {
   onGoogleMapsUrlChange: (v: string) => void;
   onLatitudeChange: (v: number | null) => void;
   onLongitudeChange: (v: number | null) => void;
+  onCtaFieldChange: (field: string, value: any) => void;
 }
 
 const extractCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
