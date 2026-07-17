@@ -24,6 +24,7 @@ import YextSyncButton from "@/components/affiliate/YextSyncButton";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
 import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
+import AffiliateImagesEditor from "@/components/affiliate/AffiliateImagesEditor";
 import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
 import { Label } from "@/components/ui/label";
 
