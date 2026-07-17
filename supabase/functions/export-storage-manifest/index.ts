@@ -32,9 +32,18 @@ Deno.serve(async (req) => {
 
     const url = new URL(req.url);
     const format = url.searchParams.get("format") ?? "json"; // json | wget
+    const exclude = (url.searchParams.get("exclude") ?? "")
+      .split(",").map((s) => s.trim()).filter(Boolean);
+    const include = (url.searchParams.get("include") ?? "")
+      .split(",").map((s) => s.trim()).filter(Boolean);
 
     // Liste tous les buckets
-    const { data: buckets, error: bErr } = await admin.storage.listBuckets();
+    const { data: bucketsAll, error: bErr } = await admin.storage.listBuckets();
+    const buckets = (bucketsAll ?? []).filter((b) => {
+      if (include.length > 0) return include.includes(b.name);
+      if (exclude.length > 0) return !exclude.includes(b.name);
+      return true;
+    });
     if (bErr) throw bErr;
 
     const manifest: Array<{
