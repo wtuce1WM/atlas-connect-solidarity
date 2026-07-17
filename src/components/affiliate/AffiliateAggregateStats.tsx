@@ -3,7 +3,8 @@ import { useQuery, useQueries } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Eye, MessageCircle, ExternalLink, TrendingUp, TrendingDown, Building2 } from "lucide-react";
+import { Loader2, Eye, MessageCircle, Phone, Mail, MapPin, ExternalLink, TrendingUp, TrendingDown, Building2 } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import type { AnalyticsRange, BusinessAnalytics } from "@/hooks/useBusinessAnalytics";
 
 const RANGES: { value: AnalyticsRange; label: string }[] = [
@@ -13,21 +14,18 @@ const RANGES: { value: AnalyticsRange; label: string }[] = [
   { value: "12m", label: "12 mois" },
 ];
 
-const INTENT_KEYS = [
-  "whatsapp_click",
-  "phone_click",
-  "email_click",
-  "directions_click",
-  "booking_intent",
+const KPIS: Array<{ key: string; label: string; icon: typeof Eye; color: string }> = [
+  { key: "view", label: "Vues", icon: Eye, color: "text-primary" },
+  { key: "whatsapp_click", label: "WhatsApp", icon: MessageCircle, color: "text-green-500" },
+  { key: "phone_click", label: "Appels", icon: Phone, color: "text-blue-500" },
+  { key: "email_click", label: "Emails", icon: Mail, color: "text-purple-500" },
+  { key: "directions_click", label: "Itinéraires", icon: MapPin, color: "text-orange-500" },
+  { key: "affiliate_click", label: "Réservations", icon: ExternalLink, color: "text-gold" },
 ];
 
 function deltaPct(curr: number, prev: number): number | null {
   if (!prev) return curr > 0 ? 100 : null;
   return Math.round(((curr - prev) / prev) * 100);
-}
-
-function sumTotals(totals: Record<string, number> = {}, keys: string[]) {
-  return keys.reduce((s, k) => s + (Number(totals[k]) || 0), 0);
 }
 
 export default function AffiliateAggregateStats() {
@@ -39,17 +37,11 @@ export default function AffiliateAggregateStats() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [] as { id: string; name: string; city: string | null; slug: string | null }[];
       const { data: aff } = await supabase
-        .from("affiliates")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        .from("affiliates").select("id").eq("user_id", user.id).maybeSingle();
       if (!aff?.id) return [];
       const { data, error } = await supabase
-        .from("businesses")
-        .select("id, name, city, slug")
-        .eq("affiliate_id", aff.id)
-        .eq("is_active", true)
-        .order("name");
+        .from("businesses").select("id, name, city, slug")
+        .eq("affiliate_id", aff.id).eq("is_active", true).order("name");
       if (error) throw error;
       return data ?? [];
     },
@@ -61,8 +53,7 @@ export default function AffiliateAggregateStats() {
       queryKey: ["business-analytics", b.id, range],
       queryFn: async (): Promise<BusinessAnalytics> => {
         const { data, error } = await supabase.rpc("get_business_analytics", {
-          p_business_id: b.id,
-          p_range: range,
+          p_business_id: b.id, p_range: range,
         });
         if (error) throw error;
         return data as unknown as BusinessAnalytics;
@@ -74,38 +65,59 @@ export default function AffiliateAggregateStats() {
   const loading = loadingBiz || analyticsQueries.some((q) => q.isLoading);
 
   const aggregate = useMemo(() => {
-    let views = 0, viewsPrev = 0;
-    let intents = 0, intentsPrev = 0;
-    let bookings = 0, bookingsPrev = 0;
+    const totals: Record<string, number> = {};
+    const prevTotals: Record<string, number> = {};
+    const tsMap = new Map<string, { views: number; intents: number }>();
+    const byCountry = new Map<string, number>();
+    const byDevice = new Map<string, number>();
+    const bySource = new Map<string, number>();
     const perBusiness: { id: string; name: string; city: string | null; slug: string | null; views: number; intents: number; bookings: number }[] = [];
 
     (businesses ?? []).forEach((b, i) => {
       const d = analyticsQueries[i]?.data;
-      if (!d) {
-        perBusiness.push({ ...b, views: 0, intents: 0, bookings: 0 });
-        return;
+      if (!d) { perBusiness.push({ ...b, views: 0, intents: 0, bookings: 0 }); return; }
+      for (const k of KPIS.map((x) => x.key)) {
+        totals[k] = (totals[k] || 0) + (Number(d.totals?.[k]) || 0);
+        prevTotals[k] = (prevTotals[k] || 0) + (Number(d.previous_totals?.[k]) || 0);
       }
+      (d.timeseries || []).forEach((r) => {
+        const cur = tsMap.get(r.day) || { views: 0, intents: 0 };
+        cur.views += r.views || 0; cur.intents += r.intents || 0;
+        tsMap.set(r.day, cur);
+      });
+      (d.by_country || []).forEach((r) => byCountry.set(r.country, (byCountry.get(r.country) || 0) + (Number(r.c) || 0)));
+      (d.by_device || []).forEach((r) => byDevice.set(r.device, (byDevice.get(r.device) || 0) + (Number(r.c) || 0)));
+      (d.by_source_page || []).forEach((r) => bySource.set(r.source_page, (bySource.get(r.source_page) || 0) + (Number(r.c) || 0)));
+
       const v = Number(d.totals?.view) || 0;
-      const vp = Number(d.previous_totals?.view) || 0;
-      const it = sumTotals(d.totals, INTENT_KEYS);
-      const itp = sumTotals(d.previous_totals, INTENT_KEYS);
+      const it = ["whatsapp_click","phone_click","email_click","directions_click","booking_intent"]
+        .reduce((s,k)=>s+(Number(d.totals?.[k])||0),0);
       const bk = Number(d.totals?.affiliate_click) || 0;
-      const bkp = Number(d.previous_totals?.affiliate_click) || 0;
-      views += v; viewsPrev += vp;
-      intents += it; intentsPrev += itp;
-      bookings += bk; bookingsPrev += bkp;
       perBusiness.push({ ...b, views: v, intents: it, bookings: bk });
     });
 
-    perBusiness.sort((a, b) => b.views - a.views);
-    return { views, viewsPrev, intents, intentsPrev, bookings, bookingsPrev, perBusiness };
-  }, [businesses, analyticsQueries]);
+    const timeseries = Array.from(tsMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([day, v]) => ({
+        day: new Date(day).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }),
+        Vues: v.views, Intentions: v.intents,
+      }));
 
-  const cards = [
-    { key: "views", label: "Vues totales", icon: Eye, color: "text-primary", bg: "bg-primary/20", curr: aggregate.views, prev: aggregate.viewsPrev },
-    { key: "intents", label: "Intentions de contact", icon: MessageCircle, color: "text-green-500", bg: "bg-green-500/20", curr: aggregate.intents, prev: aggregate.intentsPrev },
-    { key: "bookings", label: "Clics réservation", icon: ExternalLink, color: "text-gold", bg: "bg-gold/20", curr: aggregate.bookings, prev: aggregate.bookingsPrev },
-  ];
+    const toRows = (m: Map<string, number>, key: string) =>
+      Array.from(m.entries())
+        .map(([k, c]) => ({ [key]: k, c }))
+        .sort((a, b) => (b.c as number) - (a.c as number));
+
+    perBusiness.sort((a, b) => b.views - a.views);
+
+    return {
+      totals, prevTotals, timeseries,
+      by_country: toRows(byCountry, "country"),
+      by_device: toRows(byDevice, "device"),
+      by_source_page: toRows(bySource, "source_page"),
+      perBusiness,
+    };
+  }, [businesses, analyticsQueries]);
 
   return (
     <div className="space-y-6 mb-8">
@@ -115,51 +127,78 @@ export default function AffiliateAggregateStats() {
         </p>
         <div className="flex gap-1 bg-card border border-border rounded-md p-1">
           {RANGES.map((r) => (
-            <Button
-              key={r.value}
-              size="sm"
-              variant={range === r.value ? "default" : "ghost"}
-              onClick={() => setRange(r.value)}
-              className="h-7 px-3 text-xs"
-            >
+            <Button key={r.value} size="sm" variant={range === r.value ? "default" : "ghost"}
+              onClick={() => setRange(r.value)} className="h-7 px-3 text-xs">
               {r.label}
             </Button>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {cards.map((c) => {
-          const delta = deltaPct(c.curr, c.prev);
-          const Icon = c.icon;
+      {/* 6 KPI cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {KPIS.map((kpi) => {
+          const curr = aggregate.totals[kpi.key] || 0;
+          const prev = aggregate.prevTotals[kpi.key] || 0;
+          const delta = deltaPct(curr, prev);
+          const Icon = kpi.icon;
           return (
-            <Card key={c.key} className="bg-card border-border">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className={`rounded-full ${c.bg} p-3`}>
-                    <Icon className={`h-6 w-6 ${c.color}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-muted-foreground">{c.label}</p>
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-2xl font-bold text-foreground">
-                        {loading ? "—" : c.curr.toLocaleString("fr-FR")}
-                      </p>
-                      {!loading && delta !== null && (
-                        <span className={`text-xs font-medium flex items-center gap-0.5 ${delta >= 0 ? "text-green-500" : "text-destructive"}`}>
-                          {delta >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                          {Math.abs(delta)}%
-                        </span>
-                      )}
-                    </div>
-                  </div>
+            <Card key={kpi.key} className="bg-card border-border">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-start justify-between mb-1">
+                  <Icon className={`h-4 w-4 ${kpi.color}`} />
+                  {!loading && delta !== null && (
+                    <span className={`text-[10px] font-medium flex items-center gap-0.5 ${delta >= 0 ? "text-green-500" : "text-destructive"}`}>
+                      {delta >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {Math.abs(delta)}%
+                    </span>
+                  )}
                 </div>
+                <p className="text-xl font-bold text-foreground leading-tight">
+                  {loading ? "—" : curr.toLocaleString("fr-FR")}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{kpi.label}</p>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
+      {/* Evolution chart */}
+      <Card className="bg-card border-border">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base text-foreground">Évolution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64">
+            {loading ? (
+              <div className="h-full flex items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin text-gold" />
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={aggregate.timeseries}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
+                  <XAxis dataKey="day" className="text-xs" />
+                  <YAxis className="text-xs" />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }} />
+                  <Line type="monotone" dataKey="Vues" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="Intentions" stroke="#C04F17" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Breakdowns */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <BreakdownCard title="Pays" rows={aggregate.by_country} labelKey="country" />
+        <BreakdownCard title="Appareil" rows={aggregate.by_device} labelKey="device" />
+        <BreakdownCard title="Pages d'origine" rows={aggregate.by_source_page} labelKey="source_page" />
+      </div>
+
+      {/* Businesses list */}
       <Card className="bg-card border-border">
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -215,5 +254,35 @@ export default function AffiliateAggregateStats() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function BreakdownCard({ title, rows, labelKey }: { title: string; rows: Array<Record<string, unknown>>; labelKey: string }) {
+  const total = rows.reduce((s, r) => s + (Number(r.c) || 0), 0) || 1;
+  return (
+    <Card className="bg-card border-border">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm text-foreground">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {rows.length === 0 && <p className="text-xs text-muted-foreground">Aucune donnée</p>}
+        {rows.slice(0, 8).map((r, i) => {
+          const label = String(r[labelKey] ?? "—");
+          const c = Number(r.c) || 0;
+          const pct = Math.round((c / total) * 100);
+          return (
+            <div key={i} className="text-xs">
+              <div className="flex justify-between gap-2">
+                <span className="text-foreground truncate flex-1" title={label}>{label}</span>
+                <span className="text-muted-foreground tabular-nums">{c} · {pct}%</span>
+              </div>
+              <div className="h-1 bg-muted rounded-full overflow-hidden mt-1">
+                <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+          );
+        })}
+      </CardContent>
+    </Card>
   );
 }
