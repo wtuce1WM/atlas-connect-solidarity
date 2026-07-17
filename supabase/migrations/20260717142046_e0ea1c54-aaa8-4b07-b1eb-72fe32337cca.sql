@@ -1,0 +1,1 @@
+CREATE POLICY "Affiliates can insert own businesses" ON public.businesses FOR INSERT TO authenticated WITH CHECK (EXISTS (SELECT 1 FROM public.affiliates WHERE affiliates.id = public.businesses.affiliate_id AND affiliates.user_id = auth.uid()));

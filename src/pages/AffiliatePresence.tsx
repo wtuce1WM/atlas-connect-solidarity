@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -13,7 +14,7 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video, Plus
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
@@ -111,9 +112,75 @@ const AffiliatePresence = () => {
   const [selectedBusiness, setSelectedBusiness] = useState<string | null>(null);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
+  const [affiliateId, setAffiliateId] = useState<string | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newBusinessName, setNewBusinessName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+
+  const loadBusinesses = async (targetAffiliateId: string) => {
+    const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
+      "address", "neighborhood", "latitude", "longitude", "opening_hours",
+      "show_opening_hours", "closure_message", "vacation_dates",
+      "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
+      ...PLATFORMS.map(p => p.key),
+      ...CTA_EXTRA_FIELDS,
+      ...REVIEW_FIELDS].join(",");
+
+    const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
+      supabase.from("businesses").select(selectFields).eq("affiliate_id", targetAffiliateId).eq("is_active", true).order("name"),
+      supabase.from("cities").select("id, name_fr, region").order("name_fr"),
+      supabase.from("neighborhoods").select("id, name, city_id").order("name"),
+    ]);
+    setCities((citiesData as CityOption[]) || []);
+    setNeighborhoods((neighborhoodsData as NeighborhoodOption[]) || []);
+
+    const mapped: BusinessPresence[] = (biz || []).map((b: any) => {
+      const cta: Record<string, any> = {};
+      CTA_URL_DEFS.forEach(d => {
+        cta[d.urlField] = b[d.urlField] ?? null;
+        cta[d.ctaField] = b[d.ctaField] ?? null;
+        cta[d.externalField] = b[d.externalField] ?? false;
+      });
+      const reviews: Record<string, any> = {};
+      REVIEW_FIELDS.forEach(f => { reviews[f] = b[f] ?? null; });
+      return {
+        id: b.id,
+        name: b.name,
+        city: b.city,
+        main_category: b.main_category,
+        logo_url: b.logo_url,
+        phone: b.phone,
+        whatsapp: b.whatsapp,
+        email: b.email,
+        address: b.address,
+        neighborhood: b.neighborhood,
+        latitude: b.latitude,
+        longitude: b.longitude,
+        opening_hours: b.opening_hours as OpeningHours | null,
+        show_opening_hours: b.show_opening_hours ?? true,
+        closure_message: b.closure_message ?? null,
+        vacation_dates: (b.vacation_dates as VacationPeriod[] | null) ?? [],
+        links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
+        cta,
+        reviews,
+        hook_fr: b.hook_fr ?? null,
+        hook_en: b.hook_en ?? null,
+        hook_ar: b.hook_ar ?? null,
+        description: b.description ?? null,
+        description_en: b.description_en ?? null,
+        description_ar: b.description_ar ?? null,
+      };
+    });
+
+    setBusinesses(mapped);
+    if (mapped.length > 0 && !mapped.find(b => b.id === selectedBusiness)) {
+      setSelectedBusiness(mapped[0].id);
+    }
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    const load = async () => {
+    const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/affiliates"); return; }
 
@@ -129,65 +196,10 @@ const AffiliatePresence = () => {
         return;
       }
 
-      const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
-        "address", "neighborhood", "latitude", "longitude", "opening_hours",
-        "show_opening_hours", "closure_message", "vacation_dates",
-        "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
-        ...PLATFORMS.map(p => p.key),
-        ...CTA_EXTRA_FIELDS,
-        ...REVIEW_FIELDS].join(",");
-
-      const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
-        supabase.from("businesses").select(selectFields).eq("affiliate_id", affiliate.id).eq("is_active", true).order("name"),
-        supabase.from("cities").select("id, name_fr, region").order("name_fr"),
-        supabase.from("neighborhoods").select("id, name, city_id").order("name"),
-      ]);
-      setCities((citiesData as CityOption[]) || []);
-      setNeighborhoods((neighborhoodsData as NeighborhoodOption[]) || []);
-
-      const mapped: BusinessPresence[] = (biz || []).map((b: any) => {
-        const cta: Record<string, any> = {};
-        CTA_URL_DEFS.forEach(d => {
-          cta[d.urlField] = b[d.urlField] ?? null;
-          cta[d.ctaField] = b[d.ctaField] ?? null;
-          cta[d.externalField] = b[d.externalField] ?? false;
-        });
-        const reviews: Record<string, any> = {};
-        REVIEW_FIELDS.forEach(f => { reviews[f] = b[f] ?? null; });
-        return {
-          id: b.id,
-          name: b.name,
-          city: b.city,
-          main_category: b.main_category,
-          logo_url: b.logo_url,
-          phone: b.phone,
-          whatsapp: b.whatsapp,
-          email: b.email,
-          address: b.address,
-          neighborhood: b.neighborhood,
-          latitude: b.latitude,
-          longitude: b.longitude,
-          opening_hours: b.opening_hours as OpeningHours | null,
-          show_opening_hours: b.show_opening_hours ?? true,
-          closure_message: b.closure_message ?? null,
-          vacation_dates: (b.vacation_dates as VacationPeriod[] | null) ?? [],
-          links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
-          cta,
-          reviews,
-          hook_fr: b.hook_fr ?? null,
-          hook_en: b.hook_en ?? null,
-          hook_ar: b.hook_ar ?? null,
-          description: b.description ?? null,
-          description_en: b.description_en ?? null,
-          description_ar: b.description_ar ?? null,
-        };
-      });
-
-      setBusinesses(mapped);
-      if (mapped.length > 0) setSelectedBusiness(mapped[0].id);
-      setIsLoading(false);
+      setAffiliateId(affiliate.id);
+      await loadBusinesses(affiliate.id);
     };
-    load();
+    init();
   }, [navigate, toast]);
 
   const getBusinessCompleteness = (b: BusinessPresence) => {
@@ -257,6 +269,51 @@ const AffiliatePresence = () => {
     setSavingId(null);
   };
 
+  const handleCreateBusiness = async () => {
+    const name = newBusinessName.trim();
+    if (!name) {
+      toast({ title: "Nom requis", description: "Veuillez saisir le nom de l'établissement.", variant: "destructive" });
+      return;
+    }
+    if (!affiliateId) {
+      toast({ title: "Erreur", description: "Compte affilié introuvable.", variant: "destructive" });
+      return;
+    }
+    setIsCreating(true);
+
+    const baseSlug = name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    let slug = baseSlug || `etablissement-${Date.now()}`;
+    let suffix = 0;
+    while (true) {
+      const testSlug = suffix === 0 ? slug : `${slug}-${suffix}`;
+      const { data: existing } = await supabase.from("businesses").select("id").eq("slug", testSlug).maybeSingle();
+      if (!existing) { slug = testSlug; break; }
+      suffix += 1;
+      if (suffix > 50) { slug = `${baseSlug}-${Date.now()}`; break; }
+    }
+
+    const { data, error } = await supabase
+      .from("businesses")
+      .insert([{ name, affiliate_id: affiliateId, slug, is_active: true } as any])
+      .select("id")
+      .single();
+    if (error || !data) {
+      toast({ title: "Erreur lors de la création", description: error?.message || "Réponse vide", variant: "destructive" });
+    } else {
+      toast({ title: "Établissement créé ✓" });
+      setNewBusinessName("");
+      setIsCreateDialogOpen(false);
+      await loadBusinesses(affiliateId);
+      setSelectedBusiness(data.id);
+    }
+    setIsCreating(false);
+  };
+
   const currentBusiness = businesses.find(b => b.id === selectedBusiness);
   const hasEdits = selectedBusiness ? Object.keys(editedFields[selectedBusiness] || {}).length > 0 : false;
 
@@ -288,18 +345,56 @@ const AffiliatePresence = () => {
 
         {businesses.length === 0 ? (
           <Card className="bg-card border-border">
-            <CardContent className="py-12 text-center">
+            <CardContent className="py-12 text-center space-y-4">
               <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
               <p className="text-muted-foreground">Aucun établissement associé à votre compte.</p>
+              <Button onClick={() => setIsCreateDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-1" /> Créer mon premier établissement
+              </Button>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-6">
             {/* Business horizontal strip */}
             <div>
-              <p className="text-xs font-medium text-white uppercase tracking-wider mb-2">
-                Vos établissements
-              </p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-white uppercase tracking-wider">
+                  Vos établissements
+                </p>
+                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10 hover:text-white">
+                      <Plus className="h-4 w-4 mr-1" /> Nouvel établissement
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-card border-border text-foreground">
+                    <DialogHeader>
+                      <DialogTitle>Créer un nouvel établissement</DialogTitle>
+                      <DialogDescription className="text-muted-foreground">
+                        Saisissez le nom de l'établissement. Vous pourrez compléter les onglets (Contact, Horaires, Texte, Images, etc.) juste après.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                      <Label htmlFor="new-business-name" className="mb-2 block">Nom de l'établissement</Label>
+                      <Input
+                        id="new-business-name"
+                        value={newBusinessName}
+                        onChange={(e) => setNewBusinessName(e.target.value)}
+                        placeholder="Ex. Riad Dar Najat"
+                        disabled={isCreating}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleCreateBusiness(); }}
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button variant="ghost" onClick={() => setIsCreateDialogOpen(false)} disabled={isCreating}>Annuler</Button>
+                      <Button onClick={handleCreateBusiness} disabled={isCreating || !newBusinessName.trim()}>
+                        {isCreating ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
+                        Créer
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <HScroll className="flex gap-3 pb-3 -mb-1 overflow-x-auto">
                 {businesses.map(b => {
                   const isSelected = b.id === selectedBusiness;
