@@ -333,7 +333,7 @@ const AffiliatePresence = () => {
           <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
             {/* Business List Sidebar */}
             <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+              <p className="text-xs font-medium text-white uppercase tracking-wider mb-2">
                 Vos établissements
               </p>
               {businesses.map(b => {
