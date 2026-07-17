@@ -88,6 +88,12 @@ interface BusinessPresence {
   links: Record<PlatformKey, string | null>;
   cta: Record<string, any>;
   reviews: Record<string, any>;
+  hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
+  description: string | null;
+  description_en: string | null;
+  description_ar: string | null;
 }
 
 const AffiliatePresence = () => {
