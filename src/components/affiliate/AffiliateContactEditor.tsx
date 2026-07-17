@@ -57,11 +57,11 @@ const Row = ({ icon, label, children }: { icon: React.ReactNode; label: string; 
 
 const AffiliateContactEditor = ({
   phone, whatsapp, email,
-  address, neighborhood, city, region,
+  address, neighborhood, city,
   googleMapsUrl, latitude, longitude,
   cities, neighborhoods,
   onPhoneChange, onWhatsappChange, onEmailChange,
-  onAddressChange, onNeighborhoodChange, onCityChange, onRegionChange,
+  onAddressChange, onNeighborhoodChange, onCityChange,
   onGoogleMapsUrlChange, onLatitudeChange, onLongitudeChange,
 }: AffiliateContactEditorProps) => {
   const { toast } = useToast();
@@ -75,10 +75,7 @@ const AffiliateContactEditor = ({
   const handleCityChange = (value: string) => {
     const v = value === "__none__" ? "" : value;
     onCityChange(v);
-    // Reset neighborhood + auto-set region
     onNeighborhoodChange("");
-    const c = cities.find(x => x.name_fr === v);
-    if (c?.region) onRegionChange(c.region);
   };
 
   const handleExtract = () => {
@@ -134,18 +131,6 @@ const AffiliateContactEditor = ({
               <SelectItem value="__none__">—</SelectItem>
               {neighborhoodsForCity.map(n => (
                 <SelectItem key={n.id} value={n.name}>{n.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Row>
-
-        <Row icon={<Map className="h-4 w-4 text-orange-500" />} label="Région">
-          <Select value={region || "__none__"} onValueChange={(v) => onRegionChange(v === "__none__" ? "" : v)}>
-            <SelectTrigger className="text-xs h-9"><SelectValue placeholder="Choisir une région..." /></SelectTrigger>
-            <SelectContent className="max-h-[300px]">
-              <SelectItem value="__none__">—</SelectItem>
-              {REGIONS.map(r => (
-                <SelectItem key={r} value={r}>{r}</SelectItem>
               ))}
             </SelectContent>
           </Select>
