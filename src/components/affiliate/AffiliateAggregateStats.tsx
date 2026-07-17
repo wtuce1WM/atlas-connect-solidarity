@@ -292,12 +292,15 @@ export default function AffiliateAggregateStats() {
         </CardContent>
       </Card>
 
+      {/* Device breakdown - prominent */}
+      <DeviceHighlight rows={aggregate.by_device} loading={loading} />
+
       {/* Breakdowns */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <BreakdownCard title="Pays" rows={aggregate.by_country} labelKey="country" />
         <BreakdownCard title="Appareil" rows={aggregate.by_device} labelKey="device" />
-        <BreakdownCard title="Pages d'origine (interne)" rows={aggregate.by_source_page} labelKey="source_page" />
-        <BreakdownCard title="Top référents externes" rows={aggregate.top_referrers} labelKey="referrer_domain" />
+        <BreakdownCard title="Pages d'origine (interne)" rows={aggregate.by_source_page} labelKey="source_page" formatLabel={formatSourcePage} />
+        <BreakdownCard title="Top référents externes" rows={aggregate.top_referrers} labelKey="referrer_domain" formatLabel={formatReferrer} />
       </div>
 
       {/* Top actions per business - stacked bars */}
