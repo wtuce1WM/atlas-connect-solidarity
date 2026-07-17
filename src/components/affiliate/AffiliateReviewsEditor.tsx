@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Star, ExternalLink, Trash2, MapPin, Globe } from "lucide-react";
+import { Loader2, Save, Star, ExternalLink, Trash2, MapPin, Globe, MessageSquare } from "lucide-react";
 import {
   collectRatingSources,
   computeWeightedRatingOn20,
   getTotalReviewCount,
 } from "@/lib/ratingUtils";
+import ReviewsEditor from "@/components/staff/ReviewsEditor";
 
 export interface ReviewsData {
   google_reviews_url?: string | null;
@@ -224,6 +225,15 @@ const AffiliateReviewsEditor = ({ businessId, data, onFieldChange, onDataRefresh
             </div>
           );
         })}
+      </div>
+
+      {/* Détail des avis clients (par plateforme) */}
+      <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-3">
+        <Label className="text-base font-semibold flex items-center gap-2">
+          <MessageSquare className="h-4 w-4" />
+          Détail des avis clients
+        </Label>
+        <ReviewsEditor businessId={businessId} />
       </div>
     </div>
   );
