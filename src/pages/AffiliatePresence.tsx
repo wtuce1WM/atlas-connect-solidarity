@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -189,16 +189,6 @@ const AffiliatePresence = () => {
     load();
   }, [navigate, toast]);
 
-  const auditStats = useMemo(() => {
-    const total = businesses.length * PLATFORMS.length;
-    let filled = 0;
-    businesses.forEach(b => {
-      PLATFORMS.forEach(p => { if (b.links[p.key]) filled++; });
-    });
-    return { total, filled, missing: total - filled, percent: total > 0 ? Math.round((filled / total) * 100) : 0 };
-  }, [businesses]);
-
-
   const getBusinessCompleteness = (b: BusinessPresence) => {
     const filled = PLATFORMS.filter(p => b.links[p.key]).length;
     return { filled, total: PLATFORMS.length, percent: Math.round((filled / PLATFORMS.length) * 100) };
@@ -293,34 +283,6 @@ const AffiliatePresence = () => {
             <h1 className="text-2xl font-bold text-white">Présence en ligne</h1>
             <p className="text-sm text-white/70">Gérez les profils, horaires et coordonnées de vos établissements</p>
           </div>
-        </div>
-
-        {/* Global Audit Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-card border-border">
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-3xl font-bold text-foreground">{businesses.length}</p>
-              <p className="text-xs text-muted-foreground">Établissements</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-3xl font-bold text-emerald-500">{auditStats.filled}</p>
-              <p className="text-xs text-muted-foreground">Profils renseignés</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-3xl font-bold text-orange-500">{auditStats.missing}</p>
-              <p className="text-xs text-muted-foreground">Profils manquants</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-card border-border">
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-3xl font-bold text-primary">{auditStats.percent}%</p>
-              <p className="text-xs text-muted-foreground">Complétude</p>
-            </CardContent>
-          </Card>
         </div>
 
         {businesses.length === 0 ? (
