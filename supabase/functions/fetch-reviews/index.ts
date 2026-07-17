@@ -4,7 +4,7 @@ const corsHeaders = {
 };
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { assertStaff } from "../_shared/auth-helpers.ts";
+import { assertStaffOrAffiliateBusiness } from "../_shared/auth-helpers.ts";
 
 interface ReviewResult {
   google_rating?: number | null;
