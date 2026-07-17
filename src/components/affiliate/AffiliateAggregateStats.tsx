@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye, MessageCircle, Phone, Mail, MapPin, ExternalLink, TrendingUp, TrendingDown, Building2 } from "lucide-react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend, BarChart, Bar } from "recharts";
 import type { AnalyticsRange, BusinessAnalytics } from "@/hooks/useBusinessAnalytics";
 import { trackEvent } from "@/lib/analytics";
 
