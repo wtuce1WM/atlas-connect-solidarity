@@ -62,9 +62,10 @@ const formatRange = (dh: DayHours): string => {
 interface Props {
   value: OpeningHours | null;
   onChange: (hours: OpeningHours) => void;
+  showOpeningHours?: boolean;
 }
 
-const AffiliateOpeningHoursEditor = ({ value, onChange }: Props) => {
+const AffiliateOpeningHoursEditor = ({ value, onChange, showOpeningHours = true }: Props) => {
   const hours = normalizeHours(value);
   const [copiedFrom, setCopiedFrom] = useState<keyof OpeningHours | null>(null);
 
