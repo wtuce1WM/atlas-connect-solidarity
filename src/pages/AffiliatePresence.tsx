@@ -349,18 +349,9 @@ const AffiliatePresence = () => {
                         : "border-border bg-card hover:border-muted-foreground/30"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      {b.logo_url ? (
-                        <img src={b.logo_url} alt="" className="h-8 w-8 rounded object-contain bg-white" />
-                      ) : (
-                        <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
-                          <Building2 className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium truncate ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
-                        <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
-                      </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium truncate ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
+                      <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
                     </div>
                   </button>
                 );
