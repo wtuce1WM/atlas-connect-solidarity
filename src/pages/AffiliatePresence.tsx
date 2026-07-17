@@ -539,10 +539,41 @@ const AffiliatePresence = () => {
                     </TabsContent>
 
                     {/* Hours Tab */}
-                    <TabsContent value="hours">
+                    <TabsContent value="hours" className="space-y-6">
                       <AffiliateOpeningHoursEditor
                         value={getCurrentValue(currentBusiness.id, "opening_hours", currentBusiness.opening_hours) || null}
                         onChange={(hours) => handleFieldChange(currentBusiness.id, "opening_hours", hours)}
+                      />
+
+                      <div className="flex flex-col gap-3 p-3 border rounded-lg bg-white/5">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!!getCurrentValue(currentBusiness.id, "show_opening_hours", currentBusiness.show_opening_hours)}
+                            onChange={(e) => handleFieldChange(currentBusiness.id, "show_opening_hours", e.target.checked)}
+                            className="h-4 w-4 rounded border-input"
+                          />
+                          <span className="text-sm font-medium">Afficher les horaires sur la fiche publique</span>
+                        </label>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Label className="text-sm font-medium whitespace-nowrap">Message du front</Label>
+                          <select
+                            value={getCurrentValue(currentBusiness.id, "closure_message", currentBusiness.closure_message) || ""}
+                            onChange={(e) => handleFieldChange(currentBusiness.id, "closure_message", e.target.value || null)}
+                            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                          >
+                            <option value="">Aucun</option>
+                            <option value="Fermé temporairement">Fermé temporairement</option>
+                            <option value="Fermé jusqu'au">Fermé jusqu&apos;au</option>
+                            <option value="Fermé définitivement">Fermé définitivement</option>
+                            <option value="Fermé jusqu'à nouvel ordre">Fermé jusqu&apos;à nouvel ordre</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <VacationDatesEditor
+                        value={getCurrentValue(currentBusiness.id, "vacation_dates", currentBusiness.vacation_dates) || []}
+                        onChange={(dates) => handleFieldChange(currentBusiness.id, "vacation_dates", dates)}
                       />
                     </TabsContent>
 
