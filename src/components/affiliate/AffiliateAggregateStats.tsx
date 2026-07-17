@@ -264,6 +264,46 @@ export default function AffiliateAggregateStats() {
         })}
       </div>
 
+      {/* Engagement fiche */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { key: "video_play", label: "Lectures vidéo", icon: Eye, color: "text-primary", bg: "bg-primary/15" },
+          { key: "document_open", label: "Documents ouverts", icon: Mail, color: "text-purple-500", bg: "bg-purple-500/15" },
+          { key: "share_open", label: "Partages", icon: ExternalLink, color: "text-blue-500", bg: "bg-blue-500/15" },
+          { key: "net_bookmarks", label: "Favoris nets", icon: TrendingUp, color: "text-gold", bg: "bg-gold/15" },
+        ].map((k) => {
+          const curr = k.key === "net_bookmarks"
+            ? (aggregate.totals.bookmark_add || 0) - (aggregate.totals.bookmark_remove || 0)
+            : (aggregate.totals[k.key] || 0);
+          const prev = k.key === "net_bookmarks"
+            ? (aggregate.prevTotals.bookmark_add || 0) - (aggregate.prevTotals.bookmark_remove || 0)
+            : (aggregate.prevTotals[k.key] || 0);
+          const delta = deltaPct(curr, prev);
+          const Icon = k.icon;
+          return (
+            <Card key={k.key} className="bg-card border-border">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-start justify-between mb-1">
+                  <div className={`rounded-full ${k.bg} p-2`}>
+                    <Icon className={`h-4 w-4 ${k.color}`} />
+                  </div>
+                  {!loading && delta !== null && (
+                    <span className={`text-[10px] font-medium flex items-center gap-0.5 ${delta >= 0 ? "text-green-500" : "text-destructive"}`}>
+                      {delta >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {Math.abs(delta)}%
+                    </span>
+                  )}
+                </div>
+                <p className="text-xl font-bold text-foreground leading-tight tabular-nums">
+                  {loading ? "—" : curr.toLocaleString("fr-FR")}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{k.label}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
       {/* Evolution chart with N vs N-1 */}
       <Card className="bg-card border-border">
         <CardHeader className="pb-2">
