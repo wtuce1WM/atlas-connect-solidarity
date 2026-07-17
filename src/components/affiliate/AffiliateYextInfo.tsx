@@ -83,6 +83,15 @@ const AffiliateYextInfo = ({ businessId, businessName }: AffiliateYextInfoProps)
       <div className="flex items-center gap-3 pt-1">
         <YextSyncButton businessId={businessId} businessName={businessName} />
       </div>
+
+      <a
+        href="https://www.yext.com/fr"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+      >
+        En savoir plus sur Yext <ExternalLink className="h-3 w-3" />
+      </a>
     </div>
   );
 };
