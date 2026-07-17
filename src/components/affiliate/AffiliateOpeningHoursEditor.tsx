@@ -1,10 +1,16 @@
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Clock, Plus, X, Copy } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Clock, Plus, X, Copy, Check } from "lucide-react";
 import TimeSelect from "@/components/staff/TimeSelect";
 import type { OpeningHours, DayHours } from "@/components/staff/OpeningHoursEditor";
 import { DEFAULT_OPENING_HOURS } from "@/components/staff/OpeningHoursEditor";
+import { cn } from "@/lib/utils";
 
 const DAYS_FR: Record<keyof OpeningHours, string> = {
   monday: "Lundi",
@@ -40,6 +46,19 @@ const normalizeHours = (raw: any): OpeningHours => {
   return result;
 };
 
+type Status = "open" | "closed" | "247";
+
+const getStatus = (dh: DayHours): Status =>
+  dh.closed ? "closed" : dh.continuous ? "247" : "open";
+
+const formatRange = (dh: DayHours): string => {
+  if (dh.closed) return "Fermé";
+  if (dh.continuous) return "Ouvert 24h/24";
+  const s1 = dh.open && dh.close ? `${dh.open} – ${dh.close}` : "—";
+  if (dh.open2 && dh.close2) return `${s1}  ·  ${dh.open2} – ${dh.close2}`;
+  return s1;
+};
+
 interface Props {
   value: OpeningHours | null;
   onChange: (hours: OpeningHours) => void;
@@ -47,9 +66,44 @@ interface Props {
 
 const AffiliateOpeningHoursEditor = ({ value, onChange }: Props) => {
   const hours = normalizeHours(value);
+  const [copiedFrom, setCopiedFrom] = useState<keyof OpeningHours | null>(null);
 
   const updateDay = (day: keyof OpeningHours, patch: Partial<DayHours>) => {
     onChange({ ...hours, [day]: { ...hours[day], ...patch } });
+  };
+
+  const setStatus = (day: keyof OpeningHours, status: Status) => {
+    if (status === "closed") {
+      updateDay(day, { closed: true, continuous: false });
+    } else if (status === "247") {
+      updateDay(day, { closed: false, continuous: true, open2: "", close2: "" });
+    } else {
+      const dh = hours[day];
+      updateDay(day, {
+        closed: false,
+        continuous: false,
+        open: dh.open || "09:00",
+        close: dh.close || "19:00",
+      });
+    }
+  };
+
+  const addBreak = (day: keyof OpeningHours) => {
+    const dh = hours[day];
+    updateDay(day, {
+      close: "12:00",
+      open2: "14:00",
+      close2: dh.close || "19:00",
+    });
+  };
+
+  const removeBreak = (day: keyof OpeningHours) => {
+    const dh = hours[day];
+    updateDay(day, {
+      close: dh.close2 || dh.close,
+      open2: "",
+      close2: "",
+    });
   };
 
   const applyToAll = (day: keyof OpeningHours) => {
@@ -59,29 +113,38 @@ const AffiliateOpeningHoursEditor = ({ value, onChange }: Props) => {
       next[d] = { ...source };
     });
     onChange(next);
+    setCopiedFrom(day);
+    setTimeout(() => setCopiedFrom(null), 1600);
   };
 
-  const addBreak = (day: keyof OpeningHours) => {
-    const dh = hours[day];
-    // Split existing range: keep morning open→12:00, add afternoon 14:00→existing close
-    const originalClose = dh.close || "19:00";
-    updateDay(day, {
-      close: "12:00",
-      open2: "14:00",
-      close2: originalClose,
-      continuous: false,
-    });
-  };
-
-  const removeBreak = (day: keyof OpeningHours) => {
-    const dh = hours[day];
-    // Merge: keep morning open, extend close to close2
-    updateDay(day, {
-      close: dh.close2 || dh.close,
-      open2: "",
-      close2: "",
-    });
-  };
+  const StatusPill = ({
+    active,
+    onClick,
+    children,
+    variant,
+  }: {
+    active: boolean;
+    onClick: () => void;
+    children: React.ReactNode;
+    variant: "open" | "closed" | "247";
+  }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "text-[11px] font-medium px-2.5 py-1 rounded-full border transition-colors",
+        active
+          ? variant === "open"
+            ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+            : variant === "closed"
+            ? "bg-rose-100 text-rose-800 border-rose-300"
+            : "bg-sky-100 text-sky-800 border-sky-300"
+          : "bg-background text-muted-foreground border-border hover:border-foreground/30"
+      )}
+    >
+      {children}
+    </button>
+  );
 
   return (
     <div className="space-y-3">
@@ -90,119 +153,134 @@ const AffiliateOpeningHoursEditor = ({ value, onChange }: Props) => {
         <Label className="text-base font-semibold">Horaires d'ouverture</Label>
       </div>
 
-      <div className="border rounded-lg divide-y bg-card">
+      <div className="space-y-2">
         {(Object.keys(DAYS_FR) as (keyof OpeningHours)[]).map((day) => {
           const dh = hours[day];
+          const status = getStatus(dh);
           const hasBreak = !!(dh.open2 || dh.close2);
-          const isContinuous = !!dh.continuous;
-          const isClosed = !!dh.closed;
 
           return (
-            <div key={day} className="p-3 sm:p-4">
-              {/* Ligne principale : jour + statut + actions */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                <span className="font-medium text-sm w-20 shrink-0">{DAYS_FR[day]}</span>
+            <div
+              key={day}
+              className="rounded-lg border bg-card p-3 sm:p-4 hover:border-foreground/20 transition-colors"
+            >
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Jour */}
+                <div className="w-20 shrink-0">
+                  <div className="font-semibold text-sm">{DAYS_FR[day]}</div>
+                </div>
 
-                {/* Statut : Fermé */}
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <Switch
-                    checked={!isClosed}
-                    onCheckedChange={(v) => updateDay(day, { closed: !v })}
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    {isClosed ? "Fermé" : "Ouvert"}
-                  </span>
-                </label>
+                {/* Pills statut */}
+                <div className="flex items-center gap-1.5">
+                  <StatusPill
+                    active={status === "open"}
+                    onClick={() => setStatus(day, "open")}
+                    variant="open"
+                  >
+                    Ouvert
+                  </StatusPill>
+                  <StatusPill
+                    active={status === "closed"}
+                    onClick={() => setStatus(day, "closed")}
+                    variant="closed"
+                  >
+                    Fermé
+                  </StatusPill>
+                  <StatusPill
+                    active={status === "247"}
+                    onClick={() => setStatus(day, "247")}
+                    variant="247"
+                  >
+                    24h/24
+                  </StatusPill>
+                </div>
 
-                {/* Statut : 24h/24 */}
-                {!isClosed && (
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Switch
-                      checked={isContinuous}
-                      onCheckedChange={(v) =>
-                        updateDay(day, {
-                          continuous: v,
-                          ...(v ? { open2: "", close2: "", open: "00:00", close: "23:59" } : {}),
-                        })
-                      }
-                    />
-                    <span className="text-xs text-muted-foreground">24h/24</span>
-                  </label>
-                )}
+                {/* Plage affichée + éditeur en popover */}
+                <div className="flex-1 min-w-[180px] text-right">
+                  {status === "open" ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="font-mono text-sm text-foreground hover:text-primary hover:underline underline-offset-4 tabular-nums"
+                        >
+                          {formatRange(dh)}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="w-auto p-3 space-y-3">
+                        <div className="flex items-center gap-1.5">
+                          {hasBreak && (
+                            <span className="text-[10px] uppercase text-muted-foreground w-16">Matin</span>
+                          )}
+                          <TimeSelect value={dh.open} onChange={(v) => updateDay(day, { open: v })} />
+                          <span className="text-muted-foreground text-xs">→</span>
+                          <TimeSelect value={dh.close} onChange={(v) => updateDay(day, { close: v })} />
+                        </div>
+                        {hasBreak ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] uppercase text-muted-foreground w-16">Après-midi</span>
+                            <TimeSelect value={dh.open2 || ""} onChange={(v) => updateDay(day, { open2: v })} />
+                            <span className="text-muted-foreground text-xs">→</span>
+                            <TimeSelect value={dh.close2 || ""} onChange={(v) => updateDay(day, { close2: v })} />
+                            <button
+                              type="button"
+                              onClick={() => removeBreak(day)}
+                              className="ml-1 text-muted-foreground hover:text-destructive p-0.5"
+                              title="Supprimer la pause"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 text-xs gap-1 w-full justify-start"
+                            onClick={() => addBreak(day)}
+                          >
+                            <Plus className="h-3.5 w-3.5" /> Ajouter une pause déjeuner
+                          </Button>
+                        )}
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <span className="text-sm text-muted-foreground italic">
+                      {formatRange(dh)}
+                    </span>
+                  )}
+                </div>
 
-                <div className="flex-1" />
-
+                {/* Copier */}
                 <button
                   type="button"
                   onClick={() => applyToAll(day)}
-                  className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                  className={cn(
+                    "text-xs inline-flex items-center gap-1 shrink-0 transition-colors",
+                    copiedFrom === day
+                      ? "text-emerald-600"
+                      : "text-muted-foreground hover:text-primary"
+                  )}
                   title="Copier ces horaires sur toute la semaine"
                 >
-                  <Copy className="h-3 w-3" /> Copier sur toute la semaine
+                  {copiedFrom === day ? (
+                    <>
+                      <Check className="h-3.5 w-3.5" /> Copié
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" /> Copier sur la semaine
+                    </>
+                  )}
                 </button>
               </div>
-
-              {/* Plage horaire */}
-              {!isClosed && !isContinuous && (
-                <div className="mt-3 pl-0 sm:pl-24 flex flex-wrap items-center gap-2">
-                  {/* Créneau 1 (matin si break, sinon journée) */}
-                  <div className="flex items-center gap-1.5 rounded-md border bg-background px-2 py-1.5">
-                    {hasBreak && (
-                      <span className="text-[10px] uppercase text-muted-foreground mr-1">Matin</span>
-                    )}
-                    <TimeSelect value={dh.open} onChange={(v) => updateDay(day, { open: v })} />
-                    <span className="text-muted-foreground text-xs">→</span>
-                    <TimeSelect value={dh.close} onChange={(v) => updateDay(day, { close: v })} />
-                  </div>
-
-                  {/* Créneau 2 (après-midi) */}
-                  {hasBreak ? (
-                    <div className="flex items-center gap-1.5 rounded-md border bg-background px-2 py-1.5">
-                      <span className="text-[10px] uppercase text-muted-foreground mr-1">Après-midi</span>
-                      <TimeSelect value={dh.open2 || ""} onChange={(v) => updateDay(day, { open2: v })} />
-                      <span className="text-muted-foreground text-xs">→</span>
-                      <TimeSelect value={dh.close2 || ""} onChange={(v) => updateDay(day, { close2: v })} />
-                      <button
-                        type="button"
-                        onClick={() => removeBreak(day)}
-                        className="ml-1 text-muted-foreground hover:text-destructive p-0.5"
-                        title="Supprimer la pause"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="h-8 text-xs gap-1"
-                      onClick={() => addBreak(day)}
-                    >
-                      <Plus className="h-3.5 w-3.5" /> Ajouter une pause déjeuner
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              {isContinuous && (
-                <div className="mt-2 pl-0 sm:pl-24 text-xs text-muted-foreground italic">
-                  Ouvert 24 heures sur 24
-                </div>
-              )}
-
-              {isClosed && (
-                <div className="mt-2 pl-0 sm:pl-24 text-xs text-muted-foreground italic">
-                  Établissement fermé ce jour
-                </div>
-              )}
             </div>
           );
         })}
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Un seul horaire par défaut. Cliquez sur <strong>« Ajouter une pause déjeuner »</strong> si vous fermez en milieu de journée. Utilisez <strong>« Copier sur toute la semaine »</strong> pour dupliquer les horaires d'un jour.
+        Cliquez sur la plage horaire pour l'éditer. Ajoutez une pause déjeuner si vous fermez en milieu de journée.
       </p>
     </div>
   );
