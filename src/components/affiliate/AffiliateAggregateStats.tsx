@@ -74,11 +74,11 @@ export default function AffiliateAggregateStats() {
     const byDevice = new Map<string, number>();
     const bySource = new Map<string, number>();
     const byReferrer = new Map<string, number>();
-    const perBusiness: { id: string; name: string; city: string | null; slug: string | null; views: number; intents: number; bookings: number; convRate: number; bookingRate: number }[] = [];
+    const perBusiness: { id: string; name: string; city: string | null; slug: string | null; views: number; intents: number; bookings: number; convRate: number; bookingRate: number; whatsapp: number; phone: number; email: number; directions: number }[] = [];
 
     (businesses ?? []).forEach((b, i) => {
       const d = analyticsQueries[i]?.data;
-      if (!d) { perBusiness.push({ ...b, views: 0, intents: 0, bookings: 0, convRate: 0, bookingRate: 0 }); return; }
+      if (!d) { perBusiness.push({ ...b, views: 0, intents: 0, bookings: 0, convRate: 0, bookingRate: 0, whatsapp: 0, phone: 0, email: 0, directions: 0 }); return; }
       for (const k of KPIS.map((x) => x.key)) {
         totals[k] = (totals[k] || 0) + (Number(d.totals?.[k]) || 0);
         prevTotals[k] = (prevTotals[k] || 0) + (Number(d.previous_totals?.[k]) || 0);
@@ -101,13 +101,18 @@ export default function AffiliateAggregateStats() {
       (d.top_referrers || []).forEach((r) => byReferrer.set(r.referrer_domain, (byReferrer.get(r.referrer_domain) || 0) + (Number(r.c) || 0)));
 
       const v = Number(d.totals?.view) || 0;
-      const it = ["whatsapp_click","phone_click","email_click","directions_click","booking_intent"]
-        .reduce((s,k)=>s+(Number(d.totals?.[k])||0),0);
+      const wa = Number(d.totals?.whatsapp_click) || 0;
+      const ph = Number(d.totals?.phone_click) || 0;
+      const em = Number(d.totals?.email_click) || 0;
+      const di = Number(d.totals?.directions_click) || 0;
+      const bi = Number(d.totals?.booking_intent) || 0;
+      const it = wa + ph + em + di + bi;
       const bk = Number(d.totals?.affiliate_click) || 0;
       perBusiness.push({
         ...b, views: v, intents: it, bookings: bk,
         convRate: v > 0 ? Math.round((it / v) * 1000) / 10 : 0,
         bookingRate: v > 0 ? Math.round((bk / v) * 1000) / 10 : 0,
+        whatsapp: wa, phone: ph, email: em, directions: di,
       });
     });
 
