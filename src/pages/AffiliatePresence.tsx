@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import OpeningHoursEditor, { OpeningHours } from "@/components/staff/OpeningHoursEditor";
-import AffiliateContactEditor from "@/components/affiliate/AffiliateContactEditor";
+import AffiliateContactEditor, { type CityOption, type NeighborhoodOption } from "@/components/affiliate/AffiliateContactEditor";
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
 import YextSyncButton from "@/components/affiliate/YextSyncButton";
 
@@ -66,6 +66,8 @@ const AffiliatePresence = () => {
   const [editedFields, setEditedFields] = useState<Record<string, Record<string, any>>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [selectedBusiness, setSelectedBusiness] = useState<string | null>(null);
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -88,12 +90,13 @@ const AffiliatePresence = () => {
         "address", "neighborhood", "region", "latitude", "longitude", "opening_hours",
         ...PLATFORMS.map(p => p.key)].join(",");
 
-      const { data: biz } = await supabase
-        .from("businesses")
-        .select(selectFields)
-        .eq("affiliate_id", affiliate.id)
-        .eq("is_active", true)
-        .order("name");
+      const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
+        supabase.from("businesses").select(selectFields).eq("affiliate_id", affiliate.id).eq("is_active", true).order("name"),
+        supabase.from("cities").select("id, name_fr, region").order("name_fr"),
+        supabase.from("neighborhoods").select("id, name, city_id").order("name"),
+      ]);
+      setCities((citiesData as CityOption[]) || []);
+      setNeighborhoods((neighborhoodsData as NeighborhoodOption[]) || []);
 
       const mapped: BusinessPresence[] = (biz || []).map((b: any) => ({
         id: b.id,
@@ -393,6 +396,8 @@ const AffiliatePresence = () => {
                         googleMapsUrl={getCurrentValue(currentBusiness.id, "google_maps_url", currentBusiness.links.google_maps_url)}
                         latitude={getCurrentValue(currentBusiness.id, "latitude", currentBusiness.latitude)}
                         longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
+                        cities={cities}
+                        neighborhoods={neighborhoods}
                         onPhoneChange={(v) => handleFieldChange(currentBusiness.id, "phone", v)}
                         onWhatsappChange={(v) => handleFieldChange(currentBusiness.id, "whatsapp", v)}
                         onEmailChange={(v) => handleFieldChange(currentBusiness.id, "email", v)}
