@@ -42,6 +42,21 @@ export interface AffiliateImagesEditorHandle {
 }
 
 const MAX_DESC = 500;
+const MAX_IMAGES = 30;
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+interface ImageMeta {
+  size?: number | null;
+  sizeChecked?: boolean;
+  width?: number | null;
+  height?: number | null;
+}
+
+const formatFileSize = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 interface SortableCardProps {
   url: string;
@@ -49,6 +64,7 @@ interface SortableCardProps {
   title: string;
   description: string;
   isPopup: boolean;
+  meta?: ImageMeta;
   onPreview: (url: string) => void;
   onTitleChange: (v: string) => void;
   onDescriptionChange: (v: string) => void;
@@ -61,6 +77,7 @@ const SortableCard = ({
   title,
   description,
   isPopup,
+  meta,
   onPreview,
   onTitleChange,
   onDescriptionChange,
@@ -109,11 +126,25 @@ const SortableCard = ({
           <span className="text-[9px] text-foreground font-medium">popup</span>
         </label>
 
-        {/* Index badge */}
-        <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
+        {/* Index + dims + size */}
+        <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center justify-between pointer-events-none">
           <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
             {index + 1}
           </span>
+          <div className="flex gap-1 flex-wrap justify-end">
+            {meta?.width && meta?.height && (
+              <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
+                {meta.width}×{meta.height}
+              </span>
+            )}
+            <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
+              {typeof meta?.size === "number"
+                ? formatFileSize(meta.size)
+                : meta?.sizeChecked
+                ? "ext."
+                : "…"}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -146,12 +177,15 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
     const { toast } = useToast();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [images, setImages] = useState<string[]>([]);
     const [popupUrl, setPopupUrl] = useState<string | null>(null);
     const [titles, setTitles] = useState<Record<string, string>>({});
     const [descriptions, setDescriptions] = useState<Record<string, string>>({});
     const [dirty, setDirty] = useState(false);
     const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+    const [imageSizes, setImageSizes] = useState<Record<string, number | null>>({});
+    const [imageDims, setImageDims] = useState<Record<string, { w: number; h: number } | null>>({});
 
     const sensors = useSensors(
       useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -183,6 +217,47 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
       load();
     }, [businessId]);
 
+    // Fetch dims + sizes
+    useEffect(() => {
+      if (!images.length) {
+        setImageSizes({});
+        setImageDims({});
+        return;
+      }
+      let mounted = true;
+      (async () => {
+        const sizes: Record<string, number | null> = {};
+        const dims: Record<string, { w: number; h: number } | null> = {};
+        await Promise.all(
+          images.map(async (url) => {
+            const dimPromise = new Promise<{ w: number; h: number } | null>((resolve) => {
+              const img = new window.Image();
+              img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+              img.onerror = () => resolve(null);
+              img.src = url;
+            });
+            try {
+              const res = await fetch(url);
+              if (res.ok) {
+                const blob = await res.blob();
+                sizes[url] = blob.size;
+              } else sizes[url] = null;
+            } catch {
+              sizes[url] = null;
+            }
+            dims[url] = await dimPromise;
+          })
+        );
+        if (mounted) {
+          setImageSizes(sizes);
+          setImageDims(dims);
+        }
+      })();
+      return () => {
+        mounted = false;
+      };
+    }, [images]);
+
     const markDirty = () => setDirty(true);
 
     const handleDragEnd = useCallback((event: DragEndEvent) => {
@@ -201,6 +276,66 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
       setPopupUrl((prev) => (prev === url ? null : url));
       markDirty();
     };
+
+    const handleFileUpload = useCallback(
+      async (files: FileList | null) => {
+        if (!files || files.length === 0) return;
+        const remaining = MAX_IMAGES - images.length;
+        if (remaining <= 0) {
+          toast({
+            variant: "destructive",
+            title: "Limite atteinte",
+            description: `Maximum ${MAX_IMAGES} images.`,
+          });
+          return;
+        }
+        const filesToUpload = Array.from(files).slice(0, remaining);
+        setUploading(true);
+        try {
+          const uploaded: string[] = [];
+          for (const file of filesToUpload) {
+            if (!file.type.startsWith("image/")) {
+              toast({ variant: "destructive", title: "Type invalide", description: `${file.name} n'est pas une image.` });
+              continue;
+            }
+            if (file.size > MAX_FILE_SIZE) {
+              toast({ variant: "destructive", title: "Trop volumineux", description: `${file.name} dépasse 5MB.` });
+              continue;
+            }
+            const ext = file.name.split(".").pop();
+            const fileName = `${businessId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+            const filePath = `businesses/${fileName}`;
+            const { error: upErr } = await supabase.storage.from("business-images").upload(filePath, file);
+            if (upErr) {
+              toast({ variant: "destructive", title: "Erreur upload", description: `Erreur pour ${file.name}.` });
+              continue;
+            }
+            const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(filePath);
+            if (urlData?.publicUrl) uploaded.push(urlData.publicUrl);
+          }
+          if (uploaded.length > 0) {
+            setImages((prev) => [...prev, ...uploaded]);
+            markDirty();
+            toast({ title: `${uploaded.length} image(s) uploadée(s) ✓` });
+          }
+        } finally {
+          setUploading(false);
+        }
+      },
+      [images.length, businessId, toast]
+    );
+
+    const handleDrop = useCallback(
+      (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        handleFileUpload(e.dataTransfer.files);
+      },
+      [handleFileUpload]
+    );
+
+    const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+    }, []);
 
     const handleSave = async () => {
       setSaving(true);
@@ -255,15 +390,6 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
       );
     }
 
-    if (images.length === 0) {
-      return (
-        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-          <ImageIcon className="h-10 w-10 mb-2" />
-          <p className="text-sm">Aucune image pour cet établissement.</p>
-        </div>
-      );
-    }
-
     const lightboxIndex = lightboxUrl ? images.indexOf(lightboxUrl) : -1;
     const lightboxTitle = lightboxUrl ? titles[lightboxUrl] : "";
     const lightboxDesc = lightboxUrl ? descriptions[lightboxUrl] : "";
@@ -280,32 +406,88 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
           </Button>
         </div>
 
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={images} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-              {images.map((url, i) => (
-                <SortableCard
-                  key={url}
-                  url={url}
-                  index={i}
-                  title={titles[url] || ""}
-                  description={descriptions[url] || ""}
-                  isPopup={popupUrl === url}
-                  onPreview={setLightboxUrl}
-                  onTitleChange={(v) => {
-                    setTitles((prev) => ({ ...prev, [url]: v }));
-                    markDirty();
-                  }}
-                  onDescriptionChange={(v) => {
-                    setDescriptions((prev) => ({ ...prev, [url]: v }));
-                    markDirty();
-                  }}
-                  onPopupToggle={() => togglePopup(url)}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+        {images.length > 0 && (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={images} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {images.map((url, i) => (
+                  <SortableCard
+                    key={url}
+                    url={url}
+                    index={i}
+                    title={titles[url] || ""}
+                    description={descriptions[url] || ""}
+                    isPopup={popupUrl === url}
+                    meta={{
+                      size: imageSizes[url],
+                      sizeChecked: url in imageSizes,
+                      width: imageDims[url]?.w,
+                      height: imageDims[url]?.h,
+                    }}
+                    onPreview={setLightboxUrl}
+                    onTitleChange={(v) => {
+                      setTitles((prev) => ({ ...prev, [url]: v }));
+                      markDirty();
+                    }}
+                    onDescriptionChange={(v) => {
+                      setDescriptions((prev) => ({ ...prev, [url]: v }));
+                      markDirty();
+                    }}
+                    onPopupToggle={() => togglePopup(url)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
+
+        {/* Upload zone */}
+        {images.length < MAX_IMAGES ? (
+          <div
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            className={cn(
+              "border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer hover:border-primary/50",
+              uploading && "pointer-events-none opacity-50"
+            )}
+          >
+            <input
+              type="file"
+              id={`affiliate-image-upload-${businessId}`}
+              multiple
+              accept="image/*"
+              onChange={(e) => {
+                handleFileUpload(e.target.files);
+                e.target.value = "";
+              }}
+              className="hidden"
+              disabled={uploading}
+            />
+            <label htmlFor={`affiliate-image-upload-${businessId}`} className="cursor-pointer">
+              <div className="flex flex-col items-center gap-2">
+                {uploading ? (
+                  <Loader2 className="h-10 w-10 text-muted-foreground animate-spin" />
+                ) : (
+                  <div className="p-3 bg-primary/10 rounded-full">
+                    <ImageIcon className="h-6 w-6 text-primary" />
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium">
+                    {uploading ? "Upload en cours..." : "Cliquez ou glissez-déposez"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {images.length}/{MAX_IMAGES} images • Max 5MB par image
+                  </p>
+                </div>
+              </div>
+            </label>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground text-center">
+            Nombre maximum d'images atteint ({MAX_IMAGES})
+          </p>
+        )}
 
         {/* Lightbox slideshow */}
         {lightboxUrl && lightboxIndex >= 0 && (
