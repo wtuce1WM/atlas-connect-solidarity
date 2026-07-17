@@ -86,7 +86,7 @@ const AffiliatePresence = () => {
       }
 
       const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
-        "address", "neighborhood", "region", "latitude", "longitude", "opening_hours",
+        "address", "neighborhood", "latitude", "longitude", "opening_hours",
         ...PLATFORMS.map(p => p.key)].join(",");
 
       const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
@@ -108,7 +108,6 @@ const AffiliatePresence = () => {
         email: b.email,
         address: b.address,
         neighborhood: b.neighborhood,
-        region: b.region,
         latitude: b.latitude,
         longitude: b.longitude,
         opening_hours: b.opening_hours as OpeningHours | null,
