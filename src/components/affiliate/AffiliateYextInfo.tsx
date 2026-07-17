@@ -79,6 +79,10 @@ const AffiliateYextInfo = ({ businessId, businessName }: AffiliateYextInfoProps)
           <li><strong>Statut</strong> : vérifie si votre établissement est déjà synchronisé.</li>
         </ul>
       </div>
+
+      <div className="flex items-center gap-3 pt-1">
+        <YextSyncButton businessId={businessId} businessName={businessName} />
+      </div>
     </div>
   );
 };
