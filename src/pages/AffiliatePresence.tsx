@@ -396,6 +396,8 @@ const AffiliatePresence = () => {
                         googleMapsUrl={getCurrentValue(currentBusiness.id, "google_maps_url", currentBusiness.links.google_maps_url)}
                         latitude={getCurrentValue(currentBusiness.id, "latitude", currentBusiness.latitude)}
                         longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
+                        cities={cities}
+                        neighborhoods={neighborhoods}
                         onPhoneChange={(v) => handleFieldChange(currentBusiness.id, "phone", v)}
                         onWhatsappChange={(v) => handleFieldChange(currentBusiness.id, "whatsapp", v)}
                         onEmailChange={(v) => handleFieldChange(currentBusiness.id, "email", v)}
