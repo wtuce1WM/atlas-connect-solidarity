@@ -917,11 +917,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 : "Une question, une suggestion ? Notre équipe est à votre écoute."}
             </p>
             <a
-              href="mailto:contact@oneworldmorocco.com"
+              href="mailto:info@oneworldmorocco.com"
               className="inline-flex items-center gap-2 text-[#C04F17] hover:underline font-semibold"
             >
               <Mail className="h-4 w-4" />
-              contact@oneworldmorocco.com
+              info@oneworldmorocco.com
             </a>
           </div>
         </TabsContent>
