@@ -1,12 +1,38 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, MessageCircle, MapPin, Home, Building2, Navigation, Wand2 } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Home, Building2, Navigation, Wand2, Link2, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMemo } from "react";
 
 export interface CityOption { id: string; name_fr: string; region: string | null }
 export interface NeighborhoodOption { id: string; name: string; city_id: string }
+
+export interface CtaUrlItem {
+  urlField: string;
+  ctaField: string;
+  externalField: string;
+  label: string;
+  url: string;
+  cta: string;
+  forceExternal: boolean;
+}
+
+const CTA_SELECT_OPTIONS = [
+  "Acheter en ligne", "Achetez", "Accréditations", "App Store", "Application",
+  "Billetterie", "Boissons", "Carte des soins", "Carte des vins", "Cocktails",
+  "Consulter notre offre", "Contactez-moi", "Contactez nous", "Day Pass",
+  "En savoir +", "Forfaits", "Google Play", "Hammam", "Hotel", "La carte",
+  "Les boissons", "Menu", "Nos services", "Notre offre", "Plus d'informations",
+  "Programme", "Réserver en ligne", "Réservez", "Restaurant", "Riad",
+  "Séances", "Site web", "Spa", "WhatsApp",
+];
+
+const getCtaOptions = (current: string) =>
+  current && !CTA_SELECT_OPTIONS.includes(current)
+    ? [current, ...CTA_SELECT_OPTIONS]
+    : CTA_SELECT_OPTIONS;
 
 interface AffiliateContactEditorProps {
   phone: string;
