@@ -1,6 +1,12 @@
 import { Cloud, Share2, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import YextSyncButton from "./YextSyncButton";
 
-const AffiliateYextInfo = () => {
+interface AffiliateYextInfoProps {
+  businessId: string;
+  businessName: string;
+}
+
+const AffiliateYextInfo = ({ businessId, businessName }: AffiliateYextInfoProps) => {
   return (
     <div className="space-y-5">
       <div className="p-3 rounded-lg border border-border bg-white/5">
