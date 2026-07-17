@@ -12,7 +12,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import {
   Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
@@ -22,6 +22,7 @@ import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp"
 import AffiliateYextInfo from "@/components/affiliate/AffiliateYextInfo";
 import YextSyncButton from "@/components/affiliate/YextSyncButton";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
+import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
 import { Label } from "@/components/ui/label";
 
@@ -87,6 +88,12 @@ interface BusinessPresence {
   links: Record<PlatformKey, string | null>;
   cta: Record<string, any>;
   reviews: Record<string, any>;
+  hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
+  description: string | null;
+  description_en: string | null;
+  description_ar: string | null;
 }
 
 const AffiliatePresence = () => {
@@ -121,6 +128,7 @@ const AffiliatePresence = () => {
       const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
         "address", "neighborhood", "latitude", "longitude", "opening_hours",
         "show_opening_hours", "closure_message", "vacation_dates",
+        "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
         ...PLATFORMS.map(p => p.key),
         ...CTA_EXTRA_FIELDS,
         ...REVIEW_FIELDS].join(",");
@@ -162,6 +170,12 @@ const AffiliatePresence = () => {
           links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
           cta,
           reviews,
+          hook_fr: b.hook_fr ?? null,
+          hook_en: b.hook_en ?? null,
+          hook_ar: b.hook_ar ?? null,
+          description: b.description ?? null,
+          description_en: b.description_en ?? null,
+          description_ar: b.description_ar ?? null,
         };
       });
 
@@ -406,6 +420,9 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="hours" className="gap-1.5">
                         <Clock className="h-3.5 w-3.5" /> Horaires
                       </TabsTrigger>
+                      <TabsTrigger value="text" className="gap-1.5">
+                        <FileText className="h-3.5 w-3.5" /> Texte
+                      </TabsTrigger>
                       <TabsTrigger value="help" className="gap-1.5">
                         <HelpCircle className="h-3.5 w-3.5" /> Plateformes
                       </TabsTrigger>
@@ -581,10 +598,25 @@ const AffiliatePresence = () => {
                       />
                     </TabsContent>
 
+                    {/* Text Tab */}
+                    <TabsContent value="text">
+                      <AffiliateTextEditor
+                        hookFr={getCurrentValue(currentBusiness.id, "hook_fr", currentBusiness.hook_fr) || ""}
+                        hookEn={getCurrentValue(currentBusiness.id, "hook_en", currentBusiness.hook_en) || ""}
+                        hookAr={getCurrentValue(currentBusiness.id, "hook_ar", currentBusiness.hook_ar) || ""}
+                        descriptionFr={getCurrentValue(currentBusiness.id, "description", currentBusiness.description) || ""}
+                        descriptionEn={getCurrentValue(currentBusiness.id, "description_en", currentBusiness.description_en) || ""}
+                        descriptionAr={getCurrentValue(currentBusiness.id, "description_ar", currentBusiness.description_ar) || ""}
+                        onHookChange={(lang, v) => handleFieldChange(currentBusiness.id, `hook_${lang}`, v)}
+                        onDescriptionChange={(lang, v) => handleFieldChange(currentBusiness.id, lang === "fr" ? "description" : `description_${lang}`, v)}
+                      />
+                    </TabsContent>
+
                     {/* Platform Help Tab */}
                     <TabsContent value="help">
                       <AffiliatePlatformHelp />
                     </TabsContent>
+
 
                     {/* Yext Tab */}
                     <TabsContent value="yext">
