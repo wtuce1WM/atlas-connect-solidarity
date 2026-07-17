@@ -77,6 +77,7 @@ interface SortableCardProps {
   isPopup: boolean;
   meta?: ImageMeta;
   onPreview: (url: string) => void;
+  onDelete: (url: string) => void;
   onTitleChange: (v: string) => void;
   onDescriptionChange: (v: string) => void;
   onPopupToggle: () => void;
@@ -90,6 +91,7 @@ const SortableCard = ({
   isPopup,
   meta,
   onPreview,
+  onDelete,
   onTitleChange,
   onDescriptionChange,
   onPopupToggle,
