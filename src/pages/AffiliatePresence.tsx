@@ -280,9 +280,26 @@ const AffiliatePresence = () => {
       return;
     }
     setIsCreating(true);
+
+    const baseSlug = name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    let slug = baseSlug || `etablissement-${Date.now()}`;
+    let suffix = 0;
+    while (true) {
+      const testSlug = suffix === 0 ? slug : `${slug}-${suffix}`;
+      const { data: existing } = await supabase.from("businesses").select("id").eq("slug", testSlug).maybeSingle();
+      if (!existing) { slug = testSlug; break; }
+      suffix += 1;
+      if (suffix > 50) { slug = `${baseSlug}-${Date.now()}`; break; }
+    }
+
     const { data, error } = await supabase
       .from("businesses")
-      .insert({ name, affiliate_id: affiliateId, is_active: true })
+      .insert([{ name, affiliate_id: affiliateId, slug, is_active: true } as any])
       .select("id")
       .single();
     if (error || !data) {
