@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
+import HScroll from "@/components/HScroll";
 import {
   Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
   Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video
