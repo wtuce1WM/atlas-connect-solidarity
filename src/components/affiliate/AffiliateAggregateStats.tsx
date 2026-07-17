@@ -407,7 +407,7 @@ export default function AffiliateAggregateStats() {
   );
 }
 
-function BreakdownCard({ title, rows, labelKey }: { title: string; rows: Array<Record<string, unknown>>; labelKey: string }) {
+function BreakdownCard({ title, rows, labelKey, formatLabel }: { title: string; rows: Array<Record<string, unknown>>; labelKey: string; formatLabel?: (v: string) => string }) {
   const total = rows.reduce((s, r) => s + (Number(r.c) || 0), 0) || 1;
   return (
     <Card className="bg-card border-border">
@@ -417,13 +417,14 @@ function BreakdownCard({ title, rows, labelKey }: { title: string; rows: Array<R
       <CardContent className="space-y-2">
         {rows.length === 0 && <p className="text-xs text-muted-foreground">Aucune donnée</p>}
         {rows.slice(0, 8).map((r, i) => {
-          const label = String(r[labelKey] ?? "—");
+          const raw = String(r[labelKey] ?? "—");
+          const label = formatLabel ? formatLabel(raw) : raw;
           const c = Number(r.c) || 0;
           const pct = Math.round((c / total) * 100);
           return (
             <div key={i} className="text-xs">
               <div className="flex justify-between gap-2">
-                <span className="text-foreground truncate flex-1" title={label}>{label}</span>
+                <span className="text-foreground truncate flex-1" title={raw}>{label}</span>
                 <span className="text-muted-foreground tabular-nums">{c} · {pct}%</span>
               </div>
               <div className="h-1 bg-muted rounded-full overflow-hidden mt-1">
@@ -434,5 +435,78 @@ function BreakdownCard({ title, rows, labelKey }: { title: string; rows: Array<R
         })}
       </CardContent>
     </Card>
+  );
+}
+
+function formatSourcePage(raw: string): string {
+  try {
+    const path = raw.startsWith("http") ? new URL(raw).pathname : raw.split("?")[0];
+    if (path === "/" || path === "") return "Accueil";
+    if (path.startsWith("/search")) return "Résultats de recherche";
+    if (path.startsWith("/destination")) return "Page destination";
+    if (path.startsWith("/blog")) return "Blog";
+    if (path.startsWith("/fiche") || path.includes("openBusiness")) return "Fiche établissement";
+    if (path.startsWith("/club")) return "Club";
+    if (path.startsWith("/affiliates")) return "Espace affilié";
+    if (path.startsWith("/label")) return "Page label";
+    return path;
+  } catch {
+    return raw;
+  }
+}
+
+function formatReferrer(raw: string): string {
+  const d = raw.toLowerCase().replace(/^www\./, "");
+  if (d.includes("google")) return "Google";
+  if (d.includes("bing")) return "Bing";
+  if (d.includes("duckduckgo")) return "DuckDuckGo";
+  if (d.includes("yahoo")) return "Yahoo";
+  if (d.includes("facebook") || d === "fb.com" || d === "l.facebook.com") return "Facebook";
+  if (d.includes("instagram")) return "Instagram";
+  if (d.includes("tiktok")) return "TikTok";
+  if (d.includes("youtube") || d === "youtu.be") return "YouTube";
+  if (d.includes("twitter") || d === "x.com" || d === "t.co") return "X / Twitter";
+  if (d.includes("linkedin") || d === "lnkd.in") return "LinkedIn";
+  if (d.includes("pinterest")) return "Pinterest";
+  if (d.includes("whatsapp")) return "WhatsApp";
+  if (d.includes("chatgpt") || d.includes("openai")) return "ChatGPT";
+  if (d.includes("perplexity")) return "Perplexity";
+  if (d.includes("claude")) return "Claude";
+  return raw;
+}
+
+function DeviceHighlight({ rows, loading }: { rows: Array<Record<string, unknown>>; loading: boolean }) {
+  const total = rows.reduce((s, r) => s + (Number(r.c) || 0), 0);
+  const getPct = (key: string) => {
+    const found = rows.find((r) => String(r.device ?? "").toLowerCase() === key);
+    const c = Number(found?.c) || 0;
+    return total > 0 ? Math.round((c / total) * 100) : 0;
+  };
+  const items = [
+    { key: "mobile", label: "Mobile", icon: Smartphone, pct: getPct("mobile"), color: "text-primary", bg: "bg-primary/15" },
+    { key: "desktop", label: "Desktop", icon: Monitor, pct: getPct("desktop"), color: "text-blue-500", bg: "bg-blue-500/15" },
+    { key: "tablet", label: "Tablette", icon: Tablet, pct: getPct("tablet"), color: "text-gold", bg: "bg-gold/15" },
+  ];
+  return (
+    <div className="grid grid-cols-3 gap-3">
+      {items.map((it) => {
+        const Icon = it.icon;
+        return (
+          <Card key={it.key} className="bg-card border-border">
+            <CardContent className="pt-4 pb-3 flex items-center gap-3">
+              <div className={`rounded-full ${it.bg} p-2`}>
+                <Icon className={`h-4 w-4 ${it.color}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-lg font-bold text-foreground leading-tight tabular-nums">
+                  {loading ? "—" : `${it.pct}%`}
+                </p>
+                <p className="text-[11px] text-muted-foreground">{it.label}</p>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
   );
 }
