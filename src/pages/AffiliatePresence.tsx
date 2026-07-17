@@ -12,13 +12,14 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import {
   Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import OpeningHoursEditor, { OpeningHours } from "@/components/staff/OpeningHoursEditor";
 import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type CtaUrlItem } from "@/components/affiliate/AffiliateContactEditor";
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
 import YextSyncButton from "@/components/affiliate/YextSyncButton";
+import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
 
 const PLATFORMS = [
   { key: "google_maps_url", label: "Google Business", icon: <MapPin className="h-4 w-4" />, color: "text-blue-500" },
@@ -50,6 +51,18 @@ const CTA_URL_DEFS: Array<{ urlField: string; ctaField: string; externalField: s
 const CTA_EXTRA_FIELDS = CTA_URL_DEFS.flatMap(d => [d.urlField, d.ctaField, d.externalField])
   .filter(f => f !== "website"); // website is already in PLATFORMS
 
+const REVIEW_FIELDS = [
+  "google_rating", "google_review_count",
+  "tripadvisor_rating", "tripadvisor_review_count",
+  "restaurant_guru_rating", "restaurant_guru_review_count",
+  "getyourguide_url", "getyourguide_rating", "getyourguide_review_count",
+  "viator_url", "viator_rating", "viator_review_count",
+  "tourradar_url", "tourradar_rating", "tourradar_review_count",
+  "avis_verifies_url", "avis_verifies_rating", "avis_verifies_review_count",
+  "trustpilot_url", "trustpilot_rating", "trustpilot_review_count",
+  "kayak_url", "kayak_rating", "kayak_review_count",
+];
+
 interface BusinessPresence {
   id: string;
   name: string;
@@ -66,6 +79,7 @@ interface BusinessPresence {
   opening_hours: OpeningHours | null;
   links: Record<PlatformKey, string | null>;
   cta: Record<string, any>;
+  reviews: Record<string, any>;
 }
 
 const AffiliatePresence = () => {
@@ -100,7 +114,8 @@ const AffiliatePresence = () => {
       const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
         "address", "neighborhood", "latitude", "longitude", "opening_hours",
         ...PLATFORMS.map(p => p.key),
-        ...CTA_EXTRA_FIELDS].join(",");
+        ...CTA_EXTRA_FIELDS,
+        ...REVIEW_FIELDS].join(",");
 
       const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
         supabase.from("businesses").select(selectFields).eq("affiliate_id", affiliate.id).eq("is_active", true).order("name"),
@@ -117,6 +132,8 @@ const AffiliatePresence = () => {
           cta[d.ctaField] = b[d.ctaField] ?? null;
           cta[d.externalField] = b[d.externalField] ?? false;
         });
+        const reviews: Record<string, any> = {};
+        REVIEW_FIELDS.forEach(f => { reviews[f] = b[f] ?? null; });
         return {
           id: b.id,
           name: b.name,
@@ -133,6 +150,7 @@ const AffiliatePresence = () => {
           opening_hours: b.opening_hours as OpeningHours | null,
           links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
           cta,
+          reviews,
         };
       });
 
@@ -168,28 +186,46 @@ const AffiliatePresence = () => {
     const edits = editedFields[businessId];
     if (!edits || Object.keys(edits).length === 0) return;
 
+    const reviewNumericKeys = new Set(REVIEW_FIELDS.filter(f => f.endsWith("_rating") || f.endsWith("_review_count")));
+    const payload: Record<string, any> = {};
+    Object.entries(edits).forEach(([k, v]) => {
+      if (reviewNumericKeys.has(k)) {
+        if (v === "" || v === null || v === undefined) payload[k] = null;
+        else {
+          const n = Number(v);
+          payload[k] = Number.isFinite(n) ? n : null;
+        }
+      } else {
+        payload[k] = v;
+      }
+    });
+
     setSavingId(businessId);
     const { error } = await supabase
       .from("businesses")
-      .update(edits)
+      .update(payload)
       .eq("id", businessId);
 
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
       const ctaKeys = new Set(CTA_URL_DEFS.flatMap(d => [d.urlField, d.ctaField, d.externalField]));
+      const reviewKeys = new Set(REVIEW_FIELDS);
       setBusinesses(prev => prev.map(b => {
         if (b.id !== businessId) return b;
-        const updated = { ...b, cta: { ...b.cta } };
-        Object.entries(edits).forEach(([k, v]) => {
+        const updated = { ...b, cta: { ...b.cta }, reviews: { ...b.reviews } };
+        Object.entries(payload).forEach(([k, v]) => {
           if (ctaKeys.has(k)) {
             updated.cta[k] = typeof v === "boolean" ? v : (v === "" ? null : v);
+          }
+          if (reviewKeys.has(k)) {
+            updated.reviews[k] = v;
           }
           if (k in b.links) {
             (updated.links as any)[k] = v || null;
           } else if (k === "opening_hours") {
             updated.opening_hours = v;
-          } else if (!ctaKeys.has(k)) {
+          } else if (!ctaKeys.has(k) && !reviewKeys.has(k)) {
             (updated as any)[k] = v === "" ? null : v;
           }
         });
@@ -354,6 +390,9 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="contact" className="gap-1.5">
                         <Phone className="h-3.5 w-3.5" /> Contact
                       </TabsTrigger>
+                      <TabsTrigger value="reviews" className="gap-1.5">
+                        <MessageSquare className="h-3.5 w-3.5" /> Avis Clients
+                      </TabsTrigger>
                       <TabsTrigger value="hours" className="gap-1.5">
                         <Clock className="h-3.5 w-3.5" /> Horaires
                       </TabsTrigger>
@@ -447,6 +486,46 @@ const AffiliatePresence = () => {
                         onLongitudeChange={(v) => handleFieldChange(currentBusiness.id, "longitude", v)}
                         onCtaFieldChange={(field, value) => handleFieldChange(currentBusiness.id, field, value)}
                       />
+                    </TabsContent>
+
+                    {/* Reviews Tab */}
+                    <TabsContent value="reviews">
+                      {(() => {
+                        // Build merged reviews data: original + local edits + URLs from links map.
+                        const merged: ReviewsData = {
+                          ...currentBusiness.reviews,
+                          google_reviews_url: getCurrentValue(currentBusiness.id, "google_reviews_url", currentBusiness.links.google_reviews_url),
+                          tripadvisor_review_url: getCurrentValue(currentBusiness.id, "tripadvisor_review_url", currentBusiness.links.tripadvisor_review_url),
+                          restaurant_guru_url: getCurrentValue(currentBusiness.id, "restaurant_guru_url", currentBusiness.links.restaurant_guru_url),
+                        };
+                        REVIEW_FIELDS.forEach(f => {
+                          (merged as any)[f] = getCurrentValue(currentBusiness.id, f, currentBusiness.reviews[f]);
+                        });
+                        return (
+                          <AffiliateReviewsEditor
+                            businessId={currentBusiness.id}
+                            data={merged}
+                            onFieldChange={(field, value) => handleFieldChange(currentBusiness.id, field, value)}
+                            onDataRefreshed={(patch) => {
+                              // Update local business state & links map, clear edits for touched keys.
+                              setBusinesses(prev => prev.map(b => {
+                                if (b.id !== currentBusiness.id) return b;
+                                const updated = { ...b, reviews: { ...b.reviews }, links: { ...b.links } };
+                                Object.entries(patch).forEach(([k, v]) => {
+                                  if (k in updated.links) (updated.links as any)[k] = v || null;
+                                  if (k in updated.reviews || REVIEW_FIELDS.includes(k)) updated.reviews[k] = v;
+                                });
+                                return updated;
+                              }));
+                              setEditedFields(prev => {
+                                const cur = { ...(prev[currentBusiness.id] || {}) };
+                                Object.keys(patch).forEach(k => { delete cur[k]; });
+                                return { ...prev, [currentBusiness.id]: cur };
+                              });
+                            }}
+                          />
+                        );
+                      })()}
                     </TabsContent>
 
                     {/* Hours Tab */}

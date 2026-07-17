@@ -4,7 +4,7 @@ const corsHeaders = {
 };
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { assertStaff } from "../_shared/auth-helpers.ts";
+import { assertStaffOrAffiliateBusiness } from "../_shared/auth-helpers.ts";
 
 interface ReviewResult {
   google_rating?: number | null;
@@ -1002,18 +1002,21 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const staffCheck = await assertStaff(req, corsHeaders);
-  if (staffCheck instanceof Response) return staffCheck;
+  let body: any = {};
+  try { body = await req.json(); } catch { /* ignore */ }
+  const { business_id, google_only } = body || {};
+
+  if (!business_id) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'business_id is required' }),
+      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const authCheck = await assertStaffOrAffiliateBusiness(req, corsHeaders, business_id);
+  if (authCheck instanceof Response) return authCheck;
 
   try {
-    const { business_id, google_only } = await req.json();
-
-    if (!business_id) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'business_id is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
