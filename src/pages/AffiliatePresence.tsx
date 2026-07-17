@@ -12,7 +12,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import {
   Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
@@ -24,6 +24,7 @@ import YextSyncButton from "@/components/affiliate/YextSyncButton";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
 import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
+import AffiliateImagesEditor from "@/components/affiliate/AffiliateImagesEditor";
 import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
 import { Label } from "@/components/ui/label";
 
@@ -427,6 +428,9 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="blocks" className="gap-1.5">
                         <Sparkles className="h-3.5 w-3.5" /> Blocs
                       </TabsTrigger>
+                      <TabsTrigger value="images" className="gap-1.5">
+                        <ImageIcon className="h-3.5 w-3.5" /> Images
+                      </TabsTrigger>
                       <TabsTrigger value="help" className="gap-1.5">
                         <HelpCircle className="h-3.5 w-3.5" /> Plateformes
                       </TabsTrigger>
@@ -619,6 +623,11 @@ const AffiliatePresence = () => {
                     {/* Blocks Tab */}
                     <TabsContent value="blocks">
                       <AffiliateHighlightsEditor businessId={currentBusiness.id} />
+                    </TabsContent>
+
+                    {/* Images Tab */}
+                    <TabsContent value="images">
+                      <AffiliateImagesEditor businessId={currentBusiness.id} />
                     </TabsContent>
 
                     {/* Platform Help Tab */}
