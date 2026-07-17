@@ -129,7 +129,7 @@ export default function AffiliateAggregateStats() {
         <div className="flex gap-1 bg-card border border-border rounded-md p-1">
           {RANGES.map((r) => (
             <Button key={r.value} size="sm" variant={range === r.value ? "default" : "ghost"}
-              onClick={() => setRange(r.value)} className="h-7 px-3 text-xs">
+              onClick={() => { trackEvent("affiliate_stats_range_change", { range: r.value, scope: "aggregate", from: range }); setRange(r.value); }} className="h-7 px-3 text-xs">
               {r.label}
             </Button>
           ))}
