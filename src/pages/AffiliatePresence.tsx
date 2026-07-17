@@ -390,6 +390,9 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="contact" className="gap-1.5">
                         <Phone className="h-3.5 w-3.5" /> Contact
                       </TabsTrigger>
+                      <TabsTrigger value="reviews" className="gap-1.5">
+                        <MessageSquare className="h-3.5 w-3.5" /> Avis Clients
+                      </TabsTrigger>
                       <TabsTrigger value="hours" className="gap-1.5">
                         <Clock className="h-3.5 w-3.5" /> Horaires
                       </TabsTrigger>
