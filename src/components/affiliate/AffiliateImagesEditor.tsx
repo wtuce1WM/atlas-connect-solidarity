@@ -139,6 +139,19 @@ const SortableCard = ({
           <span className="text-[9px] text-foreground font-medium">popup</span>
         </label>
 
+        {/* Delete button */}
+        <button
+          type="button"
+          className="absolute top-2 right-2 z-20 p-1.5 rounded border border-border/60 bg-destructive/90 text-destructive-foreground shadow-sm cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(url);
+          }}
+          aria-label="Supprimer l'image"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+
         {/* Index + dims + size */}
         <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center justify-between pointer-events-none">
           <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
