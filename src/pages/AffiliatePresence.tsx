@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
@@ -198,6 +198,7 @@ const AffiliatePresence = () => {
     return { total, filled, missing: total - filled, percent: total > 0 ? Math.round((filled / total) * 100) : 0 };
   }, [businesses]);
 
+
   const getBusinessCompleteness = (b: BusinessPresence) => {
     const filled = PLATFORMS.filter(p => b.links[p.key]).length;
     return { filled, total: PLATFORMS.length, percent: Math.round((filled / PLATFORMS.length) * 100) };
@@ -337,7 +338,6 @@ const AffiliatePresence = () => {
                 Vos établissements
               </p>
               {businesses.map(b => {
-                const comp = getBusinessCompleteness(b);
                 const isSelected = b.id === selectedBusiness;
                 return (
                   <button
@@ -361,20 +361,6 @@ const AffiliatePresence = () => {
                         <p className={`text-sm font-medium truncate ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
                         <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
                       </div>
-                      <Badge
-                        variant={comp.percent === 100 ? "default" : comp.percent > 50 ? "secondary" : "destructive"}
-                        className="text-[10px] shrink-0"
-                      >
-                        {comp.percent}%
-                      </Badge>
-                    </div>
-                    <div className="mt-2 h-1 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          comp.percent === 100 ? "bg-emerald-500" : comp.percent > 50 ? "bg-primary" : "bg-orange-500"
-                        }`}
-                        style={{ width: `${comp.percent}%` }}
-                      />
                     </div>
                   </button>
                 );

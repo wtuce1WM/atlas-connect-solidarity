@@ -2,8 +2,8 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/events.json",
-    "generated_at": "2026-07-16T15:10:47.599Z",
-    "count": 40
+    "generated_at": "2026-07-17T13:12:09.841Z",
+    "count": 39
   },
   "events": [
     {
@@ -41,24 +41,6 @@
       "longitude": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1776071292474-scm27s.jpg",
       "url": "https://www.museeyslmarrakech.com/fr/expositions/exposition-permanente/exposition-en-cours/"
-    },
-    {
-      "id": "25865c24-e990-4021-a576-f3c0f636f50d",
-      "name": "Les finalistes du prix Ellipse présenteront leurs œuvres à DaDa Marrakech.",
-      "hook": null,
-      "description": "EXPOSITION DES FINALISTES 2026 À DADA MARRAKECH Dès le mois prochain, les cinq finalistes du prix Ellipse présenteront leurs œuvres à DaDa Marrakech. Nous vous invitons à découvrir leurs pratiques du 15 mai (vernissage) au 16 juillet.",
-      "start_date": "2026-05-15",
-      "end_date": "2026-07-16",
-      "start_time": "00:00",
-      "end_time": null,
-      "recurrence": null,
-      "days_of_week": [],
-      "type": "Exposition temporaire",
-      "city": null,
-      "latitude": null,
-      "longitude": null,
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1780138870847-0z0a6h.jpg",
-      "url": "https://oneworldmorocco.com/events"
     },
     {
       "id": "3364871a-4380-45cf-b426-0c1a07f5b6ef",
