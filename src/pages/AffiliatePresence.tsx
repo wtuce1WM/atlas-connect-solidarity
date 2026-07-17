@@ -171,16 +171,16 @@ const AffiliatePresence = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-gold" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="container mx-auto px-4 pt-28 pb-16 max-w-7xl">
+    <div className="min-h-screen bg-black">
+      <HomeMindtripHeader />
+      <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="flex items-center gap-3 mb-6">
           <Button variant="ghost" size="sm" onClick={() => navigate("/affiliates/dashboard")}>
             <ArrowLeft className="h-4 w-4 mr-1" /> Retour
