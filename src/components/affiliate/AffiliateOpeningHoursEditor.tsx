@@ -62,9 +62,10 @@ const formatRange = (dh: DayHours): string => {
 interface Props {
   value: OpeningHours | null;
   onChange: (hours: OpeningHours) => void;
+  showOpeningHours?: boolean;
 }
 
-const AffiliateOpeningHoursEditor = ({ value, onChange }: Props) => {
+const AffiliateOpeningHoursEditor = ({ value, onChange, showOpeningHours = true }: Props) => {
   const hours = normalizeHours(value);
   const [copiedFrom, setCopiedFrom] = useState<keyof OpeningHours | null>(null);
 
@@ -122,18 +123,20 @@ const AffiliateOpeningHoursEditor = ({ value, onChange }: Props) => {
     onClick,
     children,
     variant,
+    neutralized = false,
   }: {
     active: boolean;
     onClick: () => void;
     children: React.ReactNode;
     variant: "open" | "closed" | "247";
+    neutralized?: boolean;
   }) => (
     <button
       type="button"
       onClick={onClick}
       className={cn(
         "text-[11px] font-medium px-2.5 py-1 rounded-full border transition-colors",
-        active
+        active && !neutralized
           ? variant === "open"
             ? "bg-emerald-100 text-emerald-800 border-emerald-300"
             : variant === "closed"
@@ -176,6 +179,7 @@ const AffiliateOpeningHoursEditor = ({ value, onChange }: Props) => {
                     active={status === "open"}
                     onClick={() => setStatus(day, "open")}
                     variant="open"
+                    neutralized={!showOpeningHours}
                   >
                     Ouvert
                   </StatusPill>

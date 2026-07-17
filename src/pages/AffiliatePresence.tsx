@@ -543,6 +543,7 @@ const AffiliatePresence = () => {
                       <AffiliateOpeningHoursEditor
                         value={getCurrentValue(currentBusiness.id, "opening_hours", currentBusiness.opening_hours) || null}
                         onChange={(hours) => handleFieldChange(currentBusiness.id, "opening_hours", hours)}
+                        showOpeningHours={!!getCurrentValue(currentBusiness.id, "show_opening_hours", currentBusiness.show_opening_hours)}
                       />
 
                       <div className="flex flex-col gap-3 p-3 border rounded-lg bg-white/5">
