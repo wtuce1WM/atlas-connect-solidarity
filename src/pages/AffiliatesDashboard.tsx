@@ -8,7 +8,7 @@ import { Loader2, Users, LogOut, BarChart3, Link as LinkIcon, DollarSign } from 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
-import logoGold from "@/assets/logoGOLDsimple.webp";
+import AffiliateAggregateStats from "@/components/affiliate/AffiliateAggregateStats";
 
 
 const AffiliatesDashboard = () => {
