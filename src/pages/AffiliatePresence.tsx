@@ -345,9 +345,12 @@ const AffiliatePresence = () => {
 
         {businesses.length === 0 ? (
           <Card className="bg-card border-border">
-            <CardContent className="py-12 text-center">
+            <CardContent className="py-12 text-center space-y-4">
               <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
               <p className="text-muted-foreground">Aucun établissement associé à votre compte.</p>
+              <Button onClick={() => setIsCreateDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-1" /> Créer mon premier établissement
+              </Button>
             </CardContent>
           </Card>
         ) : (
