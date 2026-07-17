@@ -432,7 +432,7 @@ const AffiliatePresence = () => {
                             externalField: d.externalField,
                             label: d.label,
                             url: getCurrentValue(currentBusiness.id, d.urlField, originalUrl) ?? "",
-                            cta: getCurrentValue(currentBusiness.id, d.ctaField, currentBusiness.cta[d.ctaField]) ?? "",
+                            cta: getCurrentValue(currentBusiness.id, d.ctaField, currentBusiness.cta[d.ctaField] || d.defaultCta) ?? "",
                             forceExternal: !!getCurrentValue(currentBusiness.id, d.externalField, currentBusiness.cta[d.externalField]),
                           };
                         })}
