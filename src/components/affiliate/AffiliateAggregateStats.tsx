@@ -329,7 +329,8 @@ export default function AffiliateAggregateStats() {
                     <th className="py-2 pr-3 font-medium">Établissement</th>
                     <th className="py-2 px-3 font-medium text-right">Vues</th>
                     <th className="py-2 px-3 font-medium text-right">Intentions</th>
-                    <th className="py-2 pl-3 font-medium text-right">Réservations</th>
+                    <th className="py-2 px-3 font-medium text-right">Réservations</th>
+                    <th className="py-2 pl-3 font-medium text-right">Taux conv.</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -341,7 +342,10 @@ export default function AffiliateAggregateStats() {
                       </td>
                       <td className="py-2 px-3 text-right text-foreground tabular-nums">{b.views.toLocaleString("fr-FR")}</td>
                       <td className="py-2 px-3 text-right text-foreground tabular-nums">{b.intents.toLocaleString("fr-FR")}</td>
-                      <td className="py-2 pl-3 text-right text-foreground tabular-nums">{b.bookings.toLocaleString("fr-FR")}</td>
+                      <td className="py-2 px-3 text-right text-foreground tabular-nums">{b.bookings.toLocaleString("fr-FR")}</td>
+                      <td className="py-2 pl-3 text-right text-foreground tabular-nums">
+                        {b.convRate > 0 ? `${b.convRate.toFixed(1).replace(".", ",")}%` : "—"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
