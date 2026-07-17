@@ -435,7 +435,6 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="videos" className="gap-1.5">
                         <Video className="h-3.5 w-3.5" /> Vidéos
                       </TabsTrigger>
-                      </TabsTrigger>
                       <TabsTrigger value="help" className="gap-1.5">
                         <HelpCircle className="h-3.5 w-3.5" /> Plateformes
                       </TabsTrigger>
