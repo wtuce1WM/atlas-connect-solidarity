@@ -51,6 +51,18 @@ const CTA_URL_DEFS: Array<{ urlField: string; ctaField: string; externalField: s
 const CTA_EXTRA_FIELDS = CTA_URL_DEFS.flatMap(d => [d.urlField, d.ctaField, d.externalField])
   .filter(f => f !== "website"); // website is already in PLATFORMS
 
+const REVIEW_FIELDS = [
+  "google_rating", "google_review_count",
+  "tripadvisor_rating", "tripadvisor_review_count",
+  "restaurant_guru_rating", "restaurant_guru_review_count",
+  "getyourguide_url", "getyourguide_rating", "getyourguide_review_count",
+  "viator_url", "viator_rating", "viator_review_count",
+  "tourradar_url", "tourradar_rating", "tourradar_review_count",
+  "avis_verifies_url", "avis_verifies_rating", "avis_verifies_review_count",
+  "trustpilot_url", "trustpilot_rating", "trustpilot_review_count",
+  "kayak_url", "kayak_rating", "kayak_review_count",
+];
+
 interface BusinessPresence {
   id: string;
   name: string;
@@ -67,6 +79,7 @@ interface BusinessPresence {
   opening_hours: OpeningHours | null;
   links: Record<PlatformKey, string | null>;
   cta: Record<string, any>;
+  reviews: Record<string, any>;
 }
 
 const AffiliatePresence = () => {
