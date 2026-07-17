@@ -142,7 +142,7 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, s
           {mode !== "fixed" && (
             <Select
               value={activeBusinessId ?? ""}
-              onValueChange={(v) => setSelectedId(v)}
+              onValueChange={(v) => { trackEvent("affiliate_drilldown_business_change", { mode, business_id: v, range }); setSelectedId(v); }}
               disabled={loadingBiz || !businesses?.length}
             >
               <SelectTrigger className="w-full sm:w-[280px] bg-card border-border">
@@ -162,7 +162,7 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, s
               key={r.value}
               size="sm"
               variant={range === r.value ? "default" : "ghost"}
-              onClick={() => setRange(r.value)}
+              onClick={() => { trackEvent("affiliate_drilldown_range_change", { mode, range: r.value, from: range, business_id: activeBusinessId }); setRange(r.value); }}
               className="h-7 px-3 text-xs"
             >
               {r.label}
