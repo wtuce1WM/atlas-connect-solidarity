@@ -148,7 +148,7 @@ const AffiliatesDashboard = () => {
 
         {/* Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer" onClick={() => navigate("/affiliates/presence")}>
+          <Card className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer" onClick={() => { trackEvent("affiliate_presence_click", {}); navigate("/affiliates/presence"); }}>
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-primary/20 p-3">
