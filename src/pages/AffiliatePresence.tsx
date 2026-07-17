@@ -421,6 +421,21 @@ const AffiliatePresence = () => {
                         longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
                         cities={cities}
                         neighborhoods={neighborhoods}
+                        ctaUrls={CTA_URL_DEFS.map<CtaUrlItem>((d) => {
+                          // website URL lives in the links map, others live at top-level
+                          const originalUrl = d.urlField === "website"
+                            ? currentBusiness.links.website
+                            : currentBusiness.cta[d.urlField];
+                          return {
+                            urlField: d.urlField,
+                            ctaField: d.ctaField,
+                            externalField: d.externalField,
+                            label: d.label,
+                            url: getCurrentValue(currentBusiness.id, d.urlField, originalUrl) ?? "",
+                            cta: getCurrentValue(currentBusiness.id, d.ctaField, currentBusiness.cta[d.ctaField]) ?? "",
+                            forceExternal: !!getCurrentValue(currentBusiness.id, d.externalField, currentBusiness.cta[d.externalField]),
+                          };
+                        })}
                         onPhoneChange={(v) => handleFieldChange(currentBusiness.id, "phone", v)}
                         onWhatsappChange={(v) => handleFieldChange(currentBusiness.id, "whatsapp", v)}
                         onEmailChange={(v) => handleFieldChange(currentBusiness.id, "email", v)}
@@ -430,6 +445,7 @@ const AffiliatePresence = () => {
                         onGoogleMapsUrlChange={(v) => handleFieldChange(currentBusiness.id, "google_maps_url", v)}
                         onLatitudeChange={(v) => handleFieldChange(currentBusiness.id, "latitude", v)}
                         onLongitudeChange={(v) => handleFieldChange(currentBusiness.id, "longitude", v)}
+                        onCtaFieldChange={(field, value) => handleFieldChange(currentBusiness.id, field, value)}
                       />
                     </TabsContent>
 
