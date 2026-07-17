@@ -1,4 +1,4 @@
-import { Cloud, Share2, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { Cloud, Share2, CheckCircle2, AlertCircle, Info, ExternalLink } from "lucide-react";
 import YextSyncButton from "./YextSyncButton";
 
 interface AffiliateYextInfoProps {
