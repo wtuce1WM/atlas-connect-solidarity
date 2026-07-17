@@ -447,36 +447,36 @@ const AffiliatePresence = () => {
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="links" className="w-full">
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="links" className="gap-1.5">
-                        <Globe className="h-3.5 w-3.5" /> Liens
+                    <TabsList className="mb-4 w-full overflow-x-auto whitespace-nowrap flex-nowrap justify-start gap-1 pb-1 scrollbar-thin">
+                      <TabsTrigger value="links" className="gap-1.5 shrink-0">
+                        <Globe className="h-3.5 w-3.5 shrink-0" /> Liens
                       </TabsTrigger>
-                      <TabsTrigger value="contact" className="gap-1.5">
-                        <Phone className="h-3.5 w-3.5" /> Contact
+                      <TabsTrigger value="contact" className="gap-1.5 shrink-0">
+                        <Phone className="h-3.5 w-3.5 shrink-0" /> Contact
                       </TabsTrigger>
-                      <TabsTrigger value="reviews" className="gap-1.5">
-                        <MessageSquare className="h-3.5 w-3.5" /> Avis Clients
+                      <TabsTrigger value="reviews" className="gap-1.5 shrink-0">
+                        <MessageSquare className="h-3.5 w-3.5 shrink-0" /> Avis Clients
                       </TabsTrigger>
-                      <TabsTrigger value="hours" className="gap-1.5">
-                        <Clock className="h-3.5 w-3.5" /> Horaires
+                      <TabsTrigger value="hours" className="gap-1.5 shrink-0">
+                        <Clock className="h-3.5 w-3.5 shrink-0" /> Horaires
                       </TabsTrigger>
-                      <TabsTrigger value="text" className="gap-1.5">
-                        <FileText className="h-3.5 w-3.5" /> Texte
+                      <TabsTrigger value="text" className="gap-1.5 shrink-0">
+                        <FileText className="h-3.5 w-3.5 shrink-0" /> Texte
                       </TabsTrigger>
-                      <TabsTrigger value="blocks" className="gap-1.5">
-                        <Sparkles className="h-3.5 w-3.5" /> Blocs
+                      <TabsTrigger value="blocks" className="gap-1.5 shrink-0">
+                        <Sparkles className="h-3.5 w-3.5 shrink-0" /> Blocs
                       </TabsTrigger>
-                      <TabsTrigger value="images" className="gap-1.5">
-                        <ImageIcon className="h-3.5 w-3.5" /> Images
+                      <TabsTrigger value="images" className="gap-1.5 shrink-0">
+                        <ImageIcon className="h-3.5 w-3.5 shrink-0" /> Images
                       </TabsTrigger>
-                      <TabsTrigger value="videos" className="gap-1.5">
-                        <Video className="h-3.5 w-3.5" /> Vidéos
+                      <TabsTrigger value="videos" className="gap-1.5 shrink-0">
+                        <Video className="h-3.5 w-3.5 shrink-0" /> Vidéos
                       </TabsTrigger>
-                      <TabsTrigger value="help" className="gap-1.5">
-                        <HelpCircle className="h-3.5 w-3.5" /> Plateformes
+                      <TabsTrigger value="help" className="gap-1.5 shrink-0">
+                        <HelpCircle className="h-3.5 w-3.5 shrink-0" /> Plateformes
                       </TabsTrigger>
-                      <TabsTrigger value="yext" className="gap-1.5">
-                        <Cloud className="h-3.5 w-3.5" /> Yext
+                      <TabsTrigger value="yext" className="gap-1.5 shrink-0">
+                        <Cloud className="h-3.5 w-3.5 shrink-0" /> Yext
                       </TabsTrigger>
                     </TabsList>
 
