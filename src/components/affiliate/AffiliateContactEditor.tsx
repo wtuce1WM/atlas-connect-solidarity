@@ -1,24 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, MessageCircle, MapPin, Home, Building2, Map, Navigation, Wand2 } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Home, Building2, Navigation, Wand2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMemo } from "react";
-
-const REGIONS = [
-  "Tanger-Tétouan-Al Hoceïma",
-  "L'Oriental",
-  "Fès-Meknès",
-  "Rabat-Salé-Kénitra",
-  "Béni Mellal-Khénifra",
-  "Casablanca-Settat",
-  "Marrakech-Safi",
-  "Drâa-Tafilalet",
-  "Souss-Massa",
-  "Guelmim-Oued Noun",
-  "Laâyoune-Sakia El Hamra",
-  "Dakhla-Oued Ed-Dahab",
-];
 
 export interface CityOption { id: string; name_fr: string; region: string | null }
 export interface NeighborhoodOption { id: string; name: string; city_id: string }
@@ -30,7 +15,6 @@ interface AffiliateContactEditorProps {
   address: string;
   neighborhood: string;
   city: string;
-  region: string;
   googleMapsUrl: string;
   latitude: number | string;
   longitude: number | string;
@@ -42,7 +26,6 @@ interface AffiliateContactEditorProps {
   onAddressChange: (v: string) => void;
   onNeighborhoodChange: (v: string) => void;
   onCityChange: (v: string) => void;
-  onRegionChange: (v: string) => void;
   onGoogleMapsUrlChange: (v: string) => void;
   onLatitudeChange: (v: number | null) => void;
   onLongitudeChange: (v: number | null) => void;
@@ -74,11 +57,11 @@ const Row = ({ icon, label, children }: { icon: React.ReactNode; label: string; 
 
 const AffiliateContactEditor = ({
   phone, whatsapp, email,
-  address, neighborhood, city, region,
+  address, neighborhood, city,
   googleMapsUrl, latitude, longitude,
   cities, neighborhoods,
   onPhoneChange, onWhatsappChange, onEmailChange,
-  onAddressChange, onNeighborhoodChange, onCityChange, onRegionChange,
+  onAddressChange, onNeighborhoodChange, onCityChange,
   onGoogleMapsUrlChange, onLatitudeChange, onLongitudeChange,
 }: AffiliateContactEditorProps) => {
   const { toast } = useToast();
@@ -92,10 +75,7 @@ const AffiliateContactEditor = ({
   const handleCityChange = (value: string) => {
     const v = value === "__none__" ? "" : value;
     onCityChange(v);
-    // Reset neighborhood + auto-set region
     onNeighborhoodChange("");
-    const c = cities.find(x => x.name_fr === v);
-    if (c?.region) onRegionChange(c.region);
   };
 
   const handleExtract = () => {
@@ -151,18 +131,6 @@ const AffiliateContactEditor = ({
               <SelectItem value="__none__">—</SelectItem>
               {neighborhoodsForCity.map(n => (
                 <SelectItem key={n.id} value={n.name}>{n.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Row>
-
-        <Row icon={<Map className="h-4 w-4 text-orange-500" />} label="Région">
-          <Select value={region || "__none__"} onValueChange={(v) => onRegionChange(v === "__none__" ? "" : v)}>
-            <SelectTrigger className="text-xs h-9"><SelectValue placeholder="Choisir une région..." /></SelectTrigger>
-            <SelectContent className="max-h-[300px]">
-              <SelectItem value="__none__">—</SelectItem>
-              {REGIONS.map(r => (
-                <SelectItem key={r} value={r}>{r}</SelectItem>
               ))}
             </SelectContent>
           </Select>

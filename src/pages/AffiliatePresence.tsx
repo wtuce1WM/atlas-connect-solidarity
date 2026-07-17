@@ -50,7 +50,6 @@ interface BusinessPresence {
   email: string | null;
   address: string | null;
   neighborhood: string | null;
-  region: string | null;
   latitude: number | null;
   longitude: number | null;
   opening_hours: OpeningHours | null;
@@ -87,7 +86,7 @@ const AffiliatePresence = () => {
       }
 
       const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
-        "address", "neighborhood", "region", "latitude", "longitude", "opening_hours",
+        "address", "neighborhood", "latitude", "longitude", "opening_hours",
         ...PLATFORMS.map(p => p.key)].join(",");
 
       const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
@@ -109,7 +108,6 @@ const AffiliatePresence = () => {
         email: b.email,
         address: b.address,
         neighborhood: b.neighborhood,
-        region: b.region,
         latitude: b.latitude,
         longitude: b.longitude,
         opening_hours: b.opening_hours as OpeningHours | null,
@@ -392,7 +390,6 @@ const AffiliatePresence = () => {
                         address={getCurrentValue(currentBusiness.id, "address", currentBusiness.address)}
                         neighborhood={getCurrentValue(currentBusiness.id, "neighborhood", currentBusiness.neighborhood)}
                         city={getCurrentValue(currentBusiness.id, "city", currentBusiness.city)}
-                        region={getCurrentValue(currentBusiness.id, "region", currentBusiness.region)}
                         googleMapsUrl={getCurrentValue(currentBusiness.id, "google_maps_url", currentBusiness.links.google_maps_url)}
                         latitude={getCurrentValue(currentBusiness.id, "latitude", currentBusiness.latitude)}
                         longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
@@ -404,7 +401,6 @@ const AffiliatePresence = () => {
                         onAddressChange={(v) => handleFieldChange(currentBusiness.id, "address", v)}
                         onNeighborhoodChange={(v) => handleFieldChange(currentBusiness.id, "neighborhood", v)}
                         onCityChange={(v) => handleFieldChange(currentBusiness.id, "city", v)}
-                        onRegionChange={(v) => handleFieldChange(currentBusiness.id, "region", v)}
                         onGoogleMapsUrlChange={(v) => handleFieldChange(currentBusiness.id, "google_maps_url", v)}
                         onLatitudeChange={(v) => handleFieldChange(currentBusiness.id, "latitude", v)}
                         onLongitudeChange={(v) => handleFieldChange(currentBusiness.id, "longitude", v)}
