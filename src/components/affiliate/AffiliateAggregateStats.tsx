@@ -69,14 +69,16 @@ export default function AffiliateAggregateStats() {
     const totals: Record<string, number> = {};
     const prevTotals: Record<string, number> = {};
     const tsMap = new Map<string, { views: number; intents: number }>();
+    const prevTsList: Array<{ views: number; intents: number }> = [];
     const byCountry = new Map<string, number>();
     const byDevice = new Map<string, number>();
     const bySource = new Map<string, number>();
-    const perBusiness: { id: string; name: string; city: string | null; slug: string | null; views: number; intents: number; bookings: number }[] = [];
+    const byReferrer = new Map<string, number>();
+    const perBusiness: { id: string; name: string; city: string | null; slug: string | null; views: number; intents: number; bookings: number; convRate: number; bookingRate: number }[] = [];
 
     (businesses ?? []).forEach((b, i) => {
       const d = analyticsQueries[i]?.data;
-      if (!d) { perBusiness.push({ ...b, views: 0, intents: 0, bookings: 0 }); return; }
+      if (!d) { perBusiness.push({ ...b, views: 0, intents: 0, bookings: 0, convRate: 0, bookingRate: 0 }); return; }
       for (const k of KPIS.map((x) => x.key)) {
         totals[k] = (totals[k] || 0) + (Number(d.totals?.[k]) || 0);
         prevTotals[k] = (prevTotals[k] || 0) + (Number(d.previous_totals?.[k]) || 0);
@@ -86,23 +88,41 @@ export default function AffiliateAggregateStats() {
         cur.views += r.views || 0; cur.intents += r.intents || 0;
         tsMap.set(r.day, cur);
       });
+      // Previous timeseries aligned by index (day-of-period), summed across businesses
+      const prev = d.previous_timeseries || [];
+      prev.forEach((r, idx) => {
+        if (!prevTsList[idx]) prevTsList[idx] = { views: 0, intents: 0 };
+        prevTsList[idx].views += r.views || 0;
+        prevTsList[idx].intents += r.intents || 0;
+      });
       (d.by_country || []).forEach((r) => byCountry.set(r.country, (byCountry.get(r.country) || 0) + (Number(r.c) || 0)));
       (d.by_device || []).forEach((r) => byDevice.set(r.device, (byDevice.get(r.device) || 0) + (Number(r.c) || 0)));
       (d.by_source_page || []).forEach((r) => bySource.set(r.source_page, (bySource.get(r.source_page) || 0) + (Number(r.c) || 0)));
+      (d.top_referrers || []).forEach((r) => byReferrer.set(r.referrer_domain, (byReferrer.get(r.referrer_domain) || 0) + (Number(r.c) || 0)));
 
       const v = Number(d.totals?.view) || 0;
       const it = ["whatsapp_click","phone_click","email_click","directions_click","booking_intent"]
         .reduce((s,k)=>s+(Number(d.totals?.[k])||0),0);
       const bk = Number(d.totals?.affiliate_click) || 0;
-      perBusiness.push({ ...b, views: v, intents: it, bookings: bk });
+      perBusiness.push({
+        ...b, views: v, intents: it, bookings: bk,
+        convRate: v > 0 ? Math.round((it / v) * 1000) / 10 : 0,
+        bookingRate: v > 0 ? Math.round((bk / v) * 1000) / 10 : 0,
+      });
     });
 
-    const timeseries = Array.from(tsMap.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([day, v]) => ({
+    const sortedDays = Array.from(tsMap.keys()).sort();
+    const timeseries = sortedDays.map((day, idx) => {
+      const cur = tsMap.get(day)!;
+      const prev = prevTsList[idx];
+      return {
         day: new Date(day).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }),
-        Vues: v.views, Intentions: v.intents,
-      }));
+        Vues: cur.views,
+        Intentions: cur.intents,
+        "Vues N-1": prev?.views ?? null,
+        "Intentions N-1": prev?.intents ?? null,
+      };
+    });
 
     const toRows = (m: Map<string, number>, key: string) =>
       Array.from(m.entries())
@@ -116,9 +136,28 @@ export default function AffiliateAggregateStats() {
       by_country: toRows(byCountry, "country"),
       by_device: toRows(byDevice, "device"),
       by_source_page: toRows(bySource, "source_page"),
+      top_referrers: toRows(byReferrer, "referrer_domain"),
       perBusiness,
     };
   }, [businesses, analyticsQueries]);
+
+  const conversionRates = useMemo(() => {
+    const v = aggregate.totals.view || 0;
+    const it = ["whatsapp_click","phone_click","email_click","directions_click","booking_intent"]
+      .reduce((s,k)=>s+(aggregate.totals[k]||0),0);
+    const bk = aggregate.totals.affiliate_click || 0;
+    const pv = aggregate.prevTotals.view || 0;
+    const pit = ["whatsapp_click","phone_click","email_click","directions_click","booking_intent"]
+      .reduce((s,k)=>s+(aggregate.prevTotals[k]||0),0);
+    const pbk = aggregate.prevTotals.affiliate_click || 0;
+    return {
+      intentRate: v > 0 ? (it / v) * 100 : 0,
+      bookingRate: v > 0 ? (bk / v) * 100 : 0,
+      prevIntentRate: pv > 0 ? (pit / pv) * 100 : 0,
+      prevBookingRate: pv > 0 ? (pbk / pv) * 100 : 0,
+    };
+  }, [aggregate]);
+
 
   const trackedLoadRef = useRef<string | null>(null);
   useEffect(() => {
