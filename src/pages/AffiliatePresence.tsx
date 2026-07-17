@@ -39,6 +39,17 @@ const PLATFORMS = [
 
 type PlatformKey = typeof PLATFORMS[number]["key"];
 
+const CTA_URL_DEFS: Array<{ urlField: string; ctaField: string; externalField: string; label: string }> = [
+  { urlField: "website",         ctaField: "website_cta",       externalField: "website_force_external",       label: "URL 1 · Site web" },
+  { urlField: "reserve_now_url", ctaField: "reserve_now_cta",   externalField: "reserve_now_force_external",   label: "URL 2 · Réserver" },
+  { urlField: "online_shop_url", ctaField: "online_shop_cta",   externalField: "online_shop_force_external",   label: "URL 3 · Boutique" },
+  { urlField: "url_4",           ctaField: "url_4_cta",         externalField: "url_4_force_external",         label: "URL 4" },
+  { urlField: "url_5",           ctaField: "url_5_cta",         externalField: "url_5_force_external",         label: "URL 5" },
+];
+
+const CTA_EXTRA_FIELDS = CTA_URL_DEFS.flatMap(d => [d.urlField, d.ctaField, d.externalField])
+  .filter(f => f !== "website"); // website is already in PLATFORMS
+
 interface BusinessPresence {
   id: string;
   name: string;
@@ -54,6 +65,7 @@ interface BusinessPresence {
   longitude: number | null;
   opening_hours: OpeningHours | null;
   links: Record<PlatformKey, string | null>;
+  cta: Record<string, any>;
 }
 
 const AffiliatePresence = () => {
