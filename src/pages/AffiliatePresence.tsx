@@ -84,7 +84,8 @@ const AffiliatePresence = () => {
         return;
       }
 
-      const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email", "opening_hours",
+      const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
+        "address", "neighborhood", "region", "latitude", "longitude", "opening_hours",
         ...PLATFORMS.map(p => p.key)].join(",");
 
       const { data: biz } = await supabase
@@ -103,6 +104,11 @@ const AffiliatePresence = () => {
         phone: b.phone,
         whatsapp: b.whatsapp,
         email: b.email,
+        address: b.address,
+        neighborhood: b.neighborhood,
+        region: b.region,
+        latitude: b.latitude,
+        longitude: b.longitude,
         opening_hours: b.opening_hours as OpeningHours | null,
         links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
       }));
