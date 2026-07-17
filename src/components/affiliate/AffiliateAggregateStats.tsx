@@ -79,7 +79,9 @@ export default function AffiliateAggregateStats() {
     (businesses ?? []).forEach((b, i) => {
       const d = analyticsQueries[i]?.data;
       if (!d) { perBusiness.push({ ...b, views: 0, intents: 0, bookings: 0, convRate: 0, bookingRate: 0, whatsapp: 0, phone: 0, email: 0, directions: 0 }); return; }
-      for (const k of KPIS.map((x) => x.key)) {
+      const extraKeys = ["video_play", "document_open", "share_open", "bookmark_add", "bookmark_remove"];
+      const allKeys = new Set<string>([...KPIS.map((x) => x.key), ...extraKeys]);
+      for (const k of allKeys) {
         totals[k] = (totals[k] || 0) + (Number(d.totals?.[k]) || 0);
         prevTotals[k] = (prevTotals[k] || 0) + (Number(d.previous_totals?.[k]) || 0);
       }
@@ -256,6 +258,46 @@ export default function AffiliateAggregateStats() {
                   {loading ? "—" : `${r.curr.toFixed(1).replace(".", ",")} %`}
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5">{r.label} — {r.desc}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Engagement fiche */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { key: "video_play", label: "Lectures vidéo", icon: Eye, color: "text-primary", bg: "bg-primary/15" },
+          { key: "document_open", label: "Documents ouverts", icon: Mail, color: "text-purple-500", bg: "bg-purple-500/15" },
+          { key: "share_open", label: "Partages", icon: ExternalLink, color: "text-blue-500", bg: "bg-blue-500/15" },
+          { key: "net_bookmarks", label: "Favoris nets", icon: TrendingUp, color: "text-gold", bg: "bg-gold/15" },
+        ].map((k) => {
+          const curr = k.key === "net_bookmarks"
+            ? (aggregate.totals.bookmark_add || 0) - (aggregate.totals.bookmark_remove || 0)
+            : (aggregate.totals[k.key] || 0);
+          const prev = k.key === "net_bookmarks"
+            ? (aggregate.prevTotals.bookmark_add || 0) - (aggregate.prevTotals.bookmark_remove || 0)
+            : (aggregate.prevTotals[k.key] || 0);
+          const delta = deltaPct(curr, prev);
+          const Icon = k.icon;
+          return (
+            <Card key={k.key} className="bg-card border-border">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-start justify-between mb-1">
+                  <div className={`rounded-full ${k.bg} p-2`}>
+                    <Icon className={`h-4 w-4 ${k.color}`} />
+                  </div>
+                  {!loading && delta !== null && (
+                    <span className={`text-[10px] font-medium flex items-center gap-0.5 ${delta >= 0 ? "text-green-500" : "text-destructive"}`}>
+                      {delta >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {Math.abs(delta)}%
+                    </span>
+                  )}
+                </div>
+                <p className="text-xl font-bold text-foreground leading-tight tabular-nums">
+                  {loading ? "—" : curr.toLocaleString("fr-FR")}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{k.label}</p>
               </CardContent>
             </Card>
           );
