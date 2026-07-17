@@ -285,12 +285,12 @@ const AffiliatePresence = () => {
       <HomeMindtripHeader />
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/affiliates/dashboard")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="text-white hover:text-white hover:bg-white/10">
             <ArrowLeft className="h-4 w-4 mr-1" /> Retour
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Présence en ligne</h1>
-            <p className="text-sm text-muted-foreground">Gérez les profils, horaires et coordonnées de vos établissements</p>
+            <h1 className="text-2xl font-bold text-white">Présence en ligne</h1>
+            <p className="text-sm text-white/70">Gérez les profils, horaires et coordonnées de vos établissements</p>
           </div>
         </div>
 
@@ -333,7 +333,7 @@ const AffiliatePresence = () => {
           <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
             {/* Business List Sidebar */}
             <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+              <p className="text-xs font-medium text-white uppercase tracking-wider mb-2">
                 Vos établissements
               </p>
               {businesses.map(b => {
