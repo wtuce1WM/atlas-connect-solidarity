@@ -302,8 +302,35 @@ const AffiliateServicesEditor = ({ businessId }: Props) => {
               ))}
             </div>
           )}
+
+          {categories.length > 1 && (
+            <div className="mt-3 max-w-md space-y-2">
+              <Label>Sous-catégorie par défaut</Label>
+              <Select
+                value={categories[0] || ""}
+                onValueChange={(value) => {
+                  setCategories([value, ...categories.filter((c) => c !== value)]);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choisir la sous-catégorie par défaut..." />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                La sous-catégorie par défaut sera affichée en premier sur la fiche.
+              </p>
+            </div>
+          )}
         </div>
       </div>
+
 
       {/* Commodités / Logistique */}
       <div className="space-y-3 p-4 border rounded-lg bg-white/5">
