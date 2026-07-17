@@ -410,6 +410,9 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="help" className="gap-1.5">
                         <HelpCircle className="h-3.5 w-3.5" /> Plateformes
                       </TabsTrigger>
+                      <TabsTrigger value="yext" className="gap-1.5">
+                        <Cloud className="h-3.5 w-3.5" /> Yext
+                      </TabsTrigger>
                     </TabsList>
 
                     {/* Links Tab */}
