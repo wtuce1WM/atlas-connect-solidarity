@@ -531,7 +531,7 @@ const AffiliatePresence = () => {
 
                     {/* Hours Tab */}
                     <TabsContent value="hours">
-                      <OpeningHoursEditor
+                      <AffiliateOpeningHoursEditor
                         value={getCurrentValue(currentBusiness.id, "opening_hours", currentBusiness.opening_hours) || null}
                         onChange={(hours) => handleFieldChange(currentBusiness.id, "opening_hours", hours)}
                       />
