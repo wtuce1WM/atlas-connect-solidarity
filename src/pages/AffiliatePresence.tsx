@@ -119,6 +119,7 @@ const AffiliatePresence = () => {
 
       const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
         "address", "neighborhood", "latitude", "longitude", "opening_hours",
+        "show_opening_hours", "closure_message", "vacation_dates",
         ...PLATFORMS.map(p => p.key),
         ...CTA_EXTRA_FIELDS,
         ...REVIEW_FIELDS].join(",");
