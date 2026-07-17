@@ -428,6 +428,9 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="blocks" className="gap-1.5">
                         <Sparkles className="h-3.5 w-3.5" /> Blocs
                       </TabsTrigger>
+                      <TabsTrigger value="images" className="gap-1.5">
+                        <ImageIcon className="h-3.5 w-3.5" /> Images
+                      </TabsTrigger>
                       <TabsTrigger value="help" className="gap-1.5">
                         <HelpCircle className="h-3.5 w-3.5" /> Plateformes
                       </TabsTrigger>
