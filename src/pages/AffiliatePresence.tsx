@@ -376,7 +376,6 @@ const AffiliatePresence = () => {
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <YextSyncButton businessId={currentBusiness.id} businessName={currentBusiness.name} />
                       <Button
                         size="sm"
                         disabled={!hasEdits || savingId === currentBusiness.id}
@@ -589,7 +588,7 @@ const AffiliatePresence = () => {
 
                     {/* Yext Tab */}
                     <TabsContent value="yext">
-                      <AffiliateYextInfo />
+                      <AffiliateYextInfo businessId={currentBusiness.id} businessName={currentBusiness.name} />
                     </TabsContent>
                   </Tabs>
                 </CardContent>

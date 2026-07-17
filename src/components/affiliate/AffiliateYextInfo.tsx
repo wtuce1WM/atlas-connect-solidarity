@@ -1,6 +1,12 @@
 import { Cloud, Share2, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import YextSyncButton from "./YextSyncButton";
 
-const AffiliateYextInfo = () => {
+interface AffiliateYextInfoProps {
+  businessId: string;
+  businessName: string;
+}
+
+const AffiliateYextInfo = ({ businessId, businessName }: AffiliateYextInfoProps) => {
   return (
     <div className="space-y-5">
       <div className="p-3 rounded-lg border border-border bg-white/5">
@@ -72,6 +78,10 @@ const AffiliateYextInfo = () => {
           <li><strong>Diffuser</strong> : envoie ou met à jour votre fiche chez Yext.</li>
           <li><strong>Statut</strong> : vérifie si votre établissement est déjà synchronisé.</li>
         </ul>
+      </div>
+
+      <div className="flex items-center gap-3 pt-1">
+        <YextSyncButton businessId={businessId} businessName={businessName} />
       </div>
     </div>
   );
