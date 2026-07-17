@@ -179,6 +179,7 @@ const AffiliateOpeningHoursEditor = ({ value, onChange, showOpeningHours = true 
                     active={status === "open"}
                     onClick={() => setStatus(day, "open")}
                     variant="open"
+                    neutralized={!showOpeningHours}
                   >
                     Ouvert
                   </StatusPill>
