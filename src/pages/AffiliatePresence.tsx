@@ -333,7 +333,6 @@ const AffiliatePresence = () => {
                 Vos établissements
               </p>
               {businesses.map(b => {
-                const comp = getBusinessCompleteness(b);
                 const isSelected = b.id === selectedBusiness;
                 return (
                   <button
@@ -357,20 +356,6 @@ const AffiliatePresence = () => {
                         <p className={`text-sm font-medium truncate ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
                         <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
                       </div>
-                      <Badge
-                        variant={comp.percent === 100 ? "default" : comp.percent > 50 ? "secondary" : "destructive"}
-                        className="text-[10px] shrink-0"
-                      >
-                        {comp.percent}%
-                      </Badge>
-                    </div>
-                    <div className="mt-2 h-1 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          comp.percent === 100 ? "bg-emerald-500" : comp.percent > 50 ? "bg-primary" : "bg-orange-500"
-                        }`}
-                        style={{ width: `${comp.percent}%` }}
-                      />
                     </div>
                   </button>
                 );
