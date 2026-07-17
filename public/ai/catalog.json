@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-07-17T13:59:35.941Z",
+    "generated_at": "2026-07-17T14:34:47.676Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1834
+    "count": 1835
   },
   "businesses": [
     {
@@ -150526,6 +150526,44 @@
         "tripadvisor": null,
         "youtube": "https://www.youtube.com/channel/UCnrY2NmU4Y-TOYBm77HoC_A",
         "linkedin": "https://www.linkedin.com/company/kensington-luxury-properties"
+      }
+    },
+    {
+      "id": "4e888723-93f2-455c-a748-814e9038d3df",
+      "slug": "test-auto-root-655691",
+      "url": "https://oneworldmorocco.com/test-auto-root-655691",
+      "name": "Test Auto root-655691",
+      "hook": null,
+      "description": null,
+      "main_category": null,
+      "categories": [],
+      "services": [],
+      "city": null,
+      "neighborhood": null,
+      "region": null,
+      "country": "MA",
+      "latitude": null,
+      "longitude": null,
+      "address": null,
+      "phone": null,
+      "whatsapp": null,
+      "website": null,
+      "image": null,
+      "google_rating": null,
+      "google_review_count": null,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": null,
+      "is_open_24h": false,
+      "booking_url": null,
+      "menu_url": null,
+      "social": {
+        "instagram": null,
+        "facebook": null,
+        "tripadvisor": null,
+        "youtube": null,
+        "linkedin": null
       }
     }
   ]

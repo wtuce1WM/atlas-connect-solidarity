@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1834,
+  "numberOfItems": 1835,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -52653,6 +52653,17 @@
           "reviewCount": 42,
           "bestRating": 5
         }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1835,
+      "url": "https://oneworldmorocco.com/test-auto-root-655691",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/test-auto-root-655691#business",
+        "name": "Test Auto root-655691",
+        "url": "https://oneworldmorocco.com/test-auto-root-655691"
       }
     }
   ]
