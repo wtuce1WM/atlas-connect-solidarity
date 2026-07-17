@@ -170,6 +170,12 @@ const AffiliatePresence = () => {
           links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
           cta,
           reviews,
+          hook_fr: b.hook_fr ?? null,
+          hook_en: b.hook_en ?? null,
+          hook_ar: b.hook_ar ?? null,
+          description: b.description ?? null,
+          description_en: b.description_en ?? null,
+          description_ar: b.description_ar ?? null,
         };
       });
 
