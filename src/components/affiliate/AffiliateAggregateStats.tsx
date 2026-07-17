@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye, MessageCircle, Phone, Mail, MapPin, ExternalLink, TrendingUp, TrendingDown, Building2 } from "lucide-react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend, BarChart, Bar } from "recharts";
 import type { AnalyticsRange, BusinessAnalytics } from "@/hooks/useBusinessAnalytics";
 import { trackEvent } from "@/lib/analytics";
 
@@ -74,11 +74,11 @@ export default function AffiliateAggregateStats() {
     const byDevice = new Map<string, number>();
     const bySource = new Map<string, number>();
     const byReferrer = new Map<string, number>();
-    const perBusiness: { id: string; name: string; city: string | null; slug: string | null; views: number; intents: number; bookings: number; convRate: number; bookingRate: number }[] = [];
+    const perBusiness: { id: string; name: string; city: string | null; slug: string | null; views: number; intents: number; bookings: number; convRate: number; bookingRate: number; whatsapp: number; phone: number; email: number; directions: number }[] = [];
 
     (businesses ?? []).forEach((b, i) => {
       const d = analyticsQueries[i]?.data;
-      if (!d) { perBusiness.push({ ...b, views: 0, intents: 0, bookings: 0, convRate: 0, bookingRate: 0 }); return; }
+      if (!d) { perBusiness.push({ ...b, views: 0, intents: 0, bookings: 0, convRate: 0, bookingRate: 0, whatsapp: 0, phone: 0, email: 0, directions: 0 }); return; }
       for (const k of KPIS.map((x) => x.key)) {
         totals[k] = (totals[k] || 0) + (Number(d.totals?.[k]) || 0);
         prevTotals[k] = (prevTotals[k] || 0) + (Number(d.previous_totals?.[k]) || 0);
@@ -101,13 +101,18 @@ export default function AffiliateAggregateStats() {
       (d.top_referrers || []).forEach((r) => byReferrer.set(r.referrer_domain, (byReferrer.get(r.referrer_domain) || 0) + (Number(r.c) || 0)));
 
       const v = Number(d.totals?.view) || 0;
-      const it = ["whatsapp_click","phone_click","email_click","directions_click","booking_intent"]
-        .reduce((s,k)=>s+(Number(d.totals?.[k])||0),0);
+      const wa = Number(d.totals?.whatsapp_click) || 0;
+      const ph = Number(d.totals?.phone_click) || 0;
+      const em = Number(d.totals?.email_click) || 0;
+      const di = Number(d.totals?.directions_click) || 0;
+      const bi = Number(d.totals?.booking_intent) || 0;
+      const it = wa + ph + em + di + bi;
       const bk = Number(d.totals?.affiliate_click) || 0;
       perBusiness.push({
         ...b, views: v, intents: it, bookings: bk,
         convRate: v > 0 ? Math.round((it / v) * 1000) / 10 : 0,
         bookingRate: v > 0 ? Math.round((bk / v) * 1000) / 10 : 0,
+        whatsapp: wa, phone: ph, email: em, directions: di,
       });
     });
 
@@ -294,6 +299,47 @@ export default function AffiliateAggregateStats() {
         <BreakdownCard title="Pages d'origine (interne)" rows={aggregate.by_source_page} labelKey="source_page" />
         <BreakdownCard title="Top référents externes" rows={aggregate.top_referrers} labelKey="referrer_domain" />
       </div>
+
+      {/* Top actions per business - stacked bars */}
+      {!loading && aggregate.perBusiness.some((b) => b.whatsapp + b.phone + b.email + b.directions + b.bookings > 0) && (
+        <Card className="bg-card border-border">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base text-foreground">Top actions par établissement</CardTitle>
+            <CardDescription className="text-muted-foreground text-xs">
+              Répartition des canaux de contact et réservations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div style={{ height: Math.max(200, aggregate.perBusiness.length * 38 + 60) }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={aggregate.perBusiness.map((b) => ({
+                    name: b.name.length > 22 ? b.name.slice(0, 22) + "…" : b.name,
+                    WhatsApp: b.whatsapp,
+                    Appels: b.phone,
+                    Emails: b.email,
+                    Itinéraires: b.directions,
+                    Réservations: b.bookings,
+                  }))}
+                  layout="vertical"
+                  margin={{ top: 4, right: 12, left: 4, bottom: 4 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
+                  <XAxis type="number" className="text-xs" />
+                  <YAxis type="category" dataKey="name" width={160} className="text-xs" tick={{ fontSize: 11 }} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="WhatsApp" stackId="a" fill="#25D366" />
+                  <Bar dataKey="Appels" stackId="a" fill="#3b82f6" />
+                  <Bar dataKey="Emails" stackId="a" fill="#a855f7" />
+                  <Bar dataKey="Itinéraires" stackId="a" fill="#f97316" />
+                  <Bar dataKey="Réservations" stackId="a" fill="#D4AF37" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Businesses list */}
       <Card className="bg-card border-border">
