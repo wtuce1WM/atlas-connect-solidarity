@@ -80,6 +80,9 @@ interface BusinessPresence {
   latitude: number | null;
   longitude: number | null;
   opening_hours: OpeningHours | null;
+  show_opening_hours: boolean;
+  closure_message: string | null;
+  vacation_dates: VacationPeriod[];
   links: Record<PlatformKey, string | null>;
   cta: Record<string, any>;
   reviews: Record<string, any>;
