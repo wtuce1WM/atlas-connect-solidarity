@@ -87,10 +87,11 @@ const AffiliateContactEditor = ({
   phone, whatsapp, email,
   address, neighborhood, city,
   googleMapsUrl, latitude, longitude,
-  cities, neighborhoods,
+  cities, neighborhoods, ctaUrls,
   onPhoneChange, onWhatsappChange, onEmailChange,
   onAddressChange, onNeighborhoodChange, onCityChange,
   onGoogleMapsUrlChange, onLatitudeChange, onLongitudeChange,
+  onCtaFieldChange,
 }: AffiliateContactEditorProps) => {
   const { toast } = useToast();
 
