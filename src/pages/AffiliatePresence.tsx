@@ -48,6 +48,11 @@ interface BusinessPresence {
   phone: string | null;
   whatsapp: string | null;
   email: string | null;
+  address: string | null;
+  neighborhood: string | null;
+  region: string | null;
+  latitude: number | null;
+  longitude: number | null;
   opening_hours: OpeningHours | null;
   links: Record<PlatformKey, string | null>;
 }
@@ -79,7 +84,8 @@ const AffiliatePresence = () => {
         return;
       }
 
-      const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email", "opening_hours",
+      const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
+        "address", "neighborhood", "region", "latitude", "longitude", "opening_hours",
         ...PLATFORMS.map(p => p.key)].join(",");
 
       const { data: biz } = await supabase
@@ -98,6 +104,11 @@ const AffiliatePresence = () => {
         phone: b.phone,
         whatsapp: b.whatsapp,
         email: b.email,
+        address: b.address,
+        neighborhood: b.neighborhood,
+        region: b.region,
+        latitude: b.latitude,
+        longitude: b.longitude,
         opening_hours: b.opening_hours as OpeningHours | null,
         links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
       }));
@@ -149,10 +160,11 @@ const AffiliatePresence = () => {
         Object.entries(edits).forEach(([k, v]) => {
           if (k in b.links) {
             (updated.links as any)[k] = v || null;
-          } else if (k === "phone") updated.phone = v || null;
-          else if (k === "whatsapp") updated.whatsapp = v || null;
-          else if (k === "email") updated.email = v || null;
-          else if (k === "opening_hours") updated.opening_hours = v;
+          } else if (k === "opening_hours") {
+            updated.opening_hours = v;
+          } else {
+            (updated as any)[k] = v === "" ? null : v;
+          }
         });
         return updated;
       }));
@@ -374,9 +386,23 @@ const AffiliatePresence = () => {
                         phone={getCurrentValue(currentBusiness.id, "phone", currentBusiness.phone)}
                         whatsapp={getCurrentValue(currentBusiness.id, "whatsapp", currentBusiness.whatsapp)}
                         email={getCurrentValue(currentBusiness.id, "email", currentBusiness.email)}
+                        address={getCurrentValue(currentBusiness.id, "address", currentBusiness.address)}
+                        neighborhood={getCurrentValue(currentBusiness.id, "neighborhood", currentBusiness.neighborhood)}
+                        city={getCurrentValue(currentBusiness.id, "city", currentBusiness.city)}
+                        region={getCurrentValue(currentBusiness.id, "region", currentBusiness.region)}
+                        googleMapsUrl={getCurrentValue(currentBusiness.id, "google_maps_url", currentBusiness.links.google_maps_url)}
+                        latitude={getCurrentValue(currentBusiness.id, "latitude", currentBusiness.latitude)}
+                        longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
                         onPhoneChange={(v) => handleFieldChange(currentBusiness.id, "phone", v)}
                         onWhatsappChange={(v) => handleFieldChange(currentBusiness.id, "whatsapp", v)}
                         onEmailChange={(v) => handleFieldChange(currentBusiness.id, "email", v)}
+                        onAddressChange={(v) => handleFieldChange(currentBusiness.id, "address", v)}
+                        onNeighborhoodChange={(v) => handleFieldChange(currentBusiness.id, "neighborhood", v)}
+                        onCityChange={(v) => handleFieldChange(currentBusiness.id, "city", v)}
+                        onRegionChange={(v) => handleFieldChange(currentBusiness.id, "region", v)}
+                        onGoogleMapsUrlChange={(v) => handleFieldChange(currentBusiness.id, "google_maps_url", v)}
+                        onLatitudeChange={(v) => handleFieldChange(currentBusiness.id, "latitude", v)}
+                        onLongitudeChange={(v) => handleFieldChange(currentBusiness.id, "longitude", v)}
                       />
                     </TabsContent>
 
