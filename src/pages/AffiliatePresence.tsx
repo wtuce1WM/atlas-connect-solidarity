@@ -496,7 +496,7 @@ const AffiliatePresence = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Tabs defaultValue="tools" className="w-full">
+                  <Tabs defaultValue="text" className="w-full">
                     <TabsList className="mb-4 w-full overflow-x-auto whitespace-nowrap flex-nowrap justify-start gap-1 pb-1 scrollbar-thin">
                       <TabsTrigger value="tools" className="gap-1.5 shrink-0">
                         <Wand2 className="h-3.5 w-3.5 shrink-0" /> Tools
