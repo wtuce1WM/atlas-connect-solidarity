@@ -97,6 +97,9 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     contact_name: "",
     contact_phone: "",
     internal_notes: "",
+    max_businesses: "",
+    has_video_studio: false,
+    has_dashboard: false,
     is_active: true,
   });
 
