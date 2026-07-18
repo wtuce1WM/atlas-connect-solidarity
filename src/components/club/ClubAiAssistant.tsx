@@ -303,6 +303,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
     })();
   }, [language]);
 
+  // Clear contextual follow-ups whenever the active conversation changes
+  useEffect(() => { setFollowups([]); }, [activeId]);
+
   const tts = useTextToSpeech({
     onEnd: () => {
       // In voice mode, automatically reopen the mic for continuous conversation.
