@@ -910,6 +910,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
               </div>
             );
           })}
+          {!sending && followups.length > 0 && messages.length > 0 && messages[messages.length - 1].role === "assistant" && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {followups.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => send(f)}
+                  className="text-xs px-3 py-1.5 rounded-full bg-white text-[#C04F17] hover:bg-[#C04F17] hover:text-white transition-colors border border-[#C04F17]/30"
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          )}
           {sending && (
             <div className="flex items-center gap-2 text-[#C04F17] text-xs">
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> {at.thinking}
