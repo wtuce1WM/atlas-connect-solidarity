@@ -92,33 +92,81 @@ serve(async (req: Request) => {
         throw new Error("This affiliate already has an account");
       }
 
+      const normalizedEmail = email.toLowerCase().trim();
+
       // Create the user
-      const { data: newUser, error: createError } =
+      let { data: newUser, error: createError } =
         await supabaseAdmin.auth.admin.createUser({
-          email: email.toLowerCase().trim(),
+          email: normalizedEmail,
           password,
-          email_confirm: true, // Auto-confirm email for affiliate users
+          email_confirm: true,
         });
 
+      let linkedExistingUser = false;
+
       if (createError) {
-        throw new Error(createError.message);
+        const msg = (createError.message || "").toLowerCase();
+        const alreadyRegistered =
+          msg.includes("already registered") ||
+          msg.includes("already been registered") ||
+          msg.includes("already exists");
+
+        if (!alreadyRegistered) {
+          throw new Error(createError.message);
+        }
+
+        // Email exists in auth.users → try to link it to this affiliate
+        const { data: listData, error: listError } =
+          await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+        if (listError) throw new Error(listError.message);
+
+        const existing = listData.users.find(
+          (u) => (u.email || "").toLowerCase() === normalizedEmail
+        );
+        if (!existing) {
+          throw new Error("Email déjà enregistré mais utilisateur introuvable");
+        }
+
+        // Check if that user is already linked to another affiliate
+        const { data: otherAffiliate } = await supabaseAdmin
+          .from("affiliates")
+          .select("id, name")
+          .eq("user_id", existing.id)
+          .maybeSingle();
+
+        if (otherAffiliate) {
+          throw new Error(
+            `Cet email est déjà rattaché à l'affilié « ${otherAffiliate.name} »`
+          );
+        }
+
+        // Update password so staff-set credentials work
+        const { error: pwErr } = await supabaseAdmin.auth.admin.updateUserById(
+          existing.id,
+          { password, email_confirm: true }
+        );
+        if (pwErr) throw new Error("Impossible de mettre à jour le mot de passe: " + pwErr.message);
+
+        newUser = { user: existing } as any;
+        linkedExistingUser = true;
       }
 
-      if (!newUser.user) {
+      if (!newUser?.user) {
         throw new Error("Failed to create user");
       }
 
-      // Assign affiliate role to the new user
+      // Assign affiliate role (ignore duplicates)
       const { error: roleInsertError } = await supabaseAdmin
         .from("user_roles")
-        .insert({
-          user_id: newUser.user.id,
-          role: "affiliate",
-        });
+        .upsert(
+          { user_id: newUser.user.id, role: "affiliate" },
+          { onConflict: "user_id,role", ignoreDuplicates: true }
+        );
 
       if (roleInsertError) {
-        // Rollback: delete the user if role assignment fails
-        await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
+        if (!linkedExistingUser) {
+          await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
+        }
         throw new Error("Failed to assign role: " + roleInsertError.message);
       }
 
@@ -129,18 +177,22 @@ serve(async (req: Request) => {
         .eq("id", affiliate_id);
 
       if (linkError) {
-        // Rollback: delete user and role
-        await supabaseAdmin.from("user_roles").delete().eq("user_id", newUser.user.id);
-        await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
+        if (!linkedExistingUser) {
+          await supabaseAdmin.from("user_roles").delete().eq("user_id", newUser.user.id);
+          await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
+        }
         throw new Error("Failed to link user to affiliate: " + linkError.message);
       }
 
-      console.log(`Created affiliate user account for ${affiliate.name}: ${email}`);
+      console.log(
+        `${linkedExistingUser ? "Linked existing" : "Created"} affiliate user for ${affiliate.name}: ${normalizedEmail}`
+      );
 
       return new Response(
         JSON.stringify({
           success: true,
           action: "create",
+          linked_existing: linkedExistingUser,
           user_id: newUser.user.id,
           email: newUser.user.email,
         }),
