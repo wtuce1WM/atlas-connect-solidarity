@@ -5,12 +5,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 
 interface AffiliateTextEditorProps {
+  nameFr: string;
+  nameEn: string;
+  nameAr: string;
   hookFr: string;
   hookEn: string;
   hookAr: string;
   descriptionFr: string;
   descriptionEn: string;
   descriptionAr: string;
+  onNameChange: (lang: "fr" | "en" | "ar", value: string) => void;
   onHookChange: (lang: "fr" | "en" | "ar", value: string) => void;
   onDescriptionChange: (lang: "fr" | "en" | "ar", value: string) => void;
 }
