@@ -75,16 +75,50 @@ const AffiliatesResetPassword = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         setIsRecovery(true);
       }
     });
 
-    // Check if already in a recovery session
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setIsRecovery(true);
-    }
+    (async () => {
+      const url = new URL(window.location.href);
+      const hash = url.hash.startsWith("#") ? url.hash.slice(1) : url.hash;
+      const hashParams = new URLSearchParams(hash);
+      const search = url.searchParams;
+
+      // Error returned by Supabase in the hash
+      if (hashParams.get("error")) return;
+
+      // Legacy implicit flow: tokens directly in the hash
+      if (hashParams.get("type") === "recovery" || hashParams.get("access_token")) {
+        setIsRecovery(true);
+        return;
+      }
+
+      // PKCE flow: ?code=...
+      const code = search.get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!error) setIsRecovery(true);
+        return;
+      }
+
+      // OTP flow: ?token_hash=...&type=recovery
+      const tokenHash = search.get("token_hash");
+      const type = search.get("type");
+      if (tokenHash && type) {
+        const { error } = await supabase.auth.verifyOtp({
+          type: type as "recovery",
+          token_hash: tokenHash,
+        });
+        if (!error) setIsRecovery(true);
+        return;
+      }
+
+      // Already signed in via recovery session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) setIsRecovery(true);
+    })();
 
     return () => subscription.unsubscribe();
   }, []);
