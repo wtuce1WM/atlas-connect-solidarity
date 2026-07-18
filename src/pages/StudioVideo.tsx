@@ -116,6 +116,8 @@ export default function StudioVideo() {
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
+  const [ownedBusinessIds, setOwnedBusinessIds] = useState<string[] | null>(null); // null = not loaded, [] = none
 
   useEffect(() => {
     let cancelled = false;
@@ -134,14 +136,38 @@ export default function StudioVideo() {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const { data: affiliate } = await supabase
-        .from("affiliates")
-        .select("has_dashboard, has_video_studio")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+      const uid = session.user.id;
+
+      // Detect staff/admin role
+      const [{ data: staffRow }, { data: affiliate }] = await Promise.all([
+        supabase.rpc("is_staff", { _user_id: uid }),
+        supabase
+          .from("affiliates")
+          .select("id, has_dashboard, has_video_studio")
+          .eq("user_id", uid)
+          .maybeSingle(),
+      ]);
+      const staff = !!staffRow;
+      setIsStaff(staff);
       if (affiliate) {
         setHasDashboard(!!(affiliate as any).has_dashboard);
         setHasVideoStudio(!!(affiliate as any).has_video_studio);
+      }
+
+      if (!staff && affiliate?.id) {
+        const { data: bizList } = await supabase
+          .from("businesses")
+          .select("id, name, city")
+          .eq("affiliate_id", (affiliate as any).id)
+          .order("name");
+        const ids = (bizList ?? []).map((b: any) => b.id);
+        setOwnedBusinessIds(ids);
+        // Pre-populate the picker with the affiliate's businesses
+        setBusinesses((bizList ?? []) as Business[]);
+      } else if (staff) {
+        setOwnedBusinessIds(null);
+      } else {
+        setOwnedBusinessIds([]);
       }
     })();
   }, [authState]);
@@ -182,6 +208,8 @@ export default function StudioVideo() {
 
   // Autocomplete businesses
   useEffect(() => {
+    // Affiliates: their list is preloaded and locked (no cross-search)
+    if (!isStaff) return;
     if (query.length < 2) {
       setBusinesses([]);
       return;
@@ -196,7 +224,7 @@ export default function StudioVideo() {
       setBusinesses(data ?? []);
     }, 250);
     return () => clearTimeout(t);
-  }, [query]);
+  }, [query, isStaff]);
 
   // Load business stats when selected
   useEffect(() => {
