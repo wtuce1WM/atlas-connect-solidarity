@@ -455,6 +455,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       .from("video_jobs")
       .insert({
         business_id: resolved_business_id,
+        user_id: callerUserId,
         prompt,
         duration_sec,
         tone,
