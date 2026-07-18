@@ -401,19 +401,17 @@ const AffiliatePresence = () => {
                       <span className="text-[11px] text-white/60 normal-case tracking-normal">({limitLabel})</span>
                     )}
                   </div>
-                  <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={!canCreateMore}
-                        className="border-white/20 bg-white text-black hover:bg-white/10 hover:text-white w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
-                        title={!canCreateMore ? `Limite atteinte (${limitLabel})` : undefined}
-                      >
-                        <Plus className="h-4 w-4 mr-1 text-black" />
-                        {canCreateMore ? "Nouvel établissement" : `Limite atteinte (${limitLabel})`}
-                      </Button>
-                    </DialogTrigger>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!canCreateMore}
+                    onClick={() => setIsCreateDialogOpen(true)}
+                    className="border-white/20 bg-white text-black hover:bg-white/10 hover:text-white w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={!canCreateMore ? `Limite atteinte (${limitLabel})` : undefined}
+                  >
+                    <Plus className="h-4 w-4 mr-1 text-black" />
+                    {canCreateMore ? "Nouvel établissement" : `Limite atteinte (${limitLabel})`}
+                  </Button>
                   <DialogContent className="bg-card border-border text-foreground">
                     <DialogHeader>
                       <DialogTitle>Créer un nouvel établissement</DialogTitle>
