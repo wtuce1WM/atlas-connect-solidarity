@@ -560,6 +560,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     messagesRef.current = [];
     setActiveChat(null);
     setMessages([]);
+    setFollowups([]);
     setTimeout(() => inputRef.current?.focus(), 50);
   };
 
