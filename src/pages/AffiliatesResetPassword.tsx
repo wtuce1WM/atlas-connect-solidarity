@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Lock, Eye, EyeOff, KeyRound } from "lucide-react";
-import Header from "@/components/Header";
+import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
@@ -152,9 +152,9 @@ const AffiliatesResetPassword = () => {
 
   if (!isRecovery) {
     return (
-      <div className="min-h-screen bg-black">
-        <Header />
-        <main className="container mx-auto px-4 pt-32 pb-16">
+    <div className="min-h-screen bg-black">
+      <HomeMindtripHeader />
+      <main className="container mx-auto px-4 pt-32 pb-16">
           <div className="flex flex-col items-center justify-center">
             <Card className="w-full max-w-md bg-card border-border">
               <CardHeader className="text-center space-y-4">
@@ -181,7 +181,7 @@ const AffiliatesResetPassword = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <Header />
+      <HomeMindtripHeader />
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="flex flex-col items-center justify-center">
           <Card className="w-full max-w-md bg-card border-border">
