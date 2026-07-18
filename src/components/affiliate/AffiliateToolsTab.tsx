@@ -109,7 +109,7 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
           <ExternalLink className="h-4 w-4" /> Liens de partage
         </h3>
         {renderUrlRow("URL publique (fiche)", publicUrl, "public")}
-        {renderUrlRow("URL courte", shortUrl, "short")}
+        {renderUrlRow("CARTE DE VISITE DIGITALE", shortUrl, "short")}
       </div>
 
       <div className="space-y-3">
