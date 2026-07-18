@@ -30,6 +30,7 @@ import AffiliatePromotionsEditor from "@/components/affiliate/AffiliatePromotion
 import AffiliateServicesEditor from "@/components/affiliate/AffiliateServicesEditor";
 import AffiliateImagesEditor from "@/components/affiliate/AffiliateImagesEditor";
 import AffiliateVideosEditor from "@/components/affiliate/AffiliateVideosEditor";
+import AffiliateToolsTab from "@/components/affiliate/AffiliateToolsTab";
 import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
 import { Label } from "@/components/ui/label";
 
