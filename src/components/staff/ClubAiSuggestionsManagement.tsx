@@ -68,7 +68,7 @@ const ClubAiSuggestionsManagement = () => {
     for (const r of changed) {
       const { error } = await supabase.from("club_ai_suggestions").update({
         label_fr: r.label_fr, label_en: r.label_en, label_ar: r.label_ar,
-        category: r.category, sort_order: r.sort_order, is_active: r.is_active,
+        category: r.category, city: r.city, sort_order: r.sort_order, is_active: r.is_active,
       }).eq("id", r.id);
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); setSaving(false); return; }
     }
