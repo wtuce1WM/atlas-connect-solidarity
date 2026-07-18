@@ -192,6 +192,9 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       contact_name: affiliate.contact_name || "",
       contact_phone: affiliate.contact_phone || "",
       internal_notes: noteRow?.notes || "",
+      max_businesses: affiliate.max_businesses?.toString() ?? "",
+      has_video_studio: affiliate.has_video_studio ?? false,
+      has_dashboard: affiliate.has_dashboard ?? false,
       is_active: affiliate.is_active,
     });
     setDialogOpen(true);
