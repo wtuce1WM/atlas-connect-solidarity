@@ -765,12 +765,6 @@ const AffiliatePresence = () => {
                     <TabsContent value="help">
                       <AffiliatePlatformHelp />
                     </TabsContent>
-
-
-                    {/* Yext Tab */}
-                    <TabsContent value="yext">
-                      <AffiliateYextInfo businessId={currentBusiness.id} businessName={currentBusiness.name} />
-                    </TabsContent>
                   </Tabs>
                 </CardContent>
               </Card>
