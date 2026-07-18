@@ -221,6 +221,9 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
 
     setSaving(true);
 
+    const maxBiz = formData.max_businesses.trim();
+    const numericMaxBiz = maxBiz === "" ? null : Math.min(99, Math.max(0, parseInt(maxBiz, 10) || 0));
+
     const affiliateData = {
       account_type: formData.account_type || null,
       name: formData.name.trim(),
@@ -234,6 +237,9 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       contact_name: formData.contact_name || null,
       contact_phone: formData.contact_phone || null,
       is_active: formData.is_active,
+      max_businesses: numericMaxBiz,
+      has_video_studio: formData.has_video_studio,
+      has_dashboard: formData.has_dashboard,
     };
 
     let error;
