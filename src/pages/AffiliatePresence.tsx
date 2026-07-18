@@ -375,8 +375,8 @@ const AffiliatePresence = () => {
                 </p>
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10 hover:text-white">
-                      <Plus className="h-4 w-4 mr-1" /> Nouvel établissement
+                    <Button size="sm" variant="outline" className="border-white/20 bg-white text-black hover:bg-white/10 hover:text-white">
+                      <Plus className="h-4 w-4 mr-1 text-black" /> Nouvel établissement
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="bg-card border-border text-foreground">
