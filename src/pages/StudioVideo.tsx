@@ -498,27 +498,51 @@ export default function StudioVideo() {
 
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="space-y-2">
-              <Label>Établissement (optionnel)</Label>
-              <Input
-                placeholder="Rechercher par nom…"
-                value={selected ? selected.name : query}
-                onChange={(e) => {
-                  setSelected(null);
-                  setQuery(e.target.value);
-                }}
-              />
-              {!selected && businesses.length > 0 && (
+              <Label>
+                {isStaff ? "Établissement (optionnel)" : "Votre établissement"}
+              </Label>
+              {isStaff ? (
+                <>
+                  <Input
+                    placeholder="Rechercher par nom…"
+                    value={selected ? selected.name : query}
+                    onChange={(e) => {
+                      setSelected(null);
+                      setQuery(e.target.value);
+                    }}
+                  />
+                  {!selected && businesses.length > 0 && (
+                    <div className="rounded-md border border-border bg-popover divide-y">
+                      {businesses.map((b) => (
+                        <button
+                          key={b.id}
+                          type="button"
+                          className="block w-full text-left px-3 py-2 hover:bg-accent"
+                          onClick={() => {
+                            setSelected(b);
+                            setQuery("");
+                            setBusinesses([]);
+                          }}
+                        >
+                          <div className="font-medium">{b.name}</div>
+                          {b.city && <div className="text-xs text-muted-foreground">{b.city}</div>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : ownedBusinessIds && ownedBusinessIds.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Aucun établissement rattaché à votre compte. Créez-en un depuis « Présence en ligne ».
+                </p>
+              ) : (
                 <div className="rounded-md border border-border bg-popover divide-y">
                   {businesses.map((b) => (
                     <button
                       key={b.id}
                       type="button"
-                      className="block w-full text-left px-3 py-2 hover:bg-accent"
-                      onClick={() => {
-                        setSelected(b);
-                        setQuery("");
-                        setBusinesses([]);
-                      }}
+                      className={`block w-full text-left px-3 py-2 hover:bg-accent ${selected?.id === b.id ? "bg-accent" : ""}`}
+                      onClick={() => setSelected(b)}
                     >
                       <div className="font-medium">{b.name}</div>
                       {b.city && <div className="text-xs text-muted-foreground">{b.city}</div>}
@@ -526,6 +550,7 @@ export default function StudioVideo() {
                   ))}
                 </div>
               )}
+
 
               {selected && (
                 <div className="rounded-md border border-border bg-muted/30 p-3 text-sm space-y-2">
