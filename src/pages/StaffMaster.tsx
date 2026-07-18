@@ -121,6 +121,10 @@ const StaffMaster = () => {
               <Sparkles className="h-4 w-4" />
               IA
             </TabsTrigger>
+            <TabsTrigger value="club-ai-suggestions" className="gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Suggestions Club
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Search Analytics
