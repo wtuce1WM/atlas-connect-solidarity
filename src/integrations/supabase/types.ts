@@ -6758,6 +6758,10 @@ export type Database = {
         Args: { _email: string; _role: Database["public"]["Enums"]["app_role"] }
         Returns: string
       }
+      affiliate_owns_business_in_path: {
+        Args: { _name: string; _user_id: string }
+        Returns: boolean
+      }
       calculate_distance: {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
