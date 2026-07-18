@@ -385,10 +385,23 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
         // Try to extract the actual error message from the response body
         let detailedMessage = response.error.message || "Erreur lors de l'opération";
         try {
-          const ctx = (response.error as any).context;
+          const functionError = response.error as {
+            context?: {
+              json?: () => Promise<unknown>;
+              text?: () => Promise<string>;
+            };
+          };
+          const ctx = functionError.context;
           if (ctx && typeof ctx.json === "function") {
             const body = await ctx.json();
-            if (body?.error) detailedMessage = body.error;
+            if (
+              body &&
+              typeof body === "object" &&
+              "error" in body &&
+              typeof body.error === "string"
+            ) {
+              detailedMessage = body.error;
+            }
           } else if (ctx && typeof ctx.text === "function") {
             const txt = await ctx.text();
             const parsed = JSON.parse(txt);
@@ -419,8 +432,8 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
 
       setAccountDialogOpen(false);
       fetchAffiliates();
-    } catch (error: any) {
-      let errorMessage = error.message || "Une erreur est survenue.";
+    } catch (error: unknown) {
+      let errorMessage = error instanceof Error ? error.message : "Une erreur est survenue.";
       
       // Translate common error messages
       if (errorMessage.includes("already registered")) {

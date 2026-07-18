@@ -109,12 +109,13 @@ serve(async (req: Request) => {
       const normalizedEmail = email.toLowerCase().trim();
 
       // Create the user
-      let { data: newUser, error: createError } =
-        await supabaseAdmin.auth.admin.createUser({
+      const createResult = await supabaseAdmin.auth.admin.createUser({
           email: normalizedEmail,
           password,
           email_confirm: true,
         });
+      let newUser = createResult.data;
+      const createError = createResult.error;
 
       let linkedExistingUser = false;
 
@@ -161,7 +162,7 @@ serve(async (req: Request) => {
         );
         if (pwErr) throw new Error("Impossible de mettre à jour le mot de passe: " + pwErr.message);
 
-        newUser = { user: existing } as any;
+        newUser = { user: existing };
         linkedExistingUser = true;
       }
 
@@ -296,10 +297,10 @@ serve(async (req: Request) => {
     } else {
       throw new Error("Invalid action. Must be 'create', 'reset_password', or 'delete'");
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error managing affiliate user:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Erreur inconnue" }),
       {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
