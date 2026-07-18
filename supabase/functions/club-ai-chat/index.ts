@@ -684,11 +684,46 @@ serve(async (req) => {
       ? `Profil utilisateur: ${member.first_name || member.nickname || "Membre"}${member.city ? ` · ${member.city}` : ""}${member.country ? ` (${member.country})` : ""}.`
       : "";
 
-    const contextLine = [
-      clientContext.activeCity ? `Ville active: ${clientContext.activeCity}` : "",
-      clientContext.localTime ? `Heure locale: ${clientContext.localTime}` : "",
-      clientContext.coords ? `Position: ${clientContext.coords.lat.toFixed(3)},${clientContext.coords.lng.toFixed(3)}` : "",
-    ].filter(Boolean).join(" · ");
+    // ----- Enriched temporal / seasonal context -----
+    // Morocco is UTC+1 year-round. Derive weekday, part of day, weekend flag, season.
+    const enrichContext = () => {
+      const now = new Date();
+      // Force Casablanca timezone (Africa/Casablanca)
+      const fmt = new Intl.DateTimeFormat("fr-FR", {
+        timeZone: "Africa/Casablanca",
+        weekday: "long", year: "numeric", month: "long", day: "numeric",
+        hour: "2-digit", minute: "2-digit", hour12: false,
+      });
+      const parts = fmt.formatToParts(now);
+      const get = (t: string) => parts.find(p => p.type === t)?.value || "";
+      const weekday = get("weekday");
+      const day = get("day"), month = get("month"), year = get("year");
+      const hourNum = parseInt(get("hour") || "12", 10);
+      const dayJs = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Casablanca" }));
+      const dow = dayJs.getDay(); // 0=Sun
+      const isWeekend = dow === 5 || dow === 6 || dow === 0; // ven soir / sam / dim = weekend au Maroc
+      const partOfDay =
+        hourNum < 6 ? "nuit" :
+        hourNum < 12 ? "matinée" :
+        hourNum < 14 ? "midi (heure de déjeuner)" :
+        hourNum < 18 ? "après-midi" :
+        hourNum < 22 ? "soirée (heure de dîner)" :
+        "nuit";
+      const m = dayJs.getMonth();
+      const season =
+        m >= 2 && m <= 4 ? "printemps (temps doux, très agréable au Maroc)" :
+        m >= 5 && m <= 8 ? "été (chaud, surtout à Marrakech ; côte plus tempérée à Essaouira)" :
+        m >= 9 && m <= 10 ? "automne (temps doux)" :
+        "hiver (frais le soir, journées douces)";
+      return { weekday, day, month, year, hourNum, isWeekend, partOfDay, season };
+    };
+    const t = enrichContext();
+    const contextLines = [
+      clientContext.activeCity ? `- Ville active: **${clientContext.activeCity}**` : "",
+      `- Date locale: ${t.weekday} ${t.day} ${t.month} ${t.year} · ${t.partOfDay} (${t.hourNum}h) · ${t.isWeekend ? "WEEKEND" : "en semaine"}`,
+      `- Saison: ${t.season}`,
+      clientContext.coords ? `- Position GPS: ${clientContext.coords.lat.toFixed(3)},${clientContext.coords.lng.toFixed(3)}` : "",
+    ].filter(Boolean).join("\n");
 
     // Compute taste profile once per call (cheap: 5 small queries)
     let tasteLine = "";
@@ -699,11 +734,52 @@ serve(async (req) => {
       console.error("taste profile error", e);
     }
 
+    // ----- Proactive RAG: pre-fetch candidate businesses from last user message -----
+    // The model can still call search_businesses to refine, but starting with real
+    // candidates in context cuts hallucination and unnecessary tool round-trips.
+    const lastUserMsg = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+    let prefetchBlock = "";
+    try {
+      const q = String(lastUserMsg).trim().slice(0, 200);
+      const city = clientContext.activeCity || "";
+      if (q.length >= 4) {
+        const clean = (s: string) => s.replace(/[,()"]/g, " ").trim();
+        const terms = clean(q).split(/\s+/).filter((w) => w.length >= 3).slice(0, 5);
+        if (terms.length) {
+          const orParts: string[] = [];
+          for (const w of terms) {
+            orParts.push(`name.ilike.%${w}%`, `description.ilike.%${w}%`, `main_category.ilike.%${w}%`);
+          }
+          let pq = admin
+            .from("businesses")
+            .select("name,slug,city,neighborhood,main_category,hook_fr,google_rating")
+            .eq("is_active", true)
+            .or(orParts.join(","))
+            .order("priority_score", { ascending: false, nullsFirst: false })
+            .limit(8);
+          if (city) pq = pq.ilike("city", `%${city}%`);
+          const { data: candidates } = await pq;
+          if (candidates && candidates.length) {
+            const lines = candidates.map((b: any) =>
+              `  • ${b.name} — ${b.main_category || "?"}${b.neighborhood ? `, ${b.neighborhood}` : ""}${b.city ? `, ${b.city}` : ""} (slug: ${b.slug})${b.google_rating ? ` · ★${b.google_rating}` : ""}`
+            ).join("\n");
+            prefetchBlock = `\nCANDIDATS RÉELS PRÉ-CHARGÉS depuis la base 1WM (message: "${q.slice(0, 80)}"):\n${lines}\n\nUtilise-les en priorité pour ta réponse. Si aucun ne correspond finement à l'intention (ambiance, badge, service, quartier précis), appelle search_businesses pour affiner. Ne mentionne JAMAIS d'établissement qui ne provient pas soit de cette liste, soit d'un appel d'outil.`;
+          }
+        }
+      }
+    } catch (e) {
+      console.error("prefetch candidates error", e);
+    }
+
     const system = `Tu es l'assistant personnel du Club One World Morocco. Tu aides un membre connecté à découvrir et retrouver des établissements RÉELS référencés dans la base 1WM.
 
 ${profileLine}
-${contextLine ? `Contexte session: ${contextLine}.` : ""}
+
+CONTEXTE SESSION:
+${contextLines}
+
 ${tasteLine}
+${prefetchBlock}
 
 RÈGLES DE PRÉCISION (critiques) :
 1. N'INVENTE JAMAIS un établissement, une adresse, un horaire, un prix ou un numéro. Toutes ces informations DOIVENT provenir d'un appel d'outil (search_businesses, get_business_details, list_my_bookmarks…).
