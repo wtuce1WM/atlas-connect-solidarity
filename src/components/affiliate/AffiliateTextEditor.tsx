@@ -36,12 +36,15 @@ const stripHtml = (html: string): string => {
 };
 
 const AffiliateTextEditor = ({
+  nameFr, nameEn, nameAr,
   hookFr, hookEn, hookAr,
   descriptionFr, descriptionEn, descriptionAr,
-  onHookChange, onDescriptionChange,
+  onNameChange, onHookChange, onDescriptionChange,
 }: AffiliateTextEditorProps) => {
+  const names = { fr: nameFr, en: nameEn, ar: nameAr };
   const hooks = { fr: hookFr, en: hookEn, ar: hookAr };
   const descriptions = { fr: descriptionFr, en: descriptionEn, ar: descriptionAr };
+  const MAX_NAME = 200;
   const lastValidDesc = useRef<Record<"fr" | "en" | "ar", string>>({
     fr: descriptionFr || "",
     en: descriptionEn || "",
