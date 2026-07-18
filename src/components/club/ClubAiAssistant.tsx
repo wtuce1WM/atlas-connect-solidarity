@@ -587,6 +587,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     const newMsgs: Msg[] = [...baseMessages, { role: "user", content: text }];
     messagesRef.current = newMsgs;
     setMessages(newMsgs);
+    setFollowups([]);
 
     const clientContext: any = {
       localTime: new Date().toLocaleString("fr-FR", { timeZone: "Africa/Casablanca", dateStyle: "full", timeStyle: "short" }),
