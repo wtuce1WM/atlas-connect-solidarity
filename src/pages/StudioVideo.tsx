@@ -218,7 +218,6 @@ export default function StudioVideo() {
       const { data } = await supabase
         .from("businesses")
         .select("id,name,city")
-        .eq("is_active", true)
         .ilike("name", `%${query}%`)
         .limit(8);
       setBusinesses(data ?? []);
