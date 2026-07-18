@@ -475,7 +475,18 @@ const AffiliatePresence = () => {
                     >
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-medium truncate ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
-                        <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
+                        <div className="flex items-center justify-between gap-2 mt-1">
+                          <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
+                          {b.is_active ? (
+                            <span className="inline-flex items-center rounded-full bg-green-500/20 px-2 py-0.5 text-[10px] font-medium text-green-400">
+                              Actif
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/50">
+                              Inactif
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </button>
                   );
