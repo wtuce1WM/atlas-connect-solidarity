@@ -377,9 +377,15 @@ const AffiliatePresence = () => {
             <CardContent className="py-12 text-center space-y-4">
               <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
               <p className="text-muted-foreground">Aucun établissement associé à votre compte.</p>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-1" /> Créer mon premier établissement
-              </Button>
+              {canCreateMore ? (
+                <Button onClick={() => setIsCreateDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-1" /> Créer mon premier établissement
+                </Button>
+              ) : (
+                <p className="text-sm text-orange-400">
+                  Votre forfait n'autorise aucun établissement. Contactez-nous pour l'activer.
+                </p>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -387,13 +393,25 @@ const AffiliatePresence = () => {
             {/* Business horizontal strip */}
             <div>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 sm:justify-between mb-2">
-                  <p className="text-xs font-medium text-white uppercase tracking-wider">
-                    Vos établissements
-                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-xs font-medium text-white uppercase tracking-wider">
+                      Vos établissements
+                    </p>
+                    {limitLabel && (
+                      <span className="text-[11px] text-white/60 normal-case tracking-normal">({limitLabel})</span>
+                    )}
+                  </div>
                   <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button size="sm" variant="outline" className="border-white/20 bg-white text-black hover:bg-white/10 hover:text-white w-full sm:w-auto">
-                        <Plus className="h-4 w-4 mr-1 text-black" /> Nouvel établissement
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!canCreateMore}
+                        className="border-white/20 bg-white text-black hover:bg-white/10 hover:text-white w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={!canCreateMore ? `Limite atteinte (${limitLabel})` : undefined}
+                      >
+                        <Plus className="h-4 w-4 mr-1 text-black" />
+                        {canCreateMore ? "Nouvel établissement" : `Limite atteinte (${limitLabel})`}
                       </Button>
                     </DialogTrigger>
                   <DialogContent className="bg-card border-border text-foreground">
