@@ -136,11 +136,14 @@ export type Database = {
           contact_phone: string | null
           country_id: string
           created_at: string
+          has_dashboard: boolean | null
+          has_video_studio: boolean | null
           ice: string | null
           id: string
           is_active: boolean
           kp_regroupement: string | null
           main_category: string | null
+          max_businesses: number | null
           name: string
           phone: string | null
           updated_at: string
@@ -154,11 +157,14 @@ export type Database = {
           contact_phone?: string | null
           country_id: string
           created_at?: string
+          has_dashboard?: boolean | null
+          has_video_studio?: boolean | null
           ice?: string | null
           id?: string
           is_active?: boolean
           kp_regroupement?: string | null
           main_category?: string | null
+          max_businesses?: number | null
           name: string
           phone?: string | null
           updated_at?: string
@@ -172,11 +178,14 @@ export type Database = {
           contact_phone?: string | null
           country_id?: string
           created_at?: string
+          has_dashboard?: boolean | null
+          has_video_studio?: boolean | null
           ice?: string | null
           id?: string
           is_active?: boolean
           kp_regroupement?: string | null
           main_category?: string | null
+          max_businesses?: number | null
           name?: string
           phone?: string | null
           updated_at?: string
