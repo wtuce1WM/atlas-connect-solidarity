@@ -186,6 +186,7 @@ const AffiliatePresence = () => {
         description_ar: b.description_ar ?? null,
         name_en: b.name_en ?? null,
         name_ar: b.name_ar ?? null,
+        is_active: b.is_active ?? true,
       };
     });
 
