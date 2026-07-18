@@ -103,6 +103,7 @@ interface BusinessPresence {
   description_ar: string | null;
   name_en: string | null;
   name_ar: string | null;
+  is_active: boolean;
 }
 
 const AffiliatePresence = () => {
