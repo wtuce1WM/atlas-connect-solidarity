@@ -201,19 +201,19 @@ const AffiliatePresence = () => {
 
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id, max_businesses")
-        .eq("user_id", session.user.id)
+        .select("id, max_businesses, has_dashboard, has_video_studio")
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (!affiliate) {
-        await supabase.auth.signOut();
-        toast({ title: "Ce compte n'est pas un compte affilié", variant: "destructive" });
-        navigate("/affiliates");
+        setIsLoading(false);
         return;
       }
 
       setAffiliateId(affiliate.id);
       setMaxBusinesses((affiliate as any).max_businesses ?? null);
+      setHasDashboard(!!(affiliate as any).has_dashboard);
+      setHasVideoStudio(!!(affiliate as any).has_video_studio);
       await loadBusinesses(affiliate.id);
     };
     init();
