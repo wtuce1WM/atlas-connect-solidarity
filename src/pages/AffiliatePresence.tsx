@@ -348,7 +348,7 @@ const AffiliatePresence = () => {
           </Button>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-white">Présence en ligne</h1>
-            <p className="text-sm text-white/70">Gérez les profils, horaires et coordonnées de vos établissements</p>
+            <p className="text-sm text-white/70">{"\n"}</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
             <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
