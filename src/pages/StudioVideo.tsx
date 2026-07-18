@@ -701,7 +701,7 @@ export default function StudioVideo() {
           )}
 
           <section className="space-y-3">
-            <h2 className="font-semibold">Galerie — dernières vidéos générées</h2>
+            <h2 className="font-semibold text-white">Galerie — dernières vidéos générées</h2>
             <p className="text-xs text-muted-foreground">
               Les vidéos produites via ce studio apparaissent ici avec le prompt utilisé.
             </p>
