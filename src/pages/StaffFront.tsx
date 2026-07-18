@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, ArrowUp, ArrowDown, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical, Youtube } from "lucide-react";
+import { ArrowLeft, ArrowUp, ArrowDown, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical, Youtube, MessageSquare } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
 import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
@@ -314,6 +314,7 @@ import RegenerateHomepageSnapshotButton from "@/components/staff/RegenerateHomep
 import HomepageFrontStructurePreview from "@/components/staff/HomepageFrontStructurePreview";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
+import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
 import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
 import ServiceVideosPanel from "@/components/staff/ServiceVideosPanel";
@@ -644,9 +645,16 @@ const StaffFront = () => {
             <Tabs defaultValue="search">
               <TabsList className="mb-4">
                 <TabsTrigger value="search">Search</TabsTrigger>
+                <TabsTrigger value="club" className="gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Suggestions Club
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="search">
                 <PopularSearchesManagement />
+              </TabsContent>
+              <TabsContent value="club">
+                <ClubAiSuggestionsManagement />
               </TabsContent>
             </Tabs>
           </TabsContent>
