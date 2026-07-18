@@ -14,6 +14,7 @@ type Row = {
   label_en: string | null;
   label_ar: string | null;
   category: string | null;
+  city: string | null;
   sort_order: number;
   is_active: boolean;
 };
