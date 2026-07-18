@@ -82,12 +82,12 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
 
   const renderUrlRow = (label: string, url: string, key: string) => (
     <div className="space-y-1.5">
-      <Label className="text-white/80">{label}</Label>
+      <Label className="text-black/80">{label}</Label>
       <div className="flex items-stretch gap-2">
         <input
           readOnly
           value={url}
-          className="flex-1 rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-2 font-mono"
+          className="flex-1 rounded-md bg-black/5 border border-black/20 text-black text-sm px-3 py-2 font-mono"
           onFocus={(e) => e.currentTarget.select()}
         />
         <Button type="button" variant="outline" size="sm" onClick={() => copy(url, key)} className="shrink-0">
@@ -105,7 +105,7 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-black font-semibold flex items-center gap-2">
           <ExternalLink className="h-4 w-4" /> Liens de partage
         </h3>
         {renderUrlRow("URL publique (fiche)", publicUrl, "public")}
@@ -113,7 +113,7 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-black font-semibold flex items-center gap-2">
           <QrCode className="h-4 w-4" /> QR Code
         </h3>
         <div className="flex flex-col sm:flex-row items-start gap-4">
@@ -121,8 +121,8 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
             <QRCodeSVG value={publicUrl} size={200} level="M" />
           </div>
           <div className="flex flex-col gap-2">
-            <p className="text-sm text-white/70 max-w-md">
-              QR code pointant vers la fiche publique de <span className="font-semibold text-white">{businessName}</span>.
+            <p className="text-sm text-black/70 max-w-md">
+              QR code pointant vers la fiche publique de <span className="font-semibold text-black">{businessName}</span>.
               Idéal pour vos supports imprimés (menu, vitrine, carte de visite).
             </p>
             <div className="flex gap-2 flex-wrap">
