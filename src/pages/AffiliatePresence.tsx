@@ -342,19 +342,16 @@ const AffiliatePresence = () => {
     <div className="min-h-screen bg-black">
       <HomeMindtripHeader />
       <main className="container mx-auto px-4 pt-32 pb-16">
-        <div className="flex flex-col gap-2 mb-8">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Présence en ligne</h1>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
-                <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => navigate("/studio-video")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
-                <Video className="h-4 w-4 mr-1" /> Studio vidéo
-              </Button>
-            </div>
+        <div className="flex flex-col gap-4 mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Présence en ligne</h1>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+              <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate("/studio-video")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+              <Video className="h-4 w-4 mr-1" /> Studio vidéo
+            </Button>
           </div>
-          <p className="text-sm text-white/70">{"\n"}</p>
         </div>
 
         {businesses.length === 0 ? (
