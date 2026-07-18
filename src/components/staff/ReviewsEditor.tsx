@@ -186,7 +186,7 @@ const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ busine
       )}
 
       {/* Liste des autres avis */}
-      <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+      <div className="space-y-2">
         {otherReviews.map(review => (
           <div
             key={review.id}
