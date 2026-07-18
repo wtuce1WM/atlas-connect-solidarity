@@ -14,6 +14,7 @@ type Row = {
   label_en: string | null;
   label_ar: string | null;
   category: string | null;
+  city: string | null;
   sort_order: number;
   is_active: boolean;
 };
@@ -28,7 +29,7 @@ const ClubAiSuggestionsManagement = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("club_ai_suggestions")
-      .select("id,label_fr,label_en,label_ar,category,sort_order,is_active")
+      .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active")
       .order("sort_order", { ascending: true });
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((data as Row[]) || []);
@@ -67,7 +68,7 @@ const ClubAiSuggestionsManagement = () => {
     for (const r of changed) {
       const { error } = await supabase.from("club_ai_suggestions").update({
         label_fr: r.label_fr, label_en: r.label_en, label_ar: r.label_ar,
-        category: r.category, sort_order: r.sort_order, is_active: r.is_active,
+        category: r.category, city: r.city, sort_order: r.sort_order, is_active: r.is_active,
       }).eq("id", r.id);
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); setSaving(false); return; }
     }
@@ -93,17 +94,29 @@ const ClubAiSuggestionsManagement = () => {
         <p className="text-sm text-muted-foreground mb-4">
           Ces suggestions apparaissent sous le message d'accueil du chat IA sur <code>/club</code>.
           Le libellé <b>FR</b> est obligatoire ; EN et AR sont utilisés selon la langue de l'utilisateur (fallback FR).
+          <br />
+          <b>Ville</b> : laisser vide pour afficher partout, sinon la suggestion n'apparaîtra que pour la ville active.
         </p>
         {loading ? (
           <div className="text-sm text-muted-foreground">Chargement…</div>
         ) : (
           <div className="space-y-3">
             {rows.map((r) => (
-              <div key={r.id} className={`grid grid-cols-1 lg:grid-cols-[80px_1fr_1fr_1fr_100px_60px] gap-2 items-start p-3 rounded-lg border ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"}`}>
+              <div key={r.id} className={`grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_120px_100px_60px] gap-2 items-start p-3 rounded-lg border ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"}`}>
                 <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} className="w-full" title="Ordre" />
                 <Textarea value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Libellé FR" rows={2} />
                 <Textarea value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="Libellé EN" rows={2} />
                 <Textarea value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="Libellé AR" rows={2} dir="rtl" />
+                <select
+                  value={r.city || ""}
+                  onChange={(e) => update(r.id, { city: e.target.value || null })}
+                  className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                  title="Ville"
+                >
+                  <option value="">Toutes</option>
+                  <option value="Marrakech">Marrakech</option>
+                  <option value="Essaouira">Essaouira</option>
+                </select>
                 <div className="flex items-center gap-2 pt-2">
                   <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
                   <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>

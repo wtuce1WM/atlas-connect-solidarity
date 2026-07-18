@@ -289,12 +289,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const [followups, setFollowups] = useState<string[]>([]);
 
   // Load staff-managed suggestions from DB (fallback to hardcoded list on error/empty)
+  // Filter by active city: NULL city = universal, else must match current homepage city.
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
+      let activeCity = "Marrakech";
+      try {
+        const mod = await import("@/lib/cityHomepage");
+        activeCity = mod.readLastHomepageCity() || "Marrakech";
+      } catch {/* noop */}
+      const { data } = await (supabase as any)
         .from("club_ai_suggestions")
-        .select("label_fr,label_en,label_ar")
+        .select("label_fr,label_en,label_ar,city")
         .eq("is_active", true)
+        .or(`city.is.null,city.eq.${activeCity}`)
         .order("sort_order", { ascending: true });
       if (!data || data.length === 0) { setDbSuggestions(null); return; }
       const key = language === "en" ? "label_en" : language === "ar" ? "label_ar" : "label_fr";
