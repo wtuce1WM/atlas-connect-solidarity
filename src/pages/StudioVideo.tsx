@@ -407,18 +407,20 @@ export default function StudioVideo() {
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 
-      <div className="min-h-screen bg-background text-foreground py-10 px-4">
-        <div className="mx-auto max-w-3xl space-y-8">
-          <header className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">Studio Vidéo IA</h1>
-            <p className="text-muted-foreground">
-              Générez une vidéo verticale 720×1280 (17 à 27 s) à partir d'un prompt et d'un établissement.
-            </p>
-            <div className="text-xs text-muted-foreground/80 mt-1 space-y-1 bg-muted/40 p-3 rounded-lg border border-border/50">
-              <p>📌 Il faut savoir avant si l'établissement a un Hook, suffisamment d'images, de vidéos, une offre/popup...</p>
-              <p>💡 Signalisez dans le prompt si vous voulez mettre en avant les horaires, la localisation, une offre/popup.</p>
-            </div>
-          </header>
+      <div className="min-h-screen bg-black">
+        <HomeMindtripHeader />
+        <main className="container mx-auto px-4 pt-32 pb-16">
+          <div className="mx-auto max-w-3xl space-y-8">
+            <header className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
+              <p className="text-white/70">
+                Générez une vidéo verticale 720×1280 (17 à 27 s) à partir d'un prompt et d'un établissement.
+              </p>
+              <div className="text-xs text-white/70 mt-1 space-y-1 bg-white/10 p-3 rounded-lg border border-white/20">
+                <p>📌 Il faut savoir avant si l'établissement a un Hook, suffisamment d'images, de vidéos, une offre/popup...</p>
+                <p>💡 Signalisez dans le prompt si vous voulez mettre en avant les horaires, la localisation, une offre/popup.</p>
+              </div>
+            </header>
 
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="space-y-2">
