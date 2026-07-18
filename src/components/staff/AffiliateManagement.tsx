@@ -528,6 +528,8 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                     placeholder="Code KP"
                     maxLength={20}
                   />
+                </div>
+
                 {/* Ets max */}
                 <div className="space-y-2">
                   <Label htmlFor="max_businesses">Ets (max 99)</Label>
