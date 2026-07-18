@@ -183,14 +183,6 @@ const AffiliatesLogin = () => {
         <div className="flex flex-col items-center justify-center">
           <Card className="w-full max-w-md bg-card border-border">
             <CardHeader className="text-center space-y-4">
-              <div className="flex justify-center">
-                <div className="rounded-full bg-gold/20 p-4">
-                  <Users className="h-8 w-8 text-gold" />
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <img src={logoGold} alt="Logo" className="h-12 w-12 object-contain" />
-              </div>
               <CardTitle className="text-2xl text-foreground">{t.title}</CardTitle>
               <CardDescription className="text-muted-foreground">
                 {t.subtitle}
