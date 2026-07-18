@@ -7,10 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Lock, Mail, Eye, EyeOff } from "lucide-react";
+import { Loader2, Lock, Mail, Eye, EyeOff } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const AffiliatesLogin = () => {
   const navigate = useNavigate();
