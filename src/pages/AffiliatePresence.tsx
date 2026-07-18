@@ -482,7 +482,7 @@ const AffiliatePresence = () => {
 
             {/* Editor Panel */}
             {currentBusiness && (
-              <Card className="bg-card border-border">
+              <Card className="bg-card border-border dark">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
