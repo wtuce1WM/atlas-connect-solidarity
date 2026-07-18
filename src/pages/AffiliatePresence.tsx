@@ -511,45 +511,45 @@ const AffiliatePresence = () => {
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="text" className="w-full">
-                    <TabsList className="mb-4 w-full overflow-x-auto whitespace-nowrap flex-nowrap justify-start gap-1 pb-1 scrollbar-thin">
-                      <TabsTrigger value="tools" className="gap-1.5 shrink-0">
-                        <Wand2 className="h-3.5 w-3.5 shrink-0" /> Tools
+                    <TabsList className="mb-6 w-full flex items-center overflow-x-auto whitespace-nowrap justify-start gap-1 border-b border-white/10 bg-black p-0 h-auto scrollbar-hide">
+                      <TabsTrigger value="tools" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Wand2 className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Tools</span>
                       </TabsTrigger>
-                      <TabsTrigger value="text" className="gap-1.5 shrink-0">
-                        <FileText className="h-3.5 w-3.5 shrink-0" /> Texte
+                      <TabsTrigger value="text" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <FileText className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Texte</span>
                       </TabsTrigger>
-                      <TabsTrigger value="links" className="gap-1.5 shrink-0">
-                        <Globe className="h-3.5 w-3.5 shrink-0" /> Liens
+                      <TabsTrigger value="links" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Globe className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Liens</span>
                       </TabsTrigger>
-                      <TabsTrigger value="contact" className="gap-1.5 shrink-0">
-                        <Phone className="h-3.5 w-3.5 shrink-0" /> Contact
+                      <TabsTrigger value="contact" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Phone className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Contact</span>
                       </TabsTrigger>
-                      <TabsTrigger value="reviews" className="gap-1.5 shrink-0">
-                        <MessageSquare className="h-3.5 w-3.5 shrink-0" /> Avis Clients
+                      <TabsTrigger value="reviews" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <MessageSquare className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Avis Clients</span>
                       </TabsTrigger>
-                      <TabsTrigger value="hours" className="gap-1.5 shrink-0">
-                        <Clock className="h-3.5 w-3.5 shrink-0" /> Horaires
+                      <TabsTrigger value="hours" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Clock className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Horaires</span>
                       </TabsTrigger>
-                      <TabsTrigger value="blocks" className="gap-1.5 shrink-0">
-                        <Sparkles className="h-3.5 w-3.5 shrink-0" /> Blocs
+                      <TabsTrigger value="blocks" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Sparkles className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Blocs</span>
                       </TabsTrigger>
-                      <TabsTrigger value="services" className="gap-1.5 shrink-0">
-                        <Wrench className="h-3.5 w-3.5 shrink-0" /> Services
+                      <TabsTrigger value="services" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Wrench className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Services</span>
                       </TabsTrigger>
-                      <TabsTrigger value="promotions" className="gap-1.5 shrink-0">
-                        <Tag className="h-3.5 w-3.5 shrink-0" /> Offres
+                      <TabsTrigger value="promotions" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Tag className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Offres</span>
                       </TabsTrigger>
-                      <TabsTrigger value="images" className="gap-1.5 shrink-0">
-                        <ImageIcon className="h-3.5 w-3.5 shrink-0" /> Images
+                      <TabsTrigger value="images" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <ImageIcon className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Images</span>
                       </TabsTrigger>
-                      <TabsTrigger value="videos" className="gap-1.5 shrink-0">
-                        <Video className="h-3.5 w-3.5 shrink-0" /> Vidéos
+                      <TabsTrigger value="videos" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Video className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Vidéos</span>
                       </TabsTrigger>
-                      <TabsTrigger value="help" className="gap-1.5 shrink-0">
-                        <HelpCircle className="h-3.5 w-3.5 shrink-0" /> Plateformes
+                      <TabsTrigger value="help" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <HelpCircle className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Plateformes</span>
                       </TabsTrigger>
-                      <TabsTrigger value="yext" className="gap-1.5 shrink-0">
-                        <Cloud className="h-3.5 w-3.5 shrink-0" /> Yext
+                      <TabsTrigger value="yext" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Cloud className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Yext</span>
                       </TabsTrigger>
                     </TabsList>
 
