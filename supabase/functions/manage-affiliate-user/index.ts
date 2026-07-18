@@ -33,10 +33,10 @@ serve(async (req: Request) => {
       }
     );
 
-    // Verify the calling user is staff or admin (via getClaims — compatible with new signing keys)
+    // Verify the calling user is staff or admin.
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
+    if (!authHeader?.startsWith("Bearer ")) {
+      throw new Error("Session staff manquante. Reconnecte-toi au back-office puis réessaie.");
     }
 
     const token = authHeader.replace("Bearer ", "");
@@ -45,12 +45,23 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       { global: { headers: { Authorization: authHeader } } },
     );
-    const { data: claimsData, error: authError } = await supabaseAuth.auth.getClaims(token);
-    if (authError || !claimsData?.claims?.sub) {
-      console.error("Auth error:", authError);
-      throw new Error("Invalid authentication");
+
+    let callingUserId: string | undefined;
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    if (claimsData?.claims?.sub) {
+      callingUserId = claimsData.claims.sub as string;
+    } else {
+      const { data: userData, error: userError } = await supabaseAuth.auth.getUser(token);
+      if (userData?.user?.id) {
+        callingUserId = userData.user.id;
+      } else {
+        console.error("Auth validation failed:", {
+          claims: claimsError?.message,
+          user: userError?.message,
+        });
+        throw new Error("Session staff invalide ou expirée. Reconnecte-toi au back-office puis réessaie.");
+      }
     }
-    const callingUserId = claimsData.claims.sub as string;
 
     // Check if calling user is staff or admin
     const { data: callerRoles, error: roleError } = await supabaseAdmin
@@ -98,12 +109,13 @@ serve(async (req: Request) => {
       const normalizedEmail = email.toLowerCase().trim();
 
       // Create the user
-      let { data: newUser, error: createError } =
-        await supabaseAdmin.auth.admin.createUser({
+      const createResult = await supabaseAdmin.auth.admin.createUser({
           email: normalizedEmail,
           password,
           email_confirm: true,
         });
+      let newUser = createResult.data;
+      const createError = createResult.error;
 
       let linkedExistingUser = false;
 
@@ -150,7 +162,7 @@ serve(async (req: Request) => {
         );
         if (pwErr) throw new Error("Impossible de mettre à jour le mot de passe: " + pwErr.message);
 
-        newUser = { user: existing } as any;
+        newUser = { user: existing };
         linkedExistingUser = true;
       }
 
@@ -285,10 +297,10 @@ serve(async (req: Request) => {
     } else {
       throw new Error("Invalid action. Must be 'create', 'reset_password', or 'delete'");
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error managing affiliate user:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Erreur inconnue" }),
       {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
