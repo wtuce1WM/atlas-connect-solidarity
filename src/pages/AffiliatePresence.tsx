@@ -135,12 +135,13 @@ const AffiliatePresence = () => {
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
       "show_opening_hours", "closure_message", "vacation_dates",
       "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
+      "is_active",
       ...PLATFORMS.map(p => p.key),
       ...CTA_EXTRA_FIELDS,
       ...REVIEW_FIELDS].join(",");
 
     const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
-      supabase.from("businesses").select(selectFields).eq("affiliate_id", targetAffiliateId).eq("is_active", true).order("name"),
+      supabase.from("businesses").select(selectFields).eq("affiliate_id", targetAffiliateId).order("name"),
       supabase.from("cities").select("id, name_fr, region").order("name_fr"),
       supabase.from("neighborhoods").select("id, name, city_id").order("name"),
     ]);
