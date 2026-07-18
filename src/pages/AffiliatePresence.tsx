@@ -296,6 +296,14 @@ const AffiliatePresence = () => {
       toast({ title: "Erreur", description: "Compte affilié introuvable.", variant: "destructive" });
       return;
     }
+    if (!canCreateMore) {
+      toast({
+        title: "Limite atteinte",
+        description: `Votre forfait autorise ${maxBusinesses} établissement${(maxBusinesses ?? 0) > 1 ? "s" : ""}. Contactez-nous pour augmenter cette limite.`,
+        variant: "destructive",
+      });
+      return;
+    }
     setIsCreating(true);
 
     const baseSlug = name
