@@ -852,6 +852,10 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
         <p className="font-medium text-sm">Gestion des comptes affiliés :</p>
         <ul className="text-sm text-muted-foreground space-y-1">
           <li className="flex items-center gap-2">
+            <span className="font-medium text-foreground">Compte</span>
+            <span>indique si un affilié a un identifiant de connexion créé. <strong>Actif</strong> = il peut se connecter. <strong>Aucun</strong> = il faut lui créer un compte via le bouton vert.</span>
+          </li>
+          <li className="flex items-center gap-2">
             <UserPlus className="h-4 w-4 text-green-600" />
             <span><strong>Créer un compte</strong> : bouton vert pour créer des identifiants (email + mot de passe)</span>
           </li>
@@ -865,7 +869,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
           </li>
         </ul>
         <p className="text-xs text-muted-foreground pt-1">
-          La colonne "Compte" indique si l'affilié a un compte actif ou non.
+          La colonne "Statut" indique seulement si la fiche affiliée est activée ou désactivée dans la base.
         </p>
       </div>
 
