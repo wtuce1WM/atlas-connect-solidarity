@@ -343,13 +343,16 @@ const AffiliatePresence = () => {
       <HomeMindtripHeader />
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="text-white hover:text-white hover:bg-white/10">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/affiliates")} className="text-white hover:text-white hover:bg-white/10">
             <ArrowLeft className="h-4 w-4 mr-1" /> Retour
           </Button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold text-white">Présence en ligne</h1>
             <p className="text-sm text-white/70">Gérez les profils, horaires et coordonnées de vos établissements</p>
           </div>
+          <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+            <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
+          </Button>
         </div>
 
         {businesses.length === 0 ? (
