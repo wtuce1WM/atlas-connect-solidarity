@@ -7,10 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Lock, Mail, Eye, EyeOff } from "lucide-react";
+import { Loader2, Lock, Mail, Eye, EyeOff } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const AffiliatesLogin = () => {
   const navigate = useNavigate();
@@ -183,14 +182,6 @@ const AffiliatesLogin = () => {
         <div className="flex flex-col items-center justify-center">
           <Card className="w-full max-w-md bg-card border-border">
             <CardHeader className="text-center space-y-4">
-              <div className="flex justify-center">
-                <div className="rounded-full bg-gold/20 p-4">
-                  <Users className="h-8 w-8 text-gold" />
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <img src={logoGold} alt="Logo" className="h-12 w-12 object-contain" />
-              </div>
               <CardTitle className="text-2xl text-foreground">{t.title}</CardTitle>
               <CardDescription className="text-muted-foreground">
                 {t.subtitle}
