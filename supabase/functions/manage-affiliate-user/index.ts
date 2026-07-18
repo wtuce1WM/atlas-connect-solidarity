@@ -33,27 +33,30 @@ serve(async (req: Request) => {
       }
     );
 
-    // Verify the calling user is staff or admin
+    // Verify the calling user is staff or admin (via getClaims — compatible with new signing keys)
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       throw new Error("Missing authorization header");
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const {
-      data: { user: callingUser },
-      error: authError,
-    } = await supabaseAdmin.auth.getUser(token);
-
-    if (authError || !callingUser) {
+    const supabaseAuth = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const { data: claimsData, error: authError } = await supabaseAuth.auth.getClaims(token);
+    if (authError || !claimsData?.claims?.sub) {
+      console.error("Auth error:", authError);
       throw new Error("Invalid authentication");
     }
+    const callingUserId = claimsData.claims.sub as string;
 
     // Check if calling user is staff or admin
     const { data: callerRoles, error: roleError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
-      .eq("user_id", callingUser.id)
+      .eq("user_id", callingUserId)
       .in("role", ["admin", "staff"]);
 
     if (roleError || !callerRoles || callerRoles.length === 0) {
