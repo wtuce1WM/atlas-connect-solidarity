@@ -411,7 +411,9 @@ const AffiliatePresence = () => {
                   >
                     <Plus className="h-4 w-4 mr-1 text-black" />
                     {canCreateMore ? "Nouvel établissement" : `Limite atteinte (${limitLabel})`}
+                  </Button>
                 </div>
+
 
               <HScroll className="flex gap-3 pb-3 -mb-1 overflow-x-auto">
                 {businesses.map(b => {
