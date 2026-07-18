@@ -44,6 +44,9 @@ interface Affiliate {
   internal_notes?: string | null;
   is_active: boolean;
   user_id: string | null;
+  max_businesses: number | null;
+  has_video_studio: boolean | null;
+  has_dashboard: boolean | null;
   created_at: string;
   updated_at: string;
 }
