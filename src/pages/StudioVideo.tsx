@@ -466,7 +466,14 @@ export default function StudioVideo() {
         <main className="container mx-auto px-4 pt-32 pb-16">
           <div className="mx-auto max-w-3xl space-y-8">
             <header className="space-y-4">
-              <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
+                {isStaff && (
+                  <span className="text-xs font-semibold px-2 py-1 rounded-full bg-[#C04F17] text-white uppercase tracking-wide">
+                    Mode admin
+                  </span>
+                )}
+              </div>
               <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
                 <div className="flex items-center gap-2 min-w-max">
                   <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/presence")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
