@@ -120,6 +120,8 @@ const AffiliatePresence = () => {
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
   const [affiliateId, setAffiliateId] = useState<string | null>(null);
   const [maxBusinesses, setMaxBusinesses] = useState<number | null>(null);
+  const [hasDashboard, setHasDashboard] = useState(false);
+  const [hasVideoStudio, setHasVideoStudio] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newBusinessName, setNewBusinessName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -201,19 +203,19 @@ const AffiliatePresence = () => {
 
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id, max_businesses")
+        .select("id, max_businesses, has_dashboard, has_video_studio")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
       if (!affiliate) {
-        await supabase.auth.signOut();
-        toast({ title: "Ce compte n'est pas un compte affilié", variant: "destructive" });
-        navigate("/affiliates");
+        setIsLoading(false);
         return;
       }
 
       setAffiliateId(affiliate.id);
       setMaxBusinesses((affiliate as any).max_businesses ?? null);
+      setHasDashboard(!!(affiliate as any).has_dashboard);
+      setHasVideoStudio(!!(affiliate as any).has_video_studio);
       await loadBusinesses(affiliate.id);
     };
     init();
@@ -360,16 +362,22 @@ const AffiliatePresence = () => {
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="flex flex-col gap-4 mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Présence en ligne</h1>
-          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
-            <div className="flex items-center gap-2 min-w-max">
-              <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
-                <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => navigate("/studio-video")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
-                <Video className="h-4 w-4 mr-1" /> Studio vidéo
-              </Button>
+          {(hasDashboard || hasVideoStudio) && (
+            <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
+              <div className="flex items-center gap-2 min-w-max">
+                {hasDashboard && (
+                  <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+                    <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
+                  </Button>
+                )}
+                {hasVideoStudio && (
+                  <Button variant="outline" size="sm" onClick={() => navigate("/studio-video")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+                    <Video className="h-4 w-4 mr-1" /> Studio vidéo
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
