@@ -44,6 +44,9 @@ interface Affiliate {
   internal_notes?: string | null;
   is_active: boolean;
   user_id: string | null;
+  max_businesses: number | null;
+  has_video_studio: boolean | null;
+  has_dashboard: boolean | null;
   created_at: string;
   updated_at: string;
 }
@@ -94,6 +97,9 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     contact_name: "",
     contact_phone: "",
     internal_notes: "",
+    max_businesses: "",
+    has_video_studio: false,
+    has_dashboard: false,
     is_active: true,
   });
 
@@ -153,6 +159,9 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       contact_name: "",
       contact_phone: "",
       internal_notes: "",
+      max_businesses: "",
+      has_video_studio: false,
+      has_dashboard: false,
       is_active: true,
     });
     setEditingAffiliate(null);
@@ -183,6 +192,9 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       contact_name: affiliate.contact_name || "",
       contact_phone: affiliate.contact_phone || "",
       internal_notes: noteRow?.notes || "",
+      max_businesses: affiliate.max_businesses?.toString() ?? "",
+      has_video_studio: affiliate.has_video_studio ?? false,
+      has_dashboard: affiliate.has_dashboard ?? false,
       is_active: affiliate.is_active,
     });
     setDialogOpen(true);
@@ -209,6 +221,9 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
 
     setSaving(true);
 
+    const maxBiz = formData.max_businesses.trim();
+    const numericMaxBiz = maxBiz === "" ? null : Math.min(99, Math.max(0, parseInt(maxBiz, 10) || 0));
+
     const affiliateData = {
       account_type: formData.account_type || null,
       name: formData.name.trim(),
@@ -222,6 +237,9 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       contact_name: formData.contact_name || null,
       contact_phone: formData.contact_phone || null,
       is_active: formData.is_active,
+      max_businesses: numericMaxBiz,
+      has_video_studio: formData.has_video_studio,
+      has_dashboard: formData.has_dashboard,
     };
 
     let error;
@@ -509,6 +527,48 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                     onChange={(e) => setFormData({ ...formData, kp_regroupement: e.target.value.slice(0, 20) })}
                     placeholder="Code KP"
                     maxLength={20}
+                  />
+                </div>
+
+                {/* Ets max */}
+                <div className="space-y-2">
+                  <Label htmlFor="max_businesses">Ets (max 99)</Label>
+                  <Input
+                    id="max_businesses"
+                    type="number"
+                    min={0}
+                    max={99}
+                    value={formData.max_businesses}
+                    onChange={(e) => setFormData({ ...formData, max_businesses: e.target.value })}
+                    placeholder="Ex. 5"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Studio Vidéo */}
+                <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="has_video_studio">Studio Vidéo</Label>
+                    <p className="text-xs text-muted-foreground">Accès au studio vidéo</p>
+                  </div>
+                  <Switch
+                    id="has_video_studio"
+                    checked={formData.has_video_studio}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_video_studio: checked })}
+                  />
+                </div>
+
+                {/* Dashboard */}
+                <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="has_dashboard">Dashboard</Label>
+                    <p className="text-xs text-muted-foreground">Accès au tableau de bord</p>
+                  </div>
+                  <Switch
+                    id="has_dashboard"
+                    checked={formData.has_dashboard}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_dashboard: checked })}
                   />
                 </div>
               </div>
@@ -830,9 +890,12 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                   <TableRow>
+                    <TableRow>
                       <TableHead className="w-12"></TableHead>
                       <TableHead>Nom</TableHead>
+                      <TableHead>Ets</TableHead>
+                      <TableHead>Studio</TableHead>
+                      <TableHead>Dashboard</TableHead>
                       <TableHead>Catégorie</TableHead>
                       <TableHead>Contact</TableHead>
                       <TableHead className="text-center">Compte</TableHead>
@@ -862,10 +925,27 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                           </span>
                         )}
                       </TableCell>
-                       <TableCell>
-                         {affiliate.main_category || "—"}
+                       <TableCell className="text-center">
+                         {affiliate.max_businesses ?? "—"}
                        </TableCell>
-                      <TableCell>
+                       <TableCell className="text-center">
+                         {affiliate.has_video_studio ? (
+                           <Badge variant="default" className="bg-green-600">Oui</Badge>
+                         ) : (
+                           <Badge variant="outline" className="text-muted-foreground">Non</Badge>
+                         )}
+                       </TableCell>
+                       <TableCell className="text-center">
+                         {affiliate.has_dashboard ? (
+                           <Badge variant="default" className="bg-green-600">Oui</Badge>
+                         ) : (
+                           <Badge variant="outline" className="text-muted-foreground">Non</Badge>
+                         )}
+                       </TableCell>
+                        <TableCell>
+                          {affiliate.main_category || "—"}
+                        </TableCell>
+                       <TableCell>
                         {affiliate.contact_name && (
                           <span className="block text-sm">{affiliate.contact_name}</span>
                         )}
