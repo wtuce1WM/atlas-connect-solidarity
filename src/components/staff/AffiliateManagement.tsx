@@ -890,9 +890,12 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                   <TableRow>
+                    <TableRow>
                       <TableHead className="w-12"></TableHead>
                       <TableHead>Nom</TableHead>
+                      <TableHead>Ets</TableHead>
+                      <TableHead>Studio</TableHead>
+                      <TableHead>Dashboard</TableHead>
                       <TableHead>Catégorie</TableHead>
                       <TableHead>Contact</TableHead>
                       <TableHead className="text-center">Compte</TableHead>
