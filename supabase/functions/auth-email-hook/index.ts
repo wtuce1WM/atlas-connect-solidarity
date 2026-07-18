@@ -41,6 +41,29 @@ const SENDER_DOMAIN = "notify.oneworldmorocco.com"
 const ROOT_DOMAIN = "oneworldmorocco.com"
 const FROM_DOMAIN = "oneworldmorocco.com" // Domain shown in From address (may be root or sender subdomain)
 
+// Supabase may generate auth action URLs using the project's default Lovable
+// domain. Rewrite any known Lovable/preview host to the canonical custom domain
+// so users always land on oneworldmorocco.com.
+const CANONICAL_HOSTS = [
+  '05505e92-7006-4fa6-856f-739f64085d3a.lovableproject.com',
+  'atlas-connect-solidarity.lovable.app',
+  'id-preview--05505e92-7006-4fa6-856f-739f64085d3a.lovable.app',
+]
+
+function normalizeActionUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+    if (CANONICAL_HOSTS.includes(parsed.hostname)) {
+      parsed.hostname = ROOT_DOMAIN
+      parsed.protocol = 'https:'
+    }
+    return parsed.toString()
+  } catch {
+    return url
+  }
+}
+
+
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.
 // The sample email uses a fixed placeholder (RFC 6761 .test TLD) so the Go backend
