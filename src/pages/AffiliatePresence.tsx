@@ -665,6 +665,11 @@ const AffiliatePresence = () => {
                       />
                     </TabsContent>
 
+                    {/* Tools Tab */}
+                    <TabsContent value="tools">
+                      <AffiliateToolsTab slug={currentBusiness.slug} businessName={currentBusiness.name} />
+                    </TabsContent>
+
                     {/* Text Tab */}
                     <TabsContent value="text">
                       <AffiliateTextEditor
