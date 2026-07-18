@@ -103,6 +103,7 @@ interface BusinessPresence {
   description_ar: string | null;
   name_en: string | null;
   name_ar: string | null;
+  is_active: boolean;
 }
 
 const AffiliatePresence = () => {
@@ -134,12 +135,13 @@ const AffiliatePresence = () => {
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
       "show_opening_hours", "closure_message", "vacation_dates",
       "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
+      "is_active",
       ...PLATFORMS.map(p => p.key),
       ...CTA_EXTRA_FIELDS,
       ...REVIEW_FIELDS].join(",");
 
     const [{ data: biz }, { data: citiesData }, { data: neighborhoodsData }] = await Promise.all([
-      supabase.from("businesses").select(selectFields).eq("affiliate_id", targetAffiliateId).eq("is_active", true).order("name"),
+      supabase.from("businesses").select(selectFields).eq("affiliate_id", targetAffiliateId).order("name"),
       supabase.from("cities").select("id, name_fr, region").order("name_fr"),
       supabase.from("neighborhoods").select("id, name, city_id").order("name"),
     ]);
@@ -184,6 +186,7 @@ const AffiliatePresence = () => {
         description_ar: b.description_ar ?? null,
         name_en: b.name_en ?? null,
         name_ar: b.name_ar ?? null,
+        is_active: b.is_active ?? true,
       };
     });
 
@@ -472,7 +475,18 @@ const AffiliatePresence = () => {
                     >
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-medium truncate ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
-                        <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
+                        <div className="flex items-center justify-between gap-2 mt-1">
+                          <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
+                          {b.is_active ? (
+                            <span className="inline-flex items-center rounded-full bg-green-500/20 px-2 py-0.5 text-[10px] font-medium text-green-400">
+                              Actif
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/50">
+                              Inactif
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </button>
                   );
