@@ -376,12 +376,27 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       });
 
       if (response.error) {
-        throw new Error(response.error.message || "Erreur lors de l'opération");
+        // Try to extract the actual error message from the response body
+        let detailedMessage = response.error.message || "Erreur lors de l'opération";
+        try {
+          const ctx = (response.error as any).context;
+          if (ctx && typeof ctx.json === "function") {
+            const body = await ctx.json();
+            if (body?.error) detailedMessage = body.error;
+          } else if (ctx && typeof ctx.text === "function") {
+            const txt = await ctx.text();
+            const parsed = JSON.parse(txt);
+            if (parsed?.error) detailedMessage = parsed.error;
+          }
+        } catch (_) {
+          // ignore parse errors, keep generic message
+        }
+        throw new Error(detailedMessage);
       }
 
       const result = response.data;
 
-      if (result.error) {
+      if (result?.error) {
         throw new Error(result.error);
       }
 
