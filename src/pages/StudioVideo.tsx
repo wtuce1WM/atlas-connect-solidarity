@@ -112,7 +112,11 @@ const TONES = [
 ];
 
 export default function StudioVideo() {
+  const navigate = useNavigate();
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
+  const [hasDashboard, setHasDashboard] = useState(false);
+  const [hasVideoStudio, setHasVideoStudio] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     supabase.auth.getUser().then(({ data }) => {
@@ -124,6 +128,23 @@ export default function StudioVideo() {
     });
     return () => { cancelled = true; sub.subscription.unsubscribe(); };
   }, []);
+
+  useEffect(() => {
+    if (authState !== "in") return;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: affiliate } = await supabase
+        .from("affiliates")
+        .select("has_dashboard, has_video_studio")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      if (affiliate) {
+        setHasDashboard(!!(affiliate as any).has_dashboard);
+        setHasVideoStudio(!!(affiliate as any).has_video_studio);
+      }
+    })();
+  }, [authState]);
 
   const [query, setQuery] = useState("");
   const [businesses, setBusinesses] = useState<Business[]>([]);
