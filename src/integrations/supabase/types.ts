@@ -2612,6 +2612,7 @@ export type Database = {
       club_ai_suggestions: {
         Row: {
           category: string | null
+          city: string | null
           created_at: string
           id: string
           is_active: boolean
@@ -2626,6 +2627,7 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          city?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -2640,6 +2642,7 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          city?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
