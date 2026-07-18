@@ -13,7 +13,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
-  Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
+  Loader2, Globe, CheckCircle2, AlertCircle, ExternalLink,
   Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
@@ -342,20 +342,19 @@ const AffiliatePresence = () => {
     <div className="min-h-screen bg-black">
       <HomeMindtripHeader />
       <main className="container mx-auto px-4 pt-32 pb-16">
-        <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/affiliates")} className="text-white hover:text-white hover:bg-white/10">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Retour
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-white">Présence en ligne</h1>
-            <p className="text-sm text-white/70">{"\n"}</p>
+        <div className="flex flex-col gap-2 mb-8">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Présence en ligne</h1>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+                <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => navigate("/studio-video")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+                <Video className="h-4 w-4 mr-1" /> Studio vidéo
+              </Button>
+            </div>
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
-            <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate("/studio-video")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
-            <Video className="h-4 w-4 mr-1" /> Studio vidéo
-          </Button>
+          <p className="text-sm text-white/70">{"\n"}</p>
         </div>
 
         {businesses.length === 0 ? (
