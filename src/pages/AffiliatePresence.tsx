@@ -353,6 +353,9 @@ const AffiliatePresence = () => {
           <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
             <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
           </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate("/studio-video")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+            <Video className="h-4 w-4 mr-1" /> Studio vidéo
+          </Button>
         </div>
 
         {businesses.length === 0 ? (
