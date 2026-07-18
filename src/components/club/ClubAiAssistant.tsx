@@ -285,6 +285,23 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const activeChatIdRef = useRef<string | null>(null);
   const messagesRef = useRef<Msg[]>([]);
   const deletedChatIdsRef = useRef<Set<string>>(new Set());
+  const [dbSuggestions, setDbSuggestions] = useState<string[] | null>(null);
+  const [followups, setFollowups] = useState<string[]>([]);
+
+  // Load staff-managed suggestions from DB (fallback to hardcoded list on error/empty)
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("club_ai_suggestions")
+        .select("label_fr,label_en,label_ar")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (!data || data.length === 0) { setDbSuggestions(null); return; }
+      const key = language === "en" ? "label_en" : language === "ar" ? "label_ar" : "label_fr";
+      const list = data.map((r: any) => r[key] || r.label_fr).filter(Boolean) as string[];
+      setDbSuggestions(list.length ? list : null);
+    })();
+  }, [language]);
 
   const tts = useTextToSpeech({
     onEnd: () => {
