@@ -341,6 +341,11 @@ const AffiliatePresence = () => {
     setIsCreating(false);
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/affiliates");
+  };
+
   const currentBusiness = businesses.find(b => b.id === selectedBusiness);
   const hasEdits = selectedBusiness ? Object.keys(editedFields[selectedBusiness] || {}).length > 0 : false;
 
