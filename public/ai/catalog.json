@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-07-18T07:13:07.281Z",
+    "generated_at": "2026-07-18T09:40:42.648Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1835
+    "count": 1836
   },
   "businesses": [
     {
@@ -150533,6 +150533,44 @@
       "slug": "test-auto-root-655691",
       "url": "https://oneworldmorocco.com/test-auto-root-655691",
       "name": "Test Auto root-655691",
+      "hook": null,
+      "description": null,
+      "main_category": null,
+      "categories": [],
+      "services": [],
+      "city": null,
+      "neighborhood": null,
+      "region": null,
+      "country": "MA",
+      "latitude": null,
+      "longitude": null,
+      "address": null,
+      "phone": null,
+      "whatsapp": null,
+      "website": null,
+      "image": null,
+      "google_rating": null,
+      "google_review_count": null,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": null,
+      "is_open_24h": false,
+      "booking_url": null,
+      "menu_url": null,
+      "social": {
+        "instagram": null,
+        "facebook": null,
+        "tripadvisor": null,
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
+      "id": "cacbdd41-6cfa-429d-bc13-a83e779547b2",
+      "slug": "test-test",
+      "url": "https://oneworldmorocco.com/test-test",
+      "name": "Test Test",
       "hook": null,
       "description": null,
       "main_category": null,

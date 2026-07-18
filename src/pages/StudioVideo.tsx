@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Wand2, Download, Sparkles, X, Trash2 } from "lucide-react";
+import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
@@ -112,7 +112,11 @@ const TONES = [
 ];
 
 export default function StudioVideo() {
+  const navigate = useNavigate();
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
+  const [hasDashboard, setHasDashboard] = useState(false);
+  const [hasVideoStudio, setHasVideoStudio] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     supabase.auth.getUser().then(({ data }) => {
@@ -124,6 +128,23 @@ export default function StudioVideo() {
     });
     return () => { cancelled = true; sub.subscription.unsubscribe(); };
   }, []);
+
+  useEffect(() => {
+    if (authState !== "in") return;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: affiliate } = await supabase
+        .from("affiliates")
+        .select("has_dashboard, has_video_studio")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      if (affiliate) {
+        setHasDashboard(!!(affiliate as any).has_dashboard);
+        setHasVideoStudio(!!(affiliate as any).has_video_studio);
+      }
+    })();
+  }, [authState]);
 
   const [query, setQuery] = useState("");
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -389,6 +410,11 @@ export default function StudioVideo() {
     toast.success("Vidéo supprimée");
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/affiliates");
+  };
+
   if (authState === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -411,8 +437,28 @@ export default function StudioVideo() {
         <HomeMindtripHeader />
         <main className="container mx-auto px-4 pt-32 pb-16">
           <div className="mx-auto max-w-3xl space-y-8">
-            <header className="space-y-2">
+            <header className="space-y-4">
               <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
+              <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
+                <div className="flex items-center gap-2 min-w-max">
+                  <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/presence")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+                    <Globe className="h-4 w-4 mr-1" /> Présence en ligne
+                  </Button>
+                  {hasDashboard && (
+                    <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+                      <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
+                    </Button>
+                  )}
+                  {hasVideoStudio && (
+                    <Button variant="outline" size="sm" onClick={() => navigate("/studio-video")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+                      <Video className="h-4 w-4 mr-1" /> Studio vidéo
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={handleSignOut} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
+                    <LogOut className="h-4 w-4 mr-1" /> Se déconnecter
+                  </Button>
+                </div>
+              </div>
               <p className="text-white/70">
                 Générez une vidéo verticale 720×1280 (17 à 27 s) à partir d'un prompt et d'un établissement.
               </p>
