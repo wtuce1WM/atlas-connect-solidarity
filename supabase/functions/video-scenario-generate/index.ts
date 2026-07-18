@@ -23,11 +23,14 @@ const TEMPLATES = [
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  const auth = await assertStaff(req, corsHeaders);
-  if (auth instanceof Response) return auth;
-
   try {
-    const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id, options } = await req.json();
+    const body = await req.json();
+    const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id, options } = body;
+
+    // Auth: staff full access, otherwise must own the business_id
+    const auth = await assertStaffOrAffiliateBusiness(req, corsHeaders, business_id ?? "");
+    if (auth instanceof Response) return auth;
+    const callerUserId = auth.userId;
 
     if (!prompt || typeof prompt !== "string" || prompt.length > 2000) {
       return json({ error: "prompt invalide" }, 400);
