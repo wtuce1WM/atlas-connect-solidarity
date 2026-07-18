@@ -856,7 +856,41 @@ ${languageInstruction}`;
       resultChatId = inserted?.id ?? null;
     }
 
-    return new Response(JSON.stringify({ answer: finalAnswer, chatId: resultChatId }), {
+    // Generate 3 contextual follow-up suggestions (best-effort, non-blocking on failure)
+    let followups: string[] = [];
+    try {
+      const lang = (language || "fr").toLowerCase();
+      const langLabel = lang === "en" ? "English" : lang === "ar" ? "Arabic" : "French";
+      const followupSystem = `You generate exactly 3 short, natural follow-up questions the user might ask next, in ${langLabel}. Each under 60 chars, no numbering, no quotes, one per line. They must extend the current conversation naturally (drill down, alternative, next step). Return ONLY the 3 lines.`;
+      const lastAssistant = finalAnswer.replace(/<!--SHOW_ON_MAP:[\s\S]*?-->/g, "").slice(0, 1200);
+      const lastUserMsg = lastUser.slice(0, 400);
+      const fResp = await fetch(GATEWAY_URL, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: FALLBACK_MODEL,
+          messages: [
+            { role: "system", content: followupSystem },
+            { role: "user", content: `User asked: ${lastUserMsg}\n\nAssistant answered: ${lastAssistant}\n\nGive 3 follow-up questions.` },
+          ],
+          temperature: 0.8,
+          max_tokens: 200,
+        }),
+      });
+      if (fResp.ok) {
+        const fData = await fResp.json();
+        const raw = fData?.choices?.[0]?.message?.content || "";
+        followups = raw
+          .split("\n")
+          .map((s: string) => s.replace(/^[-*\d.)\s]+/, "").replace(/^["'«»]+|["'«»]+$/g, "").trim())
+          .filter((s: string) => s && s.length > 3 && s.length < 120)
+          .slice(0, 3);
+      }
+    } catch (e) {
+      console.error("followup gen error", e);
+    }
+
+    return new Response(JSON.stringify({ answer: finalAnswer, chatId: resultChatId, followups }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

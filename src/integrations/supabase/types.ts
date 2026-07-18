@@ -2609,6 +2609,51 @@ export type Database = {
           },
         ]
       }
+      club_ai_suggestions: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          label_ar: string | null
+          label_en: string | null
+          label_fr: string
+          prompt_ar: string | null
+          prompt_en: string | null
+          prompt_fr: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_ar?: string | null
+          label_en?: string | null
+          label_fr: string
+          prompt_ar?: string | null
+          prompt_en?: string | null
+          prompt_fr?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_ar?: string | null
+          label_en?: string | null
+          label_fr?: string
+          prompt_ar?: string | null
+          prompt_en?: string | null
+          prompt_fr?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       club_member_personas: {
         Row: {
           created_at: string

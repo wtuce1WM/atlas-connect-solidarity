@@ -285,6 +285,26 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const activeChatIdRef = useRef<string | null>(null);
   const messagesRef = useRef<Msg[]>([]);
   const deletedChatIdsRef = useRef<Set<string>>(new Set());
+  const [dbSuggestions, setDbSuggestions] = useState<string[] | null>(null);
+  const [followups, setFollowups] = useState<string[]>([]);
+
+  // Load staff-managed suggestions from DB (fallback to hardcoded list on error/empty)
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("club_ai_suggestions")
+        .select("label_fr,label_en,label_ar")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (!data || data.length === 0) { setDbSuggestions(null); return; }
+      const key = language === "en" ? "label_en" : language === "ar" ? "label_ar" : "label_fr";
+      const list = data.map((r: any) => r[key] || r.label_fr).filter(Boolean) as string[];
+      setDbSuggestions(list.length ? list : null);
+    })();
+  }, [language]);
+
+  // Clear contextual follow-ups whenever the active conversation changes
+  useEffect(() => { setFollowups([]); }, [activeId]);
 
   const tts = useTextToSpeech({
     onEnd: () => {
@@ -543,6 +563,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     messagesRef.current = [];
     setActiveChat(null);
     setMessages([]);
+    setFollowups([]);
     setTimeout(() => inputRef.current?.focus(), 50);
   };
 
@@ -570,6 +591,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     const newMsgs: Msg[] = [...baseMessages, { role: "user", content: text }];
     messagesRef.current = newMsgs;
     setMessages(newMsgs);
+    setFollowups([]);
 
     const clientContext: any = {
       localTime: new Date().toLocaleString("fr-FR", { timeZone: "Africa/Casablanca", dateStyle: "full", timeStyle: "short" }),
@@ -610,6 +632,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
       const fullMessages: Msg[] = [...newMsgs, { role: "assistant", content: answer }];
       messagesRef.current = fullMessages;
       setMessages(fullMessages);
+      const fu = Array.isArray((data as any)?.followups) ? ((data as any).followups as string[]).filter((s) => typeof s === "string" && s.trim()).slice(0, 3) : [];
+      setFollowups(fu);
       if (newId) {
         deletedChatIdsRef.current.delete(newId);
         activeChatIdRef.current = newId;
@@ -655,7 +679,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     tts.speak(content);
   };
 
-  const allSuggestions = useMemo(() => at.suggestions, [at]);
+  const allSuggestions = useMemo(() => (dbSuggestions && dbSuggestions.length ? dbSuggestions : at.suggestions) as readonly string[], [at, dbSuggestions]);
 
 
   const [suggestionPage, setSuggestionPage] = useState(0);
@@ -889,6 +913,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
               </div>
             );
           })}
+          {!sending && followups.length > 0 && messages.length > 0 && messages[messages.length - 1].role === "assistant" && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {followups.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => send(f)}
+                  className="text-xs px-3 py-1.5 rounded-full bg-white text-[#C04F17] hover:bg-[#C04F17] hover:text-white transition-colors border border-[#C04F17]/30"
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          )}
           {sending && (
             <div className="flex items-center gap-2 text-[#C04F17] text-xs">
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> {at.thinking}

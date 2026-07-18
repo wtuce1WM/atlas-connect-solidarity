@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert, Hotel, DollarSign, FileText, Link as LinkIcon } from "lucide-react";
+import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert, Hotel, DollarSign, FileText, Link as LinkIcon, MessageSquare } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import UserManagement from "@/components/staff/UserManagement";
@@ -18,6 +18,7 @@ import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import EasterEggManagement from "@/components/staff/EasterEggManagement";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
+import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
@@ -120,6 +121,10 @@ const StaffMaster = () => {
               <Sparkles className="h-4 w-4" />
               IA
             </TabsTrigger>
+            <TabsTrigger value="club-ai-suggestions" className="gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Suggestions Club
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Search Analytics
@@ -178,6 +183,10 @@ const StaffMaster = () => {
 
           <TabsContent value="ai-config">
             <AIConfigManagement />
+          </TabsContent>
+
+          <TabsContent value="club-ai-suggestions">
+            <ClubAiSuggestionsManagement />
           </TabsContent>
 
           <TabsContent value="analytics">
