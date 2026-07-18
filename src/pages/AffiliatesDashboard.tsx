@@ -71,6 +71,18 @@ const AffiliatesDashboard = () => {
         navigate("/affiliates");
         return;
       }
+      const { data: affiliate } = await supabase
+        .from("affiliates")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (!affiliate) {
+        await supabase.auth.signOut();
+        navigate("/affiliates");
+        return;
+      }
+
       setUserEmail(session.user.email);
       setIsLoading(false);
       if (!trackedViewRef.current) {
