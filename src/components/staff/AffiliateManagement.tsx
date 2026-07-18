@@ -862,12 +862,9 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                           </span>
                         )}
                       </TableCell>
-                      <TableCell>
-                        {ACCOUNT_TYPES.find(t => t.value === affiliate.account_type)?.label || affiliate.account_type || "—"}
-                      </TableCell>
-                      <TableCell>
-                        {affiliate.main_category || "—"}
-                      </TableCell>
+                       <TableCell>
+                         {affiliate.main_category || "—"}
+                       </TableCell>
                       <TableCell>
                         {affiliate.contact_name && (
                           <span className="block text-sm">{affiliate.contact_name}</span>
