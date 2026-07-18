@@ -1911,6 +1911,8 @@ export type Database = {
           menu_url: string | null
           min_price: number | null
           name: string
+          name_ar: string | null
+          name_en: string | null
           neighborhood: string | null
           online_shop_cta: string | null
           online_shop_force_external: boolean
@@ -2088,6 +2090,8 @@ export type Database = {
           menu_url?: string | null
           min_price?: number | null
           name: string
+          name_ar?: string | null
+          name_en?: string | null
           neighborhood?: string | null
           online_shop_cta?: string | null
           online_shop_force_external?: boolean
@@ -2265,6 +2269,8 @@ export type Database = {
           menu_url?: string | null
           min_price?: number | null
           name?: string
+          name_ar?: string | null
+          name_en?: string | null
           neighborhood?: string | null
           online_shop_cta?: string | null
           online_shop_force_external?: boolean
@@ -6973,6 +6979,8 @@ export type Database = {
               menu_url: string | null
               min_price: number | null
               name: string
+              name_ar: string | null
+              name_en: string | null
               neighborhood: string | null
               online_shop_cta: string | null
               online_shop_force_external: boolean
@@ -7166,6 +7174,8 @@ export type Database = {
               menu_url: string | null
               min_price: number | null
               name: string
+              name_ar: string | null
+              name_en: string | null
               neighborhood: string | null
               online_shop_cta: string | null
               online_shop_force_external: boolean

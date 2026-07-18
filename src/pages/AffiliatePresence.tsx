@@ -101,6 +101,8 @@ interface BusinessPresence {
   description: string | null;
   description_en: string | null;
   description_ar: string | null;
+  name_en: string | null;
+  name_ar: string | null;
 }
 
 const AffiliatePresence = () => {
@@ -120,7 +122,7 @@ const AffiliatePresence = () => {
   const [isCreating, setIsCreating] = useState(false);
 
   const loadBusinesses = async (targetAffiliateId: string) => {
-    const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
+    const selectFields = ["id", "name", "name_en", "name_ar", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
       "show_opening_hours", "closure_message", "vacation_dates",
       "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
@@ -171,6 +173,8 @@ const AffiliatePresence = () => {
         description: b.description ?? null,
         description_en: b.description_en ?? null,
         description_ar: b.description_ar ?? null,
+        name_en: b.name_en ?? null,
+        name_ar: b.name_ar ?? null,
       };
     });
 
@@ -658,12 +662,16 @@ const AffiliatePresence = () => {
                     {/* Text Tab */}
                     <TabsContent value="text">
                       <AffiliateTextEditor
+                        nameFr={getCurrentValue(currentBusiness.id, "name", currentBusiness.name) || ""}
+                        nameEn={getCurrentValue(currentBusiness.id, "name_en", currentBusiness.name_en) || ""}
+                        nameAr={getCurrentValue(currentBusiness.id, "name_ar", currentBusiness.name_ar) || ""}
                         hookFr={getCurrentValue(currentBusiness.id, "hook_fr", currentBusiness.hook_fr) || ""}
                         hookEn={getCurrentValue(currentBusiness.id, "hook_en", currentBusiness.hook_en) || ""}
                         hookAr={getCurrentValue(currentBusiness.id, "hook_ar", currentBusiness.hook_ar) || ""}
                         descriptionFr={getCurrentValue(currentBusiness.id, "description", currentBusiness.description) || ""}
                         descriptionEn={getCurrentValue(currentBusiness.id, "description_en", currentBusiness.description_en) || ""}
                         descriptionAr={getCurrentValue(currentBusiness.id, "description_ar", currentBusiness.description_ar) || ""}
+                        onNameChange={(lang, v) => handleFieldChange(currentBusiness.id, lang === "fr" ? "name" : `name_${lang}`, v)}
                         onHookChange={(lang, v) => handleFieldChange(currentBusiness.id, `hook_${lang}`, v)}
                         onDescriptionChange={(lang, v) => handleFieldChange(currentBusiness.id, lang === "fr" ? "description" : `description_${lang}`, v)}
                       />
