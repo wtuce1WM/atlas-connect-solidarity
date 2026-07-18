@@ -628,6 +628,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
       const fullMessages: Msg[] = [...newMsgs, { role: "assistant", content: answer }];
       messagesRef.current = fullMessages;
       setMessages(fullMessages);
+      const fu = Array.isArray((data as any)?.followups) ? ((data as any).followups as string[]).filter((s) => typeof s === "string" && s.trim()).slice(0, 3) : [];
+      setFollowups(fu);
       if (newId) {
         deletedChatIdsRef.current.delete(newId);
         activeChatIdRef.current = newId;
