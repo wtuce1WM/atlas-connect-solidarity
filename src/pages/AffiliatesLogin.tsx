@@ -160,8 +160,8 @@ const AffiliatesLogin = () => {
         redirectTo: `${window.location.origin}/affiliates/reset-password`,
       });
       toast({ title: t.resetSent, description: t.resetSentDesc });
-    } catch (error: any) {
-      toast({ title: t.error, description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: t.error, description: error instanceof Error ? error.message : t.invalidCredentials, variant: "destructive" });
     } finally {
       setIsSendingReset(false);
     }

@@ -115,10 +115,10 @@ serve(async (req: Request) => {
           password,
           email_confirm: true,
         });
-      let newUser = createResult.data;
+      const newUser = createResult.data;
       const createError = createResult.error;
 
-      let linkedExistingUser = false;
+      const linkedExistingUser = false;
 
       if (createError) {
         const msg = (createError.message || "").toLowerCase();
