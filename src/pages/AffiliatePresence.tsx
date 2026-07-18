@@ -662,12 +662,16 @@ const AffiliatePresence = () => {
                     {/* Text Tab */}
                     <TabsContent value="text">
                       <AffiliateTextEditor
+                        nameFr={getCurrentValue(currentBusiness.id, "name", currentBusiness.name) || ""}
+                        nameEn={getCurrentValue(currentBusiness.id, "name_en", currentBusiness.name_en) || ""}
+                        nameAr={getCurrentValue(currentBusiness.id, "name_ar", currentBusiness.name_ar) || ""}
                         hookFr={getCurrentValue(currentBusiness.id, "hook_fr", currentBusiness.hook_fr) || ""}
                         hookEn={getCurrentValue(currentBusiness.id, "hook_en", currentBusiness.hook_en) || ""}
                         hookAr={getCurrentValue(currentBusiness.id, "hook_ar", currentBusiness.hook_ar) || ""}
                         descriptionFr={getCurrentValue(currentBusiness.id, "description", currentBusiness.description) || ""}
                         descriptionEn={getCurrentValue(currentBusiness.id, "description_en", currentBusiness.description_en) || ""}
                         descriptionAr={getCurrentValue(currentBusiness.id, "description_ar", currentBusiness.description_ar) || ""}
+                        onNameChange={(lang, v) => handleFieldChange(currentBusiness.id, lang === "fr" ? "name" : `name_${lang}`, v)}
                         onHookChange={(lang, v) => handleFieldChange(currentBusiness.id, `hook_${lang}`, v)}
                         onDescriptionChange={(lang, v) => handleFieldChange(currentBusiness.id, lang === "fr" ? "description" : `description_${lang}`, v)}
                       />
