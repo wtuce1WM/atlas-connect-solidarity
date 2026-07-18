@@ -173,6 +173,8 @@ const AffiliatePresence = () => {
         description: b.description ?? null,
         description_en: b.description_en ?? null,
         description_ar: b.description_ar ?? null,
+        name_en: b.name_en ?? null,
+        name_ar: b.name_ar ?? null,
       };
     });
 
