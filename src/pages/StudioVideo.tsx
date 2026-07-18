@@ -410,6 +410,11 @@ export default function StudioVideo() {
     toast.success("Vidéo supprimée");
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/affiliates");
+  };
+
   if (authState === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
