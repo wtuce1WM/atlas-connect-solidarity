@@ -119,9 +119,15 @@ const AffiliatePresence = () => {
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
   const [affiliateId, setAffiliateId] = useState<string | null>(null);
+  const [maxBusinesses, setMaxBusinesses] = useState<number | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newBusinessName, setNewBusinessName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+
+  const canCreateMore = maxBusinesses == null || businesses.length < maxBusinesses;
+  const limitLabel = maxBusinesses != null
+    ? `${businesses.length}/${maxBusinesses} établissement${maxBusinesses > 1 ? "s" : ""}`
+    : null;
 
   const loadBusinesses = async (targetAffiliateId: string) => {
     const selectFields = ["id", "name", "slug", "name_en", "name_ar", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
