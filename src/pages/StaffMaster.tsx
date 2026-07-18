@@ -18,6 +18,7 @@ import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import EasterEggManagement from "@/components/staff/EasterEggManagement";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
+import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
