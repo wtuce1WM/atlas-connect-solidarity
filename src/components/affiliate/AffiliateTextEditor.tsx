@@ -74,8 +74,35 @@ const AffiliateTextEditor = ({
         const descValue = descriptions[l.code] || "";
         const descTextLength = stripHtml(descValue).length;
         const descOver = descTextLength > MAX_DESC;
+        const nameValue = names[l.code] || "";
+        const isRequired = l.code === "fr";
         return (
           <TabsContent key={l.code} value={l.code} className="space-y-6" dir={l.dir}>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor={`name_${l.code}`}>
+                  Nom ({l.label})
+                  {isRequired && <span className="text-destructive ml-1">*</span>}
+                  {isRequired && <span className="text-xs text-muted-foreground ml-1 font-normal">(champ obligatoire)</span>}
+                </Label>
+                <span className={`text-xs ${nameValue.length === 0 && isRequired ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                  {nameValue.length}/{MAX_NAME}
+                </span>
+              </div>
+              <Input
+                id={`name_${l.code}`}
+                value={nameValue}
+                onChange={(e) => onNameChange(l.code, e.target.value.slice(0, MAX_NAME))}
+                placeholder={`Nom de l'établissement en ${l.label.toLowerCase()}`}
+                maxLength={MAX_NAME}
+                className={`h-12 ${nameValue.length === 0 && isRequired ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                required={isRequired}
+              />
+              {isRequired && nameValue.length === 0 && (
+                <p className="text-xs text-destructive">Le nom en français est obligatoire.</p>
+              )}
+            </div>
+
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor={`hook_${l.code}`}>Accroche ({l.label})</Label>
