@@ -74,7 +74,7 @@ const AffiliatesLogin = () => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/affiliates/dashboard");
+        navigate("/affiliates/presence");
       }
       setIsCheckingAuth(false);
     };
@@ -82,7 +82,7 @@ const AffiliatesLogin = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/affiliates/dashboard");
+        navigate("/affiliates/presence");
       }
     });
 
