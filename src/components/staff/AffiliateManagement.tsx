@@ -528,6 +528,46 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                     placeholder="Code KP"
                     maxLength={20}
                   />
+                {/* Ets max */}
+                <div className="space-y-2">
+                  <Label htmlFor="max_businesses">Ets (max 99)</Label>
+                  <Input
+                    id="max_businesses"
+                    type="number"
+                    min={0}
+                    max={99}
+                    value={formData.max_businesses}
+                    onChange={(e) => setFormData({ ...formData, max_businesses: e.target.value })}
+                    placeholder="Ex. 5"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Studio Vidéo */}
+                <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="has_video_studio">Studio Vidéo</Label>
+                    <p className="text-xs text-muted-foreground">Accès au studio vidéo</p>
+                  </div>
+                  <Switch
+                    id="has_video_studio"
+                    checked={formData.has_video_studio}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_video_studio: checked })}
+                  />
+                </div>
+
+                {/* Dashboard */}
+                <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="has_dashboard">Dashboard</Label>
+                    <p className="text-xs text-muted-foreground">Accès au tableau de bord</p>
+                  </div>
+                  <Switch
+                    id="has_dashboard"
+                    checked={formData.has_dashboard}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_dashboard: checked })}
+                  />
                 </div>
               </div>
 
