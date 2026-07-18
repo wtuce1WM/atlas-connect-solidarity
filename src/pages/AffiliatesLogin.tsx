@@ -70,11 +70,26 @@ const AffiliatesLogin = () => {
 
   const t = translations[language] || translations.fr;
 
+  const redirectIfAffiliate = async (userId: string) => {
+    const { data: affiliate } = await supabase
+      .from("affiliates")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (affiliate) {
+      navigate("/affiliates/presence");
+      return true;
+    }
+
+    return false;
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/affiliates/presence");
+        await redirectIfAffiliate(session.user.id);
       }
       setIsCheckingAuth(false);
     };
@@ -82,7 +97,9 @@ const AffiliatesLogin = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/affiliates/presence");
+        setTimeout(() => {
+          redirectIfAffiliate(session.user.id);
+        }, 0);
       }
     });
 
@@ -94,7 +111,7 @@ const AffiliatesLogin = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -103,6 +120,17 @@ const AffiliatesLogin = () => {
         toast({
           title: t.error,
           description: t.invalidCredentials,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const isAffiliate = data.user ? await redirectIfAffiliate(data.user.id) : false;
+      if (!isAffiliate) {
+        await supabase.auth.signOut();
+        toast({
+          title: t.error,
+          description: "Cet email correspond à un compte Club/utilisateur, pas à un compte affilié.",
           variant: "destructive",
         });
       }

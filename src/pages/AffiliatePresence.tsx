@@ -200,8 +200,9 @@ const AffiliatePresence = () => {
         .maybeSingle();
 
       if (!affiliate) {
-        toast({ title: "Aucun compte affilié trouvé", variant: "destructive" });
-        navigate("/affiliates/dashboard");
+        await supabase.auth.signOut();
+        toast({ title: "Ce compte n'est pas un compte affilié", variant: "destructive" });
+        navigate("/affiliates");
         return;
       }
 

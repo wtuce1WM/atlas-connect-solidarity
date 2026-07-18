@@ -108,7 +108,8 @@ serve(async (req: Request) => {
 
       const normalizedEmail = email.toLowerCase().trim();
 
-      // Create the user
+      // Create a dedicated affiliate auth user.
+      // Club/client users are deliberately NOT reused as affiliate accounts.
       const createResult = await supabaseAdmin.auth.admin.createUser({
           email: normalizedEmail,
           password,
@@ -130,7 +131,7 @@ serve(async (req: Request) => {
           throw new Error(createError.message);
         }
 
-        // Email exists in auth.users → try to link it to this affiliate
+        // Email exists in auth.users. Do not link an existing Club/client user to an affiliate.
         const { data: listData, error: listError } =
           await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
         if (listError) throw new Error(listError.message);
@@ -142,7 +143,7 @@ serve(async (req: Request) => {
           throw new Error("Email déjà enregistré mais utilisateur introuvable");
         }
 
-        // Check if that user is already linked to another affiliate
+        // Check if that user is already linked to another affiliate.
         const { data: otherAffiliate } = await supabaseAdmin
           .from("affiliates")
           .select("id, name")
@@ -155,15 +156,17 @@ serve(async (req: Request) => {
           );
         }
 
-        // Update password so staff-set credentials work
-        const { error: pwErr } = await supabaseAdmin.auth.admin.updateUserById(
-          existing.id,
-          { password, email_confirm: true }
-        );
-        if (pwErr) throw new Error("Impossible de mettre à jour le mot de passe: " + pwErr.message);
+        const { data: clubMember } = await supabaseAdmin
+          .from("club_members")
+          .select("id")
+          .eq("user_id", existing.id)
+          .maybeSingle();
 
-        newUser = { user: existing };
-        linkedExistingUser = true;
+        throw new Error(
+          clubMember
+            ? "Cet email existe déjà comme compte Club. Les comptes Club et affiliés sont séparés : utilise un autre email pour créer le compte affilié."
+            : "Cet email existe déjà comme compte utilisateur. Les comptes utilisateurs et affiliés sont séparés : utilise un autre email pour créer le compte affilié."
+        );
       }
 
       if (!newUser?.user) {
