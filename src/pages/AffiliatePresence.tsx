@@ -411,35 +411,8 @@ const AffiliatePresence = () => {
                   >
                     <Plus className="h-4 w-4 mr-1 text-black" />
                     {canCreateMore ? "Nouvel établissement" : `Limite atteinte (${limitLabel})`}
-                  </Button>
-                  <DialogContent className="bg-card border-border text-foreground">
-                    <DialogHeader>
-                      <DialogTitle>Créer un nouvel établissement</DialogTitle>
-                      <DialogDescription className="text-muted-foreground">
-                        Saisissez le nom de l'établissement. Vous pourrez compléter les onglets (Contact, Horaires, Texte, Images, etc.) juste après.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4">
-                      <Label htmlFor="new-business-name" className="mb-2 block">Nom de l'établissement</Label>
-                      <Input
-                        id="new-business-name"
-                        value={newBusinessName}
-                        onChange={(e) => setNewBusinessName(e.target.value)}
-                        placeholder="Ex. Riad Dar Najat"
-                        disabled={isCreating}
-                        onKeyDown={(e) => { if (e.key === "Enter") handleCreateBusiness(); }}
-                      />
-                    </div>
-                    <DialogFooter>
-                      <Button variant="ghost" onClick={() => setIsCreateDialogOpen(false)} disabled={isCreating}>Annuler</Button>
-                      <Button onClick={handleCreateBusiness} disabled={isCreating || !newBusinessName.trim()}>
-                        {isCreating ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
-                        Créer
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
+                </div>
+
               <HScroll className="flex gap-3 pb-3 -mb-1 overflow-x-auto">
                 {businesses.map(b => {
                   const isSelected = b.id === selectedBusiness;
