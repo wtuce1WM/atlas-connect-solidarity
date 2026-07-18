@@ -151,6 +151,7 @@ const AffiliatePresence = () => {
       return {
         id: b.id,
         name: b.name,
+        slug: b.slug ?? null,
         city: b.city,
         main_category: b.main_category,
         logo_url: b.logo_url,
