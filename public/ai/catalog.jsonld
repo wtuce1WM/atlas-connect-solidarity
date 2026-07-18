@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1837,
+  "numberOfItems": 1836,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -52675,25 +52675,6 @@
         "@id": "https://oneworldmorocco.com/test-test#business",
         "name": "Test Test",
         "url": "https://oneworldmorocco.com/test-test"
-      }
-    },
-    {
-      "@type": "ListItem",
-      "position": 1837,
-      "url": "https://oneworldmorocco.com/elevate-cycle",
-      "item": {
-        "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/elevate-cycle#business",
-        "name": "Elevate Cycle",
-        "url": "https://oneworldmorocco.com/elevate-cycle",
-        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d63582e1-9f1c-483a-8dd8-f964b71de951-1784376806118-xxsvof.jpg",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "191 Rue Mohammed el Beqal",
-          "addressLocality": "Gueliz",
-          "addressRegion": "Marrakech",
-          "addressCountry": "MA"
-        }
       }
     }
   ]

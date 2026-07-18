@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/cities.json",
-    "generated_at": "2026-07-18T12:27:19.145Z",
+    "generated_at": "2026-07-18T14:31:05.119Z",
     "count": 32
   },
   "cities": [
@@ -599,7 +599,7 @@
         "Medina",
         "Hivernage"
       ],
-      "businesses_count": 1176
+      "businesses_count": 1175
     }
   ]
 }
