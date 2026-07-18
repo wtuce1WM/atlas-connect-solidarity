@@ -14,7 +14,7 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
@@ -30,6 +30,7 @@ import AffiliatePromotionsEditor from "@/components/affiliate/AffiliatePromotion
 import AffiliateServicesEditor from "@/components/affiliate/AffiliateServicesEditor";
 import AffiliateImagesEditor from "@/components/affiliate/AffiliateImagesEditor";
 import AffiliateVideosEditor from "@/components/affiliate/AffiliateVideosEditor";
+import AffiliateToolsTab from "@/components/affiliate/AffiliateToolsTab";
 import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
 import { Label } from "@/components/ui/label";
 
@@ -78,6 +79,7 @@ const REVIEW_FIELDS = [
 interface BusinessPresence {
   id: string;
   name: string;
+  slug: string | null;
   city: string | null;
   main_category: string | null;
   logo_url: string | null;
@@ -122,7 +124,7 @@ const AffiliatePresence = () => {
   const [isCreating, setIsCreating] = useState(false);
 
   const loadBusinesses = async (targetAffiliateId: string) => {
-    const selectFields = ["id", "name", "name_en", "name_ar", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
+    const selectFields = ["id", "name", "slug", "name_en", "name_ar", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
       "show_opening_hours", "closure_message", "vacation_dates",
       "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
@@ -150,6 +152,7 @@ const AffiliatePresence = () => {
       return {
         id: b.id,
         name: b.name,
+        slug: b.slug ?? null,
         city: b.city,
         main_category: b.main_category,
         logo_url: b.logo_url,
@@ -452,8 +455,11 @@ const AffiliatePresence = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Tabs defaultValue="text" className="w-full">
+                  <Tabs defaultValue="tools" className="w-full">
                     <TabsList className="mb-4 w-full overflow-x-auto whitespace-nowrap flex-nowrap justify-start gap-1 pb-1 scrollbar-thin">
+                      <TabsTrigger value="tools" className="gap-1.5 shrink-0">
+                        <Wand2 className="h-3.5 w-3.5 shrink-0" /> Tools
+                      </TabsTrigger>
                       <TabsTrigger value="text" className="gap-1.5 shrink-0">
                         <FileText className="h-3.5 w-3.5 shrink-0" /> Texte
                       </TabsTrigger>
@@ -657,6 +663,11 @@ const AffiliatePresence = () => {
                         value={getCurrentValue(currentBusiness.id, "vacation_dates", currentBusiness.vacation_dates) || []}
                         onChange={(dates) => handleFieldChange(currentBusiness.id, "vacation_dates", dates)}
                       />
+                    </TabsContent>
+
+                    {/* Tools Tab */}
+                    <TabsContent value="tools">
+                      <AffiliateToolsTab slug={currentBusiness.slug} businessName={currentBusiness.name} />
                     </TabsContent>
 
                     {/* Text Tab */}
