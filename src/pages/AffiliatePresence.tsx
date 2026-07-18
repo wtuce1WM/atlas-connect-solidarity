@@ -448,8 +448,11 @@ const AffiliatePresence = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Tabs defaultValue="links" className="w-full">
+                  <Tabs defaultValue="text" className="w-full">
                     <TabsList className="mb-4 w-full overflow-x-auto whitespace-nowrap flex-nowrap justify-start gap-1 pb-1 scrollbar-thin">
+                      <TabsTrigger value="text" className="gap-1.5 shrink-0">
+                        <FileText className="h-3.5 w-3.5 shrink-0" /> Texte
+                      </TabsTrigger>
                       <TabsTrigger value="links" className="gap-1.5 shrink-0">
                         <Globe className="h-3.5 w-3.5 shrink-0" /> Liens
                       </TabsTrigger>
@@ -461,9 +464,6 @@ const AffiliatePresence = () => {
                       </TabsTrigger>
                       <TabsTrigger value="hours" className="gap-1.5 shrink-0">
                         <Clock className="h-3.5 w-3.5 shrink-0" /> Horaires
-                      </TabsTrigger>
-                      <TabsTrigger value="text" className="gap-1.5 shrink-0">
-                        <FileText className="h-3.5 w-3.5 shrink-0" /> Texte
                       </TabsTrigger>
                       <TabsTrigger value="blocks" className="gap-1.5 shrink-0">
                         <Sparkles className="h-3.5 w-3.5 shrink-0" /> Blocs
