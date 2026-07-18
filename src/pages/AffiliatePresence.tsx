@@ -13,7 +13,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
-  Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
+  Loader2, Globe, CheckCircle2, AlertCircle, ExternalLink,
   Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
