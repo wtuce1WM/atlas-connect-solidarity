@@ -202,7 +202,7 @@ const AffiliatePresence = () => {
       const { data: affiliate } = await supabase
         .from("affiliates")
         .select("id, max_businesses, has_dashboard, has_video_studio")
-        .eq("user_id", user.id)
+        .eq("user_id", session.user.id)
         .maybeSingle();
 
       if (!affiliate) {
