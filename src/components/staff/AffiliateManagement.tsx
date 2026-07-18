@@ -359,14 +359,20 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     setAccountLoading(true);
 
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
+      const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession();
+      const { data: sessionData } = refreshedSession.session
+        ? { data: refreshedSession }
+        : await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
 
-      if (!token) {
-        throw new Error("Non authentifié");
+      if (refreshError || !token) {
+        throw new Error("Session staff expirée. Reconnecte-toi au back-office puis réessaie.");
       }
 
       const response = await supabase.functions.invoke("manage-affiliate-user", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: {
           action: accountAction,
           affiliate_id: selectedAffiliate.id,
