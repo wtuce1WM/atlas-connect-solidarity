@@ -78,6 +78,7 @@ const REVIEW_FIELDS = [
 interface BusinessPresence {
   id: string;
   name: string;
+  slug: string | null;
   city: string | null;
   main_category: string | null;
   logo_url: string | null;
