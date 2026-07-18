@@ -14,15 +14,13 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, Cloud, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
 import AffiliateOpeningHoursEditor from "@/components/affiliate/AffiliateOpeningHoursEditor";
 import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type CtaUrlItem } from "@/components/affiliate/AffiliateContactEditor";
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
-import AffiliateYextInfo from "@/components/affiliate/AffiliateYextInfo";
-import YextSyncButton from "@/components/affiliate/YextSyncButton";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
 import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
@@ -484,7 +482,7 @@ const AffiliatePresence = () => {
 
             {/* Editor Panel */}
             {currentBusiness && (
-              <Card className="bg-card border-border">
+              <Card className="bg-card border-border dark">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -511,7 +509,7 @@ const AffiliatePresence = () => {
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="text" className="w-full">
-                    <TabsList className="mb-6 w-full flex items-center overflow-x-auto whitespace-nowrap justify-start gap-1 border-b border-white/10 bg-black p-0 h-auto scrollbar-hide">
+                    <TabsList className="mb-6 w-full flex items-center overflow-x-auto whitespace-nowrap justify-start gap-1 border-b border-white/10 bg-transparent p-0 h-auto scrollbar-hide">
                       <TabsTrigger value="tools" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <Wand2 className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Tools</span>
                       </TabsTrigger>
@@ -547,9 +545,6 @@ const AffiliatePresence = () => {
                       </TabsTrigger>
                       <TabsTrigger value="help" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <HelpCircle className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Plateformes</span>
-                      </TabsTrigger>
-                      <TabsTrigger value="yext" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
-                        <Cloud className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Yext</span>
                       </TabsTrigger>
                     </TabsList>
 
@@ -769,12 +764,6 @@ const AffiliatePresence = () => {
                     {/* Platform Help Tab */}
                     <TabsContent value="help">
                       <AffiliatePlatformHelp />
-                    </TabsContent>
-
-
-                    {/* Yext Tab */}
-                    <TabsContent value="yext">
-                      <AffiliateYextInfo businessId={currentBusiness.id} businessName={currentBusiness.name} />
                     </TabsContent>
                   </Tabs>
                 </CardContent>
