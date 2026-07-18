@@ -18,7 +18,7 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
 
   if (!slug) {
     return (
-      <div className="text-sm text-white/70">
+      <div className="text-sm text-black/70">
         Enregistrez d'abord un slug (onglet Texte) pour générer les liens et le QR code.
       </div>
     );
