@@ -925,10 +925,27 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                           </span>
                         )}
                       </TableCell>
-                       <TableCell>
-                         {affiliate.main_category || "—"}
+                       <TableCell className="text-center">
+                         {affiliate.max_businesses ?? "—"}
                        </TableCell>
-                      <TableCell>
+                       <TableCell className="text-center">
+                         {affiliate.has_video_studio ? (
+                           <Badge variant="default" className="bg-green-600">Oui</Badge>
+                         ) : (
+                           <Badge variant="outline" className="text-muted-foreground">Non</Badge>
+                         )}
+                       </TableCell>
+                       <TableCell className="text-center">
+                         {affiliate.has_dashboard ? (
+                           <Badge variant="default" className="bg-green-600">Oui</Badge>
+                         ) : (
+                           <Badge variant="outline" className="text-muted-foreground">Non</Badge>
+                         )}
+                       </TableCell>
+                        <TableCell>
+                          {affiliate.main_category || "—"}
+                        </TableCell>
+                       <TableCell>
                         {affiliate.contact_name && (
                           <span className="block text-sm">{affiliate.contact_name}</span>
                         )}
