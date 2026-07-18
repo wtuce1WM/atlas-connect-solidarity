@@ -672,7 +672,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     tts.speak(content);
   };
 
-  const allSuggestions = useMemo(() => at.suggestions, [at]);
+  const allSuggestions = useMemo(() => (dbSuggestions && dbSuggestions.length ? dbSuggestions : at.suggestions) as readonly string[], [at, dbSuggestions]);
 
 
   const [suggestionPage, setSuggestionPage] = useState(0);
