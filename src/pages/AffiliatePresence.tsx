@@ -511,7 +511,7 @@ const AffiliatePresence = () => {
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="text" className="w-full">
-                    <TabsList className="mb-6 w-full flex items-center overflow-x-auto whitespace-nowrap justify-start gap-1 border-b border-white/10 bg-transparent p-0 h-auto scrollbar-hide">
+                    <TabsList className="mb-6 w-full flex items-center overflow-x-auto whitespace-nowrap justify-start gap-1 border-b border-white/10 bg-black p-0 h-auto scrollbar-hide">
                       <TabsTrigger value="tools" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <Wand2 className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Tools</span>
                       </TabsTrigger>
