@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { assertStaff } from "../_shared/auth-helpers.ts";
+import { assertStaffOrAffiliateBusiness } from "../_shared/auth-helpers.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -23,11 +23,14 @@ const TEMPLATES = [
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  const auth = await assertStaff(req, corsHeaders);
-  if (auth instanceof Response) return auth;
-
   try {
-    const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id, options } = await req.json();
+    const body = await req.json();
+    const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id, options } = body;
+
+    // Auth: staff full access, otherwise must own the business_id
+    const auth = await assertStaffOrAffiliateBusiness(req, corsHeaders, business_id ?? "");
+    if (auth instanceof Response) return auth;
+    const callerUserId = auth.userId;
 
     if (!prompt || typeof prompt !== "string" || prompt.length > 2000) {
       return json({ error: "prompt invalide" }, 400);
@@ -452,6 +455,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       .from("video_jobs")
       .insert({
         business_id: resolved_business_id,
+        user_id: callerUserId,
         prompt,
         duration_sec,
         tone,

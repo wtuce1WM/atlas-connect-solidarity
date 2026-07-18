@@ -116,6 +116,8 @@ export default function StudioVideo() {
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
+  const [ownedBusinessIds, setOwnedBusinessIds] = useState<string[] | null>(null); // null = not loaded, [] = none
 
   useEffect(() => {
     let cancelled = false;
@@ -134,14 +136,38 @@ export default function StudioVideo() {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const { data: affiliate } = await supabase
-        .from("affiliates")
-        .select("has_dashboard, has_video_studio")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+      const uid = session.user.id;
+
+      // Detect staff/admin role
+      const [{ data: staffRow }, { data: affiliate }] = await Promise.all([
+        supabase.rpc("is_staff", { _user_id: uid }),
+        supabase
+          .from("affiliates")
+          .select("id, has_dashboard, has_video_studio")
+          .eq("user_id", uid)
+          .maybeSingle(),
+      ]);
+      const staff = !!staffRow;
+      setIsStaff(staff);
       if (affiliate) {
         setHasDashboard(!!(affiliate as any).has_dashboard);
         setHasVideoStudio(!!(affiliate as any).has_video_studio);
+      }
+
+      if (!staff && affiliate?.id) {
+        const { data: bizList } = await supabase
+          .from("businesses")
+          .select("id, name, city")
+          .eq("affiliate_id", (affiliate as any).id)
+          .order("name");
+        const ids = (bizList ?? []).map((b: any) => b.id);
+        setOwnedBusinessIds(ids);
+        // Pre-populate the picker with the affiliate's businesses
+        setBusinesses((bizList ?? []) as Business[]);
+      } else if (staff) {
+        setOwnedBusinessIds(null);
+      } else {
+        setOwnedBusinessIds([]);
       }
     })();
   }, [authState]);
@@ -182,6 +208,8 @@ export default function StudioVideo() {
 
   // Autocomplete businesses
   useEffect(() => {
+    // Affiliates: their list is preloaded and locked (no cross-search)
+    if (!isStaff) return;
     if (query.length < 2) {
       setBusinesses([]);
       return;
@@ -196,7 +224,7 @@ export default function StudioVideo() {
       setBusinesses(data ?? []);
     }, 250);
     return () => clearTimeout(t);
-  }, [query]);
+  }, [query, isStaff]);
 
   // Load business stats when selected
   useEffect(() => {
@@ -438,7 +466,14 @@ export default function StudioVideo() {
         <main className="container mx-auto px-4 pt-32 pb-16">
           <div className="mx-auto max-w-3xl space-y-8">
             <header className="space-y-4">
-              <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
+                {isStaff && (
+                  <span className="text-xs font-semibold px-2 py-1 rounded-full bg-[#C04F17] text-white uppercase tracking-wide">
+                    Mode admin
+                  </span>
+                )}
+              </div>
               <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
                 <div className="flex items-center gap-2 min-w-max">
                   <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/presence")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
@@ -470,27 +505,51 @@ export default function StudioVideo() {
 
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="space-y-2">
-              <Label>Établissement (optionnel)</Label>
-              <Input
-                placeholder="Rechercher par nom…"
-                value={selected ? selected.name : query}
-                onChange={(e) => {
-                  setSelected(null);
-                  setQuery(e.target.value);
-                }}
-              />
-              {!selected && businesses.length > 0 && (
+              <Label>
+                {isStaff ? "Établissement (optionnel)" : "Votre établissement"}
+              </Label>
+              {isStaff ? (
+                <>
+                  <Input
+                    placeholder="Rechercher par nom…"
+                    value={selected ? selected.name : query}
+                    onChange={(e) => {
+                      setSelected(null);
+                      setQuery(e.target.value);
+                    }}
+                  />
+                  {!selected && businesses.length > 0 && (
+                    <div className="rounded-md border border-border bg-popover divide-y">
+                      {businesses.map((b) => (
+                        <button
+                          key={b.id}
+                          type="button"
+                          className="block w-full text-left px-3 py-2 hover:bg-accent"
+                          onClick={() => {
+                            setSelected(b);
+                            setQuery("");
+                            setBusinesses([]);
+                          }}
+                        >
+                          <div className="font-medium">{b.name}</div>
+                          {b.city && <div className="text-xs text-muted-foreground">{b.city}</div>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : ownedBusinessIds && ownedBusinessIds.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Aucun établissement rattaché à votre compte. Créez-en un depuis « Présence en ligne ».
+                </p>
+              ) : (
                 <div className="rounded-md border border-border bg-popover divide-y">
                   {businesses.map((b) => (
                     <button
                       key={b.id}
                       type="button"
-                      className="block w-full text-left px-3 py-2 hover:bg-accent"
-                      onClick={() => {
-                        setSelected(b);
-                        setQuery("");
-                        setBusinesses([]);
-                      }}
+                      className={`block w-full text-left px-3 py-2 hover:bg-accent ${selected?.id === b.id ? "bg-accent" : ""}`}
+                      onClick={() => setSelected(b)}
                     >
                       <div className="font-medium">{b.name}</div>
                       {b.city && <div className="text-xs text-muted-foreground">{b.city}</div>}
@@ -498,6 +557,7 @@ export default function StudioVideo() {
                   ))}
                 </div>
               )}
+
 
               {selected && (
                 <div className="rounded-md border border-border bg-muted/30 p-3 text-sm space-y-2">
