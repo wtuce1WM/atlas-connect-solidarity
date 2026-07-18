@@ -701,7 +701,7 @@ export default function StudioVideo() {
           )}
 
           <section className="space-y-3">
-            <h2 className="font-semibold">Galerie — dernières vidéos générées</h2>
+            <h2 className="font-semibold text-white">Galerie — dernières vidéos générées</h2>
             <p className="text-xs text-muted-foreground">
               Les vidéos produites via ce studio apparaissent ici avec le prompt utilisé.
             </p>
@@ -721,7 +721,7 @@ export default function StudioVideo() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="font-semibold">Showcase — établissements</h2>
+            <h2 className="font-semibold text-white">Showcase — établissements</h2>
             <p className="text-xs text-muted-foreground">
               Exemples générés manuellement pour des établissements réels, avec le prompt d'origine.
             </p>
@@ -737,7 +737,7 @@ export default function StudioVideo() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="font-semibold">Showcase — features & démos génériques</h2>
+            <h2 className="font-semibold text-white">Showcase — features & démos génériques</h2>
             <p className="text-xs text-muted-foreground">
               Vidéos qui illustrent une fonctionnalité du produit (agent IA, etc.).
             </p>
