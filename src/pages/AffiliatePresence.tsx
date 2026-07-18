@@ -119,9 +119,15 @@ const AffiliatePresence = () => {
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
   const [affiliateId, setAffiliateId] = useState<string | null>(null);
+  const [maxBusinesses, setMaxBusinesses] = useState<number | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newBusinessName, setNewBusinessName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+
+  const canCreateMore = maxBusinesses == null || businesses.length < maxBusinesses;
+  const limitLabel = maxBusinesses != null
+    ? `${businesses.length}/${maxBusinesses} établissement${maxBusinesses > 1 ? "s" : ""}`
+    : null;
 
   const loadBusinesses = async (targetAffiliateId: string) => {
     const selectFields = ["id", "name", "slug", "name_en", "name_ar", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
@@ -195,7 +201,7 @@ const AffiliatePresence = () => {
 
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id")
+        .select("id, max_businesses")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
@@ -207,6 +213,7 @@ const AffiliatePresence = () => {
       }
 
       setAffiliateId(affiliate.id);
+      setMaxBusinesses((affiliate as any).max_businesses ?? null);
       await loadBusinesses(affiliate.id);
     };
     init();
@@ -289,6 +296,14 @@ const AffiliatePresence = () => {
       toast({ title: "Erreur", description: "Compte affilié introuvable.", variant: "destructive" });
       return;
     }
+    if (!canCreateMore) {
+      toast({
+        title: "Limite atteinte",
+        description: `Votre forfait autorise ${maxBusinesses} établissement${(maxBusinesses ?? 0) > 1 ? "s" : ""}. Contactez-nous pour augmenter cette limite.`,
+        variant: "destructive",
+      });
+      return;
+    }
     setIsCreating(true);
 
     const baseSlug = name
@@ -357,14 +372,50 @@ const AffiliatePresence = () => {
           </div>
         </div>
 
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogContent className="bg-card border-border text-foreground">
+            <DialogHeader>
+              <DialogTitle>Créer un nouvel établissement</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Saisissez le nom de l'établissement. Vous pourrez compléter les onglets (Texte, Contact, Horaires, Images, etc.) juste après.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <Label htmlFor="new-business-name" className="mb-2 block">Nom de l'établissement</Label>
+              <Input
+                id="new-business-name"
+                value={newBusinessName}
+                onChange={(e) => setNewBusinessName(e.target.value)}
+                placeholder="Ex. Riad Dar Najat"
+                disabled={isCreating}
+                onKeyDown={(e) => { if (e.key === "Enter") handleCreateBusiness(); }}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setIsCreateDialogOpen(false)} disabled={isCreating}>Annuler</Button>
+              <Button onClick={handleCreateBusiness} disabled={isCreating || !newBusinessName.trim()}>
+                {isCreating ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
+                Créer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+
         {businesses.length === 0 ? (
           <Card className="bg-card border-border">
             <CardContent className="py-12 text-center space-y-4">
               <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
               <p className="text-muted-foreground">Aucun établissement associé à votre compte.</p>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-1" /> Créer mon premier établissement
-              </Button>
+              {canCreateMore ? (
+                <Button onClick={() => setIsCreateDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-1" /> Créer mon premier établissement
+                </Button>
+              ) : (
+                <p className="text-sm text-orange-400">
+                  Votre forfait n'autorise aucun établissement. Contactez-nous pour l'activer.
+                </p>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -372,43 +423,28 @@ const AffiliatePresence = () => {
             {/* Business horizontal strip */}
             <div>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 sm:justify-between mb-2">
-                  <p className="text-xs font-medium text-white uppercase tracking-wider">
-                    Vos établissements
-                  </p>
-                  <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="sm" variant="outline" className="border-white/20 bg-white text-black hover:bg-white/10 hover:text-white w-full sm:w-auto">
-                        <Plus className="h-4 w-4 mr-1 text-black" /> Nouvel établissement
-                      </Button>
-                    </DialogTrigger>
-                  <DialogContent className="bg-card border-border text-foreground">
-                    <DialogHeader>
-                      <DialogTitle>Créer un nouvel établissement</DialogTitle>
-                      <DialogDescription className="text-muted-foreground">
-                        Saisissez le nom de l'établissement. Vous pourrez compléter les onglets (Contact, Horaires, Texte, Images, etc.) juste après.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4">
-                      <Label htmlFor="new-business-name" className="mb-2 block">Nom de l'établissement</Label>
-                      <Input
-                        id="new-business-name"
-                        value={newBusinessName}
-                        onChange={(e) => setNewBusinessName(e.target.value)}
-                        placeholder="Ex. Riad Dar Najat"
-                        disabled={isCreating}
-                        onKeyDown={(e) => { if (e.key === "Enter") handleCreateBusiness(); }}
-                      />
-                    </div>
-                    <DialogFooter>
-                      <Button variant="ghost" onClick={() => setIsCreateDialogOpen(false)} disabled={isCreating}>Annuler</Button>
-                      <Button onClick={handleCreateBusiness} disabled={isCreating || !newBusinessName.trim()}>
-                        {isCreating ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
-                        Créer
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-xs font-medium text-white uppercase tracking-wider">
+                      Vos établissements
+                    </p>
+                    {limitLabel && (
+                      <span className="text-[11px] text-white/60 normal-case tracking-normal">({limitLabel})</span>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!canCreateMore}
+                    onClick={() => setIsCreateDialogOpen(true)}
+                    className="border-white/20 bg-white text-black hover:bg-white/10 hover:text-white w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={!canCreateMore ? `Limite atteinte (${limitLabel})` : undefined}
+                  >
+                    <Plus className="h-4 w-4 mr-1 text-black" />
+                    {canCreateMore ? "Nouvel établissement" : `Limite atteinte (${limitLabel})`}
+                  </Button>
+                </div>
+
+
               <HScroll className="flex gap-3 pb-3 -mb-1 overflow-x-auto">
                 {businesses.map(b => {
                   const isSelected = b.id === selectedBusiness;
@@ -460,7 +496,7 @@ const AffiliatePresence = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Tabs defaultValue="tools" className="w-full">
+                  <Tabs defaultValue="text" className="w-full">
                     <TabsList className="mb-4 w-full overflow-x-auto whitespace-nowrap flex-nowrap justify-start gap-1 pb-1 scrollbar-thin">
                       <TabsTrigger value="tools" className="gap-1.5 shrink-0">
                         <Wand2 className="h-3.5 w-3.5 shrink-0" /> Tools
