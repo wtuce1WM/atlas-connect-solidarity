@@ -21,8 +21,6 @@ import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
 import AffiliateOpeningHoursEditor from "@/components/affiliate/AffiliateOpeningHoursEditor";
 import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type CtaUrlItem } from "@/components/affiliate/AffiliateContactEditor";
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
-import AffiliateYextInfo from "@/components/affiliate/AffiliateYextInfo";
-import YextSyncButton from "@/components/affiliate/YextSyncButton";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
 import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
