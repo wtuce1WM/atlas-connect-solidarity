@@ -830,16 +830,15 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                 <TableRow>
-                     <TableHead className="w-12"></TableHead>
-                     <TableHead>Nom</TableHead>
-                     <TableHead>Type</TableHead>
-                     <TableHead>Catégorie</TableHead>
-                     <TableHead>Contact</TableHead>
-                     <TableHead className="text-center">Compte</TableHead>
-                     <TableHead className="text-center">Statut</TableHead>
-                     <TableHead className="text-right">Actions</TableHead>
-                   </TableRow>
+                   <TableRow>
+                      <TableHead className="w-12"></TableHead>
+                      <TableHead>Nom</TableHead>
+                      <TableHead>Catégorie</TableHead>
+                      <TableHead>Contact</TableHead>
+                      <TableHead className="text-center">Compte</TableHead>
+                      <TableHead className="text-center">Statut</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
                 </TableHeader>
                 <TableBody>
                   {affiliates.map((affiliate) => (
