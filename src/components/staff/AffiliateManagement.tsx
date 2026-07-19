@@ -240,6 +240,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       max_businesses: numericMaxBiz,
       has_video_studio: formData.has_video_studio,
       has_dashboard: formData.has_dashboard,
+      has_showcase_site: (formData as any).has_showcase_site ?? false,
     };
 
     let error;
