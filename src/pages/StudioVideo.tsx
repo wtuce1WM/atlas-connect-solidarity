@@ -841,11 +841,13 @@ export default function StudioVideo() {
                         })}
                       </div>
                       <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les vidéos.</p>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
             {lightboxIndex !== null && mediaItems[lightboxIndex] && (
               <div
