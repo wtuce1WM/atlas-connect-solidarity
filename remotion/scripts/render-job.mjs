@@ -47,6 +47,15 @@ if (!supabaseUrl || !supabaseKey) {
   process.exit(1);
 }
 
+// DIAG: which key is actually being used?
+console.log("🔎 DIAG keys:", {
+  url_set: !!supabaseUrl,
+  service_role_set: !!SUPABASE_SERVICE_ROLE_KEY,
+  service_role_len: SUPABASE_SERVICE_ROLE_KEY?.length ?? 0,
+  anon_set: !!VITE_SUPABASE_ANON_KEY,
+  using: SUPABASE_SERVICE_ROLE_KEY ? "SERVICE_ROLE" : "ANON",
+});
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 const BUCKET = "studio-videos";
 
