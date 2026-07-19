@@ -821,6 +821,78 @@ export default function StudioVideo() {
               )}
             </div>
 
+            {lightboxIndex !== null && mediaItems[lightboxIndex] && (
+              <div
+                className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+                onClick={() => setLightboxIndex(null)}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex(null); }}
+                  className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full p-2"
+                  aria-label="Fermer"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => i === null ? null : (i - 1 + mediaItems.length) % mediaItems.length); }}
+                  className="absolute left-4 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full p-3"
+                  aria-label="Précédent"
+                >
+                  <ChevronLeft className="h-8 w-8" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => i === null ? null : (i + 1) % mediaItems.length); }}
+                  className="absolute right-4 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full p-3"
+                  aria-label="Suivant"
+                >
+                  <ChevronRight className="h-8 w-8" />
+                </button>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+                  {lightboxIndex + 1} / {mediaItems.length}
+                  {mediaItems[lightboxIndex].title && <span className="ml-3">{mediaItems[lightboxIndex].title}</span>}
+                </div>
+                <div className="max-w-[95vw] max-h-[90vh] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                  {(() => {
+                    const m = mediaItems[lightboxIndex];
+                    if (m.kind === "image") {
+                      return <img src={m.url} alt="" className="max-w-[95vw] max-h-[90vh] object-contain" />;
+                    }
+                    if (m.kind === "video") {
+                      return (
+                        <video
+                          key={m.url}
+                          src={m.url}
+                          controls
+                          autoPlay
+                          playsInline
+                          className="max-w-[95vw] max-h-[90vh] bg-black"
+                        />
+                      );
+                    }
+                    // youtube
+                    const match = m.url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+                    const id = match?.[1];
+                    return id ? (
+                      <iframe
+                        key={id}
+                        src={`https://www.youtube.com/embed/${id}?autoplay=1`}
+                        title={m.title}
+                        allow="autoplay; encrypted-media; fullscreen"
+                        allowFullScreen
+                        className="w-[90vw] h-[80vh] max-w-[1280px] bg-black"
+                      />
+                    ) : (
+                      <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-white underline">{m.url}</a>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
