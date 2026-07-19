@@ -206,7 +206,7 @@ const AffiliatePresence = () => {
 
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id, max_businesses, has_dashboard, has_video_studio")
+        .select("id, max_businesses, has_dashboard, has_video_studio, has_showcase_site")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
@@ -219,6 +219,7 @@ const AffiliatePresence = () => {
       setMaxBusinesses((affiliate as any).max_businesses ?? null);
       setHasDashboard(!!(affiliate as any).has_dashboard);
       setHasVideoStudio(!!(affiliate as any).has_video_studio);
+      setHasShowcaseSite(!!(affiliate as any).has_showcase_site);
       await loadBusinesses(affiliate.id);
     };
     init();
