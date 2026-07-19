@@ -605,6 +605,19 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                     onCheckedChange={(checked) => setFormData({ ...formData, has_dashboard: checked })}
                   />
                 </div>
+
+                {/* Site vitrine */}
+                <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="has_showcase_site">Site vitrine 1WM</Label>
+                    <p className="text-xs text-muted-foreground">Page /site/:slug signée 1WM</p>
+                  </div>
+                  <Switch
+                    id="has_showcase_site"
+                    checked={(formData as any).has_showcase_site || false}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_showcase_site: checked } as any)}
+                  />
+                </div>
               </div>
 
               {/* Catégorie principale */}
