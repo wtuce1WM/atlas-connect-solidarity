@@ -740,7 +740,7 @@ export default function StudioVideo() {
                             {selectedVideos.size}/{bizVideos.length} sélectionnée{selectedVideos.size > 1 ? "s" : ""}
                           </span>
                         </Label>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
                             className="text-xs text-muted-foreground hover:text-foreground underline"
@@ -755,9 +755,20 @@ export default function StudioVideo() {
                           >
                             Aucune
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowVideos((s) => !s)}
+                            className="text-muted-foreground hover:text-foreground p-1 rounded"
+                            aria-label={showVideos ? "Masquer les vidéos" : "Afficher les vidéos"}
+                            title={showVideos ? "Masquer" : "Afficher"}
+                          >
+                            {showVideos ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          </button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                      {showVideos && (
+                        <>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {bizVideos.map((v, vIdx) => {
                           const globalIdx = bizImages.length + vIdx;
                           const checked = selectedVideos.has(v.url);
