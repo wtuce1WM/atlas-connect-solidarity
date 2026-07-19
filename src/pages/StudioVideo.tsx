@@ -729,7 +729,15 @@ export default function StudioVideo() {
                               }`}
                               title={v.title}
                             >
-                              {v.thumbnail ? (
+                              {v.kind === "file" ? (
+                                <video
+                                  src={v.url}
+                                  preload="metadata"
+                                  muted
+                                  playsInline
+                                  className="w-full h-full object-cover bg-black"
+                                />
+                              ) : v.thumbnail ? (
                                 <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-white/60">
