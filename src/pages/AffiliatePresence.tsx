@@ -787,6 +787,13 @@ const AffiliatePresence = () => {
                     <TabsContent value="help">
                       <AffiliatePlatformHelp />
                     </TabsContent>
+
+                    {/* Showcase Site Tab */}
+                    {hasShowcaseSite && (
+                      <TabsContent value="showcase">
+                        <AffiliateShowcaseSiteEditor businessId={currentBusiness.id} businessSlug={currentBusiness.slug} />
+                      </TabsContent>
+                    )}
                   </Tabs>
                 </CardContent>
               </Card>
