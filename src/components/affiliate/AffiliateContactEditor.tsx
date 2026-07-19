@@ -204,9 +204,11 @@ const AffiliateContactEditor = ({
               placeholder="https://www.google.com/maps/place/..."
               className="text-xs flex-1"
             />
-            <Button type="button" size="sm" variant="secondary" onClick={handleExtract} disabled={!googleMapsUrl}>
-              <Wand2 className="h-3.5 w-3.5 mr-1" /> Extraire GPS
+            <Button type="button" size="sm" variant="secondary" onClick={handleExtract} disabled={!googleMapsUrl || extracting}>
+              {extracting ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Wand2 className="h-3.5 w-3.5 mr-1" />}
+              {extracting ? "Extraction..." : "Extraire GPS"}
             </Button>
+
           </div>
         </Row>
         <Row icon={<Navigation className="h-4 w-4 text-blue-500" />} label="Latitude">
