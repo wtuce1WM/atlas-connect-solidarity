@@ -759,6 +759,17 @@ export default function StudioVideo() {
   );
 }
 
+function estimateVideoCost(durationSec: number) {
+  const scenarioUsd = 0.034; // Claude Sonnet scenario generation
+  const renderUsd = 0.01 + durationSec * 0.0005; // Remotion Lambda approx
+  const totalUsd = scenarioUsd + renderUsd;
+  const totalEur = totalUsd * 0.93;
+  return {
+    usd: totalUsd.toFixed(2),
+    eur: totalEur.toFixed(2),
+  };
+}
+
 function VideoWithMeta({ src }: { src: string }) {
   const [dim, setDim] = useState<{ w: number; h: number } | null>(null);
   const [size, setSize] = useState<number | null>(null);
@@ -782,6 +793,8 @@ function VideoWithMeta({ src }: { src: string }) {
     return `${(b / (1024 * 1024)).toFixed(2)} Mo`;
   };
 
+  const cost = duration != null ? estimateVideoCost(duration) : null;
+
   return (
     <div className="space-y-1">
       <video
@@ -799,6 +812,7 @@ function VideoWithMeta({ src }: { src: string }) {
         {dim ? `${dim.w}×${dim.h}` : "…"}
         {duration != null ? ` · ${duration.toFixed(1)}s` : ""}
         {size != null ? ` · ${fmtSize(size)}` : ""}
+        {cost && ` · Coût estimé : ~${cost.usd} $ (~${cost.eur} €)`}
       </div>
     </div>
   );
