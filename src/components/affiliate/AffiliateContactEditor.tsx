@@ -2,9 +2,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, MessageCircle, MapPin, Home, Building2, Navigation, Wand2, Link2, ExternalLink } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Home, Building2, Navigation, Wand2, Link2, ExternalLink, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
 
 export interface CityOption { id: string; name_fr: string; region: string | null }
 export interface NeighborhoodOption { id: string; name: string; city_id: string }
@@ -94,6 +96,7 @@ const AffiliateContactEditor = ({
   onCtaFieldChange,
 }: AffiliateContactEditorProps) => {
   const { toast } = useToast();
+  const [extracting, setExtracting] = useState(false);
 
   const selectedCity = useMemo(() => cities.find(c => c.name_fr === city) || null, [cities, city]);
   const neighborhoodsForCity = useMemo(
@@ -107,16 +110,42 @@ const AffiliateContactEditor = ({
     onNeighborhoodChange("");
   };
 
-  const handleExtract = () => {
-    const coords = extractCoordsFromMapsUrl(googleMapsUrl);
-    if (!coords) {
-      toast({ title: "Extraction impossible", description: "Aucun point GPS trouvé dans cette URL Google Maps.", variant: "destructive" });
+  const handleExtract = async () => {
+    if (!googleMapsUrl) return;
+    // 1) Try local regex first (fast, works on long URLs)
+    const local = extractCoordsFromMapsUrl(googleMapsUrl);
+    if (local) {
+      onLatitudeChange(local.lat);
+      onLongitudeChange(local.lng);
+      toast({ title: "Points GPS extraits ✓", description: `Lat: ${local.lat}, Lng: ${local.lng}` });
       return;
     }
-    onLatitudeChange(coords.lat);
-    onLongitudeChange(coords.lng);
-    toast({ title: "Points GPS extraits ✓", description: `Lat: ${coords.lat}, Lng: ${coords.lng}` });
+    // 2) Fallback: call edge function (handles short links maps.app.goo.gl, place_id, etc.)
+    setExtracting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("resolve-maps-url", {
+        body: { url: googleMapsUrl },
+      });
+      if (error) throw error;
+      const lat = data?.lat != null ? Number(data.lat) : NaN;
+      const lng = data?.lng != null ? Number(data.lng) : NaN;
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        throw new Error(data?.error || "Aucun point GPS trouvé");
+      }
+      onLatitudeChange(lat);
+      onLongitudeChange(lng);
+      toast({ title: "Points GPS extraits ✓", description: `Lat: ${lat}, Lng: ${lng}` });
+    } catch (e: any) {
+      toast({
+        title: "Extraction impossible",
+        description: e?.message || "Aucun point GPS trouvé dans cette URL Google Maps.",
+        variant: "destructive",
+      });
+    } finally {
+      setExtracting(false);
+    }
   };
+
 
   return (
     <div className="space-y-4">
@@ -175,9 +204,11 @@ const AffiliateContactEditor = ({
               placeholder="https://www.google.com/maps/place/..."
               className="text-xs flex-1"
             />
-            <Button type="button" size="sm" variant="secondary" onClick={handleExtract} disabled={!googleMapsUrl}>
-              <Wand2 className="h-3.5 w-3.5 mr-1" /> Extraire GPS
+            <Button type="button" size="sm" variant="secondary" onClick={handleExtract} disabled={!googleMapsUrl || extracting}>
+              {extracting ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Wand2 className="h-3.5 w-3.5 mr-1" />}
+              {extracting ? "Extraction..." : "Extraire GPS"}
             </Button>
+
           </div>
         </Row>
         <Row icon={<Navigation className="h-4 w-4 text-blue-500" />} label="Latitude">
