@@ -763,10 +763,8 @@ function estimateVideoCost(durationSec: number) {
   const scenarioUsd = 0.034; // Claude Sonnet scenario generation
   const renderUsd = 0.01 + durationSec * 0.0005; // Remotion Lambda approx
   const totalUsd = scenarioUsd + renderUsd;
-  const totalEur = totalUsd * 0.93;
   return {
     usd: totalUsd.toFixed(2),
-    eur: totalEur.toFixed(2),
   };
 }
 
