@@ -35,8 +35,54 @@ Deno.serve(async (req) => {
     if (runs.ok) {
       const j = await runs.json();
       out.recent_runs = (j.workflow_runs ?? []).map((r: any) => ({
-        id: r.id, status: r.status, conclusion: r.conclusion, created_at: r.created_at, event: r.event,
+        id: r.id, status: r.status, conclusion: r.conclusion, created_at: r.created_at, event: r.event, head_sha: r.head_sha,
       }));
+      // Fetch logs of most recent completed run instead
+      const completed = j.workflow_runs?.find((r: any) => r.status === 'completed');
+      if (completed) {
+        const jobs2 = await fetch(`https://api.github.com/repos/${repo}/actions/runs/${completed.id}/jobs`, { headers: h });
+        if (jobs2.ok) {
+          const jj2 = await jobs2.json();
+          const firstJob2 = jj2.jobs?.[0];
+          if (firstJob2) {
+            const logs2 = await fetch(`https://api.github.com/repos/${repo}/actions/jobs/${firstJob2.id}/logs`, { headers: h, redirect: 'follow' });
+            out.completed_logs_status = logs2.status;
+            if (logs2.ok) {
+              const txt = await logs2.text();
+              out.completed_job_logs_tail = txt.split('\n').slice(-100).join('\n');
+            }
+          }
+        }
+      }
+      // Also fetch render-job.mjs content from repo
+      const contentRes = await fetch(`https://api.github.com/repos/${repo}/contents/remotion/scripts/render-job.mjs?ref=main`, { headers: h });
+      out.render_job_file_status = contentRes.status;
+      if (contentRes.ok) {
+        const cj = await contentRes.json();
+        out.render_job_sha = cj.sha;
+        out.render_job_size = cj.size;
+      }
+      const latest = j.workflow_runs?.[0];
+      if (latest) {
+        const jobs = await fetch(`https://api.github.com/repos/${repo}/actions/runs/${latest.id}/jobs`, { headers: h });
+        if (jobs.ok) {
+          const jj = await jobs.json();
+          out.latest_run_jobs = (jj.jobs ?? []).map((jb: any) => ({
+            id: jb.id, name: jb.name, status: jb.status, conclusion: jb.conclusion,
+            steps: (jb.steps ?? []).map((s: any) => ({ name: s.name, conclusion: s.conclusion, number: s.number })),
+          }));
+          const firstJob = jj.jobs?.[0];
+          if (firstJob) {
+            const logs = await fetch(`https://api.github.com/repos/${repo}/actions/jobs/${firstJob.id}/logs`, { headers: h, redirect: 'follow' });
+            if (logs.ok) {
+              const txt = await logs.text();
+              out.latest_job_logs_tail = txt.split('\n').slice(-80).join('\n');
+            } else {
+              out.latest_job_logs_status = logs.status;
+            }
+          }
+        }
+      }
     }
   }
 
