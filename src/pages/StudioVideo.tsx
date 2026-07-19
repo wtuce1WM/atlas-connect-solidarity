@@ -621,7 +621,143 @@ export default function StudioVideo() {
                   )}
                 </div>
               )}
+
+              {selected && (bizImages.length > 0 || bizVideos.length > 0) && (
+                <div className="space-y-4 pt-2">
+                  {bizImages.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm">
+                          Images de l'établissement
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            {selectedImages.size}/{bizImages.length} sélectionnée{selectedImages.size > 1 ? "s" : ""}
+                          </span>
+                        </Label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            className="text-xs text-muted-foreground hover:text-foreground underline"
+                            onClick={() => setSelectedImages(new Set(bizImages))}
+                          >
+                            Tout
+                          </button>
+                          <button
+                            type="button"
+                            className="text-xs text-muted-foreground hover:text-foreground underline"
+                            onClick={() => setSelectedImages(new Set())}
+                          >
+                            Aucune
+                          </button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                        {bizImages.map((url) => {
+                          const checked = selectedImages.has(url);
+                          return (
+                            <button
+                              type="button"
+                              key={url}
+                              onClick={() => {
+                                setSelectedImages((prev) => {
+                                  const next = new Set(prev);
+                                  if (next.has(url)) next.delete(url);
+                                  else next.add(url);
+                                  return next;
+                                });
+                              }}
+                              className={`relative aspect-square rounded-md overflow-hidden border-2 transition ${
+                                checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
+                              }`}
+                            >
+                              <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                              {checked && (
+                                <div className="absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                  ✓
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les images.</p>
+                    </div>
+                  )}
+
+                  {bizVideos.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm">
+                          Vidéos de l'établissement
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            {selectedVideos.size}/{bizVideos.length} sélectionnée{selectedVideos.size > 1 ? "s" : ""}
+                          </span>
+                        </Label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            className="text-xs text-muted-foreground hover:text-foreground underline"
+                            onClick={() => setSelectedVideos(new Set(bizVideos.map((v) => v.url)))}
+                          >
+                            Toutes
+                          </button>
+                          <button
+                            type="button"
+                            className="text-xs text-muted-foreground hover:text-foreground underline"
+                            onClick={() => setSelectedVideos(new Set())}
+                          >
+                            Aucune
+                          </button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                        {bizVideos.map((v) => {
+                          const checked = selectedVideos.has(v.url);
+                          return (
+                            <button
+                              type="button"
+                              key={v.url}
+                              onClick={() => {
+                                setSelectedVideos((prev) => {
+                                  const next = new Set(prev);
+                                  if (next.has(v.url)) next.delete(v.url);
+                                  else next.add(v.url);
+                                  return next;
+                                });
+                              }}
+                              className={`relative aspect-[9/16] rounded-md overflow-hidden border-2 transition bg-black ${
+                                checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
+                              }`}
+                              title={v.title}
+                            >
+                              {v.thumbnail ? (
+                                <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-white/60">
+                                  <Video className="h-6 w-6" />
+                                </div>
+                              )}
+                              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1">
+                                <p className="text-[10px] text-white truncate">{v.title}</p>
+                              </div>
+                              {v.kind === "youtube" && (
+                                <span className="absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1 rounded">YT</span>
+                              )}
+                              {checked && (
+                                <div className="absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                  ✓
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les vidéos.</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
