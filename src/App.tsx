@@ -92,6 +92,7 @@ const YouTubeChannelResolver = lazy(() => import("./pages/YouTubeChannelResolver
 const PublicClubProfile = lazy(() => import("./pages/PublicClubProfile"));
 const PublicBusinessProfile = lazy(() => import("./pages/PublicBusinessProfile"));
 const Card = lazy(() => import("./pages/Card"));
+const ShowcaseSite = lazy(() => import("./pages/ShowcaseSite"));
 
 const queryClient = new QueryClient();
 
