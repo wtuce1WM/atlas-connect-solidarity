@@ -100,6 +100,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     max_businesses: "",
     has_video_studio: false,
     has_dashboard: false,
+    has_showcase_site: false,
     is_active: true,
   });
 
