@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut } from "lucide-react";
+import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
@@ -209,6 +209,25 @@ export default function StudioVideo() {
   const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube" }[]>([]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [selectedVideos, setSelectedVideos] = useState<Set<string>>(new Set());
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Combined media list for the lightbox slideshow (images first, then videos)
+  const mediaItems = useMemo(() => {
+    const imgs = bizImages.map((url) => ({ kind: "image" as const, url, title: "", thumbnail: null as string | null }));
+    const vids = bizVideos.map((v) => ({ kind: v.kind === "youtube" ? ("youtube" as const) : ("video" as const), url: v.url, title: v.title, thumbnail: v.thumbnail }));
+    return [...imgs, ...vids];
+  }, [bizImages, bizVideos]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightboxIndex(null);
+      else if (e.key === "ArrowRight") setLightboxIndex((i) => (i === null ? null : (i + 1) % mediaItems.length));
+      else if (e.key === "ArrowLeft") setLightboxIndex((i) => (i === null ? null : (i - 1 + mediaItems.length) % mediaItems.length));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxIndex, mediaItems.length]);
 
   // Autocomplete businesses
   useEffect(() => {
@@ -651,31 +670,45 @@ export default function StudioVideo() {
                         </div>
                       </div>
                       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                        {bizImages.map((url) => {
+                        {bizImages.map((url, idx) => {
                           const checked = selectedImages.has(url);
                           return (
-                            <button
-                              type="button"
+                            <div
                               key={url}
-                              onClick={() => {
-                                setSelectedImages((prev) => {
-                                  const next = new Set(prev);
-                                  if (next.has(url)) next.delete(url);
-                                  else next.add(url);
-                                  return next;
-                                });
-                              }}
                               className={`relative aspect-square rounded-md overflow-hidden border-2 transition ${
                                 checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
                               }`}
                             >
-                              <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedImages((prev) => {
+                                    const next = new Set(prev);
+                                    if (next.has(url)) next.delete(url);
+                                    else next.add(url);
+                                    return next;
+                                  });
+                                }}
+                                className="absolute inset-0 w-full h-full"
+                                aria-label={checked ? "Désélectionner" : "Sélectionner"}
+                              >
+                                <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setLightboxIndex(idx); }}
+                                className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
+                                aria-label="Plein écran"
+                                title="Plein écran"
+                              >
+                                <Maximize2 className="h-3 w-3" />
+                              </button>
                               {checked && (
-                                <div className="absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                <div className="pointer-events-none absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                   ✓
                                 </div>
                               )}
-                            </button>
+                            </div>
                           );
                         })}
                       </div>
@@ -710,7 +743,8 @@ export default function StudioVideo() {
                         </div>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                        {bizVideos.map((v) => {
+                        {bizVideos.map((v, vIdx) => {
+                          const globalIdx = bizImages.length + vIdx;
                           const checked = selectedVideos.has(v.url);
                           const toggle = () => {
                             setSelectedVideos((prev) => {
@@ -737,9 +771,13 @@ export default function StudioVideo() {
                                   className="w-full h-full object-cover bg-black"
                                 />
                               ) : v.thumbnail ? (
-                                <a href={v.url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                                <button
+                                  type="button"
+                                  onClick={() => setLightboxIndex(globalIdx)}
+                                  className="block w-full h-full"
+                                >
                                   <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
-                                </a>
+                                </button>
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-white/60">
                                   <Video className="h-6 w-6" />
@@ -751,6 +789,15 @@ export default function StudioVideo() {
                               {v.kind === "youtube" && (
                                 <span className="pointer-events-none absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1 rounded">YT</span>
                               )}
+                              <button
+                                type="button"
+                                onClick={() => setLightboxIndex(globalIdx)}
+                                aria-label="Plein écran"
+                                title="Plein écran"
+                                className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
+                              >
+                                <Maximize2 className="h-3 w-3" />
+                              </button>
                               <button
                                 type="button"
                                 onClick={toggle}
@@ -773,6 +820,78 @@ export default function StudioVideo() {
                 </div>
               )}
             </div>
+
+            {lightboxIndex !== null && mediaItems[lightboxIndex] && (
+              <div
+                className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+                onClick={() => setLightboxIndex(null)}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex(null); }}
+                  className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full p-2"
+                  aria-label="Fermer"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => i === null ? null : (i - 1 + mediaItems.length) % mediaItems.length); }}
+                  className="absolute left-4 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full p-3"
+                  aria-label="Précédent"
+                >
+                  <ChevronLeft className="h-8 w-8" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => i === null ? null : (i + 1) % mediaItems.length); }}
+                  className="absolute right-4 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full p-3"
+                  aria-label="Suivant"
+                >
+                  <ChevronRight className="h-8 w-8" />
+                </button>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+                  {lightboxIndex + 1} / {mediaItems.length}
+                  {mediaItems[lightboxIndex].title && <span className="ml-3">{mediaItems[lightboxIndex].title}</span>}
+                </div>
+                <div className="max-w-[95vw] max-h-[90vh] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                  {(() => {
+                    const m = mediaItems[lightboxIndex];
+                    if (m.kind === "image") {
+                      return <img src={m.url} alt="" className="max-w-[95vw] max-h-[90vh] object-contain" />;
+                    }
+                    if (m.kind === "video") {
+                      return (
+                        <video
+                          key={m.url}
+                          src={m.url}
+                          controls
+                          autoPlay
+                          playsInline
+                          className="max-w-[95vw] max-h-[90vh] bg-black"
+                        />
+                      );
+                    }
+                    // youtube
+                    const match = m.url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+                    const id = match?.[1];
+                    return id ? (
+                      <iframe
+                        key={id}
+                        src={`https://www.youtube.com/embed/${id}?autoplay=1`}
+                        title={m.title}
+                        allow="autoplay; encrypted-media; fullscreen"
+                        allowFullScreen
+                        className="w-[90vw] h-[80vh] max-w-[1280px] bg-black"
+                      />
+                    ) : (
+                      <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-white underline">{m.url}</a>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
