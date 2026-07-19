@@ -209,6 +209,25 @@ export default function StudioVideo() {
   const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube" }[]>([]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [selectedVideos, setSelectedVideos] = useState<Set<string>>(new Set());
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Combined media list for the lightbox slideshow (images first, then videos)
+  const mediaItems = useMemo(() => {
+    const imgs = bizImages.map((url) => ({ kind: "image" as const, url, title: "", thumbnail: null as string | null }));
+    const vids = bizVideos.map((v) => ({ kind: v.kind === "youtube" ? ("youtube" as const) : ("video" as const), url: v.url, title: v.title, thumbnail: v.thumbnail }));
+    return [...imgs, ...vids];
+  }, [bizImages, bizVideos]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightboxIndex(null);
+      else if (e.key === "ArrowRight") setLightboxIndex((i) => (i === null ? null : (i + 1) % mediaItems.length));
+      else if (e.key === "ArrowLeft") setLightboxIndex((i) => (i === null ? null : (i - 1 + mediaItems.length) % mediaItems.length));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxIndex, mediaItems.length]);
 
   // Autocomplete businesses
   useEffect(() => {
