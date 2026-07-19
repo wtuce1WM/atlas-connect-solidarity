@@ -2,8 +2,8 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/events.json",
-    "generated_at": "2026-07-18T14:52:34.266Z",
-    "count": 39
+    "generated_at": "2026-07-19T10:21:13.159Z",
+    "count": 38
   },
   "events": [
     {
@@ -112,24 +112,6 @@
       "latitude": null,
       "longitude": null,
       "image": null,
-      "url": "https://oneworldmorocco.com/events"
-    },
-    {
-      "id": "58e158e5-29fe-48af-8a6e-aa68590b7452",
-      "name": "Ashtanga Deep Dive",
-      "hook": null,
-      "description": "IMMERSION ASHTANGA PROFONDE – 7 jours au Maroc, du 11 au 18 juillet 2026 | Vallée de l'Ourika Participez à une expérience de yoga immersive de 7 jours conçue pour approfondir votre pratique de l'Ashtanga. Vous explorerez 30 heures de yoga (méditation, pranayama et ateliers d'asanas), avec un accompagnement personnalisé pour affiner votre alignement, vos transitions et votre conscience respiratoire",
-      "start_date": "2026-07-11",
-      "end_date": "2026-07-18",
-      "start_time": null,
-      "end_time": null,
-      "recurrence": null,
-      "days_of_week": [],
-      "type": "Retraite Yoga",
-      "city": null,
-      "latitude": null,
-      "longitude": null,
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/logos/new-logo-1777005768600.webp",
       "url": "https://oneworldmorocco.com/events"
     },
     {

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
@@ -210,6 +210,8 @@ export default function StudioVideo() {
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [selectedVideos, setSelectedVideos] = useState<Set<string>>(new Set());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [showImages, setShowImages] = useState(true);
+  const [showVideos, setShowVideos] = useState(true);
 
   // Combined media list for the lightbox slideshow (images first, then videos)
   const mediaItems = useMemo(() => {
@@ -652,7 +654,7 @@ export default function StudioVideo() {
                             {selectedImages.size}/{bizImages.length} sélectionnée{selectedImages.size > 1 ? "s" : ""}
                           </span>
                         </Label>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
                             className="text-xs text-muted-foreground hover:text-foreground underline"
@@ -667,52 +669,65 @@ export default function StudioVideo() {
                           >
                             Aucune
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowImages((s) => !s)}
+                            className="text-muted-foreground hover:text-foreground p-1 rounded"
+                            aria-label={showImages ? "Masquer les images" : "Afficher les images"}
+                            title={showImages ? "Masquer" : "Afficher"}
+                          >
+                            {showImages ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          </button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                        {bizImages.map((url, idx) => {
-                          const checked = selectedImages.has(url);
-                          return (
-                            <div
-                              key={url}
-                              className={`relative aspect-square rounded-md overflow-hidden border-2 transition ${
-                                checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
-                              }`}
-                            >
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedImages((prev) => {
-                                    const next = new Set(prev);
-                                    if (next.has(url)) next.delete(url);
-                                    else next.add(url);
-                                    return next;
-                                  });
-                                }}
-                                className="absolute inset-0 w-full h-full"
-                                aria-label={checked ? "Désélectionner" : "Sélectionner"}
-                              >
-                                <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => { e.stopPropagation(); setLightboxIndex(idx); }}
-                                className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
-                                aria-label="Plein écran"
-                                title="Plein écran"
-                              >
-                                <Maximize2 className="h-3 w-3" />
-                              </button>
-                              {checked && (
-                                <div className="pointer-events-none absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                  ✓
+                      {showImages && (
+                        <>
+                          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                            {bizImages.map((url, idx) => {
+                              const checked = selectedImages.has(url);
+                              return (
+                                <div
+                                  key={url}
+                                  className={`relative aspect-square rounded-md overflow-hidden border-2 transition ${
+                                    checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
+                                  }`}
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedImages((prev) => {
+                                        const next = new Set(prev);
+                                        if (next.has(url)) next.delete(url);
+                                        else next.add(url);
+                                        return next;
+                                      });
+                                    }}
+                                    className="absolute inset-0 w-full h-full"
+                                    aria-label={checked ? "Désélectionner" : "Sélectionner"}
+                                  >
+                                    <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); setLightboxIndex(idx); }}
+                                    className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
+                                    aria-label="Plein écran"
+                                    title="Plein écran"
+                                  >
+                                    <Maximize2 className="h-3 w-3" />
+                                  </button>
+                                  {checked && (
+                                    <div className="pointer-events-none absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                      ✓
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les images.</p>
+                              );
+                            })}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les images.</p>
+                        </>
+                      )}
                     </div>
                   )}
 
@@ -725,7 +740,7 @@ export default function StudioVideo() {
                             {selectedVideos.size}/{bizVideos.length} sélectionnée{selectedVideos.size > 1 ? "s" : ""}
                           </span>
                         </Label>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
                             className="text-xs text-muted-foreground hover:text-foreground underline"
@@ -740,9 +755,20 @@ export default function StudioVideo() {
                           >
                             Aucune
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowVideos((s) => !s)}
+                            className="text-muted-foreground hover:text-foreground p-1 rounded"
+                            aria-label={showVideos ? "Masquer les vidéos" : "Afficher les vidéos"}
+                            title={showVideos ? "Masquer" : "Afficher"}
+                          >
+                            {showVideos ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          </button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                      {showVideos && (
+                        <>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {bizVideos.map((v, vIdx) => {
                           const globalIdx = bizImages.length + vIdx;
                           const checked = selectedVideos.has(v.url);
@@ -815,11 +841,13 @@ export default function StudioVideo() {
                         })}
                       </div>
                       <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les vidéos.</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
             {lightboxIndex !== null && mediaItems[lightboxIndex] && (
               <div

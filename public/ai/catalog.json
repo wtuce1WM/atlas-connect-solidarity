@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-07-18T14:52:34.200Z",
+    "generated_at": "2026-07-19T10:21:13.070Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1836
+    "count": 1837
   },
   "businesses": [
     {
@@ -150599,6 +150599,108 @@
       "social": {
         "instagram": null,
         "facebook": null,
+        "tripadvisor": null,
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
+      "id": "d63582e1-9f1c-483a-8dd8-f964b71de951",
+      "slug": "elevate-cycle",
+      "url": "https://oneworldmorocco.com/elevate-cycle",
+      "name": "Elevate Cycle",
+      "hook": "Une expérience immersive de cyclisme en salle de 45 minutes, unique en son genre à Marrakech.",
+      "description": "L'expérience Elevate Elevate Cycle propose bien plus qu'une simple séance de sport : nous offrons une expérience immersive de cyclisme en salle de 45 minutes, unique en son genre. Notre séance signature allie musique, rythme et mouvement pour créer une atmosphère où vous pouvez vous évader tout en repoussant vos limites. Mais nous ne nous arrêtons pas au cyclisme. Nous proposons également : Des séances de renforcement musculaire fonctionnel pour gagner en puissance et en endurance Des cours de P",
+      "main_category": "Sport & Loisirs",
+      "categories": [
+        "Deux-roues",
+        "Fitness"
+      ],
+      "services": [
+        "Salle de sport",
+        "Cardio",
+        "Vélo en salle"
+      ],
+      "city": "Marrakech",
+      "neighborhood": "Gueliz",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": null,
+      "longitude": null,
+      "address": "191 Rue Mohammed el Beqal",
+      "phone": null,
+      "whatsapp": "+212600686827",
+      "website": "https://www.elevate-cycle.com/",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d63582e1-9f1c-483a-8dd8-f964b71de951-1784376806118-xxsvof.jpg",
+      "google_rating": null,
+      "google_review_count": null,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "07:30",
+          "close": "21:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "07:30",
+          "close": "21:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "09:00",
+          "close": "16:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "07:30",
+          "close": "21:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "09:00",
+          "close": "14:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "07:30",
+          "close": "21:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "07:30",
+          "close": "21:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": "https://www.elevate-cycle.com/book-a-class",
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/elevatecyclemarrakech",
+        "facebook": "https://www.facebook.com/people/Elevate-Cycle-Marrakech/61557848156550/",
         "tripadvisor": null,
         "youtube": null,
         "linkedin": null
