@@ -712,18 +712,17 @@ export default function StudioVideo() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {bizVideos.map((v) => {
                           const checked = selectedVideos.has(v.url);
+                          const toggle = () => {
+                            setSelectedVideos((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(v.url)) next.delete(v.url);
+                              else next.add(v.url);
+                              return next;
+                            });
+                          };
                           return (
-                            <button
-                              type="button"
+                            <div
                               key={v.url}
-                              onClick={() => {
-                                setSelectedVideos((prev) => {
-                                  const next = new Set(prev);
-                                  if (next.has(v.url)) next.delete(v.url);
-                                  else next.add(v.url);
-                                  return next;
-                                });
-                              }}
                               className={`relative aspect-[9/16] rounded-md overflow-hidden border-2 transition bg-black ${
                                 checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
                               }`}
@@ -732,30 +731,39 @@ export default function StudioVideo() {
                               {v.kind === "file" ? (
                                 <video
                                   src={v.url}
+                                  controls
                                   preload="metadata"
-                                  muted
                                   playsInline
                                   className="w-full h-full object-cover bg-black"
                                 />
                               ) : v.thumbnail ? (
-                                <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
+                                <a href={v.url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                                  <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
+                                </a>
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-white/60">
                                   <Video className="h-6 w-6" />
                                 </div>
                               )}
-                              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1">
+                              <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 to-transparent p-1">
                                 <p className="text-[10px] text-white truncate">{v.title}</p>
                               </div>
                               {v.kind === "youtube" && (
-                                <span className="absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1 rounded">YT</span>
+                                <span className="pointer-events-none absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1 rounded">YT</span>
                               )}
-                              {checked && (
-                                <div className="absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                  ✓
-                                </div>
-                              )}
-                            </button>
+                              <button
+                                type="button"
+                                onClick={toggle}
+                                aria-label={checked ? "Désélectionner" : "Sélectionner"}
+                                className={`absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border transition ${
+                                  checked
+                                    ? "bg-[#C04F17] text-white border-[#C04F17]"
+                                    : "bg-black/60 text-white border-white/40 hover:bg-black/80"
+                                }`}
+                              >
+                                {checked ? "✓" : "+"}
+                              </button>
+                            </div>
                           );
                         })}
                       </div>
