@@ -122,6 +122,7 @@ const AffiliatePresence = () => {
   const [maxBusinesses, setMaxBusinesses] = useState<number | null>(null);
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
+  const [hasShowcaseSite, setHasShowcaseSite] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newBusinessName, setNewBusinessName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
