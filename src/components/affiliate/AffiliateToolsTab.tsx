@@ -136,6 +136,40 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
           </div>
         </div>
       </div>
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <Globe2 className="h-4 w-4" /> Rediriger votre domaine vers cette page
+        </h3>
+        <p className="text-sm text-white/70">
+          Vous possédez un nom de domaine (ex : <span className="font-mono">www.votresite.com</span>) et souhaitez
+          qu'il affiche votre fiche One World Morocco ? Configurez une <strong>redirection HTTP 301</strong> chez
+          votre registrar (OVH, Gandi, GoDaddy, Namecheap, IONOS, Cloudflare…) vers :
+        </p>
+        <div className="flex items-stretch gap-2">
+          <input
+            readOnly
+            value={publicUrl}
+            className="flex-1 rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-2 font-mono"
+            onFocus={(e) => e.currentTarget.select()}
+          />
+          <Button type="button" variant="outline" size="sm" onClick={() => copy(publicUrl, "redirect")} className="shrink-0 text-white border-white/20 hover:bg-white/10 hover:text-white">
+            {copied === "redirect" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+          </Button>
+        </div>
+        <div className="rounded-md bg-white/5 border border-white/10 p-3 text-xs text-white/70 space-y-2">
+          <p className="font-semibold text-white/90">Étapes types chez votre registrar :</p>
+          <ol className="list-decimal list-inside space-y-1">
+            <li>Connectez-vous à l'espace client de votre registrar.</li>
+            <li>Cherchez la section « Redirection », « Web Forwarding » ou « URL Redirect ».</li>
+            <li>Créez une redirection <strong>301 (permanente)</strong> depuis <span className="font-mono">votresite.com</span> et <span className="font-mono">www.votresite.com</span> vers l'URL ci-dessus.</li>
+            <li>Enregistrez. La propagation DNS peut prendre jusqu'à quelques heures.</li>
+          </ol>
+          <p className="text-white/60">
+            ⚠️ Évitez le « URL masking » ou « frame forwarding » : incompatible avec notre site et pénalisant pour le SEO.
+            Une redirection 301 classique conserve toute la valeur SEO et transmet votre trafic vers votre fiche officielle.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
