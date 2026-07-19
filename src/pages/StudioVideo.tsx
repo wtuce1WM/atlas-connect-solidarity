@@ -810,7 +810,7 @@ function VideoWithMeta({ src }: { src: string }) {
         {dim ? `${dim.w}×${dim.h}` : "…"}
         {duration != null ? ` · ${duration.toFixed(1)}s` : ""}
         {size != null ? ` · ${fmtSize(size)}` : ""}
-        {cost && ` · Coût estimé : ~${cost.usd} $ (~${cost.eur} €)`}
+        {cost && ` · Coût estimé : ~${cost.usd} $`}
       </div>
     </div>
   );
