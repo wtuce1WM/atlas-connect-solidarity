@@ -195,6 +195,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       max_businesses: affiliate.max_businesses?.toString() ?? "",
       has_video_studio: affiliate.has_video_studio ?? false,
       has_dashboard: affiliate.has_dashboard ?? false,
+      has_showcase_site: (affiliate as any).has_showcase_site ?? false,
       is_active: affiliate.is_active,
     });
     setDialogOpen(true);
