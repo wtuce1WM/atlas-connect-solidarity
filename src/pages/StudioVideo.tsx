@@ -233,10 +233,16 @@ export default function StudioVideo() {
   useEffect(() => {
     if (!selected) {
       setBizStats(null);
+      setBizImages([]);
+      setBizVideos([]);
+      setSelectedImages(new Set());
+      setSelectedVideos(new Set());
       return;
     }
     let cancelled = false;
     setStatsLoading(true);
+    setSelectedImages(new Set());
+    setSelectedVideos(new Set());
     (async () => {
       const [biz, docs, yt, promos] = await Promise.all([
         supabase
@@ -246,13 +252,15 @@ export default function StudioVideo() {
           .maybeSingle(),
         supabase
           .from("business_documents")
-          .select("id", { count: "exact", head: true })
+          .select("id,url,name,thumbnail_url,sort_order,type")
           .eq("business_id", selected.id)
-          .eq("type", "video"),
+          .eq("type", "video")
+          .order("sort_order", { ascending: true }),
         supabase
           .from("business_youtube_videos")
-          .select("id", { count: "exact", head: true })
-          .eq("business_id", selected.id),
+          .select("id,video_id,title,thumbnail,custom_thumbnail_url,sort_order")
+          .eq("business_id", selected.id)
+          .order("sort_order", { ascending: true }),
         supabase
           .from("affiliate_business_promotions")
           .select("id", { count: "exact", head: true })
@@ -260,11 +268,23 @@ export default function StudioVideo() {
       ]);
       if (cancelled) return;
       const b: any = biz.data ?? {};
+      const imgs: string[] = Array.isArray(b.images) ? b.images : [];
+      const docVideos = ((docs.data ?? []) as any[])
+        .filter((d) => d.url)
+        .map((d) => ({ url: d.url as string, thumbnail: (d.thumbnail_url as string) || null, title: (d.name as string) || "Vidéo", kind: "file" as const }));
+      const ytVideos = ((yt.data ?? []) as any[]).map((v) => ({
+        url: `https://www.youtube.com/watch?v=${v.video_id}`,
+        thumbnail: (v.custom_thumbnail_url as string) || (v.thumbnail as string) || `https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`,
+        title: (v.title as string) || "YouTube",
+        kind: "youtube" as const,
+      }));
+      setBizImages(imgs);
+      setBizVideos([...docVideos, ...ytVideos]);
       setBizStats({
         hook: b.hook_fr ?? null,
         descLen: (b.description ?? "").length,
-        images: Array.isArray(b.images) ? b.images.length : 0,
-        videos: (docs.count ?? 0) + (yt.count ?? 0),
+        images: imgs.length,
+        videos: docVideos.length + ytVideos.length,
         offers: promos.count ?? 0,
         popup: !!b.popup_image_url,
       });
