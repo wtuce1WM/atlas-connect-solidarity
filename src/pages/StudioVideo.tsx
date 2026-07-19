@@ -606,7 +606,7 @@ export default function StudioVideo() {
                     <button
                       key={b.id}
                       type="button"
-                      className={`block w-full text-left px-3 py-2 hover:bg-accent ${selected?.id === b.id ? "bg-accent" : ""}`}
+                      className={`block w-full text-left px-3 py-2 hover:bg-[#ECD6B8] ${selected?.id === b.id ? "bg-[#ECD6B8]" : ""}`}
                       onClick={() => setSelected(b)}
                     >
                       <div className="font-medium">{b.name}</div>
