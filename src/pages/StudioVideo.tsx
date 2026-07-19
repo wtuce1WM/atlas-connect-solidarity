@@ -743,7 +743,8 @@ export default function StudioVideo() {
                         </div>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                        {bizVideos.map((v) => {
+                        {bizVideos.map((v, vIdx) => {
+                          const globalIdx = bizImages.length + vIdx;
                           const checked = selectedVideos.has(v.url);
                           const toggle = () => {
                             setSelectedVideos((prev) => {
@@ -770,9 +771,13 @@ export default function StudioVideo() {
                                   className="w-full h-full object-cover bg-black"
                                 />
                               ) : v.thumbnail ? (
-                                <a href={v.url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                                <button
+                                  type="button"
+                                  onClick={() => setLightboxIndex(globalIdx)}
+                                  className="block w-full h-full"
+                                >
                                   <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
-                                </a>
+                                </button>
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-white/60">
                                   <Video className="h-6 w-6" />
@@ -784,6 +789,15 @@ export default function StudioVideo() {
                               {v.kind === "youtube" && (
                                 <span className="pointer-events-none absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1 rounded">YT</span>
                               )}
+                              <button
+                                type="button"
+                                onClick={() => setLightboxIndex(globalIdx)}
+                                aria-label="Plein écran"
+                                title="Plein écran"
+                                className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
+                              >
+                                <Maximize2 className="h-3 w-3" />
+                              </button>
                               <button
                                 type="button"
                                 onClick={toggle}
