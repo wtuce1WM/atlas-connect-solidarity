@@ -683,49 +683,51 @@ export default function StudioVideo() {
                       {showImages && (
                         <>
                           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                        {bizImages.map((url, idx) => {
-                          const checked = selectedImages.has(url);
-                          return (
-                            <div
-                              key={url}
-                              className={`relative aspect-square rounded-md overflow-hidden border-2 transition ${
-                                checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
-                              }`}
-                            >
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedImages((prev) => {
-                                    const next = new Set(prev);
-                                    if (next.has(url)) next.delete(url);
-                                    else next.add(url);
-                                    return next;
-                                  });
-                                }}
-                                className="absolute inset-0 w-full h-full"
-                                aria-label={checked ? "Désélectionner" : "Sélectionner"}
-                              >
-                                <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => { e.stopPropagation(); setLightboxIndex(idx); }}
-                                className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
-                                aria-label="Plein écran"
-                                title="Plein écran"
-                              >
-                                <Maximize2 className="h-3 w-3" />
-                              </button>
-                              {checked && (
-                                <div className="pointer-events-none absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                  ✓
+                            {bizImages.map((url, idx) => {
+                              const checked = selectedImages.has(url);
+                              return (
+                                <div
+                                  key={url}
+                                  className={`relative aspect-square rounded-md overflow-hidden border-2 transition ${
+                                    checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
+                                  }`}
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedImages((prev) => {
+                                        const next = new Set(prev);
+                                        if (next.has(url)) next.delete(url);
+                                        else next.add(url);
+                                        return next;
+                                      });
+                                    }}
+                                    className="absolute inset-0 w-full h-full"
+                                    aria-label={checked ? "Désélectionner" : "Sélectionner"}
+                                  >
+                                    <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); setLightboxIndex(idx); }}
+                                    className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
+                                    aria-label="Plein écran"
+                                    title="Plein écran"
+                                  >
+                                    <Maximize2 className="h-3 w-3" />
+                                  </button>
+                                  {checked && (
+                                    <div className="pointer-events-none absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                      ✓
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les images.</p>
+                              );
+                            })}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les images.</p>
+                        </>
+                      )}
                     </div>
                   )}
 
