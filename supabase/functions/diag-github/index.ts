@@ -62,6 +62,7 @@ Deno.serve(async (req) => {
         out.render_job_sha = cj.sha;
         out.render_job_size = cj.size;
       }
+      const latest = j.workflow_runs?.[0];
       if (latest) {
         const jobs = await fetch(`https://api.github.com/repos/${repo}/actions/runs/${latest.id}/jobs`, { headers: h });
         if (jobs.ok) {
