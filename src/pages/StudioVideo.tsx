@@ -395,6 +395,18 @@ export default function StudioVideo() {
       if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
       if (optDigitalId) directives.push("Insérer une courte séquence ID numérique (capture mock-up de la fiche /fiche/slug, étape de partage, puis QR code) AVANT l'incitation finale.");
       if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
+      const chosenImages = Array.from(selectedImages);
+      const chosenVideos = Array.from(selectedVideos);
+      if (chosenImages.length > 0) {
+        directives.push(
+          `Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`
+        );
+      }
+      if (chosenVideos.length > 0) {
+        directives.push(
+          `Utiliser EXCLUSIVEMENT les vidéos suivantes (dans cet ordre) pour le montage :\n  * ${chosenVideos.join("\n  * ")}`
+        );
+      }
       const finalPrompt = directives.length
         ? `${prompt.trim()}\n\nContraintes supplémentaires :\n- ${directives.join("\n- ")}`
         : prompt.trim();
@@ -411,6 +423,8 @@ export default function StudioVideo() {
             map_marker: optMapMarker,
             digital_id: optDigitalId,
             install_cta: optInstallCta,
+            selected_images: chosenImages,
+            selected_videos: chosenVideos,
           },
         },
       });
