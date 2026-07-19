@@ -210,6 +210,8 @@ export default function StudioVideo() {
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [selectedVideos, setSelectedVideos] = useState<Set<string>>(new Set());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [showImages, setShowImages] = useState(true);
+  const [showVideos, setShowVideos] = useState(true);
 
   // Combined media list for the lightbox slideshow (images first, then videos)
   const mediaItems = useMemo(() => {
