@@ -14,7 +14,7 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
@@ -29,6 +29,7 @@ import AffiliateServicesEditor from "@/components/affiliate/AffiliateServicesEdi
 import AffiliateImagesEditor from "@/components/affiliate/AffiliateImagesEditor";
 import AffiliateVideosEditor from "@/components/affiliate/AffiliateVideosEditor";
 import AffiliateToolsTab from "@/components/affiliate/AffiliateToolsTab";
+import AffiliateShowcaseSiteEditor from "@/components/affiliate/AffiliateShowcaseSiteEditor";
 import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
 import { Label } from "@/components/ui/label";
 
@@ -121,6 +122,7 @@ const AffiliatePresence = () => {
   const [maxBusinesses, setMaxBusinesses] = useState<number | null>(null);
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
+  const [hasShowcaseSite, setHasShowcaseSite] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newBusinessName, setNewBusinessName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -204,7 +206,7 @@ const AffiliatePresence = () => {
 
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id, max_businesses, has_dashboard, has_video_studio")
+        .select("id, max_businesses, has_dashboard, has_video_studio, has_showcase_site")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
@@ -217,6 +219,7 @@ const AffiliatePresence = () => {
       setMaxBusinesses((affiliate as any).max_businesses ?? null);
       setHasDashboard(!!(affiliate as any).has_dashboard);
       setHasVideoStudio(!!(affiliate as any).has_video_studio);
+      setHasShowcaseSite(!!(affiliate as any).has_showcase_site);
       await loadBusinesses(affiliate.id);
     };
     init();
@@ -560,6 +563,11 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="help" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <HelpCircle className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Plateformes</span>
                       </TabsTrigger>
+                      {hasShowcaseSite && (
+                        <TabsTrigger value="showcase" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                          <Globe2 className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Site vitrine</span>
+                        </TabsTrigger>
+                      )}
                     </TabsList>
 
                     {/* Links Tab */}
@@ -779,6 +787,13 @@ const AffiliatePresence = () => {
                     <TabsContent value="help">
                       <AffiliatePlatformHelp />
                     </TabsContent>
+
+                    {/* Showcase Site Tab */}
+                    {hasShowcaseSite && (
+                      <TabsContent value="showcase">
+                        <AffiliateShowcaseSiteEditor businessId={currentBusiness.id} businessSlug={currentBusiness.slug} />
+                      </TabsContent>
+                    )}
                   </Tabs>
                 </CardContent>
               </Card>

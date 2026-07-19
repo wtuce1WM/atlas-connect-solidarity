@@ -100,6 +100,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     max_businesses: "",
     has_video_studio: false,
     has_dashboard: false,
+    has_showcase_site: false,
     is_active: true,
   });
 
@@ -162,6 +163,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       max_businesses: "",
       has_video_studio: false,
       has_dashboard: false,
+      has_showcase_site: false,
       is_active: true,
     });
     setEditingAffiliate(null);
@@ -195,6 +197,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       max_businesses: affiliate.max_businesses?.toString() ?? "",
       has_video_studio: affiliate.has_video_studio ?? false,
       has_dashboard: affiliate.has_dashboard ?? false,
+      has_showcase_site: (affiliate as any).has_showcase_site ?? false,
       is_active: affiliate.is_active,
     });
     setDialogOpen(true);
@@ -240,6 +243,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       max_businesses: numericMaxBiz,
       has_video_studio: formData.has_video_studio,
       has_dashboard: formData.has_dashboard,
+      has_showcase_site: (formData as any).has_showcase_site ?? false,
     };
 
     let error;
@@ -603,6 +607,19 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                     id="has_dashboard"
                     checked={formData.has_dashboard}
                     onCheckedChange={(checked) => setFormData({ ...formData, has_dashboard: checked })}
+                  />
+                </div>
+
+                {/* Site vitrine */}
+                <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="has_showcase_site">Site vitrine 1WM</Label>
+                    <p className="text-xs text-muted-foreground">Page /site/:slug signée 1WM</p>
+                  </div>
+                  <Switch
+                    id="has_showcase_site"
+                    checked={(formData as any).has_showcase_site || false}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_showcase_site: checked } as any)}
                   />
                 </div>
               </div>
