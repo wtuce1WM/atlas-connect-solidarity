@@ -205,6 +205,10 @@ export default function StudioVideo() {
   const [optInstallCta, setOptInstallCta] = useState(true);
   const [optMapMarker, setOptMapMarker] = useState(true);
   const [optDigitalId, setOptDigitalId] = useState(true);
+  const [bizImages, setBizImages] = useState<string[]>([]);
+  const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube" }[]>([]);
+  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
+  const [selectedVideos, setSelectedVideos] = useState<Set<string>>(new Set());
 
   // Autocomplete businesses
   useEffect(() => {
