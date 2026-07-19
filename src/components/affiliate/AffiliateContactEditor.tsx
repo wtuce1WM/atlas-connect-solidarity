@@ -96,6 +96,7 @@ const AffiliateContactEditor = ({
   onCtaFieldChange,
 }: AffiliateContactEditorProps) => {
   const { toast } = useToast();
+  const [extracting, setExtracting] = useState(false);
 
   const selectedCity = useMemo(() => cities.find(c => c.name_fr === city) || null, [cities, city]);
   const neighborhoodsForCity = useMemo(
@@ -109,16 +110,42 @@ const AffiliateContactEditor = ({
     onNeighborhoodChange("");
   };
 
-  const handleExtract = () => {
-    const coords = extractCoordsFromMapsUrl(googleMapsUrl);
-    if (!coords) {
-      toast({ title: "Extraction impossible", description: "Aucun point GPS trouvé dans cette URL Google Maps.", variant: "destructive" });
+  const handleExtract = async () => {
+    if (!googleMapsUrl) return;
+    // 1) Try local regex first (fast, works on long URLs)
+    const local = extractCoordsFromMapsUrl(googleMapsUrl);
+    if (local) {
+      onLatitudeChange(local.lat);
+      onLongitudeChange(local.lng);
+      toast({ title: "Points GPS extraits ✓", description: `Lat: ${local.lat}, Lng: ${local.lng}` });
       return;
     }
-    onLatitudeChange(coords.lat);
-    onLongitudeChange(coords.lng);
-    toast({ title: "Points GPS extraits ✓", description: `Lat: ${coords.lat}, Lng: ${coords.lng}` });
+    // 2) Fallback: call edge function (handles short links maps.app.goo.gl, place_id, etc.)
+    setExtracting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("resolve-maps-url", {
+        body: { url: googleMapsUrl },
+      });
+      if (error) throw error;
+      const lat = data?.lat != null ? Number(data.lat) : NaN;
+      const lng = data?.lng != null ? Number(data.lng) : NaN;
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        throw new Error(data?.error || "Aucun point GPS trouvé");
+      }
+      onLatitudeChange(lat);
+      onLongitudeChange(lng);
+      toast({ title: "Points GPS extraits ✓", description: `Lat: ${lat}, Lng: ${lng}` });
+    } catch (e: any) {
+      toast({
+        title: "Extraction impossible",
+        description: e?.message || "Aucun point GPS trouvé dans cette URL Google Maps.",
+        variant: "destructive",
+      });
+    } finally {
+      setExtracting(false);
+    }
   };
+
 
   return (
     <div className="space-y-4">
