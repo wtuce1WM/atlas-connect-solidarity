@@ -137,6 +137,7 @@ export type Database = {
           country_id: string
           created_at: string
           has_dashboard: boolean | null
+          has_showcase_site: boolean
           has_video_studio: boolean | null
           ice: string | null
           id: string
@@ -158,6 +159,7 @@ export type Database = {
           country_id: string
           created_at?: string
           has_dashboard?: boolean | null
+          has_showcase_site?: boolean
           has_video_studio?: boolean | null
           ice?: string | null
           id?: string
@@ -179,6 +181,7 @@ export type Database = {
           country_id?: string
           created_at?: string
           has_dashboard?: boolean | null
+          has_showcase_site?: boolean
           has_video_studio?: boolean | null
           ice?: string | null
           id?: string
@@ -1360,6 +1363,87 @@ export type Database = {
             columns: ["point_of_interest_id"]
             isOneToOne: false
             referencedRelation: "points_of_interest"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_showcase_site: {
+        Row: {
+          business_id: string
+          canonical_url: string | null
+          created_at: string
+          cta_config: Json
+          custom_domain: string | null
+          enabled: boolean
+          gallery_image_ids: Json
+          hero_image_url: string | null
+          hero_video_url: string | null
+          id: string
+          story_ar: string | null
+          story_en: string | null
+          story_fr: string | null
+          tagline_ar: string | null
+          tagline_en: string | null
+          tagline_fr: string | null
+          testimonials: Json
+          theme: Json
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          canonical_url?: string | null
+          created_at?: string
+          cta_config?: Json
+          custom_domain?: string | null
+          enabled?: boolean
+          gallery_image_ids?: Json
+          hero_image_url?: string | null
+          hero_video_url?: string | null
+          id?: string
+          story_ar?: string | null
+          story_en?: string | null
+          story_fr?: string | null
+          tagline_ar?: string | null
+          tagline_en?: string | null
+          tagline_fr?: string | null
+          testimonials?: Json
+          theme?: Json
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          canonical_url?: string | null
+          created_at?: string
+          cta_config?: Json
+          custom_domain?: string | null
+          enabled?: boolean
+          gallery_image_ids?: Json
+          hero_image_url?: string | null
+          hero_video_url?: string | null
+          id?: string
+          story_ar?: string | null
+          story_en?: string | null
+          story_fr?: string | null
+          tagline_ar?: string | null
+          tagline_en?: string | null
+          tagline_fr?: string | null
+          testimonials?: Json
+          theme?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_showcase_site_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_showcase_site_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
