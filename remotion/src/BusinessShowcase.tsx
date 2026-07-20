@@ -787,7 +787,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   // Position courante après les scènes de base
   let cursor = 390;
-  if (offer) cursor += 120;
+  const offerLinesCount = offer && Array.isArray(offer.lines) ? offer.lines.length : 0;
+  const offerDuration = offer ? 120 + Math.min(offerLinesCount, 6) * 22 : 0;
+  if (offer) cursor += offerDuration;
 
   const reviewsActive = !!(showReviews && (rating || reviewsCount));
   const hoursActive = !!(showOpeningHours && openingHours);
