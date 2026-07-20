@@ -62,6 +62,7 @@ const ShowcaseSite = () => {
       if (!showcase) { setNotFound(true); setLoading(false); return; }
       setData({ ...showcase, business: biz });
       setLoading(false);
+      trackBusinessEvent(biz.id, "view", { subtype: "showcase" });
     };
     load();
   }, [slug]);
