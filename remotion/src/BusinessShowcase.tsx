@@ -25,7 +25,7 @@ export type ShowcaseProps = {
   category?: string;
   images?: string[];
   videos?: string[];
-  offer?: { title?: string; price?: string } | null;
+  offer?: { title?: string; price?: string; lines?: string[] } | null;
   rating?: number | null;
   reviewsCount?: number | null;
   openingHours?: string | Record<string, string> | null;
