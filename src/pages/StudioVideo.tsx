@@ -104,7 +104,7 @@ type Job = {
   created_at: string;
 };
 
-const DURATIONS = [17, 22, 27] as const;
+const DURATIONS = [15, 30, 45, 60] as const;
 const TONES = [
   { value: "immersif", label: "Immersif" },
   { value: "dynamique", label: "Dynamique" },
@@ -175,7 +175,7 @@ export default function StudioVideo() {
   const [query, setQuery] = useState("");
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selected, setSelected] = useState<Business | null>(null);
-  const [duration, setDuration] = useState<17 | 22 | 27>(22);
+  const [duration, setDuration] = useState<15 | 30 | 45 | 60>(30);
   const [tone, setTone] = useState("immersif");
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -488,7 +488,7 @@ export default function StudioVideo() {
 
   const startRefine = (job: Job) => {
     setRefineFrom(job);
-    setDuration(job.duration_sec as 17 | 22 | 27);
+    setDuration(job.duration_sec as 15 | 30 | 45 | 60);
     setTone(job.tone);
     setPrompt("");
     setTimeout(() => {
@@ -565,7 +565,7 @@ export default function StudioVideo() {
                 )}
               </div>
               <p className="text-white/70">
-                Générez une vidéo verticale 720×1280 (17 à 27 s) à partir d'un prompt et d'un établissement.
+                Générez une vidéo verticale 720×1280 (15 à 60 s) à partir d'un prompt et d'un établissement.
               </p>
               <div className="text-xs text-white/70 mt-1 space-y-1 bg-white/10 p-3 rounded-lg border border-white/20">
                 <p>📌 Il faut savoir avant si l'établissement a un Hook, suffisamment d'images, de vidéos, une offre/popup...</p>
