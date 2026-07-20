@@ -165,6 +165,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       has_video_studio: false,
       has_dashboard: false,
       has_showcase_site: false,
+      has_custom_domain: false,
       is_active: true,
     });
     setEditingAffiliate(null);
