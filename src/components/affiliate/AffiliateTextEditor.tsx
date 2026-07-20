@@ -26,7 +26,7 @@ const LANGS: Array<{ code: "fr" | "en" | "ar"; label: string; dir?: "rtl" | "ltr
 ];
 
 const MAX_HOOK = 120;
-const MAX_DESC = 2000;
+const MAX_DESC = 3000;
 
 const stripHtml = (html: string): string => {
   if (!html) return "";
