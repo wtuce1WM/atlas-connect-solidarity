@@ -75,9 +75,18 @@ const AffiliatesDashboard = () => {
       }
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id")
+        .select("id, has_dashboard, has_video_studio")
         .eq("user_id", session.user.id)
         .maybeSingle();
+
+      if (!affiliate) {
+        await supabase.auth.signOut();
+        navigate("/affiliates");
+        return;
+      }
+
+      setHasDashboard(!!(affiliate as any).has_dashboard);
+      setHasVideoStudio(!!(affiliate as any).has_video_studio);
 
       if (!affiliate) {
         await supabase.auth.signOut();
