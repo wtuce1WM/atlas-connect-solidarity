@@ -12,6 +12,7 @@ interface Props {
   alwaysWhite?: boolean;
   forceHamburger?: boolean;
   customMobileLinks?: CustomLink[];
+  customLinks?: CustomLink[];
 }
 
 // Header navigation labels — keep keys stable, French is authoritative.
