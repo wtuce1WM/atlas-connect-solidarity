@@ -177,7 +177,7 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
             Si vous souhaitez que l'URL affichée dans le navigateur reste <span className="font-mono text-white/90">www.votresite.com</span> tout en servant le site vitrine 1WM, il faut un setup DNS/proxy manuel (reverse proxy + SSL). Ce n'est pas activé par défaut car il a un coût de mise en place et de maintenance.
           </p>
           <a
-            href="mailto:contact@oneworldmorocco.com?subject=Demande%20domaine%20personnalis%C3%A9%20-%20affili%C3%A9&body=Bonjour%2C%0A%0AJe%20souhaite%20faire%20servir%20mon%20site%20vitrine%201WM%20sous%20mon%20propre%20domaine.%0A%0ADomaine%20souhait%C3%A9%20%3A%20www................%0A%0ACe%20domaine%20est%20enregistr%C3%A9%20chez%20%3A%20................%0A%0AMerci%20de%20me%20pr%C3%A9ciser%20les%20%C3%A9tapes%20et%20le%20co%C3%BBt%20de%20setup.%0A%0ACordialement"
+            href="mailto:info@oneworldmorocco.com?subject=Demande%20domaine%20personnalis%C3%A9%20-%20affili%C3%A9&body=Bonjour%2C%0A%0AJe%20souhaite%20faire%20servir%20mon%20site%20vitrine%201WM%20sous%20mon%20propre%20domaine.%0A%0ADomaine%20souhait%C3%A9%20%3A%20www................%0A%0ACe%20domaine%20est%20enregistr%C3%A9%20chez%20%3A%20................%0A%0AMerci%20de%20me%20pr%C3%A9ciser%20les%20%C3%A9tapes%20et%20le%20co%C3%BBt%20de%20setup.%0A%0ACordialement"
             className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
           >
             <Mail className="h-3 w-3" /> Demander un devis pour un vrai domaine personnalisé
