@@ -133,6 +133,16 @@ const AffiliatePresence = () => {
     ? `${businesses.length}/${maxBusinesses} établissement${maxBusinesses > 1 ? "s" : ""}`
     : null;
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("new") === "1" && canCreateMore) {
+      setIsCreateDialogOpen(true);
+      params.delete("new");
+      navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
+    }
+  }, [location.search, canCreateMore]);
+
+
   const loadBusinesses = async (targetAffiliateId: string) => {
     const selectFields = ["id", "name", "slug", "name_en", "name_ar", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
