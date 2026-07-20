@@ -200,6 +200,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       has_video_studio: affiliate.has_video_studio ?? false,
       has_dashboard: affiliate.has_dashboard ?? false,
       has_showcase_site: (affiliate as any).has_showcase_site ?? false,
+      has_custom_domain: (affiliate as any).has_custom_domain ?? false,
       is_active: affiliate.is_active,
     });
     setDialogOpen(true);
