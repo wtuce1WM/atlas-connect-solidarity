@@ -37,6 +37,7 @@ const AffiliateShowcaseSiteEditor = ({ businessId, businessSlug }: Props) => {
   const [enabled, setEnabled] = useState(false);
   const [canonicalUrl, setCanonicalUrl] = useState("");
   const [customDomain, setCustomDomain] = useState("");
+  const [canEditCustomDomain, setCanEditCustomDomain] = useState(false);
   const [taglineFr, setTaglineFr] = useState("");
   const [taglineEn, setTaglineEn] = useState("");
   const [taglineAr, setTaglineAr] = useState("");
