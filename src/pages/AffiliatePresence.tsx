@@ -109,6 +109,7 @@ interface BusinessPresence {
 
 const AffiliatePresence = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
