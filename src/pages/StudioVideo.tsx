@@ -526,6 +526,7 @@ export default function StudioVideo() {
             { label: "Présence en ligne", to: "/affiliates/presence" },
             ...(hasDashboard ? [{ label: "Tableau de bord", to: "/affiliates/dashboard" }] : []),
             ...(hasVideoStudio ? [{ label: "Studio vidéo", to: "/studio-video" }] : []),
+            { label: "Nouvel établissement", to: "/affiliates/presence?new=1" },
             { label: "Se déconnecter", onClick: handleSignOut, danger: true },
           ]}
         />
