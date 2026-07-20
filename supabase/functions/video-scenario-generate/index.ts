@@ -362,21 +362,37 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
       // FORCE-INJECT médias depuis la BD (l'IA est trop peu fiable et peut renvoyer videos:[]).
-      // Règle absolue : priorité aux vidéos internes ; sinon images. Jamais de mélange.
-      const medias = Array.isArray(businessContext?.medias) ? businessContext.medias : [];
-      const realVideos = medias
-        .filter((m: any) => (m?.type === "video" || m?.type === "internal-video") && typeof m?.url === "string" && /^https?:\/\//i.test(m.url))
-        .map((m: any) => m.url as string);
-      const realImages = medias
-        .filter((m: any) => m?.type === "image" && typeof m?.url === "string" && /^https?:\/\//i.test(m.url))
-        .map((m: any) => m.url as string);
-      if (realVideos.length > 0) {
-        template_props.videos = Array.from(new Set(realVideos)).slice(0, 8);
-        template_props.images = [];
-      } else if (realImages.length > 0) {
-        template_props.videos = [];
-        template_props.images = Array.from(new Set(realImages)).slice(0, 8);
+      // Sélection manuelle (options.selected_images / selected_videos) → whitelist stricte
+      // et autorisation du montage mixte images + vidéos. Sinon règle historique :
+      // priorité aux vidéos internes ; à défaut images.
+      const selImages = Array.isArray(options?.selected_images)
+        ? options.selected_images.filter((u: unknown) => typeof u === "string" && /^https?:\/\//i.test(u as string)) as string[]
+        : [];
+      const selVideos = Array.isArray(options?.selected_videos)
+        ? options.selected_videos.filter((u: unknown) => typeof u === "string" && /^https?:\/\//i.test(u as string)) as string[]
+        : [];
+      const hasManualSelection = selImages.length > 0 || selVideos.length > 0;
+
+      if (hasManualSelection) {
+        template_props.videos = Array.from(new Set(selVideos)).slice(0, 8);
+        template_props.images = Array.from(new Set(selImages)).slice(0, 8);
+      } else {
+        const medias = Array.isArray(businessContext?.medias) ? businessContext.medias : [];
+        const realVideos = medias
+          .filter((m: any) => (m?.type === "video" || m?.type === "internal-video") && typeof m?.url === "string" && /^https?:\/\//i.test(m.url))
+          .map((m: any) => m.url as string);
+        const realImages = medias
+          .filter((m: any) => m?.type === "image" && typeof m?.url === "string" && /^https?:\/\//i.test(m.url))
+          .map((m: any) => m.url as string);
+        if (realVideos.length > 0) {
+          template_props.videos = Array.from(new Set(realVideos)).slice(0, 8);
+          template_props.images = [];
+        } else if (realImages.length > 0) {
+          template_props.videos = [];
+          template_props.images = Array.from(new Set(realImages)).slice(0, 8);
+        }
       }
+
 
       template_props.durationSec = Number(duration_sec);
       const googleRating = Number(businessDetails.google_rating);
