@@ -202,7 +202,7 @@ FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
     "category": "Restaurant",
     "videos": ["url1", "url2"],
     "images": [],
-    "offer": { "title": "Brunch signature", "price": "350 MAD" }
+    "offer": { "title": "Pass journée & déjeuner", "price": "60€ / 600 MAD", "lines": ["De 11h à 19h", "Piscine olympique 50 m", "Déjeuner produits locaux inclus", "Réservé aux adultes"] }
   },
   "rationale": "Pourquoi ce template (1 phrase)"
 }
@@ -213,7 +213,10 @@ CONTRAINTES STRICTES :
   2) Si AUCUNE vidéo n'est disponible, alors et seulement alors utilise les images (medias type="image"), triées par \`sort_order\`. Renseigne \`images\` et laisse \`videos: []\`.
   3) NE JAMAIS mélanger vidéos et images dans une même vidéo : l'un OU l'autre, exclusivement.
 - "videos"/"images" : UNIQUEMENT des URLs réelles tirées de \`medias\`. N'INVENTE JAMAIS d'URL.
-- "offer" : UNIQUEMENT s'il existe une vraie promotion/prix dans \`medias\` (type=promotion ou champ price renseigné). Sinon \`"offer": null\`. Ne mets JAMAIS d'horaires ou de quartier dans \`offer\`.
+- "offer" : renseigne-le dans DEUX cas :
+  a) Une vraie promotion/prix existe dans \`medias\` (type=promotion ou champ price renseigné).
+  b) L'utilisateur décrit dans son PROMPT une annonce/offre/message spécifique à afficher (prix, horaires spécifiques, conditions, contenu promo). Dans ce cas, retranscris fidèlement le message de l'utilisateur : \`title\` = accroche courte (≤60 car), \`price\` = prix si mentionné (ex : "60€ / 600 MAD"), \`lines\` = 2 à 6 lignes courtes (≤80 car chacune) reprenant les infos clés (horaires, inclusions, conditions, contact). Ne paraphrase pas au-delà du nécessaire pour tenir dans les limites.
+  Sinon → \`"offer": null\`. Ne mets JAMAIS d'horaires ou de quartier dans \`offer\` s'ils ne sont pas explicitement dans le prompt utilisateur.
 - "name" : EXACTEMENT le nom de l'établissement fourni (champ businessContext.name).
 - "hook" : utilise le champ \`hook\` du businessContext s'il existe ; sinon génère-en un court (≤80 caractères). Ne paraphrase JAMAIS le hook existant.
 - "tagline" : 3 à 6 mots tirés du hook réel. N'ajoute JAMAIS de mot décoratif comme "terracotta", "bohème" ou "sauvage" s'il n'est pas déjà dans le hook.
