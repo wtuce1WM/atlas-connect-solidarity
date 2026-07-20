@@ -727,6 +727,16 @@ export default function StudioVideo() {
                                   >
                                     <Maximize2 className="h-3 w-3" />
                                   </button>
+                                  {url === popupImageUrl && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => { e.stopPropagation(); setPopupPreviewOpen(true); }}
+                                      className="absolute top-1 left-1 bg-[#D4AF37] text-black text-[10px] font-bold px-1.5 py-0.5 rounded shadow hover:bg-[#e5c14a]"
+                                      title="Aperçu de la popup d'accueil"
+                                    >
+                                      POPUP
+                                    </button>
+                                  )}
                                   {checked && (
                                     <div className="pointer-events-none absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                       ✓
