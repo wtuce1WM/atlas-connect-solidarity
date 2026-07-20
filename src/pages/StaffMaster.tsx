@@ -19,6 +19,7 @@ import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement"
 import EasterEggManagement from "@/components/staff/EasterEggManagement";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
+import AiUsageManagement from "@/components/staff/AiUsageManagement";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
@@ -125,6 +126,10 @@ const StaffMaster = () => {
               <MessageSquare className="h-4 w-4" />
               Suggestions Club
             </TabsTrigger>
+            <TabsTrigger value="ai-usage" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Usage IA
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Search Analytics
@@ -187,6 +192,10 @@ const StaffMaster = () => {
 
           <TabsContent value="club-ai-suggestions">
             <ClubAiSuggestionsManagement />
+          </TabsContent>
+
+          <TabsContent value="ai-usage">
+            <AiUsageManagement />
           </TabsContent>
 
           <TabsContent value="analytics">
