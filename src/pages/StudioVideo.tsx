@@ -541,26 +541,6 @@ export default function StudioVideo() {
                   </span>
                 )}
               </div>
-              <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
-                <div className="flex items-center gap-2 min-w-max">
-                  <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/presence")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
-                    <Globe className="h-4 w-4 mr-1" /> Présence en ligne
-                  </Button>
-                  {hasDashboard && (
-                    <Button variant="outline" size="sm" onClick={() => navigate("/affiliates/dashboard")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
-                      <BarChart3 className="h-4 w-4 mr-1" /> Tableau de bord
-                    </Button>
-                  )}
-                  {hasVideoStudio && (
-                    <Button variant="outline" size="sm" onClick={() => navigate("/studio-video")} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
-                      <Video className="h-4 w-4 mr-1" /> Studio vidéo
-                    </Button>
-                  )}
-                  <Button variant="outline" size="sm" onClick={handleSignOut} className="border-white/30 text-white bg-white/10 hover:bg-white/20 hover:text-white">
-                    <LogOut className="h-4 w-4 mr-1" /> Se déconnecter
-                  </Button>
-                </div>
-              </div>
               <p className="text-white/70">
                 Générez une vidéo verticale 720×1280 (17 à 27 s) à partir d'un prompt et d'un établissement.
               </p>
