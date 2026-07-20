@@ -22,7 +22,7 @@ const NAV_LABELS = {
   ar: { concept: "المفهوم", join: "انضم إلينا", card: "بطاقة عملك الرقمية", affiliate: "كن شريكًا", club: "نادي OWM", app: "التطبيق", home: "الصفحة الرئيسية" },
 } as const;
 
-const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, customMobileLinks }: Props) => {
+const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, customMobileLinks, customLinks }: Props) => {
   const location = useLocation();
   const { language } = useLanguage();
   const L = NAV_LABELS[language] ?? NAV_LABELS.fr;
