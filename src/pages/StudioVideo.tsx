@@ -667,224 +667,220 @@ export default function StudioVideo() {
                     )}
                   </div>
                 )}
-
-                {selected && (bizImages.length > 0 || bizVideos.length > 0) && (
-                  <div className="space-y-4 pt-2">
-                    {bizImages.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-sm">
-                            Images de l'établissement
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              {selectedImages.size}/{bizImages.length} sélectionnée{selectedImages.size > 1 ? "s" : ""}
-                            </span>
-                          </Label>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              className="text-xs text-muted-foreground hover:text-foreground underline"
-                              onClick={() => setSelectedImages(new Set(bizImages))}
-                            >
-                              Tout
-                            </button>
-                            <button
-                              type="button"
-                              className="text-xs text-muted-foreground hover:text-foreground underline"
-                              onClick={() => setSelectedImages(new Set())}
-                            >
-                              Aucune
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setShowImages((s) => !s)}
-                              className="text-muted-foreground hover:text-foreground p-1 rounded"
-                              aria-label={showImages ? "Masquer les images" : "Afficher les images"}
-                              title={showImages ? "Masquer" : "Afficher"}
-                            >
-                              {showImages ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                            </button>
-                          </div>
-                        </div>
-                        {showImages && (
-                          <>
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                              {bizImages.map((url, idx) => {
-                                const checked = selectedImages.has(url);
-                                return (
-                                  <div
-                                    key={url}
-                                    className={`relative aspect-square rounded-md overflow-hidden border-2 transition ${
-                                      checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
-                                    }`}
-                                  >
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedImages((prev) => {
-                                          const next = new Set(prev);
-                                          if (next.has(url)) next.delete(url);
-                                          else next.add(url);
-                                          return next;
-                                        });
-                                      }}
-                                      className="absolute inset-0 w-full h-full"
-                                      aria-label={checked ? "Désélectionner" : "Sélectionner"}
-                                    >
-                                      <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => { e.stopPropagation(); setLightboxIndex(idx); }}
-                                      className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
-                                      aria-label="Plein écran"
-                                      title="Plein écran"
-                                    >
-                                      <Maximize2 className="h-3 w-3" />
-                                    </button>
-                                    {url === popupImageUrl && (
-                                      <button
-                                        type="button"
-                                        onClick={(e) => { e.stopPropagation(); setPopupPreviewOpen(true); }}
-                                        className="absolute top-1 left-1 bg-[#D4AF37] text-black text-[10px] font-bold px-1.5 py-0.5 rounded shadow hover:bg-[#e5c14a]"
-                                        title="Aperçu de la popup d'accueil"
-                                      >
-                                        POPUP
-                                      </button>
-                                    )}
-                                    {checked && (
-                                      <div className="pointer-events-none absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                        ✓
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                            <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les images.</p>
-                          </>
-                        )}
-                      </div>
-                    )}
-
-                    {bizVideos.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-sm">
-                            Vidéos de l'établissement
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              {selectedVideos.size}/{bizVideos.length} sélectionnée{selectedVideos.size > 1 ? "s" : ""}
-                            </span>
-                          </Label>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              className="text-xs text-muted-foreground hover:text-foreground underline"
-                              onClick={() => setSelectedVideos(new Set(bizVideos.map((v) => v.url)))}
-                            >
-                              Toutes
-                            </button>
-                            <button
-                              type="button"
-                              className="text-xs text-muted-foreground hover:text-foreground underline"
-                              onClick={() => setSelectedVideos(new Set())}
-                            >
-                              Aucune
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setShowVideos((s) => !s)}
-                              className="text-muted-foreground hover:text-foreground p-1 rounded"
-                              aria-label={showVideos ? "Masquer les vidéos" : "Afficher les vidéos"}
-                              title={showVideos ? "Masquer" : "Afficher"}
-                            >
-                              {showVideos ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                            </button>
-                          </div>
-                        </div>
-                        {showVideos && (
-                          <>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                          {bizVideos.map((v, vIdx) => {
-                            const globalIdx = bizImages.length + vIdx;
-                            const checked = selectedVideos.has(v.url);
-                            const toggle = () => {
-                              setSelectedVideos((prev) => {
-                                const next = new Set(prev);
-                                if (next.has(v.url)) next.delete(v.url);
-                                else next.add(v.url);
-                                return next;
-                              });
-                            };
-                            return (
-                              <div
-                                key={v.url}
-                                className={`relative aspect-[9/16] rounded-md overflow-hidden border-2 transition bg-black ${
-                                  checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
-                                }`}
-                                title={v.title}
-                              >
-                                {v.kind === "file" ? (
-                                  <video
-                                    src={v.url}
-                                    controls
-                                    preload="metadata"
-                                    playsInline
-                                    className="w-full h-full object-cover bg-black"
-                                  />
-                                ) : v.thumbnail ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => setLightboxIndex(globalIdx)}
-                                    className="block w-full h-full"
-                                  >
-                                    <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
-                                  </button>
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-white/60">
-                                    <Video className="h-6 w-6" />
-                                  </div>
-                                )}
-                                <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 to-transparent p-1">
-                                  <p className="text-[10px] text-white truncate">{v.title}</p>
-                                </div>
-                                {v.kind === "youtube" && (
-                                  <span className="pointer-events-none absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1 rounded">YT</span>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => setLightboxIndex(globalIdx)}
-                                  aria-label="Plein écran"
-                                  title="Plein écran"
-                                  className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
-                                >
-                                  <Maximize2 className="h-3 w-3" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={toggle}
-                                  aria-label={checked ? "Désélectionner" : "Sélectionner"}
-                                  className={`absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border transition ${
-                                    checked
-                                      ? "bg-[#C04F17] text-white border-[#C04F17]"
-                                      : "bg-black/60 text-white border-white/40 hover:bg-black/80"
-                                  }`}
-                                >
-                                  {checked ? "✓" : "+"}
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les vidéos.</p>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           )}
         </section>
+
+          {selected && bizImages.length > 0 && (
+            <section className="rounded-xl border border-border bg-card p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">
+                  Images de l'établissement
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {selectedImages.size}/{bizImages.length} sélectionnée{selectedImages.size > 1 ? "s" : ""}
+                  </span>
+                </Label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="text-xs text-muted-foreground hover:text-foreground underline"
+                    onClick={() => setSelectedImages(new Set(bizImages))}
+                  >
+                    Tout
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs text-muted-foreground hover:text-foreground underline"
+                    onClick={() => setSelectedImages(new Set())}
+                  >
+                    Aucune
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowImages((s) => !s)}
+                    className="text-muted-foreground hover:text-foreground p-1 rounded"
+                    aria-label={showImages ? "Masquer les images" : "Afficher les images"}
+                    title={showImages ? "Masquer" : "Afficher"}
+                  >
+                    {showImages ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              {showImages && (
+                <>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                    {bizImages.map((url, idx) => {
+                      const checked = selectedImages.has(url);
+                      return (
+                        <div
+                          key={url}
+                          className={`relative aspect-square rounded-md overflow-hidden border-2 transition ${
+                            checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedImages((prev) => {
+                                const next = new Set(prev);
+                                if (next.has(url)) next.delete(url);
+                                else next.add(url);
+                                return next;
+                              });
+                            }}
+                            className="absolute inset-0 w-full h-full"
+                            aria-label={checked ? "Désélectionner" : "Sélectionner"}
+                          >
+                            <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setLightboxIndex(idx); }}
+                            className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
+                            aria-label="Plein écran"
+                            title="Plein écran"
+                          >
+                            <Maximize2 className="h-3 w-3" />
+                          </button>
+                          {url === popupImageUrl && (
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setPopupPreviewOpen(true); }}
+                              className="absolute top-1 left-1 bg-[#D4AF37] text-black text-[10px] font-bold px-1.5 py-0.5 rounded shadow hover:bg-[#e5c14a]"
+                              title="Aperçu de la popup d'accueil"
+                            >
+                              POPUP
+                            </button>
+                          )}
+                          {checked && (
+                            <div className="pointer-events-none absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                              ✓
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les images.</p>
+                </>
+              )}
+            </section>
+          )}
+
+          {selected && bizVideos.length > 0 && (
+            <section className="rounded-xl border border-border bg-card p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">
+                  Vidéos de l'établissement
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {selectedVideos.size}/{bizVideos.length} sélectionnée{selectedVideos.size > 1 ? "s" : ""}
+                  </span>
+                </Label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="text-xs text-muted-foreground hover:text-foreground underline"
+                    onClick={() => setSelectedVideos(new Set(bizVideos.map((v) => v.url)))}
+                  >
+                    Toutes
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs text-muted-foreground hover:text-foreground underline"
+                    onClick={() => setSelectedVideos(new Set())}
+                  >
+                    Aucune
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowVideos((s) => !s)}
+                    className="text-muted-foreground hover:text-foreground p-1 rounded"
+                    aria-label={showVideos ? "Masquer les vidéos" : "Afficher les vidéos"}
+                    title={showVideos ? "Masquer" : "Afficher"}
+                  >
+                    {showVideos ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              {showVideos && (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    {bizVideos.map((v, vIdx) => {
+                      const globalIdx = bizImages.length + vIdx;
+                      const checked = selectedVideos.has(v.url);
+                      const toggle = () => {
+                        setSelectedVideos((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(v.url)) next.delete(v.url);
+                          else next.add(v.url);
+                          return next;
+                        });
+                      };
+                      return (
+                        <div
+                          key={v.url}
+                          className={`relative aspect-[9/16] rounded-md overflow-hidden border-2 transition bg-black ${
+                            checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
+                          }`}
+                          title={v.title}
+                        >
+                          {v.kind === "file" ? (
+                            <video
+                              src={v.url}
+                              controls
+                              preload="metadata"
+                              playsInline
+                              className="w-full h-full object-cover bg-black"
+                            />
+                          ) : v.thumbnail ? (
+                            <button
+                              type="button"
+                              onClick={() => setLightboxIndex(globalIdx)}
+                              className="block w-full h-full"
+                            >
+                              <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
+                            </button>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-white/60">
+                              <Video className="h-6 w-6" />
+                            </div>
+                          )}
+                          <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 to-transparent p-1">
+                            <p className="text-[10px] text-white truncate">{v.title}</p>
+                          </div>
+                          {v.kind === "youtube" && (
+                            <span className="pointer-events-none absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1 rounded">YT</span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setLightboxIndex(globalIdx)}
+                            aria-label="Plein écran"
+                            title="Plein écran"
+                            className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
+                          >
+                            <Maximize2 className="h-3 w-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={toggle}
+                            aria-label={checked ? "Désélectionner" : "Sélectionner"}
+                            className={`absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border transition ${
+                              checked
+                                ? "bg-[#C04F17] text-white border-[#C04F17]"
+                                : "bg-black/60 text-white border-white/40 hover:bg-black/80"
+                            }`}
+                          >
+                            {checked ? "✓" : "+"}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les vidéos.</p>
+                </>
+              )}
+            </section>
+          )}
 
             {lightboxIndex !== null && mediaItems[lightboxIndex] && (
               <div
