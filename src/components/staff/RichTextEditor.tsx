@@ -25,8 +25,27 @@ interface RichTextEditorProps {
   bgClass?: string;
 }
 
+const stripInlineColors = (html: string): string => {
+  if (!html || typeof window === "undefined") return html;
+  try {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll("[style]").forEach((el) => {
+      const s = (el as HTMLElement).style;
+      s.removeProperty("color");
+      s.removeProperty("background-color");
+      s.removeProperty("background");
+      if (!s.length) el.removeAttribute("style");
+    });
+    doc.querySelectorAll("font[color]").forEach((el) => el.removeAttribute("color"));
+    return doc.body.innerHTML;
+  } catch {
+    return html;
+  }
+};
+
 const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: RichTextEditorProps) => {
   const isInternalChange = useRef(false);
+
 
   const extensions = useMemo(() => [
     StarterKit.configure({
