@@ -519,8 +519,8 @@ const BecomeAffiliate = () => {
                   <div className="text-[#D4AF37] text-xs tracking-[0.26em] uppercase font-bold mb-6">
                     Branding
                   </div>
-                  <div className="font-bold text-4xl md:text-5xl text-white leading-none mb-6" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                    Selon accord<small className="text-sm font-normal text-white/70 ml-1"> +</small>
+                  <div className="font-bold text-4xl md:text-5xl text-white leading-none mb-6" style={{ fontFamily: "'Montserrat', sans-serif", textTransform: 'uppercase' }}>
+                    Selon accord
                   </div>
                   <p className="text-white/80 text-sm leading-relaxed">
                     {language === 'ar'
