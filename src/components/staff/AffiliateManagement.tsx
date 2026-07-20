@@ -622,6 +622,19 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                     onCheckedChange={(checked) => setFormData({ ...formData, has_showcase_site: checked } as any)}
                   />
                 </div>
+
+                {/* Domaine personnalisé */}
+                <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="has_custom_domain">Domaine personnalisé</Label>
+                    <p className="text-xs text-muted-foreground">Autorise l'édition du champ « Domaine personnalisé » (setup manuel)</p>
+                  </div>
+                  <Switch
+                    id="has_custom_domain"
+                    checked={(formData as any).has_custom_domain || false}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_custom_domain: checked } as any)}
+                  />
+                </div>
               </div>
 
               {/* Catégorie principale */}
