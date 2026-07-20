@@ -203,7 +203,7 @@ const AffiliateShowcaseSiteEditor = ({ businessId, businessSlug }: Props) => {
                 L'option A n'est pas activée par défaut : demandez-la explicitement. En attendant, la redirection 301 (option B) est déjà disponible dans l'onglet <strong>Outils</strong>.
               </p>
               <a
-                href="mailto:contact@oneworldmorocco.com?subject=Demande%20domaine%20personnalis%C3%A9%20-%20affili%C3%A9&body=Bonjour%2C%0A%0AJe%20souhaite%20faire%20pointer%20mon%20domaine%20................%20vers%20mon%20site%20vitrine%201WM.%0A%0ADomaine%20souhait%C3%A9%20%3A%20www................%0A%0ACe%20domaine%20est%20enregistr%C3%A9%20chez%20%3A%20................%0A%0AMerci%20de%20me%20pr%C3%A9ciser%20les%20%C3%A9tapes%20et%20le%20co%C3%BBt%20de%20setup.%0A%0ACordialement"
+                href="mailto:info@oneworldmorocco.com?subject=Demande%20domaine%20personnalis%C3%A9%20-%20affili%C3%A9&body=Bonjour%2C%0A%0AJe%20souhaite%20faire%20pointer%20mon%20domaine%20................%20vers%20mon%20site%20vitrine%201WM.%0A%0ADomaine%20souhait%C3%A9%20%3A%20www................%0A%0ACe%20domaine%20est%20enregistr%C3%A9%20chez%20%3A%20................%0A%0AMerci%20de%20me%20pr%C3%A9ciser%20les%20%C3%A9tapes%20et%20le%20co%C3%BBt%20de%20setup.%0A%0ACordialement"
                 className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
               >
                 <Mail className="h-3 w-3" /> Demander l'activation d'un domaine personnalisé
