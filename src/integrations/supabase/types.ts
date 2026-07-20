@@ -136,6 +136,7 @@ export type Database = {
           contact_phone: string | null
           country_id: string
           created_at: string
+          has_custom_domain: boolean
           has_dashboard: boolean | null
           has_showcase_site: boolean
           has_video_studio: boolean | null
@@ -158,6 +159,7 @@ export type Database = {
           contact_phone?: string | null
           country_id: string
           created_at?: string
+          has_custom_domain?: boolean
           has_dashboard?: boolean | null
           has_showcase_site?: boolean
           has_video_studio?: boolean | null
@@ -180,6 +182,7 @@ export type Database = {
           contact_phone?: string | null
           country_id?: string
           created_at?: string
+          has_custom_domain?: boolean
           has_dashboard?: boolean | null
           has_showcase_site?: boolean
           has_video_studio?: boolean | null
