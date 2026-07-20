@@ -25,8 +25,27 @@ interface RichTextEditorProps {
   bgClass?: string;
 }
 
+const stripInlineColors = (html: string): string => {
+  if (!html || typeof window === "undefined") return html;
+  try {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll("[style]").forEach((el) => {
+      const s = (el as HTMLElement).style;
+      s.removeProperty("color");
+      s.removeProperty("background-color");
+      s.removeProperty("background");
+      if (!s.length) el.removeAttribute("style");
+    });
+    doc.querySelectorAll("font[color]").forEach((el) => el.removeAttribute("color"));
+    return doc.body.innerHTML;
+  } catch {
+    return html;
+  }
+};
+
 const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: RichTextEditorProps) => {
   const isInternalChange = useRef(false);
+
 
   const extensions = useMemo(() => [
     StarterKit.configure({
@@ -56,8 +75,9 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: 
     content,
     onUpdate: ({ editor }) => {
       isInternalChange.current = true;
-      onChange(editor.getHTML());
+      onChange(stripInlineColors(editor.getHTML()));
     },
+
     editorProps: {
       attributes: {
         class:
@@ -98,7 +118,7 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: 
       <div className={`sticky top-0 z-10 rounded-t-md border-b ${isCustomBg ? (isLightText ? "bg-black/30 border-white/10" : "bg-[#BED1FF] border-black/10") : "bg-background border-b"}`}>
         <RichTextToolbar editor={editor} />
       </div>
-      <EditorContent editor={editor} className={isCustomBg ? (isLightText ? "[&_.prose]:text-white" : "[&_.prose]:text-black") : "[&_.prose]:text-white"} />
+      <EditorContent editor={editor} className={`${isCustomBg ? (isLightText ? "[&_.prose]:text-white [&_.prose_*]:!text-white" : "[&_.prose]:text-black") : "[&_.prose]:text-white [&_.prose_*]:!text-white"}`} />
     </div>
   );
 };
