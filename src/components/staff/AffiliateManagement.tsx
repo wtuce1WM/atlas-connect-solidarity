@@ -302,7 +302,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cet affilié ?")) return;
+    if (!confirm("Supprimer cet affilié ? Ses établissements ne seront PAS supprimés (juste déliés).")) return;
 
     const { error } = await supabase
       .from('affiliates')
@@ -1075,6 +1075,15 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(affiliate.id)}
+                            title="Supprimer l'affilié (les établissements sont préservés)"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                          </Button>
+
 
                         </div>
                       </TableCell>
