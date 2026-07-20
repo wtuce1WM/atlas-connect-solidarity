@@ -123,7 +123,16 @@ const AffiliatesDashboard = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <HomeMindtripHeader />
+      <HomeMindtripHeader
+        alwaysWhite
+        customLinks={[
+          { label: "Présence en ligne", to: "/affiliates/presence" },
+          ...(hasDashboard ? [{ label: "Tableau de bord", to: "/affiliates/dashboard" }] : []),
+          ...(hasVideoStudio ? [{ label: "Studio vidéo", to: "/studio-video" }] : []),
+          { label: "Nouvel établissement", to: "/affiliates/presence?new=1" },
+          { label: "Se déconnecter", onClick: handleLogout, danger: true },
+        ]}
+      />
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         {/* Header Section */}
