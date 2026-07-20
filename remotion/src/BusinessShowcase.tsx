@@ -821,7 +821,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
       <Background />
       <Sequence from={0} durationInFrames={120}>
-        {useVideos && heroMedia ? (
+        {mixedMode ? (
+          <SceneHook name={name} location={locationLine} img={heroMedia} />
+        ) : useVideos && heroMedia ? (
           <AbsoluteFill>
             <VideoCover src={heroMedia} from={0} duration={120} />
             <SceneHook name={name} location={locationLine} />
@@ -832,7 +834,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       </Sequence>
       <Sequence from={120} durationInFrames={120}>
         <AbsoluteFill>
-          {useVideos && galleryList[0] ? (
+          {mixedMode && galleryList[0] ? (
+            <VideoCover src={galleryList[0]} from={0} duration={120} />
+          ) : useVideos && galleryList[0] ? (
             <VideoCover src={galleryList[0]} from={0} duration={120} />
           ) : galleryList[0] ? (
             <KenBurns src={galleryList[0]} from={0} duration={120} />
@@ -842,7 +846,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       </Sequence>
       <Sequence from={240} durationInFrames={150}>
         <AbsoluteFill>
-          {useVideos ? (
+          {(mixedMode || useVideos) ? (
             <AbsoluteFill>
               {galleryList.slice(1, 4).map((src, i) => (
                 <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
@@ -854,6 +858,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           <HookOverlay text={hookPart2 || hookPart1} duration={150} />
         </AbsoluteFill>
       </Sequence>
+
 
 
       {offer && (
