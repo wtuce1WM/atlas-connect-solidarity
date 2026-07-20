@@ -176,7 +176,7 @@ const AffiliatesLogin = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <HomeMindtripHeader />
+      <HomeMindtripHeader alwaysWhite />
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="flex flex-col items-center justify-center">
