@@ -135,8 +135,9 @@ const ShowcaseSite = () => {
         {story && (
           <section className="max-w-3xl mx-auto px-6 py-20">
             <div
-              className="prose prose-invert prose-lg max-w-none prose-headings:font-semibold prose-p:text-white/80 prose-p:leading-relaxed"
+              className="prose prose-invert prose-lg max-w-none prose-headings:font-semibold prose-p:text-white/80 prose-p:leading-relaxed [&_*]:!text-white/80 [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
               dangerouslySetInnerHTML={{ __html: story }}
+
             />
           </section>
         )}
