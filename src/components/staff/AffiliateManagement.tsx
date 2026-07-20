@@ -334,7 +334,39 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     setAccountDialogOpen(true);
   };
 
+  const generatePassword = () => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+    let pwd = "";
+    const arr = new Uint32Array(14);
+    crypto.getRandomValues(arr);
+    for (let i = 0; i < arr.length; i++) pwd += chars[arr[i] % chars.length];
+    setAccountPassword(pwd);
+    setShowPassword(true);
+  };
+
+  const copyPassword = async () => {
+    if (!accountPassword) return;
+    try {
+      await navigator.clipboard.writeText(accountPassword);
+      toast({ title: "Copié", description: "Mot de passe copié dans le presse-papier." });
+    } catch {
+      toast({ variant: "destructive", title: "Erreur", description: "Copie impossible." });
+    }
+  };
+
+  const sendWhatsApp = () => {
+    if (!selectedAffiliate || !accountPassword) return;
+    const phone = (selectedAffiliate.whatsapp || selectedAffiliate.contact_phone || selectedAffiliate.phone || "").replace(/[^\d]/g, "");
+    const email = accountEmail || selectedAffiliate.contact_email || "";
+    const msg = `Bonjour ${selectedAffiliate.name},\n\nVoici vos identifiants One World Morocco :\nEmail : ${email}\nMot de passe : ${accountPassword}\n\nConnexion : https://oneworldmorocco.com/affiliates/login\n\nMerci de le changer après votre première connexion.`;
+    const url = phone
+      ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+      : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank");
+  };
+
   const handleAccountAction = async () => {
+
     if (!selectedAffiliate) return;
 
     if (accountAction === "create" && (!accountEmail || !accountPassword)) {
