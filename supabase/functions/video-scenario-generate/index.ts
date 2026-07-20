@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { prompt, business_id, duration_sec = 22, tone = "immersif", parent_job_id, options } = body;
+    const { prompt, business_id, duration_sec = 30, tone = "immersif", parent_job_id, options } = body;
 
     // Auth: staff full access, otherwise must own the business_id
     const auth = await assertStaffOrAffiliateBusiness(req, corsHeaders, business_id ?? "");
@@ -36,8 +36,8 @@ Deno.serve(async (req) => {
     if (!prompt || typeof prompt !== "string" || prompt.length > 2000) {
       return json({ error: "prompt invalide" }, 400);
     }
-    if (![17, 22, 27].includes(Number(duration_sec))) {
-      return json({ error: "duration_sec doit être 17, 22 ou 27" }, 400);
+    if (![15, 30, 45, 60].includes(Number(duration_sec))) {
+      return json({ error: "duration_sec doit être 15, 30, 45 ou 60" }, 400);
     }
 
     const supa = createClient(SUPABASE_URL, SERVICE_ROLE);
