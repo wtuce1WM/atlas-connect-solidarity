@@ -204,7 +204,7 @@ FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
     "category": "Restaurant",
     "videos": ["url1", "url2"],
     "images": [],
-    "offer": { "title": "Pass journée & déjeuner", "price": "60€ / 600 MAD", "lines": ["De 11h à 19h", "Piscine olympique 50 m", "Déjeuner produits locaux inclus", "Réservé aux adultes"] }
+    "offer": { "title": "Pass journée & déjeuner", "price": "60€ / 600 MAD", "lines": ["De 11h à 19h", "Piscine olympique 50 m", "Déjeuner produits locaux inclus", "Réservé aux adultes"], "background_video_url": null, "background_image_url": null }
   },
   "rationale": "Pourquoi ce template (1 phrase)"
 }
