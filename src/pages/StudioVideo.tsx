@@ -941,6 +941,46 @@ export default function StudioVideo() {
               </div>
             )}
 
+            {popupPreviewOpen && popupImageUrl && (
+              <div
+                className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+                onClick={() => setPopupPreviewOpen(false)}
+              >
+                <div className="relative w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="relative w-full aspect-[1333/1737] max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: `url(${popupImageUrl})` }}
+                  >
+                    {(popupMeta.title || popupMeta.description) && (
+                      <>
+                        <div className="absolute inset-0 bg-black/55 pointer-events-none" />
+                        <div className="relative pt-12 px-6 pb-6 text-white">
+                          {popupMeta.title && (
+                            <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                              {popupMeta.title}
+                            </h3>
+                          )}
+                          {popupMeta.description && (
+                            <p className="text-base md:text-lg leading-relaxed text-white/98 font-medium whitespace-pre-line">
+                              {popupMeta.description}
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setPopupPreviewOpen(false)}
+                      className="absolute top-3 right-3 h-10 w-10 rounded-full bg-white hover:bg-neutral-100 text-black flex items-center justify-center shadow-lg z-10"
+                      aria-label="Fermer"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
