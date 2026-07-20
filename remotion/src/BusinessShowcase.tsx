@@ -256,14 +256,21 @@ const SceneGallery: React.FC<{ images: string[] }> = ({ images }) => {
   );
 };
 
-const SceneOffer: React.FC<{ offer: { title?: string; price?: string }; city?: string }> = ({ offer, city }) => {
+const SceneOffer: React.FC<{
+  offer: { title?: string; price?: string; lines?: string[] };
+  city?: string;
+  durationFrames?: number;
+}> = ({ offer, city, durationFrames = 120 }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const titleO = ease(frame, 14, 36);
   const priceS = spring({ frame: frame - 24, fps: 30, config: { damping: 14 } });
-  const out = 1 - ease(frame, 100, 120);
+  const outStart = Math.max(30, durationFrames - 20);
+  const out = 1 - ease(frame, outStart, durationFrames);
+  const lines = Array.isArray(offer.lines) ? offer.lines.filter(Boolean).slice(0, 6) : [];
+  const hasPrice = !!offer.price;
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 70, opacity: out }}>
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 60, opacity: out }}>
       <div
         style={{
           opacity: labelO,
@@ -279,31 +286,64 @@ const SceneOffer: React.FC<{ offer: { title?: string; price?: string }; city?: s
       <div
         style={{
           opacity: titleO,
-          marginTop: 30,
+          marginTop: 24,
           fontFamily: display,
           fontWeight: 700,
           color: COLORS.cream,
-          fontSize: 54,
+          fontSize: lines.length ? 46 : 54,
           textAlign: "center",
           lineHeight: 1.1,
+          padding: "0 20px",
         }}
       >
         {offer.title || "Une expérience signature"}
       </div>
-      {offer.price && (
+      {hasPrice && (
         <div
           style={{
             opacity: priceS,
             transform: `scale(${interpolate(priceS, [0, 1], [0.85, 1])})`,
-            marginTop: 40,
+            marginTop: lines.length ? 20 : 40,
             fontFamily: display,
             fontWeight: 700,
             color: COLORS.terracotta,
-            fontSize: 130,
+            fontSize: lines.length ? 82 : 130,
             lineHeight: 1,
+            textAlign: "center",
           }}
         >
           {offer.price}
+        </div>
+      )}
+      {lines.length > 0 && (
+        <div
+          style={{
+            marginTop: 28,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            alignItems: "center",
+            maxWidth: 620,
+          }}
+        >
+          {lines.map((line, i) => {
+            const lineO = ease(frame, 30 + i * 8, 48 + i * 8);
+            return (
+              <div
+                key={i}
+                style={{
+                  opacity: lineO,
+                  fontFamily: body,
+                  color: COLORS.cream,
+                  fontSize: 24,
+                  lineHeight: 1.35,
+                  textAlign: "center",
+                }}
+              >
+                {line}
+              </div>
+            );
+          })}
         </div>
       )}
     </AbsoluteFill>
