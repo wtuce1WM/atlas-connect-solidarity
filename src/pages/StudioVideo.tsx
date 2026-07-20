@@ -520,7 +520,15 @@ export default function StudioVideo() {
       </Helmet>
 
       <div className="min-h-screen bg-black">
-        <HomeMindtripHeader />
+        <HomeMindtripHeader
+          alwaysWhite
+          customLinks={[
+            { label: "Présence en ligne", to: "/affiliates/presence" },
+            ...(hasDashboard ? [{ label: "Tableau de bord", to: "/affiliates/dashboard" }] : []),
+            ...(hasVideoStudio ? [{ label: "Studio vidéo", to: "/studio-video" }] : []),
+            { label: "Se déconnecter", onClick: handleSignOut, danger: true },
+          ]}
+        />
         <main className="container mx-auto px-4 pt-32 pb-16">
           <div className="mx-auto max-w-3xl space-y-8">
             <header className="space-y-4">
