@@ -966,7 +966,6 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                       <TableHead>Dashboard</TableHead>
                       <TableHead>Catégorie</TableHead>
                       <TableHead>Contact</TableHead>
-                      <TableHead className="text-center">Compte</TableHead>
                       <TableHead className="text-center">Statut</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
