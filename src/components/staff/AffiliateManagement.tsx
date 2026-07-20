@@ -847,7 +847,19 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="button" variant="outline" size="sm" onClick={generatePassword}>
+                        <RefreshCw className="h-3 w-3 mr-1" /> Générer
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={copyPassword} disabled={!accountPassword}>
+                        <Copy className="h-3 w-3 mr-1" /> Copier
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={sendWhatsApp} disabled={!accountPassword} className="text-green-600">
+                        <MessageCircle className="h-3 w-3 mr-1" /> WhatsApp
+                      </Button>
+                    </div>
                   </div>
+
                 </>
               )}
 
