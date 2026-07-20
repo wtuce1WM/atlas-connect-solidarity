@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { fetchAiGateway, resolveCallerContext } from "../_shared/ai-gateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -663,6 +664,7 @@ serve(async (req) => {
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+    const callerContext = await resolveCallerContext(admin, user.id);
 
     const { chatId, messages = [], clientContext = {}, language = "fr" }: { chatId?: string; messages: Msg[]; clientContext?: { activeCity?: string; localTime?: string; coords?: { lat: number; lng: number } }; language?: string } = await req.json();
     const lang = (language === "en" || language === "ar") ? language : "fr";
@@ -820,10 +822,18 @@ ${languageInstruction}`;
     let modelToUse = MODEL;
     const mapPayloads: Array<{ title?: string; businesses: any[] }> = [];
     for (let i = 0; i < 4; i++) {
-      const resp = await fetch(GATEWAY_URL, {
+      const resp = await fetchAiGateway(GATEWAY_URL, {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({ model: modelToUse, messages: convo, tools, tool_choice: "auto", temperature: 0.5, max_tokens: 1800, frequency_penalty: 0.6, presence_penalty: 0.3 }),
+      }, {
+        supabase: admin,
+        userId: callerContext.userId,
+        affiliateId: callerContext.affiliateId,
+        chatId: chatId || null,
+        context: "club-ai-chat",
+        model: modelToUse,
+        metadata: { iteration: i, active_city: clientContext?.activeCity || null },
       });
 
       if (resp.status === 429) return new Response(JSON.stringify({ error: "rate_limit" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -879,7 +889,7 @@ ${languageInstruction}`;
     // Safety net: if the model exited tool loop without producing prose, force a final synthesis call without tools.
     if (!finalAnswer) {
       try {
-        const finalResp = await fetch(GATEWAY_URL, {
+        const finalResp = await fetchAiGateway(GATEWAY_URL, {
           method: "POST",
           headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -888,6 +898,14 @@ ${languageInstruction}`;
             temperature: 0.4,
             max_tokens: 1500,
           }),
+        }, {
+          supabase: admin,
+          userId: callerContext.userId,
+          affiliateId: callerContext.affiliateId,
+          chatId: chatId || null,
+          context: "club-ai-chat",
+          model: FALLBACK_MODEL,
+          metadata: { fallback: true, active_city: clientContext?.activeCity || null },
         });
         if (finalResp.ok) {
           const fd = await finalResp.json();
@@ -940,7 +958,7 @@ ${languageInstruction}`;
       const followupSystem = `You generate exactly 3 short, natural follow-up questions the user might ask next, in ${langLabel}. Each under 60 chars, no numbering, no quotes, one per line. They must extend the current conversation naturally (drill down, alternative, next step). Return ONLY the 3 lines.`;
       const lastAssistant = finalAnswer.replace(/<!--SHOW_ON_MAP:[\s\S]*?-->/g, "").slice(0, 1200);
       const lastUserMsg = lastUser.slice(0, 400);
-      const fResp = await fetch(GATEWAY_URL, {
+      const fResp = await fetchAiGateway(GATEWAY_URL, {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -952,6 +970,14 @@ ${languageInstruction}`;
           temperature: 0.8,
           max_tokens: 200,
         }),
+      }, {
+        supabase: admin,
+        userId: callerContext.userId,
+        affiliateId: callerContext.affiliateId,
+        chatId: chatId || null,
+        context: "club-ai-chat-followups",
+        model: FALLBACK_MODEL,
+        metadata: { active_city: clientContext?.activeCity || null },
       });
       if (fResp.ok) {
         const fData = await fResp.json();

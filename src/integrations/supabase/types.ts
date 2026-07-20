@@ -303,6 +303,92 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage_events: {
+        Row: {
+          affiliate_id: string | null
+          business_id: string | null
+          chat_id: string | null
+          context: string
+          created_at: string
+          error_message: string | null
+          estimated_cost_usd: number
+          id: string
+          input_tokens: number
+          metadata: Json
+          model: string | null
+          output_tokens: number
+          request_id: string | null
+          status: string
+          total_tokens: number
+          user_id: string | null
+        }
+        Insert: {
+          affiliate_id?: string | null
+          business_id?: string | null
+          chat_id?: string | null
+          context: string
+          created_at?: string
+          error_message?: string | null
+          estimated_cost_usd?: number
+          id?: string
+          input_tokens?: number
+          metadata?: Json
+          model?: string | null
+          output_tokens?: number
+          request_id?: string | null
+          status?: string
+          total_tokens?: number
+          user_id?: string | null
+        }
+        Update: {
+          affiliate_id?: string | null
+          business_id?: string | null
+          chat_id?: string | null
+          context?: string
+          created_at?: string
+          error_message?: string | null
+          estimated_cost_usd?: number
+          id?: string
+          input_tokens?: number
+          metadata?: Json
+          model?: string | null
+          output_tokens?: number
+          request_id?: string | null
+          status?: string
+          total_tokens?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_events_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_usage_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_usage_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_usage_events_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "ai_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       article_bookmarks: {
         Row: {
           article_slug: string
@@ -7031,6 +7117,7 @@ export type Database = {
         Args: { p_business_id: string; p_docs: Json }
         Returns: Json
       }
+      resolve_affiliate_id: { Args: { _user_id: string }; Returns: string }
       search_businesses_with_rank:
         | {
             Args: {

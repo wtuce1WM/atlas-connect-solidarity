@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { fetchAiGateway, resolveCallerContext } from "../_shared/ai-gateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -140,7 +141,23 @@ serve(async (req) => {
     // Fetch AI config from DB
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const sb = createClient(supabaseUrl, supabaseKey);
+
+    // Resolve caller context (optional — search may be anonymous)
+    let callerContext = { userId: null as string | null, affiliateId: null as string | null };
+    try {
+      const authHeader = req.headers.get("Authorization");
+      if (authHeader?.startsWith("Bearer ")) {
+        const userClient = createClient(supabaseUrl, supabaseAnonKey, { global: { headers: { Authorization: authHeader } } });
+        const { data: { user } } = await userClient.auth.getUser();
+        if (user) {
+          callerContext = await resolveCallerContext(sb, user.id);
+        }
+      }
+    } catch (e) {
+      console.error("[ai-search-answer] caller context error", e);
+    }
     
     const { data: configRows } = await sb.from("ai_config").select("key, value");
     const cfg: Record<string, string> = {};
@@ -864,7 +881,7 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
 
     const effectiveTemperature = vary ? Math.min(temperature + 0.3, 1.5) : temperature;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetchAiGateway("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
@@ -885,6 +902,13 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
         max_tokens: maxTokens,
         temperature: effectiveTemperature,
       }),
+    }, {
+      supabase: sb,
+      userId: callerContext.userId,
+      affiliateId: callerContext.affiliateId,
+      context: "ai-search-answer",
+      model,
+      metadata: { is_complex: isComplex, has_businesses: effectiveBusinesses.length },
     });
 
     if (!response.ok) {
