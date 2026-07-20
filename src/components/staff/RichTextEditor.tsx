@@ -118,7 +118,7 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: 
       <div className={`sticky top-0 z-10 rounded-t-md border-b ${isCustomBg ? (isLightText ? "bg-black/30 border-white/10" : "bg-[#BED1FF] border-black/10") : "bg-background border-b"}`}>
         <RichTextToolbar editor={editor} />
       </div>
-      <EditorContent editor={editor} className={isCustomBg ? (isLightText ? "[&_.prose]:text-white" : "[&_.prose]:text-black") : "[&_.prose]:text-white"} />
+      <EditorContent editor={editor} className={`${isCustomBg ? (isLightText ? "[&_.prose]:text-white [&_.prose_*]:!text-white" : "[&_.prose]:text-black") : "[&_.prose]:text-white [&_.prose_*]:!text-white"}`} />
     </div>
   );
 };
