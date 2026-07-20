@@ -766,10 +766,18 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
-  const useVideos = safeVideos.length > 0;
-  const heroMedia = useVideos ? safeVideos[0] : safeImages[0];
-  const galleryMedia = useVideos ? safeVideos.slice(1) : safeImages.slice(1);
+  const hasVideos = safeVideos.length > 0;
+  const hasImages = safeImages.length > 0;
+  const mixedMode = hasVideos && hasImages;
+  // Mode mixte : image = accroche/backdrops/CTA ; vidéos = corps dynamique (scènes 120-390)
+  // Sinon logique historique : vidéos ou images exclusivement.
+  const useVideos = hasVideos && !mixedMode;
+  const heroMedia = mixedMode ? safeImages[0] : (useVideos ? safeVideos[0] : safeImages[0]);
+  const galleryMedia = mixedMode
+    ? safeVideos
+    : (useVideos ? safeVideos.slice(1) : safeImages.slice(1));
   const galleryList = galleryMedia.length ? galleryMedia : (useVideos ? safeVideos : safeImages);
+
 
   const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
   const [hookPart1, hookPart2] = splitHookInTwo(hook);
