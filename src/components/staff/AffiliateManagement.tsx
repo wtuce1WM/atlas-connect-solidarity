@@ -247,6 +247,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       has_video_studio: formData.has_video_studio,
       has_dashboard: formData.has_dashboard,
       has_showcase_site: (formData as any).has_showcase_site ?? false,
+      has_custom_domain: (formData as any).has_custom_domain ?? false,
     };
 
     let error;
