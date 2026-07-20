@@ -88,11 +88,6 @@ const AffiliatesDashboard = () => {
       setHasDashboard(!!(affiliate as any).has_dashboard);
       setHasVideoStudio(!!(affiliate as any).has_video_studio);
 
-      if (!affiliate) {
-        await supabase.auth.signOut();
-        navigate("/affiliates");
-        return;
-      }
 
       setUserEmail(session.user.email);
       setIsLoading(false);
