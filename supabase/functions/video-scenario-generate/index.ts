@@ -204,7 +204,7 @@ FORMAT DE RÉPONSE (JSON strict, AUCUN backtick) :
     "category": "Restaurant",
     "videos": ["url1", "url2"],
     "images": [],
-    "offer": { "title": "Pass journée & déjeuner", "price": "60€ / 600 MAD", "lines": ["De 11h à 19h", "Piscine olympique 50 m", "Déjeuner produits locaux inclus", "Réservé aux adultes"] }
+    "offer": { "title": "Pass journée & déjeuner", "price": "60€ / 600 MAD", "lines": ["De 11h à 19h", "Piscine olympique 50 m", "Déjeuner produits locaux inclus", "Réservé aux adultes"], "background_video_url": null, "background_image_url": null }
   },
   "rationale": "Pourquoi ce template (1 phrase)"
 }
@@ -219,6 +219,7 @@ CONTRAINTES STRICTES :
   a) Une vraie promotion/prix existe dans \`medias\` (type=promotion ou champ price renseigné).
   b) L'utilisateur décrit dans son PROMPT une annonce/offre/message spécifique à afficher (prix, horaires spécifiques, conditions, contenu promo). Dans ce cas, retranscris fidèlement le message de l'utilisateur : \`title\` = accroche courte (≤60 car), \`price\` = prix si mentionné (ex : "60€ / 600 MAD"), \`lines\` = 2 à 6 lignes courtes (≤80 car chacune) reprenant les infos clés (horaires, inclusions, conditions, contact). Ne paraphrase pas au-delà du nécessaire pour tenir dans les limites.
   Sinon → \`"offer": null\`. Ne mets JAMAIS d'horaires ou de quartier dans \`offer\` s'ils ne sont pas explicitement dans le prompt utilisateur.
+- "offer.background_video_url" / "offer.background_image_url" (optionnels) : si l'utilisateur demande explicitement une vidéo ou une image en FOND de la scène Offre (ex : "piscine en fond", "avec le jardin derrière"), choisis UNE URL réelle depuis \`medias\` dont le \`name\` ou la \`description\` correspond au mot-clé. Priorité à une vidéo. Sinon laisse ces champs à null.
 - "name" : EXACTEMENT le nom de l'établissement fourni (champ businessContext.name).
 - "hook" : utilise le champ \`hook\` du businessContext s'il existe ; sinon génère-en un court (≤80 caractères). Ne paraphrase JAMAIS le hook existant.
 - "tagline" : 3 à 6 mots tirés du hook réel. N'ajoute JAMAIS de mot décoratif comme "terracotta", "bohème" ou "sauvage" s'il n'est pas déjà dans le hook.
@@ -342,6 +343,35 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           price: looksLikePrice ? priceStr : (priceStr || undefined),
           lines: lines.length ? lines : undefined,
         };
+        // Fond d'écran optionnel de la scène Offre : accepte une URL fournie par l'IA
+        // OU la déduit d'un mot-clé du prompt utilisateur (ex: "piscine en fond de l'offre").
+        const bgVidFromIa = typeof off.background_video_url === "string" && realMediaUrls.has(off.background_video_url)
+          ? off.background_video_url : null;
+        const bgImgFromIa = typeof off.background_image_url === "string" && realMediaUrls.has(off.background_image_url)
+          ? off.background_image_url : null;
+        let bgVideo = bgVidFromIa;
+        let bgImage = bgImgFromIa;
+
+        if (!bgVideo && !bgImage) {
+          const bgMatch = prompt.match(/(?:en\s+fond|fond\s+(?:de|du|d[e']|derrière))[^.\n]*?\b([a-zà-ÿ]{4,})\b/i)
+            || prompt.match(/\b(piscine|jardin|terrasse|plage|spa|hammam|chambre|patio|restaurant|salon|bar|cuisine|coucher\s+de\s+soleil|sunset)\b/i);
+          const keyword = bgMatch?.[1]?.toLowerCase().trim();
+          if (keyword && Array.isArray(businessContext?.medias)) {
+            const norm = (s: unknown) => (typeof s === "string" ? s.toLowerCase() : "");
+            const scored = businessContext.medias
+              .map((m: any) => ({
+                m,
+                hit: (norm(m?.name).includes(keyword) || norm(m?.description).includes(keyword)) ? 1 : 0,
+              }))
+              .filter((x: any) => x.hit && typeof x.m?.url === "string" && /^https?:\/\//i.test(x.m.url));
+            const vid = scored.find((x: any) => x.m.type === "video" || x.m.type === "internal-video");
+            const img = scored.find((x: any) => x.m.type === "image");
+            if (vid) bgVideo = vid.m.url;
+            else if (img) bgImage = img.m.url;
+          }
+        }
+        if (bgVideo) template_props.offer.background_video_url = bgVideo;
+        else if (bgImage) template_props.offer.background_image_url = bgImage;
       }
     }
 

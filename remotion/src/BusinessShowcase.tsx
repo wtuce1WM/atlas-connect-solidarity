@@ -25,7 +25,7 @@ export type ShowcaseProps = {
   category?: string;
   images?: string[];
   videos?: string[];
-  offer?: { title?: string; price?: string; lines?: string[] } | null;
+  offer?: { title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string } | null;
   rating?: number | null;
   reviewsCount?: number | null;
   openingHours?: string | Record<string, string> | null;
@@ -908,7 +908,15 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
       {offer && (
         <Sequence from={390} durationInFrames={offerDuration}>
-          <SceneOffer offer={offer} city={city} durationFrames={offerDuration} />
+          <AbsoluteFill>
+            {(offer.background_video_url || offer.background_image_url) && (
+              <>
+                <VideoBackdrop src={offer.background_video_url} image={offer.background_image_url} />
+                <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.55) 0%,rgba(14,11,8,0.78) 100%)" }} />
+              </>
+            )}
+            <SceneOffer offer={offer} city={city} durationFrames={offerDuration} />
+          </AbsoluteFill>
         </Sequence>
       )}
 
