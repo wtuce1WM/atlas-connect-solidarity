@@ -52,6 +52,16 @@ const AffiliateShowcaseSiteEditor = ({ businessId, businessSlug }: Props) => {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      // Check affiliate entitlement for custom domain
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: aff } = await (supabase as any)
+          .from("affiliates")
+          .select("has_custom_domain")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        setCanEditCustomDomain(!!aff?.has_custom_domain);
+      }
       const { data } = await (supabase as any)
         .from("business_showcase_site")
         .select("*")
