@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, MessageCircle, Phone, Mail, ExternalLink } from "lucide-react";
+import { trackBusinessEvent } from "@/lib/businessAnalytics";
 
 interface ShowcaseData {
   id: string;
@@ -61,6 +62,7 @@ const ShowcaseSite = () => {
       if (!showcase) { setNotFound(true); setLoading(false); return; }
       setData({ ...showcase, business: biz });
       setLoading(false);
+      trackBusinessEvent(biz.id, "view", { subtype: "showcase" });
     };
     load();
   }, [slug]);
@@ -167,22 +169,22 @@ const ShowcaseSite = () => {
           </h2>
           <div className="flex flex-wrap justify-center gap-3">
             {waLink && (
-              <a href={waLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#25D366] text-black font-medium hover:opacity-90">
+              <a href={waLink} target="_blank" rel="noreferrer" onClick={() => trackBusinessEvent(data.business_id, "whatsapp_click", { subtype: "showcase" })} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#25D366] text-black font-medium hover:opacity-90">
                 <MessageCircle className="h-5 w-5" /> WhatsApp
               </a>
             )}
             {data.cta_config?.phone && (
-              <a href={`tel:${data.cta_config.phone}`} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-medium hover:opacity-90">
+              <a href={`tel:${data.cta_config.phone}`} onClick={() => trackBusinessEvent(data.business_id, "phone_click", { subtype: "showcase" })} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-medium hover:opacity-90">
                 <Phone className="h-5 w-5" /> Appeler
               </a>
             )}
             {data.cta_config?.email && (
-              <a href={`mailto:${data.cta_config.email}`} className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/30 hover:bg-white/10">
+              <a href={`mailto:${data.cta_config.email}`} onClick={() => trackBusinessEvent(data.business_id, "email_click", { subtype: "showcase" })} className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/30 hover:bg-white/10">
                 <Mail className="h-5 w-5" /> Email
               </a>
             )}
             {data.cta_config?.reserve_url && (
-              <a href={data.cta_config.reserve_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#C04F17] text-white font-medium hover:opacity-90">
+              <a href={data.cta_config.reserve_url} target="_blank" rel="noreferrer" onClick={() => trackBusinessEvent(data.business_id, "booking_intent", { subtype: "showcase" })} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#C04F17] text-white font-medium hover:opacity-90">
                 <ExternalLink className="h-5 w-5" /> Réserver
               </a>
             )}

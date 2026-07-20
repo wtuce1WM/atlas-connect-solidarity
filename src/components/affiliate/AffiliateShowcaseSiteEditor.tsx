@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, ExternalLink, Save, Globe, Plus, Trash2 } from "lucide-react";
 import RichTextEditor from "@/components/staff/RichTextEditor";
+import ShowcaseSiteStats from "./ShowcaseSiteStats";
 
 interface Props {
   businessId: string;
@@ -120,6 +121,9 @@ const AffiliateShowcaseSiteEditor = ({ businessId, businessSlug }: Props) => {
 
   return (
     <div className="space-y-6 text-white">
+      {/* Mini-dashboard stats */}
+      <ShowcaseSiteStats businessId={businessId} />
+
       {/* Header */}
       <div className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
