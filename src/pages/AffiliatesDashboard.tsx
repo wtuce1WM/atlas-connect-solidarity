@@ -17,6 +17,8 @@ const AffiliatesDashboard = () => {
   const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [hasDashboard, setHasDashboard] = useState(false);
+  const [hasVideoStudio, setHasVideoStudio] = useState(false);
 
   const translations = {
     fr: {
