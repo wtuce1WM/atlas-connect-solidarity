@@ -167,19 +167,35 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
         </Link>
 
         <div className={`${forceHamburger ? "hidden" : "hidden lg:flex"} items-center gap-6`}>
-          {getNavLinks().map((item) => {
-            const isClubCta = item.to === "/join" || item.to === "/club";
-            return (
-              <Link
-                key={item.to}
-                to={withLangPrefix(item.to, language)}
-                className={linkClass}
-                {...(isClubCta ? { "data-track-event": "club_cta_click", "data-track-location": "nav_top", "data-track-target": item.to.slice(1) } : {})}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+          {customLinks && customLinks.length > 0
+            ? customLinks.map((item, idx) => {
+                const cls = `${linkClass} ${item.danger ? "text-red-300 hover:text-red-200" : ""}`;
+                if (item.to) {
+                  return (
+                    <Link key={`${item.label}-${idx}`} to={withLangPrefix(item.to, language)} className={cls}>
+                      {item.label}
+                    </Link>
+                  );
+                }
+                return (
+                  <button key={`${item.label}-${idx}`} type="button" onClick={item.onClick} className={cls}>
+                    {item.label}
+                  </button>
+                );
+              })
+            : getNavLinks().map((item) => {
+                const isClubCta = item.to === "/join" || item.to === "/club";
+                return (
+                  <Link
+                    key={item.to}
+                    to={withLangPrefix(item.to, language)}
+                    className={linkClass}
+                    {...(isClubCta ? { "data-track-event": "club_cta_click", "data-track-location": "nav_top", "data-track-target": item.to.slice(1) } : {})}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
         </div>
 
         <div className="hidden lg:flex items-center">
