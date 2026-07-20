@@ -319,11 +319,28 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       template_props.videos = [];
     }
 
-    // Filet de sécurité : si offer ne contient pas un vrai prix MAD/€/$, on jette
+    // Filet de sécurité : on garde `offer` si (a) prix crédible ou (b) un titre + lines existent
+    // (annonce/message venant du prompt utilisateur).
     if (template_props.offer && typeof template_props.offer === "object") {
-      const priceStr = String(template_props.offer.price || "");
-      const looksLikePrice = /(\d+\s*(mad|dhs?|€|\$|eur|usd))|^\d+$/i.test(priceStr.trim());
-      if (!looksLikePrice) template_props.offer = null;
+      const off = template_props.offer;
+      const priceStr = String(off.price || "").trim();
+      const looksLikePrice = /(\d+\s*(mad|dhs?|€|\$|eur|usd))|^\d+$/i.test(priceStr);
+      const title = cleanDisplayText(off.title) || "";
+      const rawLines = Array.isArray(off.lines) ? off.lines : [];
+      const lines = rawLines
+        .map((l: unknown) => cleanDisplayText(typeof l === "string" ? l : ""))
+        .filter((l: string) => !!l && l.length <= 120)
+        .slice(0, 6);
+      const hasContent = looksLikePrice || (title && lines.length > 0) || (title && looksLikePrice);
+      if (!hasContent) {
+        template_props.offer = null;
+      } else {
+        template_props.offer = {
+          title: title || undefined,
+          price: looksLikePrice ? priceStr : (priceStr || undefined),
+          lines: lines.length ? lines : undefined,
+        };
+      }
     }
 
     if (template_id === "business-showcase" && businessContext?.name) {
