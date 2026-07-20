@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, MessageCircle, Phone, Mail, ExternalLink } from "lucide-react";
+import { trackBusinessEvent } from "@/lib/businessAnalytics";
 
 interface ShowcaseData {
   id: string;
