@@ -667,8 +667,6 @@ export default function StudioVideo() {
                     )}
                   </div>
                 )}
-
-              )}
             </div>
           )}
         </section>
