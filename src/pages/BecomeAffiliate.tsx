@@ -501,7 +501,7 @@ const BecomeAffiliate = () => {
                     Premium
                   </div>
                   <div className="font-bold text-4xl md:text-5xl text-white leading-none mb-6" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                    150€<small className="text-sm font-normal text-white/70 ml-1">/{language === 'ar' ? 'شهر' : language === 'en' ? 'month' : 'mois'}</small>
+                    150 à 300€<small className="text-sm font-normal text-white/70 ml-1">/{language === 'ar' ? 'شهر' : language === 'en' ? 'month' : 'mois'}</small>
                   </div>
                   <p className="text-white/80 text-sm leading-relaxed">
                     {language === 'ar'
@@ -520,7 +520,7 @@ const BecomeAffiliate = () => {
                     Branding
                   </div>
                   <div className="font-bold text-4xl md:text-5xl text-white leading-none mb-6" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                    4 000€<small className="text-sm font-normal text-white/70 ml-1"> +</small>
+                    Selon accord<small className="text-sm font-normal text-white/70 ml-1"> +</small>
                   </div>
                   <p className="text-white/80 text-sm leading-relaxed">
                     {language === 'ar'
