@@ -1,6 +1,6 @@
 # Coût de génération vidéo (Remotion + IA)
 
-Estimation pour **1 000 vidéos** de type "Maison Brummell Majorelle" / "Riad Dar Najat" (verticales 720×1280, ~17–19s, clips internes ou YouTube + overlays).
+Estimation pour **1 000 vidéos** verticales 720×1280, de 15 à 60 s, avec clips internes ou YouTube + overlays.
 
 ## 1. Scénarisation IA (Claude)
 
