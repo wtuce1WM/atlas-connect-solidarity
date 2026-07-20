@@ -61,7 +61,10 @@ const splitHookInTwo = (h: string): [string, string] => {
 
 export const computeShowcaseFrames = (p: ShowcaseProps): number => {
   let cursor = 390;
-  if (p.offer) cursor += 120;
+  if (p.offer) {
+    const linesCount = Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
+    cursor += 120 + Math.min(linesCount, 6) * 22;
+  }
   if (p.showReviews && (p.rating || p.reviewsCount)) cursor += OPTION_SCENE_FRAMES;
   if (p.showOpeningHours && p.openingHours) cursor += OPTION_SCENE_FRAMES;
   if (p.showMap && p.latitude && p.longitude) cursor += OPTION_SCENE_FRAMES;
