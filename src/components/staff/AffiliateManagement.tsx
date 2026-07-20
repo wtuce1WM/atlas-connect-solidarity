@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Users, TrendingUp, DollarSign, Plus, Edit, Trash2, Key, UserPlus, UserX, Eye, EyeOff, Building2, BarChart3 } from "lucide-react";
+import { Loader2, Users, TrendingUp, DollarSign, Plus, Edit, Trash2, Key, UserPlus, UserX, Eye, EyeOff, Building2, BarChart3, Copy, RefreshCw, MessageCircle } from "lucide-react";
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
 
 
@@ -334,7 +334,39 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     setAccountDialogOpen(true);
   };
 
+  const generatePassword = () => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+    let pwd = "";
+    const arr = new Uint32Array(14);
+    crypto.getRandomValues(arr);
+    for (let i = 0; i < arr.length; i++) pwd += chars[arr[i] % chars.length];
+    setAccountPassword(pwd);
+    setShowPassword(true);
+  };
+
+  const copyPassword = async () => {
+    if (!accountPassword) return;
+    try {
+      await navigator.clipboard.writeText(accountPassword);
+      toast({ title: "Copié", description: "Mot de passe copié dans le presse-papier." });
+    } catch {
+      toast({ variant: "destructive", title: "Erreur", description: "Copie impossible." });
+    }
+  };
+
+  const sendWhatsApp = () => {
+    if (!selectedAffiliate || !accountPassword) return;
+    const phone = (selectedAffiliate.whatsapp || selectedAffiliate.contact_phone || selectedAffiliate.phone || "").replace(/[^\d]/g, "");
+    const email = accountEmail || selectedAffiliate.contact_email || "";
+    const msg = `Bonjour ${selectedAffiliate.name},\n\nVoici vos identifiants One World Morocco :\nEmail : ${email}\nMot de passe : ${accountPassword}\n\nConnexion : https://oneworldmorocco.com/affiliates/login\n\nMerci de le changer après votre première connexion.`;
+    const url = phone
+      ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+      : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank");
+  };
+
   const handleAccountAction = async () => {
+
     if (!selectedAffiliate) return;
 
     if (accountAction === "create" && (!accountEmail || !accountPassword)) {
@@ -815,7 +847,19 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="button" variant="outline" size="sm" onClick={generatePassword}>
+                        <RefreshCw className="h-3 w-3 mr-1" /> Générer
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={copyPassword} disabled={!accountPassword}>
+                        <Copy className="h-3 w-3 mr-1" /> Copier
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={sendWhatsApp} disabled={!accountPassword} className="text-green-600">
+                        <MessageCircle className="h-3 w-3 mr-1" /> WhatsApp
+                      </Button>
+                    </div>
                   </div>
+
                 </>
               )}
 
@@ -840,7 +884,22 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={generatePassword}>
+                      <RefreshCw className="h-3 w-3 mr-1" /> Générer
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={copyPassword} disabled={!accountPassword}>
+                      <Copy className="h-3 w-3 mr-1" /> Copier
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={sendWhatsApp} disabled={!accountPassword} className="text-green-600">
+                      <MessageCircle className="h-3 w-3 mr-1" /> WhatsApp
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Les mots de passe existants sont chiffrés et ne peuvent pas être récupérés — génère un nouveau mot de passe pour l'envoyer.
+                  </p>
                 </div>
+
               )}
 
               {accountAction === "delete" && (
