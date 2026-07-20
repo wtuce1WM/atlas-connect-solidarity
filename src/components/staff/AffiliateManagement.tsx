@@ -920,24 +920,20 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
         <p className="font-medium text-sm">Gestion des comptes affiliés :</p>
         <ul className="text-sm text-muted-foreground space-y-1">
           <li className="flex items-center gap-2">
-            <span className="font-medium text-foreground">Compte</span>
-            <span>indique si un affilié a un identifiant de connexion créé. <strong>Actif</strong> = il peut se connecter. <strong>Aucun</strong> = il faut lui créer un compte via le bouton vert.</span>
-          </li>
-          <li className="flex items-center gap-2">
             <UserPlus className="h-4 w-4 text-green-600" />
-            <span><strong>Créer un compte</strong> : bouton vert pour créer des identifiants (email + mot de passe)</span>
+            <span><strong>Créer un compte</strong> : bouton vert visible quand l'affilié n'a pas encore d'identifiants.</span>
           </li>
           <li className="flex items-center gap-2">
             <Key className="h-4 w-4 text-amber-600" />
-            <span><strong>Réinitialiser le mot de passe</strong> : bouton clé orange pour changer le mot de passe</span>
+            <span><strong>Réinitialiser le mot de passe</strong> : bouton clé orange pour changer le mot de passe d'un compte existant.</span>
           </li>
           <li className="flex items-center gap-2">
             <UserX className="h-4 w-4 text-red-600" />
-            <span><strong>Supprimer le compte</strong> : bouton rouge pour révoquer l'accès (l'affilié reste dans la base)</span>
+            <span><strong>Supprimer le compte</strong> : bouton rouge pour révoquer l'accès (l'affilié reste dans la base).</span>
           </li>
         </ul>
         <p className="text-xs text-muted-foreground pt-1">
-          La colonne "Statut" indique seulement si la fiche affiliée est activée ou désactivée dans la base.
+          La colonne "Statut" indique si la fiche affiliée est activée ou désactivée dans la base.
         </p>
       </div>
 
@@ -970,7 +966,6 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                       <TableHead>Dashboard</TableHead>
                       <TableHead>Catégorie</TableHead>
                       <TableHead>Contact</TableHead>
-                      <TableHead className="text-center">Compte</TableHead>
                       <TableHead className="text-center">Statut</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -1025,17 +1020,6 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                           <span className="block text-xs text-muted-foreground">
                             {affiliate.contact_email}
                           </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {affiliate.user_id ? (
-                          <Badge variant="default" className="bg-green-600">
-                            Actif
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-muted-foreground">
-                            Aucun
-                          </Badge>
                         )}
                       </TableCell>
                       <TableCell className="text-center">

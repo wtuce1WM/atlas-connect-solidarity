@@ -2,10 +2,27 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/destinations.json",
-    "generated_at": "2026-07-20T08:24:35.911Z",
+    "generated_at": "2026-07-20T09:22:46.069Z",
     "count": 42
   },
   "destinations": [
+    {
+      "id": "a9dd2090-a978-41c8-9b71-5d0ea5ff03ad",
+      "name": "Cascade Sidi M’barek",
+      "name_en": "Sidi M'barek Waterfall",
+      "region": [
+        "Marrakech-Safi"
+      ],
+      "latitude": 31.2651417,
+      "longitude": -9.8057937,
+      "image": null,
+      "wikipedia": null,
+      "hook": null,
+      "description": "D’une érosion hydrique importante de l’oued Aghbalou, qui a réussi à ronger l’inclinaison des couches tendres, sont nées les cascades permanentes de Sidi M’barek. A 12 Km de Sidi Kaouki, ces cascades échappent à la vue du visiteur puisqu’aucune signalétique n’indique l’existence des cascades aux environs. La descente vers ces cascades se fait au milieu du oued Aghbalou, toujours alimenté d’un fil ",
+      "cities": [
+        "Essaouira"
+      ]
+    },
     {
       "id": "e6e43af9-1523-4aaf-833d-645f7f5a9aa1",
       "name": "Anti-Atlas",
@@ -313,23 +330,6 @@
       "cities": [
         "Essaouira",
         "Agadir"
-      ]
-    },
-    {
-      "id": "a9dd2090-a978-41c8-9b71-5d0ea5ff03ad",
-      "name": "Cascade Sidi M’barek",
-      "name_en": "Sidi M'barek Waterfall",
-      "region": [
-        "Marrakech-Safi"
-      ],
-      "latitude": 31.2651417,
-      "longitude": -9.8057937,
-      "image": null,
-      "wikipedia": null,
-      "hook": null,
-      "description": "D’une érosion hydrique importante de l’oued Aghbalou, qui a réussi à ronger l’inclinaison des couches tendres, sont nées les cascades permanentes de Sidi M’barek. A 12 Km de Sidi Kaouki, ces cascades échappent à la vue du visiteur puisqu’aucune signalétique n’indique l’existence des cascades aux environs. La descente vers ces cascades se fait au milieu du oued Aghbalou, toujours alimenté d’un fil ",
-      "cities": [
-        "Essaouira"
       ]
     },
     {
