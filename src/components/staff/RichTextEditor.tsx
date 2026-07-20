@@ -75,8 +75,9 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: 
     content,
     onUpdate: ({ editor }) => {
       isInternalChange.current = true;
-      onChange(editor.getHTML());
+      onChange(stripInlineColors(editor.getHTML()));
     },
+
     editorProps: {
       attributes: {
         class:
