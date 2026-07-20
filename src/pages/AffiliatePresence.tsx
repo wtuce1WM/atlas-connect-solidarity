@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -109,6 +109,7 @@ interface BusinessPresence {
 
 const AffiliatePresence = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
@@ -131,6 +132,16 @@ const AffiliatePresence = () => {
   const limitLabel = maxBusinesses != null
     ? `${businesses.length}/${maxBusinesses} établissement${maxBusinesses > 1 ? "s" : ""}`
     : null;
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("new") === "1" && canCreateMore) {
+      setIsCreateDialogOpen(true);
+      params.delete("new");
+      navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
+    }
+  }, [location.search, canCreateMore]);
+
 
   const loadBusinesses = async (targetAffiliateId: string) => {
     const selectFields = ["id", "name", "slug", "name_en", "name_ar", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
@@ -367,7 +378,16 @@ const AffiliatePresence = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <HomeMindtripHeader />
+      <HomeMindtripHeader
+        alwaysWhite
+        customLinks={[
+          { label: "Présence en ligne", to: "/affiliates/presence" },
+          ...(hasDashboard ? [{ label: "Tableau de bord", to: "/affiliates/dashboard" }] : []),
+          ...(hasVideoStudio ? [{ label: "Studio vidéo", to: "/studio-video" }] : []),
+          ...(canCreateMore ? [{ label: "Nouvel établissement", onClick: () => setIsCreateDialogOpen(true) }] : []),
+          { label: "Se déconnecter", onClick: handleSignOut, danger: true },
+        ]}
+      />
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="flex flex-col gap-4 mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Présence en ligne</h1>

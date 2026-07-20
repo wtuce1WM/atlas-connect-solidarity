@@ -12,6 +12,7 @@ interface Props {
   alwaysWhite?: boolean;
   forceHamburger?: boolean;
   customMobileLinks?: CustomLink[];
+  customLinks?: CustomLink[];
 }
 
 // Header navigation labels — keep keys stable, French is authoritative.
@@ -21,7 +22,7 @@ const NAV_LABELS = {
   ar: { concept: "المفهوم", join: "انضم إلينا", card: "بطاقة عملك الرقمية", affiliate: "كن شريكًا", club: "نادي OWM", app: "التطبيق", home: "الصفحة الرئيسية" },
 } as const;
 
-const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, customMobileLinks }: Props) => {
+const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, customMobileLinks, customLinks }: Props) => {
   const location = useLocation();
   const { language } = useLanguage();
   const L = NAV_LABELS[language] ?? NAV_LABELS.fr;
@@ -166,19 +167,35 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
         </Link>
 
         <div className={`${forceHamburger ? "hidden" : "hidden lg:flex"} items-center gap-6`}>
-          {getNavLinks().map((item) => {
-            const isClubCta = item.to === "/join" || item.to === "/club";
-            return (
-              <Link
-                key={item.to}
-                to={withLangPrefix(item.to, language)}
-                className={linkClass}
-                {...(isClubCta ? { "data-track-event": "club_cta_click", "data-track-location": "nav_top", "data-track-target": item.to.slice(1) } : {})}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+          {customLinks && customLinks.length > 0
+            ? customLinks.map((item, idx) => {
+                const cls = `${linkClass} ${item.danger ? "text-red-300 hover:text-red-200" : ""}`;
+                if (item.to) {
+                  return (
+                    <Link key={`${item.label}-${idx}`} to={withLangPrefix(item.to, language)} className={cls}>
+                      {item.label}
+                    </Link>
+                  );
+                }
+                return (
+                  <button key={`${item.label}-${idx}`} type="button" onClick={item.onClick} className={cls}>
+                    {item.label}
+                  </button>
+                );
+              })
+            : getNavLinks().map((item) => {
+                const isClubCta = item.to === "/join" || item.to === "/club";
+                return (
+                  <Link
+                    key={item.to}
+                    to={withLangPrefix(item.to, language)}
+                    className={linkClass}
+                    {...(isClubCta ? { "data-track-event": "club_cta_click", "data-track-location": "nav_top", "data-track-target": item.to.slice(1) } : {})}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
         </div>
 
         <div className="hidden lg:flex items-center">
@@ -202,8 +219,8 @@ const HomeMindtripHeader = ({ alwaysWhite = false, forceHamburger = false, custo
       {menuOpen && (
         <div className={`${forceHamburger ? "" : "lg:hidden"} px-4 pt-3 pb-4`}>
           <div className="flex flex-col gap-2 rounded-2xl p-3 bg-black/60 backdrop-blur-2xl backdrop-saturate-150 border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.15)]">
-            {customMobileLinks && customMobileLinks.length > 0 ? (
-              customMobileLinks.map((item, idx) => {
+            {(() => { const m = customMobileLinks ?? customLinks; return m && m.length > 0; })() ? (
+              (customMobileLinks ?? customLinks!).map((item, idx) => {
                 const baseClass = `rounded-xl px-4 py-3 font-josefin text-sm uppercase tracking-[0.2em] border backdrop-blur-xl transition-all text-left ${
                   item.danger
                     ? "text-white hover:text-white bg-red-500/20 border-red-400/40 hover:bg-red-500/30"

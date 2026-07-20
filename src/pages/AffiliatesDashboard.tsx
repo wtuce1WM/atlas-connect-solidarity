@@ -17,6 +17,8 @@ const AffiliatesDashboard = () => {
   const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [hasDashboard, setHasDashboard] = useState(false);
+  const [hasVideoStudio, setHasVideoStudio] = useState(false);
 
   const translations = {
     fr: {
@@ -73,7 +75,7 @@ const AffiliatesDashboard = () => {
       }
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id")
+        .select("id, has_dashboard, has_video_studio")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
@@ -82,6 +84,10 @@ const AffiliatesDashboard = () => {
         navigate("/affiliates");
         return;
       }
+
+      setHasDashboard(!!(affiliate as any).has_dashboard);
+      setHasVideoStudio(!!(affiliate as any).has_video_studio);
+
 
       setUserEmail(session.user.email);
       setIsLoading(false);
@@ -117,7 +123,16 @@ const AffiliatesDashboard = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <HomeMindtripHeader />
+      <HomeMindtripHeader
+        alwaysWhite
+        customLinks={[
+          { label: "Présence en ligne", to: "/affiliates/presence" },
+          ...(hasDashboard ? [{ label: "Tableau de bord", to: "/affiliates/dashboard" }] : []),
+          ...(hasVideoStudio ? [{ label: "Studio vidéo", to: "/studio-video" }] : []),
+          { label: "Nouvel établissement", to: "/affiliates/presence?new=1" },
+          { label: "Se déconnecter", onClick: handleLogout, danger: true },
+        ]}
+      />
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         {/* Header Section */}
