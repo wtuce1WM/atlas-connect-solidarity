@@ -6968,6 +6968,10 @@ export type Database = {
           youtube: string
         }[]
       }
+      get_showcase_site_stats: {
+        Args: { p_business_id: string; p_days?: number }
+        Returns: Json
+      }
       get_user_roles_with_emails: {
         Args: never
         Returns: {
