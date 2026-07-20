@@ -88,16 +88,17 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: 
   if (!editor) return null;
 
   const isCustomBg = !!bgClass;
+  const isLightText = bgClass?.includes("text-white");
 
   return (
     <div
-      className={`rounded-md overflow-y-auto ${bgClass || "border bg-background"}`}
+      className={`rounded-md overflow-y-auto ${bgClass || "border bg-background text-white"}`}
       style={maxHeight ? { maxHeight } : undefined}
     >
-      <div className={`sticky top-0 z-10 rounded-t-md ${isCustomBg ? "bg-[#BED1FF] border-b border-black/10" : "bg-background border-b"}`}>
+      <div className={`sticky top-0 z-10 rounded-t-md border-b ${isCustomBg ? (isLightText ? "bg-black/30 border-white/10" : "bg-[#BED1FF] border-black/10") : "bg-background border-b"}`}>
         <RichTextToolbar editor={editor} />
       </div>
-      <EditorContent editor={editor} className={isCustomBg ? "[&_.prose]:text-black" : "[&_.prose]:text-white"} />
+      <EditorContent editor={editor} className={isCustomBg ? (isLightText ? "[&_.prose]:text-white" : "[&_.prose]:text-black") : "[&_.prose]:text-white"} />
     </div>
   );
 };

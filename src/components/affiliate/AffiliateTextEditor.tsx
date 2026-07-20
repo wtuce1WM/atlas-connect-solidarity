@@ -80,12 +80,12 @@ const AffiliateTextEditor = ({
           <TabsContent key={l.code} value={l.code} className="space-y-6" dir={l.dir}>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor={`name_${l.code}`}>
+                <Label htmlFor={`name_${l.code}`} className="text-white">
                   Nom ({l.label})
                   {isRequired && <span className="text-destructive ml-1">*</span>}
-                  {isRequired && <span className="text-xs text-muted-foreground ml-1 font-normal">(champ obligatoire)</span>}
+                  {isRequired && <span className="text-xs text-white/60 ml-1 font-normal">(champ obligatoire)</span>}
                 </Label>
-                <span className={`text-xs ${nameValue.length === 0 && isRequired ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                <span className={`text-xs ${nameValue.length === 0 && isRequired ? "text-destructive font-medium" : "text-white/60"}`}>
                   {nameValue.length}/{MAX_NAME}
                 </span>
               </div>
@@ -95,7 +95,7 @@ const AffiliateTextEditor = ({
                 onChange={(e) => onNameChange(l.code, e.target.value.slice(0, MAX_NAME))}
                 placeholder={`Nom de l'établissement en ${l.label.toLowerCase()}`}
                 maxLength={MAX_NAME}
-                className={`h-12 ${nameValue.length === 0 && isRequired ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                className={`h-12 text-white placeholder:text-white/50 ${nameValue.length === 0 && isRequired ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 required={isRequired}
               />
               {isRequired && nameValue.length === 0 && (
@@ -105,8 +105,8 @@ const AffiliateTextEditor = ({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor={`hook_${l.code}`}>Accroche ({l.label})</Label>
-                <span className="text-xs text-muted-foreground">{hookValue.length}/{MAX_HOOK}</span>
+                <Label htmlFor={`hook_${l.code}`} className="text-white">Accroche ({l.label})</Label>
+                <span className="text-xs text-white/60">{hookValue.length}/{MAX_HOOK}</span>
               </div>
               <Input
                 id={`hook_${l.code}`}
@@ -114,14 +114,14 @@ const AffiliateTextEditor = ({
                 onChange={(e) => onHookChange(l.code, e.target.value.slice(0, MAX_HOOK))}
                 placeholder={`Accroche courte en ${l.label.toLowerCase()} (max ${MAX_HOOK} caractères)`}
                 maxLength={MAX_HOOK}
-                className="!text-lg font-semibold h-12"
+                className="!text-lg font-semibold h-12 text-white placeholder:text-white/50"
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Description ({l.label})</Label>
-                <span className={`text-xs ${descOver ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                <Label className="text-white">Description ({l.label})</Label>
+                <span className={`text-xs ${descOver ? "text-destructive font-medium" : "text-white/60"}`}>
                   {descTextLength}/{MAX_DESC}
                 </span>
               </div>
@@ -129,6 +129,7 @@ const AffiliateTextEditor = ({
                 content={descValue}
                 onChange={(html) => handleDescriptionChange(l.code, html)}
                 maxHeight="500px"
+                bgClass="bg-zinc-900 text-white border border-white/10"
               />
             </div>
           </TabsContent>
