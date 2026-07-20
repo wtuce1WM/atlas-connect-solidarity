@@ -880,9 +880,11 @@ export default function StudioVideo() {
                     </div>
                   )}
                 )}
+                  </div>
+                )}
               </div>
             )}
-          </div>
+          </section>
 
             {lightboxIndex !== null && mediaItems[lightboxIndex] && (
               <div
