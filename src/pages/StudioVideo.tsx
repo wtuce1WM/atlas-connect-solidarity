@@ -212,6 +212,9 @@ export default function StudioVideo() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
+  const [popupImageUrl, setPopupImageUrl] = useState<string | null>(null);
+  const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
+  const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
 
   // Combined media list for the lightbox slideshow (images first, then videos)
   const mediaItems = useMemo(() => {
