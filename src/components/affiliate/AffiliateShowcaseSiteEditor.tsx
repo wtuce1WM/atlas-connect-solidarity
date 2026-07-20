@@ -121,6 +121,9 @@ const AffiliateShowcaseSiteEditor = ({ businessId, businessSlug }: Props) => {
 
   return (
     <div className="space-y-6 text-white">
+      {/* Mini-dashboard stats */}
+      <ShowcaseSiteStats businessId={businessId} />
+
       {/* Header */}
       <div className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
