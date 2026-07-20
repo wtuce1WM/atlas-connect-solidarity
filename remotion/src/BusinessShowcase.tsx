@@ -25,7 +25,7 @@ export type ShowcaseProps = {
   category?: string;
   images?: string[];
   videos?: string[];
-  offer?: { title?: string; price?: string } | null;
+  offer?: { title?: string; price?: string; lines?: string[] } | null;
   rating?: number | null;
   reviewsCount?: number | null;
   openingHours?: string | Record<string, string> | null;
@@ -61,7 +61,10 @@ const splitHookInTwo = (h: string): [string, string] => {
 
 export const computeShowcaseFrames = (p: ShowcaseProps): number => {
   let cursor = 390;
-  if (p.offer) cursor += 120;
+  if (p.offer) {
+    const linesCount = Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
+    cursor += 120 + Math.min(linesCount, 6) * 22;
+  }
   if (p.showReviews && (p.rating || p.reviewsCount)) cursor += OPTION_SCENE_FRAMES;
   if (p.showOpeningHours && p.openingHours) cursor += OPTION_SCENE_FRAMES;
   if (p.showMap && p.latitude && p.longitude) cursor += OPTION_SCENE_FRAMES;
@@ -253,14 +256,21 @@ const SceneGallery: React.FC<{ images: string[] }> = ({ images }) => {
   );
 };
 
-const SceneOffer: React.FC<{ offer: { title?: string; price?: string }; city?: string }> = ({ offer, city }) => {
+const SceneOffer: React.FC<{
+  offer: { title?: string; price?: string; lines?: string[] };
+  city?: string;
+  durationFrames?: number;
+}> = ({ offer, city, durationFrames = 120 }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const titleO = ease(frame, 14, 36);
   const priceS = spring({ frame: frame - 24, fps: 30, config: { damping: 14 } });
-  const out = 1 - ease(frame, 100, 120);
+  const outStart = Math.max(30, durationFrames - 20);
+  const out = 1 - ease(frame, outStart, durationFrames);
+  const lines = Array.isArray(offer.lines) ? offer.lines.filter(Boolean).slice(0, 6) : [];
+  const hasPrice = !!offer.price;
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 70, opacity: out }}>
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 60, opacity: out }}>
       <div
         style={{
           opacity: labelO,
@@ -276,31 +286,64 @@ const SceneOffer: React.FC<{ offer: { title?: string; price?: string }; city?: s
       <div
         style={{
           opacity: titleO,
-          marginTop: 30,
+          marginTop: 24,
           fontFamily: display,
           fontWeight: 700,
           color: COLORS.cream,
-          fontSize: 54,
+          fontSize: lines.length ? 46 : 54,
           textAlign: "center",
           lineHeight: 1.1,
+          padding: "0 20px",
         }}
       >
         {offer.title || "Une expérience signature"}
       </div>
-      {offer.price && (
+      {hasPrice && (
         <div
           style={{
             opacity: priceS,
             transform: `scale(${interpolate(priceS, [0, 1], [0.85, 1])})`,
-            marginTop: 40,
+            marginTop: lines.length ? 20 : 40,
             fontFamily: display,
             fontWeight: 700,
             color: COLORS.terracotta,
-            fontSize: 130,
+            fontSize: lines.length ? 82 : 130,
             lineHeight: 1,
+            textAlign: "center",
           }}
         >
           {offer.price}
+        </div>
+      )}
+      {lines.length > 0 && (
+        <div
+          style={{
+            marginTop: 28,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            alignItems: "center",
+            maxWidth: 620,
+          }}
+        >
+          {lines.map((line, i) => {
+            const lineO = ease(frame, 30 + i * 8, 48 + i * 8);
+            return (
+              <div
+                key={i}
+                style={{
+                  opacity: lineO,
+                  fontFamily: body,
+                  color: COLORS.cream,
+                  fontSize: 24,
+                  lineHeight: 1.35,
+                  textAlign: "center",
+                }}
+              >
+                {line}
+              </div>
+            );
+          })}
         </div>
       )}
     </AbsoluteFill>
@@ -784,7 +827,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   // Position courante après les scènes de base
   let cursor = 390;
-  if (offer) cursor += 120;
+  const offerLinesCount = offer && Array.isArray(offer.lines) ? offer.lines.length : 0;
+  const offerDuration = offer ? 120 + Math.min(offerLinesCount, 6) * 22 : 0;
+  if (offer) cursor += offerDuration;
 
   const reviewsActive = !!(showReviews && (rating || reviewsCount));
   const hoursActive = !!(showOpeningHours && openingHours);
@@ -862,8 +907,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
       {offer && (
-        <Sequence from={390} durationInFrames={120}>
-          <SceneOffer offer={offer} city={city} />
+        <Sequence from={390} durationInFrames={offerDuration}>
+          <SceneOffer offer={offer} city={city} durationFrames={offerDuration} />
         </Sequence>
       )}
 
