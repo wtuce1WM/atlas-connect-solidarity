@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
+import { StudioVideoScenarioPanel, buildScenario, extractKeywords } from "@/components/StudioVideoScenarioPanel";
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
 import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
 import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
@@ -421,6 +422,30 @@ export default function StudioVideo() {
     [jobs]
   );
 
+  const promptKeywords = useMemo(() => extractKeywords(prompt), [prompt]);
+
+  const scenario = useMemo(() => {
+    if (!prompt.trim() || prompt.length < 20) return null;
+    return buildScenario(prompt, selected?.name ?? null, duration, {
+      reviews: optReviews,
+      hours: optHours,
+      mapMarker: optMapMarker,
+      digitalId: optDigitalId,
+      installCta: optInstallCta,
+    });
+  }, [prompt, selected?.name, duration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
+
+  const mediaMatches = useMemo(() => {
+    const matches = new Map<string, string[]>();
+    const add = (key: string, text: string) => {
+      const hit = promptKeywords.filter((k) => text.toLowerCase().includes(k));
+      if (hit.length) matches.set(key, hit);
+    };
+    bizImages.forEach((url) => add(url, url));
+    bizVideos.forEach((v) => add(v.url, `${v.title} ${v.url}`));
+    return matches;
+  }, [promptKeywords, bizImages, bizVideos]);
+
   const submit = async () => {
     if (submitting) return;
     if (hasActiveJob) {
@@ -711,11 +736,12 @@ export default function StudioVideo() {
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                     {bizImages.map((url, idx) => {
                       const checked = selectedImages.has(url);
+                      const matches = mediaMatches.get(url) ?? [];
                       return (
                         <div
                           key={url}
                           className={`relative aspect-square rounded-md overflow-hidden border-2 transition ${
-                            checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
+                            checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : matches.length ? "border-secondary ring-2 ring-secondary/30" : "border-border hover:border-muted-foreground"
                           }`}
                         >
                           <button
@@ -751,6 +777,11 @@ export default function StudioVideo() {
                             >
                               POPUP
                             </button>
+                          )}
+                          {matches.length > 0 && (
+                            <div className="absolute bottom-1 left-1 bg-secondary text-secondary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded">
+                              {matches.slice(0, 2).join(" · ")}
+                            </div>
                           )}
                           {checked && (
                             <div className="pointer-events-none absolute top-1 right-1 bg-[#C04F17] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
@@ -808,6 +839,7 @@ export default function StudioVideo() {
                     {bizVideos.map((v, vIdx) => {
                       const globalIdx = bizImages.length + vIdx;
                       const checked = selectedVideos.has(v.url);
+                      const matches = mediaMatches.get(v.url) ?? [];
                       const toggle = () => {
                         setSelectedVideos((prev) => {
                           const next = new Set(prev);
@@ -820,7 +852,7 @@ export default function StudioVideo() {
                         <div
                           key={v.url}
                           className={`relative aspect-[9/16] rounded-md overflow-hidden border-2 transition bg-black ${
-                            checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
+                            checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : matches.length ? "border-secondary ring-2 ring-secondary/30" : "border-border hover:border-muted-foreground"
                           }`}
                           title={v.title}
                         >
@@ -850,6 +882,11 @@ export default function StudioVideo() {
                           </div>
                           {v.kind === "youtube" && (
                             <span className="pointer-events-none absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1 rounded">YT</span>
+                          )}
+                          {matches.length > 0 && (
+                            <div className="absolute bottom-1 left-1 bg-secondary text-secondary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded">
+                              {matches.slice(0, 2).join(" · ")}
+                            </div>
                           )}
                           <button
                             type="button"
@@ -1101,6 +1138,10 @@ export default function StudioVideo() {
               {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
             </Button>
           </section>
+
+          {scenario && (
+            <StudioVideoScenarioPanel scenario={scenario} />
+          )}
 
           {currentJob && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-3">
