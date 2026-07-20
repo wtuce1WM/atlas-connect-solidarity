@@ -367,7 +367,16 @@ const AffiliatePresence = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <HomeMindtripHeader />
+      <HomeMindtripHeader
+        alwaysWhite
+        customLinks={[
+          { label: "Présence en ligne", to: "/affiliates/presence" },
+          ...(hasDashboard ? [{ label: "Tableau de bord", to: "/affiliates/dashboard" }] : []),
+          ...(hasVideoStudio ? [{ label: "Studio vidéo", to: "/studio-video" }] : []),
+          ...(canCreateMore ? [{ label: "Nouvel établissement", onClick: () => setIsCreateDialogOpen(true) }] : []),
+          { label: "Se déconnecter", onClick: handleSignOut, danger: true },
+        ]}
+      />
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="flex flex-col gap-4 mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Présence en ligne</h1>
