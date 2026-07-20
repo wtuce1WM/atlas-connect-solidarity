@@ -974,7 +974,7 @@ ${languageInstruction}`;
         supabase: admin,
         userId: callerContext.userId,
         affiliateId: callerContext.affiliateId,
-        chatId: chatId || null,
+        chatId: resultChatId || chatId || null,
         context: "club-ai-chat-followups",
         model: FALLBACK_MODEL,
         metadata: { active_city: clientContext?.activeCity || null },
