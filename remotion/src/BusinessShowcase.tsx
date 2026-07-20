@@ -867,8 +867,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
       {offer && (
-        <Sequence from={390} durationInFrames={120}>
-          <SceneOffer offer={offer} city={city} />
+        <Sequence from={390} durationInFrames={offerDuration}>
+          <SceneOffer offer={offer} city={city} durationFrames={offerDuration} />
         </Sequence>
       )}
 
