@@ -1023,17 +1023,6 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        {affiliate.user_id ? (
-                          <Badge variant="default" className="bg-green-600">
-                            Actif
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-muted-foreground">
-                            Aucun
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
                         <Badge variant={affiliate.is_active ? "default" : "secondary"}>
                           {affiliate.is_active ? "Actif" : "Inactif"}
                         </Badge>
