@@ -279,6 +279,14 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     let template_id = typeof parsed.template_id === "string" && validIds.includes(parsed.template_id)
       ? parsed.template_id
       : "business-showcase";
+    // Si un établissement est ciblé (ou si l'utilisateur a coché des médias / options),
+    // on force le template paramétrique `business-showcase` : les templates statiques
+    // (farasha-farmhouse, etc.) ignorent la whitelist médias et les options.
+    const hasManualSel = Array.isArray(options?.selected_images) && options.selected_images.length > 0
+      || Array.isArray(options?.selected_videos) && options.selected_videos.length > 0;
+    if (resolved_business_id || hasManualSel) {
+      template_id = "business-showcase";
+    }
     const template_props = parsed.props && typeof parsed.props === "object" ? parsed.props : {};
 
     // Nettoyage anti-hallucination des textes visibles.
