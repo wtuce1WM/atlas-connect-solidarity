@@ -304,6 +304,25 @@ export default function StudioVideo() {
       }));
       setBizImages(imgs);
       setBizVideos([...docVideos, ...ytVideos]);
+      const popupUrl: string | null = b.popup_image_url && imgs.includes(b.popup_image_url) ? b.popup_image_url : null;
+      setPopupImageUrl(popupUrl);
+      setPopupMeta({ title: null, description: null });
+      if (popupUrl) {
+        supabase
+          .from("business_image_titles")
+          .select("title, description, title_fr, description_fr")
+          .eq("business_id", selected.id)
+          .eq("image_url", popupUrl)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (cancelled || !data) return;
+            const d = data as any;
+            setPopupMeta({
+              title: (d.title_fr || d.title) ?? null,
+              description: (d.description_fr || d.description) ?? null,
+            });
+          });
+      }
       setBizStats({
         hook: b.hook_fr ?? null,
         descLen: (b.description ?? "").length,
