@@ -149,19 +149,37 @@ const AffiliateShowcaseSiteEditor = ({ businessId, businessSlug }: Props) => {
       {/* SEO / Domain */}
       <div className="space-y-3">
         <h4 className="font-semibold">SEO & Domaine</h4>
-        <div className="grid md:grid-cols-2 gap-3">
-          <div>
-            <Label className="text-white/80">URL canonique (votre site officiel)</Label>
-            <Input value={canonicalUrl} onChange={(e) => setCanonicalUrl(e.target.value)} placeholder="https://www.votresite.com/" className="bg-white/10 border-white/20 text-white" />
-            <p className="text-xs text-white/50 mt-1">Google attribue le SEO à cette URL — évite le duplicate content.</p>
+        <div>
+          <Label className="text-white/80">URL canonique (votre site officiel)</Label>
+          <Input value={canonicalUrl} onChange={(e) => setCanonicalUrl(e.target.value)} placeholder="https://www.votresite.com/" className="bg-white/10 border-white/20 text-white" />
+          <p className="text-xs text-white/50 mt-1">Google attribue le SEO à cette URL — évite le duplicate content.</p>
+        </div>
+
+        <div className="rounded-md border border-white/10 bg-white/5 p-3 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <h5 className="text-sm font-semibold text-white/90">Domaine personnalisé</h5>
+            <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-white/60">Sur demande</span>
           </div>
-          <div>
-            <Label className="text-white/80">Domaine personnalisé (optionnel)</Label>
-            <Input value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} placeholder="www.votresite.com" className="bg-white/10 border-white/20 text-white" />
-            <p className="text-xs text-white/50 mt-1">Pour servir cette page sous votre domaine (setup DNS à venir).</p>
-          </div>
+          <p className="text-xs text-white/70">
+            Faire servir le site vitrine sous <span className="font-mono text-white/90">www.votresite.com</span> au lieu de
+            <span className="font-mono text-white/90"> oneworldmorocco.com/site/{businessSlug || "votre-fiche"}</span> est possible, mais cela reste un setup manuel :
+          </p>
+          <ul className="list-disc list-inside text-xs text-white/70 space-y-1">
+            <li><strong>Option A — Reverse proxy</strong> : oneworldmorocco.com héberge la page, votre domaine l'affiche. Nécessite une configuration DNS/proxy et une validation SSL par domaine. Setup technique + récurrent.</li>
+            <li><strong>Option B — Redirection 301</strong> : votre domaine redirige vers la page 1WM. Simple, gratuit chez la plupart des registrars, mais l'URL visible devient celle de 1WM.</li>
+          </ul>
+          <p className="text-xs text-white/60">
+            L'option A (vrai domaine personnalisé) a un coût de mise en place non négligeable. Nous ne l'activons pas par défaut : un affilié doit le demander explicitement. En attendant, la redirection 301 (option B) est déjà disponible dans l'onglet <strong>Outils</strong>.
+          </p>
+          <a
+            href="mailto:contact@oneworldmorocco.com?subject=Demande%20domaine%20personnalis%C3%A9%20-%20affili%C3%A9&body=Bonjour%2C%0A%0AJe%20souhaite%20faire%20pointer%20mon%20domaine%20................%20vers%20mon%20site%20vitrine%201WM.%0A%0ADomaine%20souhait%C3%A9%20%3A%20www................%0A%0ACe%20domaine%20est%20enregistr%C3%A9%20chez%20%3A%20................%0A%0AMerci%20de%20me%20pr%C3%A9ciser%20les%20%C3%A9tapes%20et%20le%20co%C3%BBt%20de%20setup.%0A%0ACordialement"
+            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+          >
+            <Mail className="h-3 w-3" /> Demander l'activation d'un domaine personnalisé
+          </a>
         </div>
       </div>
+
 
       {/* Tagline */}
       <div className="space-y-3">
