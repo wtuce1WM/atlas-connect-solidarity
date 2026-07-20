@@ -28,11 +28,6 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { prompt, business_id, duration_sec = 30, tone = "immersif", parent_job_id, options } = body;
 
-    // Auth: staff full access, otherwise must own the business_id
-    const auth = await assertStaffOrAffiliateBusiness(req, corsHeaders, business_id ?? "");
-    if (auth instanceof Response) return auth;
-    const callerUserId = auth.userId;
-
     if (!prompt || typeof prompt !== "string" || prompt.length > 2000) {
       return json({ error: "prompt invalide" }, 400);
     }
@@ -41,9 +36,8 @@ Deno.serve(async (req) => {
     }
 
     const supa = createClient(SUPABASE_URL, SERVICE_ROLE);
-    const callerContext = await resolveCallerContext(supa, callerUserId);
 
-    // Charger un éventuel job parent pour affinage
+    // Charger un éventuel job parent pour affinage (avant l'auth pour hériter de son business_id)
     let parentJob: any = null;
     if (parent_job_id && typeof parent_job_id === "string") {
       const { data } = await supa
@@ -53,6 +47,14 @@ Deno.serve(async (req) => {
         .maybeSingle();
       if (data) parentJob = data;
     }
+
+    // Auth: staff full access, otherwise must own the business_id (résolu depuis parent si besoin)
+    const authBusinessId = business_id ?? parentJob?.business_id ?? "";
+    const auth = await assertStaffOrAffiliateBusiness(req, corsHeaders, authBusinessId);
+    if (auth instanceof Response) return auth;
+    const callerUserId = auth.userId;
+    const callerContext = await resolveCallerContext(supa, callerUserId);
+
 
     // Charger le contexte établissement (par id, ou par nom détecté dans le prompt, ou hérité du parent)
     let businessContext: any = null;
