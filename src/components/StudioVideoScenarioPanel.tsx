@@ -203,18 +203,25 @@ function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
   return icon as SceneMediaKind;
 }
 
+export type ScenarioEdits = {
+  order: SceneMediaKind[]; // ordered scene kinds
+  durations: Partial<Record<SceneMediaKind, number>>; // seconds per kind
+};
+
 export function StudioVideoScenarioPanel({
   scenario,
   className,
   availableMedia,
   sceneMedia,
   onChangeSceneMedia,
+  onChangeScenarioEdits,
 }: {
   scenario: Scenario;
   className?: string;
   availableMedia?: SceneMediaItem[];
   sceneMedia?: SceneMediaMap;
   onChangeSceneMedia?: (next: SceneMediaMap) => void;
+  onChangeScenarioEdits?: (edits: ScenarioEdits | null) => void;
 }) {
   // Local edits: per-scene duration overrides + order override (by id)
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
@@ -227,6 +234,7 @@ export function StudioVideoScenarioPanel({
   useEffect(() => {
     setDurationOverrides({});
     setOrderOverride(null);
+    onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
 
@@ -244,6 +252,31 @@ export function StudioVideoScenarioPanel({
         return { ...s, duration, start };
       });
   }, [scenario.scenes, orderOverride, durationOverrides]);
+
+  // Emit edits upstream whenever they change (dedup: only when non-default)
+  useEffect(() => {
+    if (!onChangeScenarioEdits) return;
+    const hasOrder = !!orderOverride;
+    const hasDurations = Object.keys(durationOverrides).length > 0;
+    if (!hasOrder && !hasDurations) {
+      onChangeScenarioEdits(null);
+      return;
+    }
+    const byId = new Map(scenario.scenes.map((s) => [s.id, s]));
+    const orderIds = orderOverride ?? scenario.scenes.map((s) => s.id);
+    const orderedKinds: SceneMediaKind[] = [];
+    for (const id of orderIds) {
+      const s = byId.get(id);
+      if (s) orderedKinds.push(s.icon as SceneMediaKind);
+    }
+    const durations: Partial<Record<SceneMediaKind, number>> = {};
+    for (const [id, d] of Object.entries(durationOverrides)) {
+      const s = byId.get(id);
+      if (s) durations[s.icon as SceneMediaKind] = d;
+    }
+    onChangeScenarioEdits({ order: orderedKinds, durations });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderOverride, durationOverrides]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   if (!editedScenes.length) return null;

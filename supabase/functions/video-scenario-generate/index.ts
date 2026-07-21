@@ -481,6 +481,31 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (Object.keys(cleaned).length) template_props.scene_media = cleaned;
       }
 
+      // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
+      const ALLOWED_SCENE_KINDS = new Set(["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"]);
+      const rawOrder = options?.scene_order;
+      if (Array.isArray(rawOrder)) {
+        const seen = new Set<string>();
+        const cleanedOrder: string[] = [];
+        for (const k of rawOrder) {
+          if (typeof k === "string" && ALLOWED_SCENE_KINDS.has(k) && !seen.has(k)) {
+            seen.add(k);
+            cleanedOrder.push(k);
+          }
+        }
+        if (cleanedOrder.length) template_props.scene_order = cleanedOrder;
+      }
+      const rawDurations = options?.scene_durations;
+      if (rawDurations && typeof rawDurations === "object") {
+        const cleanedDur: Record<string, number> = {};
+        for (const [k, v] of Object.entries(rawDurations)) {
+          if (!ALLOWED_SCENE_KINDS.has(k)) continue;
+          const n = Number(v);
+          if (Number.isFinite(n) && n >= 1 && n <= 60) cleanedDur[k] = Math.round(n);
+        }
+        if (Object.keys(cleanedDur).length) template_props.scene_durations = cleanedDur;
+      }
+
 
 
       template_props.durationSec = Number(duration_sec);

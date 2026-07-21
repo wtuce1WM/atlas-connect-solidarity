@@ -45,6 +45,8 @@ export type ShowcaseProps = {
   durationSec?: number;
   useFullHookScene?: boolean;
   scene_media?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
+  scene_order?: Array<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro">;
+  scene_durations?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", number>>;
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
@@ -60,19 +62,80 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-export const computeShowcaseFrames = (p: ShowcaseProps): number => {
-  let cursor = 390;
-  if (p.offer) {
-    const linesCount = Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
-    cursor += 120 + Math.min(linesCount, 6) * 22;
+type SceneKind = "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
+
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta"];
+
+function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
+  switch (kind) {
+    case "hook":
+    case "name":
+    case "media":
+    case "cta": return true;
+    case "offer": return !!p.offer;
+    case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
+    case "hours": return !!(p.showOpeningHours && p.openingHours);
+    case "map": return !!(p.showMap && p.latitude && p.longitude);
+    case "digital": return !!(p.showDigitalId && p.slug);
+    case "outro": return false; // merged into cta scene
   }
-  if (p.showReviews && (p.rating || p.reviewsCount)) cursor += OPTION_SCENE_FRAMES;
-  if (p.showOpeningHours && p.openingHours) cursor += OPTION_SCENE_FRAMES;
-  if (p.showMap && p.latitude && p.longitude) cursor += OPTION_SCENE_FRAMES;
-  if (p.showDigitalId) cursor += DIGITAL_ID_FRAMES;
-  const naturalEnd = cursor + 150;
-  const requestedEnd = Number.isFinite(p.durationSec) && p.durationSec ? Math.round(Number(p.durationSec) * 30) : SHOWCASE_TOTAL_FRAMES;
-  return Math.max(naturalEnd, requestedEnd);
+}
+
+function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
+  switch (kind) {
+    case "hook": return 120;
+    case "name": return 120;
+    case "media": return 150;
+    case "offer": {
+      const lines = p.offer && Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
+      return 120 + Math.min(lines, 6) * 22;
+    }
+    case "reviews":
+    case "hours":
+    case "map": return OPTION_SCENE_FRAMES;
+    case "digital": return DIGITAL_ID_FRAMES;
+    case "cta":
+    case "outro": return 150;
+  }
+}
+
+export function buildScenePlan(p: ShowcaseProps): Array<{ kind: SceneKind; from: number; duration: number }> {
+  const active = DEFAULT_SCENE_ORDER.filter((k) => isSceneActive(k, p));
+  let order = active;
+  if (Array.isArray(p.scene_order) && p.scene_order.length) {
+    const requested = (p.scene_order as SceneKind[]).filter((k) => active.includes(k));
+    for (const k of active) if (!requested.includes(k)) requested.push(k);
+    order = requested;
+  }
+  const durOverride = (k: SceneKind): number | null => {
+    const v = p.scene_durations?.[k];
+    return v != null && Number.isFinite(Number(v)) && Number(v) > 0 ? Math.round(Number(v) * 30) : null;
+  };
+  const durations: Record<string, number> = {};
+  for (const k of order) durations[k] = durOverride(k) ?? defaultSceneFrames(k, p);
+
+  // Stretch CTA to reach requested total if not explicitly overridden
+  const requestedFrames = Number.isFinite(p.durationSec) && p.durationSec
+    ? Math.round(Number(p.durationSec) * 30)
+    : SHOWCASE_TOTAL_FRAMES;
+  if (order.includes("cta") && durOverride("cta") == null) {
+    const nonCta = order.filter((k) => k !== "cta").reduce((acc, k) => acc + durations[k], 0);
+    durations.cta = Math.max(150, requestedFrames - nonCta);
+  }
+
+  const plan: Array<{ kind: SceneKind; from: number; duration: number }> = [];
+  let cursor = 0;
+  for (const k of order) {
+    plan.push({ kind: k, from: cursor, duration: durations[k] });
+    cursor += durations[k];
+  }
+  return plan;
+}
+
+export const computeShowcaseFrames = (p: ShowcaseProps): number => {
+  const plan = buildScenePlan(p);
+  const sum = plan.reduce((acc, s) => acc + s.duration, 0);
+  return Math.max(sum, 300);
 };
 
 
@@ -808,6 +871,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   durationSec,
   useFullHookScene,
   scene_media,
+  scene_order,
+  scene_durations,
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
@@ -851,28 +916,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
   const [hookPart1, hookPart2] = splitHookInTwo(hook);
 
-  // Position courante après les scènes de base
-  let cursor = 390;
-  const offerLinesCount = offer && Array.isArray(offer.lines) ? offer.lines.length : 0;
-  const offerDuration = offer ? 120 + Math.min(offerLinesCount, 6) * 22 : 0;
-  if (offer) cursor += offerDuration;
-
-  const reviewsActive = !!(showReviews && (rating || reviewsCount));
-  const hoursActive = !!(showOpeningHours && openingHours);
-  const mapActive = !!(showMap && latitude && longitude);
-  const digitalIdActive = !!(showDigitalId && slug);
-
-  const reviewsFrom = reviewsActive ? cursor : null;
-  if (reviewsActive) cursor += OPTION_SCENE_FRAMES;
-  const hoursFrom = hoursActive ? cursor : null;
-  if (hoursActive) cursor += OPTION_SCENE_FRAMES;
-  const mapFrom = mapActive ? cursor : null;
-  if (mapActive) cursor += OPTION_SCENE_FRAMES;
-  const digitalIdFrom = digitalIdActive ? cursor : null;
-  if (digitalIdActive) cursor += DIGITAL_ID_FRAMES;
-
-  const ctaFrom = cursor;
-  const totalFrames = computeShowcaseFrames({
+  // Build the ordered scene plan (honors props.scene_order + props.scene_durations)
+  const plan = buildScenePlan({
     offer,
     rating,
     reviewsCount,
@@ -885,63 +930,62 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     showDigitalId,
     slug,
     durationSec,
+    scene_order,
+    scene_durations,
   });
-  const ctaDuration = Math.max(150, totalFrames - ctaFrom);
 
-  return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
-      <Background />
-      <Sequence from={0} durationInFrames={120}>
-        {heroIsVideo && heroMedia ? (
+  const renderScene = (kind: SceneKind, duration: number): React.ReactNode => {
+    switch (kind) {
+      case "hook":
+        return heroIsVideo && heroMedia ? (
           <AbsoluteFill>
-            <VideoCover src={heroMedia} from={0} duration={120} />
+            <VideoCover src={heroMedia} from={0} duration={duration} />
             <SceneHook name={name} location={locationLine} />
           </AbsoluteFill>
         ) : (
           <SceneHook name={name} location={locationLine} img={heroMedia} />
-        )}
-      </Sequence>
-      <Sequence from={120} durationInFrames={120}>
-        <AbsoluteFill>
-          {nameMediaUrl ? (
-            nameIsVideo ? (
-              <VideoCover src={nameMediaUrl} from={0} duration={120} />
+        );
+      case "name":
+        return (
+          <AbsoluteFill>
+            {nameMediaUrl ? (
+              nameIsVideo ? (
+                <VideoCover src={nameMediaUrl} from={0} duration={duration} />
+              ) : (
+                <KenBurns src={nameMediaUrl} from={0} duration={duration} />
+              )
+            ) : null}
+            <HookOverlay text={hookPart1} duration={duration} />
+          </AbsoluteFill>
+        );
+      case "media":
+        return (
+          <AbsoluteFill>
+            {mediaList ? (
+              <AbsoluteFill>
+                {mediaList.slice(0, 3).map((m, i) => (
+                  m.kind === "video" ? (
+                    <VideoCover key={m.url + i} src={m.url} from={i * 50} duration={70} />
+                  ) : (
+                    <KenBurns key={m.url + i} src={m.url} from={i * 50} duration={70} />
+                  )
+                ))}
+              </AbsoluteFill>
+            ) : (mixedMode || useVideos) ? (
+              <AbsoluteFill>
+                {defaultMediaSlice.map((src, i) => (
+                  <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
+                ))}
+              </AbsoluteFill>
             ) : (
-              <KenBurns src={nameMediaUrl} from={0} duration={120} />
-            )
-          ) : null}
-          <HookOverlay text={hookPart1} duration={120} />
-        </AbsoluteFill>
-      </Sequence>
-      <Sequence from={240} durationInFrames={150}>
-        <AbsoluteFill>
-          {mediaList ? (
-            <AbsoluteFill>
-              {mediaList.slice(0, 3).map((m, i) => (
-                m.kind === "video" ? (
-                  <VideoCover key={m.url + i} src={m.url} from={i * 50} duration={70} />
-                ) : (
-                  <KenBurns key={m.url + i} src={m.url} from={i * 50} duration={70} />
-                )
-              ))}
-            </AbsoluteFill>
-          ) : (mixedMode || useVideos) ? (
-            <AbsoluteFill>
-              {defaultMediaSlice.map((src, i) => (
-                <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
-              ))}
-            </AbsoluteFill>
-          ) : (
-            <SceneGallery images={defaultGalleryList.slice(1)} />
-          )}
-          <HookOverlay text={hookPart2 || hookPart1} duration={150} />
-        </AbsoluteFill>
-      </Sequence>
-
-
-
-      {offer && (
-        <Sequence from={390} durationInFrames={offerDuration}>
+              <SceneGallery images={defaultGalleryList.slice(1)} />
+            )}
+            <HookOverlay text={hookPart2 || hookPart1} duration={duration} />
+          </AbsoluteFill>
+        );
+      case "offer":
+        if (!offer) return null;
+        return (
           <AbsoluteFill>
             {(() => {
               const offerBgItem = offerOverride[0];
@@ -957,78 +1001,89 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               }
               return null;
             })()}
-            <SceneOffer offer={offer} city={city} durationFrames={offerDuration} />
+            <SceneOffer offer={offer} city={city} durationFrames={duration} />
           </AbsoluteFill>
-        </Sequence>
-      )}
+        );
+      case "reviews": {
+        const it = (sm.reviews || [])[0];
+        return (
+          <>
+            {it
+              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
+              : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />}
+            <SceneReviews rating={rating} count={reviewsCount} />
+          </>
+        );
+      }
+      case "hours": {
+        const it = (sm.hours || [])[0];
+        return (
+          <>
+            {it
+              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
+              : <VideoBackdrop src={safeVideos[1] ?? safeVideos[0]} image={safeImages[1] ?? safeImages[0]} />}
+            <SceneHours openingHours={openingHours!} />
+          </>
+        );
+      }
+      case "map": {
+        const it = (sm.map || [])[0];
+        return (
+          <>
+            {it
+              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
+              : <VideoBackdrop src={safeVideos[2] ?? safeVideos[0]} image={safeImages[2] ?? safeImages[0]} />}
+            <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} />
+          </>
+        );
+      }
+      case "digital": {
+        const it = (sm.digital || [])[0];
+        return (
+          <>
+            {it
+              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
+              : <VideoBackdrop src={safeVideos[3] ?? safeVideos[0]} image={safeImages[3] ?? safeImages[0]} />}
+            <SceneDigitalId
+              name={name}
+              slug={slug!}
+              city={city}
+              tagline={tagline}
+              hook={hook}
+              image={safeImages[0]}
+              logoUrl={logoUrl}
+              whatsapp={whatsapp}
+              instagram={instagramUrl}
+              rating={rating}
+              reviewsCount={reviewsCount}
+              ficheScreenshotUrl={ficheScreenshotUrl}
+            />
+          </>
+        );
+      }
+      case "cta":
+      case "outro": {
+        const it = (sm.cta || [])[0] ?? outroItem;
+        return (
+          <>
+            {it
+              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
+              : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />}
+            {showAppInstall ? <SceneInstallCta name={name} /> : <SceneCta name={name} />}
+          </>
+        );
+      }
+    }
+  };
 
-      {reviewsFrom !== null && (
-        <Sequence from={reviewsFrom} durationInFrames={OPTION_SCENE_FRAMES}>
-          {(() => {
-            const it = (sm.reviews || [])[0];
-            return it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />;
-          })()}
-          <SceneReviews rating={rating} count={reviewsCount} />
+  return (
+    <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+      <Background />
+      {plan.map((s) => (
+        <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
+          {renderScene(s.kind, s.duration)}
         </Sequence>
-      )}
-      {hoursFrom !== null && openingHours && (
-        <Sequence from={hoursFrom} durationInFrames={OPTION_SCENE_FRAMES}>
-          {(() => {
-            const it = (sm.hours || [])[0];
-            return it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[1] ?? safeVideos[0]} image={safeImages[1] ?? safeImages[0]} />;
-          })()}
-          <SceneHours openingHours={openingHours} />
-        </Sequence>
-      )}
-      {mapFrom !== null && (
-        <Sequence from={mapFrom} durationInFrames={OPTION_SCENE_FRAMES}>
-          {(() => {
-            const it = (sm.map || [])[0];
-            return it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[2] ?? safeVideos[0]} image={safeImages[2] ?? safeImages[0]} />;
-          })()}
-          <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} />
-        </Sequence>
-      )}
-      {digitalIdFrom !== null && slug && (
-        <Sequence from={digitalIdFrom} durationInFrames={DIGITAL_ID_FRAMES}>
-          {(() => {
-            const it = (sm.digital || [])[0];
-            return it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[3] ?? safeVideos[0]} image={safeImages[3] ?? safeImages[0]} />;
-          })()}
-          <SceneDigitalId
-            name={name}
-            slug={slug}
-            city={city}
-            tagline={tagline}
-            hook={hook}
-            image={safeImages[0]}
-            logoUrl={logoUrl}
-            whatsapp={whatsapp}
-            instagram={instagramUrl}
-            rating={rating}
-            reviewsCount={reviewsCount}
-            ficheScreenshotUrl={ficheScreenshotUrl}
-          />
-        </Sequence>
-      )}
-
-      <Sequence from={ctaFrom} durationInFrames={ctaDuration}>
-        {(() => {
-          const it = (sm.cta || [])[0] ?? outroItem;
-          return it
-            ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-            : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />;
-        })()}
-        {showAppInstall ? <SceneInstallCta name={name} /> : <SceneCta name={name} />}
-      </Sequence>
+      ))}
     </AbsoluteFill>
   );
 };
