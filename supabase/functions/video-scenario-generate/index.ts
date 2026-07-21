@@ -506,7 +506,11 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (Object.keys(cleanedDur).length) template_props.scene_durations = cleanedDur;
       }
 
-
+      // Position verticale du texte dans les scènes (haut / milieu / bas)
+      const rawTextPosition = options?.text_position;
+      if (rawTextPosition === "top" || rawTextPosition === "middle" || rawTextPosition === "bottom") {
+        template_props.textPosition = rawTextPosition;
+      }
 
       template_props.durationSec = Number(duration_sec);
       const googleRating = Number(businessDetails.google_rating);
