@@ -824,9 +824,13 @@ function CustomSceneDialog({
                         )}
                       >
                         {m.kind === "video" ? (
-                          <div className="w-full h-full flex items-center justify-center bg-muted">
-                            <Film className="h-4 w-4 text-muted-foreground" />
-                          </div>
+                          <video
+                            src={m.url}
+                            className="w-full h-full object-cover"
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
                         ) : (
                           <img src={m.url} alt="" className="w-full h-full object-cover" />
                         )}
