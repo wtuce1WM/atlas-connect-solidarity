@@ -203,6 +203,7 @@ export default function StudioVideo() {
     offers: number;
     popup: boolean;
     hoursPublished: boolean;
+    isActive: boolean;
   } | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [optReviews, setOptReviews] = useState(true);
@@ -291,7 +292,7 @@ export default function StudioVideo() {
       const [biz, docs, yt, promos] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours")
+          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
@@ -354,6 +355,7 @@ export default function StudioVideo() {
         offers: promos.count ?? 0,
         popup: !!b.popup_image_url,
         hoursPublished,
+        isActive: b.is_active !== false,
       });
       setStatsLoading(false);
     })();
@@ -1214,10 +1216,15 @@ export default function StudioVideo() {
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optMapMarker} onChange={(e) => setOptMapMarker(e.target.checked)} />
                   <span>Marqueur sur la Google Map</span>
                 </label>
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optDigitalId} onChange={(e) => setOptDigitalId(e.target.checked)} />
-                  <span>ID numérique (fiche + partage + QR code)</span>
-                </label>
+                {(() => {
+                  const digitalIdAvailable = !selected || (bizStats?.isActive ?? false);
+                  return (
+                    <label className={`flex items-start gap-2 ${digitalIdAvailable ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`} title={digitalIdAvailable ? undefined : "L'ID numérique nécessite un établissement actif"}>
+                      <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed" checked={digitalIdAvailable && optDigitalId} disabled={!digitalIdAvailable} onChange={(e) => setOptDigitalId(e.target.checked)} />
+                      <span>ID numérique (fiche + partage + QR code) {selected && !digitalIdAvailable ? <em className="text-xs opacity-70">(établissement inactif)</em> : null}</span>
+                    </label>
+                  );
+                })()}
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optInstallCta} onChange={(e) => setOptInstallCta(e.target.checked)} />
                   <span>Incitation finale à installer l'app</span>
