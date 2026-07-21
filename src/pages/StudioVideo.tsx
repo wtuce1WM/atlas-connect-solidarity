@@ -211,6 +211,9 @@ export default function StudioVideo() {
   const [optInstallCta, setOptInstallCta] = useState(true);
   const [optMapMarker, setOptMapMarker] = useState(true);
   const [optDigitalId, setOptDigitalId] = useState(true);
+  const [optPopup, setOptPopup] = useState(true);
+  const [offersList, setOffersList] = useState<Array<{ id: string; title: string; message: string | null; promotion_type: string | null; promotion_value: number | null; promotion_currency: string | null; savings_amount: number | null }>>([]);
+  const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
   const [bizImages, setBizImages] = useState<string[]>([]);
   const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube" }[]>([]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
