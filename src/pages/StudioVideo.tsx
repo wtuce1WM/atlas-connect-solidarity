@@ -1224,10 +1224,20 @@ export default function StudioVideo() {
               {aiScenario.rationale && (
                 <p className="text-xs italic text-muted-foreground">{aiScenario.rationale}</p>
               )}
-              <StudioVideoScenarioPanel scenario={aiScenario.scenario} />
+              <StudioVideoScenarioPanel
+                scenario={aiScenario.scenario}
+                availableMedia={availableSceneMedia}
+                sceneMedia={sceneMedia}
+                onChangeSceneMedia={setSceneMedia}
+              />
             </div>
           ) : scenario ? (
-            <StudioVideoScenarioPanel scenario={scenario} />
+            <StudioVideoScenarioPanel
+              scenario={scenario}
+              availableMedia={availableSceneMedia}
+              sceneMedia={sceneMedia}
+              onChangeSceneMedia={setSceneMedia}
+            />
           ) : null}
 
           {currentJob && (
