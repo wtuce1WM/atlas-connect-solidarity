@@ -930,8 +930,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     showDigitalId,
     slug,
     durationSec,
-    scene_order: (arguments[0] as any)?.scene_order,
-    scene_durations: (arguments[0] as any)?.scene_durations,
+    scene_order,
+    scene_durations,
   });
 
   const renderScene = (kind: SceneKind, duration: number): React.ReactNode => {
