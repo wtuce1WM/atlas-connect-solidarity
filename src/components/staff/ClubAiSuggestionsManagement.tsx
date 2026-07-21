@@ -101,34 +101,48 @@ const ClubAiSuggestionsManagement = () => {
           Le libellé <b>FR</b> est obligatoire ; EN et AR sont utilisés selon la langue de l'utilisateur (fallback FR).
           <br />
           <b>Ville</b> : laisser vide pour afficher partout, sinon la suggestion n'apparaîtra que pour la ville active.
+          <br />
+          <b>Réponse figée</b> : si renseignée dans la langue de l'utilisateur, elle est affichée telle quelle sans appel IA (coût = 0, texte 100% maîtrisé). Vide → réponse générée par l'IA comme avant. Markdown supporté (**gras**, listes, [liens](url)).
         </p>
         {loading ? (
           <div className="text-sm text-muted-foreground">Chargement…</div>
         ) : (
           <div className="space-y-3">
             {rows.map((r) => (
-              <div key={r.id} className={`grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_120px_100px_60px] gap-2 items-start p-3 rounded-lg border ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"}`}>
-                <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} className="w-full" title="Ordre" />
-                <Textarea value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Libellé FR" rows={2} />
-                <Textarea value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="Libellé EN" rows={2} />
-                <Textarea value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="Libellé AR" rows={2} dir="rtl" />
-                <select
-                  value={r.city || ""}
-                  onChange={(e) => update(r.id, { city: e.target.value || null })}
-                  className="h-10 rounded-md border border-input bg-background px-2 text-sm"
-                  title="Ville"
-                >
-                  <option value="">Toutes</option>
-                  <option value="Marrakech">Marrakech</option>
-                  <option value="Essaouira">Essaouira</option>
-                </select>
-                <div className="flex items-center gap-2 pt-2">
-                  <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
-                  <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
+              <div key={r.id} className={`p-3 rounded-lg border space-y-3 ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"}`}>
+                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_120px_100px_60px] gap-2 items-start">
+                  <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} className="w-full" title="Ordre" />
+                  <Textarea value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Libellé FR" rows={2} />
+                  <Textarea value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="Libellé EN" rows={2} />
+                  <Textarea value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="Libellé AR" rows={2} dir="rtl" />
+                  <select
+                    value={r.city || ""}
+                    onChange={(e) => update(r.id, { city: e.target.value || null })}
+                    className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    title="Ville"
+                  >
+                    <option value="">Toutes</option>
+                    <option value="Marrakech">Marrakech</option>
+                    <option value="Essaouira">Essaouira</option>
+                  </select>
+                  <div className="flex items-center gap-2 pt-2">
+                    <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
+                    <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => remove(r.id)} title="Supprimer">
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => remove(r.id)} title="Supprimer">
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                    Réponse figée (optionnel) {(r.fixed_response_fr || r.fixed_response_en || r.fixed_response_ar) && <span className="ml-2 text-primary">● configurée</span>}
+                  </summary>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 mt-2">
+                    <Textarea value={r.fixed_response_fr || ""} onChange={(e) => update(r.id, { fixed_response_fr: e.target.value || null })} placeholder="Réponse figée FR (Markdown)" rows={8} />
+                    <Textarea value={r.fixed_response_en || ""} onChange={(e) => update(r.id, { fixed_response_en: e.target.value || null })} placeholder="Fixed response EN (Markdown)" rows={8} />
+                    <Textarea value={r.fixed_response_ar || ""} onChange={(e) => update(r.id, { fixed_response_ar: e.target.value || null })} placeholder="الرد الثابت AR (Markdown)" rows={8} dir="rtl" />
+                  </div>
+                </details>
               </div>
             ))}
             {rows.length === 0 && <div className="text-sm text-muted-foreground">Aucune suggestion.</div>}
