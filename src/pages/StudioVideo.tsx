@@ -221,6 +221,9 @@ export default function StudioVideo() {
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
   const [sceneMedia, setSceneMedia] = useState<SceneMediaMap>({});
+  const [textPosition, setTextPosition] = useState<"top" | "middle" | "bottom">("middle");
+
+
 
   const availableSceneMedia = useMemo<SceneMediaItem[]>(() => {
     const imgs: SceneMediaItem[] = bizImages.map((url) => ({ url, kind: "image" }));
@@ -511,7 +514,9 @@ export default function StudioVideo() {
             scene_media: sceneMedia,
             scene_order: scenarioEdits?.order,
             scene_durations: scenarioEdits?.durations,
+            text_position: textPosition,
           },
+
         },
       });
       if (error) throw error;
@@ -571,7 +576,9 @@ export default function StudioVideo() {
             scene_media: sceneMedia,
             scene_order: scenarioEdits?.order,
             scene_durations: scenarioEdits?.durations,
+            text_position: textPosition,
           },
+
         },
       });
       if (error) throw error;
@@ -1207,6 +1214,47 @@ export default function StudioVideo() {
                 </label>
               </div>
             </div>
+
+            <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
+              <Label className="text-sm">Place du texte</Label>
+              <div className="flex flex-col gap-2 text-sm">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    className="mt-1 h-4 w-4 rounded-full border-gray-300 bg-white accent-primary appearance-auto"
+                    name="text-position"
+                    value="top"
+                    checked={textPosition === "top"}
+                    onChange={(e) => setTextPosition(e.target.value as "top" | "middle" | "bottom")}
+                  />
+                  <span>Haut</span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    className="mt-1 h-4 w-4 rounded-full border-gray-300 bg-white accent-primary appearance-auto"
+                    name="text-position"
+                    value="middle"
+                    checked={textPosition === "middle"}
+                    onChange={(e) => setTextPosition(e.target.value as "top" | "middle" | "bottom")}
+                  />
+                  <span>Milieu (par défaut)</span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    className="mt-1 h-4 w-4 rounded-full border-gray-300 bg-white accent-primary appearance-auto"
+                    name="text-position"
+                    value="bottom"
+                    checked={textPosition === "bottom"}
+                    onChange={(e) => setTextPosition(e.target.value as "top" | "middle" | "bottom")}
+                  />
+                  <span>Bas</span>
+                </label>
+              </div>
+            </div>
+
+
 
             <div className="flex flex-wrap gap-2">
               <Button onClick={previewScenario} disabled={previewing || submitting} variant="secondary" className="gap-2">
