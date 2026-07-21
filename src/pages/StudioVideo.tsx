@@ -1234,6 +1234,7 @@ export default function StudioVideo() {
                 availableMedia={availableSceneMedia}
                 sceneMedia={sceneMedia}
                 onChangeSceneMedia={setSceneMedia}
+                onChangeScenarioEdits={setScenarioEdits}
               />
             </div>
           ) : scenario ? (
@@ -1242,6 +1243,7 @@ export default function StudioVideo() {
               availableMedia={availableSceneMedia}
               sceneMedia={sceneMedia}
               onChangeSceneMedia={setSceneMedia}
+              onChangeScenarioEdits={setScenarioEdits}
             />
           ) : null}
 
