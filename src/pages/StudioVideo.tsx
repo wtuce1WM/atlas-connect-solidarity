@@ -219,6 +219,15 @@ export default function StudioVideo() {
   const [popupImageUrl, setPopupImageUrl] = useState<string | null>(null);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
+  const [sceneMedia, setSceneMedia] = useState<SceneMediaMap>({});
+
+  const availableSceneMedia = useMemo<SceneMediaItem[]>(() => {
+    const imgs: SceneMediaItem[] = bizImages.map((url) => ({ url, kind: "image" }));
+    const vids: SceneMediaItem[] = bizVideos
+      .filter((v) => v.kind === "file")
+      .map((v) => ({ url: v.url, kind: "video", title: v.title, thumbnail: v.thumbnail }));
+    return [...imgs, ...vids];
+  }, [bizImages, bizVideos]);
 
   // Combined media list for the lightbox slideshow (images first, then videos)
   const mediaItems = useMemo(() => {
