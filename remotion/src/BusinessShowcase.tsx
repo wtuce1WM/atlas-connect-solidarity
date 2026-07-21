@@ -807,20 +807,45 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   ficheScreenshotUrl,
   durationSec,
   useFullHookScene,
+  scene_media,
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
   const hasVideos = safeVideos.length > 0;
   const hasImages = safeImages.length > 0;
   const mixedMode = hasVideos && hasImages;
-  // Mode mixte : image = accroche/backdrops/CTA ; vidéos = corps dynamique (scènes 120-390)
-  // Sinon logique historique : vidéos ou images exclusivement.
   const useVideos = hasVideos && !mixedMode;
-  const heroMedia = mixedMode ? safeImages[0] : (useVideos ? safeVideos[0] : safeImages[0]);
-  const galleryMedia = mixedMode
+
+  // Per-scene overrides (if provided). Fall back to computed defaults otherwise.
+  const sm = scene_media || {};
+  const hookOverride = Array.isArray(sm.hook) ? sm.hook : [];
+  const nameOverride = Array.isArray(sm.name) ? sm.name : [];
+  const mediaOverride = Array.isArray(sm.media) ? sm.media : [];
+  const offerOverride = Array.isArray(sm.offer) ? sm.offer : [];
+  const outroOverride = Array.isArray(sm.outro) ? sm.outro : [];
+
+  const defaultHero = mixedMode ? safeImages[0] : (useVideos ? safeVideos[0] : safeImages[0]);
+  const defaultGallery = mixedMode
     ? safeVideos
     : (useVideos ? safeVideos.slice(1) : safeImages.slice(1));
-  const galleryList = galleryMedia.length ? galleryMedia : (useVideos ? safeVideos : safeImages);
+  const defaultGalleryList = defaultGallery.length ? defaultGallery : (useVideos ? safeVideos : safeImages);
+
+  // Scene 1 (Hook 0-120)
+  const hookItem = hookOverride[0];
+  const heroMedia = hookItem?.url ?? defaultHero;
+  const heroIsVideo = hookItem ? hookItem.kind === "video" : (mixedMode ? false : useVideos);
+
+  // Scene 2 (Name/Hook overlay 120-240)
+  const nameItem = nameOverride[0] ?? hookOverride[1];
+  const nameMediaUrl = nameItem?.url ?? defaultGalleryList[0];
+  const nameIsVideo = nameItem ? nameItem.kind === "video" : (mixedMode || useVideos);
+
+  // Scene 3 (Media montage 240-390)
+  const mediaList = mediaOverride.length ? mediaOverride : null;
+  const defaultMediaSlice = defaultGalleryList.slice(1, 4);
+
+  // Outro/CTA backdrop
+  const outroItem = outroOverride[0];
 
 
   const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
