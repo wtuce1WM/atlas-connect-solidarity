@@ -1190,15 +1190,32 @@ export default function StudioVideo() {
               </div>
             </div>
 
-            <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
-              {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-              {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={previewScenario} disabled={previewing || submitting} variant="secondary" className="gap-2">
+                {previewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                Prévisualiser le scénario (IA)
+              </Button>
+              <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
+                {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
+              </Button>
+            </div>
           </section>
 
-          {scenario && (
+          {aiScenario ? (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Scénario IA · template {aiScenario.templateId}</span>
+                <Button size="sm" variant="ghost" onClick={() => setAiScenario(null)} className="h-7 text-xs">Effacer</Button>
+              </div>
+              {aiScenario.rationale && (
+                <p className="text-xs italic text-muted-foreground">{aiScenario.rationale}</p>
+              )}
+              <StudioVideoScenarioPanel scenario={aiScenario.scenario} />
+            </div>
+          ) : scenario ? (
             <StudioVideoScenarioPanel scenario={scenario} />
-          )}
+          ) : null}
 
           {currentJob && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-3">
