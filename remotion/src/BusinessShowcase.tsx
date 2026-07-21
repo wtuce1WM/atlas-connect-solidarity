@@ -907,6 +907,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   scene_order,
   scene_durations,
   textPosition = "middle",
+  tone = "immersif",
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
