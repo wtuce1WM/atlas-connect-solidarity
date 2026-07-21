@@ -674,6 +674,53 @@ serve(async (req) => {
       ? "مهم: أجب دائماً بالعربية، بغض النظر عن لغة نتائج الأدوات أو لغة التعليمات. حافظ على نبرة دافئة وموجزة."
       : "IMPORTANT : réponds toujours en français, sauf si l'utilisateur écrit dans une autre langue.";
 
+    // ----- Fixed-response shortcut -----
+    // If the last user message matches (case-insensitive, trimmed) a suggestion
+    // label in club_ai_suggestions AND a fixed_response_<lang> is set, return it
+    // verbatim — no AI call, no tokens, deterministic content maintained by staff.
+    try {
+      const lastUserMsgRaw = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+      const norm = (s: string) => String(s || "").trim().toLowerCase();
+      const key = norm(lastUserMsgRaw);
+      if (key) {
+        const col = lang === "en" ? "fixed_response_en" : lang === "ar" ? "fixed_response_ar" : "fixed_response_fr";
+        const { data: fixedRows } = await admin
+          .from("club_ai_suggestions")
+          .select(`label_fr,label_en,label_ar,${col}`)
+          .eq("is_active", true)
+          .not(col, "is", null);
+        const match = (fixedRows || []).find((r: any) =>
+          norm(r.label_fr) === key || norm(r.label_en) === key || norm(r.label_ar) === key
+        );
+        const fixedAnswer = match ? String((match as any)[col] || "").trim() : "";
+        if (fixedAnswer) {
+          const newMessages = [...messages, { role: "assistant", content: fixedAnswer }];
+          let resultChatId: string | null = null;
+          if (chatId) {
+            const { data: existing } = await admin
+              .from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+            if (existing?.id) {
+              await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+              resultChatId = chatId;
+            }
+          }
+          if (!resultChatId) {
+            const title = lastUserMsgRaw.slice(0, 200) || "Nouvelle conversation";
+            const { data: inserted } = await admin
+              .from("ai_chats").insert({ user_id: user.id, kind: "club", title, messages: newMessages }).select("id").single();
+            resultChatId = inserted?.id ?? null;
+          }
+          return new Response(JSON.stringify({ answer: fixedAnswer, chatId: resultChatId, followups: [] }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    } catch (e) {
+      console.error("fixed-response lookup error", e);
+    }
+
+
+
 
     // Load Club member profile (lightweight context)
     const { data: member } = await admin
