@@ -472,12 +472,12 @@ export function StudioVideoScenarioPanel({
                   <span className="truncate">{scene.label}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <div className="flex items-center gap-1 rounded-md border border-border bg-muted/40 px-1 py-0.5">
+                  <div className="flex items-center gap-1 rounded-md border border-neutral-200 bg-neutral-100 px-1 py-0.5">
                     <button
                       type="button"
                       onClick={() => bumpDuration(scene.id, -1)}
                       disabled={scene.duration <= 1}
-                      className="p-0.5 rounded hover:bg-background disabled:opacity-30"
+                      className="p-0.5 rounded hover:bg-neutral-200 disabled:opacity-30"
                       aria-label="Diminuer la durée"
                     >
                       <Minus className="h-3 w-3" />
@@ -487,7 +487,7 @@ export function StudioVideoScenarioPanel({
                       type="button"
                       onClick={() => bumpDuration(scene.id, 1)}
                       disabled={scene.duration >= 60}
-                      className="p-0.5 rounded hover:bg-background disabled:opacity-30"
+                      className="p-0.5 rounded hover:bg-neutral-200 disabled:opacity-30"
                       aria-label="Augmenter la durée"
                     >
                       <Plus className="h-3 w-3" />
@@ -501,7 +501,7 @@ export function StudioVideoScenarioPanel({
                       <button
                         type="button"
                         onClick={() => { setEditingCustomId(customIdFromToken(scene.id)); setAddOpen(true); }}
-                        className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                        className="p-1 rounded hover:bg-neutral-100 text-neutral-600 hover:text-black"
                         aria-label="Modifier l'étape"
                       >
                         <Pencil className="h-3 w-3" />
@@ -509,7 +509,7 @@ export function StudioVideoScenarioPanel({
                       <button
                         type="button"
                         onClick={() => removeCustomScene(customIdFromToken(scene.id))}
-                        className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                        className="p-1 rounded hover:bg-destructive/10 text-neutral-600 hover:text-destructive"
                         aria-label="Supprimer l'étape"
                       >
                         <Trash2 className="h-3 w-3" />
