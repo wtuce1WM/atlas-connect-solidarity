@@ -17,6 +17,7 @@ export const SHOWCASE_TOTAL_FRAMES = 660;
 export const OPTION_SCENE_FRAMES = 90; // 3s par scène optionnelle
 
 export type TextPosition = "top" | "middle" | "bottom";
+export type Tone = "immersif" | "dynamique" | "elegant";
 
 const textPositionStyle = (position: TextPosition = "middle"): React.CSSProperties => {
   switch (position) {
@@ -25,6 +26,23 @@ const textPositionStyle = (position: TextPosition = "middle"): React.CSSProperti
     default: return { justifyContent: "center", paddingTop: 60, paddingBottom: 60 };
   }
 };
+
+// Tone drives visual pacing + finishing:
+// - immersif : lent, ample, chaleureux (Ken Burns fort, fondus longs, vignette profonde)
+// - dynamique : rapide, punchy (Ken Burns bref, fondus courts, contraste chaud)
+// - elegant   : posé, minimal (mouvement doux, fondus longs, désaturation légère)
+export type ToneConfig = {
+  kenBurnsZoom: number;     // amplitude du zoom Ken Burns
+  fadeFrames: number;       // frames de fondu entrée/sortie
+  overlay: string;          // finition globale (superposition CSS)
+};
+export const TONE_CONFIG: Record<Tone, ToneConfig> = {
+  immersif:  { kenBurnsZoom: 0.22, fadeFrames: 16, overlay: "radial-gradient(80% 100% at 50% 50%,rgba(0,0,0,0) 40%,rgba(0,0,0,0.35) 100%)" },
+  dynamique: { kenBurnsZoom: 0.10, fadeFrames: 6,  overlay: "linear-gradient(180deg,rgba(192,79,23,0.10) 0%,rgba(0,0,0,0.15) 100%)" },
+  elegant:   { kenBurnsZoom: 0.06, fadeFrames: 20, overlay: "linear-gradient(180deg,rgba(255,255,255,0.04) 0%,rgba(0,0,0,0.10) 100%)" },
+};
+const ToneContext = React.createContext<Tone>("immersif");
+const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
 export type ShowcaseProps = {
   name?: string;
@@ -58,6 +76,7 @@ export type ShowcaseProps = {
   scene_order?: Array<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro">;
   scene_durations?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", number>>;
   textPosition?: TextPosition;
+  tone?: Tone;
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
@@ -167,10 +186,11 @@ const Background: React.FC = () => (
 
 const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ src, from, duration }) => {
   const frame = useCurrentFrame();
+  const tone = useTone();
   const local = frame - from;
   const progress = Math.max(0, Math.min(1, local / duration));
-  const scale = 1.05 + progress * 0.18;
-  const o = Math.min(ease(local, 0, 12), 1 - ease(local, duration - 12, duration));
+  const scale = 1.04 + progress * tone.kenBurnsZoom;
+  const o = Math.min(ease(local, 0, tone.fadeFrames), 1 - ease(local, duration - tone.fadeFrames, duration));
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
       <Img
@@ -887,6 +907,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   scene_order,
   scene_durations,
   textPosition = "middle",
+  tone = "immersif",
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
@@ -1093,15 +1114,20 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     }
   };
 
+  const toneOverlay = TONE_CONFIG[tone]?.overlay ?? TONE_CONFIG.immersif.overlay;
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
-      <Background />
-      {plan.map((s) => (
-        <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
-          {renderScene(s.kind, s.duration)}
-        </Sequence>
-      ))}
-    </AbsoluteFill>
+    <ToneContext.Provider value={tone}>
+      <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+        <Background />
+        {plan.map((s) => (
+          <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
+            {renderScene(s.kind, s.duration)}
+          </Sequence>
+        ))}
+        {/* Finition visuelle liée au ton (vignette / teinte / désaturation) */}
+        <AbsoluteFill style={{ background: toneOverlay, pointerEvents: "none" }} />
+      </AbsoluteFill>
+    </ToneContext.Provider>
   );
 };
 
