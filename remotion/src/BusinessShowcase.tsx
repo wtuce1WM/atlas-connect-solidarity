@@ -871,6 +871,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   durationSec,
   useFullHookScene,
   scene_media,
+  scene_order,
+  scene_durations,
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
