@@ -535,6 +535,16 @@ export function StudioVideoScenarioPanel({
                   onChange={(next) => setForKind(kind, next)}
                 />
               )}
+              {editable && scene.icon === "custom" && isCustomToken(scene.id) && (
+                <CustomSceneMediaSlot
+                  available={availableMedia!}
+                  current={customById.get(customIdFromToken(scene.id))?.media ?? null}
+                  onChange={(media) => {
+                    const cid = customIdFromToken(scene.id);
+                    setCustomScenes((prev) => prev.map((c) => (c.id === cid ? { ...c, media: media ?? undefined } : c)));
+                  }}
+                />
+              )}
             </div>
           );
         })}
