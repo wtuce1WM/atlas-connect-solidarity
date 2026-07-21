@@ -453,6 +453,35 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         }
       }
 
+      // Sélection média par scène (facultatif). Whitelist stricte : chaque URL doit
+      // appartenir aux médias autorisés de l'établissement (images ou vidéos internes).
+      const rawSceneMedia = options?.scene_media;
+      if (rawSceneMedia && typeof rawSceneMedia === "object") {
+        const allowedUrls = new Set<string>();
+        const medias = Array.isArray(businessContext?.medias) ? businessContext.medias : [];
+        for (const m of medias) {
+          if (typeof m?.url === "string" && /^https?:\/\//i.test(m.url)) allowedUrls.add(m.url);
+        }
+        // Autoriser aussi les URLs déjà passées via la sélection globale (au cas où)
+        selImages.forEach((u) => allowedUrls.add(u));
+        selVideos.forEach((u) => allowedUrls.add(u));
+
+        const ALLOWED_KINDS = new Set(["hook", "name", "media", "offer", "outro"]);
+        const cleaned: Record<string, Array<{ url: string; kind: "image" | "video" }>> = {};
+        for (const [k, v] of Object.entries(rawSceneMedia)) {
+          if (!ALLOWED_KINDS.has(k) || !Array.isArray(v)) continue;
+          const items = (v as any[])
+            .map((it) => (it && typeof it.url === "string" && (it.kind === "image" || it.kind === "video"))
+              ? { url: it.url as string, kind: it.kind as "image" | "video" }
+              : null)
+            .filter((it): it is { url: string; kind: "image" | "video" } => !!it && allowedUrls.has(it.url))
+            .slice(0, 8);
+          if (items.length) cleaned[k] = items;
+        }
+        if (Object.keys(cleaned).length) template_props.scene_media = cleaned;
+      }
+
+
 
       template_props.durationSec = Number(duration_sec);
       const googleRating = Number(businessDetails.google_rating);

@@ -44,6 +44,7 @@ export type ShowcaseProps = {
   ficheScreenshotUrl?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
+  scene_media?: Partial<Record<"hook" | "name" | "media" | "offer" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
@@ -806,20 +807,45 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   ficheScreenshotUrl,
   durationSec,
   useFullHookScene,
+  scene_media,
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
   const hasVideos = safeVideos.length > 0;
   const hasImages = safeImages.length > 0;
   const mixedMode = hasVideos && hasImages;
-  // Mode mixte : image = accroche/backdrops/CTA ; vidéos = corps dynamique (scènes 120-390)
-  // Sinon logique historique : vidéos ou images exclusivement.
   const useVideos = hasVideos && !mixedMode;
-  const heroMedia = mixedMode ? safeImages[0] : (useVideos ? safeVideos[0] : safeImages[0]);
-  const galleryMedia = mixedMode
+
+  // Per-scene overrides (if provided). Fall back to computed defaults otherwise.
+  const sm = scene_media || {};
+  const hookOverride = Array.isArray(sm.hook) ? sm.hook : [];
+  const nameOverride = Array.isArray(sm.name) ? sm.name : [];
+  const mediaOverride = Array.isArray(sm.media) ? sm.media : [];
+  const offerOverride = Array.isArray(sm.offer) ? sm.offer : [];
+  const outroOverride = Array.isArray(sm.outro) ? sm.outro : [];
+
+  const defaultHero = mixedMode ? safeImages[0] : (useVideos ? safeVideos[0] : safeImages[0]);
+  const defaultGallery = mixedMode
     ? safeVideos
     : (useVideos ? safeVideos.slice(1) : safeImages.slice(1));
-  const galleryList = galleryMedia.length ? galleryMedia : (useVideos ? safeVideos : safeImages);
+  const defaultGalleryList = defaultGallery.length ? defaultGallery : (useVideos ? safeVideos : safeImages);
+
+  // Scene 1 (Hook 0-120)
+  const hookItem = hookOverride[0];
+  const heroMedia = hookItem?.url ?? defaultHero;
+  const heroIsVideo = hookItem ? hookItem.kind === "video" : (mixedMode ? false : useVideos);
+
+  // Scene 2 (Name/Hook overlay 120-240)
+  const nameItem = nameOverride[0] ?? hookOverride[1];
+  const nameMediaUrl = nameItem?.url ?? defaultGalleryList[0];
+  const nameIsVideo = nameItem ? nameItem.kind === "video" : (mixedMode || useVideos);
+
+  // Scene 3 (Media montage 240-390)
+  const mediaList = mediaOverride.length ? mediaOverride : null;
+  const defaultMediaSlice = defaultGalleryList.slice(1, 4);
+
+  // Outro/CTA backdrop
+  const outroItem = outroOverride[0];
 
 
   const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
@@ -866,9 +892,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
       <Background />
       <Sequence from={0} durationInFrames={120}>
-        {mixedMode ? (
-          <SceneHook name={name} location={locationLine} img={heroMedia} />
-        ) : useVideos && heroMedia ? (
+        {heroIsVideo && heroMedia ? (
           <AbsoluteFill>
             <VideoCover src={heroMedia} from={0} duration={120} />
             <SceneHook name={name} location={locationLine} />
@@ -879,26 +903,36 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       </Sequence>
       <Sequence from={120} durationInFrames={120}>
         <AbsoluteFill>
-          {mixedMode && galleryList[0] ? (
-            <VideoCover src={galleryList[0]} from={0} duration={120} />
-          ) : useVideos && galleryList[0] ? (
-            <VideoCover src={galleryList[0]} from={0} duration={120} />
-          ) : galleryList[0] ? (
-            <KenBurns src={galleryList[0]} from={0} duration={120} />
+          {nameMediaUrl ? (
+            nameIsVideo ? (
+              <VideoCover src={nameMediaUrl} from={0} duration={120} />
+            ) : (
+              <KenBurns src={nameMediaUrl} from={0} duration={120} />
+            )
           ) : null}
           <HookOverlay text={hookPart1} duration={120} />
         </AbsoluteFill>
       </Sequence>
       <Sequence from={240} durationInFrames={150}>
         <AbsoluteFill>
-          {(mixedMode || useVideos) ? (
+          {mediaList ? (
             <AbsoluteFill>
-              {galleryList.slice(1, 4).map((src, i) => (
+              {mediaList.slice(0, 3).map((m, i) => (
+                m.kind === "video" ? (
+                  <VideoCover key={m.url + i} src={m.url} from={i * 50} duration={70} />
+                ) : (
+                  <KenBurns key={m.url + i} src={m.url} from={i * 50} duration={70} />
+                )
+              ))}
+            </AbsoluteFill>
+          ) : (mixedMode || useVideos) ? (
+            <AbsoluteFill>
+              {defaultMediaSlice.map((src, i) => (
                 <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
               ))}
             </AbsoluteFill>
           ) : (
-            <SceneGallery images={galleryList.slice(1)} />
+            <SceneGallery images={defaultGalleryList.slice(1)} />
           )}
           <HookOverlay text={hookPart2 || hookPart1} duration={150} />
         </AbsoluteFill>
@@ -909,12 +943,20 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       {offer && (
         <Sequence from={390} durationInFrames={offerDuration}>
           <AbsoluteFill>
-            {(offer.background_video_url || offer.background_image_url) && (
-              <>
-                <VideoBackdrop src={offer.background_video_url} image={offer.background_image_url} />
-                <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.55) 0%,rgba(14,11,8,0.78) 100%)" }} />
-              </>
-            )}
+            {(() => {
+              const offerBgItem = offerOverride[0];
+              const bgVideo = offerBgItem?.kind === "video" ? offerBgItem.url : offer.background_video_url;
+              const bgImage = offerBgItem?.kind === "image" ? offerBgItem.url : offer.background_image_url;
+              if (bgVideo || bgImage) {
+                return (
+                  <>
+                    <VideoBackdrop src={bgVideo} image={bgImage} />
+                    <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.55) 0%,rgba(14,11,8,0.78) 100%)" }} />
+                  </>
+                );
+              }
+              return null;
+            })()}
             <SceneOffer offer={offer} city={city} durationFrames={offerDuration} />
           </AbsoluteFill>
         </Sequence>
@@ -959,7 +1001,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       )}
 
       <Sequence from={ctaFrom} durationInFrames={ctaDuration}>
-        <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
+        {outroItem ? (
+          <VideoBackdrop
+            src={outroItem.kind === "video" ? outroItem.url : undefined}
+            image={outroItem.kind === "image" ? outroItem.url : undefined}
+          />
+        ) : (
+          <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
+        )}
         {showAppInstall ? <SceneInstallCta name={name} /> : <SceneCta name={name} />}
       </Sequence>
     </AbsoluteFill>

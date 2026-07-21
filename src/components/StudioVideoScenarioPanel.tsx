@@ -1,10 +1,26 @@
-import { Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar } from "lucide-react";
+import { useState } from "react";
+import { Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export type SceneMediaKind = "hook" | "name" | "media" | "offer" | "outro";
+
+export type SceneMediaItem = {
+  url: string;
+  kind: "image" | "video";
+  title?: string;
+  thumbnail?: string | null;
+};
+
+export type SceneMediaMap = Partial<Record<SceneMediaKind, SceneMediaItem[]>>;
+
+export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["hook", "name", "media", "offer", "outro"];
 
 export type Scene = {
   id: string;
@@ -88,33 +104,18 @@ export function buildScenario(
 
   const baseHook = Math.max(2, Math.round(durationSec * 0.15));
   push("hook", baseHook, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
-
   push("name", Math.max(2, Math.round(durationSec * 0.12)), businessName ? `Affichage du nom ${businessName}.` : "Affichage du nom de l'établissement.");
-
   if (keywords.includes("offre") || keywords.includes("promotion") || keywords.includes("menu") || keywords.includes("pass") || keywords.includes("déjeuner") || keywords.includes("diner") || keywords.includes("spa")) {
     push("offer", Math.max(4, Math.round(durationSec * 0.22)), "Mise en avant de l'offre ou du produit phare du prompt.");
   } else {
     push("media", Math.max(4, Math.round(durationSec * 0.22)), "Montage des médias sélectionnés pour montrer l'expérience.");
   }
-
-  if (options.reviews) {
-    push("reviews", Math.max(2, Math.round(durationSec * 0.12)), "Badge avis clients avec note/20 et nombre d'avis.");
-  }
-  if (options.hours) {
-    push("hours", Math.max(2, Math.round(durationSec * 0.08)), "Horaires d'ouverture en surimpression.");
-  }
-  if (options.mapMarker) {
-    push("map", Math.max(2, Math.round(durationSec * 0.1)), "Marqueur Google Map et localisation.");
-  }
-  if (options.digitalId) {
-    push("digital", Math.max(2, Math.round(durationSec * 0.1)), "Séquence ID numérique : fiche, partage, QR code.");
-  }
-
+  if (options.reviews) push("reviews", Math.max(2, Math.round(durationSec * 0.12)), "Badge avis clients avec note/20 et nombre d'avis.");
+  if (options.hours) push("hours", Math.max(2, Math.round(durationSec * 0.08)), "Horaires d'ouverture en surimpression.");
+  if (options.mapMarker) push("map", Math.max(2, Math.round(durationSec * 0.1)), "Marqueur Google Map et localisation.");
+  if (options.digitalId) push("digital", Math.max(2, Math.round(durationSec * 0.1)), "Séquence ID numérique : fiche, partage, QR code.");
   push("cta", Math.max(2, Math.round(durationSec * 0.12)), options.installCta ? "CTA final + incitation à installer l'app." : "CTA final vers la fiche ou le contact.");
-
-  if (options.installCta) {
-    push("outro", Math.max(2, Math.round(durationSec * 0.08)), "Outro avec logo et appel à l'installation.");
-  }
+  if (options.installCta) push("outro", Math.max(2, Math.round(durationSec * 0.08)), "Outro avec logo et appel à l'installation.");
 
   const scale = durationSec / Math.max(1, cursor);
   const scaled = scenes.map((s) => ({ ...s, duration: Math.max(1, Math.round(s.duration * scale)), start: Math.round(s.start * scale) }));
@@ -126,7 +127,7 @@ export function scenarioFromTemplateProps(
   templateId: string,
   props: any,
   durationSec: number,
-  rationale?: string
+  _rationale?: string
 ): Scenario {
   const scenes: Scene[] = [];
   let cursor = 0;
@@ -137,13 +138,9 @@ export function scenarioFromTemplateProps(
       id: `${icon}-${scenes.length}`,
       icon,
       label: labelOverride || LABELS[icon],
-      duration,
-      start,
-      description,
-      keywords,
+      duration, start, description, keywords,
     });
   };
-
   const name = props?.name || "Établissement";
   const hook = typeof props?.hook === "string" ? props.hook.slice(0, 120) : "";
   const tagline = typeof props?.tagline === "string" ? props.tagline : "";
@@ -151,14 +148,12 @@ export function scenarioFromTemplateProps(
   const images: string[] = Array.isArray(props?.images) ? props.images : [];
   const offer = props?.offer && typeof props.offer === "object" ? props.offer : null;
 
-  // Dedicated templates: minimal breakdown
   if (templateId !== "business-showcase" && templateId !== "corporate-vertical") {
     push("hook", Math.round(durationSec * 0.2), `Template dédié « ${templateId} » — séquences hardcodées.`, "Ouverture");
     push("media", Math.round(durationSec * 0.5), "Séquences visuelles emblématiques du template.", "Contenu");
     push("cta", Math.round(durationSec * 0.3), "Appel à l'action final.");
     return normalize(scenes, durationSec, cursor);
   }
-
   if (templateId === "corporate-vertical") {
     push("hook", Math.round(durationSec * 0.15), "Ouverture corporate One World Morocco.");
     push("media", Math.round(durationSec * 0.35), "Modèle économique et villes pionnières.", "Modèle");
@@ -167,18 +162,14 @@ export function scenarioFromTemplateProps(
     return normalize(scenes, durationSec, cursor);
   }
 
-  // business-showcase
   push("hook", Math.max(2, Math.round(durationSec * 0.12)), hook ? `Accroche : « ${hook} »` : `Accroche immersive sur ${name}.`);
   push("name", Math.max(2, Math.round(durationSec * 0.1)), tagline ? `${name} — ${tagline}` : `Affichage du nom ${name}.`);
-
-  const mediaCount = videos.length + images.length;
   const mediaLabel = videos.length > 0
     ? `Montage de ${videos.length} vidéo${videos.length > 1 ? "s" : ""} de l'établissement.`
     : images.length > 0
       ? `Montage de ${images.length} image${images.length > 1 ? "s" : ""} de l'établissement.`
       : "Aucun média sélectionné — placeholder.";
   push("media", Math.max(3, Math.round(durationSec * (offer ? 0.18 : 0.28))), mediaLabel);
-
   if (offer) {
     const parts: string[] = [];
     if (offer.title) parts.push(offer.title);
@@ -188,27 +179,16 @@ export function scenarioFromTemplateProps(
     const bg = offer.background_video_url ? " (fond vidéo)" : offer.background_image_url ? " (fond image)" : "";
     push("offer", Math.max(4, Math.round(durationSec * 0.22)), `${desc}${bg}${lines.length ? ` — ${lines.length} ligne${lines.length > 1 ? "s" : ""}` : ""}.`);
   }
-
   if (props?.showReviews) {
     const rating = props.rating ? ` (${props.rating}/5)` : "";
     const count = props.reviewsCount ? ` · ${props.reviewsCount} avis` : "";
     push("reviews", Math.max(2, Math.round(durationSec * 0.08)), `Badge avis clients${rating}${count}.`);
   }
-  if (props?.showOpeningHours) {
-    push("hours", Math.max(2, Math.round(durationSec * 0.07)), "Horaires d'ouverture en surimpression.");
-  }
-  if (props?.showMap) {
-    push("map", Math.max(2, Math.round(durationSec * 0.09)), `Marqueur Google Map${props.address ? ` — ${String(props.address).slice(0, 60)}` : ""}.`);
-  }
-  if (props?.showDigitalId) {
-    push("digital", Math.max(2, Math.round(durationSec * 0.1)), "ID numérique : capture fiche, partage, QR code.");
-  }
-
+  if (props?.showOpeningHours) push("hours", Math.max(2, Math.round(durationSec * 0.07)), "Horaires d'ouverture en surimpression.");
+  if (props?.showMap) push("map", Math.max(2, Math.round(durationSec * 0.09)), `Marqueur Google Map${props.address ? ` — ${String(props.address).slice(0, 60)}` : ""}.`);
+  if (props?.showDigitalId) push("digital", Math.max(2, Math.round(durationSec * 0.1)), "ID numérique : capture fiche, partage, QR code.");
   push("cta", Math.max(2, Math.round(durationSec * 0.1)), props?.showAppInstall ? "CTA final + incitation à installer l'app." : "CTA final vers la fiche ou le contact.");
-  if (props?.showAppInstall) {
-    push("outro", Math.max(2, Math.round(durationSec * 0.06)), "Outro logo + installation de l'app.");
-  }
-
+  if (props?.showAppInstall) push("outro", Math.max(2, Math.round(durationSec * 0.06)), "Outro logo + installation de l'app.");
   return normalize(scenes, durationSec, cursor);
 }
 
@@ -219,56 +199,79 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
   return { scenes: scaled, totalDuration: total };
 }
 
+function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
+  if (icon === "hook" || icon === "name" || icon === "media" || icon === "offer" || icon === "outro") return icon;
+  return null;
+}
+
 export function StudioVideoScenarioPanel({
   scenario,
   className,
+  availableMedia,
+  sceneMedia,
+  onChangeSceneMedia,
 }: {
   scenario: Scenario;
   className?: string;
+  availableMedia?: SceneMediaItem[];
+  sceneMedia?: SceneMediaMap;
+  onChangeSceneMedia?: (next: SceneMediaMap) => void;
 }) {
   const total = scenario.totalDuration;
   if (!scenario.scenes.length) return null;
+
+  const editable = !!onChangeSceneMedia && !!availableMedia;
+  const setForKind = (kind: SceneMediaKind, items: SceneMediaItem[]) => {
+    if (!onChangeSceneMedia) return;
+    const next: SceneMediaMap = { ...(sceneMedia ?? {}) };
+    if (items.length === 0) delete next[kind];
+    else next[kind] = items;
+    onChangeSceneMedia(next);
+  };
 
   return (
     <div className={cn("rounded-xl border border-border bg-card p-6 space-y-5", className)}>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-card-foreground">Aperçu du scénario</h3>
-        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-tight italic">
-          AI Optimized
-        </span>
+        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-tight italic">AI Optimized</span>
       </div>
 
       <div className="space-y-3">
-        {scenario.scenes.map((scene) => (
-          <div
-            key={scene.id}
-            className="relative bg-background rounded-xl border border-border p-4 overflow-hidden hover:border-primary/40 transition-colors"
-          >
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/80" />
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-primary">
-                {ICONS[scene.icon]}
-                <span>{scene.label}</span>
+        {scenario.scenes.map((scene) => {
+          const kind = sceneKindFor(scene.icon);
+          const items = kind ? (sceneMedia?.[kind] ?? []) : [];
+          return (
+            <div key={scene.id} className="relative bg-background rounded-xl border border-border p-4 overflow-hidden hover:border-primary/40 transition-colors">
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/80" />
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-primary">
+                  {ICONS[scene.icon]}
+                  <span>{scene.label}</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground">
+                  {formatTime(scene.start)} - {formatTime(scene.start + scene.duration)}
+                </span>
               </div>
-              <span className="text-[10px] text-muted-foreground">
-                {formatTime(scene.start)} - {formatTime(scene.start + scene.duration)}
-              </span>
+              <p className="text-sm text-muted-foreground leading-relaxed italic">{scene.description}</p>
+              {scene.keywords.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {scene.keywords.map((k) => (
+                    <span key={k} className="text-[10px] bg-secondary/10 text-secondary-foreground px-2 py-0.5 rounded border border-secondary/20">#{k}</span>
+                  ))}
+                </div>
+              )}
+
+              {editable && kind && (
+                <SceneMediaSlot
+                  kind={kind}
+                  items={items}
+                  available={availableMedia!}
+                  onChange={(next) => setForKind(kind, next)}
+                />
+              )}
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed italic">{scene.description}</p>
-            {scene.keywords.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {scene.keywords.map((k) => (
-                  <span
-                    key={k}
-                    className="text-[10px] bg-secondary/10 text-secondary-foreground px-2 py-0.5 rounded border border-secondary/20"
-                  >
-                    #{k}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="bg-muted/30 rounded-xl border border-border p-4 space-y-3">
@@ -280,26 +283,130 @@ export function StudioVideoScenarioPanel({
           {scenario.scenes.map((scene) => {
             const width = total > 0 ? Math.max(4, (scene.duration / total) * 100) : 0;
             return (
-              <div
-                key={scene.id}
-                className="relative flex flex-col justify-center px-2 rounded-md border border-border bg-muted/50 hover:bg-muted transition-colors cursor-pointer overflow-hidden"
-                style={{ width: `${width}%`, minWidth: "48px" }}
-                title={`${scene.label} · ${scene.duration}s`}
-              >
+              <div key={scene.id} className="relative flex flex-col justify-center px-2 rounded-md border border-border bg-muted/50 hover:bg-muted transition-colors cursor-pointer overflow-hidden" style={{ width: `${width}%`, minWidth: "48px" }} title={`${scene.label} · ${scene.duration}s`}>
                 <span className="text-[9px] font-bold truncate text-foreground">{scene.label}</span>
                 <div className="h-1 mt-1 rounded-full bg-primary/60" />
               </div>
             );
           })}
         </div>
-        <div className="flex justify-between text-[8px] text-muted-foreground font-mono">
-          <span>00:00s</span>
-          <span>{formatTime(total / 4)}</span>
-          <span>{formatTime(total / 2)}</span>
-          <span>{formatTime((total * 3) / 4)}</span>
-          <span>{formatTime(total)}</span>
-        </div>
       </div>
+    </div>
+  );
+}
+
+function SceneMediaSlot({
+  kind,
+  items,
+  available,
+  onChange,
+}: {
+  kind: SceneMediaKind;
+  items: SceneMediaItem[];
+  available: SceneMediaItem[];
+  onChange: (next: SceneMediaItem[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
+  const move = (idx: number, dir: -1 | 1) => {
+    const j = idx + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = items.slice();
+    [next[idx], next[j]] = [next[j], next[idx]];
+    onChange(next);
+  };
+  const toggle = (item: SceneMediaItem) => {
+    const exists = items.findIndex((i) => i.url === item.url);
+    if (exists >= 0) onChange(items.filter((_, i) => i !== exists));
+    else onChange([...items, item]);
+  };
+
+  return (
+    <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          Médias assignés · {items.length}
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" variant="outline" className="h-7 gap-1 text-[11px]" disabled={available.length === 0}>
+              <Plus className="h-3 w-3" /> Ajouter
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Sélection médias — {kind}</DialogTitle>
+            </DialogHeader>
+            {available.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Aucun média disponible pour cet établissement.</p>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {available.map((m) => {
+                  const selected = items.some((i) => i.url === m.url);
+                  return (
+                    <button
+                      key={m.url}
+                      type="button"
+                      onClick={() => toggle(m)}
+                      className={cn(
+                        "relative aspect-video rounded-md overflow-hidden border-2 group",
+                        selected ? "border-primary" : "border-transparent hover:border-primary/40"
+                      )}
+                    >
+                      {m.kind === "video" ? (
+                        m.thumbnail ? (
+                          <img src={m.thumbnail} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-muted flex items-center justify-center">
+                            <Film className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )
+                      ) : (
+                        <img src={m.url} alt="" className="w-full h-full object-cover" />
+                      )}
+                      <div className="absolute top-1 left-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold uppercase flex items-center gap-1">
+                        {m.kind === "video" ? <Film className="h-2.5 w-2.5" /> : <ImageIcon className="h-2.5 w-2.5" />}
+                        {m.kind}
+                      </div>
+                      {selected && (
+                        <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
+                          <div className="rounded-full bg-primary text-primary-foreground text-xs font-bold w-6 h-6 flex items-center justify-center">
+                            {items.findIndex((i) => i.url === m.url) + 1}
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <div className="flex justify-end pt-2">
+              <Button size="sm" onClick={() => setOpen(false)}>Fermer</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+      {items.length === 0 ? (
+        <p className="text-[11px] text-muted-foreground italic">Aucun média assigné — le rendu utilisera la sélection globale ou l'auto-choix IA.</p>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {items.map((m, idx) => (
+            <div key={`${m.url}-${idx}`} className="relative group w-24 h-16 rounded overflow-hidden border border-border">
+              {m.kind === "video" ? (
+                m.thumbnail ? <img src={m.thumbnail} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Film className="h-4 w-4 text-muted-foreground" /></div>
+              ) : (
+                <img src={m.url} alt="" className="w-full h-full object-cover" />
+              )}
+              <div className="absolute top-0.5 left-0.5 text-[8px] px-1 rounded bg-black/70 text-white font-bold">{idx + 1}</div>
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 flex items-center justify-center gap-1">
+                <button type="button" onClick={() => move(idx, -1)} className="p-1 rounded bg-white/20 hover:bg-white/40 disabled:opacity-30" disabled={idx === 0} aria-label="Reculer"><ChevronLeft className="h-3 w-3 text-white" /></button>
+                <button type="button" onClick={() => remove(idx)} className="p-1 rounded bg-red-500/70 hover:bg-red-500" aria-label="Retirer"><X className="h-3 w-3 text-white" /></button>
+                <button type="button" onClick={() => move(idx, 1)} className="p-1 rounded bg-white/20 hover:bg-white/40 disabled:opacity-30" disabled={idx === items.length - 1} aria-label="Avancer"><ChevronRight className="h-3 w-3 text-white" /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

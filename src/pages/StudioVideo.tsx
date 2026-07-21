@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario } from "@/components/StudioVideoScenarioPanel";
+import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem } from "@/components/StudioVideoScenarioPanel";
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
 import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
 import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
@@ -219,6 +219,15 @@ export default function StudioVideo() {
   const [popupImageUrl, setPopupImageUrl] = useState<string | null>(null);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
+  const [sceneMedia, setSceneMedia] = useState<SceneMediaMap>({});
+
+  const availableSceneMedia = useMemo<SceneMediaItem[]>(() => {
+    const imgs: SceneMediaItem[] = bizImages.map((url) => ({ url, kind: "image" }));
+    const vids: SceneMediaItem[] = bizVideos
+      .filter((v) => v.kind === "file")
+      .map((v) => ({ url: v.url, kind: "video", title: v.title, thumbnail: v.thumbnail }));
+    return [...imgs, ...vids];
+  }, [bizImages, bizVideos]);
 
   // Combined media list for the lightbox slideshow (images first, then videos)
   const mediaItems = useMemo(() => {
@@ -265,12 +274,14 @@ export default function StudioVideo() {
       setBizVideos([]);
       setSelectedImages(new Set());
       setSelectedVideos(new Set());
+      setSceneMedia({});
       return;
     }
     let cancelled = false;
     setStatsLoading(true);
     setSelectedImages(new Set());
     setSelectedVideos(new Set());
+    setSceneMedia({});
     (async () => {
       const [biz, docs, yt, promos] = await Promise.all([
         supabase
@@ -496,6 +507,7 @@ export default function StudioVideo() {
             install_cta: optInstallCta,
             selected_images: chosenImages,
             selected_videos: chosenVideos,
+            scene_media: sceneMedia,
           },
         },
       });
@@ -553,6 +565,7 @@ export default function StudioVideo() {
             install_cta: optInstallCta,
             selected_images: chosenImages,
             selected_videos: chosenVideos,
+            scene_media: sceneMedia,
           },
         },
       });
@@ -1211,10 +1224,20 @@ export default function StudioVideo() {
               {aiScenario.rationale && (
                 <p className="text-xs italic text-muted-foreground">{aiScenario.rationale}</p>
               )}
-              <StudioVideoScenarioPanel scenario={aiScenario.scenario} />
+              <StudioVideoScenarioPanel
+                scenario={aiScenario.scenario}
+                availableMedia={availableSceneMedia}
+                sceneMedia={sceneMedia}
+                onChangeSceneMedia={setSceneMedia}
+              />
             </div>
           ) : scenario ? (
-            <StudioVideoScenarioPanel scenario={scenario} />
+            <StudioVideoScenarioPanel
+              scenario={scenario}
+              availableMedia={availableSceneMedia}
+              sceneMedia={sceneMedia}
+              onChangeSceneMedia={setSceneMedia}
+            />
           ) : null}
 
           {currentJob && (
