@@ -954,6 +954,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   scene_media,
   scene_order,
   scene_durations,
+  custom_scenes,
   textPosition = "middle",
   tone = "immersif",
 }) => {
