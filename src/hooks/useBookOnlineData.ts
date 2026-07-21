@@ -798,7 +798,7 @@ export function useBookOnlineData(businessId: string) {
     return () => {
       isCancelled = true;
     };
-  }, [businessId]);
+  }, [businessId, language]);
 
   // Persist to cache once all data is loaded (including secondary fetches)
   useEffect(() => {
