@@ -509,6 +509,8 @@ export default function StudioVideo() {
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
+            scene_order: scenarioEdits?.order,
+            scene_durations: scenarioEdits?.durations,
           },
         },
       });
