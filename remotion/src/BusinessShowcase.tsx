@@ -44,6 +44,7 @@ export type ShowcaseProps = {
   ficheScreenshotUrl?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
+  scene_media?: Partial<Record<"hook" | "name" | "media" | "offer" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
