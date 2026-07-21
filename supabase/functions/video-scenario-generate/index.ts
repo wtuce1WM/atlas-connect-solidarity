@@ -538,6 +538,17 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
     }
 
+    if (preview_only) {
+      return json({
+        preview: true,
+        template_id,
+        template_props,
+        resolved_business_id,
+        rationale: parsed.rationale,
+        duration_sec,
+      });
+    }
+
     const { data: job, error } = await supa
       .from("video_jobs")
       .insert({
