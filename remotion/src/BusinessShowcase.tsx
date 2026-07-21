@@ -191,12 +191,18 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
   };
   const durations = order.map(durationFor);
 
-  // Stretch CTA to reach requested total if not explicitly overridden
+  // Stretch CTA to reach requested total ONLY when no explicit per-scene durations were provided.
+  // If the user edited the scenario timings (scene_durations present), honor the sum as-is —
+  // do not inflate the CTA to fill the remaining time.
+  const hasAnyDurationOverride = !!p.scene_durations && Object.values(p.scene_durations).some(
+    (v) => v != null && Number.isFinite(Number(v)) && Number(v) > 0
+  );
+  const hasCustomScenes = Array.isArray(p.custom_scenes) && p.custom_scenes.length > 0;
   const requestedFrames = Number.isFinite(p.durationSec) && p.durationSec
     ? Math.round(Number(p.durationSec) * 30)
     : SHOWCASE_TOTAL_FRAMES;
   const ctaIdx = order.findIndex((t) => t.kind === "cta");
-  if (ctaIdx >= 0 && durOverride("cta") == null) {
+  if (ctaIdx >= 0 && durOverride("cta") == null && !hasAnyDurationOverride && !hasCustomScenes) {
     const nonCta = durations.reduce((acc, d, i) => (i === ctaIdx ? acc : acc + d), 0);
     durations[ctaIdx] = Math.max(150, requestedFrames - nonCta);
   }
