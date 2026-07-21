@@ -16,6 +16,16 @@ import { display, body, COLORS } from "./theme";
 export const SHOWCASE_TOTAL_FRAMES = 660;
 export const OPTION_SCENE_FRAMES = 90; // 3s par scène optionnelle
 
+export type TextPosition = "top" | "middle" | "bottom";
+
+const textPositionStyle = (position: TextPosition = "middle"): React.CSSProperties => {
+  switch (position) {
+    case "top": return { justifyContent: "flex-start", paddingTop: 100, paddingBottom: 40 };
+    case "bottom": return { justifyContent: "flex-end", paddingTop: 40, paddingBottom: 140 };
+    default: return { justifyContent: "center", paddingTop: 60, paddingBottom: 60 };
+  }
+};
+
 export type ShowcaseProps = {
   name?: string;
   hook?: string;
@@ -47,6 +57,7 @@ export type ShowcaseProps = {
   scene_media?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
   scene_order?: Array<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro">;
   scene_durations?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", number>>;
+  textPosition?: TextPosition;
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
@@ -873,6 +884,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   scene_media,
   scene_order,
   scene_durations,
+  textPosition = "middle",
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
