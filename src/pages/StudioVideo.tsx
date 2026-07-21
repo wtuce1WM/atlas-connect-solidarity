@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import { StudioVideoScenarioPanel, buildScenario, extractKeywords } from "@/components/StudioVideoScenarioPanel";
+import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario } from "@/components/StudioVideoScenarioPanel";
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
 import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
 import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
@@ -180,6 +180,8 @@ export default function StudioVideo() {
   const [tone, setTone] = useState("immersif");
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
+  const [aiScenario, setAiScenario] = useState<{ scenario: Scenario; rationale?: string; templateId: string } | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [businessNames, setBusinessNames] = useState<Record<string, string>>({});
   const [currentJobId, setCurrentJobIdState] = useState<string | null>(
@@ -508,6 +510,61 @@ export default function StudioVideo() {
       toast.error(e.message ?? "Erreur lors de la génération.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const buildDirectivesPrompt = () => {
+    const directives: string[] = [];
+    if (optReviews) directives.push("Faire figurer le compteur d'avis client et le badge des avis client (note/20 + nombre d'avis).");
+    if (optHours) directives.push("Faire figurer les horaires d'ouverture de l'établissement.");
+    if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
+    if (optDigitalId) directives.push("Insérer une courte séquence ID numérique (capture mock-up de la fiche /fiche/slug, étape de partage, puis QR code) AVANT l'incitation finale.");
+    if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
+    const chosenImages = Array.from(selectedImages);
+    const chosenVideos = Array.from(selectedVideos);
+    if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
+    if (chosenVideos.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les vidéos suivantes (dans cet ordre) pour le montage :\n  * ${chosenVideos.join("\n  * ")}`);
+    const finalPrompt = directives.length ? `${prompt.trim()}\n\nContraintes supplémentaires :\n- ${directives.join("\n- ")}` : prompt.trim();
+    return { finalPrompt, chosenImages, chosenVideos };
+  };
+
+  const previewScenario = async () => {
+    if (previewing || submitting) return;
+    if (!prompt.trim()) {
+      toast.error("Décrivez la vidéo souhaitée.");
+      return;
+    }
+    setPreviewing(true);
+    try {
+      const { finalPrompt, chosenImages, chosenVideos } = buildDirectivesPrompt();
+      const { data, error } = await supabase.functions.invoke("video-scenario-generate", {
+        body: {
+          prompt: finalPrompt,
+          business_id: selected?.id ?? null,
+          duration_sec: duration,
+          tone,
+          parent_job_id: refineFrom?.id ?? null,
+          preview_only: true,
+          options: {
+            reviews: optReviews,
+            hours: optHours,
+            map_marker: optMapMarker,
+            digital_id: optDigitalId,
+            install_cta: optInstallCta,
+            selected_images: chosenImages,
+            selected_videos: chosenVideos,
+          },
+        },
+      });
+      if (error) throw error;
+      const payload = data as any;
+      const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? duration, payload.rationale);
+      setAiScenario({ scenario, rationale: payload.rationale, templateId: payload.template_id });
+      toast.success("Scénario IA généré.");
+    } catch (e: any) {
+      toast.error(e.message ?? "Erreur lors de la prévisualisation.");
+    } finally {
+      setPreviewing(false);
     }
   };
 
@@ -1133,15 +1190,32 @@ export default function StudioVideo() {
               </div>
             </div>
 
-            <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
-              {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-              {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={previewScenario} disabled={previewing || submitting} variant="secondary" className="gap-2">
+                {previewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                Prévisualiser le scénario (IA)
+              </Button>
+              <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
+                {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
+              </Button>
+            </div>
           </section>
 
-          {scenario && (
+          {aiScenario ? (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Scénario IA · template {aiScenario.templateId}</span>
+                <Button size="sm" variant="ghost" onClick={() => setAiScenario(null)} className="h-7 text-xs">Effacer</Button>
+              </div>
+              {aiScenario.rationale && (
+                <p className="text-xs italic text-muted-foreground">{aiScenario.rationale}</p>
+              )}
+              <StudioVideoScenarioPanel scenario={aiScenario.scenario} />
+            </div>
+          ) : scenario ? (
             <StudioVideoScenarioPanel scenario={scenario} />
-          )}
+          ) : null}
 
           {currentJob && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-3">
