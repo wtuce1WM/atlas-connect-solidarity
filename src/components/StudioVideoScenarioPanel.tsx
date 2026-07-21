@@ -9,7 +9,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export type SceneMediaKind = "hook" | "name" | "media" | "offer" | "outro";
+export type SceneMediaKind = "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
 
 export type SceneMediaItem = {
   url: string;
@@ -20,7 +20,7 @@ export type SceneMediaItem = {
 
 export type SceneMediaMap = Partial<Record<SceneMediaKind, SceneMediaItem[]>>;
 
-export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["hook", "name", "media", "offer", "outro"];
+export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"];
 
 export type Scene = {
   id: string;
@@ -200,8 +200,7 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 }
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "hook" || icon === "name" || icon === "media" || icon === "offer" || icon === "outro") return icon;
-  return null;
+  return icon as SceneMediaKind;
 }
 
 export function StudioVideoScenarioPanel({
