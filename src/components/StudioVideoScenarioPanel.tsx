@@ -728,9 +728,9 @@ function CustomSceneDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg bg-white text-black">
         <DialogHeader>
-          <DialogTitle>{initial ? "Modifier l'étape" : "Ajouter une étape texte"}</DialogTitle>
+          <DialogTitle className="text-black">{initial ? "Modifier l'étape" : "Ajouter une étape texte"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
