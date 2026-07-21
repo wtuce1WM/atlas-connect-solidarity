@@ -351,9 +351,37 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       if (args.category) {
         const cv = clean(args.category);
         if (cv) {
-          orParts.push(`main_category.ilike.%${cv}%`);
+          // Alias FR ↔ EN ↔ variantes sans accent pour matcher les valeurs réelles en base
+          // (ex: 'hotel' → 'Hôtellerie', 'restaurant' → 'Restauration', 'activité' → 'Sport & Loisirs' / 'Tourisme')
+          const CATEGORY_ALIASES: Record<string, string[]> = {
+            hotel: ["hôtel", "hotell", "hébergement"],
+            hôtel: ["hotell", "hébergement"],
+            hotels: ["hôtel", "hotell"],
+            hébergement: ["hôtel", "hotell"],
+            restaurant: ["restaur"],
+            restaurants: ["restaur"],
+            bar: ["bar", "café", "cafe"],
+            café: ["cafe", "bar"],
+            cafe: ["café", "bar"],
+            activité: ["sport", "loisir", "tourisme"],
+            activite: ["sport", "loisir", "tourisme"],
+            activités: ["sport", "loisir", "tourisme"],
+            spa: ["bien-être", "bien être", "bien-etre"],
+            "bien-être": ["spa", "bien-etre"],
+            shopping: ["commerce"],
+            commerce: ["commerce"],
+          };
+          const terms = new Set<string>([cv]);
           const firstWord = cv.split(/\s+/)[0];
-          if (firstWord && firstWord !== cv) orParts.push(`main_category.ilike.%${firstWord}%`);
+          if (firstWord) terms.add(firstWord);
+          for (const t of Array.from(terms)) {
+            const aliases = CATEGORY_ALIASES[t.toLowerCase()];
+            if (aliases) aliases.forEach((a) => terms.add(a));
+          }
+          for (const t of terms) {
+            const safe = t.replace(/,/g, " ");
+            orParts.push(`main_category.ilike.%${safe}%`);
+          }
         }
       }
       if (orParts.length) q = q.or(orParts.join(","));
