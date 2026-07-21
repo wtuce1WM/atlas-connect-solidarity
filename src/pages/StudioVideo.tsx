@@ -590,6 +590,7 @@ export default function StudioVideo() {
             scene_media: sceneMedia,
             scene_order: scenarioEdits?.order,
             scene_durations: scenarioEdits?.durations,
+            custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
           },
 
