@@ -1238,6 +1238,101 @@ export default function StudioVideo() {
             <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
               <Label className="text-sm">Éléments à inclure dans la vidéo</Label>
               <div className="flex flex-col gap-2 text-sm">
+                {popupImageUrl && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                        checked={optPopup}
+                        onChange={(e) => setOptPopup(e.target.checked)}
+                      />
+                      <span className="font-medium">Image POPUP de bienvenue (titre + texte)</span>
+                    </label>
+                    <div className={`mt-2 flex gap-3 ${optPopup ? "opacity-100" : "opacity-50"}`}>
+                      <button
+                        type="button"
+                        onClick={() => setPopupPreviewOpen(true)}
+                        className="shrink-0 relative w-20 h-20 rounded-md overflow-hidden border border-border hover:ring-2 hover:ring-primary transition"
+                        title="Aperçu plein écran"
+                      >
+                        <img src={popupImageUrl} alt="Popup" className="w-full h-full object-cover" />
+                      </button>
+                      <div className="min-w-0 flex-1 text-xs">
+                        {popupMeta.title && <div className="font-semibold truncate">{popupMeta.title}</div>}
+                        {popupMeta.description ? (
+                          <div className="mt-1 text-muted-foreground line-clamp-3" dangerouslySetInnerHTML={{ __html: popupMeta.description }} />
+                        ) : (
+                          !popupMeta.title && <div className="text-muted-foreground italic">Aucun titre / texte associé</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {offersList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">Offres de l'établissement ({offersList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button
+                          type="button"
+                          className="underline hover:text-primary"
+                          onClick={() => setSelectedOfferIds(new Set(offersList.map((o) => o.id)))}
+                        >
+                          Tout
+                        </button>
+                        <button
+                          type="button"
+                          className="underline hover:text-primary"
+                          onClick={() => setSelectedOfferIds(new Set())}
+                        >
+                          Aucun
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {offersList.map((o) => {
+                        const checked = selectedOfferIds.has(o.id);
+                        const amount = o.promotion_type === "percentage" && o.promotion_value != null
+                          ? `-${o.promotion_value}%`
+                          : o.promotion_type === "fixed" && o.promotion_value != null
+                            ? `-${o.promotion_value} ${o.promotion_currency || "MAD"}`
+                            : o.savings_amount != null
+                              ? `-${o.savings_amount} ${o.promotion_currency || "MAD"}`
+                              : null;
+                        return (
+                          <label key={o.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                            <input
+                              type="checkbox"
+                              className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                              checked={checked}
+                              onChange={(e) => {
+                                setSelectedOfferIds((prev) => {
+                                  const next = new Set(prev);
+                                  if (e.target.checked) next.add(o.id);
+                                  else next.delete(o.id);
+                                  return next;
+                                });
+                              }}
+                            />
+                            <div className="min-w-0 flex-1 text-xs">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-semibold truncate">{o.title}</span>
+                                {amount && <span className="shrink-0 font-black text-[#C04F17]">{amount}</span>}
+                              </div>
+                              {o.message && (
+                                <div
+                                  className="mt-1 text-muted-foreground line-clamp-2"
+                                  dangerouslySetInnerHTML={{ __html: o.message }}
+                                />
+                              )}
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
                   <span>Compteur d'avis client + badge avis (note/20)</span>
