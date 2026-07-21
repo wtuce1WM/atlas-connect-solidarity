@@ -1016,9 +1016,58 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     durationSec,
     scene_order,
     scene_durations,
+    custom_scenes,
   });
 
-  const renderScene = (kind: SceneKind, duration: number): React.ReactNode => {
+  const customById = new Map<string, NonNullable<ShowcaseProps["custom_scenes"]>[number]>();
+  for (const c of custom_scenes ?? []) customById.set(c.id, c);
+
+  const renderScene = (item: ScenePlanItem): React.ReactNode => {
+    const { kind, customId, duration } = item;
+    if (kind === "custom") {
+      const c = customId ? customById.get(customId) : undefined;
+      if (!c) return null;
+      const backdrop = c.media;
+      const align = textPositionStyle(textPosition);
+      return (
+        <AbsoluteFill>
+          {backdrop
+            ? (backdrop.kind === "video"
+                ? <VideoCover src={backdrop.url} from={0} duration={duration} />
+                : <VideoBackdrop image={backdrop.url} />)
+            : <AbsoluteFill style={{ backgroundColor: COLORS.night }} />}
+          {c.mode === "overlay" && (
+            <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.7) 100%)" }} />
+          )}
+          <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
+            <div style={{
+              color: "#fff",
+              fontFamily: BRAND_FONT_DISPLAY,
+              fontSize: 68,
+              fontWeight: 800,
+              lineHeight: 1.1,
+              textAlign: "center",
+              textShadow: "0 4px 24px rgba(0,0,0,0.55)",
+            }}>{c.title}</div>
+            {c.subtitle && (
+              <div style={{
+                marginTop: 20,
+                color: "rgba(255,255,255,0.92)",
+                fontFamily: BRAND_FONT_BODY,
+                fontSize: 34,
+                lineHeight: 1.3,
+                textAlign: "center",
+                textShadow: "0 2px 12px rgba(0,0,0,0.5)",
+              }}>{c.subtitle}</div>
+            )}
+          </AbsoluteFill>
+        </AbsoluteFill>
+      );
+    }
+    return renderBuiltinScene(kind as SceneKind, duration);
+  };
+
+  const renderBuiltinScene = (kind: SceneKind, duration: number): React.ReactNode => {
     switch (kind) {
       case "hook":
         return heroIsVideo && heroMedia ? (
