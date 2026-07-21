@@ -33,7 +33,7 @@ const ClubAiSuggestionsManagement = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("club_ai_suggestions")
-      .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active")
+      .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar")
       .order("sort_order", { ascending: true });
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((data as Row[]) || []);
