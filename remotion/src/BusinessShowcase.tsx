@@ -45,6 +45,8 @@ export type ShowcaseProps = {
   durationSec?: number;
   useFullHookScene?: boolean;
   scene_media?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
+  scene_order?: Array<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro">;
+  scene_durations?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", number>>;
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
